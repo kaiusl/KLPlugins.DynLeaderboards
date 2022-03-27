@@ -78,7 +78,7 @@ namespace KLPlugins.Leaderboard.ksBroadcastingNetwork {
 
         // To avoid huge UDP pakets for longer entry lists, we will first receive the indexes of cars and drivers,
         // cache the entries and wait for the detailled updates
-        List<CarInfo> _entryListCars = new List<CarInfo>();
+        public List<CarInfo> EntryListCars = new List<CarInfo>();
 
         #endregion
 
@@ -122,13 +122,13 @@ namespace KLPlugins.Leaderboard.ksBroadcastingNetwork {
                     break;
                 case InboundMessageTypes.ENTRY_LIST:
                     {
-                        _entryListCars.Clear();
+                        EntryListCars.Clear();
 
                         var connectionId = br.ReadInt32();
                         var carEntryCount = br.ReadUInt16();
                         for (int i = 0; i < carEntryCount; i++)
                         {
-                            _entryListCars.Add(new CarInfo(br.ReadUInt16()));
+                            EntryListCars.Add(new CarInfo(br.ReadUInt16()));
                         }
 
                         OnNewEntrylist?.Invoke(ConnectionIdentifier);
@@ -139,7 +139,7 @@ namespace KLPlugins.Leaderboard.ksBroadcastingNetwork {
                         
                         var carId = br.ReadUInt16();
 
-                        var carInfo = _entryListCars.SingleOrDefault(x => x.CarIndex == carId);
+                        var carInfo = EntryListCars.SingleOrDefault(x => x.CarIndex == carId);
                         if(carInfo == null)
                         {
                             System.Diagnostics.Debug.WriteLine($"Entry list update for unknown carIndex {carId}");
@@ -235,7 +235,7 @@ namespace KLPlugins.Leaderboard.ksBroadcastingNetwork {
                         carUpdate.CurrentLap = ReadLap(br);
 
                         // the concept is: "don't know a car or driver? ask for an entry list update"
-                        var carEntry = _entryListCars.FirstOrDefault(x => x.CarIndex == carUpdate.CarIndex);
+                        var carEntry = EntryListCars.FirstOrDefault(x => x.CarIndex == carUpdate.CarIndex);
                         if(carEntry == null || carEntry.Drivers.Count != carUpdate.DriverCount)
                         {
                             if ((DateTime.Now - lastEntrylistRequest).TotalSeconds > 1)
@@ -298,7 +298,7 @@ namespace KLPlugins.Leaderboard.ksBroadcastingNetwork {
                             CarId = br.ReadInt32(),
                         };
 
-                        evt.CarData = _entryListCars.FirstOrDefault(x => x.CarIndex == evt.CarId);
+                        evt.CarData = EntryListCars.FirstOrDefault(x => x.CarIndex == evt.CarId);
                         OnBroadcastingEvent?.Invoke(ConnectionIdentifier, evt);
                     }
                     break;
@@ -407,7 +407,7 @@ namespace KLPlugins.Leaderboard.ksBroadcastingNetwork {
         /// The client will send this automatically when something changes; however if you detect a carIndex or driverIndex, this may cure the 
         /// problem for future updates
         /// </summary>
-        private void RequestEntryList()
+        public void RequestEntryList()
         {
             using (var ms = new MemoryStream())
             using (var br = new BinaryWriter(ms))

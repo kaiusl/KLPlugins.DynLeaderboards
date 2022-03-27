@@ -13,7 +13,7 @@ namespace KLPlugins.Leaderboard {
     }
 
     public class Settings {
-        public string DataLocation { get; set; }
+        public string PluginDataLocation { get; set; }
         public string AccDataLocation { get; set; }
         public bool Log { get; set; }
         public int NumOverallPos { get; set; }
@@ -21,7 +21,7 @@ namespace KLPlugins.Leaderboard {
 
 
         public Settings() {
-            DataLocation = "PluginsData\\ACCBroadcastDataPlugin";
+            PluginDataLocation = "PluginsData\\KLPlugins\\Leaderboard";
             AccDataLocation = "C:\\Users\\" + Environment.UserName + "\\Documents\\Assetto Corsa Competizione";
             Log = true;
             NumOverallPos = 30;

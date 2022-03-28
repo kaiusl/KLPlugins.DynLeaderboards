@@ -108,6 +108,7 @@ namespace KLPlugins.Leaderboard {
         private void ReadSettings() {
             try {
                 Settings = JsonConvert.DeserializeObject<Settings>(File.ReadAllText(SettingsPath).Replace("\"", "'"));
+                Settings.Validate();
             } catch (Exception e) {
                 Settings = new Settings();
                 string txt = JsonConvert.SerializeObject(Settings, Formatting.Indented);
@@ -160,29 +161,32 @@ namespace KLPlugins.Leaderboard {
                 this.AttachDelegate($"{startName}.Numlaps", () => _values.GetCar(i)?.RealtimeCarUpdate?.Laps);
                 this.AttachDelegate($"{startName}.LastLap", () => _values.GetCar(i)?.RealtimeCarUpdate?.LastLap.LaptimeMS / 1000.0);
                 this.AttachDelegate($"{startName}.BestLap", () => _values.GetCar(i)?.RealtimeCarUpdate?.BestSessionLap.LaptimeMS / 1000.0);
-                this.AttachDelegate($"{startName}.CurrentDriverFirstName", () => _values.GetCar(i)?.GetCurrentDriver().FirstName);
-                this.AttachDelegate($"{startName}.CurrentDriverLastName", () => _values.GetCar(i)?.GetCurrentDriver().LastName);
-                this.AttachDelegate($"{startName}.CurrentDriverShortName", () => _values.GetCar(i)?.GetCurrentDriver().ShortName);
+                //this.AttachDelegate($"{startName}.CurrentDriverFirstName", () => _values.GetCar(i)?.GetCurrentDriver().FirstName);
+                //this.AttachDelegate($"{startName}.CurrentDriverLastName", () => _values.GetCar(i)?.GetCurrentDriver().LastName);
+                //this.AttachDelegate($"{startName}.CurrentDriverShortName", () => _values.GetCar(i)?.GetCurrentDriver().ShortName);
+                //this.AttachDelegate($"{startName}.CurrentDrivetFullName", () => _values.GetCar(i)?.GetCurrentDriver().FullName());
+                this.AttachDelegate($"{startName}.CurrentDriverInitialPlusLastName", () => _values.GetCar(i)?.GetCurrentDriver().InitialPlusLastName());
+                //this.AttachDelegate($"{startName}.CurrentDrivetInitials", () => _values.GetCar(i)?.GetCurrentDriver().Initials());
                 this.AttachDelegate($"{startName}.CarNumber", () => _values.GetCar(i)?.Info.RaceNumber);
                 this.AttachDelegate($"{startName}.CarModel", () => _values.GetCar(i)?.Info.CarModelType.ToPrettyString());
-                this.AttachDelegate($"{startName}.CarMark", () => _values.GetCar(i)?.Info.CarModelType.GetMark());
-                this.AttachDelegate($"{startName}.Class", () => _values.GetCar(i)?.Info.CarClass);
+                //this.AttachDelegate($"{startName}.CarMark", () => _values.GetCar(i)?.Info.CarModelType.GetMark());
+                this.AttachDelegate($"{startName}.CarClass", () => _values.GetCar(i)?.Info.CarClass.ToString());
                 this.AttachDelegate($"{startName}.TeamName", () => _values.GetCar(i)?.Info.TeamName);
-                this.AttachDelegate($"{startName}.DeltaToBest", () => _values.GetCar(i)?.RealtimeCarUpdate?.Delta);
-                this.AttachDelegate($"{startName}.CupCategory", () => _values.GetCar(i)?.Info.CupCategory);
-               // this.AttachDelegate($"{startName}.DistToLeader", () => _values.GetCar(i)?.DistanceToLeader);
-               // this.AttachDelegate($"{startName}.DistToClassLeader", () => _values.GetCar(i)?.DistanceToClassLeader);
+                this.AttachDelegate($"{startName}.CurrentDeltaToBest", () => _values.GetCar(i)?.RealtimeCarUpdate?.Delta);
+                this.AttachDelegate($"{startName}.CupCategory", () => _values.GetCar(i)?.Info.CupCategory.ToString());
+                //this.AttachDelegate($"{startName}.DistToLeader", () => _values.GetCar(i)?.DistanceToLeader);
+                //this.AttachDelegate($"{startName}.DistToClassLeader", () => _values.GetCar(i)?.DistanceToClassLeader);
                 //this.AttachDelegate($"{startName}.DistToFocused", () => _values.GetCar(i)?.DistanceToFocused);
                 this.AttachDelegate($"{startName}.IsInPitlane", () => _values.GetCar(i)?.RealtimeCarUpdate?.CarLocation == CarLocationEnum.Pitlane ? 1 : 0);
                 this.AttachDelegate($"{startName}.GapToLeader", () => _values.GetCar(i)?.GapToLeader);
                 this.AttachDelegate($"{startName}.GapToClassLeader", () => _values.GetCar(i)?.GapToClassLeader);
                 this.AttachDelegate($"{startName}.GapToFocused", () => _values.GetCar(i)?.GapToFocused);
                 this.AttachDelegate($"{startName}.ClassPosition", () => _values.GetCar(i)?.InClassPos);
-                this.AttachDelegate($"{startName}.OverallPosition", () => i + 1);
+                //this.AttachDelegate($"{startName}.OverallPosition", () => i + 1);
             };
 
             void addOverall(int i) {
-                this.AttachDelegate($"InClass.{i + 1:00}.Idx", () => _values.PosInClassCarsIdxs[i] + 1);
+                this.AttachDelegate($"InClass.{i + 1:00}.OverallPosition", () => _values.PosInClassCarsIdxs[i] + 1);
             }
 
             for (int i = 0; i < Settings.NumOverallPos; i++) {
@@ -191,21 +195,20 @@ namespace KLPlugins.Leaderboard {
             }
 
             void addRelative(int i) {
-                this.AttachDelegate($"Relative.{i + 1:00}.Idx", () => _values.RelativePosOnTrackCarsIdxs[i] + 1);
+                this.AttachDelegate($"Relative.{i + 1:00}.OverallPosition", () => _values.RelativePosOnTrackCarsIdxs[i] + 1);
             }
 
             for (int i = 0; i < Settings.NumRelativePos * 2 + 1; i++) {
                 addRelative(i);
             }
 
-            this.AttachDelegate("Focused.Idx", () => _values.FocusedCarIdx + 1);
+            this.AttachDelegate("Focused.OverallPosition", () => _values.FocusedCarIdx + 1);
             this.AttachDelegate("Session.Phase", () => _values.RealtimeUpdate?.Phase);
-            this.AttachDelegate("Overall.BestLap", () => _values.RealtimeUpdate?.BestSessionLap?.LaptimeMS / 1000.0 ?? null);
-            this.AttachDelegate("Overall.BestLapV2", () => _values.GetBestLapCar(CarClass.Overall).RealtimeCarUpdate?.BestSessionLap?.LaptimeMS / 1000.0 ?? null);
-            this.AttachDelegate("Overall.BestLapIdx", () => _values.GetBestLapCarIdx(CarClass.Overall) + 1);
+            //this.AttachDelegate("Overall.BestLap", () => _values.RealtimeUpdate?.BestSessionLap?.LaptimeMS / 1000.0 ?? null);
+            this.AttachDelegate("Overall.BestLapCarOverallPosition", () => _values.GetBestLapCarIdx(CarClass.Overall) + 1);
 
-            this.AttachDelegate("InClass.BestLap", () => _values.GetFocusedClassBestLapCar().RealtimeCarUpdate?.BestSessionLap?.LaptimeMS / 1000.0 ?? null);
-            this.AttachDelegate("InClass.BestLapIdx", () => _values.GetFocusedClassBestLapCarIdx() + 1);
+            //this.AttachDelegate("InClass.BestLap", () => _values.GetFocusedClassBestLapCar().RealtimeCarUpdate?.BestSessionLap?.LaptimeMS / 1000.0 ?? null);
+            this.AttachDelegate("InClass.BestLapCarOverallPosition", () => _values.GetFocusedClassBestLapCarIdx() + 1);
 
         }
 

@@ -122,6 +122,7 @@ namespace KLPlugins.Leaderboard.ksBroadcastingNetwork {
                     break;
                 case InboundMessageTypes.ENTRY_LIST:
                     {
+                        LeaderboardPlugin.LogInfo("Recieved entry list update");
                         EntryListCars.Clear();
 
                         var connectionId = br.ReadInt32();
@@ -238,7 +239,7 @@ namespace KLPlugins.Leaderboard.ksBroadcastingNetwork {
                         var carEntry = EntryListCars.FirstOrDefault(x => x.CarIndex == carUpdate.CarIndex);
                         if(carEntry == null || carEntry.Drivers.Count != carUpdate.DriverCount)
                         {
-                            if ((DateTime.Now - lastEntrylistRequest).TotalSeconds > 1)
+                            if ((DateTime.Now - lastEntrylistRequest).TotalSeconds > 5)
                             {
                                 lastEntrylistRequest = DateTime.Now;
                                 RequestEntryList();

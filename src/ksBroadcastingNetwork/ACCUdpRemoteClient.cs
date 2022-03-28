@@ -2,11 +2,13 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
 using KLPlugins.Leaderboard;
+using Newtonsoft.Json;
 
 namespace KLPlugins.Leaderboard.ksBroadcastingNetwork {
     public class ACCUdpRemoteClient : IDisposable
@@ -40,8 +42,10 @@ namespace KLPlugins.Leaderboard.ksBroadcastingNetwork {
             MessageHandler.OnConnectionStateChanged += OnBroadcastConnectionStateChanged;
 
             LeaderboardPlugin.LogInfo("Requested broadcast connection");
-            _listenerTask = ConnectAndRun();
+            _listenerTask = Connect();
         }
+
+        public ACCUdpRemoteClient(ACCUdpRemoteClientConfig cfg) : this(cfg.Ip, cfg.Port, cfg.DisplayName, cfg.ConnectionPassword, cfg.CommandPassword, cfg.UpdateIntervalMs) { }
 
         private void Send(byte[] payload)
         {
@@ -50,7 +54,7 @@ namespace KLPlugins.Leaderboard.ksBroadcastingNetwork {
 
         public void Shutdown()
         {
-            ShutdownAsnyc().ContinueWith(t =>
+            ShutdownAsync().ContinueWith(t =>
              {
                  if (t.Exception?.InnerExceptions?.Any() == true)
                      LeaderboardPlugin.LogError($"Client shut down with {t.Exception.InnerExceptions.Count} errors");
@@ -60,7 +64,7 @@ namespace KLPlugins.Leaderboard.ksBroadcastingNetwork {
              });
         }
 
-        public async Task ShutdownAsnyc()
+        public async Task ShutdownAsync()
         {
             if (_listenerTask != null && !_listenerTask.IsCompleted)
             {
@@ -72,9 +76,28 @@ namespace KLPlugins.Leaderboard.ksBroadcastingNetwork {
             }
         }
 
-        private async Task ConnectAndRun()
-        {
+        private async Task Connect() {
             MessageHandler.RequestConnection(DisplayName, ConnectionPassword, MsRealtimeUpdateInterval, CommandPassword);
+            while (_client != null && !IsConnected) {
+                try {
+                    var udpPacket = await _client.ReceiveAsync();
+                    using (var ms = new System.IO.MemoryStream(udpPacket.Buffer))
+                    using (var reader = new System.IO.BinaryReader(ms)) {
+                        MessageHandler.ProcessMessage(reader);
+                    }
+                } catch (ObjectDisposedException) {
+                    // Shutdown happened
+                    LeaderboardPlugin.LogInfo("Broadcast client shut down.");
+                    break;
+                } catch (Exception ex) {
+                    // Other exceptions
+                    LeaderboardPlugin.LogInfo($"Couldn't connect to broadcast client. Err {ex}");
+                }
+            }
+        }
+
+        private async Task Run()
+        {
             while (_client != null)
             {
                 try
@@ -90,25 +113,26 @@ namespace KLPlugins.Leaderboard.ksBroadcastingNetwork {
                 {
                     // Shutdown happened
                     LeaderboardPlugin.LogInfo("Broadcast client shut down.");
-                    IsConnected = false;
                     break;
                 }
                 catch (Exception ex)
                 {
                     // Other exceptions
                     LeaderboardPlugin.LogInfo($"Couldn't connect to broadcast client. Err {ex}");
-                    IsConnected = false;
                 }
             }
             IsConnected = false;
         }
 
-        private void OnBroadcastConnectionStateChanged(int connectionId, bool connectionSuccess, bool isReadonly, string error) {
+        private async void OnBroadcastConnectionStateChanged(int connectionId, bool connectionSuccess, bool isReadonly, string error) {
             if (connectionSuccess) {
                 LeaderboardPlugin.LogInfo("Connected to broadcast client.");
                 IsConnected = true;
+                await _listenerTask;
+                _listenerTask = Run();
             } else {
                 LeaderboardPlugin.LogWarn($"Failed to connect to broadcast client. Err: {error}");
+                MessageHandler.RequestConnection(DisplayName, ConnectionPassword, MsRealtimeUpdateInterval, CommandPassword);
             }
         }
 
@@ -162,4 +186,63 @@ namespace KLPlugins.Leaderboard.ksBroadcastingNetwork {
         }
         #endregion
     }
+
+    /// <summary>
+    /// Configuration of ACCUdpRemoteClient
+    /// </summary>
+    public class ACCUdpRemoteClientConfig { 
+        class ACCBroadcastConfig {
+            // Class to read acc\Config\broadcasting.json
+            internal int udpListenerPort { get; set; }
+            internal string connectionPassword { get; set; }
+            internal string commandPassword { get; set; }
+
+            private const int _defUdpListenerPort = 9000;
+            private const string _defConnectionPassword = "asd";
+            private const string _defCommandPassowrd = "";
+
+            internal ACCBroadcastConfig() {
+                udpListenerPort = _defUdpListenerPort;
+                connectionPassword = _defConnectionPassword;
+                commandPassword = _defCommandPassowrd;
+            }
+
+            internal void Validate() {
+                if (udpListenerPort < 1024 || udpListenerPort > 65535) {
+                    udpListenerPort = _defUdpListenerPort;
+                    throw new Exception($"Set broadcasting udp port in '{LeaderboardPlugin.Settings.AccDataLocation}\\Config\\broadcasting.json' is invalid. Must be between 1024 and 65535.");
+                }
+            }
+        }
+
+        public string Ip { get; private set; }
+        public int Port => _config.udpListenerPort;
+        public string DisplayName { get; private set; }
+        public string ConnectionPassword => _config.connectionPassword;
+        public string CommandPassword => _config.commandPassword;
+        public int UpdateIntervalMs { get; private set; }
+
+        private ACCBroadcastConfig _config;
+
+        /// <summary>
+        /// Port, connectionPassword, commandPassword are read from the ..\\Assetto Corsa Competizione\\Config\\broadcasting.json. 
+        /// </summary>
+        public ACCUdpRemoteClientConfig(string ip, string displayName, int updateTime) {
+            try {
+                var configPath = $"{LeaderboardPlugin.Settings.AccDataLocation}\\Config\\broadcasting.json";
+                _config = JsonConvert.DeserializeObject<ACCBroadcastConfig>(File.ReadAllText(configPath, Encoding.Unicode).Replace("\"", "'"));
+                _config.Validate();
+            } catch (Exception e) {
+                LeaderboardPlugin.LogWarn($"Couldn't read broadcasting.json because {e}. Using default.");
+                _config = new ACCBroadcastConfig();
+            }
+
+            Ip = ip;
+            DisplayName = displayName;
+            UpdateIntervalMs = updateTime;
+        }
+    }
+
+    
+
 }

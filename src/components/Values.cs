@@ -9,6 +9,7 @@ using KLPlugins.Leaderboard.ksBroadcastingNetwork.Structs;
 using System.Collections.Generic;
 using System.Linq;
 using KLPlugins.Leaderboard.Enums;
+using Newtonsoft.Json;
 
 namespace KLPlugins.Leaderboard {
 
@@ -46,13 +47,14 @@ namespace KLPlugins.Leaderboard {
         private List<CarSplinePos> _relativeSplinePositions = new List<CarSplinePos>();
 
         private List<ushort> _lastUpdateCarIds = new List<ushort>();
-
+        private ACCUdpRemoteClientConfig _broadcastConfig;
 
         public Values() {
             Cars = new List<CarData>();
             PosInClassCarsIdxs = new int[LeaderboardPlugin.Settings.NumOverallPos];
             RelativePosOnTrackCarsIdxs = new int[LeaderboardPlugin.Settings.NumRelativePos * 2 + 1];
             ResetPos();
+            _broadcastConfig = new ACCUdpRemoteClientConfig("127.0.0.1", "KLLeaderboardPlugin", LeaderboardPlugin.Settings.BroadcastDataUpdateRateMs);
         }
 
         public void Reset() {
@@ -118,7 +120,12 @@ namespace KLPlugins.Leaderboard {
 
         }
 
-        public void OnDataUpdate(PluginManager pm, GameData data) { }
+        public void OnDataUpdate(PluginManager pm, GameData data) {
+            //if (BroadcastClient != null && !BroadcastClient.IsConnected) {
+            //    DisposeBroadcastClient();
+            //    ConnectToBroadcastClient();
+            //}
+        }
 
         public CarData GetCar(int i) {
             if (i >= Cars.Count) return null;
@@ -171,29 +178,29 @@ namespace KLPlugins.Leaderboard {
         #region Broadcast client connection
 
         public void ConnectToBroadcastClient() {
-            BroadcastClient = new ACCUdpRemoteClient("127.0.0.1", 9000, "ACCBDPlugin", "asd", "", 100);
-            BroadcastClient.MessageHandler.OnConnectionStateChanged += OnBroadcastConnectionStateChanged;
+            BroadcastClient = new ACCUdpRemoteClient(_broadcastConfig);
+            //BroadcastClient.MessageHandler.OnConnectionStateChanged += OnBroadcastConnectionStateChanged;
             BroadcastClient.MessageHandler.OnEntrylistUpdate += OnEntryListUpdate;
             BroadcastClient.MessageHandler.OnRealtimeCarUpdate += OnRealtimeCarUpdate;
             BroadcastClient.MessageHandler.OnRealtimeUpdate += OnBroadcastRealtimeUpdate;
             BroadcastClient.MessageHandler.OnTrackDataUpdate += OnTrackDataUpdate;
         }
 
-        public void DisposeBroadcastClient() {
+        public async void DisposeBroadcastClient() {
             if (BroadcastClient != null) {
-                BroadcastClient.Shutdown();
+                await BroadcastClient.ShutdownAsync();
                 BroadcastClient.Dispose();
                 BroadcastClient = null;
             }
         }
 
-        private void OnBroadcastConnectionStateChanged(int connectionId, bool connectionSuccess, bool isReadonly, string error) {
-            if (connectionSuccess) {
-                LeaderboardPlugin.LogInfo("Connected to broadcast client.");
-            } else {
-                LeaderboardPlugin.LogWarn($"Failed to connect to broadcast client. Err: {error}");
-            }
-        }
+        //private void OnBroadcastConnectionStateChanged(int connectionId, bool connectionSuccess, bool isReadonly, string error) {
+        //    if (connectionSuccess) {
+        //        LeaderboardPlugin.LogInfo("Connected to broadcast client.");
+        //    } else {
+        //        LeaderboardPlugin.LogWarn($"Failed to connect to broadcast client. Err: {error}");
+        //    }
+        //}
 
         // Updates come as:
         // New entry list
@@ -402,7 +409,17 @@ namespace KLPlugins.Leaderboard {
             car.OnRealtimeCarUpdate(update, RealtimeUpdate.SessionType, RealtimeUpdate.Phase);
             _lastUpdateCarIds.Add(car.Info.CarIndex);
 
-            //File.AppendAllText($"{AccBroadcastDataPlugin.Settings.DataLocation}\\{TrackData.TrackId}_{car.Info.CarClass}_{car.LapsBySplinePosition}.txt", $"{update.SplinePosition};{update.CurrentLap.LaptimeMS};{update.Kmh};\n");
+            if (car.LapsBySplinePosition == 2 && update.SplinePosition != 1) {
+                string carClass = car.Info.CarClass.ToString();
+
+                var fname = $"{LeaderboardPlugin.Settings.PluginDataLocation}\\laps\\{TrackData.TrackId}_{carClass}.txt";
+                if (car.FirstAdded) {
+                    File.AppendAllText(fname, $"\n");
+                }
+               // File.AppendAllText(fname, $"{update.SplinePosition};{update.CurrentLap.LaptimeMS};{update.Kmh};");
+                car.FirstAdded = true;
+
+            }
 
         }
         #endregion
@@ -412,12 +429,8 @@ namespace KLPlugins.Leaderboard {
             // Update track data
             //AccBroadcastDataPlugin.LogInfo("New track update.");
             TrackData = update;
-
-            foreach (var car in Cars) {
-                if (car.BestLap.Count == 0) {
-                    car.ReadDefBestLap();
-                }
-            } 
+            TrackData.ReadDefBestLaps();
+            
         }
         #endregion
 

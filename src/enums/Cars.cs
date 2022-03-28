@@ -90,7 +90,7 @@ namespace KLPlugins.Leaderboard.Enums {
                     return CarClass.TCX;
 
                 case CarType.Porsche991IIGT3Cup:
-                    return CarClass.CUP19;
+                    return CarClass.CUP17;
                 case CarType.Porsche992GT3Cup:
                     return CarClass.CUP21;
 
@@ -114,6 +114,26 @@ namespace KLPlugins.Leaderboard.Enums {
 
                 default:
                     return CarClass.Unknown;
+            }
+        }
+
+        public static CarGroup GetGroup(this CarType c) {
+            switch (c.GetClass()) {
+                case CarClass.GT3:
+                    return CarGroup.GT3;
+                case CarClass.GT4:
+                    return CarGroup.GT4;
+                case CarClass.ST15:
+                case CarClass.ST21:
+                case CarClass.CUP17:
+                case CarClass.CUP21:
+                case CarClass.CHL:
+                    return CarGroup.GTC;
+                case CarClass.TCX:
+                    return CarGroup.TCX;
+
+                default:
+                    return CarGroup.Unknown;
             }
         }
 
@@ -288,9 +308,18 @@ namespace KLPlugins.Leaderboard.Enums {
         ST15 = 3,
         ST21 = 4,
         CHL = 5,
-        CUP19 = 6,
+        CUP17 = 6,
         CUP21 = 7,
         TCX = 8,
+        Unknown = 255
+    }
+
+    public enum CarGroup {
+        Overall = 0,
+        GT3 = 1,
+        GT4 = 2,
+        GTC = 3,
+        TCX = 4,
         Unknown = 255
     }
 

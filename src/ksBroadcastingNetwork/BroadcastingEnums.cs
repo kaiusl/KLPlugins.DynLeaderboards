@@ -69,10 +69,10 @@ namespace KLPlugins.Leaderboard.ksBroadcastingNetwork {
 
 	public enum CupCategory { 
 		Overall = 0,
-		ProAm = 2,
-		Am = 3,
-		Silver = 4,
-		National = 5
+		ProAm = 1,
+		Am = 2,
+		Silver = 3,
+		National = 4
 	}
 
     public enum NationalityEnum

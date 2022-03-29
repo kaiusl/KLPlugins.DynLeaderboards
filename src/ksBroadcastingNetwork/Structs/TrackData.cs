@@ -50,16 +50,21 @@ namespace KLPlugins.Leaderboard.ksBroadcastingNetwork.Structs
 
             var pos = new List<double>();
             var time = new List<double>();
+            try {
+                foreach (var l in File.ReadLines(fname)) {
+                    if (l == "") continue;
+                    var splits = l.Split(';');
+                    double p = float.Parse(splits[0]);
+                    var t = double.Parse(splits[1]) / 1000.0;
+                    pos.Add(p);
+                    time.Add(t);
+                }
 
-            foreach (var l in File.ReadLines(fname)) {
-                var splits = l.Split(';');
-                double p = float.Parse(splits[0]);
-                var t = double.Parse(splits[1]) / 1000.0;
-                pos.Add(p);
-                time.Add(t);
+                LapInterpolators[cls] = LinearSpline.InterpolateSorted(pos.ToArray(), time.ToArray());
+            } catch (Exception ex) {
+                LeaderboardPlugin.LogError($"Failed to read {fname} with error: {ex}");
             }
-
-            LapInterpolators[cls] = LinearSpline.InterpolateSorted(pos.ToArray(), time.ToArray());
+            
         }
 
     }

@@ -19,11 +19,22 @@ namespace KLPlugins.Leaderboard.ksBroadcastingNetwork.Structs
         }
 
         public string InitialPlusLastName() {
+            if (FirstName == "") {
+                return $"{LastName}";
+            }
             return $"{FirstName[0]}. {LastName}";
         }
 
         public string Initials() {
-            return $"{FirstName[0]}{LastName[0]}";
+            if (FirstName != "" && LastName != "") {
+                return $"{FirstName[0]}{LastName[0]}";
+            } else if (FirstName == "" && LastName != "") {
+                return $"{LastName[0]}";
+            } else if (FirstName != "" && LastName == "") {
+                return $"{FirstName[0]}";
+            } else {
+                return "";
+            }
         }
     }
 }

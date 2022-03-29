@@ -42,7 +42,7 @@ namespace KLPlugins.Leaderboard.ksBroadcastingNetwork {
             MessageHandler.OnConnectionStateChanged += OnBroadcastConnectionStateChanged;
 
             LeaderboardPlugin.LogInfo("Requested broadcast connection");
-            _listenerTask = Connect();
+            _listenerTask = ConnectAndRun();
         }
 
         public ACCUdpRemoteClient(ACCUdpRemoteClientConfig cfg) : this(cfg.Ip, cfg.Port, cfg.DisplayName, cfg.ConnectionPassword, cfg.CommandPassword, cfg.UpdateIntervalMs) { }
@@ -76,28 +76,10 @@ namespace KLPlugins.Leaderboard.ksBroadcastingNetwork {
             }
         }
 
-        private async Task Connect() {
-            MessageHandler.RequestConnection(DisplayName, ConnectionPassword, MsRealtimeUpdateInterval, CommandPassword);
-            while (_client != null && !IsConnected) {
-                try {
-                    var udpPacket = await _client.ReceiveAsync();
-                    using (var ms = new System.IO.MemoryStream(udpPacket.Buffer))
-                    using (var reader = new System.IO.BinaryReader(ms)) {
-                        MessageHandler.ProcessMessage(reader);
-                    }
-                } catch (ObjectDisposedException) {
-                    // Shutdown happened
-                    LeaderboardPlugin.LogInfo("Broadcast client shut down.");
-                    break;
-                } catch (Exception ex) {
-                    // Other exceptions
-                    LeaderboardPlugin.LogInfo($"Couldn't connect to broadcast client. Err {ex}");
-                }
-            }
-        }
 
-        private async Task Run()
+        private async Task ConnectAndRun()
         {
+            MessageHandler.RequestConnection(DisplayName, ConnectionPassword, MsRealtimeUpdateInterval, CommandPassword);
             while (_client != null)
             {
                 try
@@ -124,12 +106,10 @@ namespace KLPlugins.Leaderboard.ksBroadcastingNetwork {
             IsConnected = false;
         }
 
-        private async void OnBroadcastConnectionStateChanged(int connectionId, bool connectionSuccess, bool isReadonly, string error) {
+        private void OnBroadcastConnectionStateChanged(int connectionId, bool connectionSuccess, bool isReadonly, string error) {
             if (connectionSuccess) {
                 LeaderboardPlugin.LogInfo("Connected to broadcast client.");
                 IsConnected = true;
-                await _listenerTask;
-                _listenerTask = Run();
             } else {
                 LeaderboardPlugin.LogWarn($"Failed to connect to broadcast client. Err: {error}");
                 MessageHandler.RequestConnection(DisplayName, ConnectionPassword, MsRealtimeUpdateInterval, CommandPassword);
@@ -150,6 +130,8 @@ namespace KLPlugins.Leaderboard.ksBroadcastingNetwork {
                         LeaderboardPlugin.LogInfo("Disposed.");
                         if (_client != null)
                         {
+
+                            MessageHandler.Disconnect();
                             _client.Close();
                             _client.Dispose();
                             _client = null;

@@ -100,6 +100,16 @@ namespace KLPlugins.Leaderboard.ksBroadcastingNetwork {
             Send = sendMessageDelegate;
         }
 
+        public void OnConnection(int connectionId, bool connectionSuccess, bool isReadonly, string errMsg) {
+            ConnectionId = connectionId;
+
+            OnConnectionStateChanged?.Invoke(ConnectionId, connectionSuccess, isReadonly, errMsg);
+
+            // In case this was successful, we will request the initial data
+            RequestEntryList();
+            RequestTrackData();
+        }
+
         internal void ProcessMessage(BinaryReader br)
         {
             // Any message starts with an 1-byte command type
@@ -354,7 +364,7 @@ namespace KLPlugins.Leaderboard.ksBroadcastingNetwork {
             return lap;
         }
 
-        private static string ReadString(BinaryReader br)
+        public static string ReadString(BinaryReader br)
         {
             var length = br.ReadUInt16();
             var bytes = br.ReadBytes(length);
@@ -398,6 +408,7 @@ namespace KLPlugins.Leaderboard.ksBroadcastingNetwork {
             using (var br = new BinaryWriter(ms))
             {
                 br.Write((byte)OutboundMessageTypes.UNREGISTER_COMMAND_APPLICATION); // First byte is always the command type
+                br.Write(ConnectionId);
                 Send(ms.ToArray());
             }
         }

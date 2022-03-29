@@ -108,7 +108,7 @@ namespace KLPlugins.Leaderboard.ksBroadcastingNetwork.Structs {
         }
 
         public void OnRealtimeUpdate(RealtimeUpdate update, CarData leaderCar, CarData classLeaderCar, CarData focusedCar, int classPos, float relSplinePos) {
-            InClassPos = classPos;
+            if (classPos != 0) InClassPos = classPos;
             DistanceToLeader = (leaderCar.TotalSplinePosition - TotalSplinePosition) * Values.TrackData.TrackMeters;
             DistanceToClassLeader = (classLeaderCar.TotalSplinePosition - TotalSplinePosition) * Values.TrackData.TrackMeters;
             OnTrackDistanceToFocused = relSplinePos * Values.TrackData.TrackMeters;

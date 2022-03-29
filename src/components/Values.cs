@@ -301,6 +301,7 @@ namespace KLPlugins.Leaderboard {
             var leaderCar = Cars[0];
             var focusedCar = Cars[FocusedCarIdx];
             var focusedClass = focusedCar.Info.CarClass;
+            BestLapCarIdxs.Clear(); // Cars order is changed, need to re add them
             for (int i = 0; i < Cars.Count; i++) {
                 var thisCar = Cars[i];
 

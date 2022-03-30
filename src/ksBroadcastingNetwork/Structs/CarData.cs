@@ -63,7 +63,9 @@ namespace KLPlugins.Leaderboard.ksBroadcastingNetwork.Structs {
             if (_isFirstUpdate && LapsBySplinePosition == 0 && update.Laps != 0) {
                 LapsBySplinePosition = update.Laps;
 
-                if (Values.TrackData.TrackId == 6 && update.SplinePosition > 0.9790515) {
+                if ((Values.TrackData.TrackId == TrackType.Silverstone && update.SplinePosition >= 0.97908)
+                    || (Values.TrackData.TrackId == TrackType.Spa && update.SplinePosition >= 0.99618)
+                ) {
                     // This is the position of finish line, position where lap count is increased.
                     // This means that in above we added one extra lap as by SplinePosition it's not new lap yet.
                     LapsBySplinePosition -= 1;
@@ -75,29 +77,38 @@ namespace KLPlugins.Leaderboard.ksBroadcastingNetwork.Structs {
 
         public void OnRealtimeCarUpdate(RealtimeCarUpdate update, RaceSessionType session, SessionPhase phase) {
             if (session == RaceSessionType.Race) {
+
                 // If we start SimHub in the middle of session and cars are on the different laps, the car behind will gain a lap over
                 // For example: P1 has just crossed the line and has completed 3 laps, P2 has 2 laps
                 // But LapsBySplinePosition is 0 for both, if now P2 crosses the line,
                 // it's LapsBySplinePosition is increased and it would be shown lap ahead of tha actual leader
                 // Thus we add current laps to the LapsBySplinePosition
-                if (Values.TrackData.TrackId == 6 && update.SplinePosition == 0.9790515) {
-                    // This is critical point when the lap changes, we don't know yet if it's the old lap or new
-                    // Wait for the next update where we know that laps counter has been increased
-                } else { 
-                    AddInitialLaps(update);
+                if (_isFirstUpdate && phase == SessionPhase.Session) {
+                    if (update.SplinePosition == 1 || update.SplinePosition == 0
+                        || (Values.TrackData.TrackId == TrackType.Silverstone && 0.97902 < update.SplinePosition && update.SplinePosition < 0.97908) // Silverstone
+                        || (Values.TrackData.TrackId == TrackType.Spa && 0.99612 < update.SplinePosition && update.SplinePosition < 0.99618) // Spa
+                    ) {
+                        // This is critical point when the lap changes, we don't know yet if it's the old lap or new
+                        // Wait for the next update where we know that laps counter has been increased
+                        return;
+                    } else {
+                        AddInitialLaps(update);
+                    }
                 }
-
-
+               
                 // RealtimeCarUpdate.Laps and SplinePosition updates are not always in sync.
                 // This results in some weirdness on lap finish. Count laps myself based on spline position.
-                if (RealtimeCarUpdate != null && RealtimeCarUpdate.SplinePosition > 0.9 && update.SplinePosition < 0.1 && RealtimeCarUpdate.CarLocation == update.CarLocation) {
+                if (RealtimeCarUpdate != null 
+                    && RealtimeCarUpdate.SplinePosition > 0.9 
+                    && update.SplinePosition < 0.1 
+                    && RealtimeCarUpdate.CarLocation == update.CarLocation
+                ) {
                     LapsBySplinePosition++;
                 }
 
                 // On certain tracks (Spa) first half of the grid is ahead of the start/finish line,
                 // need to add the line crossing lap, otherwise they will be shown lap behind
                 if (RealtimeCarUpdate != null && (phase == SessionPhase.PreFormation) && update.SplinePosition < 0.1 && LapsBySplinePosition == 0) {
-                    RealtimeCarUpdate = update;
                     LapsBySplinePosition++;
                 }
 

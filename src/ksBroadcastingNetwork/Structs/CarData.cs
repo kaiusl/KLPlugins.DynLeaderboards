@@ -60,7 +60,7 @@ namespace KLPlugins.Leaderboard.ksBroadcastingNetwork.Structs {
 
         private bool _isFirstUpdate = true;
         private void AddInitialLaps(RealtimeCarUpdate update) {
-            if (_isFirstUpdate && LapsBySplinePosition == 0 && update.Laps != 0) {
+            if (_isFirstUpdate && LapsBySplinePosition == 0) {
                 LapsBySplinePosition = update.Laps;
 
                 if ((Values.TrackData.TrackId == TrackType.Silverstone && update.SplinePosition >= 0.9791052)
@@ -69,6 +69,7 @@ namespace KLPlugins.Leaderboard.ksBroadcastingNetwork.Structs {
                     // This is the position of finish line, position where lap count is increased.
                     // This means that in above we added one extra lap as by SplinePosition it's not new lap yet.
                     LapsBySplinePosition -= 1;
+                    //LeaderboardPlugin.LogInfo($"Remove lap from #{Info.RaceNumber}");
                 }
             }
             _isFirstUpdate = false;
@@ -84,10 +85,11 @@ namespace KLPlugins.Leaderboard.ksBroadcastingNetwork.Structs {
                 // it's LapsBySplinePosition is increased and it would be shown lap ahead of tha actual leader
                 // Thus we add current laps to the LapsBySplinePosition
                 if (_isFirstUpdate && phase == SessionPhase.Session) {
-                    if (update.SplinePosition == 1 || update.SplinePosition == 0
+                    if (Values.TrackData == null || update.SplinePosition == 1 || update.SplinePosition == 0
                         || (Values.TrackData.TrackId == TrackType.Silverstone && 0.9789979 < update.SplinePosition && update.SplinePosition < 0.9791052) // Silverstone
                         || (Values.TrackData.TrackId == TrackType.Spa && 0.9961125 < update.SplinePosition && update.SplinePosition < 0.9962250) // Spa
                     ) {
+                        //LeaderboardPlugin.LogInfo($"Ignored car #{Info.RaceNumber}");
                         // This is critical point when the lap changes, we don't know yet if it's the old lap or new
                         // Wait for the next update where we know that laps counter has been increased
                         return;

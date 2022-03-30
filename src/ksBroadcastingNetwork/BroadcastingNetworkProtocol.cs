@@ -268,49 +268,49 @@ namespace KLPlugins.Leaderboard.ksBroadcastingNetwork {
                         var trackData = new TrackData();
 
                         trackData.TrackName = ReadString(br);
-                        trackData.TrackId = br.ReadInt32();
+                        trackData.TrackId = (TrackType)br.ReadInt32();
                         trackData.TrackMeters = br.ReadInt32();
                         TrackMeters = trackData.TrackMeters > 0 ? trackData.TrackMeters : -1;
 
-                        trackData.CameraSets = new Dictionary<string, List<string>>();
+                        //trackData.CameraSets = new Dictionary<string, List<string>>();
 
-                        var cameraSetCount = br.ReadByte();
-                        for (int camSet = 0; camSet < cameraSetCount; camSet++)
-                        {
-                            var camSetName = ReadString(br);
-                            trackData.CameraSets.Add(camSetName, new List<string>());
+                        //var cameraSetCount = br.ReadByte();
+                        //for (int camSet = 0; camSet < cameraSetCount; camSet++)
+                        //{
+                        //    var camSetName = ReadString(br);
+                        //    trackData.CameraSets.Add(camSetName, new List<string>());
 
-                            var cameraCount = br.ReadByte();
-                            for (int cam = 0; cam < cameraCount; cam++)
-                            {
-                                var cameraName = ReadString(br);
-                                trackData.CameraSets[camSetName].Add(cameraName);
-                            }
-                        }
+                        //    var cameraCount = br.ReadByte();
+                        //    for (int cam = 0; cam < cameraCount; cam++)
+                        //    {
+                        //        var cameraName = ReadString(br);
+                        //        trackData.CameraSets[camSetName].Add(cameraName);
+                        //    }
+                        //}
 
-                        var hudPages = new List<string>();
-                        var hudPagesCount = br.ReadByte();
-                        for (int i = 0; i < hudPagesCount; i++)
-                        {
-                            hudPages.Add(ReadString(br));
-                        }
-                        trackData.HUDPages = hudPages;
+                        //var hudPages = new List<string>();
+                        //var hudPagesCount = br.ReadByte();
+                        //for (int i = 0; i < hudPagesCount; i++)
+                        //{
+                        //    hudPages.Add(ReadString(br));
+                        //}
+                        //trackData.HUDPages = hudPages;
 
                         OnTrackDataUpdate?.Invoke(ConnectionIdentifier, trackData);
                     }
                     break;
                 case InboundMessageTypes.BROADCASTING_EVENT:
                     {
-                        BroadcastingEvent evt = new BroadcastingEvent()
-                        {
-                            Type = (BroadcastingCarEventType)br.ReadByte(),
-                            Msg = ReadString(br),
-                            TimeMs = br.ReadInt32(),
-                            CarId = br.ReadInt32(),
-                        };
+                        //BroadcastingEvent evt = new BroadcastingEvent()
+                        //{
+                        //    Type = (BroadcastingCarEventType)br.ReadByte(),
+                        //    Msg = ReadString(br),
+                        //    TimeMs = br.ReadInt32(),
+                        //    CarId = br.ReadInt32(),
+                        //};
 
-                        evt.CarData = EntryListCars.FirstOrDefault(x => x.CarIndex == evt.CarId);
-                        OnBroadcastingEvent?.Invoke(ConnectionIdentifier, evt);
+                        //evt.CarData = EntryListCars.FirstOrDefault(x => x.CarIndex == evt.CarId);
+                        //OnBroadcastingEvent?.Invoke(ConnectionIdentifier, evt);
                     }
                     break;
                 default:
@@ -443,93 +443,93 @@ namespace KLPlugins.Leaderboard.ksBroadcastingNetwork {
             }
         }
 
-        public void SetFocus(UInt16 carIndex)
-        {
-            SetFocusInternal(carIndex, null, null);
-        }
+        //public void SetFocus(UInt16 carIndex)
+        //{
+        //    SetFocusInternal(carIndex, null, null);
+        //}
 
-        /// <summary>
-        /// Always put both cam + cam set; even if it doesn't make sense
-        /// </summary>
-        public void SetCamera(string cameraSet, string camera)
-        {
-            SetFocusInternal(null, cameraSet, camera);
-        }
+        ///// <summary>
+        ///// Always put both cam + cam set; even if it doesn't make sense
+        ///// </summary>
+        //public void SetCamera(string cameraSet, string camera)
+        //{
+        //    SetFocusInternal(null, cameraSet, camera);
+        //}
 
-        public void SetFocus(UInt16 carIndex, string cameraSet, string camera)
-        {
-            SetFocusInternal(carIndex, cameraSet, camera);
-        }
+        //public void SetFocus(UInt16 carIndex, string cameraSet, string camera)
+        //{
+        //    SetFocusInternal(carIndex, cameraSet, camera);
+        //}
 
-        /// <summary>
-        /// Sends the request to change the focused car and/or the camera used.
-        /// The idea is that this often wants to be triggered together, so this is a all-in-one function.
-        /// This way we can make sure the switch happens in the same frame, even in more complex scenarios
-        /// </summary>
-        private void SetFocusInternal(UInt16? carIndex, string cameraSet, string camera)
-        {
-            using (var ms = new MemoryStream())
-            using (var bw = new BinaryWriter(ms))
-            {
-                bw.Write((byte)OutboundMessageTypes.CHANGE_FOCUS); // First byte is always the command type
-                bw.Write((int)ConnectionId);
+        ///// <summary>
+        ///// Sends the request to change the focused car and/or the camera used.
+        ///// The idea is that this often wants to be triggered together, so this is a all-in-one function.
+        ///// This way we can make sure the switch happens in the same frame, even in more complex scenarios
+        ///// </summary>
+        //private void SetFocusInternal(UInt16? carIndex, string cameraSet, string camera)
+        //{
+        //    using (var ms = new MemoryStream())
+        //    using (var bw = new BinaryWriter(ms))
+        //    {
+        //        bw.Write((byte)OutboundMessageTypes.CHANGE_FOCUS); // First byte is always the command type
+        //        bw.Write((int)ConnectionId);
 
-                if (!carIndex.HasValue)
-                {
-                    bw.Write((byte)0); // No change of focused car
-                }
-                else
-                {
-                    bw.Write((byte)1);
-                    bw.Write((UInt16)(carIndex.Value));
-                }
+        //        if (!carIndex.HasValue)
+        //        {
+        //            bw.Write((byte)0); // No change of focused car
+        //        }
+        //        else
+        //        {
+        //            bw.Write((byte)1);
+        //            bw.Write((UInt16)(carIndex.Value));
+        //        }
 
-                if (string.IsNullOrEmpty(cameraSet) || string.IsNullOrEmpty(camera))
-                {
-                    bw.Write((byte)0); // No change of camera set or camera
-                }
-                else
-                {
-                    bw.Write((byte)1);
-                    WriteString(bw, cameraSet);
-                    WriteString(bw, camera);
-                }
+        //        if (string.IsNullOrEmpty(cameraSet) || string.IsNullOrEmpty(camera))
+        //        {
+        //            bw.Write((byte)0); // No change of camera set or camera
+        //        }
+        //        else
+        //        {
+        //            bw.Write((byte)1);
+        //            WriteString(bw, cameraSet);
+        //            WriteString(bw, camera);
+        //        }
 
-                Send(ms.ToArray());
-            }
-        }
+        //        Send(ms.ToArray());
+        //    }
+        //}
 
-        public void RequestInstantReplay(float startSessionTime, float durationMS, int initialFocusedCarIndex = -1, string initialCameraSet = "", string initialCamera = "")
-        {
-            using (var ms = new MemoryStream())
-            using (var bw = new BinaryWriter(ms))
-            {
-                bw.Write((byte)OutboundMessageTypes.INSTANT_REPLAY_REQUEST); // First byte is always the command type
-                bw.Write((int)ConnectionId);
+        //public void RequestInstantReplay(float startSessionTime, float durationMS, int initialFocusedCarIndex = -1, string initialCameraSet = "", string initialCamera = "")
+        //{
+        //    using (var ms = new MemoryStream())
+        //    using (var bw = new BinaryWriter(ms))
+        //    {
+        //        bw.Write((byte)OutboundMessageTypes.INSTANT_REPLAY_REQUEST); // First byte is always the command type
+        //        bw.Write((int)ConnectionId);
 
-                bw.Write((float)startSessionTime);
-                bw.Write((float)durationMS);
-                bw.Write((int)initialFocusedCarIndex);
+        //        bw.Write((float)startSessionTime);
+        //        bw.Write((float)durationMS);
+        //        bw.Write((int)initialFocusedCarIndex);
 
-                WriteString(bw, initialCameraSet);
-                WriteString(bw, initialCamera);
+        //        WriteString(bw, initialCameraSet);
+        //        WriteString(bw, initialCamera);
 
-                Send(ms.ToArray());
-            }
-        }
+        //        Send(ms.ToArray());
+        //    }
+        //}
 
-        public void RequestHUDPage(string hudPage)
-        {
-            using (var ms = new MemoryStream())
-            using (var bw = new BinaryWriter(ms))
-            {
-                bw.Write((byte)OutboundMessageTypes.CHANGE_HUD_PAGE); // First byte is always the command type
-                bw.Write((int)ConnectionId);
+        //public void RequestHUDPage(string hudPage)
+        //{
+        //    using (var ms = new MemoryStream())
+        //    using (var bw = new BinaryWriter(ms))
+        //    {
+        //        bw.Write((byte)OutboundMessageTypes.CHANGE_HUD_PAGE); // First byte is always the command type
+        //        bw.Write((int)ConnectionId);
 
-                WriteString(bw, hudPage);
+        //        WriteString(bw, hudPage);
 
-                Send(ms.ToArray());
-            }
-        }
+        //        Send(ms.ToArray());
+        //    }
+        //}
     }
 }

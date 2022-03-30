@@ -49,7 +49,9 @@ namespace KLPlugins.Leaderboard.Enums {
         MaseratiMCGT4 = 58,
         McLaren570SGT4 = 59,
         MercedesAMGGT4 = 60,
-        Porsche718CaymanGT4 = 61
+        Porsche718CaymanGT4 = 61,
+
+        Unknown = 255
     }
 
     static class CarsMethods {

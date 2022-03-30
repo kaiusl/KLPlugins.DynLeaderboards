@@ -45,7 +45,7 @@ namespace KLPlugins.Leaderboard {
         // Store relative spline positions for relative leaderboard,
         // need to store separately as we need to sort by spline pos at the end on update loop
         private List<CarSplinePos> _relativeSplinePositions = new List<CarSplinePos>();
-
+        private Dictionary<CarClass, int> _classLeaderIdxs = new Dictionary<CarClass, int>(); // Indexes of class leaders in Cars list
         private List<ushort> _lastUpdateCarIds = new List<ushort>();
         private ACCUdpRemoteClientConfig _broadcastConfig;
 
@@ -217,7 +217,6 @@ namespace KLPlugins.Leaderboard {
         private bool didCarsOrderChange = true;
         private void OnBroadcastRealtimeUpdate(string sender, RealtimeUpdate update) {
             var isNewSession = false;
-            didCarsOrderChange = false;
             if (RealtimeUpdate != null && (
                 RealtimeUpdate.SessionType != update.SessionType 
                 || RealtimeUpdate.SessionIndex != update.SessionIndex 
@@ -243,6 +242,8 @@ namespace KLPlugins.Leaderboard {
             if (FocusedCarIdx != -1 && !isNewSession) {
                 UpdateCarData();
             }
+
+            didCarsOrderChange = false;
         }
 
         private void ClearMissingCars() {
@@ -274,9 +275,6 @@ namespace KLPlugins.Leaderboard {
 
         private void SetOverallOrder() {
             // Sort cars in overall position order
-
-
-
             if (RealtimeUpdate.SessionType == RaceSessionType.Race) {
                 // In race use TotalSplinePosition (splinePosition + laps) which updates realtime.
                 // RealtimeCarUpdate.Position only updates at the end of sector
@@ -311,8 +309,6 @@ namespace KLPlugins.Leaderboard {
             }
         }
 
-
-
         /// <summary>
         /// Update car related data like positions and gaps
         /// </summary>
@@ -321,26 +317,24 @@ namespace KLPlugins.Leaderboard {
             _relativeSplinePositions.Clear();
 
             Dictionary<CarClass, int> classPos = new Dictionary<CarClass, int>(); 
-            Dictionary<CarClass, int> classLeaderIdxs = new Dictionary<CarClass, int>(); // Indexes of class leaders in Cars list
             var leaderCar = Cars[0];
             var focusedCar = Cars[FocusedCarIdx];
             var focusedClass = focusedCar.Info.CarClass;
 
             if (didCarsOrderChange) {
                 BestLapByClassCarIdxs.Clear(); // Cars order is changed, need to re add them
+                _classLeaderIdxs.Clear();
             }
             for (int i = 0; i < Cars.Count; i++) {
                 var thisCar = Cars[i];
-
                 var thisClass = thisCar.Info.CarClass;
-
-                if (didCarsOrderChange) {
+                if (didCarsOrderChange || _classLeaderIdxs.Count == 0) {
                     if (classPos.ContainsKey(thisClass)) {
                         classPos[thisClass]++;
                     } else {
                         // First time seeing this class car, must be the class leader
                         classPos[thisClass] = 1;
-                        classLeaderIdxs[thisClass] = i;
+                        _classLeaderIdxs[thisClass] = i;
                     }
 
                     if (thisClass == focusedClass) {
@@ -348,9 +342,8 @@ namespace KLPlugins.Leaderboard {
                     }
                 }
 
-
                 var relSplinePos = thisCar.CalculateRelativeSplinePosition(focusedCar);
-                thisCar.OnRealtimeUpdate(RealtimeUpdate, leaderCar, Cars[classLeaderIdxs[thisClass]], focusedCar, didCarsOrderChange ? classPos[thisClass] : 0, relSplinePos);
+                thisCar.OnRealtimeUpdate(RealtimeUpdate, leaderCar, Cars[_classLeaderIdxs[thisClass]], focusedCar, didCarsOrderChange ? classPos[thisClass] : 0, relSplinePos);
                 _relativeSplinePositions.Add(new CarSplinePos(i, relSplinePos));
 
                 // Update best laps
@@ -422,6 +415,7 @@ namespace KLPlugins.Leaderboard {
         #region EntryListUpdate
 
         private void OnEntryListUpdate(string sender, CarInfo car) {
+            didCarsOrderChange = true;
             // Add new cars if not already added, update car info of all the cars (adds new drivers if some were missing)
             var idx = Cars.FindIndex(x => x.Info.CarIndex == car.CarIndex);
             if (idx == -1) {

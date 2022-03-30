@@ -46,11 +46,25 @@ namespace KLPlugins.Leaderboard {
         /// </summary>
         /// <param name="pluginManager"></param>
         /// <param name="data"></param>
+
+        float prevPos = 0.0f;
+        int prevLaps = 0;
         public void DataUpdate(PluginManager pluginManager, ref GameData data) {
             if (!Game.IsAcc) { return; } // Atm only ACC is supported
 
             if (data.GameRunning && data.OldData != null && data.NewData != null) {
                 _values.OnDataUpdate(pluginManager, data);
+
+                var laps = (int)pluginManager.GetPropertyValue<SimHub.Plugins.DataPlugins.DataCore.DataCorePlugin>("GameRawData.Graphics.CompletedLaps");
+                var pos = (float)pluginManager.GetPropertyValue<SimHub.Plugins.DataPlugins.DataCore.DataCorePlugin>("GameRawData.Graphics.NormalizedCarPosition");
+                var track = (string)PluginManager.GetPropertyValue<SimHub.Plugins.DataPlugins.DataCore.DataCorePlugin>("GameData.TrackId");
+
+                if (pos > 0.9 || pos < 0.1) {
+                    File.AppendAllText($"{Settings.PluginDataLocation}\\{track}_pos.txt", $"\n{pos};{laps};");
+                }
+
+                prevPos = pos;
+                prevLaps = laps;
             }
         }
 
@@ -131,26 +145,40 @@ namespace KLPlugins.Leaderboard {
         }
 
         private void AttachDebugDelegates() {
-            this.AttachDelegate("DBG.LenCars", () => _values.Cars.Count);
-            this.AttachDelegate("DBG.FocusedCar", () => _values.GetFocusedCar()?.ToString());
+            //this.AttachDelegate("DBG.LenCars", () => _values.Cars.Count);
+            //this.AttachDelegate("DBG.FocusedCar", () => _values.GetFocusedCar()?.ToString());
 
-            void overallDBG(int i) => this.AttachDelegate($"DBG.Overall.{i + 1:00}.Numlaps", () => _values.GetCar(i)?.ToString());
-            void InClassDBG(int i) => this.AttachDelegate($"DBG.InClass.{i + 1:00}.Numlaps", () => _values.DbgGetInClassPos(i)?.ToString());
+            //void overallDBG(int i) => this.AttachDelegate($"DBG.Overall.{i + 1:00}.Numlaps", () => _values.GetCar(i)?.ToString());
+            //void InClassDBG(int i) => this.AttachDelegate($"DBG.InClass.{i + 1:00}.Numlaps", () => _values.DbgGetInClassPos(i)?.ToString());
+            //for (int i = 0; i < Settings.NumOverallPos; i++) {
+            //    overallDBG(i);
+            //    InClassDBG(i);
+            //}
+
+            //void overallOnTrackDBG(int i) => this.AttachDelegate($"DBG.Relative.{i + 1:00}.Numlaps", () => _values.DbgGetOverallPosOnTrack(i)?.ToString());
+            //for (int i = 0; i < Settings.NumRelativePos * 2 + 1; i++) {
+            //    overallOnTrackDBG(i);
+            //}
+
+            //this.AttachDelegate("DBG.Realtime.SessionTime", () => _values.RealtimeUpdate?.SessionTime);
+            //this.AttachDelegate("DBG.Realtime.RemainingTime", () => _values.RealtimeUpdate?.RemainingTime);
+            //this.AttachDelegate("DBG.Realtime.TimeOfDay", () => _values.RealtimeUpdate?.TimeOfDay);
+            //this.AttachDelegate("DBG.Realtime.SessionRemainingTime", () => _values.RealtimeUpdate?.SessionRemainingTime);
+            //this.AttachDelegate("DBG.Realtime.SessionEndTime", () => _values.RealtimeUpdate?.SessionEndTime);
+
+            void addCar(int i) {
+                var startName = $"Overall.{i + 1:00}";
+                this.AttachDelegate($"DBG.{startName}.SplinePosition", () => _values.GetCar(i)?.RealtimeCarUpdate?.SplinePosition);
+                this.AttachDelegate($"DBG.{startName}.Laps", () => _values.GetCar(i)?.RealtimeCarUpdate?.Laps);
+                this.AttachDelegate($"DBG.{startName}.LapsBySplinePosition", () => _values.GetCar(i)?.LapsBySplinePosition);
+                this.AttachDelegate($"DBG.{startName}.TotalSplinePosition", () => _values.GetCar(i)?.TotalSplinePosition);
+            };
+
             for (int i = 0; i < Settings.NumOverallPos; i++) {
-                overallDBG(i);
-                InClassDBG(i);
+                addCar(i);
             }
 
-            void overallOnTrackDBG(int i) => this.AttachDelegate($"DBG.Relative.{i + 1:00}.Numlaps", () => _values.DbgGetOverallPosOnTrack(i)?.ToString());
-            for (int i = 0; i < Settings.NumRelativePos * 2 + 1; i++) {
-                overallOnTrackDBG(i);
-            }
 
-            this.AttachDelegate("DBG.Realtime.SessionTime", () => _values.RealtimeUpdate?.SessionTime);
-            this.AttachDelegate("DBG.Realtime.RemainingTime", () => _values.RealtimeUpdate?.RemainingTime);
-            this.AttachDelegate("DBG.Realtime.TimeOfDay", () => _values.RealtimeUpdate?.TimeOfDay);
-            this.AttachDelegate("DBG.Realtime.SessionRemainingTime", () => _values.RealtimeUpdate?.SessionRemainingTime);
-            this.AttachDelegate("DBG.Realtime.SessionEndTime", () => _values.RealtimeUpdate?.SessionEndTime);
         }
 
         private void AttachDelegates() {
@@ -171,18 +199,24 @@ namespace KLPlugins.Leaderboard {
                 this.AttachDelegate($"{startName}.CarModel", () => _values.GetCar(i)?.Info.CarModelType.ToPrettyString());
                 //this.AttachDelegate($"{startName}.CarMark", () => _values.GetCar(i)?.Info.CarModelType.GetMark());
                 this.AttachDelegate($"{startName}.CarClass", () => _values.GetCar(i)?.Info.CarClass.ToString());
-                this.AttachDelegate($"{startName}.TeamName", () => _values.GetCar(i)?.Info.TeamName);
-                this.AttachDelegate($"{startName}.CurrentDeltaToBest", () => _values.GetCar(i)?.RealtimeCarUpdate?.Delta);
+                //this.AttachDelegate($"{startName}.TeamName", () => _values.GetCar(i)?.Info.TeamName);
+                //this.AttachDelegate($"{startName}.CurrentDeltaToBest", () => _values.GetCar(i)?.RealtimeCarUpdate?.Delta);
                 this.AttachDelegate($"{startName}.CupCategory", () => _values.GetCar(i)?.Info.CupCategory.ToString());
-                //this.AttachDelegate($"{startName}.DistToLeader", () => _values.GetCar(i)?.DistanceToLeader);
-                //this.AttachDelegate($"{startName}.DistToClassLeader", () => _values.GetCar(i)?.DistanceToClassLeader);
-                //this.AttachDelegate($"{startName}.DistToFocused", () => _values.GetCar(i)?.DistanceToFocused);
+                this.AttachDelegate($"{startName}.DistToLeader", () => _values.GetCar(i)?.DistanceToLeader);
+                this.AttachDelegate($"{startName}.DistToClassLeader", () => _values.GetCar(i)?.DistanceToClassLeader);
+                this.AttachDelegate($"{startName}.DistToFocusedTotal", () => _values.GetCar(i)?.TotalDistanceToFocused);
+                this.AttachDelegate($"{startName}.DistToFocusedOnTrack", () => _values.GetCar(i)?.OnTrackDistanceToFocused);
                 this.AttachDelegate($"{startName}.IsInPitlane", () => _values.GetCar(i)?.RealtimeCarUpdate?.CarLocation == CarLocationEnum.Pitlane ? 1 : 0);
                 this.AttachDelegate($"{startName}.GapToLeader", () => _values.GetCar(i)?.GapToLeader);
                 this.AttachDelegate($"{startName}.GapToClassLeader", () => _values.GetCar(i)?.GapToClassLeader);
-                this.AttachDelegate($"{startName}.GapToFocused", () => _values.GetCar(i)?.GapToFocused);
+                this.AttachDelegate($"{startName}.GapToFocusedOnTrack", () => _values.GetCar(i)?.GapToFocusedOnTrack);
+                this.AttachDelegate($"{startName}.GapToFocusedTotal", () => _values.GetCar(i)?.GapToFocusedTotal);
                 this.AttachDelegate($"{startName}.ClassPosition", () => _values.GetCar(i)?.InClassPos);
-                //this.AttachDelegate($"{startName}.OverallPosition", () => i + 1);
+                this.AttachDelegate($"{startName}.OverallPosition", () => i + 1);
+                this.AttachDelegate($"{startName}.TotalSplinePosition", () => _values.GetCar(i)?.TotalSplinePosition);
+                this.AttachDelegate($"{startName}.LapsBySplinePosition", () => _values.GetCar(i)?.LapsBySplinePosition);
+                this.AttachDelegate($"{startName}.CarLocation", () => _values.GetCar(i)?.RealtimeCarUpdate?.CarLocation.ToString());
+                this.AttachDelegate($"{startName}.SplinePosition", () => _values.GetCar(i)?.RealtimeCarUpdate?.SplinePosition);
             };
 
             void addOverall(int i) {

@@ -115,6 +115,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="src\components\Game.cs" />
+    <Compile Include="src\enums\Tracks.cs" />
     <Compile Include="src\ksBroadcastingNetwork\ACCUdpRemoteClient.cs" />
     <Compile Include="src\ksBroadcastingNetwork\BroadcastingEnums.cs" />
     <Compile Include="src\ksBroadcastingNetwork\BroadcastingNetworkProtocol.cs" />

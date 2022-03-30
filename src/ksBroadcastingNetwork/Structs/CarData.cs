@@ -63,8 +63,8 @@ namespace KLPlugins.Leaderboard.ksBroadcastingNetwork.Structs {
             if (_isFirstUpdate && LapsBySplinePosition == 0 && update.Laps != 0) {
                 LapsBySplinePosition = update.Laps;
 
-                if ((Values.TrackData.TrackId == TrackType.Silverstone && update.SplinePosition >= 0.97908)
-                    || (Values.TrackData.TrackId == TrackType.Spa && update.SplinePosition >= 0.99618)
+                if ((Values.TrackData.TrackId == TrackType.Silverstone && update.SplinePosition >= 0.9791052)
+                    || (Values.TrackData.TrackId == TrackType.Spa && update.SplinePosition >= 0.9962250)
                 ) {
                     // This is the position of finish line, position where lap count is increased.
                     // This means that in above we added one extra lap as by SplinePosition it's not new lap yet.
@@ -85,8 +85,8 @@ namespace KLPlugins.Leaderboard.ksBroadcastingNetwork.Structs {
                 // Thus we add current laps to the LapsBySplinePosition
                 if (_isFirstUpdate && phase == SessionPhase.Session) {
                     if (update.SplinePosition == 1 || update.SplinePosition == 0
-                        || (Values.TrackData.TrackId == TrackType.Silverstone && 0.97902 < update.SplinePosition && update.SplinePosition < 0.97908) // Silverstone
-                        || (Values.TrackData.TrackId == TrackType.Spa && 0.99612 < update.SplinePosition && update.SplinePosition < 0.99618) // Spa
+                        || (Values.TrackData.TrackId == TrackType.Silverstone && 0.9789979 < update.SplinePosition && update.SplinePosition < 0.9791052) // Silverstone
+                        || (Values.TrackData.TrackId == TrackType.Spa && 0.9961125 < update.SplinePosition && update.SplinePosition < 0.9962250) // Spa
                     ) {
                         // This is critical point when the lap changes, we don't know yet if it's the old lap or new
                         // Wait for the next update where we know that laps counter has been increased

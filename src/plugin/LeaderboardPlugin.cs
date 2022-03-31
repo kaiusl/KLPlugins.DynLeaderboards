@@ -171,13 +171,13 @@ namespace KLPlugins.Leaderboard {
                 this.AttachDelegate($"DBG_info.{startName}", () => {
                     var car = _values.GetCar(i);
                     if (car == null) return null;
-                    return $"#{car.Info.RaceNumber,-4}, isFinished:{car.IsFinished}, FinishTime:{car.FinishTime?.TotalSeconds}, L{car.RealtimeCarUpdate?.Laps}, startPos:{car.StartPos:00}/{car.StartPosInClass:00}, TSP:{car.TotalSplinePosition}";
+                    return $"#{car.RaceNumber,-4}, isFinished:{car.IsFinished}, FinishTime:{car.FinishTime?.TotalSeconds}, L{car.RealtimeCarUpdate?.Laps}, startPos:{car.StartPos:00}/{car.StartPosInClass:00}, TSP:{car.TotalSplinePosition}";
                 });
 
                 this.AttachDelegate($"DBG_PitInfo.{startName}", () => {
                     var car = _values.GetCar(i);
                     if (car == null) return null;
-                    return $"#{car.Info.RaceNumber,-4}, InPitLane:{car.RealtimeCarUpdate?.CarLocation == CarLocationEnum.Pitlane,-5}, Count:{car.PitCount:00}, PitTimes(C/L/T):{_values.GetCar(i)?.GetCurrentTimeInPits(_values.RealtimeUpdate.SessionTime) ?? 0:000.0}/{_values.GetCar(i)?.LastPitTime:000.0}/{_values.GetCar(i)?.TotalPitTime:000.0}";
+                    return $"#{car.RaceNumber,-4}, InPitLane:{car.RealtimeCarUpdate?.CarLocation == CarLocationEnum.Pitlane,-5}, Count:{car.PitCount:00}, PitTimes(C/L/T):{_values.GetCar(i)?.GetCurrentTimeInPits(_values.RealtimeUpdate.SessionTime) ?? 0:000.0}/{_values.GetCar(i)?.LastPitTime:000.0}/{_values.GetCar(i)?.TotalPitTime:000.0}";
                 });
 
                 //this.AttachDelegate($"DBG.{startName}.SplinePosition", () => _values.GetCar(i)?.RealtimeCarUpdate?.SplinePosition);
@@ -190,91 +190,106 @@ namespace KLPlugins.Leaderboard {
                 addCar(i);
             }
 
+            //this.AttachDelegate("DBG_car.01", () => _values.GetCar(1));
+
 
         }
 
         private void AttachDelegates() {
-            // Idea with properties is to add cars 
+            // Idea with properties is to add cars in overall order and then for different orderings provide indexes into overall order.
 
             void addCar(int i) {
                 var startName = $"Overall.{i + 1:00}";
+                // Laps and sectors
                 this.AttachDelegate($"{startName}.Numlaps", () => _values.GetCar(i)?.RealtimeCarUpdate?.Laps);
-
                 this.AttachDelegate($"{startName}.LastLap", () => _values.GetCar(i)?.RealtimeCarUpdate?.LastLap?.LaptimeMS / 1000.0);
                 this.AttachDelegate($"{startName}.LastLapS1", () => _values.GetCar(i)?.RealtimeCarUpdate?.LastLap?.Splits[0] / 1000.0);
                 this.AttachDelegate($"{startName}.LastLapS2", () => _values.GetCar(i)?.RealtimeCarUpdate?.LastLap?.Splits[1] / 1000.0);
                 this.AttachDelegate($"{startName}.LastLapS3", () => _values.GetCar(i)?.RealtimeCarUpdate?.LastLap?.Splits[2] / 1000.0);
-
                 this.AttachDelegate($"{startName}.BestLap", () => _values.GetCar(i)?.RealtimeCarUpdate?.BestSessionLap.LaptimeMS / 1000.0);
                 this.AttachDelegate($"{startName}.BestLapS1", () => _values.GetCar(i)?.BestLapSectors[0] / 1000.0);
                 this.AttachDelegate($"{startName}.BestLapS2", () => _values.GetCar(i)?.BestLapSectors[1] / 1000.0);
                 this.AttachDelegate($"{startName}.BestLapS3", () => _values.GetCar(i)?.BestLapSectors[2] / 1000.0);
-
                 this.AttachDelegate($"{startName}.BestS1", () => _values.GetCar(i)?.RealtimeCarUpdate?.BestSessionLap?.Splits[0] / 1000.0);
                 this.AttachDelegate($"{startName}.BestS2", () => _values.GetCar(i)?.RealtimeCarUpdate?.BestSessionLap?.Splits[1] / 1000.0);
                 this.AttachDelegate($"{startName}.BestS3", () => _values.GetCar(i)?.RealtimeCarUpdate?.BestSessionLap?.Splits[2] / 1000.0);
-
                 this.AttachDelegate($"{startName}.CurrentLap", () => _values.GetCar(i)?.RealtimeCarUpdate?.CurrentLap?.LaptimeMS / 1000.0);
 
+                // Drivers
                 //this.AttachDelegate($"{startName}.CurrentDriverFirstName", () => _values.GetCar(i)?.GetCurrentDriver().FirstName);
                 //this.AttachDelegate($"{startName}.CurrentDriverLastName", () => _values.GetCar(i)?.GetCurrentDriver().LastName);
                 //this.AttachDelegate($"{startName}.CurrentDriverShortName", () => _values.GetCar(i)?.GetCurrentDriver().ShortName);
                 //this.AttachDelegate($"{startName}.CurrentDrivetFullName", () => _values.GetCar(i)?.GetCurrentDriver().FullName());
                 this.AttachDelegate($"{startName}.CurrentDriverInitialPlusLastName", () => _values.GetCar(i)?.GetCurrentDriver().InitialPlusLastName());
                 //this.AttachDelegate($"{startName}.CurrentDrivetInitials", () => _values.GetCar(i)?.GetCurrentDriver().Initials());
-                this.AttachDelegate($"{startName}.CarNumber", () => _values.GetCar(i)?.Info.RaceNumber);
-                this.AttachDelegate($"{startName}.CarModel", () => _values.GetCar(i)?.Info.CarModelType.ToPrettyString());
+                this.AttachDelegate($"{startName}.CurrentDriver.Nationality", () => _values.GetCar(i)?.GetCurrentDriver().Nationality);
+                this.AttachDelegate($"{startName}.CurrentDriver.Category", () => _values.GetCar(i)?.GetCurrentDriver().Category);
+
+                // Car and team
+                this.AttachDelegate($"{startName}.CarNumber", () => _values.GetCar(i)?.RaceNumber);
+                this.AttachDelegate($"{startName}.CarModel", () => _values.GetCar(i)?.CarModelType.ToPrettyString());
                 //this.AttachDelegate($"{startName}.CarMark", () => _values.GetCar(i)?.Info.CarModelType.GetMark());
-                this.AttachDelegate($"{startName}.CarClass", () => _values.GetCar(i)?.Info.CarClass.ToString());
+                this.AttachDelegate($"{startName}.CarClass", () => _values.GetCar(i)?.CarClass.ToString());
                 //this.AttachDelegate($"{startName}.TeamName", () => _values.GetCar(i)?.Info.TeamName);
                 //this.AttachDelegate($"{startName}.CurrentDeltaToBest", () => _values.GetCar(i)?.RealtimeCarUpdate?.Delta);
-                this.AttachDelegate($"{startName}.CupCategory", () => _values.GetCar(i)?.Info.CupCategory.ToString());
+                this.AttachDelegate($"{startName}.CupCategory", () => _values.GetCar(i)?.CupCategory.ToString());
+
+                // Gaps and distances
                 this.AttachDelegate($"{startName}.DistToLeader", () => _values.GetCar(i)?.DistanceToLeader);
                 this.AttachDelegate($"{startName}.DistToClassLeader", () => _values.GetCar(i)?.DistanceToClassLeader);
                 this.AttachDelegate($"{startName}.DistToFocusedTotal", () => _values.GetCar(i)?.TotalDistanceToFocused);
                 this.AttachDelegate($"{startName}.DistToFocusedOnTrack", () => _values.GetCar(i)?.OnTrackDistanceToFocused);
+                this.AttachDelegate($"{startName}.GapToLeader", () => _values.GetCar(i)?.GapToLeader);
+                this.AttachDelegate($"{startName}.GapToClassLeader", () => _values.GetCar(i)?.GapToClassLeader);
+                this.AttachDelegate($"{startName}.GapToFocusedOnTrack", () => _values.GetCar(i)?.GapToFocusedOnTrack);
+                this.AttachDelegate($"{startName}.GapToFocusedTotal", () => _values.GetCar(i)?.GapToFocusedTotal);
+
+                // Positions
+                this.AttachDelegate($"{startName}.ClassPosition", () => _values.GetCar(i)?.InClassPos);
+                this.AttachDelegate($"{startName}.OverallPosition", () => i + 1);
+                this.AttachDelegate($"{startName}.ClassPositionStart", () => _values.GetCar(i)?.StartPosInClass);
+                this.AttachDelegate($"{startName}.OverallPositionStart", () => _values.GetCar(i)?.StartPos);
+
+                // Pit
                 this.AttachDelegate($"{startName}.IsInPitlane", () => _values.GetCar(i)?.RealtimeCarUpdate?.CarLocation == CarLocationEnum.Pitlane ? 1 : 0);
                 this.AttachDelegate($"{startName}.PitStopCount", () => _values.GetCar(i)?.PitCount);
                 this.AttachDelegate($"{startName}.PitTimeTotal", () => _values.GetCar(i)?.TotalPitTime);
                 this.AttachDelegate($"{startName}.PitTimeLast", () => _values.GetCar(i)?.LastPitTime);
                 this.AttachDelegate($"{startName}.PitTimeCurrent", () => _values.GetCar(i)?.GetCurrentTimeInPits(_values.RealtimeUpdate.SessionTime));
 
-                this.AttachDelegate($"{startName}.GapToLeader", () => _values.GetCar(i)?.GapToLeader);
-                this.AttachDelegate($"{startName}.GapToClassLeader", () => _values.GetCar(i)?.GapToClassLeader);
-                this.AttachDelegate($"{startName}.GapToFocusedOnTrack", () => _values.GetCar(i)?.GapToFocusedOnTrack);
-                this.AttachDelegate($"{startName}.GapToFocusedTotal", () => _values.GetCar(i)?.GapToFocusedTotal);
-                this.AttachDelegate($"{startName}.ClassPosition", () => _values.GetCar(i)?.InClassPos);
-                this.AttachDelegate($"{startName}.OverallPosition", () => i + 1);
-                this.AttachDelegate($"{startName}.ClassPositionStart", () => _values.GetCar(i)?.StartPosInClass);
-                this.AttachDelegate($"{startName}.OverallPositionStart", () => _values.GetCar(i)?.StartPos);
+                // Else
                 this.AttachDelegate($"{startName}.IsFinished", () => (_values.GetCar(i)?.IsFinished ?? false) ? 1:0);
             };
 
-            void addOverall(int i) {
+            for (int i = 0; i < Settings.NumOverallPos; i++) {
+                addCar(i);
+            }
+
+
+
+            // Add indexes into overall order
+            void addInClassIdxs(int i) {
                 this.AttachDelegate($"InClass.{i + 1:00}.OverallPosition", () => _values.PosInClassCarsIdxs[i] + 1);
             }
 
             for (int i = 0; i < Settings.NumOverallPos; i++) {
-                addCar(i);
-                addOverall(i);
+                addInClassIdxs(i);
             }
 
-            void addRelative(int i) {
+            void addRelativeIdxs(int i) {
                 this.AttachDelegate($"Relative.{i + 1:00}.OverallPosition", () => _values.RelativePosOnTrackCarsIdxs[i] + 1);
             }
 
             for (int i = 0; i < Settings.NumRelativePos * 2 + 1; i++) {
-                addRelative(i);
+                addRelativeIdxs(i);
             }
 
             this.AttachDelegate("Focused.OverallPosition", () => _values.FocusedCarIdx + 1);
-            this.AttachDelegate("Session.Phase", () => _values.RealtimeUpdate?.Phase);
-            //this.AttachDelegate("Overall.BestLap", () => _values.RealtimeUpdate?.BestSessionLap?.LaptimeMS / 1000.0 ?? null);
             this.AttachDelegate("Overall.BestLapCarOverallPosition", () => _values.GetBestLapCarIdx(CarClass.Overall) + 1);
-
-            //this.AttachDelegate("InClass.BestLap", () => _values.GetFocusedClassBestLapCar().RealtimeCarUpdate?.BestSessionLap?.LaptimeMS / 1000.0 ?? null);
             this.AttachDelegate("InClass.BestLapCarOverallPosition", () => _values.GetFocusedClassBestLapCarIdx() + 1);
 
+            // Add everything else 
+            this.AttachDelegate("Session.Phase", () => _values.RealtimeUpdate?.Phase);
         }
 
         #region Logging

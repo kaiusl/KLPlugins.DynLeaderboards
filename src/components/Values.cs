@@ -156,13 +156,13 @@ namespace KLPlugins.Leaderboard {
         }
 
         public CarData GetFocusedClassBestLapCar() {
-            var focusedClass = GetFocusedCar()?.Info.CarClass;
+            var focusedClass = GetFocusedCar()?.CarClass;
             if (focusedClass == null || !BestLapByClassCarIdxs.ContainsKey((CarClass)focusedClass)) return null;
             return Cars[BestLapByClassCarIdxs[(CarClass)focusedClass]];
         }
 
         public int GetFocusedClassBestLapCarIdx() {
-            var focusedClass = GetFocusedCar()?.Info.CarClass;
+            var focusedClass = GetFocusedCar()?.CarClass;
             if (focusedClass == null || !BestLapByClassCarIdxs.ContainsKey((CarClass)focusedClass)) return -1;
             return BestLapByClassCarIdxs[(CarClass)focusedClass];
         }
@@ -253,7 +253,7 @@ namespace KLPlugins.Leaderboard {
             ClearMissingCars();
             SetOverallOrder();
             if (didCarsOrderChange || didFocusedChange || FocusedCarIdx == -1) {
-                FocusedCarIdx = Cars.FindIndex(x => x.Info.CarIndex == update.FocusedCarIndex);
+                FocusedCarIdx = Cars.FindIndex(x => x.CarIndex == update.FocusedCarIndex);
             }
             if (FocusedCarIdx != -1 && !isNewSession) {
                 UpdateCarData();
@@ -277,7 +277,7 @@ namespace KLPlugins.Leaderboard {
             // If it's larger than some number, we remove the car
             if (_lastUpdateCarIds.Count != 0) {
                 foreach (var car in Cars) {
-                    if (!_lastUpdateCarIds.Contains(car.Info.CarIndex)) {
+                    if (!_lastUpdateCarIds.Contains(car.CarIndex)) {
                         car.MissedRealtimeUpdates++;
                     } else {
                         car.MissedRealtimeUpdates = 0;
@@ -304,7 +304,7 @@ namespace KLPlugins.Leaderboard {
                     for (int i = 0; i < Cars.Count; i++) {
                         var thisCar = Cars[i];
 
-                        var thisClass = thisCar.Info.CarClass;
+                        var thisClass = thisCar.CarClass;
                         if (classPos.ContainsKey(thisClass)) {
                             classPos[thisClass]++;
                         } else {
@@ -365,7 +365,7 @@ namespace KLPlugins.Leaderboard {
             Dictionary<CarClass, int> classPos = new Dictionary<CarClass, int>(); 
             var leaderCar = Cars[0];
             var focusedCar = Cars[FocusedCarIdx];
-            var focusedClass = focusedCar.Info.CarClass;
+            var focusedClass = focusedCar.CarClass;
 
 
             if (didCarsOrderChange) {
@@ -375,7 +375,7 @@ namespace KLPlugins.Leaderboard {
             for (int i = 0; i < Cars.Count; i++) {
                 var thisCar = Cars[i];
 
-                var thisClass = thisCar.Info.CarClass;
+                var thisClass = thisCar.CarClass;
                 if (didCarsOrderChange || _classLeaderIdxs.Count == 0 || didFocusedChange) {
                     if (classPos.ContainsKey(thisClass)) {
                         classPos[thisClass]++;
@@ -466,11 +466,11 @@ namespace KLPlugins.Leaderboard {
         private void OnEntryListUpdate(string sender, CarInfo car) {
             didCarsOrderChange = true;
             // Add new cars if not already added, update car info of all the cars (adds new drivers if some were missing)
-            var idx = Cars.FindIndex(x => x.Info.CarIndex == car.CarIndex);
+            var idx = Cars.FindIndex(x => x.CarIndex == car.CarIndex);
             if (idx == -1) {
                 Cars.Add(new CarData(car, null));
             } else {
-                Cars[idx].Info = car;
+                Cars[idx].UpdateCarInfo(car);
             }
         }
         #endregion
@@ -480,14 +480,14 @@ namespace KLPlugins.Leaderboard {
             if (RealtimeUpdate == null) return;
             // Update Realtime data of existing cars
             // If found new car, BroadcastClient itself requests new entry list
-            var idx = Cars.FindIndex(x => x.Info.CarIndex == update.CarIndex);
+            var idx = Cars.FindIndex(x => x.CarIndex == update.CarIndex);
             if (idx == -1) return; // Car wasn't found, wait for entry list update
             var car = Cars[idx];
             car.OnRealtimeCarUpdate(update, RealtimeUpdate);
-            _lastUpdateCarIds.Add(car.Info.CarIndex);
+            _lastUpdateCarIds.Add(car.CarIndex);
 
             if (car.LapsBySplinePosition == 2 && update.SplinePosition != 1) {
-                string carClass = car.Info.CarClass.ToString();
+                string carClass = car.CarClass.ToString();
 
                 var fname = $"{LeaderboardPlugin.Settings.PluginDataLocation}\\laps\\{TrackData.TrackId}_{carClass}.txt";
                 if (car.FirstAdded) {

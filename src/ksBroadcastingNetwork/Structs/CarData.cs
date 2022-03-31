@@ -10,7 +10,20 @@ using MathNet.Numerics.Interpolation;
 
 namespace KLPlugins.Leaderboard.ksBroadcastingNetwork.Structs {
     public class CarData {
-        public CarInfo Info { get; set; }
+        public ushort CarIndex { get; }
+        public CarType CarModelType { get; internal set; }
+        public CarClass CarClass { get; internal set; }
+        public string TeamName { get; internal set; }
+        public int RaceNumber { get; internal set; }
+        public CupCategory CupCategory { get; internal set; }
+        public int CurrentDriverIndex { get; internal set; }
+        public List<DriverData> Drivers { get; internal set; } = new List<DriverData>();
+        public NationalityEnum TeamNationality { get; internal set; }
+
+        internal void AddDriver(DriverInfo driverInfo) {
+            Drivers.Add(new DriverData(driverInfo));
+        }
+
         public RealtimeCarUpdate RealtimeCarUpdate { get; set; }
         public float TotalSplinePosition { get; set; }
         public float OnTrackDistanceToFocused { get; set; }
@@ -45,7 +58,18 @@ namespace KLPlugins.Leaderboard.ksBroadcastingNetwork.Structs {
         ////////////////////////
 
         public CarData(CarInfo info, RealtimeCarUpdate update) {
-            Info = info;
+            CarIndex = info.CarIndex;
+            CarModelType = info.CarModelType;
+            CarClass = info.CarClass;
+            TeamName = info.TeamName;
+            RaceNumber = info.RaceNumber;
+            CupCategory = info.CupCategory;
+            CurrentDriverIndex = info.CurrentDriverIndex;
+            foreach (var d in info.Drivers) { 
+                AddDriver(d);
+            }
+            TeamNationality = info.Nationality;
+
             RealtimeCarUpdate = update;
             OnTrackDistanceToFocused = float.NaN;
             DistanceToLeader = float.NaN;
@@ -56,6 +80,32 @@ namespace KLPlugins.Leaderboard.ksBroadcastingNetwork.Structs {
             GapToLeader = double.NaN;
             GapToFocusedTotal = double.NaN;
             GapToFocusedOnTrack = double.NaN;
+        }
+
+        public void UpdateCarInfo(CarInfo info) {
+            // Only thing that can change is drivers
+            // We need to make sure that the order is as specified by new info
+            // But also add new drivers. We keep old drivers but move them to the end of list
+            // as they might rejoin and then we need to have the old data. (I'm not sure if ACC keeps those drivers or not, but we make sure to keep the data.)
+
+            CurrentDriverIndex = info.CurrentDriverIndex;
+            if (Drivers.Count == info.Drivers.Count && Drivers.Zip(info.Drivers, (a, b) => a == b).All(x => x)) return; // All drivers are same
+
+            for (int i = 0; i < info.Drivers.Count; i++) {
+                if (Drivers[i] == info.Drivers[i]) continue; // this driver is same
+
+                var oldIdx = Drivers.FindIndex(x => x == info.Drivers[i]);
+                if (oldIdx == -1) {
+                    // Must be new driver
+                    Drivers.Insert(i, new DriverData(info.Drivers[i]));
+                } else {
+                    // Driver is present but it's order has changed
+                    var old = Drivers[oldIdx];
+                    Drivers.RemoveAt(oldIdx);
+                    Drivers.Insert(i, old);
+                }
+            }
+
         }
 
         private bool _isFirstUpdate = true;
@@ -165,7 +215,7 @@ namespace KLPlugins.Leaderboard.ksBroadcastingNetwork.Structs {
             
                         
             if (update.Phase == SessionPhase.SessionOver) {
-                if (Info.CarIndex == leaderCar.Info.CarIndex || leaderCar.IsFinished) {
+                if (CarIndex == leaderCar.CarIndex || leaderCar.IsFinished) {
                     if (_isLapFinished) {
                         IsFinished = true;
                         FinishTime = update.SessionTime;
@@ -233,14 +283,14 @@ namespace KLPlugins.Leaderboard.ksBroadcastingNetwork.Structs {
                 }
 
 
-                if (Values.TrackData == null || !TrackData.LapInterpolators.ContainsKey(Info.CarClass)) {
+                if (Values.TrackData == null || !TrackData.LapInterpolators.ContainsKey(CarClass)) {
                     GapToLeader = DistanceToLeader / (175.0 / 3.6);
                     return;
                 }
                 if (!leader.IsFinished) {
                     var leaderPos = leader.RealtimeCarUpdate?.SplinePosition;
                     var thisPos = RealtimeCarUpdate?.SplinePosition;
-                    var gap = CalculateGapBetweenPos(thisPos, leaderPos, TrackData.LapInterpolators[Info.CarClass]);
+                    var gap = CalculateGapBetweenPos(thisPos, leaderPos, TrackData.LapInterpolators[CarClass]);
                     if (!double.IsNaN(gap)) GapToLeader = gap;
                 }
             }
@@ -260,7 +310,7 @@ namespace KLPlugins.Leaderboard.ksBroadcastingNetwork.Structs {
                     return;
                 }
 
-                if (Values.TrackData == null || !TrackData.LapInterpolators.ContainsKey(Info.CarClass)) {
+                if (Values.TrackData == null || !TrackData.LapInterpolators.ContainsKey(CarClass)) {
                     GapToClassLeader = DistanceToClassLeader / (175.0 / 3.6);
                     return;
                 }
@@ -268,14 +318,14 @@ namespace KLPlugins.Leaderboard.ksBroadcastingNetwork.Structs {
                 if (!classLeader.IsFinished) {
                     var leaderPos = classLeader.RealtimeCarUpdate?.SplinePosition;
                     var thisPos = RealtimeCarUpdate?.SplinePosition;
-                    var gap = CalculateGapBetweenPos(thisPos, leaderPos, TrackData.LapInterpolators[Info.CarClass]);
+                    var gap = CalculateGapBetweenPos(thisPos, leaderPos, TrackData.LapInterpolators[CarClass]);
                     if (!double.IsNaN(gap)) GapToClassLeader = gap;
                 }
             }
         }
 
         private void CalculateGapToFocusedTotal(CarData focusedCar) {
-            if (focusedCar.Info.CarIndex == Info.CarIndex) { 
+            if (focusedCar.CarIndex == CarIndex) { 
                 GapToFocusedTotal = 0;
                 return;
             }
@@ -292,7 +342,7 @@ namespace KLPlugins.Leaderboard.ksBroadcastingNetwork.Structs {
                     return;
                 }
 
-                if (Values.TrackData == null || !TrackData.LapInterpolators.ContainsKey(Info.CarClass)) {
+                if (Values.TrackData == null || !TrackData.LapInterpolators.ContainsKey(CarClass)) {
                     GapToFocusedTotal = TotalDistanceToFocused / (175.0 / 3.6);
                     return;
                 }
@@ -305,20 +355,20 @@ namespace KLPlugins.Leaderboard.ksBroadcastingNetwork.Structs {
                     // This car is ahead of focused, gap should be the time it takes focused car to reach this car's position
                     // That is use focusedCar lap data to calculate the gap
                     if (!IsFinished) {
-                        if (!TrackData.LapInterpolators.ContainsKey(focusedCar.Info.CarClass)) { // If focused car's best lap is not available, use this car's
-                            gap = CalculateGapBetweenPos(focusedPos, thisPos, TrackData.LapInterpolators[Info.CarClass]);
+                        if (!TrackData.LapInterpolators.ContainsKey(focusedCar.CarClass)) { // If focused car's best lap is not available, use this car's
+                            gap = CalculateGapBetweenPos(focusedPos, thisPos, TrackData.LapInterpolators[CarClass]);
                         } else {
-                            gap = CalculateGapBetweenPos(focusedPos, thisPos, TrackData.LapInterpolators[focusedCar.Info.CarClass]);
+                            gap = CalculateGapBetweenPos(focusedPos, thisPos, TrackData.LapInterpolators[focusedCar.CarClass]);
                         }
                     }
                 } else {
                     // This car is behind of focused, gap should be the time it takes us to reach focused car
                     // That is use this cars lap data to calculate gap
                     if (!focusedCar.IsFinished) {
-                        if (!TrackData.LapInterpolators.ContainsKey(Info.CarClass)) { // If this car's best lap is not available, use focused car's
-                            gap = -CalculateGapBetweenPos(thisPos, focusedPos, TrackData.LapInterpolators[focusedCar.Info.CarClass]);
+                        if (!TrackData.LapInterpolators.ContainsKey(CarClass)) { // If this car's best lap is not available, use focused car's
+                            gap = -CalculateGapBetweenPos(thisPos, focusedPos, TrackData.LapInterpolators[focusedCar.CarClass]);
                         } else {
-                            gap = -CalculateGapBetweenPos(thisPos, focusedPos, TrackData.LapInterpolators[Info.CarClass]);
+                            gap = -CalculateGapBetweenPos(thisPos, focusedPos, TrackData.LapInterpolators[CarClass]);
                         }
                     }
                     
@@ -336,7 +386,7 @@ namespace KLPlugins.Leaderboard.ksBroadcastingNetwork.Structs {
                 return;
             };
 
-            if (Values.TrackData == null || (!TrackData.LapInterpolators.ContainsKey(Info.CarClass) && !TrackData.LapInterpolators.ContainsKey(focusedCar.Info.CarClass))) {
+            if (Values.TrackData == null || (!TrackData.LapInterpolators.ContainsKey(CarClass) && !TrackData.LapInterpolators.ContainsKey(focusedCar.CarClass))) {
                 GapToFocusedOnTrack = OnTrackDistanceToFocused / (175.0 / 3.6);
                 return;
             }
@@ -347,19 +397,19 @@ namespace KLPlugins.Leaderboard.ksBroadcastingNetwork.Structs {
                 // This car is ahead of focused, gap should be the time it takes focused car to reach this car's position
                 // That is use focusedCar lap data to calculate the gap
 
-                if (!TrackData.LapInterpolators.ContainsKey(focusedCar.Info.CarClass)) { // If focused car's best lap is not available, use this car's
-                    gap = CalculateGapBetweenPos(focusedPos, thisPos, TrackData.LapInterpolators[Info.CarClass]);
+                if (!TrackData.LapInterpolators.ContainsKey(focusedCar.CarClass)) { // If focused car's best lap is not available, use this car's
+                    gap = CalculateGapBetweenPos(focusedPos, thisPos, TrackData.LapInterpolators[CarClass]);
                 } else {
-                    gap = CalculateGapBetweenPos(focusedPos, thisPos, TrackData.LapInterpolators[focusedCar.Info.CarClass]);
+                    gap = CalculateGapBetweenPos(focusedPos, thisPos, TrackData.LapInterpolators[focusedCar.CarClass]);
                 }
             } else {
                 // This car is behind of focused, gap should be the time it takes us to reach focused car
                 // That is use this cars lap data to calculate gap
 
-                if (!TrackData.LapInterpolators.ContainsKey(Info.CarClass)) { // If this car's best lap is not available, use focused car's
-                    gap = -CalculateGapBetweenPos(thisPos, focusedPos, TrackData.LapInterpolators[focusedCar.Info.CarClass]);
+                if (!TrackData.LapInterpolators.ContainsKey(CarClass)) { // If this car's best lap is not available, use focused car's
+                    gap = -CalculateGapBetweenPos(thisPos, focusedPos, TrackData.LapInterpolators[focusedCar.CarClass]);
                 } else {
-                    gap = -CalculateGapBetweenPos(thisPos, focusedPos, TrackData.LapInterpolators[Info.CarClass]);
+                    gap = -CalculateGapBetweenPos(thisPos, focusedPos, TrackData.LapInterpolators[CarClass]);
                 }
             }
             if (!double.IsNaN(gap)) GapToFocusedOnTrack = gap;
@@ -429,11 +479,11 @@ namespace KLPlugins.Leaderboard.ksBroadcastingNetwork.Structs {
             var pos = RealtimeCarUpdate?.Position ?? -1;
             float splinepos = RealtimeCarUpdate?.SplinePosition ?? -1;
             float speed = RealtimeCarUpdate?.Kmh ?? 200;
-            return $"CarId {Info.CarIndex:000} #{Info.RaceNumber,-4}, {Info.Drivers[0].InitialPlusLastName(),-20} P{pos:00}/{InClassPos:00} L{RealtimeCarUpdate?.Laps ?? -1 :00}: SplinePos:{splinepos:0.000} LapsBySplinePos:{LapsBySplinePosition:00} TotalSplinePos:{TotalSplinePosition:0.000} Gaps_ToLeader:{GapToLeader:000.0}| ToClassLeader:{GapToClassLeader:000.0}| ToFocusedOnTrack:{GapToFocusedOnTrack:000.0}| ToFocusedTotal:{GapToFocusedTotal:000.0}, Distances_ToLeader:{DistanceToLeader:00000.0}| ToClassLeader:{DistanceToClassLeader:00000.0}| ToFocusedOnTrack:{OnTrackDistanceToFocused:00000.0}| ToFocusedTotal:{TotalDistanceToFocused:00000.0}";
+            return $"CarId {CarIndex:000} #{RaceNumber,-4}, {Drivers[0].InitialPlusLastName(),-20} P{pos:00}/{InClassPos:00} L{RealtimeCarUpdate?.Laps ?? -1 :00}: SplinePos:{splinepos:0.000} LapsBySplinePos:{LapsBySplinePosition:00} TotalSplinePos:{TotalSplinePosition:0.000} Gaps_ToLeader:{GapToLeader:000.0}| ToClassLeader:{GapToClassLeader:000.0}| ToFocusedOnTrack:{GapToFocusedOnTrack:000.0}| ToFocusedTotal:{GapToFocusedTotal:000.0}, Distances_ToLeader:{DistanceToLeader:00000.0}| ToClassLeader:{DistanceToClassLeader:00000.0}| ToFocusedOnTrack:{OnTrackDistanceToFocused:00000.0}| ToFocusedTotal:{TotalDistanceToFocused:00000.0}";
         }
 
-        public DriverInfo GetCurrentDriver() {
-            return Info.Drivers[RealtimeCarUpdate?.DriverIndex ?? Info.CurrentDriverIndex];
+        public DriverData GetCurrentDriver() {
+            return Drivers[RealtimeCarUpdate?.DriverIndex ?? CurrentDriverIndex];
         }
 
 

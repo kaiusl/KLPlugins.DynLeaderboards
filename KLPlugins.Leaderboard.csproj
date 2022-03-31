@@ -123,6 +123,7 @@
     <Compile Include="src\ksBroadcastingNetwork\Structs\BroadcastingEvent.cs" />
     <Compile Include="src\ksBroadcastingNetwork\Structs\CarData.cs" />
     <Compile Include="src\ksBroadcastingNetwork\Structs\CarInfo.cs" />
+    <Compile Include="src\ksBroadcastingNetwork\Structs\DriverData.cs" />
     <Compile Include="src\ksBroadcastingNetwork\Structs\DriverInfo.cs" />
     <Compile Include="src\ksBroadcastingNetwork\Structs\LapInfo.cs" />
     <Compile Include="src\ksBroadcastingNetwork\Structs\RealtimeCarUpdate.cs" />

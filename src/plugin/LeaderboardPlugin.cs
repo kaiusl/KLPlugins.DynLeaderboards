@@ -171,7 +171,7 @@ namespace KLPlugins.Leaderboard {
                 this.AttachDelegate($"{startName}.Info", () => {
                     var car = _values.GetCar(i);
                     if (car == null) return null;
-                    return $"#{car.Info.RaceNumber,-4}, isFinished:{car.IsFinished}, FinishTime:{car.FinishTime?.TotalSeconds}, L{car.RealtimeCarUpdate?.Laps}, startPos:{car.StartPos:00}/{car.StartPosInClass:00}";
+                    return $"#{car.Info.RaceNumber,-4}, isFinished:{car.IsFinished}, FinishTime:{car.FinishTime?.TotalSeconds}, L{car.RealtimeCarUpdate?.Laps}, startPos:{car.StartPos:00}/{car.StartPosInClass:00}, TSP:{car.TotalSplinePosition}";
                 });
                 //this.AttachDelegate($"DBG.{startName}.SplinePosition", () => _values.GetCar(i)?.RealtimeCarUpdate?.SplinePosition);
                 //this.AttachDelegate($"DBG.{startName}.Laps", () => _values.GetCar(i)?.RealtimeCarUpdate?.Laps);

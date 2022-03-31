@@ -68,6 +68,11 @@ namespace KLPlugins.Leaderboard.ksBroadcastingNetwork.Structs {
             _isFirstUpdate = false;
         }
 
+        public void SetStartingPositions(int overall, int inclass) { 
+            StartPos = overall;
+            StartPosInClass = inclass;
+        }
+
 
         public void OnRealtimeCarUpdate(RealtimeCarUpdate update, RaceSessionType session, SessionPhase phase) {
             if (IsFinished) return;
@@ -95,7 +100,6 @@ namespace KLPlugins.Leaderboard.ksBroadcastingNetwork.Structs {
                     }
                 }
 
-               
                 // RealtimeCarUpdate.Laps and SplinePosition updates are not always in sync.
                 // This results in some weirdness on lap finish. Count laps myself based on spline position.
                 if (RealtimeCarUpdate != null 
@@ -124,12 +128,11 @@ namespace KLPlugins.Leaderboard.ksBroadcastingNetwork.Structs {
 
             if (classPos != 0) {
                 InClassPos = classPos;
-                if (StartPosInClass == -1) StartPosInClass = classPos;
             };
 
             OverallPos = overallPos;
-            if (StartPos == -1) StartPos = overallPos;
             
+                        
             if (update.Phase == SessionPhase.SessionOver) {
                 if (Info.CarIndex == leaderCar.Info.CarIndex || leaderCar.IsFinished) {
                     if (_isLapFinished) {

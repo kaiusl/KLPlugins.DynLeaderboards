@@ -48,6 +48,9 @@ namespace KLPlugins.Leaderboard {
         private Dictionary<CarClass, int> _classLeaderIdxs = new Dictionary<CarClass, int>(); // Indexes of class leaders in Cars list
         private List<ushort> _lastUpdateCarIds = new List<ushort>();
         private ACCUdpRemoteClientConfig _broadcastConfig;
+        private bool didCarsOrderChange = true;
+        private bool didFocusedChange = true;
+        private bool _startingPositionsSet = false;
 
         public Values() {
             Cars = new List<CarData>();
@@ -67,6 +70,11 @@ namespace KLPlugins.Leaderboard {
             ResetPos();
             _lastUpdateCarIds.Clear();
             BestLapByClassCarIdxs.Clear();
+            _classLeaderIdxs.Clear();
+            _relativeSplinePositions.Clear();
+            didFocusedChange = true;
+            didCarsOrderChange = true;
+            _startingPositionsSet = false;
         }
 
         private void ResetPos() {
@@ -214,8 +222,7 @@ namespace KLPlugins.Leaderboard {
 
         #region RealtimeUpdate
 
-        private bool didCarsOrderChange = true;
-        private bool didFocusedChange = true;
+
         private void OnBroadcastRealtimeUpdate(string sender, RealtimeUpdate update) {
             //var swatch = Stopwatch.StartNew();
 
@@ -235,6 +242,9 @@ namespace KLPlugins.Leaderboard {
                 ResetPos();
                 _lastUpdateCarIds.Clear();
                 _relativeSplinePositions.Clear();
+                _startingPositionsSet = false;
+                didCarsOrderChange = true;
+                didFocusedChange = true;
             }
 
             if (RealtimeUpdate != null) didFocusedChange = RealtimeUpdate.FocusedCarIndex != update.FocusedCarIndex;
@@ -286,6 +296,28 @@ namespace KLPlugins.Leaderboard {
         private void SetOverallOrder() {
             // Sort cars in overall position order
             if (RealtimeUpdate.SessionType == RaceSessionType.Race) {
+                // Set starting positions. Should be set by ACCs positions as positions by splinePosition can be slightly off from that
+                if (!_startingPositionsSet && Cars.All(x => x.RealtimeCarUpdate != null)) {
+                    Cars.Sort((a, b) => a.RealtimeCarUpdate.Position.CompareTo(b.RealtimeCarUpdate.Position));
+                    Dictionary<CarClass, int> classPos = new Dictionary<CarClass, int>();
+
+                    for (int i = 0; i < Cars.Count; i++) {
+                        var thisCar = Cars[i];
+
+                        var thisClass = thisCar.Info.CarClass;
+                        if (classPos.ContainsKey(thisClass)) {
+                            classPos[thisClass]++;
+                        } else {
+                            // First time seeing this class car, must be the class leader
+                            classPos[thisClass] = 1;
+                        }
+
+                        thisCar.SetStartingPositions(i + 1, classPos[thisClass]);
+                    }
+                    _startingPositionsSet = true;
+                }
+
+
                 // In race use TotalSplinePosition (splinePosition + laps) which updates realtime.
                 // RealtimeCarUpdate.Position only updates at the end of sector
                 // Also larger TotalSplinePosition means car is in front, so sort in descending order
@@ -302,6 +334,10 @@ namespace KLPlugins.Leaderboard {
                     Cars.Sort(cmp);
                     didCarsOrderChange = true;
                 }
+
+
+
+
             } else {
                 // In other sessions TotalSplinePosition doesn't make any sense, use RealtimeCarUpdate.Position
 

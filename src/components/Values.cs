@@ -215,6 +215,7 @@ namespace KLPlugins.Leaderboard {
         #region RealtimeUpdate
 
         private bool didCarsOrderChange = true;
+        private bool didFocusedChange = true;
         private void OnBroadcastRealtimeUpdate(string sender, RealtimeUpdate update) {
             //var swatch = Stopwatch.StartNew();
 
@@ -236,16 +237,17 @@ namespace KLPlugins.Leaderboard {
                 _relativeSplinePositions.Clear();
             }
 
+            if (RealtimeUpdate != null) didFocusedChange = RealtimeUpdate.FocusedCarIndex != update.FocusedCarIndex;
             RealtimeUpdate = update;
             if (Cars.Count == 0) return;
             ClearMissingCars();
             SetOverallOrder();
-            FocusedCarIdx = Cars.FindIndex(x => x.Info.CarIndex == update.FocusedCarIndex);
+            if (didCarsOrderChange || didFocusedChange || FocusedCarIdx == -1) {
+                FocusedCarIdx = Cars.FindIndex(x => x.Info.CarIndex == update.FocusedCarIndex);
+            }
             if (FocusedCarIdx != -1 && !isNewSession) {
                 UpdateCarData();
             }
-
-
 
             //swatch.Stop();
             //TimeSpan ts = swatch.Elapsed;
@@ -338,7 +340,7 @@ namespace KLPlugins.Leaderboard {
                 var thisCar = Cars[i];
 
                 var thisClass = thisCar.Info.CarClass;
-                if (didCarsOrderChange || _classLeaderIdxs.Count == 0) {
+                if (didCarsOrderChange || _classLeaderIdxs.Count == 0 || didFocusedChange) {
                     if (classPos.ContainsKey(thisClass)) {
                         classPos[thisClass]++;
                     } else {
@@ -351,6 +353,8 @@ namespace KLPlugins.Leaderboard {
                         PosInClassCarsIdxs[classPos[thisClass] - 1] = i;
                     }
                 }
+
+                
 
                 var relSplinePos = thisCar.CalculateRelativeSplinePosition(focusedCar);
                 thisCar.OnRealtimeUpdate(RealtimeUpdate, leaderCar, Cars[_classLeaderIdxs[thisClass]], focusedCar, didCarsOrderChange ? classPos[thisClass] : 0, relSplinePos);
@@ -375,7 +379,7 @@ namespace KLPlugins.Leaderboard {
             }
 
             // If somebody left the session, need to reset following class positions
-            if (didCarsOrderChange) {
+            if (didCarsOrderChange || didFocusedChange) {
                 var startpos = 0;
                 if (classPos.ContainsKey(focusedClass)) {
                     startpos = classPos[focusedClass];

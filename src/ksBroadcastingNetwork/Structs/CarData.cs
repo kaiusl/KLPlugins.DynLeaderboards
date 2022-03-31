@@ -31,6 +31,9 @@ namespace KLPlugins.Leaderboard.ksBroadcastingNetwork.Structs {
         public bool IsFinished = false;
         public TimeSpan? FinishTime = null;
 
+        public int StartPos = -1;
+        public int StartPosInClass = -1;
+
         private bool _isLapFinished = false;
         ////////////////////////
 
@@ -46,19 +49,6 @@ namespace KLPlugins.Leaderboard.ksBroadcastingNetwork.Structs {
             GapToLeader = double.NaN;
             GapToFocusedTotal = double.NaN;
             GapToFocusedOnTrack = double.NaN;
-        }
-
-        public void OnNewSession() {
-            OnTrackDistanceToFocused = float.NaN;
-            DistanceToLeader = float.NaN;
-            DistanceToClassLeader = float.NaN;
-            LapsBySplinePosition = 0;
-            InClassPos = -1;
-            GapToClassLeader = double.NaN;
-            GapToLeader = double.NaN;
-            GapToFocusedOnTrack = double.NaN;
-            GapToFocusedTotal = double.NaN;
-            RealtimeCarUpdate = null;
         }
 
         private bool _isFirstUpdate = true;
@@ -129,10 +119,16 @@ namespace KLPlugins.Leaderboard.ksBroadcastingNetwork.Structs {
         }
 
         private bool _isRaceFinishPosSet = false;
-        public void OnRealtimeUpdate(RealtimeUpdate update, CarData leaderCar, CarData classLeaderCar, CarData focusedCar, int classPos, float relSplinePos) {
+        public void OnRealtimeUpdate(RealtimeUpdate update, CarData leaderCar, CarData classLeaderCar, CarData focusedCar, int overallPos, int classPos, float relSplinePos) {
             if (IsFinished && _isRaceFinishPosSet) return;
 
-            if (classPos != 0) InClassPos = classPos;
+            if (classPos != 0) {
+                InClassPos = classPos;
+                if (StartPosInClass == -1) StartPosInClass = classPos;
+            };
+
+            OverallPos = overallPos;
+            if (StartPos == -1) StartPos = overallPos;
             
             if (update.Phase == SessionPhase.SessionOver) {
                 if (Info.CarIndex == leaderCar.Info.CarIndex || leaderCar.IsFinished) {

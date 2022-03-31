@@ -354,10 +354,8 @@ namespace KLPlugins.Leaderboard {
                     }
                 }
 
-                
-
                 var relSplinePos = thisCar.CalculateRelativeSplinePosition(focusedCar);
-                thisCar.OnRealtimeUpdate(RealtimeUpdate, leaderCar, Cars[_classLeaderIdxs[thisClass]], focusedCar, didCarsOrderChange ? classPos[thisClass] : 0, relSplinePos);
+                thisCar.OnRealtimeUpdate(RealtimeUpdate, leaderCar, Cars[_classLeaderIdxs[thisClass]], focusedCar, i + 1, didCarsOrderChange ? classPos[thisClass] : 0, relSplinePos);;
                 // Since we cannot remove cars after finish, don't add cars that have left to the relative
                 if (thisCar.MissedRealtimeUpdates < 10) _relativeSplinePositions.Add(new CarSplinePos(i, relSplinePos));
 

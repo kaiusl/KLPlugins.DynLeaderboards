@@ -171,7 +171,7 @@ namespace KLPlugins.Leaderboard {
                 this.AttachDelegate($"{startName}.Info", () => {
                     var car = _values.GetCar(i);
                     if (car == null) return null;
-                    return $"#{car.Info.RaceNumber,-4}, isFinished:{car.IsFinished}, FinishTime:{car.FinishTime?.TotalSeconds}, L{car.RealtimeCarUpdate?.Laps}";
+                    return $"#{car.Info.RaceNumber,-4}, isFinished:{car.IsFinished}, FinishTime:{car.FinishTime?.TotalSeconds}, L{car.RealtimeCarUpdate?.Laps}, startPos:{car.StartPos:00}/{car.StartPosInClass:00}";
                 });
                 //this.AttachDelegate($"DBG.{startName}.SplinePosition", () => _values.GetCar(i)?.RealtimeCarUpdate?.SplinePosition);
                 //this.AttachDelegate($"DBG.{startName}.Laps", () => _values.GetCar(i)?.RealtimeCarUpdate?.Laps);
@@ -218,10 +218,9 @@ namespace KLPlugins.Leaderboard {
                 this.AttachDelegate($"{startName}.GapToFocusedTotal", () => _values.GetCar(i)?.GapToFocusedTotal);
                 this.AttachDelegate($"{startName}.ClassPosition", () => _values.GetCar(i)?.InClassPos);
                 this.AttachDelegate($"{startName}.OverallPosition", () => i + 1);
-                this.AttachDelegate($"{startName}.TotalSplinePosition", () => _values.GetCar(i)?.TotalSplinePosition);
-                this.AttachDelegate($"{startName}.LapsBySplinePosition", () => _values.GetCar(i)?.LapsBySplinePosition);
-                this.AttachDelegate($"{startName}.CarLocation", () => _values.GetCar(i)?.RealtimeCarUpdate?.CarLocation.ToString());
-                this.AttachDelegate($"{startName}.SplinePosition", () => _values.GetCar(i)?.RealtimeCarUpdate?.SplinePosition);
+                this.AttachDelegate($"{startName}.ClassPositionStart", () => _values.GetCar(i)?.StartPosInClass);
+                this.AttachDelegate($"{startName}.OverallPositionStart", () => _values.GetCar(i)?.StartPos);
+                this.AttachDelegate($"{startName}.IsFinished", () => _values.GetCar(i)?.IsFinished ?? false ? 1:0);
             };
 
             void addOverall(int i) {

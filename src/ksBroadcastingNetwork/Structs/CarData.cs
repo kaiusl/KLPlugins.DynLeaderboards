@@ -34,6 +34,8 @@ namespace KLPlugins.Leaderboard.ksBroadcastingNetwork.Structs {
         public int StartPos = -1;
         public int StartPosInClass = -1;
 
+        public int?[] BestLapSectors = new int?[] { null, null, null };
+
         private bool _isLapFinished = false;
         ////////////////////////
 
@@ -117,6 +119,13 @@ namespace KLPlugins.Leaderboard.ksBroadcastingNetwork.Structs {
                 }
 
                 TotalSplinePosition = update.SplinePosition + LapsBySplinePosition;
+            }
+
+            // Update best sectors.
+            if (RealtimeCarUpdate != null && RealtimeCarUpdate.Laps != update.Laps && update.LastLap.IsValidForBest && update.LastLap.LaptimeMS == update.BestSessionLap.LaptimeMS) {
+                for (int i = 0; i < 3; i++) {
+                    BestLapSectors[i] = update.LastLap.Splits[i];
+                }
             }
 
             RealtimeCarUpdate = update;

@@ -192,8 +192,25 @@ namespace KLPlugins.Leaderboard {
             void addCar(int i) {
                 var startName = $"Overall.{i + 1:00}";
                 this.AttachDelegate($"{startName}.Numlaps", () => _values.GetCar(i)?.RealtimeCarUpdate?.Laps);
-                this.AttachDelegate($"{startName}.LastLap", () => _values.GetCar(i)?.RealtimeCarUpdate?.LastLap.LaptimeMS / 1000.0);
+
+                this.AttachDelegate($"{startName}.LastLap", () => _values.GetCar(i)?.RealtimeCarUpdate?.LastLap?.LaptimeMS / 1000.0);
+                this.AttachDelegate($"{startName}.LastLapS1", () => _values.GetCar(i)?.RealtimeCarUpdate?.LastLap?.Splits[0] / 1000.0);
+                this.AttachDelegate($"{startName}.LastLapS2", () => _values.GetCar(i)?.RealtimeCarUpdate?.LastLap?.Splits[1] / 1000.0);
+                this.AttachDelegate($"{startName}.LastLapS3", () => _values.GetCar(i)?.RealtimeCarUpdate?.LastLap?.Splits[2] / 1000.0);
+
                 this.AttachDelegate($"{startName}.BestLap", () => _values.GetCar(i)?.RealtimeCarUpdate?.BestSessionLap.LaptimeMS / 1000.0);
+                this.AttachDelegate($"{startName}.BestLapS1", () => _values.GetCar(i)?.BestLapSectors[0] / 1000.0);
+                this.AttachDelegate($"{startName}.BestLapS2", () => _values.GetCar(i)?.BestLapSectors[1] / 1000.0);
+                this.AttachDelegate($"{startName}.BestLapS3", () => _values.GetCar(i)?.BestLapSectors[2] / 1000.0);
+
+                this.AttachDelegate($"{startName}.BestS1", () => _values.GetCar(i)?.RealtimeCarUpdate?.BestSessionLap?.Splits[0] / 1000.0);
+                this.AttachDelegate($"{startName}.BestS2", () => _values.GetCar(i)?.RealtimeCarUpdate?.BestSessionLap?.Splits[1] / 1000.0);
+                this.AttachDelegate($"{startName}.BestS3", () => _values.GetCar(i)?.RealtimeCarUpdate?.BestSessionLap?.Splits[2] / 1000.0);
+
+                this.AttachDelegate($"{startName}.CurrentLap", () => _values.GetCar(i)?.RealtimeCarUpdate?.CurrentLap?.LaptimeMS / 1000.0);
+
+
+
                 //this.AttachDelegate($"{startName}.CurrentDriverFirstName", () => _values.GetCar(i)?.GetCurrentDriver().FirstName);
                 //this.AttachDelegate($"{startName}.CurrentDriverLastName", () => _values.GetCar(i)?.GetCurrentDriver().LastName);
                 //this.AttachDelegate($"{startName}.CurrentDriverShortName", () => _values.GetCar(i)?.GetCurrentDriver().ShortName);
@@ -220,7 +237,7 @@ namespace KLPlugins.Leaderboard {
                 this.AttachDelegate($"{startName}.OverallPosition", () => i + 1);
                 this.AttachDelegate($"{startName}.ClassPositionStart", () => _values.GetCar(i)?.StartPosInClass);
                 this.AttachDelegate($"{startName}.OverallPositionStart", () => _values.GetCar(i)?.StartPos);
-                this.AttachDelegate($"{startName}.IsFinished", () => _values.GetCar(i)?.IsFinished ?? false ? 1:0);
+                this.AttachDelegate($"{startName}.IsFinished", () => (_values.GetCar(i)?.IsFinished ?? false) ? 1:0);
             };
 
             void addOverall(int i) {

@@ -414,7 +414,7 @@ namespace KLPlugins.Leaderboard {
             var startidx = LeaderboardPlugin.Settings.NumRelativePos - ahead.Count;
             var endidx = LeaderboardPlugin.Settings.NumRelativePos + behind.Count + 1;
             for (int i = 0; i < LeaderboardPlugin.Settings.NumRelativePos * 2 + 1; i++) {
-                if (i < startidx || i > endidx) {
+                if (i < startidx || i >= endidx) {
                     RelativePosOnTrackCarsIdxs[i] = -1;
                 }
             }

@@ -167,12 +167,19 @@ namespace KLPlugins.Leaderboard {
             //this.AttachDelegate("DBG.Realtime.SessionEndTime", () => _values.RealtimeUpdate?.SessionEndTime);
 
             void addCar(int i) {
-                var startName = $"DBG.Overall.{i + 1:00}";
-                this.AttachDelegate($"{startName}.Info", () => {
+                var startName = $"Overall.{i + 1:00}";
+                this.AttachDelegate($"DBG_info.{startName}", () => {
                     var car = _values.GetCar(i);
                     if (car == null) return null;
                     return $"#{car.Info.RaceNumber,-4}, isFinished:{car.IsFinished}, FinishTime:{car.FinishTime?.TotalSeconds}, L{car.RealtimeCarUpdate?.Laps}, startPos:{car.StartPos:00}/{car.StartPosInClass:00}, TSP:{car.TotalSplinePosition}";
                 });
+
+                this.AttachDelegate($"DBG_PitInfo.{startName}", () => {
+                    var car = _values.GetCar(i);
+                    if (car == null) return null;
+                    return $"#{car.Info.RaceNumber,-4}, InPitLane:{car.RealtimeCarUpdate?.CarLocation == CarLocationEnum.Pitlane,-5}, Count:{car.PitCount:00}, PitTimes(C/L/T):{_values.GetCar(i)?.GetCurrentTimeInPits(_values.RealtimeUpdate.SessionTime) ?? 0:000.0}/{_values.GetCar(i)?.LastPitTime:000.0}/{_values.GetCar(i)?.TotalPitTime:000.0}";
+                });
+
                 //this.AttachDelegate($"DBG.{startName}.SplinePosition", () => _values.GetCar(i)?.RealtimeCarUpdate?.SplinePosition);
                 //this.AttachDelegate($"DBG.{startName}.Laps", () => _values.GetCar(i)?.RealtimeCarUpdate?.Laps);
                 //this.AttachDelegate($"DBG.{startName}.LapsBySplinePosition", () => _values.GetCar(i)?.LapsBySplinePosition);
@@ -209,8 +216,6 @@ namespace KLPlugins.Leaderboard {
 
                 this.AttachDelegate($"{startName}.CurrentLap", () => _values.GetCar(i)?.RealtimeCarUpdate?.CurrentLap?.LaptimeMS / 1000.0);
 
-
-
                 //this.AttachDelegate($"{startName}.CurrentDriverFirstName", () => _values.GetCar(i)?.GetCurrentDriver().FirstName);
                 //this.AttachDelegate($"{startName}.CurrentDriverLastName", () => _values.GetCar(i)?.GetCurrentDriver().LastName);
                 //this.AttachDelegate($"{startName}.CurrentDriverShortName", () => _values.GetCar(i)?.GetCurrentDriver().ShortName);
@@ -229,6 +234,11 @@ namespace KLPlugins.Leaderboard {
                 this.AttachDelegate($"{startName}.DistToFocusedTotal", () => _values.GetCar(i)?.TotalDistanceToFocused);
                 this.AttachDelegate($"{startName}.DistToFocusedOnTrack", () => _values.GetCar(i)?.OnTrackDistanceToFocused);
                 this.AttachDelegate($"{startName}.IsInPitlane", () => _values.GetCar(i)?.RealtimeCarUpdate?.CarLocation == CarLocationEnum.Pitlane ? 1 : 0);
+                this.AttachDelegate($"{startName}.PitStopCount", () => _values.GetCar(i)?.PitCount);
+                this.AttachDelegate($"{startName}.PitTimeTotal", () => _values.GetCar(i)?.TotalPitTime);
+                this.AttachDelegate($"{startName}.PitTimeLast", () => _values.GetCar(i)?.LastPitTime);
+                this.AttachDelegate($"{startName}.PitTimeCurrent", () => _values.GetCar(i)?.GetCurrentTimeInPits(_values.RealtimeUpdate.SessionTime));
+
                 this.AttachDelegate($"{startName}.GapToLeader", () => _values.GetCar(i)?.GapToLeader);
                 this.AttachDelegate($"{startName}.GapToClassLeader", () => _values.GetCar(i)?.GapToClassLeader);
                 this.AttachDelegate($"{startName}.GapToFocusedOnTrack", () => _values.GetCar(i)?.GapToFocusedOnTrack);

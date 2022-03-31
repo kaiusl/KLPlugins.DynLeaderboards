@@ -36,6 +36,11 @@ namespace KLPlugins.Leaderboard.ksBroadcastingNetwork.Structs {
 
         public int?[] BestLapSectors = new int?[] { null, null, null };
 
+        public int PitCount = 0;
+        public TimeSpan? PitEnterTime = null;
+        public double TotalPitTime = 0;
+        public double LastPitTime = 0;
+
         private bool _isLapFinished = false;
         ////////////////////////
 
@@ -76,19 +81,19 @@ namespace KLPlugins.Leaderboard.ksBroadcastingNetwork.Structs {
         }
 
 
-        public void OnRealtimeCarUpdate(RealtimeCarUpdate update, RaceSessionType session, SessionPhase phase) {
+        public void OnRealtimeCarUpdate(RealtimeCarUpdate update, RealtimeUpdate realtimeUpdate) {
             if (IsFinished) return;
             
             if (RealtimeCarUpdate != null) _isLapFinished = update.Laps != RealtimeCarUpdate.Laps;
 
-            if (session == RaceSessionType.Race) {
+            if (realtimeUpdate.SessionType == RaceSessionType.Race) {
 
                 // If we start SimHub in the middle of session and cars are on the different laps, the car behind will gain a lap over
                 // For example: P1 has just crossed the line and has completed 3 laps, P2 has 2 laps
                 // But LapsBySplinePosition is 0 for both, if now P2 crosses the line,
                 // it's LapsBySplinePosition is increased and it would be shown lap ahead of tha actual leader
                 // Thus we add current laps to the LapsBySplinePosition
-                if (_isFirstUpdate && phase == SessionPhase.Session) {
+                if (_isFirstUpdate && realtimeUpdate.Phase == SessionPhase.Session) {
                     if (Values.TrackData == null || update.SplinePosition == 1 || update.SplinePosition == 0
                         || (Values.TrackData.TrackId == TrackType.Silverstone && 0.9789979 < update.SplinePosition && update.SplinePosition < 0.9791052) // Silverstone
                         || (Values.TrackData.TrackId == TrackType.Spa && 0.9961125 < update.SplinePosition && update.SplinePosition < 0.9962250) // Spa
@@ -114,11 +119,23 @@ namespace KLPlugins.Leaderboard.ksBroadcastingNetwork.Structs {
 
                 // On certain tracks (Spa) first half of the grid is ahead of the start/finish line,
                 // need to add the line crossing lap, otherwise they will be shown lap behind
-                if (RealtimeCarUpdate != null && (phase == SessionPhase.PreFormation) && update.SplinePosition < 0.1 && LapsBySplinePosition == 0) {
+                if (RealtimeCarUpdate != null && (realtimeUpdate.Phase == SessionPhase.PreFormation) && update.SplinePosition < 0.1 && LapsBySplinePosition == 0) {
                     LapsBySplinePosition++;
                 }
 
                 TotalSplinePosition = update.SplinePosition + LapsBySplinePosition;
+
+                if (RealtimeCarUpdate != null && RealtimeCarUpdate.CarLocation != CarLocationEnum.Pitlane && update.CarLocation == CarLocationEnum.Pitlane) {
+                    PitCount++;
+                    PitEnterTime = realtimeUpdate.SessionTime;
+                }
+
+                if (PitEnterTime != null && update.CarLocation != CarLocationEnum.Pitlane) {
+                    LastPitTime = (realtimeUpdate.SessionTime).TotalSeconds - ((TimeSpan)PitEnterTime).TotalSeconds;
+                    TotalPitTime += LastPitTime;
+                    PitEnterTime = null;
+                }
+
             }
 
             // Update best sectors.
@@ -129,6 +146,11 @@ namespace KLPlugins.Leaderboard.ksBroadcastingNetwork.Structs {
             }
 
             RealtimeCarUpdate = update;
+        }
+
+        public double? GetCurrentTimeInPits(TimeSpan sessionTime) {
+            if (PitEnterTime == null) return null;
+            return sessionTime.TotalSeconds - ((TimeSpan)PitEnterTime).TotalSeconds;
         }
 
         private bool _isRaceFinishPosSet = false;

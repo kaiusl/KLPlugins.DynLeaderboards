@@ -483,7 +483,7 @@ namespace KLPlugins.Leaderboard {
             var idx = Cars.FindIndex(x => x.Info.CarIndex == update.CarIndex);
             if (idx == -1) return; // Car wasn't found, wait for entry list update
             var car = Cars[idx];
-            car.OnRealtimeCarUpdate(update, RealtimeUpdate.SessionType, RealtimeUpdate.Phase);
+            car.OnRealtimeCarUpdate(update, RealtimeUpdate);
             _lastUpdateCarIds.Add(car.Info.CarIndex);
 
             if (car.LapsBySplinePosition == 2 && update.SplinePosition != 1) {

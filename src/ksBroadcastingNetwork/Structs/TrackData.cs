@@ -36,10 +36,10 @@ namespace KLPlugins.Leaderboard.ksBroadcastingNetwork.Structs
 
 
         private static void AddLapInterpolator(CarClass cls, CarClass[] replacements) {
-            var fname = $"{LeaderboardPlugin.Settings.PluginDataLocation}\\laps\\{Values.TrackData.TrackId}_{cls}.txt";
+            var fname = $"{LeaderboardPlugin.Settings.PluginDataLocation}\\laps\\{(int)Values.TrackData.TrackId}_{cls}.txt";
             if (!File.Exists(fname)) {
                 foreach (var replacement in replacements) {
-                    fname = $"{LeaderboardPlugin.Settings.PluginDataLocation}\\laps\\{Values.TrackData.TrackId}_{replacement}.txt";
+                    fname = $"{LeaderboardPlugin.Settings.PluginDataLocation}\\laps\\{(int)Values.TrackData.TrackId}_{replacement}.txt";
                     if (File.Exists(fname)) {
                         break;
                     }

@@ -52,20 +52,20 @@ namespace KLPlugins.Leaderboard {
         public void DataUpdate(PluginManager pluginManager, ref GameData data) {
             if (!Game.IsAcc) { return; } // Atm only ACC is supported
 
-            if (data.GameRunning && data.OldData != null && data.NewData != null) {
-                _values.OnDataUpdate(pluginManager, data);
+            //if (data.GameRunning && data.OldData != null && data.NewData != null) {
+            //    _values.OnDataUpdate(pluginManager, data);
 
-                var laps = (int)pluginManager.GetPropertyValue<SimHub.Plugins.DataPlugins.DataCore.DataCorePlugin>("GameRawData.Graphics.CompletedLaps");
-                var pos = (float)pluginManager.GetPropertyValue<SimHub.Plugins.DataPlugins.DataCore.DataCorePlugin>("GameRawData.Graphics.NormalizedCarPosition");
-                var track = (string)PluginManager.GetPropertyValue<SimHub.Plugins.DataPlugins.DataCore.DataCorePlugin>("GameData.TrackId");
+            //    var laps = (int)pluginManager.GetPropertyValue<SimHub.Plugins.DataPlugins.DataCore.DataCorePlugin>("GameRawData.Graphics.CompletedLaps");
+            //    var pos = (float)pluginManager.GetPropertyValue<SimHub.Plugins.DataPlugins.DataCore.DataCorePlugin>("GameRawData.Graphics.NormalizedCarPosition");
+            //    var track = (string)PluginManager.GetPropertyValue<SimHub.Plugins.DataPlugins.DataCore.DataCorePlugin>("GameData.TrackId");
 
-                if (pos > 0.9 || pos < 0.1) {
-                    File.AppendAllText($"{Settings.PluginDataLocation}\\{track}_pos.txt", $"\n{pos};{laps};");
-                }
+            //    if (pos > 0.9 || pos < 0.1) {
+            //        File.AppendAllText($"{Settings.PluginDataLocation}\\{track}_pos.txt", $"\n{pos};{laps};");
+            //    }
 
-                prevPos = pos;
-                prevLaps = laps;
-            }
+            //    prevPos = pos;
+            //    prevLaps = laps;
+            //}
         }
 
         /// <summary>
@@ -167,11 +167,16 @@ namespace KLPlugins.Leaderboard {
             //this.AttachDelegate("DBG.Realtime.SessionEndTime", () => _values.RealtimeUpdate?.SessionEndTime);
 
             void addCar(int i) {
-                var startName = $"Overall.{i + 1:00}";
-                this.AttachDelegate($"DBG.{startName}.SplinePosition", () => _values.GetCar(i)?.RealtimeCarUpdate?.SplinePosition);
-                this.AttachDelegate($"DBG.{startName}.Laps", () => _values.GetCar(i)?.RealtimeCarUpdate?.Laps);
-                this.AttachDelegate($"DBG.{startName}.LapsBySplinePosition", () => _values.GetCar(i)?.LapsBySplinePosition);
-                this.AttachDelegate($"DBG.{startName}.TotalSplinePosition", () => _values.GetCar(i)?.TotalSplinePosition);
+                var startName = $"DBG.Overall.{i + 1:00}";
+                this.AttachDelegate($"{startName}.Info", () => {
+                    var car = _values.GetCar(i);
+                    if (car == null) return null;
+                    return $"#{car.Info.RaceNumber,-4}, isFinished:{car.IsFinished}, FinishTime:{car.FinishTime?.TotalSeconds}, L{car.RealtimeCarUpdate?.Laps}";
+                });
+                //this.AttachDelegate($"DBG.{startName}.SplinePosition", () => _values.GetCar(i)?.RealtimeCarUpdate?.SplinePosition);
+                //this.AttachDelegate($"DBG.{startName}.Laps", () => _values.GetCar(i)?.RealtimeCarUpdate?.Laps);
+                //this.AttachDelegate($"DBG.{startName}.LapsBySplinePosition", () => _values.GetCar(i)?.LapsBySplinePosition);
+                //this.AttachDelegate($"DBG.{startName}.TotalSplinePosition", () => _values.GetCar(i)?.TotalSplinePosition);
             };
 
             for (int i = 0; i < Settings.NumOverallPos; i++) {

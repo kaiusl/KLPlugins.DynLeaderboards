@@ -216,6 +216,8 @@ namespace KLPlugins.Leaderboard {
 
         private bool didCarsOrderChange = true;
         private void OnBroadcastRealtimeUpdate(string sender, RealtimeUpdate update) {
+            //var swatch = Stopwatch.StartNew();
+
             var isNewSession = false;
             if (RealtimeUpdate != null && (
                 RealtimeUpdate.SessionType != update.SessionType 
@@ -243,6 +245,12 @@ namespace KLPlugins.Leaderboard {
                 UpdateCarData();
             }
 
+
+
+            //swatch.Stop();
+            //TimeSpan ts = swatch.Elapsed;
+            //File.AppendAllText($"{LeaderboardPlugin.Settings.PluginDataLocation}\\Logs\\timings\\OnRealtimeUpdate_{LeaderboardPlugin.PluginStartTime}.txt", $"{ts.TotalMilliseconds};{didCarsOrderChange}\n");
+
             didCarsOrderChange = false;
         }
 
@@ -255,7 +263,6 @@ namespace KLPlugins.Leaderboard {
             // Then we could possibly remove cars that are actually still in session
             // Thus we keep track of how many times in order each car hasn't recieved the update
             // If it's larger than some number, we remove the car
-
             if (_lastUpdateCarIds.Count != 0) {
                 foreach (var car in Cars) {
                     if (!_lastUpdateCarIds.Contains(car.Info.CarIndex)) {
@@ -265,12 +272,13 @@ namespace KLPlugins.Leaderboard {
                     }
                 }
 
-                var numRemovedCars = Cars.RemoveAll(x => x.MissedRealtimeUpdates > 10);
+                // Also don't remove cars that have finished as we want to freeze the results
+                var numRemovedCars = Cars.RemoveAll(x => x.MissedRealtimeUpdates > 10 && !x.IsFinished);
                 if (numRemovedCars > 0) { 
                     didCarsOrderChange = true;
                 }
-                _lastUpdateCarIds.Clear();
             }
+            _lastUpdateCarIds.Clear();
         }
 
         private void SetOverallOrder() {
@@ -281,7 +289,7 @@ namespace KLPlugins.Leaderboard {
                 // Also larger TotalSplinePosition means car is in front, so sort in descending order
 
                 int cmp(CarData a, CarData b) {
-                    if (a.TotalSplinePosition == b.TotalSplinePosition && a.RealtimeCarUpdate != null && b.RealtimeCarUpdate != null) {
+                    if ((a.IsFinished || b.IsFinished || a.TotalSplinePosition == b.TotalSplinePosition) && a.RealtimeCarUpdate != null && b.RealtimeCarUpdate != null) {
                         return a.RealtimeCarUpdate.Position.CompareTo(b.RealtimeCarUpdate.Position);
                     }
                     return b.TotalSplinePosition.CompareTo(a.TotalSplinePosition);
@@ -321,12 +329,14 @@ namespace KLPlugins.Leaderboard {
             var focusedCar = Cars[FocusedCarIdx];
             var focusedClass = focusedCar.Info.CarClass;
 
+
             if (didCarsOrderChange) {
                 BestLapByClassCarIdxs.Clear(); // Cars order is changed, need to re add them
                 _classLeaderIdxs.Clear();
             }
             for (int i = 0; i < Cars.Count; i++) {
                 var thisCar = Cars[i];
+
                 var thisClass = thisCar.Info.CarClass;
                 if (didCarsOrderChange || _classLeaderIdxs.Count == 0) {
                     if (classPos.ContainsKey(thisClass)) {
@@ -344,7 +354,8 @@ namespace KLPlugins.Leaderboard {
 
                 var relSplinePos = thisCar.CalculateRelativeSplinePosition(focusedCar);
                 thisCar.OnRealtimeUpdate(RealtimeUpdate, leaderCar, Cars[_classLeaderIdxs[thisClass]], focusedCar, didCarsOrderChange ? classPos[thisClass] : 0, relSplinePos);
-                _relativeSplinePositions.Add(new CarSplinePos(i, relSplinePos));
+                // Since we cannot remove cars after finish, don't add cars that have left to the relative
+                if (thisCar.MissedRealtimeUpdates < 10) _relativeSplinePositions.Add(new CarSplinePos(i, relSplinePos));
 
                 // Update best laps
                 var thisBest = thisCar.RealtimeCarUpdate?.BestSessionLap?.LaptimeMS / 1000.0;

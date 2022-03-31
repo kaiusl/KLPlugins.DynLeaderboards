@@ -189,6 +189,11 @@ namespace KLPlugins.Leaderboard.ksBroadcastingNetwork.Structs {
     }
 
         private void CalculateGapToLeader(CarData leader) {
+            if (OverallPos == 1) {
+                GapToLeader = 0;
+                return;
+            }
+
             if (DistanceToLeader > Values.TrackData.TrackMeters) {
                 GapToLeader = -Math.Floor((DistanceToLeader) / Values.TrackData.TrackMeters);
             } else {
@@ -212,6 +217,11 @@ namespace KLPlugins.Leaderboard.ksBroadcastingNetwork.Structs {
         }
 
         private void CalculateGapToClassLeader(CarData classLeader) {
+            if (InClassPos == 1) { 
+                GapToClassLeader = 0;
+                return;
+            }
+
             if (DistanceToClassLeader > Values.TrackData.TrackMeters) {
                 GapToClassLeader = -Math.Floor((DistanceToClassLeader) / Values.TrackData.TrackMeters);
             } else {
@@ -235,6 +245,11 @@ namespace KLPlugins.Leaderboard.ksBroadcastingNetwork.Structs {
         }
 
         private void CalculateGapToFocusedTotal(CarData focusedCar) {
+            if (focusedCar.Info.CarIndex == Info.CarIndex) { 
+                GapToFocusedTotal = 0;
+                return;
+            }
+
             if (TotalDistanceToFocused > Values.TrackData.TrackMeters) { 
                 // This car is more than a lap behind of focused car
                 GapToFocusedTotal = -Math.Floor(Math.Abs(TotalDistanceToFocused / Values.TrackData.TrackMeters)) + 10000;
@@ -243,13 +258,7 @@ namespace KLPlugins.Leaderboard.ksBroadcastingNetwork.Structs {
                 GapToFocusedTotal = Math.Floor(Math.Abs(TotalDistanceToFocused / Values.TrackData.TrackMeters)) + 10000;
             } else {
                 if (IsFinished && focusedCar.IsFinished) {
-                    if (FinishTime > focusedCar.FinishTime) {
-                        // We finished behind
-                        GapToClassLeader = ((TimeSpan)FinishTime).TotalSeconds - ((TimeSpan)focusedCar.FinishTime).TotalSeconds;
-                    } else {
-                        // We finished ahead
-                        GapToClassLeader = ((TimeSpan)focusedCar.FinishTime).TotalSeconds - ((TimeSpan)FinishTime).TotalSeconds;
-                    }
+                    GapToFocusedTotal = ((TimeSpan)focusedCar.FinishTime).TotalSeconds - ((TimeSpan)FinishTime).TotalSeconds;
                     return;
                 }
 
@@ -275,7 +284,7 @@ namespace KLPlugins.Leaderboard.ksBroadcastingNetwork.Structs {
                 } else {
                     // This car is behind of focused, gap should be the time it takes us to reach focused car
                     // That is use this cars lap data to calculate gap
-                    if (focusedCar.IsFinished) {
+                    if (!focusedCar.IsFinished) {
                         if (!TrackData.LapInterpolators.ContainsKey(Info.CarClass)) { // If this car's best lap is not available, use focused car's
                             gap = -CalculateGapBetweenPos(thisPos, focusedPos, TrackData.LapInterpolators[focusedCar.Info.CarClass]);
                         } else {

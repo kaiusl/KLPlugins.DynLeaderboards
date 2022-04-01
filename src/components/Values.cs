@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.Linq;
 using KLPlugins.Leaderboard.Enums;
 using Newtonsoft.Json;
+using KLPlugins.Leaderboard.src.ksBroadcastingNetwork.Structs;
 
 namespace KLPlugins.Leaderboard {
 
@@ -31,7 +32,7 @@ namespace KLPlugins.Leaderboard {
         }
 
         public ACCUdpRemoteClient BroadcastClient { get; private set; }
-        public RealtimeUpdate RealtimeUpdate { get; private set; }
+        public RealtimeData RealtimeData { get; private set; }
         public static TrackData TrackData { get; private set; }
 
         // Idea with cars is to store one copy of data
@@ -52,6 +53,9 @@ namespace KLPlugins.Leaderboard {
         private bool didFocusedChange = true;
         private bool _startingPositionsSet = false;
 
+        public double MaxDriverStintTime = -1;
+        public double MaxDriverTotalDriveTime = -1;
+
         public Values() {
             Cars = new List<CarData>();
             PosInClassCarsIdxs = new int[LeaderboardPlugin.Settings.NumOverallPos];
@@ -64,7 +68,7 @@ namespace KLPlugins.Leaderboard {
             if (BroadcastClient != null) {
                 DisposeBroadcastClient();
             }
-            RealtimeUpdate = null;
+            RealtimeData = null;
             TrackData = null;
             Cars.Clear();
             ResetPos();
@@ -75,6 +79,8 @@ namespace KLPlugins.Leaderboard {
             didFocusedChange = true;
             didCarsOrderChange = true;
             _startingPositionsSet = false;
+            MaxDriverStintTime = -1;
+            MaxDriverTotalDriveTime = -1;
         }
 
         private void ResetPos() {
@@ -226,17 +232,15 @@ namespace KLPlugins.Leaderboard {
         private void OnBroadcastRealtimeUpdate(string sender, RealtimeUpdate update) {
             //var swatch = Stopwatch.StartNew();
 
-            var isNewSession = false;
-            if (RealtimeUpdate != null && (
-                RealtimeUpdate.SessionType != update.SessionType 
-                || RealtimeUpdate.SessionIndex != update.SessionIndex 
-                || (RealtimeUpdate.Phase == SessionPhase.Session && (update.Phase == SessionPhase.Starting || update.Phase == SessionPhase.PreFormation || update.Phase == SessionPhase.PreSession))
-             )) {
+            if (RealtimeData == null) {
+                RealtimeData = new RealtimeData(update);
+                return;
+            } else {
+                RealtimeData.OnRealtimeUpdate(update);
+            }
+
+            if (RealtimeData.IsNewSession) {
                 LeaderboardPlugin.LogInfo("New session.");
-                isNewSession = true;
-                //foreach (var car in Cars) {
-                //    car.OnNewSession();
-                //}
                 Cars.Clear();
                 BroadcastClient.MessageHandler.RequestEntryList();
                 ResetPos();
@@ -247,15 +251,23 @@ namespace KLPlugins.Leaderboard {
                 didFocusedChange = true;
             }
 
-            if (RealtimeUpdate != null) didFocusedChange = RealtimeUpdate.FocusedCarIndex != update.FocusedCarIndex;
-            RealtimeUpdate = update;
+            if (RealtimeData.IsRace && RealtimeData.IsPreSession && MaxDriverStintTime == -1) {
+                MaxDriverStintTime = (int)LeaderboardPlugin.PManager.GetPropertyValue<SimHub.Plugins.DataPlugins.DataCore.DataCorePlugin>("GameRawData.Graphics.DriverStintTimeLeft") / 1000.0;
+                MaxDriverTotalDriveTime = (int)LeaderboardPlugin.PManager.GetPropertyValue<SimHub.Plugins.DataPlugins.DataCore.DataCorePlugin>("GameRawData.Graphics.DriverStintTotalTimeLeft") / 1000.0;
+                if (MaxDriverTotalDriveTime == 65535) { // This is max, essentially the limit doesn't exist then
+                    MaxDriverTotalDriveTime = -1;
+                }
+            
+            }
+
+
             if (Cars.Count == 0) return;
             ClearMissingCars();
             SetOverallOrder();
             if (didCarsOrderChange || didFocusedChange || FocusedCarIdx == -1) {
                 FocusedCarIdx = Cars.FindIndex(x => x.CarIndex == update.FocusedCarIndex);
             }
-            if (FocusedCarIdx != -1 && !isNewSession) {
+            if (FocusedCarIdx != -1 && !RealtimeData.IsNewSession) {
                 UpdateCarData();
             }
 
@@ -295,10 +307,10 @@ namespace KLPlugins.Leaderboard {
 
         private void SetOverallOrder() {
             // Sort cars in overall position order
-            if (RealtimeUpdate.SessionType == RaceSessionType.Race) {
+            if (RealtimeData.IsRace) {
                 // Set starting positions. Should be set by ACCs positions as positions by splinePosition can be slightly off from that
-                if (!_startingPositionsSet && Cars.All(x => x.RealtimeCarUpdate != null)) {
-                    Cars.Sort((a, b) => a.RealtimeCarUpdate.Position.CompareTo(b.RealtimeCarUpdate.Position));
+                if (!_startingPositionsSet && Cars.All(x => x.NewData != null)) {
+                    Cars.Sort((a, b) => a.NewData.Position.CompareTo(b.NewData.Position));
                     Dictionary<CarClass, int> classPos = new Dictionary<CarClass, int>();
 
                     for (int i = 0; i < Cars.Count; i++) {
@@ -323,8 +335,8 @@ namespace KLPlugins.Leaderboard {
                 // Also larger TotalSplinePosition means car is in front, so sort in descending order
 
                 int cmp(CarData a, CarData b) {
-                    if ((a.IsFinished || b.IsFinished || a.TotalSplinePosition == b.TotalSplinePosition) && a.RealtimeCarUpdate != null && b.RealtimeCarUpdate != null) {
-                        return a.RealtimeCarUpdate.Position.CompareTo(b.RealtimeCarUpdate.Position);
+                    if ((a.IsFinished || b.IsFinished || a.TotalSplinePosition == b.TotalSplinePosition) && a.NewData != null && b.NewData != null) {
+                        return a.NewData.Position.CompareTo(b.NewData.Position);
                     }
                     return b.TotalSplinePosition.CompareTo(a.TotalSplinePosition);
                 };
@@ -334,16 +346,12 @@ namespace KLPlugins.Leaderboard {
                     Cars.Sort(cmp);
                     didCarsOrderChange = true;
                 }
-
-
-
-
             } else {
                 // In other sessions TotalSplinePosition doesn't make any sense, use RealtimeCarUpdate.Position
 
                 int cmp(CarData a, CarData b) {
-                    var apos = a.RealtimeCarUpdate?.Position ?? 1001;
-                    var bpos = b.RealtimeCarUpdate?.Position ?? 1000;
+                    var apos = a.NewData?.Position ?? 1001;
+                    var bpos = b.NewData?.Position ?? 1000;
                     return apos.CompareTo(bpos);
                 }
 
@@ -391,21 +399,21 @@ namespace KLPlugins.Leaderboard {
                 }
 
                 var relSplinePos = thisCar.CalculateRelativeSplinePosition(focusedCar);
-                thisCar.OnRealtimeUpdate(RealtimeUpdate, leaderCar, Cars[_classLeaderIdxs[thisClass]], focusedCar, i + 1, didCarsOrderChange ? classPos[thisClass] : 0, relSplinePos);;
+                thisCar.OnRealtimeUpdate(RealtimeData, leaderCar, Cars[_classLeaderIdxs[thisClass]], focusedCar, i + 1, didCarsOrderChange ? classPos[thisClass] : 0, relSplinePos);;
                 // Since we cannot remove cars after finish, don't add cars that have left to the relative
                 if (thisCar.MissedRealtimeUpdates < 10) _relativeSplinePositions.Add(new CarSplinePos(i, relSplinePos));
 
                 // Update best laps
-                var thisBest = thisCar.RealtimeCarUpdate?.BestSessionLap?.LaptimeMS / 1000.0;
+                var thisBest = thisCar.NewData?.BestSessionLap?.LaptimeMS / 1000.0;
                 if (thisBest != null) {
                     if (BestLapByClassCarIdxs.ContainsKey(thisClass)) {
-                        if (Cars[BestLapByClassCarIdxs[thisClass]].RealtimeCarUpdate.BestSessionLap.LaptimeMS / 1000.0 >= thisBest) BestLapByClassCarIdxs[thisClass] = i;
+                        if (Cars[BestLapByClassCarIdxs[thisClass]].NewData.BestSessionLap.LaptimeMS / 1000.0 >= thisBest) BestLapByClassCarIdxs[thisClass] = i;
                     } else {
                         BestLapByClassCarIdxs[thisClass] = i;
                     }
 
                     if (BestLapByClassCarIdxs.ContainsKey(CarClass.Overall)) {
-                        if (Cars[BestLapByClassCarIdxs[CarClass.Overall]].RealtimeCarUpdate.BestSessionLap.LaptimeMS / 1000.0 >= thisBest) BestLapByClassCarIdxs[CarClass.Overall] = i;
+                        if (Cars[BestLapByClassCarIdxs[CarClass.Overall]].NewData.BestSessionLap.LaptimeMS / 1000.0 >= thisBest) BestLapByClassCarIdxs[CarClass.Overall] = i;
                     } else {
                         BestLapByClassCarIdxs[CarClass.Overall] = i;
                     }
@@ -477,13 +485,13 @@ namespace KLPlugins.Leaderboard {
 
         #region RealtimeCarUpdate
         private void OnRealtimeCarUpdate(string sender, RealtimeCarUpdate update) {
-            if (RealtimeUpdate == null) return;
+            if (RealtimeData == null) return;
             // Update Realtime data of existing cars
             // If found new car, BroadcastClient itself requests new entry list
             var idx = Cars.FindIndex(x => x.CarIndex == update.CarIndex);
             if (idx == -1) return; // Car wasn't found, wait for entry list update
             var car = Cars[idx];
-            car.OnRealtimeCarUpdate(update, RealtimeUpdate);
+            car.OnRealtimeCarUpdate(update, RealtimeData);
             _lastUpdateCarIds.Add(car.CarIndex);
 
             if (car.LapsBySplinePosition == 2 && update.SplinePosition != 1) {

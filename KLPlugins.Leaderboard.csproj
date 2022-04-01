@@ -127,6 +127,7 @@
     <Compile Include="src\ksBroadcastingNetwork\Structs\DriverInfo.cs" />
     <Compile Include="src\ksBroadcastingNetwork\Structs\LapInfo.cs" />
     <Compile Include="src\ksBroadcastingNetwork\Structs\RealtimeCarUpdate.cs" />
+    <Compile Include="src\ksBroadcastingNetwork\Structs\RealtimeData.cs" />
     <Compile Include="src\ksBroadcastingNetwork\Structs\RealtimeUpdate.cs" />
     <Compile Include="src\ksBroadcastingNetwork\Structs\TrackData.cs" />
     <Compile Include="src\plugin\LeaderboardPlugin.cs" />

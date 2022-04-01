@@ -13,11 +13,9 @@ namespace KLPlugins.Leaderboard {
         public string ShortName { get; internal set; }
         public DriverCategory Category { get; internal set; }
         public NationalityEnum Nationality { get; internal set; }
-        public double TotalDrivingTime { get; internal set; }
-        public int TotalLaps { get; internal set; }
-        public LapInfo BestSessionLap { get; internal set; }
-        public double LastStintTime { get; internal set; }
-        public int LapsInLastStint { get; internal set; }
+        public int TotalLaps { get; internal set; } = 0;
+        public LapInfo BestSessionLap { get; internal set; } = null;
+        private double _totalDrivingTime = 0;
 
         public DriverData(DriverInfo info) { 
             FirstName = info.FirstName;
@@ -26,6 +24,23 @@ namespace KLPlugins.Leaderboard {
             Category = info.Category;
             Nationality = info.Nationality;
         }
+
+        public void OnLapFinished(LapInfo lastLap) {
+            TotalLaps++;
+            if (BestSessionLap?.LaptimeMS == null || (lastLap.IsValidForBest && BestSessionLap.LaptimeMS > lastLap.LaptimeMS)) {
+                BestSessionLap = lastLap;
+            }
+        }
+
+        public void OnStintEnd(double lastStintTime) { 
+            _totalDrivingTime += lastStintTime;
+        }
+
+        public double GetTotalDrivingTime(bool isDriving = false, double currentStintTime = double.NaN) {
+            if (isDriving && !double.IsNaN(currentStintTime)) return _totalDrivingTime + currentStintTime;
+            return _totalDrivingTime;
+        }
+ 
 
         public string FullName() {
             return FirstName + " " + LastName;
@@ -50,8 +65,6 @@ namespace KLPlugins.Leaderboard {
             }
         }
 
-        public override bool Equals(object obj) => this.Equals(obj as DriverInfo);
-
         public bool Equals(DriverInfo p) {
             if (p is null) {
                 return false;
@@ -72,23 +85,6 @@ namespace KLPlugins.Leaderboard {
             // System.Object, which defines Equals as reference equality.
             return (FirstName == p.FirstName) && (LastName == p.LastName) && (ShortName == p.ShortName) && (Nationality == p.Nationality) && (Category == p.Category);
         }
-
-        public override int GetHashCode() => (FirstName, LastName, ShortName, Nationality, Category).GetHashCode();
-
-        public static bool operator ==(DriverData lhs, DriverInfo rhs) {
-            if (lhs is null) {
-                if (rhs is null) {
-                    return true;
-                }
-
-                // Only the left side is null.
-                return false;
-            }
-            // Equals handles case of null on right side.
-            return lhs.Equals(rhs);
-        }
-
-        public static bool operator !=(DriverData lhs, DriverInfo rhs) => !(lhs == rhs);
 
     }
 }

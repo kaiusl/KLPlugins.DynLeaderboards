@@ -49,8 +49,6 @@ namespace KLPlugins.Leaderboard {
         private Dictionary<CarClass, int> _classLeaderIdxs = new Dictionary<CarClass, int>(); // Indexes of class leaders in Cars list
         private List<ushort> _lastUpdateCarIds = new List<ushort>();
         private ACCUdpRemoteClientConfig _broadcastConfig;
-        private bool didCarsOrderChange = true;
-        private bool didFocusedChange = true;
         private bool _startingPositionsSet = false;
 
         public double MaxDriverStintTime = -1;
@@ -76,8 +74,6 @@ namespace KLPlugins.Leaderboard {
             BestLapByClassCarIdxs.Clear();
             _classLeaderIdxs.Clear();
             _relativeSplinePositions.Clear();
-            didFocusedChange = true;
-            didCarsOrderChange = true;
             _startingPositionsSet = false;
             MaxDriverStintTime = -1;
             MaxDriverTotalDriveTime = -1;
@@ -173,6 +169,30 @@ namespace KLPlugins.Leaderboard {
             return BestLapByClassCarIdxs[(CarClass)focusedClass];
         }
 
+        //public double? GetGapToCarAhead(int i) { 
+        //    if (i == 0) return 0; // This is the leader
+        //    if (i > Cars.Count - 1) return null;
+
+        //    var ahead = Cars[i - 1].GapToLeader;
+        //    var this_ = Cars[i].GapToLeader;
+        //    if (this_ < 0 && ahead > 0) {
+        //        return this_;
+        //    }
+
+        //    return this_ - ahead;
+        //}
+
+        //public double? GetGapToCarBehind(int i) { 
+        //    if (i == Cars.Count - 1) return 0; // This is the last car
+        //    if (i > Cars.Count - 1) return null;
+
+        //    var behind = Cars[i + 1].GapToLeader;
+        //    var this_ = Cars[i].GapToLeader;
+        //    if (behind < 0 && this_ > 0) {
+        //        return behind;
+        //    }
+        //    return behind - this_;
+        //}
 
         // DBG
         public CarData DbgGetInClassPos(int i) {
@@ -230,7 +250,7 @@ namespace KLPlugins.Leaderboard {
 
 
         private void OnBroadcastRealtimeUpdate(string sender, RealtimeUpdate update) {
-            //var swatch = Stopwatch.StartNew();
+            var swatch = Stopwatch.StartNew();
 
             if (RealtimeData == null) {
                 RealtimeData = new RealtimeData(update);
@@ -247,8 +267,6 @@ namespace KLPlugins.Leaderboard {
                 _lastUpdateCarIds.Clear();
                 _relativeSplinePositions.Clear();
                 _startingPositionsSet = false;
-                didCarsOrderChange = true;
-                didFocusedChange = true;
             }
 
             if (RealtimeData.IsRace && RealtimeData.IsPreSession && MaxDriverStintTime == -1) {
@@ -257,25 +275,20 @@ namespace KLPlugins.Leaderboard {
                 if (MaxDriverTotalDriveTime == 65535) { // This is max, essentially the limit doesn't exist then
                     MaxDriverTotalDriveTime = -1;
                 }
-            
             }
 
 
             if (Cars.Count == 0) return;
             ClearMissingCars();
             SetOverallOrder();
-            if (didCarsOrderChange || didFocusedChange || FocusedCarIdx == -1) {
-                FocusedCarIdx = Cars.FindIndex(x => x.CarIndex == update.FocusedCarIndex);
-            }
+            FocusedCarIdx = Cars.FindIndex(x => x.CarIndex == update.FocusedCarIndex);
             if (FocusedCarIdx != -1 && !RealtimeData.IsNewSession) {
                 UpdateCarData();
             }
 
-            //swatch.Stop();
-            //TimeSpan ts = swatch.Elapsed;
-            //File.AppendAllText($"{LeaderboardPlugin.Settings.PluginDataLocation}\\Logs\\timings\\OnRealtimeUpdate_{LeaderboardPlugin.PluginStartTime}.txt", $"{ts.TotalMilliseconds};{didCarsOrderChange}\n");
-
-            didCarsOrderChange = false;
+            swatch.Stop();
+            TimeSpan ts = swatch.Elapsed;
+            File.AppendAllText($"{LeaderboardPlugin.Settings.PluginDataLocation}\\Logs\\timings\\OnRealtimeUpdate_{LeaderboardPlugin.PluginStartTime}.txt", $"{ts.TotalMilliseconds}\n");
         }
 
         private void ClearMissingCars() {
@@ -298,9 +311,6 @@ namespace KLPlugins.Leaderboard {
 
                 // Also don't remove cars that have finished as we want to freeze the results
                 var numRemovedCars = Cars.RemoveAll(x => x.MissedRealtimeUpdates > 10 && !x.IsFinished);
-                if (numRemovedCars > 0) { 
-                    didCarsOrderChange = true;
-                }
             }
             _lastUpdateCarIds.Clear();
         }
@@ -310,23 +320,7 @@ namespace KLPlugins.Leaderboard {
             if (RealtimeData.IsRace) {
                 // Set starting positions. Should be set by ACCs positions as positions by splinePosition can be slightly off from that
                 if (!_startingPositionsSet && Cars.All(x => x.NewData != null)) {
-                    Cars.Sort((a, b) => a.NewData.Position.CompareTo(b.NewData.Position));
-                    Dictionary<CarClass, int> classPos = new Dictionary<CarClass, int>();
-
-                    for (int i = 0; i < Cars.Count; i++) {
-                        var thisCar = Cars[i];
-
-                        var thisClass = thisCar.CarClass;
-                        if (classPos.ContainsKey(thisClass)) {
-                            classPos[thisClass]++;
-                        } else {
-                            // First time seeing this class car, must be the class leader
-                            classPos[thisClass] = 1;
-                        }
-
-                        thisCar.SetStartingPositions(i + 1, classPos[thisClass]);
-                    }
-                    _startingPositionsSet = true;
+                    SetStartionOrder();
                 }
 
 
@@ -341,11 +335,7 @@ namespace KLPlugins.Leaderboard {
                     return b.TotalSplinePosition.CompareTo(a.TotalSplinePosition);
                 };
 
-                var sorted = Cars.Zip(Cars.Skip(1), (a, b) => cmp(a, b)).All(x => x <= 0);
-                if (!sorted) {
-                    Cars.Sort(cmp);
-                    didCarsOrderChange = true;
-                }
+                Cars.Sort(cmp);
             } else {
                 // In other sessions TotalSplinePosition doesn't make any sense, use RealtimeCarUpdate.Position
 
@@ -355,12 +345,29 @@ namespace KLPlugins.Leaderboard {
                     return apos.CompareTo(bpos);
                 }
 
-                var sorted = Cars.Zip(Cars.Skip(1), (a, b) => cmp(a, b)).All(x => x <= 0);
-                if (!sorted) {
-                    Cars.Sort(cmp);
-                    didCarsOrderChange = true;
-                }
+
+                 Cars.Sort(cmp);
             }
+        }
+
+        private void SetStartionOrder() {
+            Cars.Sort((a, b) => a.NewData.Position.CompareTo(b.NewData.Position));
+            Dictionary<CarClass, int> classPos = new Dictionary<CarClass, int>();
+
+            for (int i = 0; i < Cars.Count; i++) {
+                var thisCar = Cars[i];
+
+                var thisClass = thisCar.CarClass;
+                if (classPos.ContainsKey(thisClass)) {
+                    classPos[thisClass]++;
+                } else {
+                    // First time seeing this class car, must be the class leader
+                    classPos[thisClass] = 1;
+                }
+
+                thisCar.SetStartingPositions(i + 1, classPos[thisClass]);
+            }
+            _startingPositionsSet = true;
         }
 
         /// <summary>
@@ -374,32 +381,35 @@ namespace KLPlugins.Leaderboard {
             var leaderCar = Cars[0];
             var focusedCar = Cars[FocusedCarIdx];
             var focusedClass = focusedCar.CarClass;
+            var aheadInCarClassIdx = new Dictionary<CarClass, int>();
 
+            BestLapByClassCarIdxs.Clear(); // Cars order is changed, need to re add them
+            _classLeaderIdxs.Clear();
 
-            if (didCarsOrderChange) {
-                BestLapByClassCarIdxs.Clear(); // Cars order is changed, need to re add them
-                _classLeaderIdxs.Clear();
-            }
             for (int i = 0; i < Cars.Count; i++) {
                 var thisCar = Cars[i];
 
                 var thisClass = thisCar.CarClass;
-                if (didCarsOrderChange || _classLeaderIdxs.Count == 0 || didFocusedChange) {
-                    if (classPos.ContainsKey(thisClass)) {
-                        classPos[thisClass]++;
-                    } else {
-                        // First time seeing this class car, must be the class leader
-                        classPos[thisClass] = 1;
-                        _classLeaderIdxs[thisClass] = i;
-                    }
-
-                    if (thisClass == focusedClass) {
-                        PosInClassCarsIdxs[classPos[thisClass] - 1] = i;
-                    }
+                if (classPos.ContainsKey(thisClass)) {
+                    classPos[thisClass]++;
+                } else {
+                    // First time seeing this class car, must be the class leader
+                    classPos[thisClass] = 1;
+                    _classLeaderIdxs[thisClass] = i;
                 }
 
+                if (thisClass == focusedClass) {
+                    PosInClassCarsIdxs[classPos[thisClass] - 1] = i;
+                }
+
+                var carAhead = i != 0 ? Cars[i - 1] : null;
+ 
+                var carAheadInClass = aheadInCarClassIdx.ContainsKey(thisClass) ? Cars[aheadInCarClassIdx[thisClass]] : null;
+
                 var relSplinePos = thisCar.CalculateRelativeSplinePosition(focusedCar);
-                thisCar.OnRealtimeUpdate(RealtimeData, leaderCar, Cars[_classLeaderIdxs[thisClass]], focusedCar, i + 1, didCarsOrderChange ? classPos[thisClass] : 0, relSplinePos);;
+                thisCar.OnRealtimeUpdate(RealtimeData, leaderCar, Cars[_classLeaderIdxs[thisClass]], focusedCar, carAhead, carAheadInClass,  i + 1, classPos[thisClass], relSplinePos);
+                aheadInCarClassIdx[thisClass] = i;
+
                 // Since we cannot remove cars after finish, don't add cars that have left to the relative
                 if (thisCar.MissedRealtimeUpdates < 10) _relativeSplinePositions.Add(new CarSplinePos(i, relSplinePos));
 
@@ -418,18 +428,20 @@ namespace KLPlugins.Leaderboard {
                         BestLapByClassCarIdxs[CarClass.Overall] = i;
                     }
                 }
+
+                if (RealtimeData.IsFocusedChange) {
+                    thisCar.GapToAheadInClass = null;
+                }
             }
 
             // If somebody left the session, need to reset following class positions
-            if (didCarsOrderChange || didFocusedChange) {
-                var startpos = 0;
-                if (classPos.ContainsKey(focusedClass)) {
-                    startpos = classPos[focusedClass];
-                }
-                for (int i = startpos; i < LeaderboardPlugin.Settings.NumOverallPos; i++) {
-                    if (PosInClassCarsIdxs[i] == -1) break; // All following must already be -1
-                    PosInClassCarsIdxs[i] = -1;
-                }
+            var startpos = 0;
+            if (classPos.ContainsKey(focusedClass)) {
+                startpos = classPos[focusedClass];
+            }
+            for (int i = startpos; i < LeaderboardPlugin.Settings.NumOverallPos; i++) {
+                if (PosInClassCarsIdxs[i] == -1) break; // All following must already be -1
+                PosInClassCarsIdxs[i] = -1;
             }
 
             UpdateRelativeOrder();
@@ -472,7 +484,6 @@ namespace KLPlugins.Leaderboard {
         #region EntryListUpdate
 
         private void OnEntryListUpdate(string sender, CarInfo car) {
-            didCarsOrderChange = true;
             // Add new cars if not already added, update car info of all the cars (adds new drivers if some were missing)
             var idx = Cars.FindIndex(x => x.CarIndex == car.CarIndex);
             if (idx == -1) {
@@ -494,17 +505,17 @@ namespace KLPlugins.Leaderboard {
             car.OnRealtimeCarUpdate(update, RealtimeData);
             _lastUpdateCarIds.Add(car.CarIndex);
 
-            if (car.LapsBySplinePosition == 2 && update.SplinePosition != 1) {
-                string carClass = car.CarClass.ToString();
+            //if (car.LapsBySplinePosition == 2 && update.SplinePosition != 1) {
+            //    string carClass = car.CarClass.ToString();
 
-                var fname = $"{LeaderboardPlugin.Settings.PluginDataLocation}\\laps\\{TrackData.TrackId}_{carClass}.txt";
-                if (car.FirstAdded) {
-                    File.AppendAllText(fname, $"\n");
-                }
-               // File.AppendAllText(fname, $"{update.SplinePosition};{update.CurrentLap.LaptimeMS};{update.Kmh};");
-                car.FirstAdded = true;
+            //    var fname = $"{LeaderboardPlugin.Settings.PluginDataLocation}\\laps\\{TrackData.TrackId}_{carClass}.txt";
+            //    if (car.FirstAdded) {
+            //        File.AppendAllText(fname, $"\n");
+            //    }
+            //   // File.AppendAllText(fname, $"{update.SplinePosition};{update.CurrentLap.LaptimeMS};{update.Kmh};");
+            //    car.FirstAdded = true;
 
-            }
+            //}
 
         }
         #endregion

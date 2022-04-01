@@ -259,6 +259,9 @@ namespace KLPlugins.Leaderboard {
                 this.AttachDelegate($"{startName}.GapToClassLeader", () => _values.GetCar(i)?.GapToClassLeader);
                 this.AttachDelegate($"{startName}.GapToFocusedOnTrack", () => _values.GetCar(i)?.GapToFocusedOnTrack);
                 this.AttachDelegate($"{startName}.GapToFocusedTotal", () => _values.GetCar(i)?.GapToFocusedTotal);
+                this.AttachDelegate($"{startName}.GapToAhead", () => _values.GetCar(i)?.GapToAhead);
+                this.AttachDelegate($"{startName}.GapToAheadInClass", () => _values.GetCar(i)?.GapToAheadInClass);
+
 
                 // Positions
                 this.AttachDelegate($"{startName}.ClassPosition", () => _values.GetCar(i)?.InClassPos);

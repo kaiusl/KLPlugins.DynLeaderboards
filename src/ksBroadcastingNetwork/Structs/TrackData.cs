@@ -26,7 +26,7 @@ namespace KLPlugins.Leaderboard.ksBroadcastingNetwork.Structs
         //public Dictionary<string, List<string>> CameraSets { get; internal set; }
         //public IEnumerable<string> HUDPages { get; internal set; }
 
-        public static LapInterpolator[] LapInterpolators = new LapInterpolator[8] { null, null, null, null, null, null, null, null };
+        public static LapInterpolator[] LapInterpolators = new LapInterpolator[9];
 
         /// <summary>
         /// Read default lap data for calculation of gaps.

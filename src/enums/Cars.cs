@@ -304,24 +304,24 @@ namespace KLPlugins.Leaderboard.Enums {
     }
 
     public enum CarClass {
-        GT3 = 0,
-        GT4 = 1,
-        ST15 = 2,
-        ST21 = 3,
-        CHL = 4,
-        CUP17 = 5,
-        CUP21 = 6,
-        TCX = 7,
-        Overall = 254,
+        Overall = 0,
+        GT3 = 1,
+        GT4 = 2,
+        ST15 = 3,
+        ST21 = 4,
+        CHL = 5,
+        CUP17 = 6,
+        CUP21 = 7,
+        TCX = 8,
         Unknown = 255
     }
 
     public enum CarGroup {
-        GT3 = 0,
-        GT4 = 1,
-        GTC = 2,
-        TCX = 3,
-        Overall = 254,
+        Overall = 0,
+        GT3 = 1,
+        GT4 = 2,
+        GTC = 3,
+        TCX = 4,
         Unknown = 255
     }
 

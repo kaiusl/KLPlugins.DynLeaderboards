@@ -9,14 +9,24 @@ using System.Threading.Tasks;
 
 namespace KLPlugins.Leaderboard.ksBroadcastingNetwork.Structs
 {
+    public class LapInterpolator {
+        public LinearSpline Interpolator { get; }
+        public double LapTime { get; }
+
+        public LapInterpolator(LinearSpline interpolator, double lapTime) {
+            Interpolator = interpolator;
+            LapTime = lapTime;
+        } 
+    }
+
     public class TrackData {
         public string TrackName { get; internal set; }
         public TrackType TrackId { get; internal set; }
         public float TrackMeters { get; internal set; }
         //public Dictionary<string, List<string>> CameraSets { get; internal set; }
         //public IEnumerable<string> HUDPages { get; internal set; }
-        public static Dictionary<CarClass, LinearSpline> LapInterpolators { get; private set; }
-        public static Dictionary<CarClass, double> LapTime { get; private set; }
+
+        public static LapInterpolator[] LapInterpolators = new LapInterpolator[8] { null, null, null, null, null, null, null, null };
 
         /// <summary>
         /// Read default lap data for calculation of gaps.
@@ -24,8 +34,6 @@ namespace KLPlugins.Leaderboard.ksBroadcastingNetwork.Structs
         public static void ReadDefBestLaps() {
             if (LapInterpolators != null) return;
 
-            LapInterpolators = new Dictionary<CarClass, LinearSpline>();
-            LapTime = new Dictionary<CarClass, double>();
             AddLapInterpolator(CarClass.GT3, new CarClass[] { });
             AddLapInterpolator(CarClass.GT4, new CarClass[] { });
             AddLapInterpolator(CarClass.TCX, new CarClass[] { });
@@ -35,7 +43,6 @@ namespace KLPlugins.Leaderboard.ksBroadcastingNetwork.Structs
             AddLapInterpolator(CarClass.ST21, new CarClass[] { CarClass.ST15, CarClass.CUP17, CarClass.CUP21, CarClass.CHL });
             AddLapInterpolator(CarClass.CHL, new CarClass[] { CarClass.ST21, CarClass.CUP21, CarClass.CUP17,  CarClass.ST15 });
         }
-
 
         private static void AddLapInterpolator(CarClass cls, CarClass[] replacements) {
             var fname = $"{LeaderboardPlugin.Settings.PluginDataLocation}\\laps\\{(int)Values.TrackData.TrackId}_{cls}.txt";
@@ -62,8 +69,8 @@ namespace KLPlugins.Leaderboard.ksBroadcastingNetwork.Structs
                     time.Add(t);
                 }
 
-                LapTime[cls] = time.Last();
-                LapInterpolators[cls] = LinearSpline.InterpolateSorted(pos.ToArray(), time.ToArray());
+                LapInterpolators[(int)cls] = new LapInterpolator(LinearSpline.InterpolateSorted(pos.ToArray(), time.ToArray()), time.Last());
+
             } catch (Exception ex) {
                 LeaderboardPlugin.LogError($"Failed to read {fname} with error: {ex}");
             }

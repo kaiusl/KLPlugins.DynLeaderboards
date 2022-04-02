@@ -377,11 +377,11 @@ namespace KLPlugins.Leaderboard {
             // Clear old data
             _relativeSplinePositions.Clear();
 
-            Dictionary<CarClass, int> classPos = new Dictionary<CarClass, int>(); 
+            int?[] classPositions = new int?[8]; 
             var leaderCar = Cars[0];
             var focusedCar = Cars[FocusedCarIdx];
             var focusedClass = focusedCar.CarClass;
-            var aheadInCarClassIdx = new Dictionary<CarClass, int>();
+            var aheadInClassCarIdxs = new int?[8];
 
             BestLapByClassCarIdxs.Clear(); // Cars order is changed, need to re add them
             _classLeaderIdxs.Clear();
@@ -390,25 +390,27 @@ namespace KLPlugins.Leaderboard {
                 var thisCar = Cars[i];
 
                 var thisClass = thisCar.CarClass;
-                if (classPos.ContainsKey(thisClass)) {
-                    classPos[thisClass]++;
+                var clsPos = classPositions[(int)thisClass];
+                if (clsPos != null) {
+                    clsPos++;
                 } else {
                     // First time seeing this class car, must be the class leader
-                    classPos[thisClass] = 1;
+                    clsPos = 1;
                     _classLeaderIdxs[thisClass] = i;
                 }
+                classPositions[(int)thisClass] = clsPos;
 
                 if (thisClass == focusedClass) {
-                    PosInClassCarsIdxs[classPos[thisClass] - 1] = i;
+                    PosInClassCarsIdxs[(int)clsPos - 1] = i;
                 }
 
                 var carAhead = i != 0 ? Cars[i - 1] : null;
- 
-                var carAheadInClass = aheadInCarClassIdx.ContainsKey(thisClass) ? Cars[aheadInCarClassIdx[thisClass]] : null;
+                var carAheadInClassIdx = aheadInClassCarIdxs[(int)thisClass];
+                var carAheadInClass = carAheadInClassIdx != null ? Cars[(int)carAheadInClassIdx] : null;
 
                 var relSplinePos = thisCar.CalculateRelativeSplinePosition(focusedCar);
-                thisCar.OnRealtimeUpdate(RealtimeData, leaderCar, Cars[_classLeaderIdxs[thisClass]], focusedCar, carAhead, carAheadInClass,  i + 1, classPos[thisClass], relSplinePos);
-                aheadInCarClassIdx[thisClass] = i;
+                thisCar.OnRealtimeUpdate(RealtimeData, leaderCar, Cars[_classLeaderIdxs[thisClass]], focusedCar, carAhead, carAheadInClass,  i + 1, (int)clsPos, relSplinePos);
+                aheadInClassCarIdxs[(int)thisClass] = i;
 
                 // Since we cannot remove cars after finish, don't add cars that have left to the relative
                 if (thisCar.MissedRealtimeUpdates < 10) _relativeSplinePositions.Add(new CarSplinePos(i, relSplinePos));
@@ -436,8 +438,8 @@ namespace KLPlugins.Leaderboard {
 
             // If somebody left the session, need to reset following class positions
             var startpos = 0;
-            if (classPos.ContainsKey(focusedClass)) {
-                startpos = classPos[focusedClass];
+            if (classPositions[(int)focusedClass] != null) {
+                startpos = (int)classPositions[(int)focusedClass];
             }
             for (int i = startpos; i < LeaderboardPlugin.Settings.NumOverallPos; i++) {
                 if (PosInClassCarsIdxs[i] == -1) break; // All following must already be -1

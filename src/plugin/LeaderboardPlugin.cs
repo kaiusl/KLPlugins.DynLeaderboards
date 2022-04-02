@@ -177,15 +177,15 @@ namespace KLPlugins.Leaderboard {
                 this.AttachDelegate($"DBG_PitInfo.{startName}", () => {
                     var car = _values.GetCar(i);
                     if (car == null) return null;
-                    return $"#{car.RaceNumber,-4}, InPitLane:{car.NewData?.CarLocation == CarLocationEnum.Pitlane,-5}, Count:{car.PitCount:00}, PitTimes(C/L/T):{_values.GetCar(i)?.GetCurrentTimeInPits(_values.RealtimeData.SessionTime) ?? 0:000.0}/{_values.GetCar(i)?.LastPitTime:000.0}/{_values.GetCar(i)?.TotalPitTime:000.0}";
+                    return $"#{car.RaceNumber,-4}, InPitLane:{car.NewData?.CarLocation == CarLocationEnum.Pitlane,-5}, Count:{car.PitCount:00}, PitTimes(C/L/T):{_values.GetCar(i)?.CurrentTimeInPits ?? 0:000.0}/{_values.GetCar(i)?.LastPitTime:000.0}/{_values.GetCar(i)?.TotalPitTime:000.0}";
                 });
 
                 this.AttachDelegate($"DBG_DriverInfo.{startName}", () => {
                     var car = _values.GetCar(i);
                     if (car == null) return null;
-                    var driver = car.GetCurrentDriver();
+                    var driver = car.CurrentDriver;
                     
-                    return $"#{car.RaceNumber,-4}, DCount:{car.NewData.DriverCount}, DId:{car.NewData.DriverIndex}, {driver.InitialPlusLastName()}, Total:{driver.TotalLaps:00}laps/{car.GetCurrentDriverTotalDrivingTime():000.0}s, Stint(C/L):{car.CurrentStintTime:000.0}s/{car.LastStintTime:000.0}s, BestLap:{driver.BestSessionLap?.LaptimeMS / 1000.0 ?? -1:000.000}";
+                    return $"#{car.RaceNumber,-4}, DCount:{car.NewData.DriverCount}, DId:{car.NewData.DriverIndex}, {driver.InitialPlusLastName()}, Total:{driver.TotalLaps:00}laps/{car.CurrentDriverTotalDrivingTime:000.0}s, Stint(C/L):{car.CurrentStintTime:000.0}s/{car.LastStintTime:000.0}s, BestLap:{driver.BestSessionLap?.LaptimeMS / 1000.0 ?? -1:000.000}";
                 });
 
                 //this.AttachDelegate($"DBG.{startName}.SplinePosition", () => _values.GetCar(i)?.RealtimeCarUpdate?.SplinePosition);
@@ -224,17 +224,17 @@ namespace KLPlugins.Leaderboard {
                 this.AttachDelegate($"{startName}.CurrentLap", () => _values.GetCar(i)?.NewData?.CurrentLap?.LaptimeMS / 1000.0);
 
                 // Drivers
-                //this.AttachDelegate($"{startName}.CurrentDriverFirstName", () => _values.GetCar(i)?.GetCurrentDriver().FirstName);
-                //this.AttachDelegate($"{startName}.CurrentDriverLastName", () => _values.GetCar(i)?.GetCurrentDriver().LastName);
-                //this.AttachDelegate($"{startName}.CurrentDriverShortName", () => _values.GetCar(i)?.GetCurrentDriver().ShortName);
-                //this.AttachDelegate($"{startName}.CurrentDrivetFullName", () => _values.GetCar(i)?.GetCurrentDriver().FullName());
-                this.AttachDelegate($"{startName}.CurrentDriverInitialPlusLastName", () => _values.GetCar(i)?.GetCurrentDriver().InitialPlusLastName());
-                //this.AttachDelegate($"{startName}.CurrentDrivetInitials", () => _values.GetCar(i)?.GetCurrentDriver().Initials());
-                this.AttachDelegate($"{startName}.CurrentDriver.Nationality", () => _values.GetCar(i)?.GetCurrentDriver().Nationality);
-                this.AttachDelegate($"{startName}.CurrentDriver.Category", () => _values.GetCar(i)?.GetCurrentDriver().Category);
-                this.AttachDelegate($"{startName}.CurrentDriver.TotalLaps", () => _values.GetCar(i)?.GetCurrentDriver().TotalLaps);
-                this.AttachDelegate($"{startName}.CurrentDriver.TotalDrivingTime", () => _values.GetCar(i)?.GetCurrentDriverTotalDrivingTime());
-                this.AttachDelegate($"{startName}.CurrentDriver.BestLap", () => _values.GetCar(i)?.GetCurrentDriver().BestSessionLap?.LaptimeMS / 1000.0);
+                //this.AttachDelegate($"{startName}.CurrentDriverFirstName", () => _values.GetCar(i)?.CurrentDriver.FirstName);
+                //this.AttachDelegate($"{startName}.CurrentDriverLastName", () => _values.GetCar(i)?.CurrentDriver.LastName);
+                //this.AttachDelegate($"{startName}.CurrentDriverShortName", () => _values.GetCar(i)?.CurrentDriver.ShortName);
+                //this.AttachDelegate($"{startName}.CurrentDrivetFullName", () => _values.GetCar(i)?.CurrentDriver.FullName());
+                this.AttachDelegate($"{startName}.CurrentDriverInitialPlusLastName", () => _values.GetCar(i)?.CurrentDriver.InitialPlusLastName());
+                //this.AttachDelegate($"{startName}.CurrentDrivetInitials", () => _values.GetCar(i)?.CurrentDriver.Initials());
+                this.AttachDelegate($"{startName}.CurrentDriver.Nationality", () => _values.GetCar(i)?.CurrentDriver.Nationality);
+                this.AttachDelegate($"{startName}.CurrentDriver.Category", () => _values.GetCar(i)?.CurrentDriver.Category);
+                this.AttachDelegate($"{startName}.CurrentDriver.TotalLaps", () => _values.GetCar(i)?.CurrentDriver.TotalLaps);
+                this.AttachDelegate($"{startName}.CurrentDriver.TotalDrivingTime", () => _values.GetCar(i)?.CurrentDriverTotalDrivingTime);
+                this.AttachDelegate($"{startName}.CurrentDriver.BestLap", () => _values.GetCar(i)?.CurrentDriver.BestSessionLap?.LaptimeMS / 1000.0);
 
 
                 // Car and team
@@ -274,7 +274,7 @@ namespace KLPlugins.Leaderboard {
                 this.AttachDelegate($"{startName}.PitStopCount", () => _values.GetCar(i)?.PitCount);
                 this.AttachDelegate($"{startName}.PitTimeTotal", () => _values.GetCar(i)?.TotalPitTime);
                 this.AttachDelegate($"{startName}.PitTimeLast", () => _values.GetCar(i)?.LastPitTime);
-                this.AttachDelegate($"{startName}.PitTimeCurrent", () => _values.GetCar(i)?.GetCurrentTimeInPits(_values.RealtimeData.SessionTime));
+                this.AttachDelegate($"{startName}.PitTimeCurrent", () => _values.GetCar(i)?.CurrentTimeInPits);
 
                 // Else
                 this.AttachDelegate($"{startName}.IsFinished", () => (_values.GetCar(i)?.IsFinished ?? false) ? 1:0);

@@ -11,6 +11,7 @@ using MathNet.Numerics.Interpolation;
 
 namespace KLPlugins.Leaderboard.ksBroadcastingNetwork.Structs {
     public class CarData {
+        // Information from CarInfo
         public ushort CarIndex { get; }
         public CarType CarModelType { get; internal set; }
         public CarClass CarClass { get; internal set; }
@@ -21,53 +22,62 @@ namespace KLPlugins.Leaderboard.ksBroadcastingNetwork.Structs {
         public List<DriverData> Drivers { get; internal set; } = new List<DriverData>();
         public NationalityEnum TeamNationality { get; internal set; }
 
-        internal void AddDriver(DriverInfo driverInfo) {
-            Drivers.Add(new DriverData(driverInfo));
-        }
+        // RealtimeCarUpdates
+        public RealtimeCarUpdate NewData { get; private set; } = null;
+        public RealtimeCarUpdate OldData { get; private set; } = null;
 
-        public RealtimeCarUpdate NewData { get; private set; }
-        public RealtimeCarUpdate OldData { get; private set; }
+        public DriverData CurrentDriver => Drivers[NewData?.DriverIndex ?? CurrentDriverIndex];
 
-        public float TotalSplinePosition { get; private set; }
-        public float OnTrackDistanceToFocused { get; private set; }
-        public float DistanceToLeader { get; private set; }
-        public float DistanceToClassLeader { get; private set; }
-        public float TotalDistanceToFocused { get; private set; }
-        public int LapsBySplinePosition { get; private set; }
+        // ..BySplinePosition
+        public float TotalSplinePosition { get; private set; } = 0.0f;
+        public int LapsBySplinePosition { get; private set; } = 0;
 
-        public double GapToLeader { get; private set; }
-        public double GapToClassLeader { get; private set; }
-        public double GapToFocusedTotal { get; private set; }
-        public double GapToFocusedOnTrack { get; private set; }
-        public double? GapToAheadInClass { get; internal set; }
-        public double? GapToAhead { get; private set; }
+        // Distances
+        public float OnTrackDistanceToFocused { get; private set; } = float.NaN;
+        public float DistanceToLeader { get; private set; } = float.NaN;
+        public float DistanceToClassLeader { get; private set; } = float.NaN;
+        public float TotalDistanceToFocused { get; private set; } = float.NaN;
 
-        public int InClassPos { get; private set; }
-        public int OverallPos { get; private set; }
-        public int MissedRealtimeUpdates { get; internal set; }
-        public bool FirstAdded = false;
-        public bool IsFinished = false;
-        public TimeSpan? FinishTime = null;
+        // Gaps
+        public double GapToLeader { get; private set; } = double.NaN;
+        public double GapToClassLeader { get; private set; } = double.NaN;
+        public double GapToFocusedTotal { get; private set; } = double.NaN;
+        public double GapToFocusedOnTrack { get; private set; } = double.NaN;
+        public double GapToAheadInClass { get; internal set; } = double.NaN;
+        public double GapToAhead { get; private set; } = double.NaN;
 
-        public int StartPos = -1;
-        public int StartPosInClass = -1;
+        // Positions
+        public int InClassPos { get; private set; } = -1;
+        public int OverallPos { get; private set; } = -1;
+        public int StartPos { get; private set; } = -1;
+        public int StartPosInClass { get; private set; } = -1;
 
-        public int?[] BestLapSectors = new int?[] { null, null, null };
+        // Pit info
+        public int PitCount { get; private set; } = 0;
+        public double PitEntryTime { get; private set; } = double.NaN;
+        public double TotalPitTime { get; private set; } = 0;
+        public double LastPitTime { get; private set; } = 0;
+        public double CurrentTimeInPits { get; private set; } = double.NaN;
 
-        public int PitCount = 0;
-        public TimeSpan? PitEntryTime = null;
-        public double TotalPitTime = 0;
-        public double LastPitTime = 0;
+        // Stint info
+        public double LastStintTime { get; private set; } = double.NaN;
+        public double CurrentStintTime { get; private set; } = double.NaN;
+        public int LastStintLaps { get; private set; } = 0;
+        public int CurrentStintLaps { get; private set; } = 0;
+        public double CurrentDriverTotalDrivingTime => CurrentDriver.GetTotalDrivingTime(true, CurrentStintTime);
 
-        public double LastStintTime = double.NaN;
-        public double CurrentStintTime = double.NaN;
+        // Else
+        public bool IsFinished { get; private set; } = false;
+        public TimeSpan? FinishTime { get; private set; } = null;
+        public int?[] BestLapSectors { get; private set; } = new int?[] { null, null, null };
+
+        internal int MissedRealtimeUpdates { get; set; } = 0;
+
         private double? _stintStartTime = null;
-
-        public int LastStintLaps = 0;
-        public int CurrentStintLaps = 0;
-
-        private CarClassArray<double> _splinePosTime = new CarClassArray<double>(-1);
+        private CarClassArray<double> _splinePositionTime = new CarClassArray<double>(-1);
         private bool _isLapFinished = false;
+        private bool _isRaceFinishPosSet = false;
+        private bool _isFirstUpdate = true;
         ////////////////////////
 
         public CarData(CarInfo info, RealtimeCarUpdate update) {
@@ -82,21 +92,24 @@ namespace KLPlugins.Leaderboard.ksBroadcastingNetwork.Structs {
                 AddDriver(d);
             }
             TeamNationality = info.Nationality;
-            OldData = null;
+
             NewData = update;
-            OnTrackDistanceToFocused = float.NaN;
-            DistanceToLeader = float.NaN;
-            DistanceToClassLeader = float.NaN;
-            LapsBySplinePosition = 0;
-            InClassPos = -1;
-            GapToClassLeader = double.NaN;
-            GapToLeader = double.NaN;
-            GapToFocusedTotal = double.NaN;
-            GapToFocusedOnTrack = double.NaN;
-            GapToAhead = null;
-            GapToAheadInClass = null;
         }
 
+        private void AddDriver(DriverInfo driverInfo) {
+            Drivers.Add(new DriverData(driverInfo));
+        }
+
+        public double GetDriverTotalDrivingTime(int i) {
+            return Drivers[i].GetTotalDrivingTime(i == NewData.DriverIndex, CurrentStintTime);
+        }
+
+        #region Entry list update
+
+        /// <summary>
+        /// Updates this cars static info. Should be called when new entry list update for this car is recieved.
+        /// </summary>
+        /// <param name="info"></param>
         public void UpdateCarInfo(CarInfo info) {
             // Only thing that can change is drivers
             // We need to make sure that the order is as specified by new info
@@ -120,101 +133,140 @@ namespace KLPlugins.Leaderboard.ksBroadcastingNetwork.Structs {
                     Drivers.Insert(i, old);
                 }
             }
-
         }
 
-        private bool _isFirstUpdate = true;
-        private void AddInitialLaps(RealtimeCarUpdate update) {
-            if (_isFirstUpdate && LapsBySplinePosition == 0) {
-                LapsBySplinePosition = update.Laps;
+        #endregion
 
-                if ((Values.TrackData.TrackId == TrackType.Silverstone && update.SplinePosition >= 0.9791052)
-                    || (Values.TrackData.TrackId == TrackType.Spa && update.SplinePosition >= 0.9962250)
-                ) {
-                    // This is the position of finish line, position where lap count is increased.
-                    // This means that in above we added one extra lap as by SplinePosition it's not new lap yet.
-                    LapsBySplinePosition -= 1;
-                    //LeaderboardPlugin.LogInfo($"Remove lap from #{Info.RaceNumber}");
-                }
-            }
-            _isFirstUpdate = false;
-        }
+        #region On realtime car update
 
+        /// <summary>
+        /// Sets starting positions for this car. 
+        /// </summary>
+        /// <param name="overall"></param>
+        /// <param name="inclass"></param>
         public void SetStartingPositions(int overall, int inclass) { 
             StartPos = overall;
             StartPosInClass = inclass;
         }
 
-
+        /// <summary>
+        /// Updates this cars data. Should be called when RealtimeCarUpdate for this car is recieved.
+        /// </summary>
+        /// <param name="update"></param>
+        /// <param name="realtimeData"></param>
         public void OnRealtimeCarUpdate(RealtimeCarUpdate update, RealtimeData realtimeData) {
+            // If the race is finished we don't care about any of the realtime updates anymore.
+            // We have set finished positions in ´OnRealtimeUpdate´ and that's really all that matters
             if (IsFinished) return;
 
             OldData = NewData;
             NewData = update;
 
+            // Wait for one more update at the beginning of session, so we have all relevant data for calculations below
             if (OldData == null) return;
 
-            //if (Values.TrackData != null) {
-            //    foreach (var kv in TrackData.LapInterpolators) {
-            //        _splinePosTime[kv.Key] = kv.Value.Interpolate(NewData.SplinePosition);
-            //    }
-            //}
- 
-            _isLapFinished = OldData.Laps != NewData.Laps;
-
             if (realtimeData.IsRace) {
-
-                // If we start SimHub in the middle of session and cars are on the different laps, the car behind will gain a lap over
-                // For example: P1 has just crossed the line and has completed 3 laps, P2 has 2 laps
-                // But LapsBySplinePosition is 0 for both, if now P2 crosses the line,
-                // it's LapsBySplinePosition is increased and it would be shown lap ahead of tha actual leader
-                // Thus we add current laps to the LapsBySplinePosition
-                if (_isFirstUpdate && realtimeData.IsSession) {
-                    if (Values.TrackData == null || NewData.SplinePosition == 1 || NewData.SplinePosition == 0
-                        || (Values.TrackData.TrackId == TrackType.Silverstone && 0.9789979 < NewData.SplinePosition && NewData.SplinePosition < 0.9791052) // Silverstone
-                        || (Values.TrackData.TrackId == TrackType.Spa && 0.9961125 < NewData.SplinePosition && NewData.SplinePosition < 0.9962250) // Spa
-                    ) {
-                        //LeaderboardPlugin.LogInfo($"Ignored car #{Info.RaceNumber}");
-                        // This is critical point when the lap changes, we don't know yet if it's the old lap or new
-                        // Wait for the next update where we know that laps counter has been increased
-                        return;
-                    } else {
-                        AddInitialLaps(NewData);
-                    }
-                }
-                _isFirstUpdate = false;
-                // RealtimeCarUpdate.Laps and SplinePosition updates are not always in sync.
-                // This results in some weirdness on lap finish. Count laps myself based on spline position.
-                if (OldData.SplinePosition > 0.9 
-                    && NewData.SplinePosition < 0.1 
-                    && OldData.CarLocation == NewData.CarLocation
-                ) {
-                    LapsBySplinePosition++;
-                }
-
-                // On certain tracks (Spa) first half of the grid is ahead of the start/finish line,
-                // need to add the line crossing lap, otherwise they will be shown lap behind
-                if ((realtimeData.Phase == SessionPhase.PreFormation) && NewData.SplinePosition < 0.1 && LapsBySplinePosition == 0) {
-                    LapsBySplinePosition++;
-                }
-
+                if (!AddInitialLaps(realtimeData)) return; // If we didn't succeed, we don't want to continue with calculation but just wait for another update.
+                UpdateLapsBySplinePosition(realtimeData);
                 TotalSplinePosition = NewData.SplinePosition + LapsBySplinePosition;
-
-                if (OldData.CarLocation != CarLocationEnum.Pitlane && NewData.CarLocation == CarLocationEnum.Pitlane) { // Entered pitlane
-                    PitCount++;
-                    PitEntryTime = realtimeData.SessionTime;
-                }
-
-                if (PitEntryTime != null && NewData.CarLocation != CarLocationEnum.Pitlane) { // Left the pitlane
-                    LastPitTime = (realtimeData.SessionTime).TotalSeconds - ((TimeSpan)PitEntryTime).TotalSeconds;
-                    TotalPitTime += LastPitTime;
-                    PitEntryTime = null;
-                }
+                UpdatePitInfo(realtimeData);
             }
 
+            if (NewData.Laps != OldData.Laps) {
+                CurrentDriver.OnLapFinished(NewData.LastLap);
+            }
+
+            UpdateStintInfo(realtimeData);
+            UpdateBestLapSectors();
+        }
+
+        private void UpdateLapsBySplinePosition(RealtimeData realtimeData) {
+            // RealtimeCarUpdate.Laps and SplinePosition updates are not always in sync.
+            // This results in some weirdness on lap finish. Count laps myself based on spline position.
+            if (OldData.SplinePosition > 0.9
+                && NewData.SplinePosition < 0.1
+                && OldData.CarLocation == NewData.CarLocation // Removes false laps when using RTG
+            ) {
+                LapsBySplinePosition++;
+            }
+
+            // On certain tracks (Spa) first half of the grid is ahead of the start/finish line,
+            // need to add the line crossing lap, otherwise they will be shown lap behind
+            if (realtimeData.Phase == SessionPhase.PreFormation
+                && NewData.SplinePosition < 0.1
+                && LapsBySplinePosition == 0
+            ) {
+                LapsBySplinePosition++;
+            }
+        }
+
+
+        /// <summary>
+        /// Add inital laps to the car. It's important when starting SimHub mid session.
+        /// </summary>
+        /// <returns>
+        /// <c>true</c> if succeeded in adding the laps, <c>false</c> otherwise.
+        /// </returns>
+        /// <param name="realtimeData"></param>
+        /// <returns></returns>
+        private bool AddInitialLaps(RealtimeData realtimeData) {
+            // If we start SimHub in the middle of session and cars are on the different laps, the car behind will gain a lap over
+            // For example: P1 has just crossed the line and has completed 3 laps, P2 has 2 laps
+            // But LapsBySplinePosition is 0 for both, if now P2 crosses the line,
+            // it's LapsBySplinePosition is increased and it would be shown lap ahead of tha actual leader
+            // Thus we add current laps to the LapsBySplinePosition
+            if (_isFirstUpdate && realtimeData.IsSession) {
+                if (Values.TrackData == null || NewData.SplinePosition == 1 || NewData.SplinePosition == 0
+                    || (Values.TrackData.TrackId == TrackType.Silverstone && 0.9789979 < NewData.SplinePosition && NewData.SplinePosition < 0.9791052) // Silverstone
+                    || (Values.TrackData.TrackId == TrackType.Spa && 0.9961125 < NewData.SplinePosition && NewData.SplinePosition < 0.9962250) // Spa
+                ) {
+                    //LeaderboardPlugin.LogInfo($"Ignored car #{Info.RaceNumber}");
+                    // This is critical point when the lap changes, we don't know yet if it's the old lap or new
+                    // Wait for the next update where we know that laps counter has been increased
+                    return false;
+                } else {
+                    if (_isFirstUpdate && LapsBySplinePosition == 0) {
+                        LapsBySplinePosition = NewData.Laps;
+
+                        if ((Values.TrackData.TrackId == TrackType.Silverstone && NewData.SplinePosition >= 0.9791052)
+                            || (Values.TrackData.TrackId == TrackType.Spa && NewData.SplinePosition >= 0.9962250)
+                        ) {
+                            // This is the position of finish line, position where lap count is increased.
+                            // This means that in above we added one extra lap as by SplinePosition it's not new lap yet.
+                            LapsBySplinePosition -= 1;
+                            //LeaderboardPlugin.LogInfo($"Remove lap from #{Info.RaceNumber}");
+                        }
+                    }
+                    _isFirstUpdate = false;
+                }
+            }
+            _isFirstUpdate = false;
+            return true;
+        }
+
+        private void UpdatePitInfo(RealtimeData realtimeData) {
+            if (OldData.CarLocation != CarLocationEnum.Pitlane && NewData.CarLocation == CarLocationEnum.Pitlane) {
+                // Entered pitlane
+                PitCount++;
+                PitEntryTime = realtimeData.SessionTime.TotalSeconds;
+            }
+
+            if (!double.IsNaN(PitEntryTime) && NewData.CarLocation != CarLocationEnum.Pitlane) {
+                // Left the pitlane
+                LastPitTime = (realtimeData.SessionTime).TotalSeconds - PitEntryTime;
+                TotalPitTime += LastPitTime;
+                PitEntryTime = double.NaN;
+            }
+
+            if (!double.IsNaN(PitEntryTime)) { 
+                CurrentTimeInPits = realtimeData.SessionTime.TotalSeconds - PitEntryTime;
+            }
+
+        }
+
+        private void UpdateStintInfo(RealtimeData realtimeData) {
             // Lap finished
             if (NewData.Laps != OldData.Laps) {
-                GetCurrentDriver().OnLapFinished(update.LastLap);
                 CurrentStintLaps++;
             }
 
@@ -223,53 +275,44 @@ namespace KLPlugins.Leaderboard.ksBroadcastingNetwork.Structs {
                 || (realtimeData.IsRace && realtimeData.IsSessionStart) // Race start
             ) {
                 _stintStartTime = realtimeData.SessionTime.TotalSeconds;
-
             }
 
             // Stint ended
             if (OldData.CarLocation != CarLocationEnum.Pitlane && NewData.CarLocation == CarLocationEnum.Pitlane) { // Pitlane entry
-                LeaderboardPlugin.LogInfo($"Stint ended: #{RaceNumber} with {GetCurrentDriver().InitialPlusLastName()}");
+                LeaderboardPlugin.LogInfo($"Stint ended: #{RaceNumber} with {CurrentDriver.InitialPlusLastName()}");
 
                 if (_stintStartTime != null) {
                     LastStintTime = realtimeData.SessionTime.TotalSeconds - (double)_stintStartTime;
-                    GetCurrentDriver().OnStintEnd(LastStintTime);
+                    CurrentDriver.OnStintEnd(LastStintTime);
                     _stintStartTime = null;
                     CurrentStintTime = double.NaN;
                 }
                 LastStintLaps = CurrentStintLaps;
                 CurrentStintLaps = 0;
-                                
+
             }
 
             if (_stintStartTime != null) {
                 CurrentStintTime = realtimeData.SessionTime.TotalSeconds - (double)_stintStartTime;
             }
+        }
 
-
-            // Update best sectors.
-            if (OldData.Laps != NewData.Laps && NewData.LastLap.IsValidForBest && NewData.LastLap.LaptimeMS == NewData.BestSessionLap.LaptimeMS) {
+        private void UpdateBestLapSectors() {
+            // Note that NewData.BestSessionLap doesn't contain the sectors of that best lap but the best sectors.
+            if (OldData.Laps != NewData.Laps
+                && NewData.LastLap.IsValidForBest
+                && NewData.LastLap.LaptimeMS == NewData.BestSessionLap.LaptimeMS
+            ) {
                 for (int i = 0; i < 3; i++) {
-                    BestLapSectors[i] = update.LastLap.Splits[i];
+                    BestLapSectors[i] = NewData.LastLap.Splits[i];
                 }
             }
-
-            NewData = update;
         }
 
-        public double GetDriverTotalDrivingTime(int i) {
-            return Drivers[i].GetTotalDrivingTime(i == NewData.DriverIndex, CurrentStintTime);
-        }
+        #endregion
 
-        public double GetCurrentDriverTotalDrivingTime() {
-            return GetCurrentDriver().GetTotalDrivingTime(true, CurrentStintTime);
-        }
+        #region On realtime update
 
-        public double? GetCurrentTimeInPits(TimeSpan sessionTime) {
-            if (PitEntryTime == null) return null;
-            return sessionTime.TotalSeconds - ((TimeSpan)PitEntryTime).TotalSeconds;
-        }
-
-        private bool _isRaceFinishPosSet = false;
         public void OnRealtimeUpdate(
             RealtimeData realtimeData, 
             CarData leaderCar, 
@@ -282,12 +325,8 @@ namespace KLPlugins.Leaderboard.ksBroadcastingNetwork.Structs {
             float relSplinePos
         ) {
             if (IsFinished && _isRaceFinishPosSet) return;
-
-            if (classPos != 0) {
-                InClassPos = classPos;
-            };
-
-            _splinePosTime.SetAll(-1);
+            InClassPos = classPos;
+            _splinePositionTime.Reset();
 
             OverallPos = overallPos;
             if (realtimeData.Phase == SessionPhase.SessionOver) {
@@ -312,9 +351,16 @@ namespace KLPlugins.Leaderboard.ksBroadcastingNetwork.Structs {
             if (IsFinished) _isRaceFinishPosSet = true;
         }
 
+        #endregion
+
+        #region Gap calculations
 
         private void SetGaps(RealtimeData realtimeData, CarData leader, CarData classLeader, CarData focused, CarData carAhead, CarData carAheadInClass) {
             if (realtimeData.IsRace) {
+                // Use time gaps on track
+                // We update the gap only if CalculateGap returns a proper value because we don't want to update the gap if one of the cars has finished. 
+                // That would result in wrong gaps. We keep the gaps at the last valid value and update once both cars have finished.
+
                 var gap = CalculateGap(this, leader);
                 if (!double.IsNaN(gap)) GapToLeader = gap;
 
@@ -335,26 +381,36 @@ namespace KLPlugins.Leaderboard.ksBroadcastingNetwork.Structs {
                 }
 
             } else {
+                // Use best laps to calculate gaps
                 var thisBestLap = NewData?.BestSessionLap?.LaptimeMS;
-
-                var leaderBestLap = leader.NewData?.BestSessionLap?.LaptimeMS;
-                if (thisBestLap != null && leaderBestLap != null) {
-                    GapToLeader = ((double)thisBestLap - (double)leaderBestLap) / 1000.0;
-                } else {
+                if (thisBestLap == null) {
                     GapToLeader = double.NaN;
+                    GapToAheadInClass = double.NaN;
+                    GapToClassLeader = double.NaN;
+                    GapToAhead = double.NaN;
                 }
 
+                var leaderBestLap = leader.NewData?.BestSessionLap?.LaptimeMS;
+                GapToLeader = leaderBestLap != null ? ((double)thisBestLap - (double)leaderBestLap) / 1000.0 : double.NaN;
+
                 var classLeaderBestLap = classLeader.NewData?.BestSessionLap?.LaptimeMS;
-                if (thisBestLap != null && classLeaderBestLap != null) {
-                    GapToClassLeader = ((double)thisBestLap - (double)classLeaderBestLap) / 1000.0;
-                } else {
-                    GapToClassLeader = double.NaN;
+                GapToClassLeader = classLeaderBestLap != null ? ((double)thisBestLap - (double)classLeaderBestLap) / 1000.0 : double.NaN;
+
+                if (carAhead != null) {
+                    var aheadBestLap = carAhead.NewData?.BestSessionLap?.LaptimeMS;
+                    GapToAhead = aheadBestLap != null ? ((double)thisBestLap - (double)aheadBestLap) / 1000.0 : double.NaN;
+                }
+
+                if (carAheadInClass != null) {
+                    var aheadInClassBestLap = carAheadInClass.NewData?.BestSessionLap?.LaptimeMS;
+                    GapToAheadInClass = aheadInClassBestLap != null ? ((double)thisBestLap - (double)aheadInClassBestLap) / 1000.0 : double.NaN;
                 }
 
             }
 
             CalculateRelativeGapToFocused(focused);
         }
+
 
         private void CalculateRelativeGapToFocused(CarData focusedCar) {
             var focusedPos = focusedCar.NewData?.SplinePosition;
@@ -364,7 +420,9 @@ namespace KLPlugins.Leaderboard.ksBroadcastingNetwork.Structs {
                 return;
             };
 
-            if (Values.TrackData == null || (TrackData.LapInterpolators[focusedCar.CarClass] == null && TrackData.LapInterpolators[CarClass] == null)) {
+            if (Values.TrackData == null 
+                || (TrackData.LapInterpolators[focusedCar.CarClass] == null && TrackData.LapInterpolators[CarClass] == null)
+            ) {
                 GapToFocusedOnTrack = OnTrackDistanceToFocused / (175.0 / 3.6);
                 return;
             }
@@ -400,9 +458,7 @@ namespace KLPlugins.Leaderboard.ksBroadcastingNetwork.Structs {
         /// <param name="to"></param>
         /// <returns></returns>
         public static double CalculateGap(CarData from, CarData to) {
-            if (from.CarIndex == to.CarIndex) {
-                return 0;
-            }
+            if (from.CarIndex == to.CarIndex)  return 0;
 
             var distBetween = to.TotalSplinePosition - from.TotalSplinePosition; // Negative if 'To' is behind
 
@@ -413,11 +469,16 @@ namespace KLPlugins.Leaderboard.ksBroadcastingNetwork.Structs {
                 // 'To' is more than a lap ahead of 'from'
                 return Math.Floor(Math.Abs(distBetween)) + 100_000;
             } else {
+                // If both cars are finished their position on track doesn't matter anymore
+                // Gap between then is the gap on the finish line
                 if (from.IsFinished && to.IsFinished) {
                     return ((TimeSpan)from.FinishTime).TotalSeconds - ((TimeSpan)to.FinishTime).TotalSeconds;
                 }
 
-                if (Values.TrackData == null || (TrackData.LapInterpolators[to.CarClass] == null && TrackData.LapInterpolators[from.CarClass] == null) ) {
+                // We don't have lap interpolators available, use naive method to calculate the gap
+                if (Values.TrackData == null 
+                    || (TrackData.LapInterpolators[to.CarClass] == null && TrackData.LapInterpolators[from.CarClass] == null) 
+                ) {
                     return distBetween * Values.TrackData.TrackMeters / (175.0 / 3.6);
                 }
 
@@ -427,16 +488,17 @@ namespace KLPlugins.Leaderboard.ksBroadcastingNetwork.Structs {
 
                 double gap = double.NaN;
                 if (distBetween > 0) {
-                    // To car is ahead of from, gap should be the time it takes 'from' car to reach this car's position
+                    // To car is ahead of from, gap should be the time it takes 'from' car to reach 'to' car's position
                     // That is use 'from' lap data to calculate the gap
-                    if (!from.IsFinished) {
+                    if (!to.IsFinished) { 
+                        // We cannot calculate the gap if the car ahead is finished as it's position on the track isn't relevant anymore
                         var cls = TrackData.LapInterpolators[from.CarClass] != null ? from.CarClass : to.CarClass;
                         gap = CalculateGapBetweenPos((float)fromPos, (float)toPos, from.GetSplinePosTime(cls), to.GetSplinePosTime(cls), TrackData.LapInterpolators[cls].LapTime);
                     }
                 } else {
-                    // This car is behind of focused, gap should be the time it takes us to reach focused car
-                    // That is use this cars lap data to calculate gap
-                    if (!to.IsFinished) {
+                    // 'to' car is behind of 'from', gap should be the time it takes 'to' to reach 'from'
+                    // That is use 'to' cars lap data to calculate the gap
+                    if (!from.IsFinished) {
                         var cls = TrackData.LapInterpolators[to.CarClass] != null ? to.CarClass : from.CarClass;
                         gap = -CalculateGapBetweenPos((float)toPos, (float)fromPos, to.GetSplinePosTime(cls), from.GetSplinePosTime(cls), TrackData.LapInterpolators[cls].LapTime);
                     }
@@ -445,20 +507,28 @@ namespace KLPlugins.Leaderboard.ksBroadcastingNetwork.Structs {
             }
         }
 
+        /// <summary>
+        /// Calculates expected lap time for <paramref name="cls"> class car at the position of <c>this</c> car. 
+        /// </summary>
+        /// <returns>
+        /// Lap time in seconds or <c>-1.0</c> if it cannot be calculated.
+        /// </returns>>
+        /// <param name="cls"></param>
+        /// <returns></returns>
         private double GetSplinePosTime(CarClass cls) {
-            //return _splinePosTime[cls];
-            var pos = _splinePosTime[cls];
-            if (pos != -1) {
+            // Same interpolated value is needed multiple times in one update, thus cache results.
+            var pos = _splinePositionTime[cls];
+            if (pos != _splinePositionTime.DefaultValue) {
                 return pos;
+            } 
+
+            var interp = TrackData.LapInterpolators[cls];
+            if (NewData != null && interp != null) {
+                var result = interp.Interpolator.Interpolate(NewData.SplinePosition);
+                _splinePositionTime[cls] = result;
+                return result;
             } else {
-                var interp = TrackData.LapInterpolators[cls];
-                if (NewData != null && interp != null) {
-                    var res = interp.Interpolator.Interpolate(NewData.SplinePosition);
-                    _splinePosTime[cls] = res;
-                    return res;
-                } else {
-                    return -1;
-                }
+                return -1;
             }
         }
 
@@ -517,6 +587,8 @@ namespace KLPlugins.Leaderboard.ksBroadcastingNetwork.Structs {
             return relSplinePos;
         }
 
+        #endregion
+
         public override string ToString() {
             var pos = NewData?.Position ?? -1;
             float splinepos = NewData?.SplinePosition ?? -1;
@@ -524,9 +596,6 @@ namespace KLPlugins.Leaderboard.ksBroadcastingNetwork.Structs {
             return $"CarId {CarIndex:000} #{RaceNumber,-4}, {Drivers[0].InitialPlusLastName(),-20} P{pos:00}/{InClassPos:00} L{NewData?.Laps ?? -1 :00}: SplinePos:{splinepos:0.000} LapsBySplinePos:{LapsBySplinePosition:00} TotalSplinePos:{TotalSplinePosition:0.000} Gaps_ToLeader:{GapToLeader:000.0}| ToClassLeader:{GapToClassLeader:000.0}| ToFocusedOnTrack:{GapToFocusedOnTrack:000.0}| ToFocusedTotal:{GapToFocusedTotal:000.0}, Distances_ToLeader:{DistanceToLeader:00000.0}| ToClassLeader:{DistanceToClassLeader:00000.0}| ToFocusedOnTrack:{OnTrackDistanceToFocused:00000.0}| ToFocusedTotal:{TotalDistanceToFocused:00000.0}";
         }
 
-        public DriverData GetCurrentDriver() {
-            return Drivers[NewData?.DriverIndex ?? CurrentDriverIndex];
-        }
 
 
     }

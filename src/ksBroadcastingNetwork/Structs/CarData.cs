@@ -256,6 +256,7 @@ namespace KLPlugins.Leaderboard.ksBroadcastingNetwork.Structs {
                 LastPitTime = (realtimeData.SessionTime).TotalSeconds - PitEntryTime;
                 TotalPitTime += LastPitTime;
                 PitEntryTime = double.NaN;
+                CurrentTimeInPits = double.NaN;
             }
 
             if (!double.IsNaN(PitEntryTime)) { 

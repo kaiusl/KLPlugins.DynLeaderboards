@@ -26,7 +26,7 @@ namespace KLPlugins.Leaderboard.ksBroadcastingNetwork.Structs
         //public Dictionary<string, List<string>> CameraSets { get; internal set; }
         //public IEnumerable<string> HUDPages { get; internal set; }
 
-        public static LapInterpolator[] LapInterpolators = new LapInterpolator[9];
+        public static CarClassArray<LapInterpolator> LapInterpolators = new CarClassArray<LapInterpolator>();
 
         /// <summary>
         /// Read default lap data for calculation of gaps.
@@ -69,13 +69,12 @@ namespace KLPlugins.Leaderboard.ksBroadcastingNetwork.Structs
                     time.Add(t);
                 }
 
-                LapInterpolators[(int)cls] = new LapInterpolator(LinearSpline.InterpolateSorted(pos.ToArray(), time.ToArray()), time.Last());
+                LapInterpolators[cls] = new LapInterpolator(LinearSpline.InterpolateSorted(pos.ToArray(), time.ToArray()), time.Last());
 
             } catch (Exception ex) {
                 LeaderboardPlugin.LogError($"Failed to read {fname} with error: {ex}");
             }
             
         }
-
     }
 }

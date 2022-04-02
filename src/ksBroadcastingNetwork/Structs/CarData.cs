@@ -66,7 +66,7 @@ namespace KLPlugins.Leaderboard.ksBroadcastingNetwork.Structs {
         public int LastStintLaps = 0;
         public int CurrentStintLaps = 0;
 
-        private double?[] _splinePosTime = new double?[8] { null, null, null, null, null, null, null, null };
+        private CarClassArray<double> _splinePosTime = new CarClassArray<double>(-1);
         private bool _isLapFinished = false;
         ////////////////////////
 
@@ -287,9 +287,7 @@ namespace KLPlugins.Leaderboard.ksBroadcastingNetwork.Structs {
                 InClassPos = classPos;
             };
 
-            for (int i = 0; i < _splinePosTime.Length; i++) {
-                _splinePosTime[i] = null;
-            }
+            _splinePosTime.SetAll(-1);
 
             OverallPos = overallPos;
             if (realtimeData.Phase == SessionPhase.SessionOver) {
@@ -366,31 +364,24 @@ namespace KLPlugins.Leaderboard.ksBroadcastingNetwork.Structs {
                 return;
             };
 
-            if (Values.TrackData == null || (TrackData.LapInterpolators[(int)focusedCar.CarClass] == null && TrackData.LapInterpolators[(int)CarClass] == null)) {
+            if (Values.TrackData == null || (TrackData.LapInterpolators[focusedCar.CarClass] == null && TrackData.LapInterpolators[CarClass] == null)) {
                 GapToFocusedOnTrack = OnTrackDistanceToFocused / (175.0 / 3.6);
                 return;
             }
 
             var relativeSplinePos = CalculateRelativeSplinePosition((float)thisPos, (float)focusedPos);
-
-            var focusedTimePos = focusedCar._splinePosTime;
-            var thisTimePos = focusedCar._splinePosTime;
-            if (focusedTimePos == null || thisTimePos == null) {
-                GapToFocusedOnTrack = double.NaN;
-                return;
-            }
-
+            
             double gap;
             if (relativeSplinePos > 0) {
                 // This car is ahead of focused, gap should be the time it takes focused car to reach this car's position
                 // That is use focusedCar lap data to calculate the gap
-                var cls = TrackData.LapInterpolators[(int)focusedCar.CarClass] != null ? focusedCar.CarClass : CarClass;
-                gap = CalculateGapBetweenPos((float)focusedPos, (float)thisPos, (double)focusedCar.GetSplinePosTime(cls), (double)GetSplinePosTime(cls), TrackData.LapInterpolators[(int)cls].LapTime);
+                var cls = TrackData.LapInterpolators[focusedCar.CarClass] != null ? focusedCar.CarClass : CarClass;
+                gap = CalculateGapBetweenPos((float)focusedPos, (float)thisPos, focusedCar.GetSplinePosTime(cls), GetSplinePosTime(cls), TrackData.LapInterpolators[cls].LapTime);
             } else {
                 // This car is behind of focused, gap should be the time it takes us to reach focused car
                 // That is use this cars lap data to calculate gap
-                var cls = TrackData.LapInterpolators[(int)CarClass] != null ? CarClass : focusedCar.CarClass; // If this car's best lap is not available, use focused car's
-                gap = -CalculateGapBetweenPos((float)thisPos, (float)focusedPos, (double)GetSplinePosTime(cls), (double)focusedCar.GetSplinePosTime(cls), TrackData.LapInterpolators[(int)cls].LapTime);
+                var cls = TrackData.LapInterpolators[CarClass] != null ? CarClass : focusedCar.CarClass; // If this car's best lap is not available, use focused car's
+                gap = -CalculateGapBetweenPos((float)thisPos, (float)focusedPos, GetSplinePosTime(cls), focusedCar.GetSplinePosTime(cls), TrackData.LapInterpolators[cls].LapTime);
             }
             if (!double.IsNaN(gap)) GapToFocusedOnTrack = gap;
         }
@@ -426,49 +417,47 @@ namespace KLPlugins.Leaderboard.ksBroadcastingNetwork.Structs {
                     return ((TimeSpan)from.FinishTime).TotalSeconds - ((TimeSpan)to.FinishTime).TotalSeconds;
                 }
 
-                if (Values.TrackData == null || (TrackData.LapInterpolators[(int)to.CarClass] == null && TrackData.LapInterpolators[(int)from.CarClass] == null) ) {
+                if (Values.TrackData == null || (TrackData.LapInterpolators[to.CarClass] == null && TrackData.LapInterpolators[from.CarClass] == null) ) {
                     return distBetween * Values.TrackData.TrackMeters / (175.0 / 3.6);
                 }
 
                 var fromPos = from.NewData?.SplinePosition;
                 var toPos = to.NewData?.SplinePosition;
-                var fromPosTime = from._splinePosTime;
-                var toPosTime = to._splinePosTime;
-                if (fromPosTime == null || toPosTime == null || fromPos == null || toPos == null) return double.NaN;
+                if (fromPos == null || toPos == null) return double.NaN;
 
                 double gap = double.NaN;
                 if (distBetween > 0) {
                     // To car is ahead of from, gap should be the time it takes 'from' car to reach this car's position
                     // That is use 'from' lap data to calculate the gap
                     if (!from.IsFinished) {
-                        var cls = TrackData.LapInterpolators[(int)from.CarClass] != null ? from.CarClass : to.CarClass;
-                        gap = CalculateGapBetweenPos((float)fromPos, (float)toPos, (double)from.GetSplinePosTime(cls), (double)to.GetSplinePosTime(cls), TrackData.LapInterpolators[(int)cls].LapTime);
+                        var cls = TrackData.LapInterpolators[from.CarClass] != null ? from.CarClass : to.CarClass;
+                        gap = CalculateGapBetweenPos((float)fromPos, (float)toPos, from.GetSplinePosTime(cls), to.GetSplinePosTime(cls), TrackData.LapInterpolators[cls].LapTime);
                     }
                 } else {
                     // This car is behind of focused, gap should be the time it takes us to reach focused car
                     // That is use this cars lap data to calculate gap
                     if (!to.IsFinished) {
-                        var cls = TrackData.LapInterpolators[(int)to.CarClass] != null ? to.CarClass : from.CarClass;
-                        gap = -CalculateGapBetweenPos((float)toPos, (float)fromPos, (double)to.GetSplinePosTime(cls), (double)from.GetSplinePosTime(cls), TrackData.LapInterpolators[(int)cls].LapTime);
+                        var cls = TrackData.LapInterpolators[to.CarClass] != null ? to.CarClass : from.CarClass;
+                        gap = -CalculateGapBetweenPos((float)toPos, (float)fromPos, to.GetSplinePosTime(cls), from.GetSplinePosTime(cls), TrackData.LapInterpolators[cls].LapTime);
                     }
                 }
                 return gap;
             }
         }
 
-        private double? GetSplinePosTime(CarClass cls) {
+        private double GetSplinePosTime(CarClass cls) {
             //return _splinePosTime[cls];
-            var pos = _splinePosTime[(int)cls];
-            if (pos != null) {
+            var pos = _splinePosTime[cls];
+            if (pos != -1) {
                 return pos;
             } else {
-                var interp = TrackData.LapInterpolators[(int)cls];
+                var interp = TrackData.LapInterpolators[cls];
                 if (NewData != null && interp != null) {
                     var res = interp.Interpolator.Interpolate(NewData.SplinePosition);
-                    _splinePosTime[(int)cls] = res;
+                    _splinePosTime[cls] = res;
                     return res;
                 } else {
-                    return null;
+                    return -1;
                 }
             }
         }

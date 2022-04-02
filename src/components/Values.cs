@@ -42,14 +42,14 @@ namespace KLPlugins.Leaderboard {
         public int[] PosInClassCarsIdxs { get; private set; }
         public int[] RelativePosOnTrackCarsIdxs { get; private set; }
         public int FocusedCarIdx = -1;
-        public int?[] BestLapByClassCarIdxs = new int?[_numClasses];
+        public CarClassArray<int> BestLapByClassCarIdxs = new CarClassArray<int>(-1);
         public double MaxDriverStintTime = -1;
         public double MaxDriverTotalDriveTime = -1;
 
         // Store relative spline positions for relative leaderboard,
         // need to store separately as we need to sort by spline pos at the end on update loop
         private List<CarSplinePos> _relativeSplinePositions = new List<CarSplinePos>();
-        private int?[] _classLeaderIdxs = new int?[_numClasses]; // Indexes of class leaders in Cars list
+        private CarClassArray<int> _classLeaderIdxs = new CarClassArray<int>(-1); // Indexes of class leaders in Cars list
         private List<ushort> _lastUpdateCarIds = new List<ushort>();
         private ACCUdpRemoteClientConfig _broadcastConfig;
         private bool _startingPositionsSet = false;
@@ -72,12 +72,8 @@ namespace KLPlugins.Leaderboard {
             Cars.Clear();
             ResetPos();
             _lastUpdateCarIds.Clear();
-
-            for (int i = 0; i < _numClasses; i++) {
-                _classLeaderIdxs[i] = null;
-                BestLapByClassCarIdxs[i] = null;
-            }
-
+            _classLeaderIdxs.SetAll(-1);
+            BestLapByClassCarIdxs.SetAll(-1);
             _relativeSplinePositions.Clear();
             _startingPositionsSet = false;
             MaxDriverStintTime = -1;
@@ -153,27 +149,27 @@ namespace KLPlugins.Leaderboard {
         }
 
         public CarData GetBestLapCar(CarClass cls) {
-            var idx = BestLapByClassCarIdxs[(int)cls];
-            if (idx == null) return null;
+            var idx = BestLapByClassCarIdxs[cls];
+            if (idx == -1) return null;
             return Cars[(int)idx];
         }
 
         public int? GetBestLapCarIdx(CarClass cls) {
-            return BestLapByClassCarIdxs[(int)cls];
+            return BestLapByClassCarIdxs[cls];
         }
 
         public CarData GetFocusedClassBestLapCar() {
             var focusedClass = GetFocusedCar()?.CarClass;
             if (focusedClass == null) return null;
-            var idx = BestLapByClassCarIdxs[(int)focusedClass];
-            if (idx == null) return null;
+            var idx = BestLapByClassCarIdxs[(CarClass)focusedClass];
+            if (idx == -1) return null;
             return Cars[(int)idx];
         }
 
         public int? GetFocusedClassBestLapCarIdx() {
             var focusedClass = GetFocusedCar()?.CarClass;
             if (focusedClass == null) return null;
-            return BestLapByClassCarIdxs[(int)focusedClass];
+            return BestLapByClassCarIdxs[(CarClass)focusedClass];
         }
 
 
@@ -363,42 +359,40 @@ namespace KLPlugins.Leaderboard {
             // Clear old data
             _relativeSplinePositions.Clear();
 
-            int?[] classPositions = new int?[_numClasses]; 
+            var classPositions = new CarClassArray<int>(-1); 
             var leaderCar = Cars[0];
             var focusedCar = Cars[FocusedCarIdx];
             var focusedClass = focusedCar.CarClass;
-            var aheadInClassCarIdxs = new int?[_numClasses];
+            var aheadInClassCarIdxs = new CarClassArray<int>(-1);
 
-            for (int i = 0; i < _numClasses; i++) {
-                _classLeaderIdxs[i] = null;
-                BestLapByClassCarIdxs[i] = null;
-            }
-
+            _classLeaderIdxs.SetAll(-1);
+            BestLapByClassCarIdxs.SetAll(-1);
+ 
             for (int i = 0; i < Cars.Count; i++) {
                 var thisCar = Cars[i];
 
                 var thisClass = thisCar.CarClass;
-                var clsPos = classPositions[(int)thisClass];
-                if (clsPos != null) {
+                var clsPos = classPositions[thisClass];
+                if (clsPos != -1) {
                     clsPos++;
                 } else {
                     // First time seeing this class car, must be the class leader
                     clsPos = 1;
-                    _classLeaderIdxs[(int)thisClass] = i;
+                    _classLeaderIdxs[thisClass] = i;
                 }
-                classPositions[(int)thisClass] = clsPos;
+                classPositions[thisClass] = clsPos;
 
                 if (thisClass == focusedClass) {
                     PosInClassCarsIdxs[(int)clsPos - 1] = i;
                 }
 
                 var carAhead = i != 0 ? Cars[i - 1] : null;
-                var carAheadInClassIdx = aheadInClassCarIdxs[(int)thisClass];
-                var carAheadInClass = carAheadInClassIdx != null ? Cars[(int)carAheadInClassIdx] : null;
+                var carAheadInClassIdx = aheadInClassCarIdxs[thisClass];
+                var carAheadInClass = carAheadInClassIdx != -1 ? Cars[(int)carAheadInClassIdx] : null;
 
                 var relSplinePos = thisCar.CalculateRelativeSplinePosition(focusedCar);
-                thisCar.OnRealtimeUpdate(RealtimeData, leaderCar, Cars[(int)_classLeaderIdxs[(int)thisClass]], focusedCar, carAhead, carAheadInClass,  i + 1, (int)clsPos, relSplinePos);
-                aheadInClassCarIdxs[(int)thisClass] = i;
+                thisCar.OnRealtimeUpdate(RealtimeData, leaderCar, Cars[_classLeaderIdxs[thisClass]], focusedCar, carAhead, carAheadInClass,  i + 1, (int)clsPos, relSplinePos);
+                aheadInClassCarIdxs[thisClass] = i;
 
                 // Since we cannot remove cars after finish, don't add cars that have left to the relative
                 if (thisCar.MissedRealtimeUpdates < 10) _relativeSplinePositions.Add(new CarSplinePos(i, relSplinePos));
@@ -406,16 +400,16 @@ namespace KLPlugins.Leaderboard {
                 // Update best laps
                 var thisBest = thisCar.NewData?.BestSessionLap?.LaptimeMS / 1000.0;
                 if (thisBest != null) {
-                    var thisIdx = BestLapByClassCarIdxs[(int)thisClass];
-                    if (thisIdx != null) {
-                        if (Cars[(int)thisIdx].NewData.BestSessionLap.LaptimeMS / 1000.0 >= thisBest) BestLapByClassCarIdxs[(int)thisClass] = i;
+                    var thisIdx = BestLapByClassCarIdxs[thisClass];
+                    if (thisIdx != -1) {
+                        if (Cars[thisIdx].NewData.BestSessionLap.LaptimeMS / 1000.0 >= thisBest) BestLapByClassCarIdxs[thisClass] = i;
                     } else {
-                        BestLapByClassCarIdxs[(int)thisClass] = i;
+                        BestLapByClassCarIdxs[thisClass] = i;
                     }
 
-                    var overallIdx = BestLapByClassCarIdxs[(int)CarClass.Overall];
-                    if (overallIdx != null) {
-                        if (Cars[(int)overallIdx].NewData.BestSessionLap.LaptimeMS / 1000.0 >= thisBest) BestLapByClassCarIdxs[(int)CarClass.Overall] = i;
+                    var overallIdx = BestLapByClassCarIdxs[CarClass.Overall];
+                    if (overallIdx != -1) {
+                        if (Cars[overallIdx].NewData.BestSessionLap.LaptimeMS / 1000.0 >= thisBest) BestLapByClassCarIdxs[CarClass.Overall] = i;
                     } else {
                         BestLapByClassCarIdxs[(int)CarClass.Overall] = i;
                     }
@@ -427,9 +421,9 @@ namespace KLPlugins.Leaderboard {
             }
 
             // If somebody left the session, need to reset following class positions
-            var startpos = 0;
-            if (classPositions[(int)focusedClass] != null) {
-                startpos = (int)classPositions[(int)focusedClass];
+            var startpos = classPositions[focusedClass];
+            if (startpos == -1) {
+                startpos = 0;
             }
             for (int i = startpos; i < LeaderboardPlugin.Settings.NumOverallPos; i++) {
                 if (PosInClassCarsIdxs[i] == -1) break; // All following must already be -1

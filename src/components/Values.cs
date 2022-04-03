@@ -11,6 +11,7 @@ using System.Linq;
 using KLPlugins.Leaderboard.Enums;
 using Newtonsoft.Json;
 using KLPlugins.Leaderboard.src.ksBroadcastingNetwork.Structs;
+using System.Threading;
 
 namespace KLPlugins.Leaderboard {
 
@@ -55,6 +56,9 @@ namespace KLPlugins.Leaderboard {
         private bool _startingPositionsSet = false;
         private const int _defaultIdxValue = -1;
 
+        private readonly object _updadeLock = new object();
+        private static Mutex mut = new Mutex();
+
         public Values() {
             Cars = new List<CarData>();
             PosInClassCarsIdxs = new int[LeaderboardPlugin.Settings.NumOverallPos];
@@ -78,7 +82,14 @@ namespace KLPlugins.Leaderboard {
             _startingPositionsSet = false;
             MaxDriverStintTime = -1;
             MaxDriverTotalDriveTime = -1;
-        }
+            lock (_updadeLock) {
+                _entryListUpdateRunning = false;
+                _realtimeCarUpdate = false;
+                _realtimeUpdate = false;
+                _trackUpdate = false;
+            }
+            
+    }
 
         private void ResetPos() {
             for (int i = 0; i < LeaderboardPlugin.Settings.NumOverallPos; i++) {
@@ -135,10 +146,7 @@ namespace KLPlugins.Leaderboard {
 
         }
 
-        public CarData GetCar(int i) {
-            if (i >= Cars.Count) return null;
-            return Cars[i];
-        }
+        public CarData GetCar(int i) => Cars.ElementAtOrDefault(i);
 
         public CarData GetFocusedCar() {
             if (FocusedCarIdx == _defaultIdxValue) return null;
@@ -226,10 +234,19 @@ namespace KLPlugins.Leaderboard {
 
 
         private void OnBroadcastRealtimeUpdate(string sender, RealtimeUpdate update) {
+
+            if (_entryListUpdateRunning || _realtimeCarUpdate || _realtimeUpdate || _trackUpdate) {
+                LeaderboardPlugin.LogInfo($"OnRealtimeUpdate while other update was running.");
+            }
+
+            _realtimeUpdate = true;
+
             //var swatch = Stopwatch.StartNew();
+            //LeaderboardPlugin.LogInfo($"RealtimeUpdate update. ThreadId={Thread.CurrentThread.ManagedThreadId}");
 
             if (RealtimeData == null) {
                 RealtimeData = new RealtimeData(update);
+                _realtimeUpdate = false;
                 return;
             } else {
                 RealtimeData.OnRealtimeUpdate(update);
@@ -254,7 +271,10 @@ namespace KLPlugins.Leaderboard {
             }
 
 
-            if (Cars.Count == 0) return;
+            if (Cars.Count == 0) {
+                _realtimeUpdate = false;
+                return;
+            };
             ClearMissingCars();
             SetOverallOrder();
             FocusedCarIdx = Cars.FindIndex(x => x.CarIndex == update.FocusedCarIndex);
@@ -265,6 +285,9 @@ namespace KLPlugins.Leaderboard {
             //swatch.Stop();
             //TimeSpan ts = swatch.Elapsed;
             //File.AppendAllText($"{LeaderboardPlugin.Settings.PluginDataLocation}\\Logs\\timings\\OnRealtimeUpdate_{LeaderboardPlugin.PluginStartTime}.txt", $"{ts.TotalMilliseconds}\n");
+
+            //LeaderboardPlugin.LogInfo($"Finished RealtimeUpdate update. ThreadId={Thread.CurrentThread.ManagedThreadId}");
+            _realtimeUpdate = false;
         }
 
         private void ClearMissingCars() {
@@ -403,18 +426,18 @@ namespace KLPlugins.Leaderboard {
                 if (thisCar.MissedRealtimeUpdates < 10) _relativeSplinePositions.Add(new CarSplinePos(i, relSplinePos));
 
                 // Update best laps
-                var thisBest = thisCar.NewData?.BestSessionLap?.LaptimeMS / 1000.0;
+                var thisBest = thisCar.NewData?.BestSessionLap?.Laptime;
                 if (thisBest != null) {
                     var thisIdx = BestLapByClassCarIdxs[thisClass];
                     if (thisIdx != BestLapByClassCarIdxs.DefaultValue) {
-                        if (Cars[thisIdx].NewData.BestSessionLap.LaptimeMS / 1000.0 >= thisBest) BestLapByClassCarIdxs[thisClass] = i;
+                        if (Cars[thisIdx].NewData.BestSessionLap.Laptime >= thisBest) BestLapByClassCarIdxs[thisClass] = i;
                     } else {
                         BestLapByClassCarIdxs[thisClass] = i;
                     }
 
                     var overallIdx = BestLapByClassCarIdxs[CarClass.Overall];
                     if (overallIdx != BestLapByClassCarIdxs.DefaultValue) {
-                        if (Cars[overallIdx].NewData.BestSessionLap.LaptimeMS / 1000.0 >= thisBest) BestLapByClassCarIdxs[CarClass.Overall] = i;
+                        if (Cars[overallIdx].NewData.BestSessionLap.Laptime >= thisBest) BestLapByClassCarIdxs[CarClass.Overall] = i;
                     } else {
                         BestLapByClassCarIdxs[(int)CarClass.Overall] = i;
                     }
@@ -470,24 +493,47 @@ namespace KLPlugins.Leaderboard {
 
         #region EntryListUpdate
 
+        private volatile bool _entryListUpdateRunning = false;
+        private volatile bool _realtimeCarUpdate = false;
+        private volatile bool _realtimeUpdate = false;
+        private volatile bool _trackUpdate = false;
         private void OnEntryListUpdate(string sender, CarInfo car) {
             // Add new cars if not already added, update car info of all the cars (adds new drivers if some were missing)
+
+            if (_entryListUpdateRunning || _realtimeCarUpdate || _realtimeUpdate || _trackUpdate) {
+                LeaderboardPlugin.LogInfo($"OnEntryListUpdate while other update was running {_entryListUpdateRunning}, {_realtimeUpdate}, {_realtimeCarUpdate}, {_trackUpdate}");
+            }
+            _entryListUpdateRunning = true;
             var idx = Cars.FindIndex(x => x.CarIndex == car.CarIndex);
             if (idx == -1) {
                 Cars.Add(new CarData(car, null));
             } else {
                 Cars[idx].UpdateCarInfo(car);
             }
+            _entryListUpdateRunning = false;
         }
         #endregion
 
         #region RealtimeCarUpdate
         private void OnRealtimeCarUpdate(string sender, RealtimeCarUpdate update) {
-            if (RealtimeData == null) return;
+
+            //LeaderboardPlugin.LogInfo($"RealtimeCarUpdate update for car #{update.CarIndex}. ThreadId={Thread.CurrentThread.ManagedThreadId}");
+            if (_entryListUpdateRunning || _realtimeCarUpdate || _realtimeUpdate || _trackUpdate) {
+                LeaderboardPlugin.LogInfo($"OnRealtimeCarUpdate while other update was running. {_entryListUpdateRunning}, {_realtimeUpdate}, {_realtimeCarUpdate}, {_trackUpdate}");
+            }
+            _realtimeCarUpdate = true;
+            if (RealtimeData == null) {
+                _realtimeCarUpdate = false;
+                return;
+            };
             // Update Realtime data of existing cars
             // If found new car, BroadcastClient itself requests new entry list
             var idx = Cars.FindIndex(x => x.CarIndex == update.CarIndex);
-            if (idx == -1) return; // Car wasn't found, wait for entry list update
+            if (idx == -1) {
+                // Car wasn't found, wait for entry list update
+                _realtimeCarUpdate = false;
+                return;
+            };
             var car = Cars[idx];
             car.OnRealtimeCarUpdate(update, RealtimeData);
             _lastUpdateCarIds.Add(car.CarIndex);
@@ -503,17 +549,27 @@ namespace KLPlugins.Leaderboard {
             //    car.FirstAdded = true;
 
             //}
-
+            //LeaderboardPlugin.LogInfo($"Finished RealtimeCarUpdate update for car #{update.CarIndex}. ThreadId={Thread.CurrentThread.ManagedThreadId}");
+            _realtimeCarUpdate = false;
+            
         }
         #endregion
 
         #region TrackUpdate
         private void OnTrackDataUpdate(string sender, TrackData update) {
+            if (_entryListUpdateRunning || _realtimeCarUpdate || _realtimeUpdate || _trackUpdate) {
+                LeaderboardPlugin.LogInfo($"OnTrackDataUpdate while other update was running.");
+            }
+
+            _trackUpdate = true;
+
+            //LeaderboardPlugin.LogInfo($"TrackData update. ThreadId={Thread.CurrentThread.ManagedThreadId}");
             // Update track data
             //AccBroadcastDataPlugin.LogInfo("New track update.");
             TrackData = update;
             TrackData.ReadDefBestLaps();
-            
+            //LeaderboardPlugin.LogInfo($"Finished TrackData update. ThreadId={Thread.CurrentThread.ManagedThreadId}");
+            _trackUpdate = false;
         }
         #endregion
 

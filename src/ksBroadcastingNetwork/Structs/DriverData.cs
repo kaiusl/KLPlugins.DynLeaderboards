@@ -27,7 +27,7 @@ namespace KLPlugins.Leaderboard {
 
         public void OnLapFinished(LapInfo lastLap) {
             TotalLaps++;
-            if (BestSessionLap?.LaptimeMS == null || (lastLap.IsValidForBest && BestSessionLap.LaptimeMS > lastLap.LaptimeMS)) {
+            if (BestSessionLap?.Laptime == null || (lastLap.IsValidForBest && BestSessionLap.Laptime > lastLap.Laptime)) {
                 BestSessionLap = lastLap;
             }
         }

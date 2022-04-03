@@ -324,14 +324,25 @@ namespace KLPlugins.Leaderboard.ksBroadcastingNetwork {
         private static LapInfo ReadLap(BinaryReader br)
         {
             var lap = new LapInfo();
-            lap.LaptimeMS = br.ReadInt32();
+            var laptime = br.ReadInt32();
+            if (laptime == int.MaxValue) {
+                lap.Laptime = null;
+            } else {
+                lap.Laptime = laptime / 1000.0;
+            }
 
             lap.CarIndex = br.ReadUInt16();
             lap.DriverIndex = br.ReadUInt16();
 
             var splitCount = br.ReadByte();
-            for (int i = 0; i < splitCount; i++)
-                lap.Splits.Add(br.ReadInt32());
+            for (int i = 0; i < splitCount; i++) {
+                var split = br.ReadInt32();
+                if (split == int.MaxValue) {
+                    lap.Splits.Add(null);
+                } else {
+                    lap.Splits.Add(split / 1000.0);
+                }
+            }
 
             lap.IsInvalid = br.ReadByte() > 0;
             lap.IsValidForBest = br.ReadByte() > 0;
@@ -352,14 +363,6 @@ namespace KLPlugins.Leaderboard.ksBroadcastingNetwork {
             {
                 lap.Splits.Add(null);
             }
-
-            // "null" entries are Int32.Max, in the C# world we can replace this to null
-            for (int i = 0; i < lap.Splits.Count; i++)
-                if (lap.Splits[i] == Int32.MaxValue)
-                    lap.Splits[i] = null;
-
-            if (lap.LaptimeMS == Int32.MaxValue)
-                lap.LaptimeMS = null;
 
             return lap;
         }

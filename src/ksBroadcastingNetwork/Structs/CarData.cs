@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using KLPlugins.Leaderboard.Enums;
 using KLPlugins.Leaderboard.src.ksBroadcastingNetwork.Structs;
@@ -69,7 +70,7 @@ namespace KLPlugins.Leaderboard.ksBroadcastingNetwork.Structs {
         // Else
         public bool IsFinished { get; private set; } = false;
         public TimeSpan? FinishTime { get; private set; } = null;
-        public int?[] BestLapSectors { get; private set; } = new int?[] { null, null, null };
+        public double?[] BestLapSectors { get; private set; } = new double?[] { null, null, null };
 
         internal int MissedRealtimeUpdates { get; set; } = 0;
 
@@ -96,12 +97,14 @@ namespace KLPlugins.Leaderboard.ksBroadcastingNetwork.Structs {
             NewData = update;
         }
 
+        public DriverData GetDriver(int i) => Drivers.ElementAtOrDefault(i);
+
         private void AddDriver(DriverInfo driverInfo) {
             Drivers.Add(new DriverData(driverInfo));
         }
 
-        public double GetDriverTotalDrivingTime(int i) {
-            return Drivers[i].GetTotalDrivingTime(i == NewData.DriverIndex, CurrentStintTime);
+        public double? GetDriverTotalDrivingTime(int i) {
+            return Drivers.ElementAtOrDefault(i)?.GetTotalDrivingTime(i == (NewData?.DriverIndex ?? CurrentDriverIndex), CurrentStintTime);
         }
 
         #region Entry list update
@@ -115,7 +118,6 @@ namespace KLPlugins.Leaderboard.ksBroadcastingNetwork.Structs {
             // We need to make sure that the order is as specified by new info
             // But also add new drivers. We keep old drivers but move them to the end of list
             // as they might rejoin and then we need to have the old data. (I'm not sure if ACC keeps those drivers or not, but we make sure to keep the data.)
-            LeaderboardPlugin.LogInfo($"CarInfo update for car #{RaceNumber}.");
             CurrentDriverIndex = info.CurrentDriverIndex;
             if (Drivers.Count == info.Drivers.Count && Drivers.Zip(info.Drivers, (a, b) => a.Equals(b)).All(x => x)) {
                 LeaderboardPlugin.LogInfo($"All drivers same.");
@@ -332,7 +334,7 @@ namespace KLPlugins.Leaderboard.ksBroadcastingNetwork.Structs {
             // Note that NewData.BestSessionLap doesn't contain the sectors of that best lap but the best sectors.
             if (OldData.Laps != NewData.Laps
                 && NewData.LastLap.IsValidForBest
-                && NewData.LastLap.LaptimeMS == NewData.BestSessionLap.LaptimeMS
+                && NewData.LastLap.Laptime == NewData.BestSessionLap.Laptime
             ) {
                 for (int i = 0; i < 3; i++) {
                     BestLapSectors[i] = NewData.LastLap.Splits[i];
@@ -418,7 +420,7 @@ namespace KLPlugins.Leaderboard.ksBroadcastingNetwork.Structs {
 
             } else {
                 // Use best laps to calculate gaps
-                var thisBestLap = NewData?.BestSessionLap?.LaptimeMS;
+                var thisBestLap = NewData?.BestSessionLap?.Laptime;
                 if (thisBestLap == null) {
                     GapToLeader = double.NaN;
                     GapToAheadInClass = double.NaN;
@@ -427,17 +429,17 @@ namespace KLPlugins.Leaderboard.ksBroadcastingNetwork.Structs {
                     return;
                 }
 
-                var leaderBestLap = leader?.NewData?.BestSessionLap?.LaptimeMS;
-                GapToLeader = leaderBestLap != null ? ((double)thisBestLap - (double)leaderBestLap) / 1000.0 : double.NaN;
+                var leaderBestLap = leader?.NewData?.BestSessionLap?.Laptime;
+                GapToLeader = leaderBestLap != null ? ((double)thisBestLap - (double)leaderBestLap) : double.NaN;
 
-                var classLeaderBestLap = classLeader?.NewData?.BestSessionLap?.LaptimeMS;
-                GapToClassLeader = classLeaderBestLap != null ? ((double)thisBestLap - (double)classLeaderBestLap) / 1000.0 : double.NaN;
+                var classLeaderBestLap = classLeader?.NewData?.BestSessionLap?.Laptime;
+                GapToClassLeader = classLeaderBestLap != null ? ((double)thisBestLap - (double)classLeaderBestLap) : double.NaN;
 
-                var aheadBestLap = carAhead?.NewData?.BestSessionLap?.LaptimeMS;
-                GapToAhead = aheadBestLap != null ? ((double)thisBestLap - (double)aheadBestLap) / 1000.0 : double.NaN;
+                var aheadBestLap = carAhead?.NewData?.BestSessionLap?.Laptime;
+                GapToAhead = aheadBestLap != null ? ((double)thisBestLap - (double)aheadBestLap) : double.NaN;
 
-                var aheadInClassBestLap = carAheadInClass?.NewData?.BestSessionLap?.LaptimeMS;
-                GapToAheadInClass = aheadInClassBestLap != null ? ((double)thisBestLap - (double)aheadInClassBestLap) / 1000.0 : double.NaN;
+                var aheadInClassBestLap = carAheadInClass?.NewData?.BestSessionLap?.Laptime;
+                GapToAheadInClass = aheadInClassBestLap != null ? ((double)thisBestLap - (double)aheadInClassBestLap) : double.NaN;
             }
 
             CalculateRelativeGapToFocused(focused);

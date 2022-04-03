@@ -8,8 +8,8 @@ namespace KLPlugins.Leaderboard.ksBroadcastingNetwork.Structs
 {
     public class LapInfo
     {
-        public int? LaptimeMS { get; internal set; }
-        public List<int?> Splits { get; } = new List<int?>();
+        public double? Laptime { get; internal set; }
+        public List<double?> Splits { get; } = new List<double?>();
         public ushort CarIndex { get; internal set; }
         public ushort DriverIndex { get; internal set; }
         public bool IsInvalid { get; internal set; }
@@ -18,7 +18,7 @@ namespace KLPlugins.Leaderboard.ksBroadcastingNetwork.Structs
 
         public override string ToString()
         {
-            return $"{LaptimeMS, 5}|{string.Join("|", Splits)}";
+            return $"{Laptime, 5}|{string.Join("|", Splits)}";
         }
     }
 }

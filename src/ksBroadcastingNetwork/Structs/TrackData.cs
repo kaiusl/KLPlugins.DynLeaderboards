@@ -26,13 +26,15 @@ namespace KLPlugins.Leaderboard.ksBroadcastingNetwork.Structs
         //public Dictionary<string, List<string>> CameraSets { get; internal set; }
         //public IEnumerable<string> HUDPages { get; internal set; }
 
-        public static CarClassArray<LapInterpolator> LapInterpolators = new CarClassArray<LapInterpolator>();
+        public static CarClassArray<LapInterpolator> LapInterpolators = null;
 
         /// <summary>
         /// Read default lap data for calculation of gaps.
         /// </summary>
         public static void ReadDefBestLaps() {
             if (LapInterpolators != null) return;
+
+            LapInterpolators = new CarClassArray<LapInterpolator>(null);
 
             AddLapInterpolator(CarClass.GT3, new CarClass[] { });
             AddLapInterpolator(CarClass.GT4, new CarClass[] { });
@@ -54,7 +56,10 @@ namespace KLPlugins.Leaderboard.ksBroadcastingNetwork.Structs
                     }
                 }
 
-                if (!File.Exists(fname)) return; 
+                if (!File.Exists(fname)) {
+                    LeaderboardPlugin.LogInfo($"Couldn't build lap interpolator for {cls} because no suitable track data exists.");
+                    return;
+                }; 
             }
 
             var pos = new List<double>();
@@ -70,7 +75,7 @@ namespace KLPlugins.Leaderboard.ksBroadcastingNetwork.Structs
                 }
 
                 LapInterpolators[cls] = new LapInterpolator(LinearSpline.InterpolateSorted(pos.ToArray(), time.ToArray()), time.Last());
-
+                LeaderboardPlugin.LogInfo($"Build lap interpolator for {cls} from file {fname}");
             } catch (Exception ex) {
                 LeaderboardPlugin.LogError($"Failed to read {fname} with error: {ex}");
             }

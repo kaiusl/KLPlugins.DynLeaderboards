@@ -320,7 +320,7 @@ namespace KLPlugins.Leaderboard.ksBroadcastingNetwork.Structs {
             CarData classLeaderCar, 
             CarData focusedCar, 
             CarData carAhead, 
-            CarData carBehind, 
+            CarData carAheadInClass, 
             int overallPos, 
             int classPos, 
             float relSplinePos
@@ -347,7 +347,7 @@ namespace KLPlugins.Leaderboard.ksBroadcastingNetwork.Structs {
             }
 
             OnTrackDistanceToFocused = relSplinePos * Values.TrackData.TrackMeters;
-            SetGaps(realtimeData, leaderCar, classLeaderCar, focusedCar, carAhead, carBehind);
+            SetGaps(realtimeData, leaderCar, classLeaderCar, focusedCar, carAhead, carAheadInClass);
 
             if (IsFinished) _isRaceFinishPosSet = true;
         }
@@ -389,24 +389,20 @@ namespace KLPlugins.Leaderboard.ksBroadcastingNetwork.Structs {
                     GapToAheadInClass = double.NaN;
                     GapToClassLeader = double.NaN;
                     GapToAhead = double.NaN;
+                    return;
                 }
 
-                var leaderBestLap = leader.NewData?.BestSessionLap?.LaptimeMS;
+                var leaderBestLap = leader?.NewData?.BestSessionLap?.LaptimeMS;
                 GapToLeader = leaderBestLap != null ? ((double)thisBestLap - (double)leaderBestLap) / 1000.0 : double.NaN;
 
-                var classLeaderBestLap = classLeader.NewData?.BestSessionLap?.LaptimeMS;
+                var classLeaderBestLap = classLeader?.NewData?.BestSessionLap?.LaptimeMS;
                 GapToClassLeader = classLeaderBestLap != null ? ((double)thisBestLap - (double)classLeaderBestLap) / 1000.0 : double.NaN;
 
-                if (carAhead != null) {
-                    var aheadBestLap = carAhead.NewData?.BestSessionLap?.LaptimeMS;
-                    GapToAhead = aheadBestLap != null ? ((double)thisBestLap - (double)aheadBestLap) / 1000.0 : double.NaN;
-                }
+                var aheadBestLap = carAhead?.NewData?.BestSessionLap?.LaptimeMS;
+                GapToAhead = aheadBestLap != null ? ((double)thisBestLap - (double)aheadBestLap) / 1000.0 : double.NaN;
 
-                if (carAheadInClass != null) {
-                    var aheadInClassBestLap = carAheadInClass.NewData?.BestSessionLap?.LaptimeMS;
-                    GapToAheadInClass = aheadInClassBestLap != null ? ((double)thisBestLap - (double)aheadInClassBestLap) / 1000.0 : double.NaN;
-                }
-
+                var aheadInClassBestLap = carAheadInClass?.NewData?.BestSessionLap?.LaptimeMS;
+                GapToAheadInClass = aheadInClassBestLap != null ? ((double)thisBestLap - (double)aheadInClassBestLap) / 1000.0 : double.NaN;
             }
 
             CalculateRelativeGapToFocused(focused);

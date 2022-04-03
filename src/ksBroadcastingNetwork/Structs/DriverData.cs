@@ -7,7 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace KLPlugins.Leaderboard {
-    public class DriverData : IEquatable<DriverInfo> {
+    public class DriverData {
         public string FirstName { get; internal set; }
         public string LastName { get; internal set; }
         public string ShortName { get; internal set; }
@@ -70,19 +70,6 @@ namespace KLPlugins.Leaderboard {
                 return false;
             }
 
-            // Optimization for a common success case.
-            if (Object.ReferenceEquals(this, p)) {
-                return true;
-            }
-
-            // If run-time types are not exactly the same, return false.
-            if (this.GetType() != p.GetType()) {
-                return false;
-            }
-
-            // Return true if the fields match.
-            // Note that the base class is not invoked because it is
-            // System.Object, which defines Equals as reference equality.
             return (FirstName == p.FirstName) && (LastName == p.LastName) && (ShortName == p.ShortName) && (Nationality == p.Nationality) && (Category == p.Category);
         }
 

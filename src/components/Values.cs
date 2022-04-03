@@ -304,7 +304,17 @@ namespace KLPlugins.Leaderboard {
                 // Also larger TotalSplinePosition means car is in front, so sort in descending order
 
                 int cmp(CarData a, CarData b) {
-                    if ((a.IsFinished || b.IsFinished || a.TotalSplinePosition == b.TotalSplinePosition) && a.NewData != null && b.NewData != null) {
+                    if ((a.IsFinished || b.IsFinished) && a.NewData != null && b.NewData != null) {
+                        if (a.NewData.Laps != b.NewData.Laps) {
+                            return a.NewData.Laps.CompareTo(b.NewData.Laps);
+                        } else {
+                            // At least one of them must be finished, if both earlier finish time should be ahead.
+                            // If one hasn't finished, assign max value so it would be set behind the other one.
+                            var aFTime = a.FinishTime == null ? TimeSpan.MaxValue.TotalSeconds : ((TimeSpan)a.FinishTime).TotalSeconds;
+                            var bFTime = b.FinishTime == null ? TimeSpan.MaxValue.TotalSeconds : ((TimeSpan)b.FinishTime).TotalSeconds;
+                            return aFTime.CompareTo(bFTime);
+                        }
+                    } else if ((a.TotalSplinePosition == b.TotalSplinePosition) && a.NewData != null && b.NewData != null) {
                         return a.NewData.Position.CompareTo(b.NewData.Position);
                     }
                     return b.TotalSplinePosition.CompareTo(a.TotalSplinePosition);

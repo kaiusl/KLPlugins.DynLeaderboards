@@ -49,22 +49,20 @@ namespace KLPlugins.Leaderboard {
 
         float prevPos = 0.0f;
         int prevLaps = 0;
-        public void DataUpdate(PluginManager pluginManager, ref GameData data) {
+        public void DataUpdate(PluginManager pm, ref GameData data) {
             if (!Game.IsAcc) { return; } // Atm only ACC is supported
 
             //if (data.GameRunning && data.OldData != null && data.NewData != null) {
-            //    _values.OnDataUpdate(pluginManager, data);
+            //    var track = (string)pm.GetPropertyValue<SimHub.Plugins.DataPlugins.DataCore.DataCorePlugin>("GameRawData.StaticInfo.Track");
+            //    var npos = (float)pm.GetPropertyValue<SimHub.Plugins.DataPlugins.DataCore.DataCorePlugin>("GameRawData.Graphics.NormalizedCarPosition");
+            //    var ctime = (int)pm.GetPropertyValue<SimHub.Plugins.DataPlugins.DataCore.DataCorePlugin>("GameRawData.Graphics.iCurrentTime");
+            //    var speed = (float)pm.GetPropertyValue<SimHub.Plugins.DataPlugins.DataCore.DataCorePlugin>("GameRawData.Physics.SpeedKmh");
+            //    var laps = (int)pm.GetPropertyValue<SimHub.Plugins.DataPlugins.DataCore.DataCorePlugin>("GameData.CompletedLaps");
 
-            //    var laps = (int)pluginManager.GetPropertyValue<SimHub.Plugins.DataPlugins.DataCore.DataCorePlugin>("GameRawData.Graphics.CompletedLaps");
-            //    var pos = (float)pluginManager.GetPropertyValue<SimHub.Plugins.DataPlugins.DataCore.DataCorePlugin>("GameRawData.Graphics.NormalizedCarPosition");
-            //    var track = (string)PluginManager.GetPropertyValue<SimHub.Plugins.DataPlugins.DataCore.DataCorePlugin>("GameData.TrackId");
+ 
+            //    File.AppendAllText($"{LeaderboardPlugin.Settings.PluginDataLocation}\\NewLaps\\{track}_{laps + 1}.txt", $"{npos};{ctime};{speed}\n");
 
-            //    if (pos > 0.9 || pos < 0.1) {
-            //        File.AppendAllText($"{Settings.PluginDataLocation}\\{track}_pos.txt", $"\n{pos};{laps};");
-            //    }
 
-            //    prevPos = pos;
-            //    prevLaps = laps;
             //}
         }
 

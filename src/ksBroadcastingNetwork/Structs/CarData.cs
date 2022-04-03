@@ -267,7 +267,9 @@ namespace KLPlugins.Leaderboard.ksBroadcastingNetwork.Structs {
         }
 
         private void UpdatePitInfo(RealtimeData realtimeData) {
-            if (OldData.CarLocation != CarLocationEnum.Pitlane && NewData.CarLocation == CarLocationEnum.Pitlane) {
+            if (OldData.CarLocation != CarLocationEnum.Pitlane && NewData.CarLocation == CarLocationEnum.Pitlane
+                || (double.IsNaN(PitEntryTime) && NewData.CarLocation == CarLocationEnum.Pitlane && (realtimeData.IsSession || realtimeData.IsPostSession)) // We join/start simhub mid session
+                ) {
                 // Entered pitlane
                 PitCount++;
                 PitEntryTime = realtimeData.SessionTime.TotalSeconds;
@@ -297,8 +299,8 @@ namespace KLPlugins.Leaderboard.ksBroadcastingNetwork.Structs {
 
             // Stint started
             if ((OldData.CarLocation == CarLocationEnum.Pitlane && NewData.CarLocation != CarLocationEnum.Pitlane) // Pitlane exit
-                || (realtimeData.IsRace && realtimeData.IsSessionStart)
-                || (_stintStartTime == null && NewData.CarLocation == CarLocationEnum.Track && (realtimeData.IsSession || realtimeData.IsPostSession))// Race start
+                || (realtimeData.IsRace && realtimeData.IsSessionStart) // Race start
+                || (_stintStartTime == null && NewData.CarLocation == CarLocationEnum.Track && (realtimeData.IsSession || realtimeData.IsPostSession)) // We join/start simhub mid session
             ) {
                 _stintStartTime = realtimeData.SessionTime.TotalSeconds;
                 LeaderboardPlugin.LogInfo($"#{RaceNumber} started stint at {_stintStartTime}");
@@ -358,7 +360,7 @@ namespace KLPlugins.Leaderboard.ksBroadcastingNetwork.Structs {
             _splinePositionTime.Reset();
 
             OverallPos = overallPos;
-            if (realtimeData.Phase == SessionPhase.SessionOver && realtimeData.IsRace) {
+            if (realtimeData.OldData.Phase == SessionPhase.SessionOver && realtimeData.IsRace) {
                 if (CarIndex == leaderCar.CarIndex || leaderCar.IsFinished) {
                     if (NewData.Laps != OldData.Laps) {
                         IsFinished = true;
@@ -511,6 +513,7 @@ namespace KLPlugins.Leaderboard.ksBroadcastingNetwork.Structs {
                 if (Values.TrackData == null 
                     || (TrackData.LapInterpolators[to.CarClass] == null && TrackData.LapInterpolators[from.CarClass] == null) 
                 ) {
+                    //LeaderboardPlugin.LogInfo("Used naive gap calculator");
                     return distBetween * Values.TrackData.TrackMeters / (175.0 / 3.6);
                 }
 

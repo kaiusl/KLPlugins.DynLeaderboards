@@ -71,6 +71,7 @@ namespace KLPlugins.Leaderboard.ksBroadcastingNetwork.Structs {
         public bool IsFinished { get; private set; } = false;
         public TimeSpan? FinishTime { get; private set; } = null;
         public double?[] BestLapSectors { get; private set; } = new double?[] { null, null, null };
+        public double MaxSpeed { get; private set; } = 0.0;
 
         internal int MissedRealtimeUpdates { get; set; } = 0;
 
@@ -200,6 +201,9 @@ namespace KLPlugins.Leaderboard.ksBroadcastingNetwork.Structs {
 
             UpdateStintInfo(realtimeData);
             UpdateBestLapSectors();
+
+            MaxSpeed = Math.Max(MaxSpeed, NewData.Kmh);
+
         }
 
         private void UpdateLapsBySplinePosition(RealtimeData realtimeData) {

@@ -17,9 +17,10 @@ namespace KLPlugins.Leaderboard {
         public int NumDrivers { get; set; } = _defNumDrivers;
         public int BroadcastDataUpdateRateMs { get; set; } = _defUpdateInterval;
 
-        public ExposedCarProperties ExposedProperties { get; set; }
+        public ExposedCarProperties ExposedCarProperties { get; set; }
         public ExposedDriverProperties ExposedDriverProperties { get; set; }
         public ExposedOrderings ExposedOrderings { get; set; }
+        public ExposedGeneralProperties ExposedGeneralProperties { get; set; }
 
         private const string _defPluginsDataLocation = "PluginsData\\KLPlugins\\Leaderboard";
         private static readonly string _defAccDataLocation = "C:\\Users\\" + Environment.UserName + "\\Documents\\Assetto Corsa Competizione";
@@ -32,11 +33,11 @@ namespace KLPlugins.Leaderboard {
        
 
         public void AddExposedProperty(ExposedCarProperties newProp) { 
-            ExposedProperties |= newProp;
+            ExposedCarProperties |= newProp;
         }
 
         public void RemoveExposedProperty(ExposedCarProperties oldProp) {
-            ExposedProperties &= ~oldProp;
+            ExposedCarProperties &= ~oldProp;
         }
 
         public void AddExposedDriverProperty(ExposedDriverProperties newProp) {
@@ -47,12 +48,20 @@ namespace KLPlugins.Leaderboard {
             ExposedDriverProperties &= ~oldProp;
         }
 
-        public void AddExposedOrderings(ExposedOrderings newProp) {
+        public void AddExposedOrdering(ExposedOrderings newProp) {
             ExposedOrderings |= newProp;
         }
 
-        public void RemoveExposedOrderings(ExposedOrderings oldProp) {
+        public void RemoveExposedOrdering(ExposedOrderings oldProp) {
             ExposedOrderings &= ~oldProp;
+        }
+
+        public void AddExposedGeneralProperty(ExposedGeneralProperties newProp) {
+            ExposedGeneralProperties |= newProp;
+        }
+
+        public void RemoveExposedGeneralProperty(ExposedGeneralProperties oldProp) {
+            ExposedGeneralProperties &= ~oldProp;
         }
 
         public bool SetAccDataLocation(string newLoc) {
@@ -177,10 +186,7 @@ namespace KLPlugins.Leaderboard {
         PitTimeCurrent = 1L << 38,
 
         IsFinished = 1L << 39,
-
-        SessionPhase = 1L << 45,
-        MaxStintTime = 1L << 46,
-        MaxDriveTime = 1L << 47
+        MaxSpeed = 1L << 40,
     }
 
     static class ExposedPropertiesExtensions {
@@ -284,11 +290,33 @@ namespace KLPlugins.Leaderboard {
                     return "Current time in pits in seconds";
                 case ExposedCarProperties.IsFinished:
                     return "Is the car finished?";
-                case ExposedCarProperties.SessionPhase:
+                default:
+                    return "None";
+            }
+        }
+    }
+
+    [Flags]
+    public enum ExposedGeneralProperties {
+        None = 0,
+        SessionPhase = 1 << 1,
+        MaxStintTime = 1 << 2,
+        MaxDriveTime = 1 << 3,
+    }
+
+    static class ExposedOrderingsExtensions {
+
+        public static bool Includes(this ExposedGeneralProperties p, ExposedGeneralProperties o) {
+            return (p & o) != 0;
+        }
+
+        public static string ToolTipText(this ExposedGeneralProperties p) {
+            switch (p) {
+                case ExposedGeneralProperties.SessionPhase:
                     return "Session phase.";
-                case ExposedCarProperties.MaxStintTime:
+                case ExposedGeneralProperties.MaxStintTime:
                     return "Maximum driver stint time.";
-                case ExposedCarProperties.MaxDriveTime:
+                case ExposedGeneralProperties.MaxDriveTime:
                     return "Maximum total driving time for driver for player car. This can be different for other teams if they have different number of drivers.";
                 default:
                     return "None";
@@ -306,7 +334,7 @@ namespace KLPlugins.Leaderboard {
         InClassBestLapPosition = 1 << 5,
     }
 
-    static class ExposedOrderingsExtensions {
+    static class ExposedGeneralPropertiesExtensions {
 
         public static bool Includes(this ExposedOrderings p, ExposedOrderings o) {
             return (p & o) != 0;

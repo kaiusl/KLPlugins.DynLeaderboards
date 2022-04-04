@@ -202,26 +202,26 @@ namespace KLPlugins.Leaderboard {
             void addCar(int i) {
                 var startName = $"Overall.{i + 1:00}";
                 void AddProp<T>(ExposedCarProperties prop, Func<T> valueProvider) {
-                    if (Settings.ExposedProperties.Includes(prop)) this.AttachDelegate($"{startName}.{prop}", valueProvider);
+                    if (Settings.ExposedCarProperties.Includes(prop)) this.AttachDelegate($"{startName}.{prop}", valueProvider);
                 }
 
                 // Laps and sectors
 
                 AddProp(ExposedCarProperties.NumberOfLaps, () => _values.GetCar(i)?.NewData?.Laps);
                 AddProp(ExposedCarProperties.LastLapTime, () => _values.GetCar(i)?.NewData?.LastLap?.Laptime);
-                if (Settings.ExposedProperties.Includes(ExposedCarProperties.LastLapSectors)) {
+                if (Settings.ExposedCarProperties.Includes(ExposedCarProperties.LastLapSectors)) {
                     this.AttachDelegate($"{startName}.LastLapS1", () => _values.GetCar(i)?.NewData?.LastLap?.Splits?[0]);
                     this.AttachDelegate($"{startName}.LastLapS2", () => _values.GetCar(i)?.NewData?.LastLap?.Splits?[1]);
                     this.AttachDelegate($"{startName}.LastLapS3", () => _values.GetCar(i)?.NewData?.LastLap?.Splits?[2]);
                 }
 
                 AddProp(ExposedCarProperties.BestLapTime, () => _values.GetCar(i)?.NewData?.BestSessionLap.Laptime);
-                if (Settings.ExposedProperties.Includes(ExposedCarProperties.BestLapSectors)) {
+                if (Settings.ExposedCarProperties.Includes(ExposedCarProperties.BestLapSectors)) {
                     this.AttachDelegate($"{startName}.BestLapS1", () => _values.GetCar(i)?.BestLapSectors?[0]);
                     this.AttachDelegate($"{startName}.BestLapS2", () => _values.GetCar(i)?.BestLapSectors?[1]);
                     this.AttachDelegate($"{startName}.BestLapS3", () => _values.GetCar(i)?.BestLapSectors?[2]);
                 }
-                if (Settings.ExposedProperties.Includes(ExposedCarProperties.BestSectors)) {
+                if (Settings.ExposedCarProperties.Includes(ExposedCarProperties.BestSectors)) {
                     this.AttachDelegate($"{startName}.BestS1", () => _values.GetCar(i)?.NewData?.BestSessionLap?.Splits?[0]);
                     this.AttachDelegate($"{startName}.BestS2", () => _values.GetCar(i)?.NewData?.BestSessionLap?.Splits?[1]);
                     this.AttachDelegate($"{startName}.BestS3", () => _values.GetCar(i)?.NewData?.BestSessionLap?.Splits?[2]);
@@ -233,7 +233,7 @@ namespace KLPlugins.Leaderboard {
                     if (Settings.ExposedDriverProperties.Includes(prop)) this.AttachDelegate($"{startName}.{driverId}{prop}", valueProvider);
                 }
 
-                if (Settings.ExposedProperties.Includes(ExposedCarProperties.CurrentDriverInfo)) {
+                if (Settings.ExposedCarProperties.Includes(ExposedCarProperties.CurrentDriverInfo)) {
                     var driverId = "CurrentDriver";
                     AddDriverProp(ExposedDriverProperties.FirstName, driverId, () => _values.GetCar(i)?.CurrentDriver?.FirstName);
                     AddDriverProp(ExposedDriverProperties.LastName, driverId, () => _values.GetCar(i)?.CurrentDriver?.LastName);
@@ -248,7 +248,7 @@ namespace KLPlugins.Leaderboard {
                 }
 
 
-                if (Settings.ExposedProperties.Includes(ExposedCarProperties.AllDriversInfo)) {
+                if (Settings.ExposedCarProperties.Includes(ExposedCarProperties.AllDriversInfo)) {
                     void AddOneDriverFromList(int j) {
                         if (Settings.NumDrivers > j) {
                             var driverId = $"Driver{j + 1:00}";
@@ -311,6 +311,7 @@ namespace KLPlugins.Leaderboard {
 
                 // Else
                 AddProp(ExposedCarProperties.IsFinished, () => (_values.GetCar(i)?.IsFinished ?? false) ? 1 : 0);
+                AddProp(ExposedCarProperties.MaxSpeed, () => _values.GetCar(i)?.MaxSpeed);
             };
 
             for (int i = 0; i < Settings.NumOverallPos; i++) {
@@ -343,9 +344,9 @@ namespace KLPlugins.Leaderboard {
             if (Settings.ExposedOrderings.Includes(ExposedOrderings.InClassBestLapPosition)) this.AttachDelegate("InClass.BestLapCar.OverallPosition", () => _values.GetFocusedClassBestLapCarIdx() + 1);
 
             // Add everything else 
-            if (Settings.ExposedProperties.Includes(ExposedCarProperties.SessionPhase)) this.AttachDelegate("Session.Phase", () => _values.RealtimeData?.Phase);
-            if (Settings.ExposedProperties.Includes(ExposedCarProperties.MaxStintTime)) this.AttachDelegate("Session.MaxStintTime", () => _values.MaxDriverStintTime);
-            if (Settings.ExposedProperties.Includes(ExposedCarProperties.MaxDriveTime)) this.AttachDelegate("Session.MaxDriveTime", () => _values.MaxDriverTotalDriveTime);
+            if (Settings.ExposedGeneralProperties.Includes(ExposedGeneralProperties.SessionPhase)) this.AttachDelegate("Session.Phase", () => _values.RealtimeData?.Phase);
+            if (Settings.ExposedGeneralProperties.Includes(ExposedGeneralProperties.MaxStintTime)) this.AttachDelegate("Session.MaxStintTime", () => _values.MaxDriverStintTime);
+            if (Settings.ExposedGeneralProperties.Includes(ExposedGeneralProperties.MaxDriveTime)) this.AttachDelegate("Session.MaxDriveTime", () => _values.MaxDriverTotalDriveTime);
         }
 
         #region Logging

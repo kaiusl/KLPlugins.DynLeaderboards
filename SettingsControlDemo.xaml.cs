@@ -26,10 +26,11 @@ namespace KLPlugins.Leaderboard
             AddCarToggles();
             AddDriverToggles();
             AddOrderingsToggles();
+            AddOtherToggles();
 
             // Set current values for other settings
-            CurrentDriverInfo_ToggleButton.IsChecked = LeaderboardPlugin.Settings.ExposedProperties.Includes(ExposedCarProperties.CurrentDriverInfo);
-            AllDriversInfo_ToggleButton.IsChecked = LeaderboardPlugin.Settings.ExposedProperties.Includes(ExposedCarProperties.AllDriversInfo);
+            CurrentDriverInfo_ToggleButton.IsChecked = LeaderboardPlugin.Settings.ExposedCarProperties.Includes(ExposedCarProperties.CurrentDriverInfo);
+            AllDriversInfo_ToggleButton.IsChecked = LeaderboardPlugin.Settings.ExposedCarProperties.Includes(ExposedCarProperties.AllDriversInfo);
             AccDataLocation_TextBox.Text = LeaderboardPlugin.Settings.AccDataLocation;
             AccDataLocation_TextBox.Background = Brushes.LightGreen;
             NumOverallPos_NumericUpDown.Value = LeaderboardPlugin.Settings.NumOverallPos;
@@ -89,7 +90,7 @@ namespace KLPlugins.Leaderboard
                 var sp = CreateToggleRow(
                     v.ToString(), 
                     v.ToPropName(), 
-                    LeaderboardPlugin.Settings.ExposedProperties.Includes(v),
+                    LeaderboardPlugin.Settings.ExposedCarProperties.Includes(v),
                     (sender, e) => TbChanged<ExposedCarProperties>(sender, e, LeaderboardPlugin.Settings.AddExposedProperty), 
                     (sender, e) => TbChanged<ExposedCarProperties>(sender, e, LeaderboardPlugin.Settings.RemoveExposedProperty), 
                     v.ToolTipText()
@@ -137,13 +138,33 @@ namespace KLPlugins.Leaderboard
                     v.ToString(), 
                     v.ToPropName(), 
                     LeaderboardPlugin.Settings.ExposedOrderings.Includes(v),
-                    (sender, e) => TbChanged<ExposedOrderings>(sender, e, LeaderboardPlugin.Settings.AddExposedOrderings),
-                    (sender, e) => TbChanged<ExposedOrderings>(sender, e, LeaderboardPlugin.Settings.RemoveExposedOrderings),
+                    (sender, e) => TbChanged<ExposedOrderings>(sender, e, LeaderboardPlugin.Settings.AddExposedOrdering),
+                    (sender, e) => TbChanged<ExposedOrderings>(sender, e, LeaderboardPlugin.Settings.RemoveExposedOrdering),
                     v.ToolTipText()
                 );
 
                 ExposedOrderings_StackPanel.Children.Add(sp);
                 ExposedOrderings_StackPanel.Children.Add(CreateToggleSeparator());
+            }
+        }
+
+        private void AddOtherToggles() {
+            OtherProperties_StackPanel.Children.Add(CreateTogglesDescriptionRow());
+            OtherProperties_StackPanel.Children.Add(CreateToggleSeparator());
+            foreach (var v in (ExposedGeneralProperties[])Enum.GetValues(typeof(ExposedGeneralProperties))) {
+                if (v == ExposedGeneralProperties.None) continue;
+
+                var sp = CreateToggleRow(
+                    v.ToString(),
+                    v.ToString(),
+                    LeaderboardPlugin.Settings.ExposedGeneralProperties.Includes(v),
+                    (sender, e) => TbChanged<ExposedGeneralProperties>(sender, e, LeaderboardPlugin.Settings.AddExposedGeneralProperty),
+                    (sender, e) => TbChanged<ExposedGeneralProperties>(sender, e, LeaderboardPlugin.Settings.RemoveExposedGeneralProperty),
+                    v.ToolTipText()
+                );
+
+                OtherProperties_StackPanel.Children.Add(sp);
+                OtherProperties_StackPanel.Children.Add(CreateToggleSeparator());
             }
         }
 

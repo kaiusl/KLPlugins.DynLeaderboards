@@ -142,6 +142,12 @@ The exposed properties for each driver can be set below in the next section." Te
 
                     </StackPanel>
 
+                    <Separator/>
+                    <styles:SHSectionTitle Text="OTHER PROPERTIES"/>
+                    <StackPanel x:Name="OtherProperties_StackPanel">
+
+                    </StackPanel>
+
                 </StackPanel>
             </ScrollViewer>
 

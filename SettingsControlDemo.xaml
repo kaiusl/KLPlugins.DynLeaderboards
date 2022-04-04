@@ -8,6 +8,8 @@
              mc:Ignorable="d" 
              xmlns:Mah="http://metro.mahapps.com/winfx/xaml/controls"
              xmlns:ui="clr-namespace:SimHub.Plugins.UI;assembly=SimHub.Plugins" 
+             xmlns:mdxam="clr-namespace:MdXaml;assembly=MdXaml"
+             xmlns:mde="clr-namespace:MdXaml.Ext"
              d:DesignHeight="300" d:DesignWidth="600" 
              Loaded="UserControl_Loaded">
 
@@ -46,58 +48,155 @@
             <Setter Property="FontSize" Value="20"/>
         </Style>
 
+        <!-- Markdown style based on https://github.com/whistyun/MdXaml/blob/master/MdXaml/MarkdownMigFree.Style.xaml -->
+        <Style TargetType="FlowDocument" x:Key="DocumentStyle">
+            <Setter Property="FontFamily"    Value="Helvetica" />
+            <Setter Property="TextAlignment" Value="Left" />
+            <Setter Property="PagePadding"   Value="0"/>
+            <Setter Property="FontSize"      Value="14"/>
+
+            <Style.Resources>
+                <Style TargetType="Section">
+                    <Setter Property="Padding"         Value="10, 5"/>
+                    <Setter Property="BorderBrush"     Value="#DEDEDE"/>
+                    <Setter Property="BorderThickness" Value="5,0,0,0"/>
+                </Style>
+
+                <Style TargetType="avalonEdit:TextEditor" xmlns:avalonEdit="http://icsharpcode.net/sharpdevelop/avalonedit">
+                    <Setter Property="Background"                    Value="#EEEEEE"/>
+                    <Setter Property="HorizontalScrollBarVisibility" Value="Auto"/>
+                    <Setter Property="VerticalScrollBarVisibility"   Value="Auto"/>
+                    <Setter Property="Margin"                        Value="2,0,2,0"/>
+                    <Setter Property="Padding"                       Value="3"/>
+                </Style>
+
+                <Style TargetType="Paragraph">
+                    <Setter Property="Margin" Value="0, 7, 0, 0"/>
+
+                    <Style.Triggers>
+                        <Trigger Property="Tag" Value="Heading1">
+                            <Setter Property="Margin" Value="0, 0, 15, 0"/>
+
+                            <Setter Property="Foreground"  Value="#ff000000" />
+                            <Setter Property="FontSize"    Value="28"/>
+                            <Setter Property="FontWeight"  Value="Bold" />
+                        </Trigger>
+
+                        <Trigger Property="Tag" Value="Heading2">
+                            <Setter Property="Margin" Value="0, 0, 15, 0"/>
+
+                            <Setter Property="Foreground"  Value="#ff000000" />
+                            <Setter Property="FontSize"    Value="21"/>
+                            <Setter Property="FontWeight"  Value="Bold" />
+                        </Trigger>
+
+                        <Trigger Property="Tag" Value="Heading3">
+                            <Setter Property="Margin" Value="0, 0, 10, 0"/>
+
+                            <Setter Property="Foreground"  Value="#ff000000" />
+                            <Setter Property="FontSize"    Value="17" />
+                            <Setter Property="FontWeight"  Value="Bold" />
+                        </Trigger>
+
+                        <Trigger Property="Tag" Value="Heading4">
+                            <Setter Property="Margin" Value="0, 0, 5, 0"/>
+
+                            <Setter Property="Foreground"  Value="#ff000000" />
+                            <Setter Property="FontSize"    Value="14"/>
+                            <Setter Property="FontWeight"  Value="Bold" />
+                        </Trigger>
+
+                        <Trigger Property="Tag" Value="CodeBlock">
+                            <Setter Property="FontFamily" Value="Helvetica"/>
+                            <Setter Property="FontSize"   Value="12"/>
+                            <Setter Property="Background" Value="#12181F25"/>
+                            <Setter Property="Padding"     Value="20, 10"/>
+                        </Trigger>
+
+                        <Trigger Property="Tag" Value="Note">
+                            <Setter Property="Margin"      Value="5,0,5,0"/>
+                            <Setter Property="Padding"     Value="10, 5"/>
+                            <Setter Property="BorderBrush" Value="#DEDEDE"/>
+                            <Setter Property="BorderThickness" Value="3,3,3,3"/>
+                            <Setter Property="Background"  Value="#FAFAFA"/>
+                        </Trigger>
+
+                    </Style.Triggers>
+                </Style>
+
+                <Style TargetType="Run">
+                    <Style.Triggers>
+                        <Trigger Property="Tag" Value="CodeSpan">
+                            <Setter Property="FontFamily" Value="Helvetica"/>
+                            <Setter Property="FontSize"   Value="14"/>
+                            <Setter Property="Background" Value="#12181F25"/>
+                        </Trigger>
+                    </Style.Triggers>
+                </Style>
+
+                <Style TargetType="Hyperlink">
+                    <Setter Property="TextDecorations"    Value="None" />
+                </Style>
+
+            </Style.Resources>
+        </Style>
+
     </UserControl.Resources>
 
     <styles:SHTabControl>
         <styles:SHTabItem  Header="Plugin info">
-            <StackPanel x:Name="PluginInfo_StackPanel">
-                <styles:SHSectionTitle Text="ACC Leaderboard Plugin"/>
-                <TextBlock Text="This is an ACC specific (at least at the moment) leaderboard plugin. 
-I know that there are other leaderboard plugins around but I wanted to try my own, maybe someone else finds it useful."/>
-                <TextBlock>The thing to know about it is that we expose car properties only once in overall order through <Bold>`Overall.xx.propertyname`</Bold> properties. This means that we don't need to expose same property in multiple leaderboards like overall, class or relative. This also means that number of overall positions exported should be larger or equal to the number of total cars. 
-Otherwise class or relative leaderboards may not have access to all the cars they need. The number of shown overall positions can be changed in settings.</TextBlock>
+            <mdxam:MarkdownScrollViewer MarkdownStyle="{StaticResource DocumentStyle}" xml:space="preserve">
+# ACC Leaderboard Plugin
 
-                <styles:SHSectionTitle Text="Constructing leaderboards in different order"/>
-                <TextBlock>Class or relative leaderboards can be constructed through `InClass.xx.OverallPosition` which returns the overall position of xx-th car in class.
+This is an ACC specific (at least at the moment) leaderboard plugin. 
+I know that there are other leaderboard plugins around but I wanted to try my own, maybe someone else finds it useful.
+
+The thing to know about it is that we expose car properties only once in overall order through `Overall.xx.&lt;property name` properties. This means that we don't need to expose same property in multiple leaderboards like overall, class or relative. This also means that number of overall positions exported should be larger or equal to the number of total cars. 
+Otherwise class or relative leaderboards may not have access to all the cars they need. The number of shown overall positions can be changed in settings.
+
+
+## Constructing leaderboards in different order
+
+Class or relative leaderboards can be constructed through `InClass.xx.OverallPosition` which returns the overall position of xx-th car in class.
 Then we can access all of the properties of that car from overall order.
 This means doing following
-<LineBreak/>
-<LineBreak/><Bold>```javascript
-<LineBreak/>var overallPos = $prop('LeaderboardPlugin.InClass.' + format(classPos, '00') + '.OverallPosition')
-<LineBreak/>if (overallPos == null) return null;
-<LineBreak/>return $prop('LeaderboardPlugin.Overall.' + format(overallPos, '00') + '.' + 'CarNumber')
-<LineBreak/>```</Bold></TextBlock>
-                <TextBlock> Granted this complicates accessing car properties a little but with the plugin is provided a JavaScript extension file 
+```javascript
+var overallPos = $prop('LeaderboardPlugin.InClass.' + format(classPos, '00') + '.OverallPosition')
+if (overallPos == null) return null;
+return $prop('LeaderboardPlugin.Overall.' + format(overallPos, '00') + '.' + 'CarNumber')
+```
+
+Granted this complicates accessing car properties a little but with the plugin is provided a JavaScript extension file 
 which provies functions to do above and simplify accessing car properties. For example the car number of 5th car in class can be accessed by 
-<LineBreak/>
-<LineBreak/><Bold>```javascript
-<LineBreak/>return InClass(5, 'CarNumber')
-<LineBreak/>```</Bold>
-<LineBreak/>and similarly for other orderings.</TextBlock>
 
-                <TextBlock>Currently we provide:
- 
-<LineBreak/>  - <Bold>`Overall(pos, propname)`</Bold>: Get property <Bold>`propname`</Bold> for <Bold>`pos`</Bold>-th car overall.
-<LineBreak/>    - <Bold>`InClass(pos, propname)`</Bold>: Get property <Bold>`propname`</Bold> for <Bold>`pos`</Bold>-th car in class.
-<LineBreak/>    - <Bold>`OverallRelativeToFocused(pos, propname, numRelPos)`</Bold>: Get property <Bold>`propname`</Bold> for <Bold>`pos`</Bold>-th car relative to currently focused car in overall order. Note that <Bold>`pos`</Bold> starts from 1 and that would be the car that is <Bold>`numRelPos`</Bold> positions ahead of the focused car. <Bold>`pos == numRelPos + 1`</Bold> is the focused car and <Bold>`pos == 2numRelPos + 1`</Bold> is the last car shown and `numRelPos` behind the focused car. The reason for this is that in SimHub you probably use repeated group to build the leaderboard and it's indexer <Bold>`repeatindex()`</Bold> starts at 1. So we also start counting at 1.
-<LineBreak/>    - <Bold>`OverallRelativeToFocusedPartial(pos, propname, numRelPos, numOverallPos)`</Bold>: Get property <Bold>`propname`</Bold> for <Bold>`pos`</Bold>-th car relative to currently focused car in overall order or <Bold>`pos`</Bold>-th car overall if <Bold>`pos &lt; numOverallPos`</Bold>. That is we show <Bold>`numOverallPos`</Bold> positions from the top of overall standings and then <Bold>`numRelPos`</Bold> realative positions around each side of focused car. See 'Relative overall' screen on example dash.
-<LineBreak/>    - <Bold>`RelativeOnTrack(pos, propname)`</Bold>: Get property <Bold>`propname`</Bold> for <Bold>`pos`</Bold>-th car relative to currently focused car. Note that <Bold>`pos`</Bold> starts from 1. That is if <Bold>`n`</Bold> is the number of relative position specified in settings then <Bold>`pos=1`</Bold> is the car that is <Bold>`n`</Bold> positions ahead of focused car. <Bold>`pos == n+1`</Bold> is the focused car and <Bold>`pos == 2n+1`</Bold> is the last car, <Bold>`n`</Bold> positions behind focused car.
-<LineBreak/>    - <Bold>`Focused(propname)`</Bold>: Get property <Bold>`propname`</Bold> for currently focused car.
-<LineBreak/>    - <Bold>`OverallBestLap(propname)`</Bold>: Get property <Bold>`propname`</Bold> for the car that has best lap overall.
-<LineBreak/>    - <Bold>`InClassBestLap(propname)`</Bold>: Get property <Bold>`propname`</Bold> for the car that has best lap in class.
+```javascript
+return InClass(5, 'CarNumber')
+```
+and similarly for other orderings.
 
-<LineBreak/>For more examples you can see example dashboard provided with the plugin."
-                </TextBlock>
+Currently we provide:
+ - `Overall(pos, propname)`: Get property `propname` for `pos`-th car overall.
+ - `InClass(pos, propname)`: Get property `propname` for `pos`-th car in class.
+ - `OverallRelativeToFocused(pos, propname, numRelPos)`: Get property `propname` for `pos`-th car relative to currently focused car in overall order. Note that `pos` starts from 1 and that would be the car that is `numRelPos` positions ahead of the focused car. `pos == numRelPos + 1` is the focused car and `pos == 2numRelPos + 1` is the last car shown and `numRelPos` behind the focused car. The reason for this is that in SimHub you probably use repeated group to build the leaderboard and it's indexer `repeatindex()` starts at 1. So we also start counting at 1.
+ - `OverallRelativeToFocusedPartial(pos, propname, numRelPos, numOverallPos)`: Get property `propname` for `pos`-th car relative to currently focused car in overall order or `pos`-th car overall if `pos &lt; numOverallPos`. That is we show `numOverallPos` positions from the top of overall standings and then `numRelPos` realative positions around each side of focused car. See "Relative overall" screen on example dash.
+ - `RelativeOnTrack(pos, propname)`: Get property `propname` for `pos`-th car relative to currently focused car. Note that `pos` starts from 1. That is if `n` is the number of relative position specified in settings then `pos=1` is the car that is `n` positions ahead of focused car. `pos == n+1` is the focused car and `pos == 2n+1` is the last car, `n` positions behind focused car.
+ - `Focused(propname)`: Get property `propname` for currently focused car.
+ - `OverallBestLap(propname)`: Get property `propname` for the car that has best lap overall.
+ - `InClassBestLap(propname)`: Get property `propname` for the car that has best lap in class.
 
-                <styles:SHSectionTitle Text="Settings"/>
+For more examples you can see example dashboard provided with the plugin.
 
-                <TextBlock Text="Plugin comes with bunch of options. You can change number of positions shown. You can also disable any of the properties that you don't care about. Note however that for the functions from above to work you need to have corresponding orderings enabled."/>
 
-                <styles:SHSectionTitle Text="SimHub version"/>
 
-                <TextBlock Text="Last SimHub version this plugin was tested is 7.4.23."/>
+## Settings
 
-            </StackPanel> 
+Plugin comes with bunch of options. You can change number of positions shown. You can also disable any of the properties that you don't care about. Note however that for the functions from above to work you need to have corresponding orderings enabled.
+
+## SH version
+
+Last SimHub version this plugin was tested is 7.4.23.
+	            </mdxam:MarkdownScrollViewer>
+
         </styles:SHTabItem>
 
 

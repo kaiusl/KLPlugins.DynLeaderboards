@@ -56,10 +56,8 @@
       <HintPath>C:\Program Files\SimHub\log4net.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="MahApps.Metro, Version=1.5.0.23, Culture=neutral, PublicKeyToken=f4fb5a3c4d1e5b4f, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
+    <Reference Include="MahApps.Metro">
       <HintPath>C:\Program Files\SimHub\MahApps.Metro.dll</HintPath>
-      <Private>False</Private>
     </Reference>
     <Reference Include="MathNet.Numerics, Version=4.15.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>packages\MathNet.Numerics.4.15.0\lib\net461\MathNet.Numerics.dll</HintPath>

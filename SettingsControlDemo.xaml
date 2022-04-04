@@ -4,14 +4,175 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:KLPlugins.Leaderboard"
-             xmlns:styles="clr-namespace:SimHub.Plugins.Styles;assembly=SimHub.Plugins" mc:Ignorable="d" 
+             xmlns:styles="clr-namespace:SimHub.Plugins.Styles;assembly=SimHub.Plugins" 
+             mc:Ignorable="d" 
+             xmlns:Mah="http://metro.mahapps.com/winfx/xaml/controls"
              xmlns:ui="clr-namespace:SimHub.Plugins.UI;assembly=SimHub.Plugins" 
-             d:DesignHeight="300" d:DesignWidth="300">
+             d:DesignHeight="300" d:DesignWidth="600" 
+             Loaded="UserControl_Loaded">
 
-    <Grid>
-        <StackPanel>
-            <TextBlock Text="TODO\n"/>
-            <TextBlock Text="Currently settings are in '..\Simhub\PluginsData\RaceEngineerPlugin\Settings.json'."/>
-        </StackPanel>
-    </Grid>
+    <UserControl.Resources>
+        <Style TargetType="ToolTip">
+            <Style.Resources>
+                <Style TargetType="ContentPresenter">
+                    <Style.Resources>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="TextWrapping" Value="Wrap" />
+                        </Style>
+                    </Style.Resources>
+                </Style>
+            </Style.Resources>
+            <Setter Property="MaxWidth" Value="300" />
+        </Style>
+
+        <Style TargetType="styles:SHToggleButton">
+            <Setter Property="Width" Value="75" />
+            <Setter Property="Height" Value="20" />
+        </Style>
+
+        <Style TargetType="TextBlock">
+            <Setter Property="FontSize" Value="13" />
+            <Setter Property="Margin" Value="5,5,0,5" />
+            <Setter Property="VerticalAlignment" Value="Center"/>
+        </Style>
+
+    </UserControl.Resources>
+
+    <styles:SHTabControl>
+        <styles:SHTabItem Header="General settings">
+            <styles:SHSection Title="Exported propertis">
+
+                <StackPanel x:Name="GenSettings_StackPanel" Margin="20" CanVerticallyScroll="True">
+
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="ACC configuration location: " Width="200"/>
+                        <TextBox x:Name="AccDataLocation_TextBox" Width="500" 
+                                 HorizontalAlignment="Left" 
+                                 TextChanged="AccDataLocation_TextChanged" 
+                                 ToolTip="Location of ACC configuration folder. That is where for example ..\Config\broadcasting.json is located."/>
+                    </StackPanel>
+
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="Number of overall positions: " Width="200"/>
+                        <Mah:NumericUpDown x:Name="NumOverallPos_NumericUpDown" 
+                                           HasDecimals="False" 
+                                           Width="100" 
+                                           Minimum="0" Maximum="100" Interval="1" 
+                                           ValueChanged="NumOverallPos_NumericUpDown_ValueChanged"
+                                           ToolTip="Set number of overall positions exposed as properties. Note that this must be larger than all the cars as otherwise in class and relative positions may be missing some cars."/>
+                    </StackPanel>
+
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="Number of relative positions: " Width="200"/>
+                        <Mah:NumericUpDown x:Name="NumRelativePos_NumericUpDown" 
+                                           HasDecimals="False" 
+                                           Width="100" 
+                                           Minimum="0" Maximum="100" Interval="1" 
+                                           ValueChanged="NumRelativePos_NumericUpDown_ValueChanged"
+                                           ToolTip="Set number of relative positions exposed from the focused car in one direction. That is if it's set to 5, we show 5 cars ahead and 5 behind."
+                                           />
+                    </StackPanel>
+
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="Number of drivers: " Width="200"/>
+                        <Mah:NumericUpDown x:Name="NumDrivers_NumericUpDown" 
+                                           HasDecimals="False" 
+                                           Width="100" 
+                                           Minimum="0" Maximum="10" Interval="1" 
+                                           ValueChanged="NumDrivers_NumericUpDown_ValueChanged"
+                                           ToolTip="Set number of drivers shown per car. Should be higher or equal to the number of maximum drivers possible for you."/>
+                    </StackPanel>
+
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="Data update interval: " Width="200"/>
+                        <Mah:NumericUpDown x:Name="UpdateInterval_NumericUpDown" 
+                                           HasDecimals="False" 
+                                           Width="100" 
+                                           Minimum="10" Maximum="5000" Interval="10" 
+                                           ValueChanged="UpdateRate_NumericUpDown_ValueChanged"
+                                           ToolTip="Sets the update interval of data from ACC. As leaderboard data doesn't change that fast something around 1000ms should work very well. But you can go lower to provide smoother visuals."/>
+                    </StackPanel>
+
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="Log info: " Width="200"/>
+                        <styles:SHToggleButton x:Name="Logging_ToggleButton" 
+                                               Click="Logging_ToggleButton_Click"
+                                               ToolTip="Enable or disable information logging. Errors will still be logged."/>
+                    </StackPanel>
+                </StackPanel>
+            </styles:SHSection>
+        </styles:SHTabItem>
+
+        <styles:SHTabItem Header="Exposed properties">
+
+            <ScrollViewer>
+                <StackPanel>
+
+                    <TextBlock Text="Here you can select all the properties you wish to use. 
+Each toggle has corresponding property name to the right of it (with exception of CurrentDriver and AllDrivers)
+and if you hover over the toggle more information will be shown for certain items." TextWrapping="Wrap" HorizontalAlignment="Left"/>
+                    <TextBlock Text="CurrentDriver and AllDrivers toggles set which drivers will be exposed. 
+The exposed properties for each driver can be set below in the next section." TextWrapping="Wrap" HorizontalAlignment="Left"/>
+
+                    <Separator/>
+                    <styles:SHSectionTitle Text="PROPERTIES FOR EACH CAR"/>
+                    <StackPanel x:Name="ExposedCarProperties_StackPanel">
+
+                    </StackPanel>
+
+                    <Separator/>
+                    <styles:SHSectionTitle Text="EXPOSED DRIVERS"/>
+                    <StackPanel x:Name="ExposedDrivers_StackPanel">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="Current driver: " Width="100"/>
+                            <styles:SHToggleButton x:Name="CurrentDriverInfo_ToggleButton" 
+                                               ToolTip="Expose properties of current driver."/>
+                        </StackPanel>
+
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="All drivers: " Width="100"/>
+                            <styles:SHToggleButton x:Name="AllDriversInfo_ToggleButton" 
+                                               ToolTip="Expose properties of all drivers."/>
+                        </StackPanel>
+                    </StackPanel>
+
+                    <Separator/>
+                    <styles:SHSectionTitle Text="PROPERTIES FOR EACH DRIVER"/>
+                    <StackPanel x:Name="ExposedDriverProperties_StackPanel">
+
+                    </StackPanel>
+
+                </StackPanel>
+            </ScrollViewer>
+
+
+        </styles:SHTabItem>
+
+        <styles:SHTabItem Header="Exposed orderings">
+            <ScrollViewer>
+            <StackPanel>
+                <TextBlock Text="Here you can select all other orderings like per class or relative to the focusd car." 
+                           TextWrapping="Wrap" HorizontalAlignment="Left"/>
+                <TextBlock Text="Each property here results the desired cars position in overall order. 
+That is for example InClass.01 return the overall position of the class leader.
+This way we don't need to expose same data multiple times." 
+                           TextWrapping="Wrap" HorizontalAlignment="Left"/>
+                <TextBlock Text="This complicates accessing car properties a little bit but with the plugin 
+is provided a JavaScript extension file which simplifies accessing car properties. For example the car number of 5th car in class can be accessed by ´InClass(5, 'CarNumber')´." 
+                           TextWrapping="Wrap" HorizontalAlignment="Left"/>
+
+                <Separator/>
+
+                <StackPanel x:Name="ExposedOrderings_StackPanel">
+
+                </StackPanel>
+
+            </StackPanel>
+        </ScrollViewer>
+
+
+        </styles:SHTabItem>
+
+    </styles:SHTabControl>
+
 </UserControl>

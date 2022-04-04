@@ -19,13 +19,12 @@ namespace KLPlugins.Leaderboard {
     [PluginAuthor("Kaius Loos")]
     [PluginName("LeaderboardPlugin")]
     public class LeaderboardPlugin : IPlugin, IDataPlugin, IWPFSettingsV2 {
-        //public PluginSettings ShSettings;
+        public static PluginSettings Settings;
         public PluginManager PluginManager { get; set; }
         public ImageSource PictureIcon => this.ToIcon(Properties.Resources.sdkmenuicon);
         public string LeftMenuTitle => PluginName;
 
         internal const string PluginName = "Leaderboard";
-        internal static Settings Settings = new Settings();
         internal static Game Game; // Const during the lifetime of this plugin, plugin is rebuilt at game change
         internal static string GameDataPath; // Same as above
         internal static string PluginStartTime = $"{DateTime.Now.ToString("dd-MM-yyyy_HH-mm-ss")}";
@@ -35,7 +34,7 @@ namespace KLPlugins.Leaderboard {
         private static StreamWriter _logWriter;
         private static bool _isLogFlushed = false;
         private const string SettingsPath = @"PluginsData\KLPlugins\\Leaderboard\Settings.json";
-        private readonly string LogFileName = $"{Settings.PluginDataLocation}\\Logs\\Log_{PluginStartTime}.txt";
+        private string LogFileName;
         private Values _values;
 
         /// <summary>
@@ -73,12 +72,18 @@ namespace KLPlugins.Leaderboard {
         /// </summary>
         /// <param name="pluginManager"></param>
         public void End(PluginManager pluginManager) {
-            //this.SaveCommonSettings("GeneralSettings", ShSettings);
-            _values.Dispose();
-            _logWriter.Dispose();
-            _logFile.Dispose();
-            _logWriter = null;
-            _logFile = null;
+            this.SaveCommonSettings("GeneralSettings", Settings);
+            if (_values != null) {
+                _values.Dispose();
+            }
+            if (_logWriter != null) {
+                _logWriter.Dispose();
+                _logWriter = null;
+            }
+            if (_logFile != null) {
+                _logFile.Dispose();
+                _logFile = null;
+            }
         }
 
         /// <summary>
@@ -87,7 +92,7 @@ namespace KLPlugins.Leaderboard {
         /// <param name="pluginManager"></param>
         /// <returns></returns>
         public System.Windows.Controls.Control GetWPFSettingsControl(PluginManager pluginManager) {
-            return null;//new SettingsControlDemo(this);
+            return new SettingsControlDemo(this);
         }
 
         /// <summary>
@@ -96,19 +101,20 @@ namespace KLPlugins.Leaderboard {
         /// </summary>
         /// <param name="pluginManager"></param>
         public void Init(PluginManager pluginManager) {
+            Settings = this.ReadCommonSettings<PluginSettings>("GeneralSettings", () => new PluginSettings());
+            LogFileName = $"{Settings.PluginDataLocation}\\Logs\\Log_{PluginStartTime}.txt";
             var gameName = (string)pluginManager.GetPropertyValue<SimHub.Plugins.DataPlugins.DataCore.DataCorePlugin>("CurrentGame");
-            if (gameName != Game.AccName) return;
+            Game = new Game(gameName);
+            if (!Game.IsAcc) return;
 
             PManager = pluginManager;
 
-            ReadSettings();
             InitLogginig();
             PreJit(); // Performance is important while in game, pre jit methods at startup, to avoid doing that mid races
 
             LogInfo("Starting plugin");
-            //ShSettings = this.ReadCommonSettings<PluginSettings>("GeneralSettings", () => new PluginSettings());
+            
 
-            Game = new Game(gameName);
             GameDataPath = $@"{Settings.PluginDataLocation}\{gameName}";
             _values = new Values();
 
@@ -116,18 +122,6 @@ namespace KLPlugins.Leaderboard {
 
             //AttachDebugDelegates();
             AttachDelegates();
-        }
-
-        private void ReadSettings() {
-            try {
-                Settings = JsonConvert.DeserializeObject<Settings>(File.ReadAllText(SettingsPath).Replace("\"", "'"));
-                Settings.Validate();
-            } catch (Exception e) {
-                Settings = new Settings();
-                string txt = JsonConvert.SerializeObject(Settings, Formatting.Indented);
-                Directory.CreateDirectory(Path.GetDirectoryName(SettingsPath));
-                File.WriteAllText(SettingsPath, txt);
-            }
         }
 
         private void SubscribeToSimHubEvents() {
@@ -207,39 +201,39 @@ namespace KLPlugins.Leaderboard {
 
             void addCar(int i) {
                 var startName = $"Overall.{i + 1:00}";
-                void AddProp<T>(ExposedProperties prop, Func<T> valueProvider) {
+                void AddProp<T>(ExposedCarProperties prop, Func<T> valueProvider) {
                     if (Settings.ExposedProperties.Includes(prop)) this.AttachDelegate($"{startName}.{prop}", valueProvider);
                 }
 
                 // Laps and sectors
 
-                AddProp(ExposedProperties.NumberOfLaps, () => _values.GetCar(i)?.NewData?.Laps);
-                AddProp(ExposedProperties.LastLap, () => _values.GetCar(i)?.NewData?.LastLap?.Laptime);
-                if (Settings.ExposedProperties.Includes(ExposedProperties.LastLapSectors)) {
+                AddProp(ExposedCarProperties.NumberOfLaps, () => _values.GetCar(i)?.NewData?.Laps);
+                AddProp(ExposedCarProperties.LastLapTime, () => _values.GetCar(i)?.NewData?.LastLap?.Laptime);
+                if (Settings.ExposedProperties.Includes(ExposedCarProperties.LastLapSectors)) {
                     this.AttachDelegate($"{startName}.LastLapS1", () => _values.GetCar(i)?.NewData?.LastLap?.Splits?[0]);
                     this.AttachDelegate($"{startName}.LastLapS2", () => _values.GetCar(i)?.NewData?.LastLap?.Splits?[1]);
                     this.AttachDelegate($"{startName}.LastLapS3", () => _values.GetCar(i)?.NewData?.LastLap?.Splits?[2]);
                 }
 
-                AddProp(ExposedProperties.BestLap, () => _values.GetCar(i)?.NewData?.BestSessionLap.Laptime);
-                if (Settings.ExposedProperties.Includes(ExposedProperties.BestLapSectors)) {
+                AddProp(ExposedCarProperties.BestLapTime, () => _values.GetCar(i)?.NewData?.BestSessionLap.Laptime);
+                if (Settings.ExposedProperties.Includes(ExposedCarProperties.BestLapSectors)) {
                     this.AttachDelegate($"{startName}.BestLapS1", () => _values.GetCar(i)?.BestLapSectors?[0]);
                     this.AttachDelegate($"{startName}.BestLapS2", () => _values.GetCar(i)?.BestLapSectors?[1]);
                     this.AttachDelegate($"{startName}.BestLapS3", () => _values.GetCar(i)?.BestLapSectors?[2]);
                 }
-                if (Settings.ExposedProperties.Includes(ExposedProperties.BestSectors)) {
+                if (Settings.ExposedProperties.Includes(ExposedCarProperties.BestSectors)) {
                     this.AttachDelegate($"{startName}.BestS1", () => _values.GetCar(i)?.NewData?.BestSessionLap?.Splits?[0]);
                     this.AttachDelegate($"{startName}.BestS2", () => _values.GetCar(i)?.NewData?.BestSessionLap?.Splits?[1]);
                     this.AttachDelegate($"{startName}.BestS3", () => _values.GetCar(i)?.NewData?.BestSessionLap?.Splits?[2]);
                 }
 
-                AddProp(ExposedProperties.CurrentLap, () => _values.GetCar(i)?.NewData?.CurrentLap?.Laptime);
+                AddProp(ExposedCarProperties.CurrentLapTime, () => _values.GetCar(i)?.NewData?.CurrentLap?.Laptime);
 
                 void AddDriverProp<T>(ExposedDriverProperties prop, string driverId, Func<T> valueProvider) {
                     if (Settings.ExposedDriverProperties.Includes(prop)) this.AttachDelegate($"{startName}.{driverId}{prop}", valueProvider);
                 }
 
-                if (Settings.ExposedProperties.Includes(ExposedProperties.CurrentDriver)) {
+                if (Settings.ExposedProperties.Includes(ExposedCarProperties.CurrentDriverInfo)) {
                     var driverId = "CurrentDriver";
                     AddDriverProp(ExposedDriverProperties.FirstName, driverId, () => _values.GetCar(i)?.CurrentDriver?.FirstName);
                     AddDriverProp(ExposedDriverProperties.LastName, driverId, () => _values.GetCar(i)?.CurrentDriver?.LastName);
@@ -249,12 +243,12 @@ namespace KLPlugins.Leaderboard {
                     AddDriverProp(ExposedDriverProperties.Nationality, driverId, () => _values.GetCar(i)?.CurrentDriver?.Nationality);
                     AddDriverProp(ExposedDriverProperties.Category, driverId, () => _values.GetCar(i)?.CurrentDriver?.Category);
                     AddDriverProp(ExposedDriverProperties.TotalLaps, driverId, () => _values.GetCar(i)?.CurrentDriver?.TotalLaps);
-                    AddDriverProp(ExposedDriverProperties.BestLap, driverId, () => _values.GetCar(i)?.CurrentDriver?.BestSessionLap?.Laptime);
+                    AddDriverProp(ExposedDriverProperties.BestLapTime, driverId, () => _values.GetCar(i)?.CurrentDriver?.BestSessionLap?.Laptime);
                     AddDriverProp(ExposedDriverProperties.TotalDrivingTime, driverId, () => _values.GetCar(i)?.CurrentDriverTotalDrivingTime);
                 }
 
 
-                if (Settings.ExposedProperties.Includes(ExposedProperties.AllDrivers)) {
+                if (Settings.ExposedProperties.Includes(ExposedCarProperties.AllDriversInfo)) {
                     void AddOneDriverFromList(int j) {
                         if (Settings.NumDrivers > j) {
                             var driverId = $"Driver{j + 1:00}";
@@ -266,7 +260,7 @@ namespace KLPlugins.Leaderboard {
                             AddDriverProp(ExposedDriverProperties.Nationality, driverId, () => _values.GetCar(i)?.GetDriver(j)?.Nationality);
                             AddDriverProp(ExposedDriverProperties.Category, driverId, () => _values.GetCar(i)?.GetDriver(j)?.Category);
                             AddDriverProp(ExposedDriverProperties.TotalLaps, driverId, () => _values.GetCar(i)?.GetDriver(j)?.TotalLaps);
-                            AddDriverProp(ExposedDriverProperties.BestLap, driverId, () => _values.GetCar(i)?.GetDriver(j)?.BestSessionLap?.Laptime);
+                            AddDriverProp(ExposedDriverProperties.BestLapTime, driverId, () => _values.GetCar(i)?.GetDriver(j)?.BestSessionLap?.Laptime);
                             AddDriverProp(ExposedDriverProperties.TotalDrivingTime, driverId, () => _values.GetCar(i)?.GetDriverTotalDrivingTime(j));
                         }
                     }
@@ -277,53 +271,53 @@ namespace KLPlugins.Leaderboard {
                 }
 
                 // Car and team
-                AddProp(ExposedProperties.CarNumber, () => _values.GetCar(i)?.RaceNumber);
-                AddProp(ExposedProperties.CarModel, () => _values.GetCar(i)?.CarModelType.ToPrettyString());
-                AddProp(ExposedProperties.CarManufacturer, () => _values.GetCar(i)?.CarModelType.GetMark());
-                AddProp(ExposedProperties.CarClass, () => _values.GetCar(i)?.CarClass.ToString());
-                AddProp(ExposedProperties.TeamName, () => _values.GetCar(i)?.TeamName);
-                AddProp(ExposedProperties.CurrentDeltaToBest, () => _values.GetCar(i)?.NewData?.Delta);
-                AddProp(ExposedProperties.CupCategory, () => _values.GetCar(i)?.CupCategory.ToString());
-                AddProp(ExposedProperties.CurrentStintTime, () => _values.GetCar(i)?.CurrentStintTime);
-                AddProp(ExposedProperties.LastStintTime, () => _values.GetCar(i)?.LastStintTime);
-                AddProp(ExposedProperties.CurrentStintLaps, () => _values.GetCar(i)?.CurrentStintLaps);
-                AddProp(ExposedProperties.LastStintLaps, () => _values.GetCar(i)?.LastStintLaps);
+                AddProp(ExposedCarProperties.CarNumber, () => _values.GetCar(i)?.RaceNumber);
+                AddProp(ExposedCarProperties.CarModel, () => _values.GetCar(i)?.CarModelType.ToPrettyString());
+                AddProp(ExposedCarProperties.CarManufacturer, () => _values.GetCar(i)?.CarModelType.GetMark());
+                AddProp(ExposedCarProperties.CarClass, () => _values.GetCar(i)?.CarClass.ToString());
+                AddProp(ExposedCarProperties.TeamName, () => _values.GetCar(i)?.TeamName);
+                AddProp(ExposedCarProperties.CurrentLapDeltaToBest, () => _values.GetCar(i)?.NewData?.Delta);
+                AddProp(ExposedCarProperties.TeamCupCategory, () => _values.GetCar(i)?.CupCategory.ToString());
+                AddProp(ExposedCarProperties.CurrentStintTime, () => _values.GetCar(i)?.CurrentStintTime);
+                AddProp(ExposedCarProperties.LastStintTime, () => _values.GetCar(i)?.LastStintTime);
+                AddProp(ExposedCarProperties.CurrentStintLaps, () => _values.GetCar(i)?.CurrentStintLaps);
+                AddProp(ExposedCarProperties.LastStintLaps, () => _values.GetCar(i)?.LastStintLaps);
 
                 // Gaps and distances
-                AddProp(ExposedProperties.DistanceToLeader, () => _values.GetCar(i)?.DistanceToLeader);
-                AddProp(ExposedProperties.DistanceToClassLeader, () => _values.GetCar(i)?.DistanceToClassLeader);
-                AddProp(ExposedProperties.DistanceToFocusedTotal, () => _values.GetCar(i)?.TotalDistanceToFocused);
-                AddProp(ExposedProperties.DistanceToFocusedOnTrack, () => _values.GetCar(i)?.OnTrackDistanceToFocused);
-                AddProp(ExposedProperties.GapToLeader, () => _values.GetCar(i)?.GapToLeader);
-                AddProp(ExposedProperties.GapToClassLeader, () => _values.GetCar(i)?.GapToClassLeader);
-                AddProp(ExposedProperties.GapToFocusedOnTrack, () => _values.GetCar(i)?.GapToFocusedOnTrack);
-                AddProp(ExposedProperties.GapToFocusedTotal, () => _values.GetCar(i)?.GapToFocusedTotal);
-                AddProp(ExposedProperties.GapToAhead, () => _values.GetCar(i)?.GapToAhead);
-                AddProp(ExposedProperties.GapToAheadInClass, () => _values.GetCar(i)?.GapToAheadInClass);
+                AddProp(ExposedCarProperties.DistanceToLeader, () => _values.GetCar(i)?.DistanceToLeader);
+                AddProp(ExposedCarProperties.DistanceToClassLeader, () => _values.GetCar(i)?.DistanceToClassLeader);
+                AddProp(ExposedCarProperties.DistanceToFocusedTotal, () => _values.GetCar(i)?.TotalDistanceToFocused);
+                AddProp(ExposedCarProperties.DistanceToFocusedOnTrack, () => _values.GetCar(i)?.OnTrackDistanceToFocused);
+                AddProp(ExposedCarProperties.GapToLeader, () => _values.GetCar(i)?.GapToLeader);
+                AddProp(ExposedCarProperties.GapToClassLeader, () => _values.GetCar(i)?.GapToClassLeader);
+                AddProp(ExposedCarProperties.GapToFocusedOnTrack, () => _values.GetCar(i)?.GapToFocusedOnTrack);
+                AddProp(ExposedCarProperties.GapToFocusedTotal, () => _values.GetCar(i)?.GapToFocusedTotal);
+                AddProp(ExposedCarProperties.GapToAhead, () => _values.GetCar(i)?.GapToAhead);
+                AddProp(ExposedCarProperties.GapToAheadInClass, () => _values.GetCar(i)?.GapToAheadInClass);
 
 
                 // Positions
-                AddProp(ExposedProperties.ClassPosition, () => _values.GetCar(i)?.InClassPos);
-                AddProp(ExposedProperties.OverallPosition, () => i + 1);
-                AddProp(ExposedProperties.ClassPositionStart, () => _values.GetCar(i)?.StartPosInClass);
-                AddProp(ExposedProperties.OverallPositionStart, () => _values.GetCar(i)?.StartPos);
+                AddProp(ExposedCarProperties.ClassPosition, () => _values.GetCar(i)?.InClassPos);
+                AddProp(ExposedCarProperties.OverallPosition, () => i + 1);
+                AddProp(ExposedCarProperties.ClassPositionStart, () => _values.GetCar(i)?.StartPosInClass);
+                AddProp(ExposedCarProperties.OverallPositionStart, () => _values.GetCar(i)?.StartPos);
 
                 // Pit
-                AddProp(ExposedProperties.IsInPitLane, () => _values.GetCar(i)?.NewData?.CarLocation == CarLocationEnum.Pitlane ? 1 : 0);
-                AddProp(ExposedProperties.PitStopCount, () => _values.GetCar(i)?.PitCount);
-                AddProp(ExposedProperties.PitTimeTotal, () => _values.GetCar(i)?.TotalPitTime);
-                AddProp(ExposedProperties.PitTimeLast, () => _values.GetCar(i)?.LastPitTime);
-                AddProp(ExposedProperties.PitTimeCurrent, () => _values.GetCar(i)?.CurrentTimeInPits);
+                AddProp(ExposedCarProperties.IsInPitLane, () => _values.GetCar(i)?.NewData?.CarLocation == CarLocationEnum.Pitlane ? 1 : 0);
+                AddProp(ExposedCarProperties.PitStopCount, () => _values.GetCar(i)?.PitCount);
+                AddProp(ExposedCarProperties.PitTimeTotal, () => _values.GetCar(i)?.TotalPitTime);
+                AddProp(ExposedCarProperties.PitTimeLast, () => _values.GetCar(i)?.LastPitTime);
+                AddProp(ExposedCarProperties.PitTimeCurrent, () => _values.GetCar(i)?.CurrentTimeInPits);
 
                 // Else
-                AddProp(ExposedProperties.IsFinished, () => (_values.GetCar(i)?.IsFinished ?? false) ? 1 : 0);
+                AddProp(ExposedCarProperties.IsFinished, () => (_values.GetCar(i)?.IsFinished ?? false) ? 1 : 0);
             };
 
             for (int i = 0; i < Settings.NumOverallPos; i++) {
                 addCar(i);
             }
 
-            if (Settings.ExposedProperties.Includes(ExposedProperties.InClassPositions)) {
+            if (Settings.ExposedOrderings.Includes(ExposedOrderings.InClassPositions)) {
                 // Add indexes into overall order
                 void addInClassIdxs(int i) {
                     this.AttachDelegate($"InClass.{i + 1:00}.OverallPosition", () => _values.PosInClassCarsIdxs[i] + 1);
@@ -334,7 +328,7 @@ namespace KLPlugins.Leaderboard {
                 }
             }
 
-            if (Settings.ExposedProperties.Includes(ExposedProperties.RelativePositions)) {
+            if (Settings.ExposedOrderings.Includes(ExposedOrderings.RelativePositions)) {
                 void addRelativeIdxs(int i) {
                     this.AttachDelegate($"Relative.{i + 1:00}.OverallPosition", () => _values.RelativePosOnTrackCarsIdxs[i] + 1);
                 }
@@ -344,14 +338,14 @@ namespace KLPlugins.Leaderboard {
                 }
             }
 
-            if (Settings.ExposedProperties.Includes(ExposedProperties.FocusedCarPosition)) this.AttachDelegate("Focused.OverallPosition", () => _values.FocusedCarIdx + 1);
-            if (Settings.ExposedProperties.Includes(ExposedProperties.OverallBestLapPosition)) this.AttachDelegate("Overall.BestLapCarOverallPosition", () => _values.GetBestLapCarIdx(CarClass.Overall) + 1);
-            if (Settings.ExposedProperties.Includes(ExposedProperties.InClassBestLapPosition)) this.AttachDelegate("InClass.BestLapCarOverallPosition", () => _values.GetFocusedClassBestLapCarIdx() + 1);
+            if (Settings.ExposedOrderings.Includes(ExposedOrderings.FocusedCarPosition)) this.AttachDelegate("Focused.OverallPosition", () => _values.FocusedCarIdx + 1);
+            if (Settings.ExposedOrderings.Includes(ExposedOrderings.OverallBestLapPosition)) this.AttachDelegate("Overall.BestLapCar.OverallPosition", () => _values.GetBestLapCarIdx(CarClass.Overall) + 1);
+            if (Settings.ExposedOrderings.Includes(ExposedOrderings.InClassBestLapPosition)) this.AttachDelegate("InClass.BestLapCar.OverallPosition", () => _values.GetFocusedClassBestLapCarIdx() + 1);
 
             // Add everything else 
-            if (Settings.ExposedProperties.Includes(ExposedProperties.SessionPhase)) this.AttachDelegate("Session.Phase", () => _values.RealtimeData?.Phase);
-            if (Settings.ExposedProperties.Includes(ExposedProperties.MaxStintTime)) this.AttachDelegate("Session.MaxStintTime", () => _values.MaxDriverStintTime);
-            if (Settings.ExposedProperties.Includes(ExposedProperties.MaxDriveTime)) this.AttachDelegate("Session.MaxDriveTime", () => _values.MaxDriverTotalDriveTime);
+            if (Settings.ExposedProperties.Includes(ExposedCarProperties.SessionPhase)) this.AttachDelegate("Session.Phase", () => _values.RealtimeData?.Phase);
+            if (Settings.ExposedProperties.Includes(ExposedCarProperties.MaxStintTime)) this.AttachDelegate("Session.MaxStintTime", () => _values.MaxDriverStintTime);
+            if (Settings.ExposedProperties.Includes(ExposedCarProperties.MaxDriveTime)) this.AttachDelegate("Session.MaxDriveTime", () => _values.MaxDriverTotalDriveTime);
         }
 
         #region Logging

@@ -122,23 +122,22 @@ namespace KLPlugins.Leaderboard {
                 case ExposedDriverProperties.Category:
                     return "Driver category (Platinum, Gold, Silver, Bronze)";
                 case ExposedDriverProperties.TotalLaps:
-                    return "Total completed laps";
+                    return "Total number of completed laps";
                 case ExposedDriverProperties.TotalDrivingTime:
                     return "Total driving time in seconds";
                 case ExposedDriverProperties.BestLapTime:
                     return "Best lap time in seconds";
                 default:
-                    return "Unknown";
+                    throw new ArgumentOutOfRangeException($"Invalid enum variant {p}");
             }
         }
-
     }
 
 
     [Flags]
     public enum ExposedCarProperties : long {
         None = 0,
-        NumberOfLaps = 1L << 0,
+        Laps = 1L << 0,
         LastLapTime = 1L << 1,
         LastLapSectors = 1L << 2,
         BestLapTime = 1L << 3,
@@ -210,8 +209,10 @@ namespace KLPlugins.Leaderboard {
 
         public static string ToolTipText(this ExposedCarProperties p) {
             switch (p) {
-                case ExposedCarProperties.NumberOfLaps:
-                    return "Number of laps completed";
+                case ExposedCarProperties.None:
+                    return "None";
+                case ExposedCarProperties.Laps:
+                    return "Number of completed laps";
                 case ExposedCarProperties.LastLapTime:
                     return "Last lap time in seconds";
                 case ExposedCarProperties.LastLapSectors:
@@ -290,8 +291,10 @@ namespace KLPlugins.Leaderboard {
                     return "Current time in pits in seconds";
                 case ExposedCarProperties.IsFinished:
                     return "Is the car finished?";
+                case ExposedCarProperties.MaxSpeed:
+                    return "Maximum speed in this session.";
                 default:
-                    return "None";
+                    throw new ArgumentOutOfRangeException($"Invalid enum variant {p}");
             }
         }
     }
@@ -318,8 +321,10 @@ namespace KLPlugins.Leaderboard {
                     return "Maximum driver stint time.";
                 case ExposedGeneralProperties.MaxDriveTime:
                     return "Maximum total driving time for driver for player car. This can be different for other teams if they have different number of drivers.";
-                default:
+                case ExposedGeneralProperties.None:
                     return "None";
+                default:
+                    throw new ArgumentOutOfRangeException($"Invalid enum variant {p}");
             }
         }
     }
@@ -342,6 +347,8 @@ namespace KLPlugins.Leaderboard {
 
         public static string ToPropName(this ExposedOrderings p) {
             switch (p) {
+                case ExposedOrderings.None:
+                    return "None";
                 case ExposedOrderings.InClassPositions:
                     return "InClass.xx.OverallPosition";
                 case ExposedOrderings.RelativePositions:
@@ -353,12 +360,14 @@ namespace KLPlugins.Leaderboard {
                 case ExposedOrderings.InClassBestLapPosition:
                     return "InClass.BestLapCar.OverallPosition";
                 default:
-                    return "None";
+                    throw new ArgumentOutOfRangeException("Invalid enum variant");
             }
         }
 
         public static string ToolTipText(this ExposedOrderings p) {
             switch (p) {
+                case ExposedOrderings.None:
+                    return "None";
                 case ExposedOrderings.InClassPositions:
                     return @"Overall positions of cars in focused car's class. Used to create class leaderboards.
 For car properties use JavaScript function ´InClass(pos, propname)´";
@@ -375,7 +384,7 @@ For car properties use JavaScript function  ´OverallBestLapCar(propname)´.";
                     return @"Overall position of the class best lap car. 
 For car properties use JavaScript function  ´InClassBestLapCar(propname)´.";
                 default:
-                    return "None";
+                    throw new ArgumentOutOfRangeException($"Invalid enum variant {p}");
             }
         }
     }

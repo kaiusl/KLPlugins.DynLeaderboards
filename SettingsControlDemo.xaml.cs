@@ -44,6 +44,15 @@ namespace KLPlugins.Leaderboard
             CurrentDriverInfo_ToggleButton.Unchecked += (sender, ee) => TbChanged<ExposedCarProperties>(sender, ee, LeaderboardPlugin.Settings.RemoveExposedProperty);
             AllDriversInfo_ToggleButton.Checked += (sender, ee) => TbChanged<ExposedCarProperties>(sender, ee, LeaderboardPlugin.Settings.AddExposedProperty);
             AllDriversInfo_ToggleButton.Unchecked += (sender, ee) => TbChanged<ExposedCarProperties>(sender, ee, LeaderboardPlugin.Settings.RemoveExposedProperty);
+
+            
+            AddPluginDescription();
+
+        }
+
+        private void AddPluginDescription() {
+            ExposedOrderingsInfo_TextBlock.Text = @"Here you can select all other orderings like per class or relative to the focusd car.";
+
         }
 
         private void AddCarToggles() {
@@ -53,7 +62,7 @@ namespace KLPlugins.Leaderboard
                 if (v == ExposedCarProperties.None || v == ExposedCarProperties.AllDriversInfo || v == ExposedCarProperties.CurrentDriverInfo) continue;
 
                 // Group by similarity
-                if (v == ExposedCarProperties.NumberOfLaps) {
+                if (v == ExposedCarProperties.Laps) {
                     var stitle = new SHSmallTitle();
                     stitle.Content = "Lap information";
                     ExposedCarProperties_StackPanel.Children.Add(stitle);
@@ -131,6 +140,7 @@ namespace KLPlugins.Leaderboard
 
         private void AddOrderingsToggles() {
             ExposedOrderings_StackPanel.Children.Add(CreateTogglesDescriptionRow());
+            ExposedOrderings_StackPanel.Children.Add(CreateToggleSeparator());
             foreach (var v in (ExposedOrderings[])Enum.GetValues(typeof(ExposedOrderings))) {
                 if (v == ExposedOrderings.None) continue;
   

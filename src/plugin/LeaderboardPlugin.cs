@@ -207,7 +207,7 @@ namespace KLPlugins.Leaderboard {
 
                 // Laps and sectors
 
-                AddProp(ExposedCarProperties.NumberOfLaps, () => _values.GetCar(i)?.NewData?.Laps);
+                AddProp(ExposedCarProperties.Laps, () => _values.GetCar(i)?.NewData?.Laps);
                 AddProp(ExposedCarProperties.LastLapTime, () => _values.GetCar(i)?.NewData?.LastLap?.Laptime);
                 if (Settings.ExposedCarProperties.Includes(ExposedCarProperties.LastLapSectors)) {
                     this.AttachDelegate($"{startName}.LastLapS1", () => _values.GetCar(i)?.NewData?.LastLap?.Splits?[0]);
@@ -331,7 +331,7 @@ namespace KLPlugins.Leaderboard {
 
             if (Settings.ExposedOrderings.Includes(ExposedOrderings.RelativePositions)) {
                 void addRelativeIdxs(int i) {
-                    this.AttachDelegate($"Relative.{i + 1:00}.OverallPosition", () => _values.RelativePosOnTrackCarsIdxs[i] + 1);
+                    this.AttachDelegate($"Relative.{i - Settings.NumRelativePos:00}.OverallPosition", () => _values.RelativePosOnTrackCarsIdxs[i] + 1);
                 }
 
                 for (int i = 0; i < Settings.NumRelativePos * 2 + 1; i++) {

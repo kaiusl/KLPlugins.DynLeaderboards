@@ -12,6 +12,7 @@
              Loaded="UserControl_Loaded">
 
     <UserControl.Resources>
+        <!-- Limit tooltip width. -->
         <Style TargetType="ToolTip">
             <Style.Resources>
                 <Style TargetType="ContentPresenter">
@@ -25,82 +26,152 @@
             <Setter Property="MaxWidth" Value="300" />
         </Style>
 
+        <!-- Default toggle button style -->
         <Style TargetType="styles:SHToggleButton">
             <Setter Property="Width" Value="75" />
             <Setter Property="Height" Value="20" />
         </Style>
 
+        <!-- Default text block style -->
         <Style TargetType="TextBlock">
             <Setter Property="FontSize" Value="13" />
             <Setter Property="Margin" Value="5,5,0,5" />
             <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="HorizontalAlignment" Value="Left"/>
+            <Setter Property="TextWrapping" Value="Wrap"/>
+        </Style>
+
+        <!-- Default section style -->
+        <Style TargetType="styles:SHSectionTitle">
+            <Setter Property="FontSize" Value="20"/>
         </Style>
 
     </UserControl.Resources>
 
     <styles:SHTabControl>
+        <styles:SHTabItem  Header="Plugin info">
+            <StackPanel x:Name="PluginInfo_StackPanel">
+                <styles:SHSectionTitle Text="ACC Leaderboard Plugin"/>
+                <TextBlock Text="This is an ACC specific (at least at the moment) leaderboard plugin. 
+I know that there are other leaderboard plugins around but I wanted to try my own, maybe someone else finds it useful."/>
+                <TextBlock>The thing to know about it is that we expose car properties only once in overall order through <Bold>`Overall.xx.propertyname`</Bold> properties. This means that we don't need to expose same property in multiple leaderboards like overall, class or relative. This also means that number of overall positions exported should be larger or equal to the number of total cars. 
+Otherwise class or relative leaderboards may not have access to all the cars they need. The number of shown overall positions can be changed in settings.</TextBlock>
+
+                <styles:SHSectionTitle Text="Constructing leaderboards in different order"/>
+                <TextBlock>Class or relative leaderboards can be constructed through `InClass.xx.OverallPosition` which returns the overall position of xx-th car in class.
+Then we can access all of the properties of that car from overall order.
+This means doing following
+<LineBreak/>
+<LineBreak/><Bold>```javascript
+<LineBreak/>var overallPos = $prop('LeaderboardPlugin.InClass.' + format(classPos, '00') + '.OverallPosition')
+<LineBreak/>if (overallPos == null) return null;
+<LineBreak/>return $prop('LeaderboardPlugin.Overall.' + format(overallPos, '00') + '.' + 'CarNumber')
+<LineBreak/>```</Bold></TextBlock>
+                <TextBlock> Granted this complicates accessing car properties a little but with the plugin is provided a JavaScript extension file 
+which provies functions to do above and simplify accessing car properties. For example the car number of 5th car in class can be accessed by 
+<LineBreak/>
+<LineBreak/><Bold>```javascript
+<LineBreak/>return InClass(5, 'CarNumber')
+<LineBreak/>```</Bold>
+<LineBreak/>and similarly for other orderings.</TextBlock>
+
+                <TextBlock>Currently we provide:
+ 
+<LineBreak/>  - <Bold>`Overall(pos, propname)`</Bold>: Get property <Bold>`propname`</Bold> for <Bold>`pos`</Bold>-th car overall.
+<LineBreak/>    - <Bold>`InClass(pos, propname)`</Bold>: Get property <Bold>`propname`</Bold> for <Bold>`pos`</Bold>-th car in class.
+<LineBreak/>    - <Bold>`OverallRelativeToFocused(pos, propname, numRelPos)`</Bold>: Get property <Bold>`propname`</Bold> for <Bold>`pos`</Bold>-th car relative to currently focused car in overall order. Note that <Bold>`pos`</Bold> starts from 1 and that would be the car that is <Bold>`numRelPos`</Bold> positions ahead of the focused car. <Bold>`pos == numRelPos + 1`</Bold> is the focused car and <Bold>`pos == 2numRelPos + 1`</Bold> is the last car shown and `numRelPos` behind the focused car. The reason for this is that in SimHub you probably use repeated group to build the leaderboard and it's indexer <Bold>`repeatindex()`</Bold> starts at 1. So we also start counting at 1.
+<LineBreak/>    - <Bold>`OverallRelativeToFocusedPartial(pos, propname, numRelPos, numOverallPos)`</Bold>: Get property <Bold>`propname`</Bold> for <Bold>`pos`</Bold>-th car relative to currently focused car in overall order or <Bold>`pos`</Bold>-th car overall if <Bold>`pos &lt; numOverallPos`</Bold>. That is we show <Bold>`numOverallPos`</Bold> positions from the top of overall standings and then <Bold>`numRelPos`</Bold> realative positions around each side of focused car. See 'Relative overall' screen on example dash.
+<LineBreak/>    - <Bold>`RelativeOnTrack(pos, propname)`</Bold>: Get property <Bold>`propname`</Bold> for <Bold>`pos`</Bold>-th car relative to currently focused car. Note that <Bold>`pos`</Bold> starts from 1. That is if <Bold>`n`</Bold> is the number of relative position specified in settings then <Bold>`pos=1`</Bold> is the car that is <Bold>`n`</Bold> positions ahead of focused car. <Bold>`pos == n+1`</Bold> is the focused car and <Bold>`pos == 2n+1`</Bold> is the last car, <Bold>`n`</Bold> positions behind focused car.
+<LineBreak/>    - <Bold>`Focused(propname)`</Bold>: Get property <Bold>`propname`</Bold> for currently focused car.
+<LineBreak/>    - <Bold>`OverallBestLap(propname)`</Bold>: Get property <Bold>`propname`</Bold> for the car that has best lap overall.
+<LineBreak/>    - <Bold>`InClassBestLap(propname)`</Bold>: Get property <Bold>`propname`</Bold> for the car that has best lap in class.
+
+<LineBreak/>For more examples you can see example dashboard provided with the plugin."
+                </TextBlock>
+
+                <styles:SHSectionTitle Text="Settings"/>
+
+                <TextBlock Text="Plugin comes with bunch of options. You can change number of positions shown. You can also disable any of the properties that you don't care about. Note however that for the functions from above to work you need to have corresponding orderings enabled."/>
+
+                <styles:SHSectionTitle Text="SimHub version"/>
+
+                <TextBlock Text="Last SimHub version this plugin was tested is 7.4.23."/>
+
+            </StackPanel> 
+        </styles:SHTabItem>
+
+
         <styles:SHTabItem Header="General settings">
-            <styles:SHSection Title="Exported propertis">
+            <StackPanel x:Name="GenSettings_StackPanel" Margin="20" CanVerticallyScroll="True">
 
-                <StackPanel x:Name="GenSettings_StackPanel" Margin="20" CanVerticallyScroll="True">
-
-                    <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="ACC configuration location: " Width="200"/>
-                        <TextBox x:Name="AccDataLocation_TextBox" Width="500" 
+                <!-- ACC Config location -->
+                
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="ACC configuration location: " Width="200"/>
+                    <TextBox x:Name="AccDataLocation_TextBox" Width="500" 
                                  HorizontalAlignment="Left" 
                                  TextChanged="AccDataLocation_TextChanged" 
                                  ToolTip="Location of ACC configuration folder. That is where for example ..\Config\broadcasting.json is located."/>
-                    </StackPanel>
+                </StackPanel>
 
-                    <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="Number of overall positions: " Width="200"/>
-                        <Mah:NumericUpDown x:Name="NumOverallPos_NumericUpDown" 
+                <!-- Num overall pos -->
+
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="Number of overall positions: " Width="200"/>
+                    <Mah:NumericUpDown x:Name="NumOverallPos_NumericUpDown" 
                                            HasDecimals="False" 
                                            Width="100" 
                                            Minimum="0" Maximum="100" Interval="1" 
                                            ValueChanged="NumOverallPos_NumericUpDown_ValueChanged"
                                            ToolTip="Set number of overall positions exposed as properties. Note that this must be larger than all the cars as otherwise in class and relative positions may be missing some cars."/>
-                    </StackPanel>
+                </StackPanel>
 
-                    <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="Number of relative positions: " Width="200"/>
-                        <Mah:NumericUpDown x:Name="NumRelativePos_NumericUpDown" 
+                <!-- Num relative pos -->
+                
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="Number of relative positions: " Width="200"/>
+                    <Mah:NumericUpDown x:Name="NumRelativePos_NumericUpDown" 
                                            HasDecimals="False" 
                                            Width="100" 
                                            Minimum="0" Maximum="100" Interval="1" 
                                            ValueChanged="NumRelativePos_NumericUpDown_ValueChanged"
                                            ToolTip="Set number of relative positions exposed from the focused car in one direction. That is if it's set to 5, we show 5 cars ahead and 5 behind."
                                            />
-                    </StackPanel>
+                </StackPanel>
 
-                    <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="Number of drivers: " Width="200"/>
-                        <Mah:NumericUpDown x:Name="NumDrivers_NumericUpDown" 
+                <!-- Num drivers -->
+                
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="Number of drivers: " Width="200"/>
+                    <Mah:NumericUpDown x:Name="NumDrivers_NumericUpDown" 
                                            HasDecimals="False" 
                                            Width="100" 
                                            Minimum="0" Maximum="10" Interval="1" 
                                            ValueChanged="NumDrivers_NumericUpDown_ValueChanged"
                                            ToolTip="Set number of drivers shown per car. Should be higher or equal to the number of maximum drivers possible for you."/>
-                    </StackPanel>
+                </StackPanel>
 
-                    <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="Data update interval: " Width="200"/>
-                        <Mah:NumericUpDown x:Name="UpdateInterval_NumericUpDown" 
-                                           HasDecimals="False" 
-                                           Width="100" 
-                                           Minimum="10" Maximum="5000" Interval="10" 
-                                           ValueChanged="UpdateRate_NumericUpDown_ValueChanged"
-                                           ToolTip="Sets the update interval of data from ACC. As leaderboard data doesn't change that fast something around 1000ms should work very well. But you can go lower to provide smoother visuals."/>
-                    </StackPanel>
+                <!-- Update interval -->
 
-                    <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="Log info: " Width="200"/>
-                        <styles:SHToggleButton x:Name="Logging_ToggleButton" 
+                <StackPanel Orientation="Horizontal">
+                <TextBlock Text="Data update interval: " Width="200"/>
+                <Mah:NumericUpDown x:Name="UpdateInterval_NumericUpDown" 
+                                        HasDecimals="False" 
+                                        Width="100" 
+                                        Minimum="10" Maximum="5000" Interval="10" 
+                                        ValueChanged="UpdateRate_NumericUpDown_ValueChanged"
+                                        ToolTip="Sets the update interval of data from ACC. As leaderboard data doesn't change that fast something around 1000ms should work very well. But you can go lower to provide smoother visuals."/>
+                </StackPanel>
+
+                <!-- Enable logging -->
+                
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="Log info: " Width="200"/>
+                    <styles:SHToggleButton x:Name="Logging_ToggleButton" 
                                                Click="Logging_ToggleButton_Click"
                                                ToolTip="Enable or disable information logging. Errors will still be logged."/>
-                    </StackPanel>
                 </StackPanel>
-            </styles:SHSection>
+            </StackPanel>
         </styles:SHTabItem>
 
         <styles:SHTabItem Header="Exposed properties">
@@ -108,19 +179,21 @@
             <ScrollViewer>
                 <StackPanel>
 
-                    <TextBlock Text="Here you can select all the properties you wish to use. 
-Each toggle has corresponding property name to the right of it (with exception of CurrentDriver and AllDrivers)
-and if you hover over the toggle more information will be shown for certain items." TextWrapping="Wrap" HorizontalAlignment="Left"/>
-                    <TextBlock Text="CurrentDriver and AllDrivers toggles set which drivers will be exposed. 
-The exposed properties for each driver can be set below in the next section." TextWrapping="Wrap" HorizontalAlignment="Left"/>
+                    <TextBlock x:Name="ExposedPropertiesInfo_TextBlock" 
+                               Text="Here you can select all the properties you wish to use."
+                               TextWrapping="Wrap" HorizontalAlignment="Left"/>
 
-                    <Separator/>
+                    <!-- Properties for each car -->
+                    
+                    <Separator Margin="0,15,0,1"/>
+                    <Separator Margin="0,1,0,10"/>
                     <styles:SHSectionTitle Text="PROPERTIES FOR EACH CAR"/>
-                    <StackPanel x:Name="ExposedCarProperties_StackPanel">
+                    <StackPanel x:Name="ExposedCarProperties_StackPanel"/>
 
-                    </StackPanel>
+                    <!-- Exposed drivers -->
 
-                    <Separator/>
+                    <Separator Margin="0,15,0,1"/>
+                    <Separator Margin="0,1,0,10"/>
                     <styles:SHSectionTitle Text="EXPOSED DRIVERS"/>
                     <StackPanel x:Name="ExposedDrivers_StackPanel">
                         <StackPanel Orientation="Horizontal">
@@ -136,17 +209,21 @@ The exposed properties for each driver can be set below in the next section." Te
                         </StackPanel>
                     </StackPanel>
 
-                    <Separator/>
+                    <!-- Properties for each car -->
+                    
+                    <Separator Margin="0,15,0,1"/>
+                    <Separator Margin="0,1,0,10"/>
                     <styles:SHSectionTitle Text="PROPERTIES FOR EACH DRIVER"/>
-                    <StackPanel x:Name="ExposedDriverProperties_StackPanel">
+                    <StackPanel x:Name="ExposedDriverProperties_StackPanel"/>
 
-                    </StackPanel>
+                    <!-- Other properties -->
 
-                    <Separator/>
+                    <Separator Margin="0,15,0,1"/>
+                    <Separator Margin="0,1,0,10"/>
                     <styles:SHSectionTitle Text="OTHER PROPERTIES"/>
-                    <StackPanel x:Name="OtherProperties_StackPanel">
+                    <StackPanel x:Name="OtherProperties_StackPanel"/>
 
-                    </StackPanel>
+                    <!-- -->
 
                 </StackPanel>
             </ScrollViewer>
@@ -156,27 +233,15 @@ The exposed properties for each driver can be set below in the next section." Te
 
         <styles:SHTabItem Header="Exposed orderings">
             <ScrollViewer>
-            <StackPanel>
-                <TextBlock Text="Here you can select all other orderings like per class or relative to the focusd car." 
-                           TextWrapping="Wrap" HorizontalAlignment="Left"/>
-                <TextBlock Text="Each property here results the desired cars position in overall order. 
-That is for example InClass.01 return the overall position of the class leader.
-This way we don't need to expose same data multiple times." 
-                           TextWrapping="Wrap" HorizontalAlignment="Left"/>
-                <TextBlock Text="This complicates accessing car properties a little bit but with the plugin 
-is provided a JavaScript extension file which simplifies accessing car properties. For example the car number of 5th car in class can be accessed by ´InClass(5, 'CarNumber')´." 
-                           TextWrapping="Wrap" HorizontalAlignment="Left"/>
+                <StackPanel>
+                    <TextBlock x:Name="ExposedOrderingsInfo_TextBlock" TextWrapping="Wrap" HorizontalAlignment="Left"/>
 
-                <Separator/>
-
-                <StackPanel x:Name="ExposedOrderings_StackPanel">
+                    <Separator Margin="0,15,0,1"/>
+                    <Separator Margin="0,1,0,10"/>
+                    <StackPanel x:Name="ExposedOrderings_StackPanel"/>
 
                 </StackPanel>
-
-            </StackPanel>
-        </ScrollViewer>
-
-
+            </ScrollViewer>
         </styles:SHTabItem>
 
     </styles:SHTabControl>

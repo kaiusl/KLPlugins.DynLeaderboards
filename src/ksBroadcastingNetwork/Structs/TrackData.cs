@@ -51,7 +51,7 @@ namespace KLPlugins.Leaderboard.ksBroadcastingNetwork.Structs
         private static void AddLapInterpolator(CarClass cls) {
             var fname = $"{LeaderboardPlugin.Settings.PluginDataLocation}\\laps\\{(int)Values.TrackData.TrackId}_{cls}.txt";
             if (!File.Exists(fname)) {
-                LeaderboardPlugin.LogInfo($"Couldn't build lap interpolator for {cls} because no suitable track data exists.");
+                LeaderboardPlugin.LogWarn($"Couldn't build lap interpolator for {cls} because no suitable track data exists.");
                 return;
             }
 
@@ -80,10 +80,11 @@ namespace KLPlugins.Leaderboard.ksBroadcastingNetwork.Structs
                 foreach (var r in replacements) {
                     if (LapInterpolators[r] != null) {
                         LapInterpolators[cls] = LapInterpolators[r];
+                        LeaderboardPlugin.LogInfo($"Found replacement lap interpolator for {cls} from {r}");
                         return;
                     }
                 }
-                LeaderboardPlugin.LogInfo($"Couldn't find replacement lap interpolator for {cls}.");
+                LeaderboardPlugin.LogWarn($"Couldn't find replacement lap interpolator for {cls}. Will have to use simple gap calculation.");
             }
         }
     }

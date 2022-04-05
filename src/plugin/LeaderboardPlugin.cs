@@ -331,7 +331,7 @@ namespace KLPlugins.Leaderboard {
 
             if (Settings.ExposedOrderings.Includes(ExposedOrderings.RelativePositions)) {
                 void addRelativeIdxs(int i) {
-                    this.AttachDelegate($"Relative.{i - Settings.NumRelativePos:00}.OverallPosition", () => _values.RelativePosOnTrackCarsIdxs[i] + 1);
+                    this.AttachDelegate($"Relative.{i + 1:00}.OverallPosition", () => _values.RelativePosOnTrackCarsIdxs[i] + 1);
                 }
 
                 for (int i = 0; i < Settings.NumRelativePos * 2 + 1; i++) {

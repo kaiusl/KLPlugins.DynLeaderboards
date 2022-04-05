@@ -93,20 +93,20 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="src\components\Game.cs" />
-    <Compile Include="src\enums\CarClassDict.cs" />
+    <Compile Include="src\components\CarClassDict.cs" />
     <Compile Include="src\enums\Tracks.cs" />
     <Compile Include="src\ksBroadcastingNetwork\ACCUdpRemoteClient.cs" />
     <Compile Include="src\ksBroadcastingNetwork\BroadcastingEnums.cs" />
     <Compile Include="src\ksBroadcastingNetwork\BroadcastingNetworkProtocol.cs" />
     <Compile Include="src\enums\Cars.cs" />
     <Compile Include="src\ksBroadcastingNetwork\Structs\BroadcastingEvent.cs" />
-    <Compile Include="src\ksBroadcastingNetwork\Structs\CarData.cs" />
+    <Compile Include="src\components\CarData.cs" />
     <Compile Include="src\ksBroadcastingNetwork\Structs\CarInfo.cs" />
-    <Compile Include="src\ksBroadcastingNetwork\Structs\DriverData.cs" />
+    <Compile Include="src\components\DriverData.cs" />
     <Compile Include="src\ksBroadcastingNetwork\Structs\DriverInfo.cs" />
     <Compile Include="src\ksBroadcastingNetwork\Structs\LapInfo.cs" />
     <Compile Include="src\ksBroadcastingNetwork\Structs\RealtimeCarUpdate.cs" />
-    <Compile Include="src\ksBroadcastingNetwork\Structs\RealtimeData.cs" />
+    <Compile Include="src\components\RealtimeData.cs" />
     <Compile Include="src\ksBroadcastingNetwork\Structs\RealtimeUpdate.cs" />
     <Compile Include="src\ksBroadcastingNetwork\Structs\TrackData.cs" />
     <Compile Include="src\plugin\LeaderboardPlugin.cs" />
@@ -135,6 +135,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="sdkmenuicon.png" />
+    <Content Include="src\JavascriptExtensions\KLPlugins_Leaderboard_Extensions.js" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Properties\Resources.resx">
@@ -148,6 +149,7 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="AfterBuild">
+    <Copy SourceFiles="$(ProjectDir)src\JavascriptExtensions\KLPlugins_Leaderboard_Extensions.js" DestinationFolder="C:\Program Files\SimHub\JavascriptExtensions" ContinueOnError="true" />
     <Copy SourceFiles="$(OutDir)$(TargetName).dll;$(OutDir)$(TargetName).dll.config;$(OutDir)$(TargetName).pdb" DestinationFolder="C:\Program Files\SimHub" ContinueOnError="true" />
   </Target>
   <PropertyGroup>

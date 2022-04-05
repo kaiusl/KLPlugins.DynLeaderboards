@@ -77,7 +77,6 @@ namespace KLPlugins.Leaderboard.ksBroadcastingNetwork.Structs {
 
         private double? _stintStartTime = null;
         private CarClassArray<double> _splinePositionTime = new CarClassArray<double>(-1);
-        private bool _isLapFinished = false;
         private bool _isRaceFinishPosSet = false;
         private bool _isFirstUpdate = true;
         ////////////////////////
@@ -399,27 +398,55 @@ namespace KLPlugins.Leaderboard.ksBroadcastingNetwork.Structs {
                 // We update the gap only if CalculateGap returns a proper value because we don't want to update the gap if one of the cars has finished. 
                 // That would result in wrong gaps. We keep the gaps at the last valid value and update once both cars have finished.
 
-                var gap = CalculateGap(this, leader);
-                if (!double.IsNaN(gap)) GapToLeader = gap;
+                var gapToLeader = CalculateGap(this, leader);
+                if (!double.IsNaN(gapToLeader)) GapToLeader = gapToLeader;
 
-                gap = CalculateGap(this, classLeader);
-                if (!double.IsNaN(gap)) GapToClassLeader = gap;
-
-                gap = CalculateGap(focused, this);
-                if (!double.IsNaN(gap)) GapToFocusedTotal = gap;
-
-                if (carAhead != null) {
-                    gap = CalculateGap(this, carAhead);
-                    if (!double.IsNaN(gap)) GapToAhead = gap;
+                if (classLeader.CarIndex == CarIndex) {
+                    GapToClassLeader = 0.0;
+                } else if (classLeader.CarIndex == leader.CarIndex) {
+                    GapToClassLeader = GapToLeader;
                 } else {
-                    gap = double.NaN;
+                    var gapToClassLeader = CalculateGap(this, classLeader);
+                    if (!double.IsNaN(gapToClassLeader)) GapToClassLeader = gapToClassLeader;
                 }
 
-                if (carAheadInClass != null) {
-                    gap = CalculateGap(this, carAheadInClass);
-                    if (!double.IsNaN(gap)) GapToAheadInClass = gap;
+                if (focused.CarIndex == CarIndex) {
+                    GapToFocusedTotal = 0.0;
+                } else if (focused.CarIndex == leader.CarIndex) {
+                    GapToFocusedTotal = GapToLeader;
+                } else if (focused.CarIndex == classLeader.CarIndex) {
+                    GapToFocusedTotal = GapToClassLeader;
                 } else {
-                    gap = double.NaN;
+                    var gapToFocusedTotal = CalculateGap(focused, this);
+                    if (!double.IsNaN(gapToFocusedTotal)) GapToFocusedTotal = gapToFocusedTotal;
+                }
+
+                if (carAhead == null) {
+                    GapToAhead = double.NaN;
+                } else if (carAhead.CarIndex == leader.CarIndex) {
+                    GapToAhead = GapToLeader;
+                } else if (carAhead.CarIndex == classLeader.CarIndex) {
+                    GapToAhead = GapToClassLeader;
+                } else if (carAhead.CarIndex == focused.CarIndex) {
+                    GapToAhead = -GapToFocusedTotal;
+                } else {
+                    var gapToAhead = CalculateGap(this, carAhead);
+                    if (!double.IsNaN(gapToAhead)) GapToAhead = gapToAhead;
+                }
+
+                if (carAheadInClass == null) {
+                    GapToAheadInClass = double.NaN;
+                } else if (carAheadInClass.CarIndex == carAhead.CarIndex) {
+                    GapToAheadInClass = GapToAhead;
+                } else if (carAheadInClass.CarIndex == leader.CarIndex) {
+                    GapToAheadInClass = gapToLeader;
+                } else if (carAheadInClass.CarIndex == classLeader.CarIndex) {
+                    GapToAheadInClass = GapToClassLeader;
+                } else if (carAheadInClass.CarIndex == focused.CarIndex) {
+                    GapToAheadInClass = -GapToFocusedTotal;
+                } else {
+                    var gapToAheadInClass = CalculateGap(this, carAheadInClass);
+                    if (!double.IsNaN(gapToAheadInClass)) GapToAheadInClass = gapToAheadInClass;
                 }
 
             } else {

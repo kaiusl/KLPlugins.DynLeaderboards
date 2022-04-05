@@ -68,11 +68,40 @@ namespace KLPlugins.Leaderboard.ksBroadcastingNetwork.Structs {
         public int CurrentStintLaps { get; private set; } = 0;
         public double CurrentDriverTotalDrivingTime => CurrentDriver.GetTotalDrivingTime(true, CurrentStintTime);
 
+        // Lap deltas
+        public double BestLapDeltaToOverallBest { get; private set; } = double.NaN;
+        public double BestLapDeltaToClassBest { get; private set; } = double.NaN;
+        public double BestLapDeltaToLeaderBest { get; private set; } = double.NaN;
+        public double BestLapDeltaToClassLeaderBest { get; private set; } = double.NaN;
+        public double BestLapDeltaToFocusedBest { get; private set; } = double.NaN;
+        public double BestLapDeltaToAheadBest { get; private set; } = double.NaN;
+        public double BestLapDeltaToAheadInClassBest { get; private set; } = double.NaN;
+
+        public double LastLapDeltaToOverallBest { get; private set; } = double.NaN;
+        public double LastLapDeltaToClassBest { get; private set; } = double.NaN;
+        public double LastLapDeltaToLeaderBest { get; private set; } = double.NaN;
+        public double LastLapDeltaToClassLeaderBest { get; private set; } = double.NaN;
+        public double LastLapDeltaToFocusedBest { get; private set; } = double.NaN;
+        public double LastLapDeltaToAheadBest { get; private set; } = double.NaN;
+        public double LastLapDeltaToAheadInClassBest { get; private set; } = double.NaN;
+        public double LastLapDeltaToOwnBest { get; private set; } = double.NaN;
+
+        public double LastLapDeltaToLeaderLast { get; private set; } = double.NaN;
+        public double LastLapDeltaToClassLeaderLast { get; private set; } = double.NaN;
+        public double LastLapDeltaToFocusedLast { get; private set; } = double.NaN;
+        public double LastLapDeltaToAheadLast { get; private set; } = double.NaN;
+        public double LastLapDeltaToAheadInClassLast { get; private set; } = double.NaN;
+
         // Else
         public bool IsFinished { get; private set; } = false;
         public TimeSpan? FinishTime { get; private set; } = null;
         public double?[] BestLapSectors { get; private set; } = new double?[] { null, null, null };
         public double MaxSpeed { get; private set; } = 0.0;
+
+
+
+
+
 
         internal int MissedRealtimeUpdates { get; set; } = 0;
 
@@ -369,7 +398,9 @@ namespace KLPlugins.Leaderboard.ksBroadcastingNetwork.Structs {
             CarData classLeaderCar, 
             CarData focusedCar, 
             CarData carAhead, 
-            CarData carAheadInClass, 
+            CarData carAheadInClass,
+            CarData overallBestLapCar,
+            CarData classBestLapCar,
             int overallPos, 
             int classPos, 
             float relSplinePos
@@ -398,9 +429,68 @@ namespace KLPlugins.Leaderboard.ksBroadcastingNetwork.Structs {
 
             OnTrackDistanceToFocused = relSplinePos * Values.TrackData.TrackMeters;
             SetGaps(realtimeData, leaderCar, classLeaderCar, focusedCar, carAhead, carAheadInClass);
+            SetLapDeltas(leaderCar, classLeaderCar, focusedCar, carAhead, carAheadInClass, overallBestLapCar, classBestLapCar);
 
             if (IsFinished) _isRaceFinishPosSet = true;
         }
+
+        private void SetLapDeltas(
+            CarData leaderCar,
+            CarData classLeaderCar,
+            CarData focusedCar,
+            CarData carAhead,
+            CarData carAheadInClass,
+            CarData overallBestLapCar,
+            CarData classBestLapCar
+        ) {
+            var thisBest = NewData?.BestSessionLap?.Laptime;
+            var thisLast = NewData?.LastLap?.Laptime;
+            if (thisBest == null && thisLast == null) return;
+
+            var overallBest = overallBestLapCar?.NewData?.BestSessionLap?.Laptime;
+            var classBest = classBestLapCar?.NewData?.BestSessionLap?.Laptime;
+            var leaderBest = leaderCar.NewData?.BestSessionLap?.Laptime;
+            var classLeaderBest = classLeaderCar.NewData?.BestSessionLap?.Laptime;
+            var focusedBest = focusedCar.NewData?.BestSessionLap?.Laptime;
+            var aheadBest = carAhead?.NewData?.BestSessionLap?.Laptime;
+            var aheadInClassBest = carAheadInClass?.NewData?.BestSessionLap?.Laptime;
+
+            if (thisBest != null) {
+                if (overallBest != null) BestLapDeltaToOverallBest = (double)thisBest - (double)overallBest;
+                if (classBest != null) BestLapDeltaToClassBest = (double)thisBest - (double)(classBest);
+                if (leaderBest != null) BestLapDeltaToLeaderBest = (double)thisBest - (double)leaderBest;
+                if (classLeaderBest != null) BestLapDeltaToClassLeaderBest = (double)thisBest - (double)classLeaderBest;
+                if (focusedBest != null) BestLapDeltaToFocusedBest = (double)thisBest - (double)focusedBest;
+                BestLapDeltaToAheadBest = aheadBest != null ? (double)thisBest - (double)aheadBest : double.NaN;
+                BestLapDeltaToAheadInClassBest = aheadInClassBest != null ? (double)thisBest - (double)aheadInClassBest : double.NaN;
+            }
+
+            if (thisLast != null) {
+                if (overallBest != null) LastLapDeltaToOverallBest = (double)thisBest - (double)overallBest;
+                if (classBest != null) LastLapDeltaToClassBest = (double)thisBest - (double)classBest;
+                if (leaderBest != null) LastLapDeltaToLeaderBest = (double)thisLast - (double)leaderBest;
+                if (classLeaderBest != null) LastLapDeltaToClassLeaderBest = (double)thisLast - (double)classLeaderBest;
+                if (focusedBest != null) LastLapDeltaToFocusedBest = (double)thisLast - (double)focusedBest;
+                LastLapDeltaToAheadBest = aheadBest != null ? (double)thisLast - (double)aheadBest : double.NaN;
+                LastLapDeltaToAheadInClassBest = aheadInClassBest != null ? (double)thisLast - (double)aheadInClassBest : double.NaN;
+                if (thisBest != null) LastLapDeltaToOwnBest = (double)thisLast - (double)thisBest;
+
+                var leaderLast = leaderCar.NewData?.LastLap?.Laptime;
+                var classLeaderLast = classLeaderCar.NewData?.LastLap?.Laptime;
+                var focusedLast = focusedCar.NewData?.LastLap?.Laptime;
+                var aheadLast = carAhead?.NewData?.LastLap?.Laptime;
+                var aheadInClassLast = carAheadInClass?.NewData?.LastLap?.Laptime;
+
+                if (leaderLast != null) LastLapDeltaToLeaderLast = (double)thisLast - (double)leaderLast;
+                if (classLeaderLast != null) LastLapDeltaToClassLeaderLast = (double)thisLast - (double)classLeaderLast;
+                if (focusedLast != null) LastLapDeltaToFocusedLast = (double)thisLast - (double)focusedLast;
+                LastLapDeltaToAheadLast = aheadLast != null ? (double)thisLast - (double)aheadLast : double.NaN;
+                LastLapDeltaToAheadInClassLast = aheadInClassLast != null ? (double)thisLast - (double)aheadInClassLast : double.NaN;
+
+            }
+
+        }
+
 
         #endregion
 

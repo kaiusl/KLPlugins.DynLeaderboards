@@ -5,6 +5,7 @@ using SimHub.Plugins.UI;
 using SimHub.Plugins.Styles;
 using System.IO;
 using System.Windows.Media;
+using MdXaml;
 
 namespace KLPlugins.Leaderboard
 {
@@ -40,13 +41,15 @@ namespace KLPlugins.Leaderboard
             Logging_ToggleButton.IsChecked = LeaderboardPlugin.Settings.Log;
 
             // Add listeners to drivers toggles
-            CurrentDriverInfo_ToggleButton.Checked += (sender, ee) => TbChanged<ExposedCarProperties>(sender, ee, LeaderboardPlugin.Settings.AddExposedProperty);
+            CurrentDriverInfo_ToggleButton.Checked += CurrentDriverTbChecked;
             CurrentDriverInfo_ToggleButton.Unchecked += (sender, ee) => TbChanged<ExposedCarProperties>(sender, ee, LeaderboardPlugin.Settings.RemoveExposedProperty);
-            AllDriversInfo_ToggleButton.Checked += (sender, ee) => TbChanged<ExposedCarProperties>(sender, ee, LeaderboardPlugin.Settings.AddExposedProperty);
+            AllDriversInfo_ToggleButton.Checked += AllDriverTbChecked;
             AllDriversInfo_ToggleButton.Unchecked += (sender, ee) => TbChanged<ExposedCarProperties>(sender, ee, LeaderboardPlugin.Settings.RemoveExposedProperty);
 
             
             AddPluginDescription();
+
+            PluginInfoMarkdown.Markdown = File.ReadAllText($"{LeaderboardPlugin.Settings.PluginDataLocation}\\README.md"); ;
 
         }
 
@@ -59,7 +62,10 @@ namespace KLPlugins.Leaderboard
 
             ExposedCarProperties_StackPanel.Children.Add(CreateTogglesDescriptionRow());
             foreach (var v in (ExposedCarProperties[])Enum.GetValues(typeof(ExposedCarProperties))) {
-                if (v == ExposedCarProperties.None || v == ExposedCarProperties.AllDriversInfo || v == ExposedCarProperties.CurrentDriverInfo) continue;
+                if (v == ExposedCarProperties.None 
+                    || v == ExposedCarProperties.AllDriversInfo 
+                    || v == ExposedCarProperties.CurrentDriverInfo 
+                ) continue;
 
                 // Group by similarity
                 if (v == ExposedCarProperties.Laps) {
@@ -96,14 +102,16 @@ namespace KLPlugins.Leaderboard
                     ExposedCarProperties_StackPanel.Children.Add(stitle);
                 }
 
-                var sp = CreateToggleRow(
-                    v.ToString(), 
-                    v.ToPropName(), 
-                    LeaderboardPlugin.Settings.ExposedCarProperties.Includes(v),
-                    (sender, e) => TbChanged<ExposedCarProperties>(sender, e, LeaderboardPlugin.Settings.AddExposedProperty), 
-                    (sender, e) => TbChanged<ExposedCarProperties>(sender, e, LeaderboardPlugin.Settings.RemoveExposedProperty), 
-                    v.ToolTipText()
-                );
+
+                StackPanel sp = CreateToggleRow(
+                       v.ToString(),
+                       v.ToPropName(),
+                       LeaderboardPlugin.Settings.ExposedCarProperties.Includes(v),
+                       (sender, e) => TbChanged<ExposedCarProperties>(sender, e, LeaderboardPlugin.Settings.AddExposedProperty),
+                       (sender, e) => TbChanged<ExposedCarProperties>(sender, e, LeaderboardPlugin.Settings.RemoveExposedProperty),
+                       v.ToolTipText()
+                   );
+
                 ExposedCarProperties_StackPanel.Children.Add(sp);
                 ExposedCarProperties_StackPanel.Children.Add(CreateToggleSeparator());
             }
@@ -261,6 +269,21 @@ namespace KLPlugins.Leaderboard
 
                 LeaderboardPlugin.LogInfo($"Checked button {name}");
             }
+        }
+
+        private void CurrentDriverTbChecked(object sender, RoutedEventArgs e) {
+            // Checked to only show current driver
+            LeaderboardPlugin.Settings.RemoveExposedProperty(ExposedCarProperties.AllDriversInfo);
+            AllDriversInfo_ToggleButton.IsChecked = false;
+
+            LeaderboardPlugin.Settings.AddExposedProperty(ExposedCarProperties.CurrentDriverInfo);
+        }
+
+        private void AllDriverTbChecked(object sender, RoutedEventArgs e) {
+            LeaderboardPlugin.Settings.RemoveExposedProperty(ExposedCarProperties.CurrentDriverInfo);
+            CurrentDriverInfo_ToggleButton.IsChecked = false;
+
+            LeaderboardPlugin.Settings.AddExposedProperty(ExposedCarProperties.AllDriversInfo);
         }
 
         private void UserControl_Loaded(object sender, RoutedEventArgs e) {

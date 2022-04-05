@@ -3,18 +3,20 @@
 This is an ACC specific (at least at the moment) leaderboard plugin. 
 I know that there are other leaderboard plugins around but I wanted to try my own, maybe someone else finds it useful.
 
-The thing to know about it is that we expose car properties only once in overall order through `Overall.xx.<property name>` properties. This means that we don't need to expose same property in multiple leaderboards like overall, class or relative. This also means that number of overall positions exported should be larger or equal to the number of total cars. 
+## Using the plugin
+
+The thing to know about this plugin is that we expose car properties only once in overall order through `Overall.xx.<property name>` properties. This means that we don't need to expose same property in multiple leaderboards like overall, class or relative. This also means that number of overall positions exported should be larger or equal to the number of total cars. 
 Otherwise class or relative leaderboards may not have access to all the cars they need. The number of shown overall positions can be changed in settings.
 
 
-## Constructing leaderboards in different order
+### Constructing leaderboards in different order
 
 Class or relative leaderboards can be constructed through `InClass.xx.OverallPosition` which returns the overall position of xx-th car in class.
 Then we can access all of the properties of that car from overall order.
 This means doing following
 ```javascript
 var overallPos = $prop('LeaderboardPlugin.InClass.' + format(classPos, '00') + '.OverallPosition')
-if (overallPos == null) return null;
+if (overallPos == 0) return null;
 return $prop('LeaderboardPlugin.Overall.' + format(overallPos, '00') + '.' + 'CarNumber')
 ```
 
@@ -42,11 +44,9 @@ Currently we provide:
 
 For more examples you can see example dashboard provided with the plugin.
 
+### Properties
 
-
-## Settings
-
-Plugin comes with bunch of options. You can change number of positions shown. You can also disable any of the properties that you don't care about. Note however that for the functions from above to work you need to have corresponding orderings enabled.
+All available properties are listen in SimHub under Leadeboard plugin settings with more detailed description. You can also disable any of the properties that you don't need.
 
 ## SH version
 

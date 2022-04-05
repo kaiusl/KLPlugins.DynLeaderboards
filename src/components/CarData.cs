@@ -19,7 +19,7 @@ namespace KLPlugins.Leaderboard.ksBroadcastingNetwork.Structs {
         public string TeamName { get; internal set; }
         public int RaceNumber { get; internal set; }
         public CupCategory CupCategory { get; internal set; }
-        public int CurrentDriverIndex { get; internal set; }
+        private int _currentDriverIndex { get; set; }
         public List<DriverData> Drivers { get; internal set; } = new List<DriverData>();
         public NationalityEnum TeamNationality { get; internal set; }
 
@@ -27,7 +27,8 @@ namespace KLPlugins.Leaderboard.ksBroadcastingNetwork.Structs {
         public RealtimeCarUpdate NewData { get; private set; } = null;
         public RealtimeCarUpdate OldData { get; private set; } = null;
 
-        public DriverData CurrentDriver => Drivers[NewData?.DriverIndex ?? CurrentDriverIndex];
+        public int CurrentDriverIndex;
+        public DriverData CurrentDriver => Drivers[CurrentDriverIndex];
 
         // ..BySplinePosition
         public float TotalSplinePosition { get; private set; } = 0.0f;
@@ -88,8 +89,9 @@ namespace KLPlugins.Leaderboard.ksBroadcastingNetwork.Structs {
             TeamName = info.TeamName;
             RaceNumber = info.RaceNumber;
             CupCategory = info.CupCategory;
-            CurrentDriverIndex = info.CurrentDriverIndex;
-            foreach (var d in info.Drivers) { 
+            _currentDriverIndex = info.CurrentDriverIndex;
+            CurrentDriverIndex = _currentDriverIndex;
+            foreach (var d in info.Drivers) {
                 AddDriver(d);
             }
             TeamNationality = info.Nationality;
@@ -97,15 +99,26 @@ namespace KLPlugins.Leaderboard.ksBroadcastingNetwork.Structs {
             NewData = update;
         }
 
-        public DriverData GetDriver(int i) => Drivers.ElementAtOrDefault(i);
+        public DriverData GetDriver(int i) {
+            if (i == 0) {
+                return Drivers.ElementAtOrDefault(CurrentDriverIndex);
+            }
+
+            if (i <= CurrentDriverIndex) { 
+                return Drivers.ElementAtOrDefault(i-1);
+            }
+            return Drivers.ElementAtOrDefault(i);
+        }
 
         private void AddDriver(DriverInfo driverInfo) {
             Drivers.Add(new DriverData(driverInfo));
         }
 
         public double? GetDriverTotalDrivingTime(int i) {
-            return Drivers.ElementAtOrDefault(i)?.GetTotalDrivingTime(i == (NewData?.DriverIndex ?? CurrentDriverIndex), CurrentStintTime);
+            return Drivers.ElementAtOrDefault(i)?.GetTotalDrivingTime(i == CurrentDriverIndex, CurrentStintTime);
         }
+
+        public int GetCurrentDriverIndex() => NewData?.DriverIndex ?? CurrentDriverIndex;
 
         #region Entry list update
 
@@ -183,6 +196,7 @@ namespace KLPlugins.Leaderboard.ksBroadcastingNetwork.Structs {
 
             OldData = NewData;
             NewData = update;
+            if (NewData?.DriverIndex != null) CurrentDriverIndex = NewData.DriverIndex;
 
             // Wait for one more update at the beginning of session, so we have all relevant data for calculations below
             if (OldData == null) return;

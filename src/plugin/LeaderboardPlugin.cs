@@ -13,6 +13,7 @@ using GameReaderCommon.Enums;
 using KLPlugins.Leaderboard.ksBroadcastingNetwork;
 using KLPlugins.Leaderboard.Enums;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace KLPlugins.Leaderboard {
     [PluginDescription("")]
@@ -120,7 +121,7 @@ namespace KLPlugins.Leaderboard {
 
             SubscribeToSimHubEvents();
 
-            //AttachDebugDelegates();
+            AttachDebugDelegates();
             AttachDelegates();
         }
 
@@ -161,25 +162,35 @@ namespace KLPlugins.Leaderboard {
 
             void addCar(int i) {
                 var startName = $"Overall.{i + 1:00}";
-                this.AttachDelegate($"DBG_info.{startName}", () => {
-                    var car = _values.GetCar(i);
-                    if (car == null) return null;
-                    return $"#{car.RaceNumber,-4}, isFinished:{car.IsFinished}, FinishTime:{car.FinishTime?.TotalSeconds}, L{car.NewData?.Laps}, startPos:{car.StartPos:00}/{car.StartPosInClass:00}, TSP:{car.TotalSplinePosition}";
-                });
+                //this.AttachDelegate($"DBG_info.{startName}", () => {
+                //    var car = _values.GetCar(i);
+                //    if (car == null) return null;
+                //    return $"#{car.RaceNumber,-4}, isFinished:{car.IsFinished}, FinishTime:{car.FinishTime?.TotalSeconds}, L{car.NewData?.Laps}, startPos:{car.StartPos:00}/{car.StartPosInClass:00}, TSP:{car.TotalSplinePosition}";
+                //});
 
-                this.AttachDelegate($"DBG_PitInfo.{startName}", () => {
-                    var car = _values.GetCar(i);
-                    if (car == null) return null;
-                    return $"#{car.RaceNumber,-4}, InPitLane:{car.NewData?.CarLocation == CarLocationEnum.Pitlane,-5}, Count:{car.PitCount:00}, PitTimes(C/L/T):{_values.GetCar(i)?.CurrentTimeInPits ?? 0:000.0}/{_values.GetCar(i)?.LastPitTime:000.0}/{_values.GetCar(i)?.TotalPitTime:000.0}";
-                });
+                //this.AttachDelegate($"DBG_PitInfo.{startName}", () => {
+                //    var car = _values.GetCar(i);
+                //    if (car == null) return null;
+                //    return $"#{car.RaceNumber,-4}, InPitLane:{car.NewData?.CarLocation == CarLocationEnum.Pitlane,-5}, Count:{car.PitCount:00}, PitTimes(C/L/T):{_values.GetCar(i)?.CurrentTimeInPits ?? 0:000.0}/{_values.GetCar(i)?.LastPitTime:000.0}/{_values.GetCar(i)?.TotalPitTime:000.0}";
+                //});
 
-                this.AttachDelegate($"DBG_DriverInfo.{startName}", () => {
-                    var car = _values.GetCar(i);
-                    if (car == null) return null;
-                    var driver = car.CurrentDriver;
+                //this.AttachDelegate($"DBG_DriverInfo.{startName}", () => {
+                //    var car = _values.GetCar(i);
+                //    if (car == null) return null;
+                //    var driver = car.CurrentDriver;
                     
-                    return $"#{car.RaceNumber,-4}, DCount:{car.NewData.DriverCount}, DId:{car.NewData.DriverIndex}, {driver.InitialPlusLastName()}, Total:{driver.TotalLaps:00}laps/{car.CurrentDriverTotalDrivingTime:000.0}s, Stint(C/L):{car.CurrentStintTime:000.0}s/{car.LastStintTime:000.0}s, BestLap:{driver.BestSessionLap?.Laptime ?? -1:000.000}";
-                });
+                //    return $"#{car.RaceNumber,-4}, DCount:{car.NewData.DriverCount}, DId:{car.NewData.DriverIndex}, {driver.InitialPlusLastName()}, Total:{driver.TotalLaps:00}laps/{car.CurrentDriverTotalDrivingTime:000.0}s, Stint(C/L):{car.CurrentStintTime:000.0}s/{car.LastStintTime:000.0}s, BestLap:{driver.BestSessionLap?.Laptime ?? -1:000.000}";
+                //});
+
+
+                //this.AttachDelegate($"DBG_DriverInfo.{startName}", () => {
+                //    var car = _values.GetCar(i);
+                //    if (car == null) return null;
+                //    var driver = car.CurrentDriver;
+
+
+                //    return $"#{car.RaceNumber,-4}, {car.GetDriver(0)?.InitialPlusLastName()}, {car.GetDriver(1)?.InitialPlusLastName()}, {car.GetDriver(2)?.InitialPlusLastName()} *** {car?.Drivers?.ElementAtOrDefault(0)?.InitialPlusLastName()}, {car?.Drivers?.ElementAtOrDefault(1)?.InitialPlusLastName()}, {car?.Drivers?.ElementAtOrDefault(2)?.InitialPlusLastName()}";
+                //});
 
                 //this.AttachDelegate($"DBG.{startName}.SplinePosition", () => _values.GetCar(i)?.RealtimeCarUpdate?.SplinePosition);
                 //this.AttachDelegate($"DBG.{startName}.Laps", () => _values.GetCar(i)?.RealtimeCarUpdate?.Laps);
@@ -230,11 +241,11 @@ namespace KLPlugins.Leaderboard {
                 AddProp(ExposedCarProperties.CurrentLapTime, () => _values.GetCar(i)?.NewData?.CurrentLap?.Laptime);
 
                 void AddDriverProp<T>(ExposedDriverProperties prop, string driverId, Func<T> valueProvider) {
-                    if (Settings.ExposedDriverProperties.Includes(prop)) this.AttachDelegate($"{startName}.{driverId}{prop}", valueProvider);
+                    if (Settings.ExposedDriverProperties.Includes(prop)) this.AttachDelegate($"{startName}.{driverId}.{prop}", valueProvider);
                 }
 
                 if (Settings.ExposedCarProperties.Includes(ExposedCarProperties.CurrentDriverInfo)) {
-                    var driverId = "CurrentDriver";
+                    var driverId = "Driver.01";
                     AddDriverProp(ExposedDriverProperties.FirstName, driverId, () => _values.GetCar(i)?.CurrentDriver?.FirstName);
                     AddDriverProp(ExposedDriverProperties.LastName, driverId, () => _values.GetCar(i)?.CurrentDriver?.LastName);
                     AddDriverProp(ExposedDriverProperties.ShortName, driverId, () => _values.GetCar(i)?.CurrentDriver?.ShortName);
@@ -251,7 +262,7 @@ namespace KLPlugins.Leaderboard {
                 if (Settings.ExposedCarProperties.Includes(ExposedCarProperties.AllDriversInfo)) {
                     void AddOneDriverFromList(int j) {
                         if (Settings.NumDrivers > j) {
-                            var driverId = $"Driver{j + 1:00}";
+                            var driverId = $"Driver.{j + 1:00}";
                             AddDriverProp(ExposedDriverProperties.FirstName, driverId, () => _values.GetCar(i)?.GetDriver(j)?.FirstName);
                             AddDriverProp(ExposedDriverProperties.LastName, driverId, () => _values.GetCar(i)?.GetDriver(j)?.LastName);
                             AddDriverProp(ExposedDriverProperties.ShortName, driverId, () => _values.GetCar(i)?.GetDriver(j)?.ShortName);

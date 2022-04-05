@@ -22,16 +22,12 @@ namespace KLPlugins.Leaderboard
 
         public SettingsControlDemo(LeaderboardPlugin plugin) : this() {
             this.Plugin = plugin;
-
-            // Add toggles to enable/disable properties
-            AddCarToggles();
-            AddDriverToggles();
-            AddOrderingsToggles();
-            AddOtherToggles();
+            AddPluginDescription();
+            AddToggles();
 
             // Set current values for other settings
-            CurrentDriverInfo_ToggleButton.IsChecked = LeaderboardPlugin.Settings.ExposedCarProperties.Includes(ExposedCarProperties.CurrentDriverInfo);
-            AllDriversInfo_ToggleButton.IsChecked = LeaderboardPlugin.Settings.ExposedCarProperties.Includes(ExposedCarProperties.AllDriversInfo);
+            CurrentDriverInfo_ToggleButton.IsChecked = LeaderboardPlugin.Settings.OutDriverProps.Includes(OutDriverProp.CurrentDriverInfo);
+            AllDriversInfo_ToggleButton.IsChecked = LeaderboardPlugin.Settings.OutDriverProps.Includes(OutDriverProp.AllDriversInfo);
             AccDataLocation_TextBox.Text = LeaderboardPlugin.Settings.AccDataLocation;
             AccDataLocation_TextBox.Background = Brushes.LightGreen;
             NumOverallPos_NumericUpDown.Value = LeaderboardPlugin.Settings.NumOverallPos;
@@ -42,91 +38,194 @@ namespace KLPlugins.Leaderboard
 
             // Add listeners to drivers toggles
             CurrentDriverInfo_ToggleButton.Checked += CurrentDriverTbChecked;
-            CurrentDriverInfo_ToggleButton.Unchecked += (sender, ee) => TbChanged<ExposedCarProperties>(sender, ee, LeaderboardPlugin.Settings.RemoveExposedProperty);
+            CurrentDriverInfo_ToggleButton.Unchecked += (sender, ee) => TbChanged<OutDriverProp>(sender, ee, (o) => LeaderboardPlugin.Settings.OutDriverProps.Remove(o));
             AllDriversInfo_ToggleButton.Checked += AllDriverTbChecked;
-            AllDriversInfo_ToggleButton.Unchecked += (sender, ee) => TbChanged<ExposedCarProperties>(sender, ee, LeaderboardPlugin.Settings.RemoveExposedProperty);
-
-            
-            AddPluginDescription();
-
-            PluginInfoMarkdown.Markdown = File.ReadAllText($"{LeaderboardPlugin.Settings.PluginDataLocation}\\README.md"); ;
-
+            AllDriversInfo_ToggleButton.Unchecked += (sender, ee) => TbChanged<OutDriverProp>(sender, ee, (o) => LeaderboardPlugin.Settings.OutDriverProps.Remove(o));
         }
 
         private void AddPluginDescription() {
             ExposedOrderingsInfo_TextBlock.Text = @"Here you can select all other orderings like per class or relative to the focusd car.";
+            PluginInfoMarkdown.Markdown = File.ReadAllText($"{LeaderboardPlugin.Settings.PluginDataLocation}\\README.md"); ;
+        }
 
+        private void AddToggles() {
+            OutCarProps_StackPanel.Children.Add(CreateTogglesDescriptionRow());
+            AddPitToggles();
+            AddPosToggles();
+            AddGapToggles();
+            AddDistanceToggles();
+            AddStintToggles();
+            AddLapToggles();
+            AddCarToggles();
+            AddDriverToggles();
+            AddOrderingsToggles();
+            AddOtherToggles();
         }
 
         private void AddCarToggles() {
+            // Add Car properties
+            StackPanel panel = OutCarProps_StackPanel;
+            foreach (var v in (OutCarProp[])Enum.GetValues(typeof(OutCarProp))) {
+                if (v == OutCarProp.None) continue;
 
-            ExposedCarProperties_StackPanel.Children.Add(CreateTogglesDescriptionRow());
-            foreach (var v in (ExposedCarProperties[])Enum.GetValues(typeof(ExposedCarProperties))) {
-                if (v == ExposedCarProperties.None 
-                    || v == ExposedCarProperties.AllDriversInfo 
-                    || v == ExposedCarProperties.CurrentDriverInfo 
-                ) continue;
-
-                // Group by similarity
-                if (v == ExposedCarProperties.Laps) {
-                    var stitle = new SHSmallTitle();
-                    stitle.Content = "Lap information";
-                    ExposedCarProperties_StackPanel.Children.Add(stitle);
-                } else if (v == ExposedCarProperties.CarNumber) {
-                    var stitle = new SHSmallTitle();
-                    stitle.Content = "Car and team information";
-                    ExposedCarProperties_StackPanel.Children.Add(stitle);
-                } else if (v == ExposedCarProperties.CurrentStintTime) {
-                    var stitle = new SHSmallTitle();
-                    stitle.Content = "Stint information";
-                    ExposedCarProperties_StackPanel.Children.Add(stitle);
-                } else if (v == ExposedCarProperties.DistanceToLeader) {
-                    var stitle = new SHSmallTitle();
-                    stitle.Content = "Distances";
-                    ExposedCarProperties_StackPanel.Children.Add(stitle);
-                } else if (v == ExposedCarProperties.GapToLeader) {
-                    var stitle = new SHSmallTitle();
-                    stitle.Content = "Gaps";
-                    ExposedCarProperties_StackPanel.Children.Add(stitle);
-                } else if (v == ExposedCarProperties.ClassPosition) {
-                    var stitle = new SHSmallTitle();
-                    stitle.Content = "Positions";
-                    ExposedCarProperties_StackPanel.Children.Add(stitle);
-                } else if (v == ExposedCarProperties.IsInPitLane) {
-                    var stitle = new SHSmallTitle();
-                    stitle.Content = "Pit information";
-                    ExposedCarProperties_StackPanel.Children.Add(stitle);
-                } else if (v == ExposedCarProperties.IsFinished) {
-                    var stitle = new SHSmallTitle();
-                    stitle.Content = "Other";
-                    ExposedCarProperties_StackPanel.Children.Add(stitle);
-                }
-
+                if (v == OutCarProp.IsFinished) panel = OutOtherProps_StackPanel;
 
                 StackPanel sp = CreateToggleRow(
                        v.ToString(),
                        v.ToPropName(),
-                       LeaderboardPlugin.Settings.ExposedCarProperties.Includes(v),
-                       (sender, e) => TbChanged<ExposedCarProperties>(sender, e, LeaderboardPlugin.Settings.AddExposedProperty),
-                       (sender, e) => TbChanged<ExposedCarProperties>(sender, e, LeaderboardPlugin.Settings.RemoveExposedProperty),
+                       LeaderboardPlugin.Settings.OutCarProps.Includes(v),
+                       (sender, e) => TbChanged<OutCarProp>(sender, e, (o) => LeaderboardPlugin.Settings.OutCarProps.Combine(o)),
+                       (sender, e) => TbChanged<OutCarProp>(sender, e, (o) => LeaderboardPlugin.Settings.OutCarProps.Remove(o)),
                        v.ToolTipText()
                    );
 
-                ExposedCarProperties_StackPanel.Children.Add(sp);
-                ExposedCarProperties_StackPanel.Children.Add(CreateToggleSeparator());
+                panel.Children.Add(sp);
+                panel.Children.Add(CreateToggleSeparator());
+            }
+        }
+
+        private void AddLapToggles() {
+            // Add Lap Properties
+            foreach (var v in (OutLapProp[])Enum.GetValues(typeof(OutLapProp))) {
+                if (v == OutLapProp.None) continue;
+
+                void AddSmallTitle(string name) {
+                    var t = new SHSmallTitle();
+                    t.Content = name;
+                    OutLapProps_StackPanel.Children.Add(t);
+                }
+
+                // Group by similarity
+                switch (v) {
+                    case OutLapProp.BestLapDeltaToOverallBest:
+                        AddSmallTitle("Best lap deltas");
+                        break;
+                    case OutLapProp.LastLapDeltaToOverallBest:
+                        AddSmallTitle("Last lap deltas");
+                        break;
+                    default:
+                        break;
+                }
+
+                StackPanel sp = CreateToggleRow(
+                       v.ToString(),
+                       v.ToPropName(),
+                       LeaderboardPlugin.Settings.OutLapProps.Includes(v),
+                       (sender, e) => TbChanged<OutLapProp>(sender, e, (o) => LeaderboardPlugin.Settings.OutLapProps.Combine(o)),
+                       (sender, e) => TbChanged<OutLapProp>(sender, e, (o) => LeaderboardPlugin.Settings.OutLapProps.Remove(o)),
+                       v.ToolTipText()
+                   );
+
+                OutLapProps_StackPanel.Children.Add(sp);
+                OutLapProps_StackPanel.Children.Add(CreateToggleSeparator());
+            }
+        }
+
+        private void AddStintToggles() {
+            // Add Stint Properties
+            foreach (var v in (OutStintProp[])Enum.GetValues(typeof(OutStintProp))) {
+                if (v == OutStintProp.None) continue;
+
+                StackPanel sp = CreateToggleRow(
+                       v.ToString(),
+                       v.ToPropName(),
+                       LeaderboardPlugin.Settings.OutStintProps.Includes(v),
+                       (sender, e) => TbChanged<OutStintProp>(sender, e, (o) => LeaderboardPlugin.Settings.OutStintProps.Combine(o)),
+                       (sender, e) => TbChanged<OutStintProp>(sender, e, (o) => LeaderboardPlugin.Settings.OutStintProps.Remove(o)),
+                       v.ToolTipText()
+                   );
+
+                OutStintProps_StackPanel.Children.Add(sp);
+                OutStintProps_StackPanel.Children.Add(CreateToggleSeparator());
+            }
+        }
+
+        private void AddDistanceToggles() {
+            // Add Distance Properties
+            foreach (var v in (OutDistanceProp[])Enum.GetValues(typeof(OutDistanceProp))) {
+                if (v == OutDistanceProp.None) continue;
+
+                StackPanel sp = CreateToggleRow(
+                       v.ToString(),
+                       v.ToPropName(),
+                       LeaderboardPlugin.Settings.OutDistanceProps.Includes(v),
+                       (sender, e) => TbChanged<OutDistanceProp>(sender, e, (o) => LeaderboardPlugin.Settings.OutDistanceProps.Combine(o)),
+                       (sender, e) => TbChanged<OutDistanceProp>(sender, e, (o) => LeaderboardPlugin.Settings.OutDistanceProps.Remove(o)),
+                       v.ToolTipText()
+                   );
+
+                OutDistancesProps_StackPanel.Children.Add(sp);
+                OutDistancesProps_StackPanel.Children.Add(CreateToggleSeparator());
+            }
+        }
+
+        private void AddGapToggles() {
+            // Add Gap Properties
+            foreach (var v in (OutGapProp[])Enum.GetValues(typeof(OutGapProp))) {
+                if (v == OutGapProp.None) continue;
+
+                StackPanel sp = CreateToggleRow(
+                       v.ToString(),
+                       v.ToPropName(),
+                       LeaderboardPlugin.Settings.OutGapProps.Includes(v),
+                       (sender, e) => TbChanged<OutGapProp>(sender, e, (o) => LeaderboardPlugin.Settings.OutGapProps.Combine(o)),
+                       (sender, e) => TbChanged<OutGapProp>(sender, e, (o) => LeaderboardPlugin.Settings.OutGapProps.Remove(o)),
+                       v.ToolTipText()
+                   );
+
+                OutGapsProps_StackPanel.Children.Add(sp);
+                OutGapsProps_StackPanel.Children.Add(CreateToggleSeparator());
+            }
+        }
+
+        private void AddPosToggles() {
+            // Add Pos Properties
+            foreach (var v in (OutPosProp[])Enum.GetValues(typeof(OutPosProp))) {
+                if (v == OutPosProp.None) continue;
+
+                StackPanel sp = CreateToggleRow(
+                       v.ToString(),
+                       v.ToPropName(),
+                       LeaderboardPlugin.Settings.OutPosProps.Includes(v),
+                       (sender, e) => TbChanged<OutPosProp>(sender, e, (o) => LeaderboardPlugin.Settings.OutPosProps.Combine(o)),
+                       (sender, e) => TbChanged<OutPosProp>(sender, e, (o) => LeaderboardPlugin.Settings.OutPosProps.Remove(o)),
+                       v.ToolTipText()
+                   );
+
+                OutPosProps_StackPanel.Children.Add(sp);
+                OutPosProps_StackPanel.Children.Add(CreateToggleSeparator());
+            }
+        }
+
+        private void AddPitToggles() {
+            // Add Pit Properties
+            foreach (var v in (OutPitProp[])Enum.GetValues(typeof(OutPitProp))) {
+                if (v == OutPitProp.None) continue;
+
+                StackPanel sp = CreateToggleRow(
+                       v.ToString(),
+                       v.ToPropName(),
+                       LeaderboardPlugin.Settings.OutPitProps.Includes(v),
+                       (sender, e) => TbChanged<OutPitProp>(sender, e, (o) => LeaderboardPlugin.Settings.OutPitProps.Combine(o)),
+                       (sender, e) => TbChanged<OutPitProp>(sender, e, (o) => LeaderboardPlugin.Settings.OutPitProps.Remove(o)),
+                       v.ToolTipText()
+                   );
+
+                OutPitProps_StackPanel.Children.Add(sp);
+                OutPitProps_StackPanel.Children.Add(CreateToggleSeparator());
             }
         }
 
         private void AddDriverToggles() {
             ExposedDriverProperties_StackPanel.Children.Add(CreateTogglesDescriptionRow());
-            foreach (var v in (ExposedDriverProperties[])Enum.GetValues(typeof(ExposedDriverProperties))) {
-                if (v == ExposedDriverProperties.None) continue;
+            foreach (var v in (OutDriverProp[])Enum.GetValues(typeof(OutDriverProp))) {
+                if (v == OutDriverProp.None || v == OutDriverProp.AllDriversInfo || v == OutDriverProp.CurrentDriverInfo) continue;
 
-                if (v == ExposedDriverProperties.FirstName) {
+                if (v == OutDriverProp.FirstName) {
                     var stitle = new SHSmallTitle();
                     stitle.Content = "Names";
                     ExposedDriverProperties_StackPanel.Children.Add(stitle);
-                } else if (v == ExposedDriverProperties.Nationality) {
+                } else if (v == OutDriverProp.Nationality) {
                     var stitle = new SHSmallTitle();
                     stitle.Content = "Other";
                     ExposedDriverProperties_StackPanel.Children.Add(stitle);
@@ -136,9 +235,9 @@ namespace KLPlugins.Leaderboard
                 var sp = CreateToggleRow(
                     v.ToString(), 
                     v.ToString(), 
-                    LeaderboardPlugin.Settings.ExposedDriverProperties.Includes(v),
-                    (sender, e) => TbChanged<ExposedDriverProperties>(sender, e, LeaderboardPlugin.Settings.AddExposedDriverProperty),
-                    (sender, e) => TbChanged<ExposedDriverProperties>(sender, e, LeaderboardPlugin.Settings.RemoveExposedDriverProperty),
+                    LeaderboardPlugin.Settings.OutDriverProps.Includes(v),
+                    (sender, e) => TbChanged<OutDriverProp>(sender, e, (o) => LeaderboardPlugin.Settings.OutDriverProps.Combine(o)),
+                    (sender, e) => TbChanged<OutDriverProp>(sender, e, (o) => LeaderboardPlugin.Settings.OutDriverProps.Remove(o)),
                     v.ToolTipText()
                 );
                 ExposedDriverProperties_StackPanel.Children.Add(sp);
@@ -149,15 +248,15 @@ namespace KLPlugins.Leaderboard
         private void AddOrderingsToggles() {
             ExposedOrderings_StackPanel.Children.Add(CreateTogglesDescriptionRow());
             ExposedOrderings_StackPanel.Children.Add(CreateToggleSeparator());
-            foreach (var v in (ExposedOrderings[])Enum.GetValues(typeof(ExposedOrderings))) {
-                if (v == ExposedOrderings.None) continue;
+            foreach (var v in (OutOrder[])Enum.GetValues(typeof(OutOrder))) {
+                if (v == OutOrder.None) continue;
   
                 var sp = CreateToggleRow(
                     v.ToString(), 
                     v.ToPropName(), 
-                    LeaderboardPlugin.Settings.ExposedOrderings.Includes(v),
-                    (sender, e) => TbChanged<ExposedOrderings>(sender, e, LeaderboardPlugin.Settings.AddExposedOrdering),
-                    (sender, e) => TbChanged<ExposedOrderings>(sender, e, LeaderboardPlugin.Settings.RemoveExposedOrdering),
+                    LeaderboardPlugin.Settings.OutOrders.Includes(v),
+                    (sender, e) => TbChanged<OutOrder>(sender, e, (o) => LeaderboardPlugin.Settings.OutOrders.Combine(o)),
+                    (sender, e) => TbChanged<OutOrder>(sender, e, (o) => LeaderboardPlugin.Settings.OutOrders.Remove(o)),
                     v.ToolTipText()
                 );
 
@@ -169,15 +268,15 @@ namespace KLPlugins.Leaderboard
         private void AddOtherToggles() {
             OtherProperties_StackPanel.Children.Add(CreateTogglesDescriptionRow());
             OtherProperties_StackPanel.Children.Add(CreateToggleSeparator());
-            foreach (var v in (ExposedGeneralProperties[])Enum.GetValues(typeof(ExposedGeneralProperties))) {
-                if (v == ExposedGeneralProperties.None) continue;
+            foreach (var v in (OutGeneralProp[])Enum.GetValues(typeof(OutGeneralProp))) {
+                if (v == OutGeneralProp.None) continue;
 
                 var sp = CreateToggleRow(
                     v.ToString(),
                     v.ToString(),
-                    LeaderboardPlugin.Settings.ExposedGeneralProperties.Includes(v),
-                    (sender, e) => TbChanged<ExposedGeneralProperties>(sender, e, LeaderboardPlugin.Settings.AddExposedGeneralProperty),
-                    (sender, e) => TbChanged<ExposedGeneralProperties>(sender, e, LeaderboardPlugin.Settings.RemoveExposedGeneralProperty),
+                    LeaderboardPlugin.Settings.OutGeneralProps.Includes(v),
+                    (sender, e) => TbChanged<OutGeneralProp>(sender, e, (o) => LeaderboardPlugin.Settings.OutGeneralProps.Combine(o)),
+                    (sender, e) => TbChanged<OutGeneralProp>(sender, e, (o) => LeaderboardPlugin.Settings.OutGeneralProps.Remove(o)),
                     v.ToolTipText()
                 );
 
@@ -210,15 +309,15 @@ namespace KLPlugins.Leaderboard
         /// <summary>
         /// Creates row to toggle property
         /// </summary>
-        private StackPanel CreateToggleRow(string name, string displayName, bool isChecked, RoutedEventHandler check, RoutedEventHandler uncheck, string tooltip) {
+        private StackPanel CreateToggleRow(string name, string displayName, bool isChecked, RoutedEventHandler checkHandler, RoutedEventHandler uncheckHandler, string tooltip) {
             var sp = new StackPanel();
             sp.Orientation = Orientation.Horizontal;
 
             var tb = new SHToggleButton();
             tb.Name = $"{name}_toggle";
             tb.IsChecked = isChecked;
-            tb.Checked += check;
-            tb.Unchecked += uncheck;
+            tb.Checked += checkHandler;
+            tb.Unchecked += uncheckHandler;
             tb.ToolTip = tooltip;
 
             var t = new TextBlock();
@@ -273,17 +372,17 @@ namespace KLPlugins.Leaderboard
 
         private void CurrentDriverTbChecked(object sender, RoutedEventArgs e) {
             // Checked to only show current driver
-            LeaderboardPlugin.Settings.RemoveExposedProperty(ExposedCarProperties.AllDriversInfo);
+            LeaderboardPlugin.Settings.OutDriverProps.Remove(OutDriverProp.AllDriversInfo);
             AllDriversInfo_ToggleButton.IsChecked = false;
 
-            LeaderboardPlugin.Settings.AddExposedProperty(ExposedCarProperties.CurrentDriverInfo);
+            LeaderboardPlugin.Settings.OutDriverProps.Combine(OutDriverProp.CurrentDriverInfo);
         }
 
         private void AllDriverTbChecked(object sender, RoutedEventArgs e) {
-            LeaderboardPlugin.Settings.RemoveExposedProperty(ExposedCarProperties.CurrentDriverInfo);
+            LeaderboardPlugin.Settings.OutDriverProps.Remove(OutDriverProp.CurrentDriverInfo);
             CurrentDriverInfo_ToggleButton.IsChecked = false;
 
-            LeaderboardPlugin.Settings.AddExposedProperty(ExposedCarProperties.AllDriversInfo);
+            LeaderboardPlugin.Settings.OutDriverProps.Combine(OutDriverProp.AllDriversInfo);
         }
 
         private void UserControl_Loaded(object sender, RoutedEventArgs e) {

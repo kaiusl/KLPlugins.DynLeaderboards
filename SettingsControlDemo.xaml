@@ -9,7 +9,6 @@
              xmlns:Mah="http://metro.mahapps.com/winfx/xaml/controls"
              xmlns:ui="clr-namespace:SimHub.Plugins.UI;assembly=SimHub.Plugins" 
              xmlns:mdxam="clr-namespace:MdXaml;assembly=MdXaml"
-             xmlns:mde="clr-namespace:MdXaml.Ext"
              d:DesignHeight="300" d:DesignWidth="600" 
              Loaded="UserControl_Loaded">
 
@@ -237,13 +236,33 @@
                     <Separator Margin="0,15,0,1"/>
                     <Separator Margin="0,1,0,10"/>
                     <styles:SHSectionTitle Text="PROPERTIES FOR EACH CAR"/>
-                    <StackPanel x:Name="ExposedCarProperties_StackPanel">
-                        <TextBlock Width="600" TextWrapping="Wrap">
+                    <TextBlock Width="600" TextWrapping="Wrap">
                             Each properties car be accessed as "Overall.05.<Italic>propertyName</Italic>".
-                        </TextBlock>
+                    </TextBlock>
 
-                    </StackPanel>
+                    <styles:SHSmallTitle>Car information</styles:SHSmallTitle>
+                    <StackPanel x:Name="OutCarProps_StackPanel"/>
 
+                    <styles:SHSmallTitle>Lap information</styles:SHSmallTitle>
+                    <StackPanel x:Name="OutLapProps_StackPanel"/>
+
+                    <styles:SHSmallTitle>Stint information</styles:SHSmallTitle>
+                    <StackPanel x:Name="OutStintProps_StackPanel"/>
+
+                    <styles:SHSmallTitle>Gaps</styles:SHSmallTitle>
+                    <StackPanel x:Name="OutGapsProps_StackPanel"/>
+
+                    <styles:SHSmallTitle>Distances</styles:SHSmallTitle>
+                    <StackPanel x:Name="OutDistancesProps_StackPanel"/>
+
+                    <styles:SHSmallTitle>Positions</styles:SHSmallTitle>
+                    <StackPanel x:Name="OutPosProps_StackPanel"/>
+
+                    <styles:SHSmallTitle>Pit informations</styles:SHSmallTitle>
+                    <StackPanel x:Name="OutPitProps_StackPanel"/>
+
+                    <styles:SHSmallTitle>Other</styles:SHSmallTitle>
+                    <StackPanel x:Name="OutOtherProps_StackPanel"/>
 
                     <!-- Exposed drivers -->
 

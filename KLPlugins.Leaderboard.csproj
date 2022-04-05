@@ -110,7 +110,12 @@
     <Compile Include="src\ksBroadcastingNetwork\Structs\RealtimeUpdate.cs" />
     <Compile Include="src\ksBroadcastingNetwork\Structs\TrackData.cs" />
     <Compile Include="src\plugin\LeaderboardPlugin.cs" />
-    <Compile Include="src\plugin\PluginSettings.cs" />
+    <Compile Include="src\settings\OutCarProp.cs" />
+    <Compile Include="src\settings\OutDriverProp.cs" />
+    <Compile Include="src\settings\OutGeneralProp.cs" />
+    <Compile Include="src\settings\OutLapProp.cs" />
+    <Compile Include="src\settings\OutOrder.cs" />
+    <Compile Include="src\settings\PluginSettings.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
@@ -150,7 +155,7 @@
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="AfterBuild">
     <Copy SourceFiles="$(ProjectDir)src\JavascriptExtensions\KLPlugins_Leaderboard_Extensions.js" DestinationFolder="C:\Program Files\SimHub\JavascriptExtensions" ContinueOnError="true" />
-	<Copy SourceFiles="$(ProjectDir)README.md" DestinationFolder="C:\Program Files\SimHub\PluginsData\KLPlugins\Leaderboard" ContinueOnError="true" />
+    <Copy SourceFiles="$(ProjectDir)README.md" DestinationFolder="C:\Program Files\SimHub\PluginsData\KLPlugins\Leaderboard" ContinueOnError="true" />
     <Copy SourceFiles="$(OutDir)$(TargetName).dll;$(OutDir)$(TargetName).dll.config;$(OutDir)$(TargetName).pdb" DestinationFolder="C:\Program Files\SimHub" ContinueOnError="true" />
   </Target>
   <PropertyGroup>

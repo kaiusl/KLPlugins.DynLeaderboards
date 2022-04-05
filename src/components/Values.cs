@@ -386,6 +386,7 @@ namespace KLPlugins.Leaderboard {
         private void UpdateCarData() {
             // Clear old data
             _relativeSplinePositions.Clear();
+            _classLeaderIdxs.Reset();
 
             var classPositions = new CarClassArray<int>(_defaultIdxValue); 
             var leaderCar = Cars[0];
@@ -393,9 +394,8 @@ namespace KLPlugins.Leaderboard {
             var focusedClass = focusedCar.CarClass;
             var aheadInClassCarIdxs = new CarClassArray<int>(_defaultIdxValue);
 
-            _classLeaderIdxs.Reset();
-            BestLapByClassCarIdxs.Reset();
- 
+            UpdateBestLapIdxs();
+
             for (int i = 0; i < Cars.Count; i++) {
                 var thisCar = Cars[i];
 
@@ -419,13 +419,47 @@ namespace KLPlugins.Leaderboard {
                 var carAheadInClass = carAheadInClassIdx != aheadInClassCarIdxs.DefaultValue ? Cars[carAheadInClassIdx] : null;
 
                 var relSplinePos = thisCar.CalculateRelativeSplinePosition(focusedCar);
-                thisCar.OnRealtimeUpdate(RealtimeData, leaderCar, Cars[_classLeaderIdxs[thisClass]], focusedCar, carAhead, carAheadInClass,  i + 1, clsPos, relSplinePos);
+                var overallBestLapCarIdx = BestLapByClassCarIdxs[CarClass.Overall];
+                var classBestLapCarIdx = BestLapByClassCarIdxs[thisClass];
+                thisCar.OnRealtimeUpdate(
+                    realtimeData: RealtimeData, 
+                    leaderCar: leaderCar, 
+                    classLeaderCar: Cars[_classLeaderIdxs[thisClass]], 
+                    focusedCar: focusedCar, 
+                    carAhead: carAhead, 
+                    carAheadInClass: carAheadInClass, 
+                    overallBestLapCar: overallBestLapCarIdx != BestLapByClassCarIdxs.DefaultValue ?  Cars[overallBestLapCarIdx] : null,
+                    classBestLapCar: classBestLapCarIdx != BestLapByClassCarIdxs.DefaultValue ? Cars[classBestLapCarIdx] : null,
+                    overallPos: i + 1, 
+                    classPos: clsPos,
+                    relSplinePos: relSplinePos
+                    );
                 aheadInClassCarIdxs[thisClass] = i;
 
                 // Since we cannot remove cars after finish, don't add cars that have left to the relative
                 if (thisCar.MissedRealtimeUpdates < 10) _relativeSplinePositions.Add(new CarSplinePos(i, relSplinePos));
+            }
 
-                // Update best laps
+            // If somebody left the session, need to reset following class positions
+            var startpos = classPositions[focusedClass];
+            if (startpos == classPositions.DefaultValue) {
+                startpos = 0;
+            }
+            for (int i = startpos; i < LeaderboardPlugin.Settings.NumOverallPos; i++) {
+                if (PosInClassCarsIdxs[i] == _defaultIdxValue) break; // All following must already be -1
+                PosInClassCarsIdxs[i] = _defaultIdxValue;
+            }
+
+            UpdateRelativeOrder();
+        }
+
+        private void UpdateBestLapIdxs() {
+            BestLapByClassCarIdxs.Reset();
+            // We need to update best lap idxs first as we need to pass best lap cars on,
+            // and we cannot do it if BestLapByClassCarIdxs contains false indices as some cars may have left.
+            for (int i = 0; i < Cars.Count; i++) {
+                var thisCar = Cars[i];
+                var thisClass = thisCar.CarClass;
                 var thisBest = thisCar.NewData?.BestSessionLap?.Laptime;
                 if (thisBest != null) {
                     var thisIdx = BestLapByClassCarIdxs[thisClass];
@@ -443,18 +477,6 @@ namespace KLPlugins.Leaderboard {
                     }
                 }
             }
-
-            // If somebody left the session, need to reset following class positions
-            var startpos = classPositions[focusedClass];
-            if (startpos == classPositions.DefaultValue) {
-                startpos = 0;
-            }
-            for (int i = startpos; i < LeaderboardPlugin.Settings.NumOverallPos; i++) {
-                if (PosInClassCarsIdxs[i] == _defaultIdxValue) break; // All following must already be -1
-                PosInClassCarsIdxs[i] = _defaultIdxValue;
-            }
-
-            UpdateRelativeOrder();
         }
 
         private void UpdateRelativeOrder() {

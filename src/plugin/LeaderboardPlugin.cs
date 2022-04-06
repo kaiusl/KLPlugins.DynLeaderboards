@@ -53,18 +53,28 @@ namespace KLPlugins.Leaderboard {
         public void DataUpdate(PluginManager pm, ref GameData data) {
             if (!Game.IsAcc) { return; } // Atm only ACC is supported
 
-            //if (data.GameRunning && data.OldData != null && data.NewData != null) {
-            //    var track = (string)pm.GetPropertyValue<SimHub.Plugins.DataPlugins.DataCore.DataCorePlugin>("GameRawData.StaticInfo.Track");
-            //    var npos = (float)pm.GetPropertyValue<SimHub.Plugins.DataPlugins.DataCore.DataCorePlugin>("GameRawData.Graphics.NormalizedCarPosition");
-            //    var ctime = (int)pm.GetPropertyValue<SimHub.Plugins.DataPlugins.DataCore.DataCorePlugin>("GameRawData.Graphics.iCurrentTime");
-            //    var speed = (float)pm.GetPropertyValue<SimHub.Plugins.DataPlugins.DataCore.DataCorePlugin>("GameRawData.Physics.SpeedKmh");
-            //    var laps = (int)pm.GetPropertyValue<SimHub.Plugins.DataPlugins.DataCore.DataCorePlugin>("GameData.CompletedLaps");
-
- 
-            //    File.AppendAllText($"{LeaderboardPlugin.Settings.PluginDataLocation}\\NewLaps\\{track}_{laps + 1}.txt", $"{npos};{ctime};{speed}\n");
+            if (data.GameRunning && data.OldData != null && data.NewData != null) {
+                //var track = (string)pm.GetPropertyValue<SimHub.Plugins.DataPlugins.DataCore.DataCorePlugin>("GameRawData.StaticInfo.Track");
+                //var npos = (float)pm.GetPropertyValue<SimHub.Plugins.DataPlugins.DataCore.DataCorePlugin>("GameRawData.Graphics.NormalizedCarPosition");
+                //var ctime = (int)pm.GetPropertyValue<SimHub.Plugins.DataPlugins.DataCore.DataCorePlugin>("GameRawData.Graphics.iCurrentTime");
+                //var speed = (float)pm.GetPropertyValue<SimHub.Plugins.DataPlugins.DataCore.DataCorePlugin>("GameRawData.Physics.SpeedKmh");
+                //var laps = (int)pm.GetPropertyValue<SimHub.Plugins.DataPlugins.DataCore.DataCorePlugin>("GameData.CompletedLaps");
 
 
-            //}
+                //File.AppendAllText($"{LeaderboardPlugin.Settings.PluginDataLocation}\\NewLaps\\{track}_{laps + 1}.txt", $"{npos};{ctime};{speed}\n");
+
+                var ftime = (double)pm.GetPropertyValue<SimHub.Plugins.DataPlugins.DataCore.DataCorePlugin>("Performance_FrameDuration");
+                var cached = (double)pm.GetPropertyValue<SimHub.Plugins.DataPlugins.DataCore.DataCorePlugin>("Performance_CachedFormulasPerSecond");
+                var jsFormulas = (double)pm.GetPropertyValue<SimHub.Plugins.DataPlugins.DataCore.DataCorePlugin>("Performance_JSFormulasPerSecond");
+                var NALCFormulas = (double)pm.GetPropertyValue<SimHub.Plugins.DataPlugins.DataCore.DataCorePlugin>("Performance_NALCFormulasPerSecond");
+                var NALCOptFormulas = (double)pm.GetPropertyValue<SimHub.Plugins.DataPlugins.DataCore.DataCorePlugin>("Performance_NALCOptimizedFormulasPerSecond");
+
+                if (_timingWriter != null) {
+                    _timingWriter.WriteLine($"{ftime};{cached};{jsFormulas};{NALCFormulas};{NALCOptFormulas}");
+                }
+
+                _values.OnDataUpdate(pm, data);
+            }
         }
 
         /// <summary>
@@ -85,6 +95,16 @@ namespace KLPlugins.Leaderboard {
                 _logFile.Dispose();
                 _logFile = null;
             }
+
+            if (_timingWriter != null) { 
+                _timingWriter.Dispose();
+                _timingWriter = null;
+            }
+
+            if (_timingFile != null) { 
+                _timingFile.Dispose();
+                _timingFile = null;
+            }
         }
 
         /// <summary>
@@ -95,6 +115,10 @@ namespace KLPlugins.Leaderboard {
         public System.Windows.Controls.Control GetWPFSettingsControl(PluginManager pluginManager) {
             return new SettingsControlDemo(this);
         }
+
+
+        private FileStream _timingFile;
+        private StreamWriter _timingWriter;
 
         /// <summary>
         /// Called once after plugins startup
@@ -107,6 +131,10 @@ namespace KLPlugins.Leaderboard {
             var gameName = (string)pluginManager.GetPropertyValue<SimHub.Plugins.DataPlugins.DataCore.DataCorePlugin>("CurrentGame");
             Game = new Game(gameName);
             if (!Game.IsAcc) return;
+            var timingFName = $"{Settings.PluginDataLocation}\\Logs\\timings\\frametime\\{PluginStartTime}.txt";
+            Directory.CreateDirectory(Path.GetDirectoryName(timingFName));
+            _timingFile = File.Create(timingFName);
+            _timingWriter = new StreamWriter(_timingFile);
 
             PManager = pluginManager;
 
@@ -211,7 +239,7 @@ namespace KLPlugins.Leaderboard {
             // Idea with properties is to add cars in overall order and then for different orderings provide indexes into overall order.
 
             void addCar(int i) {
-                var startName = $"Overall.{i + 1:00}";
+                var startName = $"Overall.{i + 1}";
                 void AddProp<T>(OutCarProp prop, Func<T> valueProvider) {
                     if (Settings.OutCarProps.Includes(prop)) this.AttachDelegate($"{startName}.{prop.ToPropName()}", valueProvider);
                 }
@@ -244,9 +272,23 @@ namespace KLPlugins.Leaderboard {
                     if (Settings.OutPitProps.Includes(prop)) this.AttachDelegate($"{startName}.{prop.ToPropName()}", valueProvider);
                 }
 
+                // Array in values
+                //AddLapProp(OutLapProp.LastLapTime, () => _values.LastLap[i]);
+                //AddLapProp(OutLapProp.BestLapTime, () => _values.BestLap[i]);
+                //if (Settings.OutDriverProps.Includes(OutDriverProp.CurrentDriverInfo)) {
+                //    var driverId = "Driver.01";
+                //    AddDriverProp(OutDriverProp.InitialPlusLastName, driverId, () => _values.DriverName[i]);
+                //}
+                //AddProp(OutCarProp.CarNumber, () => _values.CarNumbers[i]);
+                //AddProp(OutCarProp.CarClass, () => _values.CarClasses[i]);
+                //AddProp(OutCarProp.TeamCupCategory, () => _values.TeamCategory[i]);
+                //AddGapProp(OutGapProp.GapToLeader, () => _values.GapToLeader[i]);
+                //AddGapProp(OutGapProp.GapToAheadOverall, () => _values.GapToAhead[i]);
+                //AddPitProp(OutPitProp.IsInPitLane, () => _values.IsInPit[i]);
+                //AddLapProp(OutLapProp.BestLapDeltaToLeaderBest, () => _values.BestLapDeltaToLeader[i]);
+                //AddLapProp(OutLapProp.LastLapDeltaToLeaderLast, () => _values.LastLapDeltaToLeader[i]);
 
                 // Laps and sectors
-
                 AddLapProp(OutLapProp.Laps, () => _values.GetCar(i)?.NewData?.Laps);
                 AddLapProp(OutLapProp.LastLapTime, () => _values.GetCar(i)?.NewData?.LastLap?.Laptime);
                 if (Settings.OutLapProps.Includes(OutLapProp.LastLapSectors)) {
@@ -255,7 +297,7 @@ namespace KLPlugins.Leaderboard {
                     this.AttachDelegate($"{startName}.Laps.Last.S3", () => _values.GetCar(i)?.NewData?.LastLap?.Splits?[2]);
                 }
 
-                AddLapProp(OutLapProp.BestLapTime, () => _values.GetCar(i)?.NewData?.BestSessionLap.Laptime);
+                AddLapProp(OutLapProp.BestLapTime, () => _values.GetCar(i)?.NewData?.BestSessionLap?.Laptime);
                 if (Settings.OutLapProps.Includes(OutLapProp.BestLapSectors)) {
                     this.AttachDelegate($"{startName}.Laps.Best.S1", () => _values.GetCar(i)?.BestLapSectors?[0]);
                     this.AttachDelegate($"{startName}.Laps.Best.S2", () => _values.GetCar(i)?.BestLapSectors?[1]);
@@ -269,7 +311,7 @@ namespace KLPlugins.Leaderboard {
 
                 AddLapProp(OutLapProp.CurrentLapTime, () => _values.GetCar(i)?.NewData?.CurrentLap?.Laptime);
 
-   
+
                 if (Settings.OutDriverProps.Includes(OutDriverProp.CurrentDriverInfo)) {
                     var driverId = "Driver.01";
                     AddDriverProp(OutDriverProp.FirstName, driverId, () => _values.GetCar(i)?.CurrentDriver?.FirstName);
@@ -332,14 +374,14 @@ namespace KLPlugins.Leaderboard {
                 AddGapProp(OutGapProp.GapToAheadInClass, () => _values.GetCar(i)?.GapToAheadInClass);
 
 
-                // Positions
+                //// Positions
                 AddPosProp(OutPosProp.ClassPosition, () => _values.GetCar(i)?.InClassPos);
                 AddPosProp(OutPosProp.OverallPosition, () => i + 1);
                 AddPosProp(OutPosProp.ClassPositionStart, () => _values.GetCar(i)?.StartPosInClass);
                 AddPosProp(OutPosProp.OverallPositionStart, () => _values.GetCar(i)?.StartPos);
 
                 // Pit
-                AddPitProp(OutPitProp.IsInPitLane, () => _values.GetCar(i)?.NewData?.CarLocation == CarLocationEnum.Pitlane ? 1 : 0);
+                AddPitProp(OutPitProp.IsInPitLane, () => (_values.GetCar(i)?.NewData?.CarLocation ?? CarLocationEnum.NONE) == CarLocationEnum.Pitlane ? 1 : 0);
                 AddPitProp(OutPitProp.PitStopCount, () => _values.GetCar(i)?.PitCount);
                 AddPitProp(OutPitProp.PitTimeTotal, () => _values.GetCar(i)?.TotalPitTime);
                 AddPitProp(OutPitProp.PitTimeLast, () => _values.GetCar(i)?.LastPitTime);
@@ -354,6 +396,7 @@ namespace KLPlugins.Leaderboard {
                 AddLapProp(OutLapProp.BestLapDeltaToFocusedBest, () => _values.GetCar(i)?.BestLapDeltaToFocusedBest);
                 AddLapProp(OutLapProp.BestLapDeltaToAheadBest, () => _values.GetCar(i)?.BestLapDeltaToAheadBest);
                 AddLapProp(OutLapProp.BestLapDeltaToAheadInClassBest, () => _values.GetCar(i)?.BestLapDeltaToAheadInClassBest);
+
                 AddLapProp(OutLapProp.LastLapDeltaToOverallBest, () => _values.GetCar(i)?.LastLapDeltaToOverallBest);
                 AddLapProp(OutLapProp.LastLapDeltaToClassBest, () => _values.GetCar(i)?.LastLapDeltaToClassBest);
                 AddLapProp(OutLapProp.LastLapDeltaToLeaderBest, () => _values.GetCar(i)?.LastLapDeltaToLeaderBest);
@@ -362,6 +405,7 @@ namespace KLPlugins.Leaderboard {
                 AddLapProp(OutLapProp.LastLapDeltaToAheadBest, () => _values.GetCar(i)?.LastLapDeltaToAheadBest);
                 AddLapProp(OutLapProp.LastLapDeltaToAheadInClassBest, () => _values.GetCar(i)?.LastLapDeltaToAheadInClassBest);
                 AddLapProp(OutLapProp.LastLapDeltaToOwnBest, () => _values.GetCar(i)?.LastLapDeltaToOwnBest);
+
                 AddLapProp(OutLapProp.LastLapDeltaToLeaderLast, () => _values.GetCar(i)?.LastLapDeltaToLeaderLast);
                 AddLapProp(OutLapProp.LastLapDeltaToClassLeaderLast, () => _values.GetCar(i)?.LastLapDeltaToClassLeaderLast);
                 AddLapProp(OutLapProp.LastLapDeltaToFocusedLast, () => _values.GetCar(i)?.LastLapDeltaToFocusedLast);
@@ -377,10 +421,11 @@ namespace KLPlugins.Leaderboard {
                 addCar(i);
             }
 
+
             if (Settings.OutOrders.Includes(OutOrder.InClassPositions)) {
                 // Add indexes into overall order
                 void addInClassIdxs(int i) {
-                    this.AttachDelegate($"InClass.{i + 1:00}.OverallPosition", () => _values.PosInClassCarsIdxs[i] + 1);
+                    this.AttachDelegate($"InClass.{i + 1}.OverallPosition", () => _values.PosInClassCarsIdxs[i] + 1);
                 }
 
                 for (int i = 0; i < Settings.NumOverallPos; i++) {
@@ -388,9 +433,12 @@ namespace KLPlugins.Leaderboard {
                 }
             }
 
+            this.AttachDelegate($"InClass.Array", () => _values.PosInClassCarsIdxs);
+            this.AttachDelegate($"Cars.Array", () => _values.Cars);
+
             if (Settings.OutOrders.Includes(OutOrder.RelativePositions)) {
                 void addRelativeIdxs(int i) {
-                    this.AttachDelegate($"Relative.{i + 1:00}.OverallPosition", () => _values.RelativePosOnTrackCarsIdxs[i] + 1);
+                    this.AttachDelegate($"Relative.{i + 1}.OverallPosition", () => _values.RelativePosOnTrackCarsIdxs[i] + 1);
                 }
 
                 for (int i = 0; i < Settings.NumRelativePos * 2 + 1; i++) {

@@ -139,6 +139,8 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="DashPerf.png" />
+    <Content Include="ExportPerf.png" />
     <Content Include="sdkmenuicon.png" />
     <Content Include="src\JavascriptExtensions\KLPlugins_Leaderboard_Extensions.js" />
   </ItemGroup>

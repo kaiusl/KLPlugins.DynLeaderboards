@@ -449,9 +449,9 @@ namespace KLPlugins.Leaderboard.ksBroadcastingNetwork.Structs {
 
             var overallBest = overallBestLapCar?.NewData?.BestSessionLap?.Laptime;
             var classBest = classBestLapCar?.NewData?.BestSessionLap?.Laptime;
-            var leaderBest = leaderCar.NewData?.BestSessionLap?.Laptime;
-            var classLeaderBest = classLeaderCar.NewData?.BestSessionLap?.Laptime;
-            var focusedBest = focusedCar.NewData?.BestSessionLap?.Laptime;
+            var leaderBest = leaderCar?.NewData?.BestSessionLap?.Laptime;
+            var classLeaderBest = classLeaderCar?.NewData?.BestSessionLap?.Laptime;
+            var focusedBest = focusedCar?.NewData?.BestSessionLap?.Laptime;
             var aheadBest = carAhead?.NewData?.BestSessionLap?.Laptime;
             var aheadInClassBest = carAheadInClass?.NewData?.BestSessionLap?.Laptime;
 
@@ -466,8 +466,8 @@ namespace KLPlugins.Leaderboard.ksBroadcastingNetwork.Structs {
             }
 
             if (thisLast != null) {
-                if (overallBest != null) LastLapDeltaToOverallBest = (double)thisBest - (double)overallBest;
-                if (classBest != null) LastLapDeltaToClassBest = (double)thisBest - (double)classBest;
+                if (overallBest != null) LastLapDeltaToOverallBest = (double)thisLast - (double)overallBest;
+                if (classBest != null) LastLapDeltaToClassBest = (double)thisLast - (double)classBest;
                 if (leaderBest != null) LastLapDeltaToLeaderBest = (double)thisLast - (double)leaderBest;
                 if (classLeaderBest != null) LastLapDeltaToClassLeaderBest = (double)thisLast - (double)classLeaderBest;
                 if (focusedBest != null) LastLapDeltaToFocusedBest = (double)thisLast - (double)focusedBest;
@@ -475,9 +475,9 @@ namespace KLPlugins.Leaderboard.ksBroadcastingNetwork.Structs {
                 LastLapDeltaToAheadInClassBest = aheadInClassBest != null ? (double)thisLast - (double)aheadInClassBest : double.NaN;
                 if (thisBest != null) LastLapDeltaToOwnBest = (double)thisLast - (double)thisBest;
 
-                var leaderLast = leaderCar.NewData?.LastLap?.Laptime;
-                var classLeaderLast = classLeaderCar.NewData?.LastLap?.Laptime;
-                var focusedLast = focusedCar.NewData?.LastLap?.Laptime;
+                var leaderLast = leaderCar?.NewData?.LastLap?.Laptime;
+                var classLeaderLast = classLeaderCar?.NewData?.LastLap?.Laptime;
+                var focusedLast = focusedCar?.NewData?.LastLap?.Laptime;
                 var aheadLast = carAhead?.NewData?.LastLap?.Laptime;
                 var aheadInClassLast = carAheadInClass?.NewData?.LastLap?.Laptime;
 

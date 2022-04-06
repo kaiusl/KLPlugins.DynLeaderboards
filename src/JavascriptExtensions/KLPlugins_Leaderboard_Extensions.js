@@ -1,15 +1,22 @@
 // Get property `propname` for `pos`-th car overall.
 function Overall(overallPosition, propname) {
-    return $prop('LeaderboardPlugin.Overall.' + format(overallPosition, '00') + '.' + propname)
+    return $prop('LeaderboardPlugin.Overall.' + overallPosition + '.' + propname)
 }
 
-// Get property `propname` for `pos`-th car in class.
 function InClass(classPosition, propname) {
-    var overallidx = $prop('LeaderboardPlugin.InClass.' + format(classPosition, '00') + '.OverallPosition')
+    var overallidx = $prop('LeaderboardPlugin.InClass.' + classPosition + '.OverallPosition')
     if (overallidx == 0) return null;
     if (propname == "OverallPosition") return overallidx;
     return Overall(overallidx, propname)
 }
+
+// Get property `propname` for `pos`-th car in class.
+//function InClass(classPosition, propname) {
+//    var overallidx = $prop('LeaderboardPlugin.InClass.' + classPosition + '.OverallPosition')
+//    if (overallidx == 0) return null;
+//    if (propname == "OverallPosition") return overallidx;
+//    return Overall(overallidx, propname)
+//}
 
 // Get property `propname` for `pos`-th car relative to currently focused car in overall order. 
 // Note that `pos` starts from 1 and that would be the car that is `numRelPos` positions ahead 
@@ -18,6 +25,7 @@ function InClass(classPosition, propname) {
 // SimHub you probably use repeated group to build the leaderboard and it's indexer `repeatindex()` 
 // starts at 1. So we also start counting at 1.
 function OverallRelativeToFocused(relativePosition, propname, numRelPos) {
+    return null;
     var idx = relativePosition + $prop('LeaderboardPlugin.Focused.OverallPosition') - (numRelPos + 1)
     if (propname == "OverallPosition") return idx;
     return Overall(idx, propname)
@@ -28,6 +36,7 @@ function OverallRelativeToFocused(relativePosition, propname, numRelPos) {
 // from the top of overall standings and then `numRelPos` realative positions around each side 
 // of focused car. See "Relative overall" screen on example dash.
 function OverallRelativeToFocusedPartial(relativePosition, propname, numRelPos, numOverallPos) {
+    return null;
     var idx = relativePosition
     var focusedIdx = $prop('LeaderboardPlugin.Focused.OverallPosition')
     if (idx > numOverallPos && focusedIdx > numOverallPos + numRelPos) {
@@ -42,7 +51,8 @@ function OverallRelativeToFocusedPartial(relativePosition, propname, numRelPos, 
 // `pos=1` is the car that is `n` positions ahead of focused car. `pos == n+1` is the focused 
 // car and `pos == 2n+1` is the last car, `n` positions behind focused car.
 function Relative(relativePosition, propname) {
-    var overallidx = $prop('LeaderboardPlugin.Relative.' + format(relativePosition, '00') + '.OverallPosition')
+    return null;
+    var overallidx = $prop('LeaderboardPlugin.Relative.' + relativePosition + '.OverallPosition')
     if (overallidx == 0) return null;
     if (propname == "OverallPosition") return overallidx;
     return Overall(overallidx, propname)
@@ -50,6 +60,7 @@ function Relative(relativePosition, propname) {
 
 // Get property `propname` for currently focused car.
 function Focused(propname) {
+    return null;
     var overallidx =  $prop('LeaderboardPlugin.Focused.OverallPosition')
     if (overallidx == 0) return null;
     if (propname == "OverallPosition") return overallidx;
@@ -58,6 +69,7 @@ function Focused(propname) {
 
 // Get property `propname` for the car that has best lap overall.
 function OverallBestLap(propname) {
+    return null;
     var overallidx =  $prop('LeaderboardPlugin.Overall.BestLapCar.OverallPosition')
     if (overallidx == 0) return null;
     if (propname == "OverallPosition") return overallidx;
@@ -66,6 +78,7 @@ function OverallBestLap(propname) {
 
 // Get property `propname` for the car that has best lap in class.
 function InClassBestLap(propname) {
+    return null;
     var overallidx =  $prop('LeaderboardPlugin.InClass.BestLapCar.OverallPosition')
     if (overallidx == 0) return null;
     if (propname == "OverallPosition") return overallidx;

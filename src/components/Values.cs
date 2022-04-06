@@ -56,8 +56,18 @@ namespace KLPlugins.Leaderboard {
         private bool _startingPositionsSet = false;
         private const int _defaultIdxValue = -1;
 
-        private readonly object _updadeLock = new object();
-        private static Mutex mut = new Mutex();
+        //public int?[] CarNumbers = new int?[LeaderboardPlugin.Settings.NumOverallPos];
+        //public string[] DriverName = new string[LeaderboardPlugin.Settings.NumOverallPos];
+        //public string[] CarClasses = new string[LeaderboardPlugin.Settings.NumOverallPos];
+        //public string[] TeamCategory = new string[LeaderboardPlugin.Settings.NumOverallPos];
+        //public double?[] GapToLeader = new double?[LeaderboardPlugin.Settings.NumOverallPos];
+        //public double?[] GapToAhead = new double?[LeaderboardPlugin.Settings.NumOverallPos];
+        //public double?[] LastLap = new double?[LeaderboardPlugin.Settings.NumOverallPos];
+        //public double?[] BestLap = new double?[LeaderboardPlugin.Settings.NumOverallPos];
+        //public double?[] LastLapDeltaToLeader = new double?[LeaderboardPlugin.Settings.NumOverallPos];
+        //public double?[] BestLapDeltaToLeader = new double?[LeaderboardPlugin.Settings.NumOverallPos];
+        //public int?[] IsInPit = new int?[LeaderboardPlugin.Settings.NumOverallPos];
+        //public CarData[] OutCars = new CarData[LeaderboardPlugin.Settings.NumOverallPos];
 
         public Values() {
             Cars = new List<CarData>();
@@ -81,15 +91,8 @@ namespace KLPlugins.Leaderboard {
             _relativeSplinePositions.Clear();
             _startingPositionsSet = false;
             MaxDriverStintTime = -1;
-            MaxDriverTotalDriveTime = -1;
-            lock (_updadeLock) {
-                _entryListUpdateRunning = false;
-                _realtimeCarUpdate = false;
-                _realtimeUpdate = false;
-                _trackUpdate = false;
-            }
-            
-    }
+            MaxDriverTotalDriveTime = -1;           
+        }
 
         private void ResetPos() {
             for (int i = 0; i < LeaderboardPlugin.Settings.NumOverallPos; i++) {
@@ -143,6 +146,25 @@ namespace KLPlugins.Leaderboard {
         }
 
         public void OnDataUpdate(PluginManager pm, GameData data) {
+
+            //if (Cars.Count != 0) {
+            //    for (int i = 0; i < Cars.Count; i++) {
+            //        var c = Cars[i];
+            //        CarNumbers[i] = c.RaceNumber;
+            //        CarClasses[i] = c.CarClass.ToString();
+            //        DriverName[i] = c.CurrentDriver.InitialPlusLastName();
+            //        TeamCategory[i] = c.CupCategory.ToString();
+            //        GapToLeader[i] = c.GapToLeader;
+            //        GapToAhead[i] = c.GapToAhead;
+            //        LastLap[i] = c.NewData?.LastLap?.Laptime;
+            //        BestLap[i] = c.NewData?.BestSessionLap?.Laptime;
+            //        LastLapDeltaToLeader[i] = c.LastLapDeltaToLeaderLast;
+            //        BestLapDeltaToLeader[i] = c.BestLapDeltaToLeaderBest;
+            //        IsInPit[i] = (c.NewData?.CarLocation ?? CarLocationEnum.NONE) == CarLocationEnum.Pitlane ? 1 : 0;
+            //        OutCars[i] = Cars[i];
+            //    }
+            //}
+
 
         }
 
@@ -234,19 +256,11 @@ namespace KLPlugins.Leaderboard {
 
 
         private void OnBroadcastRealtimeUpdate(string sender, RealtimeUpdate update) {
-
-            if (_entryListUpdateRunning || _realtimeCarUpdate || _realtimeUpdate || _trackUpdate) {
-                LeaderboardPlugin.LogInfo($"OnRealtimeUpdate while other update was running.");
-            }
-
-            _realtimeUpdate = true;
-
             //var swatch = Stopwatch.StartNew();
             //LeaderboardPlugin.LogInfo($"RealtimeUpdate update. ThreadId={Thread.CurrentThread.ManagedThreadId}");
 
             if (RealtimeData == null) {
                 RealtimeData = new RealtimeData(update);
-                _realtimeUpdate = false;
                 return;
             } else {
                 RealtimeData.OnRealtimeUpdate(update);
@@ -272,7 +286,6 @@ namespace KLPlugins.Leaderboard {
 
 
             if (Cars.Count == 0) {
-                _realtimeUpdate = false;
                 return;
             };
             ClearMissingCars();
@@ -285,9 +298,6 @@ namespace KLPlugins.Leaderboard {
             //swatch.Stop();
             //TimeSpan ts = swatch.Elapsed;
             //File.AppendAllText($"{LeaderboardPlugin.Settings.PluginDataLocation}\\Logs\\timings\\OnRealtimeUpdate_{LeaderboardPlugin.PluginStartTime}.txt", $"{ts.TotalMilliseconds}\n");
-
-            //LeaderboardPlugin.LogInfo($"Finished RealtimeUpdate update. ThreadId={Thread.CurrentThread.ManagedThreadId}");
-            _realtimeUpdate = false;
         }
 
         private void ClearMissingCars() {
@@ -515,37 +525,20 @@ namespace KLPlugins.Leaderboard {
 
         #region EntryListUpdate
 
-        private volatile bool _entryListUpdateRunning = false;
-        private volatile bool _realtimeCarUpdate = false;
-        private volatile bool _realtimeUpdate = false;
-        private volatile bool _trackUpdate = false;
         private void OnEntryListUpdate(string sender, CarInfo car) {
             // Add new cars if not already added, update car info of all the cars (adds new drivers if some were missing)
-
-            if (_entryListUpdateRunning || _realtimeCarUpdate || _realtimeUpdate || _trackUpdate) {
-                LeaderboardPlugin.LogInfo($"OnEntryListUpdate while other update was running {_entryListUpdateRunning}, {_realtimeUpdate}, {_realtimeCarUpdate}, {_trackUpdate}");
-            }
-            _entryListUpdateRunning = true;
             var idx = Cars.FindIndex(x => x.CarIndex == car.CarIndex);
             if (idx == -1) {
                 Cars.Add(new CarData(car, null));
             } else {
                 Cars[idx].UpdateCarInfo(car);
             }
-            _entryListUpdateRunning = false;
         }
         #endregion
 
         #region RealtimeCarUpdate
         private void OnRealtimeCarUpdate(string sender, RealtimeCarUpdate update) {
-
-            //LeaderboardPlugin.LogInfo($"RealtimeCarUpdate update for car #{update.CarIndex}. ThreadId={Thread.CurrentThread.ManagedThreadId}");
-            if (_entryListUpdateRunning || _realtimeCarUpdate || _realtimeUpdate || _trackUpdate) {
-                LeaderboardPlugin.LogInfo($"OnRealtimeCarUpdate while other update was running. {_entryListUpdateRunning}, {_realtimeUpdate}, {_realtimeCarUpdate}, {_trackUpdate}");
-            }
-            _realtimeCarUpdate = true;
             if (RealtimeData == null) {
-                _realtimeCarUpdate = false;
                 return;
             };
             // Update Realtime data of existing cars
@@ -553,7 +546,6 @@ namespace KLPlugins.Leaderboard {
             var idx = Cars.FindIndex(x => x.CarIndex == update.CarIndex);
             if (idx == -1) {
                 // Car wasn't found, wait for entry list update
-                _realtimeCarUpdate = false;
                 return;
             };
             var car = Cars[idx];
@@ -571,27 +563,19 @@ namespace KLPlugins.Leaderboard {
             //    car.FirstAdded = true;
 
             //}
-            //LeaderboardPlugin.LogInfo($"Finished RealtimeCarUpdate update for car #{update.CarIndex}. ThreadId={Thread.CurrentThread.ManagedThreadId}");
-            _realtimeCarUpdate = false;
             
         }
         #endregion
 
         #region TrackUpdate
         private void OnTrackDataUpdate(string sender, TrackData update) {
-            if (_entryListUpdateRunning || _realtimeCarUpdate || _realtimeUpdate || _trackUpdate) {
-                LeaderboardPlugin.LogInfo($"OnTrackDataUpdate while other update was running.");
-            }
-
-            _trackUpdate = true;
-
+           
             //LeaderboardPlugin.LogInfo($"TrackData update. ThreadId={Thread.CurrentThread.ManagedThreadId}");
             // Update track data
             //AccBroadcastDataPlugin.LogInfo("New track update.");
             TrackData = update;
             TrackData.ReadDefBestLaps();
             //LeaderboardPlugin.LogInfo($"Finished TrackData update. ThreadId={Thread.CurrentThread.ManagedThreadId}");
-            _trackUpdate = false;
         }
         #endregion
 

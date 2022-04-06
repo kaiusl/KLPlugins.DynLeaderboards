@@ -31,11 +31,11 @@ and similarly for other orderings.
 Currently we provide:
  - `Overall(pos, propname)`: Get property `propname` for `pos`-th car overall.
  - `InClass(pos, propname)`: Get property `propname` for `pos`-th car in class.
- - `OverallRelativeToFocused(pos, propname, numRelPos)`: Get property `propname` for `pos`-th car relative to currently focused car in overall order. 
+ - `OverallRelativeToFocused(pos, propname, numRelPos)`: Get property `propname` for `pos`-th car relative to currently focused car in overall order.
  
 	Note that `pos` starts from 1 and that would be the car that is `numRelPos` positions ahead of the focused car. `pos == numRelPos + 1` is the focused car and `pos == 2numRelPos + 1` is the last car shown and `numRelPos` behind the focused car. The reason for this is that in SimHub you probably use repeated group to build the leaderboard and it's indexer `repeatindex()` starts at 1. So we also start counting at 1.
  - `OverallRelativeToFocusedPartial(pos, propname, numRelPos, numOverallPos)`: Get property `propname` for `pos`-th car relative to currently focused car in overall order or `pos`-th car overall if `pos < numOverallPos`. That is we show `numOverallPos` positions from the top of overall standings and then `numRelPos` realative positions around each side of focused car. See "Relative overall" screen on example dash.
- - `RelativeOnTrack(pos, propname)`: Get property `propname` for `pos`-th car relative to currently focused car. 
+ - `RelativeOnTrack(pos, propname)`: Get property `propname` for `pos`-th car relative on track to currently focused car. 
  
 	Note that `pos` starts from 1. That is if `n` is the number of relative position specified in settings then `pos=1` is the car that is `n` positions ahead of focused car. `pos == n+1` is the focused car and `pos == 2n+1` is the last car, `n` positions behind focused car.
  - `Focused(propname)`: Get property `propname` for currently focused car.

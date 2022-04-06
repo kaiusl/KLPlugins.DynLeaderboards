@@ -49,13 +49,13 @@ namespace KLPlugins.Leaderboard {
                 case OutLapProp.LastLapTime:
                     return "Laps.Last.Time";
                 case OutLapProp.LastLapSectors:
-                    return "Laps.Last.S";
+                    return "Laps.Last.S1/2/3";
                 case OutLapProp.BestLapTime:
                     return "Laps.Best.Time";
                 case OutLapProp.BestLapSectors:
-                    return "Laps.Best.S";
+                    return "Laps.Best.S1/2/3";
                 case OutLapProp.BestSectors:
-                    return "BestS";
+                    return "BestS1/2/3";
                 case OutLapProp.CurrentLapTime:
                     return "Laps.Current.Time";
                 case OutLapProp.BestLapDeltaToOverallBest:

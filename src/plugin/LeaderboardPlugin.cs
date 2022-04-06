@@ -433,19 +433,36 @@ namespace KLPlugins.Leaderboard {
                 }
             }
 
-            this.AttachDelegate($"InClass.Array", () => _values.PosInClassCarsIdxs);
-            this.AttachDelegate($"Cars.Array", () => _values.Cars);
-
-            if (Settings.OutOrders.Includes(OutOrder.RelativePositions)) {
+            if (Settings.OutOrders.Includes(OutOrder.RelativeOnTrackPositions)) {
                 void addRelativeIdxs(int i) {
                     this.AttachDelegate($"Relative.{i + 1}.OverallPosition", () => _values.RelativePosOnTrackCarsIdxs[i] + 1);
                 }
 
-                for (int i = 0; i < Settings.NumRelativePos * 2 + 1; i++) {
+                for (int i = 0; i < Settings.NumOnTrackRelativePos * 2 + 1; i++) {
                     addRelativeIdxs(i);
                 }
             }
 
+            if (Settings.OutOrders.Includes(OutOrder.RelativeOverallPositions)) {
+                void addRelativeOverallIdxs(int i) {
+                    this.AttachDelegate($"RelativeOverall.{i + 1}.OverallPosition", () => _values.RelativePosOverallCarsIdxs[i] + 1);
+                }
+
+                for (int i = 0; i < Settings.NumOverallRelativePos * 2 + 1; i++) {
+                    addRelativeOverallIdxs(i);
+                }
+            }
+
+            if (Settings.OutOrders.Includes(OutOrder.PartialRelativeOverallPositions)) {
+                void addPartialRelativeOverallIdxs(int i) {
+                    this.AttachDelegate($"PartialRelativeOverall.{i + 1}.OverallPosition", () => _values.PartialRelativeOverallCarsIdxs[i] + 1);
+                }
+
+                for (int i = 0; i < Settings.PartialRelativeNumOverallPos + Settings.PartialRelativeNumRelativePos * 2 + 1; i++) {
+                    addPartialRelativeOverallIdxs(i);
+                }
+            }
+           
             if (Settings.OutOrders.Includes(OutOrder.FocusedCarPosition)) this.AttachDelegate("Focused.OverallPosition", () => _values.FocusedCarIdx + 1);
             if (Settings.OutOrders.Includes(OutOrder.OverallBestLapPosition)) this.AttachDelegate("Overall.BestLapCar.OverallPosition", () => _values.GetBestLapCarIdx(CarClass.Overall) + 1);
             if (Settings.OutOrders.Includes(OutOrder.InClassBestLapPosition)) this.AttachDelegate("InClass.BestLapCar.OverallPosition", () => _values.GetFocusedClassBestLapCarIdx() + 1);

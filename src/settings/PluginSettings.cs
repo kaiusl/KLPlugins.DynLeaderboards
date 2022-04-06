@@ -13,9 +13,12 @@ namespace KLPlugins.Leaderboard {
         public string AccDataLocation { get; set; } = _defAccDataLocation;
         public bool Log { get; set; } = false;
         public int NumOverallPos { get; set; } = _defNumOverallPos;
-        public int NumRelativePos { get; set; } = _defNumRelativePos;
+        public int NumOnTrackRelativePos { get; set; } = _defNumRelativePos;
+        public int NumOverallRelativePos { get; set; } = _defNumRelativePos;
         public int NumDrivers { get; set; } = _defNumDrivers;
         public int BroadcastDataUpdateRateMs { get; set; } = _defUpdateInterval;
+        public int PartialRelativeNumOverallPos { get; set; } = 5;
+        public int PartialRelativeNumRelativePos { get; set; } = 5;
 
         public OutCarProp OutCarProps;
         public OutPitProp OutPitProps;

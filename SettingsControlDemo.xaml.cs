@@ -31,7 +31,7 @@ namespace KLPlugins.Leaderboard
             AccDataLocation_TextBox.Text = LeaderboardPlugin.Settings.AccDataLocation;
             AccDataLocation_TextBox.Background = Brushes.LightGreen;
             NumOverallPos_NumericUpDown.Value = LeaderboardPlugin.Settings.NumOverallPos;
-            NumRelativePos_NumericUpDown.Value = LeaderboardPlugin.Settings.NumRelativePos;
+            NumRelativePos_NumericUpDown.Value = LeaderboardPlugin.Settings.NumOnTrackRelativePos;
             NumDrivers_NumericUpDown.Value = LeaderboardPlugin.Settings.NumDrivers;
             UpdateInterval_NumericUpDown.Value = LeaderboardPlugin.Settings.BroadcastDataUpdateRateMs;
             Logging_ToggleButton.IsChecked = LeaderboardPlugin.Settings.Log;
@@ -248,9 +248,22 @@ namespace KLPlugins.Leaderboard
         private void AddOrderingsToggles() {
             ExposedOrderings_StackPanel.Children.Add(CreateTogglesDescriptionRow());
             ExposedOrderings_StackPanel.Children.Add(CreateToggleSeparator());
+
+            void AddSmallTitle(string name) {
+                var t = new SHSmallTitle();
+                t.Content = name;
+                ExposedOrderings_StackPanel.Children.Add(t);
+            }
+
+
+            AddSmallTitle("Orders");
             foreach (var v in (OutOrder[])Enum.GetValues(typeof(OutOrder))) {
                 if (v == OutOrder.None) continue;
-  
+
+                if (v == OutOrder.FocusedCarPosition) {
+                    AddSmallTitle("Single positions");
+                }
+
                 var sp = CreateToggleRow(
                     v.ToString(), 
                     v.ToPropName(), 
@@ -426,7 +439,7 @@ namespace KLPlugins.Leaderboard
 
         private void NumRelativePos_NumericUpDown_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double?> e) {
             if (e.NewValue != null) {
-                LeaderboardPlugin.Settings.NumRelativePos = (int)e.NewValue;
+                LeaderboardPlugin.Settings.NumOnTrackRelativePos = (int)e.NewValue;
             }
         }
 

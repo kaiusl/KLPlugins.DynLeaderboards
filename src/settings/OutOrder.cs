@@ -6,10 +6,16 @@ namespace KLPlugins.Leaderboard {
     public enum OutOrder {
         None = 0,
         InClassPositions = 1 << 1,
-        RelativePositions = 1 << 2,
-        FocusedCarPosition = 1 << 3,
-        OverallBestLapPosition = 1 << 4,
-        InClassBestLapPosition = 1 << 5,
+        RelativeOnTrackPositions = 1 << 2,
+
+        RelativeOverallPositions = 1 << 3,
+        PartialRelativeOverallPositions = 1 << 4,
+        RelativeClassPositions = 1 << 5,
+        PartialRelativeClassPositions = 1 << 6,
+
+        FocusedCarPosition = 1 << 7,
+        OverallBestLapPosition = 1 << 8,
+        InClassBestLapPosition = 1 << 9,
     }
 
     static class OutOrderExtensions {
@@ -22,9 +28,17 @@ namespace KLPlugins.Leaderboard {
                 case OutOrder.None:
                     return "None";
                 case OutOrder.InClassPositions:
-                    return "InClass.xx.OverallPosition";
-                case OutOrder.RelativePositions:
-                    return "Relative.xx.OverallPosition";
+                    return "InClass.5.OverallPosition";
+                case OutOrder.RelativeOnTrackPositions:
+                    return "Relative.5.OverallPosition";
+                case OutOrder.RelativeOverallPositions:
+                    return "RelativeOverall.5.OverallPosition";
+                case OutOrder.PartialRelativeOverallPositions:
+                    return "PartiaRelativeOverall.5.OverallPosition";
+                case OutOrder.RelativeClassPositions:
+                    return "RelativeClass.5.OverallPosition";
+                case OutOrder.PartialRelativeClassPositions:
+                    return "PartialRelativeClass.5.OverallPosition";
                 case OutOrder.FocusedCarPosition:
                     return "Focused.OverallPosition";
                 case OutOrder.OverallBestLapPosition:
@@ -43,9 +57,17 @@ namespace KLPlugins.Leaderboard {
                 case OutOrder.InClassPositions:
                     return @"Overall positions of cars in focused car's class. Used to create class leaderboards.
 For car properties use JavaScript function ´InClass(pos, propname)´";
-                case OutOrder.RelativePositions:
+                case OutOrder.RelativeOnTrackPositions:
                     return @"Overall positions of closest cars on track. Used to create relative leaderboards.
 For car properties use JavaScript function  ´Relative(pos, propname)´";
+                case OutOrder.RelativeOverallPositions:
+                    return "DESCRIPTION YET TO BE WRITTEN";
+                case OutOrder.PartialRelativeOverallPositions:
+                    return "DESCRIPTION YET TO BE WRITTEN!";
+                case OutOrder.RelativeClassPositions:
+                    return "NOT IMPLEMENTED YET!";
+                case OutOrder.PartialRelativeClassPositions:
+                    return "NOT IMPLEMENTED YET!";
                 case OutOrder.FocusedCarPosition:
                     return @"Overall position of focused car.
 For car properties use JavaScript function ´Focused(propname)´";

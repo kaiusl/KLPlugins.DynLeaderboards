@@ -40,8 +40,12 @@ namespace KLPlugins.Leaderboard {
         // We keep cars array sorted in overall position order
         // Other orderings are stored in different array containing indices into Cars list
         public List<CarData> Cars { get; private set; }
+
         public int[] PosInClassCarsIdxs { get; private set; }
         public int[] RelativePosOnTrackCarsIdxs { get; private set; }
+        public int[] RelativePosOverallCarsIdxs { get; private set; }
+        public int[] PartialRelativeOverallCarsIdxs { get; private set; }
+
         public int FocusedCarIdx { get; private set; } = _defaultIdxValue;
         public CarClassArray<int> BestLapByClassCarIdxs { get; private set; } = new CarClassArray<int>(_defaultIdxValue);
         public double MaxDriverStintTime { get; private set; } = -1;
@@ -55,6 +59,11 @@ namespace KLPlugins.Leaderboard {
         private ACCUdpRemoteClientConfig _broadcastConfig;
         private bool _startingPositionsSet = false;
         private const int _defaultIdxValue = -1;
+
+        private readonly int _numOverallPos = LeaderboardPlugin.Settings.NumOverallPos;
+        private readonly int _numOnTrackRelativePos = LeaderboardPlugin.Settings.NumOnTrackRelativePos*2 + 1;
+        private readonly int _numOverallRelativePos = LeaderboardPlugin.Settings.NumOverallRelativePos*2 + 1;
+        private readonly int _numPartialRelativeOverallPos = LeaderboardPlugin.Settings.PartialRelativeNumOverallPos + LeaderboardPlugin.Settings.PartialRelativeNumRelativePos * 2 + 1;
 
         //public int?[] CarNumbers = new int?[LeaderboardPlugin.Settings.NumOverallPos];
         //public string[] DriverName = new string[LeaderboardPlugin.Settings.NumOverallPos];
@@ -71,8 +80,11 @@ namespace KLPlugins.Leaderboard {
 
         public Values() {
             Cars = new List<CarData>();
-            PosInClassCarsIdxs = new int[LeaderboardPlugin.Settings.NumOverallPos];
-            RelativePosOnTrackCarsIdxs = new int[LeaderboardPlugin.Settings.NumRelativePos * 2 + 1];
+            PosInClassCarsIdxs = new int[_numOverallPos];
+            RelativePosOnTrackCarsIdxs = new int[_numOnTrackRelativePos];
+            RelativePosOverallCarsIdxs = new int[_numOverallRelativePos];
+            PartialRelativeOverallCarsIdxs = new int[_numPartialRelativeOverallPos];
+
             ResetPos();
             _broadcastConfig = new ACCUdpRemoteClientConfig("127.0.0.1", "KLLeaderboardPlugin", LeaderboardPlugin.Settings.BroadcastDataUpdateRateMs);
         }
@@ -95,12 +107,20 @@ namespace KLPlugins.Leaderboard {
         }
 
         private void ResetPos() {
-            for (int i = 0; i < LeaderboardPlugin.Settings.NumOverallPos; i++) {
+            for (int i = 0; i < _numOverallPos; i++) {
                 PosInClassCarsIdxs[i] = _defaultIdxValue;
             }
 
-            for (int i = 0; i < LeaderboardPlugin.Settings.NumRelativePos * 2 + 1; i++) {
+            for (int i = 0; i < _numOnTrackRelativePos; i++) {
                 RelativePosOnTrackCarsIdxs[i] = _defaultIdxValue;
+            }
+
+            for (int i = 0; i < _numOverallRelativePos; i++) {
+                RelativePosOverallCarsIdxs[i] = _defaultIdxValue;
+            }
+
+            for (int i = 0; i < _numPartialRelativeOverallPos; i++) {
+                PartialRelativeOverallCarsIdxs[i] = _defaultIdxValue;
             }
 
             _relativeSplinePositions.Clear();
@@ -291,6 +311,7 @@ namespace KLPlugins.Leaderboard {
             ClearMissingCars();
             SetOverallOrder();
             FocusedCarIdx = Cars.FindIndex(x => x.CarIndex == update.FocusedCarIndex);
+            SetOverallRelativeOrder();
             if (FocusedCarIdx != _defaultIdxValue && !RealtimeData.IsNewSession) {
                 UpdateCarData();
             }
@@ -365,6 +386,29 @@ namespace KLPlugins.Leaderboard {
 
                 Cars.Sort(cmp);
             }
+        }
+
+        private void SetOverallRelativeOrder() {
+            for (int i = 0; i < _numOverallRelativePos; i++) {
+                var idx = FocusedCarIdx - LeaderboardPlugin.Settings.NumOverallRelativePos + i;
+                RelativePosOverallCarsIdxs[i] = idx < Cars.Count && idx >= 0 ? idx : _defaultIdxValue;
+            }
+
+            for (int i = 0; i < _numPartialRelativeOverallPos; i++) {
+                var idx = i;
+                if (i > LeaderboardPlugin.Settings.PartialRelativeNumOverallPos - 1 && FocusedCarIdx > LeaderboardPlugin.Settings.PartialRelativeNumOverallPos + LeaderboardPlugin.Settings.PartialRelativeNumRelativePos) {
+                    idx += FocusedCarIdx - LeaderboardPlugin.Settings.PartialRelativeNumOverallPos - LeaderboardPlugin.Settings.PartialRelativeNumRelativePos;
+                }
+                PartialRelativeOverallCarsIdxs[i] = idx < Cars.Count ? idx : _defaultIdxValue;
+            }
+
+
+            //var idx = relativePosition
+            //var focusedIdx = $prop('LeaderboardPlugin.Focused.OverallPosition')
+            //if (idx > numOverallPos && focusedIdx > numOverallPos + numRelPos) {
+            //            idx += focusedIdx - (numRelPos + 1) - numOverallPos
+            //}
+
         }
 
         private void SetStartionOrder() {
@@ -494,26 +538,26 @@ namespace KLPlugins.Leaderboard {
 
             var ahead = _relativeSplinePositions
                 .Where(x => x.SplinePos > 0)
-                .Take(LeaderboardPlugin.Settings.NumRelativePos)
+                .Take(LeaderboardPlugin.Settings.NumOnTrackRelativePos)
                 .Reverse()
                 .ToList()
                 .ConvertAll(x => x.CarIdx);
             var behind = _relativeSplinePositions
                 .Where(x => x.SplinePos < 0)
                 .Reverse()
-                .Take(LeaderboardPlugin.Settings.NumRelativePos)
+                .Take(LeaderboardPlugin.Settings.NumOnTrackRelativePos)
                 .ToList()
                 .ConvertAll(x => x.CarIdx);
 
 
-            ahead.CopyTo(RelativePosOnTrackCarsIdxs, LeaderboardPlugin.Settings.NumRelativePos - ahead.Count);
-            RelativePosOnTrackCarsIdxs[LeaderboardPlugin.Settings.NumRelativePos] = FocusedCarIdx;
-            behind.CopyTo(RelativePosOnTrackCarsIdxs, LeaderboardPlugin.Settings.NumRelativePos + 1);
+            ahead.CopyTo(RelativePosOnTrackCarsIdxs, LeaderboardPlugin.Settings.NumOnTrackRelativePos - ahead.Count);
+            RelativePosOnTrackCarsIdxs[LeaderboardPlugin.Settings.NumOnTrackRelativePos] = FocusedCarIdx;
+            behind.CopyTo(RelativePosOnTrackCarsIdxs, LeaderboardPlugin.Settings.NumOnTrackRelativePos + 1);
 
             // Set missing positions to -1
-            var startidx = LeaderboardPlugin.Settings.NumRelativePos - ahead.Count;
-            var endidx = LeaderboardPlugin.Settings.NumRelativePos + behind.Count + 1;
-            for (int i = 0; i < LeaderboardPlugin.Settings.NumRelativePos * 2 + 1; i++) {
+            var startidx = LeaderboardPlugin.Settings.NumOnTrackRelativePos - ahead.Count;
+            var endidx = LeaderboardPlugin.Settings.NumOnTrackRelativePos + behind.Count + 1;
+            for (int i = 0; i < LeaderboardPlugin.Settings.NumOnTrackRelativePos * 2 + 1; i++) {
                 if (i < startidx || i >= endidx) {
                     RelativePosOnTrackCarsIdxs[i] = _defaultIdxValue;
                 }

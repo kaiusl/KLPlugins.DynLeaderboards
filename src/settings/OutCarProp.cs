@@ -45,6 +45,12 @@ namespace KLPlugins.Leaderboard {
                     return "IsFinished";
                 case OutCarProp.MaxSpeed:
                     return "MaxSpeed";
+                case OutCarProp.CarClassColor:
+                    return "Car.Class.Color";
+                case OutCarProp.TeamCupCategoryColor:
+                    return "Team.CupCategory.Color";
+                case OutCarProp.TeamCupCategoryTextColor:
+                    return "Team.CupCategory.TextColor";
                 default:
                     throw new ArgumentOutOfRangeException($"Invalid enum variant {p}");
             }
@@ -55,21 +61,27 @@ namespace KLPlugins.Leaderboard {
                 case OutCarProp.None:
                     return "None";
                 case OutCarProp.CarNumber:
-                    return "Car number";
+                    return "Car number.";
                 case OutCarProp.CarModel:
-                    return "Car model name";
+                    return "Car model name.";
                 case OutCarProp.CarManufacturer:
-                    return "Car manufacrurer";
+                    return "Car manufacrurer.";
                 case OutCarProp.CarClass:
-                    return "Car class (GT3, GT4, ST15, ST21, CHL, CUP17, CUP21, TCX)";
+                    return "Car class (GT3, GT4, ST15, ST21, CHL, CUP17, CUP21, TCX).";
                 case OutCarProp.TeamName:
-                    return "Team name";
+                    return "Team name.";
                 case OutCarProp.TeamCupCategory:
-                    return "Team cup category (Overall/Pro, ProAm, Am, Silver, National)";
+                    return "Team cup category (Overall/Pro, ProAm, Am, Silver, National).";
                 case OutCarProp.IsFinished:
                     return "Is the car finished?";
                 case OutCarProp.MaxSpeed:
                     return "Maximum speed in this session.";
+                case OutCarProp.CarClassColor:
+                    return "Car class color.";
+                case OutCarProp.TeamCupCategoryColor:
+                    return "Team cup category background color.";
+                case OutCarProp.TeamCupCategoryTextColor:
+                    return "Team cup category text color.";
                 default:
                     throw new ArgumentOutOfRangeException($"Invalid enum variant {p}");
             }

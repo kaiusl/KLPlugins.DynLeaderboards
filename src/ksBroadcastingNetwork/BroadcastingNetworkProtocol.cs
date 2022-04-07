@@ -161,7 +161,7 @@ namespace KLPlugins.Leaderboard.ksBroadcastingNetwork {
                         carInfo.CarClass = carInfo.CarModelType.GetClass();
                         carInfo.TeamName = ReadString(br);
                         carInfo.RaceNumber = br.ReadInt32();
-                        carInfo.CupCategory = (CupCategory)br.ReadByte(); // Cup: Overall/Pro = 0, ProAm = 1, Am = 2, Silver = 3, National = 4
+                        carInfo.CupCategory = (TeamCupCategory)br.ReadByte(); // Cup: Overall/Pro = 0, ProAm = 1, Am = 2, Silver = 3, National = 4
                         carInfo.CurrentDriverIndex = br.ReadByte();
                         carInfo.Nationality = (NationalityEnum)br.ReadUInt16();
 

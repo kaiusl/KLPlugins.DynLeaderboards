@@ -18,10 +18,13 @@ namespace KLPlugins.Leaderboard.ksBroadcastingNetwork.Structs {
         public CarClass CarClass { get; internal set; }
         public string TeamName { get; internal set; }
         public int RaceNumber { get; internal set; }
-        public CupCategory CupCategory { get; internal set; }
+        public TeamCupCategory TeamCupCategory { get; internal set; }
         private int _currentDriverIndex { get; set; }
         public List<DriverData> Drivers { get; internal set; } = new List<DriverData>();
         public NationalityEnum TeamNationality { get; internal set; }
+        public string CarClassColor => LeaderboardPlugin.Settings.CarClassColors[CarClass];
+        public string TeamCupCategoryColor => LeaderboardPlugin.Settings.TeamCupCategoryColors[TeamCupCategory];
+        public string TeamCupCategoryTextColor => LeaderboardPlugin.Settings.TeamCupCategoryTextColors[TeamCupCategory];
 
         // RealtimeCarUpdates
         public RealtimeCarUpdate NewData { get; private set; } = null;
@@ -117,7 +120,7 @@ namespace KLPlugins.Leaderboard.ksBroadcastingNetwork.Structs {
             CarClass = info.CarClass;
             TeamName = info.TeamName;
             RaceNumber = info.RaceNumber;
-            CupCategory = info.CupCategory;
+            TeamCupCategory = info.CupCategory;
             _currentDriverIndex = info.CurrentDriverIndex;
             CurrentDriverIndex = _currentDriverIndex;
             foreach (var d in info.Drivers) {

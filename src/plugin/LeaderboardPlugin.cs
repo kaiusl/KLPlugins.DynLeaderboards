@@ -343,11 +343,15 @@ namespace KLPlugins.Leaderboard {
                 AddProp(OutCarProp.CarManufacturer, () => _values.GetCar(i)?.CarModelType.GetMark());
                 AddProp(OutCarProp.CarClass, () => _values.GetCar(i)?.CarClass.ToString());
                 AddProp(OutCarProp.TeamName, () => _values.GetCar(i)?.TeamName);
-                AddProp(OutCarProp.TeamCupCategory, () => _values.GetCar(i)?.CupCategory.ToString());
+                AddProp(OutCarProp.TeamCupCategory, () => _values.GetCar(i)?.TeamCupCategory.ToString());
                 AddStintProp(OutStintProp.CurrentStintTime, () => _values.GetCar(i)?.CurrentStintTime);
                 AddStintProp(OutStintProp.LastStintTime, () => _values.GetCar(i)?.LastStintTime);
                 AddStintProp(OutStintProp.CurrentStintLaps, () => _values.GetCar(i)?.CurrentStintLaps);
                 AddStintProp(OutStintProp.LastStintLaps, () => _values.GetCar(i)?.LastStintLaps);
+
+                AddProp(OutCarProp.CarClassColor, () => _values.GetCar(i)?.CarClassColor);
+                AddProp(OutCarProp.TeamCupCategoryColor, () => _values.GetCar(i)?.TeamCupCategoryColor);
+                AddProp(OutCarProp.TeamCupCategoryTextColor, () => _values.GetCar(i)?.TeamCupCategoryTextColor);
 
                 // Gaps and distances
                 AddDistanceProp(OutDistanceProp.DistanceToLeader, () => _values.GetCar(i)?.DistanceToLeader);
@@ -471,13 +475,13 @@ namespace KLPlugins.Leaderboard {
                 addClassColor(cls);
             }
 
-            void addCupColor(CupCategory cup) {
-                this.AttachDelegate($"Color.Cup.{cup}", () => Settings.CupColors[cup]);
-                this.AttachDelegate($"Color.Cup.{cup}.Text", () => Settings.CupTextColors[cup]);
+            void addCupColor(TeamCupCategory cup) {
+                this.AttachDelegate($"Color.Cup.{cup}", () => Settings.TeamCupCategoryColors[cup]);
+                this.AttachDelegate($"Color.Cup.{cup}.Text", () => Settings.TeamCupCategoryTextColors[cup]);
             }
 
-            foreach (var c in Enum.GetValues(typeof(CupCategory))) {
-                addCupColor((CupCategory)c);
+            foreach (var c in Enum.GetValues(typeof(TeamCupCategory))) {
+                addCupColor((TeamCupCategory)c);
             }
 
             void addDriverCategoryColor(DriverCategory cat) {

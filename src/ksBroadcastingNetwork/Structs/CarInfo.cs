@@ -14,7 +14,7 @@ namespace KLPlugins.Leaderboard.ksBroadcastingNetwork.Structs
         public CarClass CarClass { get; internal set; }
         public string TeamName { get; internal set; }
         public int RaceNumber { get; internal set; }
-        public CupCategory CupCategory { get; internal set; }
+        public TeamCupCategory CupCategory { get; internal set; }
         public int CurrentDriverIndex { get; internal set; }
         public IList<DriverInfo> Drivers { get; } = new List<DriverInfo>();
         public NationalityEnum Nationality { get; internal set; }

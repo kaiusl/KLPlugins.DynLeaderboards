@@ -24,8 +24,8 @@ namespace KLPlugins.Leaderboard
         public PluginSettings Settings { get => LeaderboardPlugin.Settings; }
 
         private Dictionary<CarClass, ColorPicker> _classColorPickers = new Dictionary<CarClass, ColorPicker>(8);
-        private Dictionary<CupCategory, ColorPicker> _cupColorPickers = new Dictionary<CupCategory, ColorPicker>(5);
-        private Dictionary<CupCategory, ColorPicker> _cupTextColorPickers = new Dictionary<CupCategory, ColorPicker>(5);
+        private Dictionary<TeamCupCategory, ColorPicker> _cupColorPickers = new Dictionary<TeamCupCategory, ColorPicker>(5);
+        private Dictionary<TeamCupCategory, ColorPicker> _cupTextColorPickers = new Dictionary<TeamCupCategory, ColorPicker>(5);
         private Dictionary<DriverCategory, ColorPicker> _driverCategoryColorPickers = new Dictionary<DriverCategory, ColorPicker>(4);
 
         public SettingsControlDemo() {
@@ -116,8 +116,8 @@ namespace KLPlugins.Leaderboard
             TeamCupColors_StackPanel.Children.Add(sp);
 
 
-            foreach (var c in Enum.GetValues(typeof(CupCategory))) {
-                var cup = (CupCategory)c;
+            foreach (var c in Enum.GetValues(typeof(TeamCupCategory))) {
+                var cup = (TeamCupCategory)c;
 
                 sp = new StackPanel();
                 sp.Orientation = Orientation.Horizontal;
@@ -129,8 +129,8 @@ namespace KLPlugins.Leaderboard
                 var cp1 = new ColorPicker();
                 cp1.Width = 100;
                 cp1.Height = 25;
-                cp1.SelectedColor = (Color)ColorConverter.ConvertFromString(LeaderboardPlugin.Settings.CupColors[cup]);
-                cp1.SelectedColorChanged += (sender, e) => SelectedColorChanged(sender, e, cup, LeaderboardPlugin.Settings.CupColors);
+                cp1.SelectedColor = (Color)ColorConverter.ConvertFromString(LeaderboardPlugin.Settings.TeamCupCategoryColors[cup]);
+                cp1.SelectedColorChanged += (sender, e) => SelectedColorChanged(sender, e, cup, LeaderboardPlugin.Settings.TeamCupCategoryColors);
                 _cupColorPickers.Add(cup, cp1);
 
                 var btn1 = new SHButtonPrimary();
@@ -143,8 +143,8 @@ namespace KLPlugins.Leaderboard
                 cp2.Margin = new Thickness(25, 0, 0, 0);
                 cp2.Width = 100;
                 cp2.Height = 25;
-                cp2.SelectedColor = (Color)ColorConverter.ConvertFromString(LeaderboardPlugin.Settings.CupTextColors[cup]);
-                cp2.SelectedColorChanged += (sender, e) => SelectedColorChanged(sender, e, cup, LeaderboardPlugin.Settings.CupTextColors);
+                cp2.SelectedColor = (Color)ColorConverter.ConvertFromString(LeaderboardPlugin.Settings.TeamCupCategoryTextColors[cup]);
+                cp2.SelectedColorChanged += (sender, e) => SelectedColorChanged(sender, e, cup, LeaderboardPlugin.Settings.TeamCupCategoryTextColors);
                 _cupTextColorPickers.Add(cup, cp2);
 
                 var btn2 = new SHButtonPrimary();
@@ -209,13 +209,13 @@ namespace KLPlugins.Leaderboard
             _classColorPickers[cls].SelectedColor = (Color)ColorConverter.ConvertFromString(cls.GetACCColor());
         }
 
-        private void TeamCupColorPickerReset(CupCategory cup) {
-            LeaderboardPlugin.Settings.CupColors[cup] = cup.GetACCColor();
+        private void TeamCupColorPickerReset(TeamCupCategory cup) {
+            LeaderboardPlugin.Settings.TeamCupCategoryColors[cup] = cup.GetACCColor();
             _cupColorPickers[cup].SelectedColor = (Color)ColorConverter.ConvertFromString(cup.GetACCColor());
         }
 
-        private void TeamCupTextColorPickerReset(CupCategory cup) {
-            LeaderboardPlugin.Settings.CupTextColors[cup] = cup.GetACCColor();
+        private void TeamCupTextColorPickerReset(TeamCupCategory cup) {
+            LeaderboardPlugin.Settings.TeamCupCategoryTextColors[cup] = cup.GetACCColor();
             _cupTextColorPickers[cup].SelectedColor = (Color)ColorConverter.ConvertFromString(cup.GetACCTextColor());
         }
 

@@ -348,34 +348,34 @@ namespace KLPlugins.Leaderboard.Enums {
             }
         }
 
-        public static string GetACCColor(this CupCategory c) {
+        public static string GetACCColor(this TeamCupCategory c) {
             switch (c) {
-                case CupCategory.Overall:
+                case TeamCupCategory.Overall:
                     return "#FFFFFFFF";
-                case CupCategory.ProAm:
+                case TeamCupCategory.ProAm:
                     return "#FF000000";
-                case CupCategory.Am:
+                case TeamCupCategory.Am:
                     return "#FFE80000";
-                case CupCategory.Silver:
+                case TeamCupCategory.Silver:
                     return "#FF666666";
-                case CupCategory.National:
+                case TeamCupCategory.National:
                     return "#FF008F4B";
                 default:
                     return "#FF000000";
             }
         }
 
-        public static string GetACCTextColor(this CupCategory c) {
+        public static string GetACCTextColor(this TeamCupCategory c) {
             switch (c) {
-                case CupCategory.Overall:
+                case TeamCupCategory.Overall:
                     return "#FF000000";
-                case CupCategory.ProAm:
+                case TeamCupCategory.ProAm:
                     return "#FFFFFFFF";
-                case CupCategory.Am:
+                case TeamCupCategory.Am:
                     return "#FF000000";
-                case CupCategory.Silver:
+                case TeamCupCategory.Silver:
                     return "#FFFFFFFF";
-                case CupCategory.National:
+                case TeamCupCategory.National:
                     return "#FFFFFFFF";
                 default:
                     return "#FF000000";

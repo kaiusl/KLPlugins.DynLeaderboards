@@ -67,7 +67,7 @@ namespace KLPlugins.Leaderboard.ksBroadcastingNetwork {
         BestPersonalLap = 7
     };
 
-	public enum CupCategory { 
+	public enum TeamCupCategory { 
 		Overall = 0,
 		ProAm = 1,
 		Am = 2,

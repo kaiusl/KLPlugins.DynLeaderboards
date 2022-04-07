@@ -35,8 +35,8 @@ namespace KLPlugins.Leaderboard {
         public OutLapProp OutLapProps;
 
         public Dictionary<CarClass, string> CarClassColors { get; set; } = CreateDefCarClassColors();
-        public Dictionary<CupCategory, string> CupColors { get; set; } = CreateDefCupColors();
-        public Dictionary<CupCategory, string> CupTextColors { get; set; } = CreateDefCupTextColors();
+        public Dictionary<TeamCupCategory, string> TeamCupCategoryColors { get; set; } = CreateDefCupColors();
+        public Dictionary<TeamCupCategory, string> TeamCupCategoryTextColors { get; set; } = CreateDefCupTextColors();
         public Dictionary<DriverCategory, string> DriverCategoryColors { get; set; } = CreateDefDriverCategoryColors();
 
         private const string _defPluginsDataLocation = "PluginsData\\KLPlugins\\Leaderboard";
@@ -59,19 +59,19 @@ namespace KLPlugins.Leaderboard {
             return carClassColors;
         }
 
-        private static Dictionary<CupCategory, string> CreateDefCupColors() {
-            var cupColors = new Dictionary<CupCategory, string>(5);
-            foreach (var c in Enum.GetValues(typeof(CupCategory))) {
-                var cup = (CupCategory)c;
+        private static Dictionary<TeamCupCategory, string> CreateDefCupColors() {
+            var cupColors = new Dictionary<TeamCupCategory, string>(5);
+            foreach (var c in Enum.GetValues(typeof(TeamCupCategory))) {
+                var cup = (TeamCupCategory)c;
                 cupColors.Add(cup, cup.GetACCColor());
             }
             return cupColors;
         }
 
-        private static Dictionary<CupCategory, string> CreateDefCupTextColors() {
-            var cupTextColors = new Dictionary<CupCategory, string>(5);
-            foreach (var c in Enum.GetValues(typeof(CupCategory))) {
-                var cup = (CupCategory)c;
+        private static Dictionary<TeamCupCategory, string> CreateDefCupTextColors() {
+            var cupTextColors = new Dictionary<TeamCupCategory, string>(5);
+            foreach (var c in Enum.GetValues(typeof(TeamCupCategory))) {
+                var cup = (TeamCupCategory)c;
                 cupTextColors.Add(cup, cup.GetACCTextColor());
             }
             return cupTextColors;

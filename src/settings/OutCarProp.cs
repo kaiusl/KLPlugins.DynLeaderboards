@@ -14,9 +14,12 @@ namespace KLPlugins.Leaderboard {
         CarClass = 1 << 3,
         TeamName = 1 << 4,
         TeamCupCategory = 1 << 5,
+        CarClassColor = 1 << 6,
+        TeamCupCategoryColor = 1 << 7,
+        TeamCupCategoryTextColor = 1 << 8,
 
-        IsFinished = 1 << 6,
-        MaxSpeed = 1 << 7,
+        IsFinished = 1 << 9,
+        MaxSpeed = 1 << 10,
     }
 
     static class OutCarPropExtensions {

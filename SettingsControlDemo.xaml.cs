@@ -6,6 +6,8 @@ using SimHub.Plugins.Styles;
 using System.IO;
 using System.Windows.Media;
 using MdXaml;
+using System.Windows.Data;
+using MahApps.Metro.Controls;
 
 namespace KLPlugins.Leaderboard
 {
@@ -15,9 +17,12 @@ namespace KLPlugins.Leaderboard
     public partial class SettingsControlDemo : UserControl
     {
         public LeaderboardPlugin Plugin { get; }
+        public PluginSettings Settings { get => LeaderboardPlugin.Settings; }
+        
 
         public SettingsControlDemo() {
             InitializeComponent();
+            DataContext = this;
         }
 
         public SettingsControlDemo(LeaderboardPlugin plugin) : this() {
@@ -30,10 +35,6 @@ namespace KLPlugins.Leaderboard
             AllDriversInfo_ToggleButton.IsChecked = LeaderboardPlugin.Settings.OutDriverProps.Includes(OutDriverProp.AllDriversInfo);
             AccDataLocation_TextBox.Text = LeaderboardPlugin.Settings.AccDataLocation;
             AccDataLocation_TextBox.Background = Brushes.LightGreen;
-            NumOverallPos_NumericUpDown.Value = LeaderboardPlugin.Settings.NumOverallPos;
-            NumRelativePos_NumericUpDown.Value = LeaderboardPlugin.Settings.NumOnTrackRelativePos;
-            NumDrivers_NumericUpDown.Value = LeaderboardPlugin.Settings.NumDrivers;
-            UpdateInterval_NumericUpDown.Value = LeaderboardPlugin.Settings.BroadcastDataUpdateRateMs;
             Logging_ToggleButton.IsChecked = LeaderboardPlugin.Settings.Log;
 
             // Add listeners to drivers toggles
@@ -43,6 +44,7 @@ namespace KLPlugins.Leaderboard
             AllDriversInfo_ToggleButton.Unchecked += (sender, ee) => TbChanged<OutDriverProp>(sender, ee, (o) => LeaderboardPlugin.Settings.OutDriverProps.Remove(o));
         }
 
+        #region Add ui items
         private void AddPluginDescription() {
             ExposedOrderingsInfo_TextBlock.Text = @"Here you can select all other orderings like per class or relative to the focusd car.";
             PluginInfoMarkdown.Markdown = File.ReadAllText($"{LeaderboardPlugin.Settings.PluginDataLocation}\\README.md"); ;
@@ -360,6 +362,9 @@ namespace KLPlugins.Leaderboard
             return s;
         }
 
+        #endregion
+
+        #region Callbacks
         /// <summary>
         /// Called when property toggle button changes.
         /// </summary>
@@ -398,28 +403,6 @@ namespace KLPlugins.Leaderboard
             LeaderboardPlugin.Settings.OutDriverProps.Combine(OutDriverProp.AllDriversInfo);
         }
 
-        private void UserControl_Loaded(object sender, RoutedEventArgs e) {
-            //foreach (var v in (ExposedProperties[])Enum.GetValues(typeof(ExposedProperties))) {
-
-
-            //    var sp = new StackPanel();
-            //    sp.Orientation = Orientation.Horizontal;
-            //    var tb = new SHToggleButton();
-            //    tb.Name = $"{v}_toggle";
-            //    tb.Checked += Tb_Checked;
-            //    tb.Unchecked += Tb_Unchecked;
-            //    tb.IsChecked = (LeaderboardPlugin.Settings.ExposedProperties & v) != 0;
-            //    var t = new TextBlock();
-            //    t.Text = $"{v}";
-            //    sp.Children.Add(tb);
-            //    sp.Children.Add(t);
-
-            //    ExposedPropertiesStackPanel.Children.Add(sp);
-            //}
-
-
-            //NumLapsToggle.IsChecked = LeaderboardPlugin.Settings.NumberOfLaps;
-        }
 
         private void AccDataLocation_TextChanged(object sender, TextChangedEventArgs e) {
             var success = LeaderboardPlugin.Settings.SetAccDataLocation(AccDataLocation_TextBox.Text);
@@ -431,32 +414,10 @@ namespace KLPlugins.Leaderboard
             
         }
 
-        private void NumOverallPos_NumericUpDown_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double?> e) {
-            if (e.NewValue != null) { 
-                LeaderboardPlugin.Settings.NumOverallPos = (int)e.NewValue;
-            }
-        }
-
-        private void NumRelativePos_NumericUpDown_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double?> e) {
-            if (e.NewValue != null) {
-                LeaderboardPlugin.Settings.NumOnTrackRelativePos = (int)e.NewValue;
-            }
-        }
-
-        private void NumDrivers_NumericUpDown_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double?> e) {
-            if (e.NewValue != null) {
-                LeaderboardPlugin.Settings.NumDrivers = (int)e.NewValue;
-            }
-        }
-
-        private void UpdateRate_NumericUpDown_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double?> e) {
-            if (e.NewValue != null) { 
-                LeaderboardPlugin.Settings.BroadcastDataUpdateRateMs = (int)e.NewValue;
-            }
-        }
-
         private void Logging_ToggleButton_Click(object sender, RoutedEventArgs e) {
             LeaderboardPlugin.Settings.Log = !LeaderboardPlugin.Settings.Log;
         }
+
+        #endregion
     }
 }

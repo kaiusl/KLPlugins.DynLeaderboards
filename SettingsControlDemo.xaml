@@ -9,8 +9,8 @@
              xmlns:Mah="http://metro.mahapps.com/winfx/xaml/controls"
              xmlns:ui="clr-namespace:SimHub.Plugins.UI;assembly=SimHub.Plugins" 
              xmlns:mdxam="clr-namespace:MdXaml;assembly=MdXaml"
-             d:DesignHeight="300" d:DesignWidth="600" 
-             Loaded="UserControl_Loaded">
+             d:DesignHeight="300" d:DesignWidth="600"
+             >
 
     <UserControl.Resources>
         <!-- Limit tooltip width. -->
@@ -166,24 +166,64 @@
 
                 <StackPanel Orientation="Horizontal">
                     <TextBlock Text="Number of overall positions: " Width="200"/>
-                    <Mah:NumericUpDown x:Name="NumOverallPos_NumericUpDown" 
+                    <Mah:NumericUpDown x:Name="Overall_NumPos_NumericUpDown" 
                                            HasDecimals="False" 
                                            Width="100" 
                                            Minimum="0" Maximum="100" Interval="1" 
-                                           ValueChanged="NumOverallPos_NumericUpDown_ValueChanged"
+                                           Value="{Binding Path=Settings.NumOverallPos}"
                                            ToolTip="Set number of overall positions exposed as properties. Note that this must be larger than all the cars as otherwise in class and relative positions may be missing some cars."/>
                 </StackPanel>
 
-                <!-- Num relative pos -->
+                <!-- Num relative overall pos -->
+
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="Number of relative overall positions: " Width="200"/>
+                    <Mah:NumericUpDown x:Name="OverallRelative_NumPos_NumericUpDown" 
+                                           HasDecimals="False" 
+                                           Width="100" 
+                                           Minimum="0" Maximum="50" Interval="1" 
+                                           Value="{Binding Path=Settings.NumOverallRelativePos}"
+                                           ToolTip="Set number of overall relative positions exposed from the focused car in one direction. That is if it's set to 5, we show 5 cars ahead and 5 behind."
+                                           />
+                </StackPanel>
+
+                <!-- Num relative on track pos -->
                 
                 <StackPanel Orientation="Horizontal">
-                    <TextBlock Text="Number of relative positions: " Width="200"/>
-                    <Mah:NumericUpDown x:Name="NumRelativePos_NumericUpDown" 
+                    <TextBlock Text="Number of relative on track positions: " Width="200"/>
+                    <Mah:NumericUpDown x:Name="OnTrackRelative_NumPos_NumericUpDown" 
+                                           HasDecimals="False" 
+                                           Width="100" 
+                                           Minimum="0" Maximum="50" Interval="1" 
+                                           Value="{Binding Path=Settings.NumOnTrackRelativePos}"
+                                           ToolTip="Set number of on track relative positions exposed from the focused car in one direction. That is if it's set to 5, we show 5 cars ahead and 5 behind."
+                                           />
+                </StackPanel>
+
+                <!-- Num partial relative overall pos -->
+
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="Number of partial relative overall leaderboard overall positions: " Width="200"/>
+                    <Mah:NumericUpDown x:Name="PartialRelativeOverall_NumOverallPos_NumericUpDown" 
                                            HasDecimals="False" 
                                            Width="100" 
                                            Minimum="0" Maximum="100" Interval="1" 
-                                           ValueChanged="NumRelativePos_NumericUpDown_ValueChanged"
-                                           ToolTip="Set number of relative positions exposed from the focused car in one direction. That is if it's set to 5, we show 5 cars ahead and 5 behind."
+                                           Value="{Binding Path=Settings.PartialRelativeNumOverallPos}"
+                                           ToolTip="Set number of overall positions exposed for partial relative leaderboard."
+                                           />
+                </StackPanel>
+
+
+                <!-- Num partial relative relative pos -->
+
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="Number of partial relative overall leaderboard relative positions: " Width="200"/>
+                    <Mah:NumericUpDown x:Name="PartialRelativeOverall_NumRelativePos_NumericUpDown" 
+                                           HasDecimals="False" 
+                                           Width="100" 
+                                           Minimum="0" Maximum="50" Interval="1" 
+                                           Value="{Binding Path=Settings.PartialRelativeNumRelativePos}"
+                                           ToolTip="Set number of relative positions exposed for partial relative leaderboard from the focused car in one direction. That is if it's set to 5, we show 5 cars ahead and 5 behind."
                                            />
                 </StackPanel>
 
@@ -195,7 +235,7 @@
                                            HasDecimals="False" 
                                            Width="100" 
                                            Minimum="0" Maximum="10" Interval="1" 
-                                           ValueChanged="NumDrivers_NumericUpDown_ValueChanged"
+                                           Value="{Binding Path=Settings.NumDrivers}"
                                            ToolTip="Set number of drivers shown per car. Should be higher or equal to the number of maximum drivers possible for you."/>
                 </StackPanel>
 
@@ -207,7 +247,7 @@
                                         HasDecimals="False" 
                                         Width="100" 
                                         Minimum="10" Maximum="5000" Interval="10" 
-                                        ValueChanged="UpdateRate_NumericUpDown_ValueChanged"
+                                        Value="{Binding Path=Settings.BroadcastDataUpdateRateMs}"
                                         ToolTip="Sets the update interval of data from ACC. As leaderboard data doesn't change that fast something around 1000ms should work very well. But you can go lower to provide smoother visuals."/>
                 </StackPanel>
 

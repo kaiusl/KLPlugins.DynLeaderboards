@@ -158,6 +158,9 @@
     <None Include="packages.config" />
     <None Include="README.md" />
   </ItemGroup>
+  <ItemGroup>
+    <Folder Include="src\xaml\" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="AfterBuild">
     <Copy SourceFiles="$(ProjectDir)src\JavascriptExtensions\KLPlugins_Leaderboard_Extensions.js" DestinationFolder="C:\Program Files\SimHub\JavascriptExtensions" ContinueOnError="true" />

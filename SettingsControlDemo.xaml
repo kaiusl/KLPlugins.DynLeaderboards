@@ -146,121 +146,224 @@
     <styles:SHTabControl>
         <styles:SHTabItem  Header="Plugin info">
             <mdxam:MarkdownScrollViewer x:Name="PluginInfoMarkdown" MarkdownStyle="{StaticResource DocumentStyle}" />
-
         </styles:SHTabItem>
 
-
         <styles:SHTabItem Header="General settings">
-            <StackPanel x:Name="GenSettings_StackPanel" Margin="20" CanVerticallyScroll="True">
+            <StackPanel x:Name="GenSettings_StackPanel" Margin="20,0,20,0">
+                <StackPanel.Resources>
+
+                    <Style x:Key="Description" TargetType="TextBlock">
+                        <Setter Property="HorizontalAlignment" Value="Left"/>
+                        <Setter Property="VerticalAlignment" Value="Center"/>
+                        <Setter Property="TextWrapping" Value="Wrap"/>
+                    </Style>
+
+                    <Style x:Key="NumPos" TargetType="mah:NumericUpDown">
+                        <Setter Property="HorizontalAlignment" Value="Left"/>
+                        <Setter Property="VerticalAlignment" Value="Center"/>
+                        <Setter Property="Height" Value="25"/>
+                        <Setter Property="Width" Value="100"/>
+                        <Setter Property="HasDecimals" Value="False"/>
+                        <Setter Property="Minimum" Value="0"/>
+                        <Setter Property="Maximum" Value="100"/>
+                        <Setter Property="Interval" Value="1"/>
+                    </Style>
+
+                    <Style TargetType="Separator">
+                        <Setter Property="Background" Value="LightGray"/>
+                        <Setter Property="Height" Value="1"/>
+                        <Setter Property="Margin" Value="0,0,20,0"/>
+                    </Style>
+
+                </StackPanel.Resources>
 
                 <!-- ACC Config location -->
-                
-                <StackPanel Orientation="Horizontal">
-                    <TextBlock Text="ACC configuration location: " Width="200"/>
-                    <TextBox x:Name="AccDataLocation_TextBox" Width="500" 
-                                 HorizontalAlignment="Left" 
-                                 TextChanged="AccDataLocation_TextChanged" 
-                                 ToolTip="Location of ACC configuration folder. That is where for example ..\Config\broadcasting.json is located."/>
-                </StackPanel>
+
+                <Grid ToolTip="Location of ACC configuration folder. That is where for example ..\Config\broadcasting.json is located.">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition MaxWidth="500"/>
+                        <ColumnDefinition MinWidth="300"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition MinHeight="35"/>
+                    </Grid.RowDefinitions>
+
+                    <TextBlock Grid.Column="0" Style="{StaticResource Description}">ACC configuration location:</TextBlock>
+                    <TextBox Grid.Column="1" x:Name="AccDataLocation_TextBox"
+                             Height="25"
+                             HorizontalAlignment="Left" 
+                             VerticalAlignment="Center"
+                             TextChanged="AccDataLocation_TextChanged"
+                             />
+                </Grid>
+                <Separator/>
 
                 <!-- Num overall pos -->
 
-                <StackPanel Orientation="Horizontal">
-                    <TextBlock Text="Number of overall positions: " Width="200"/>
-                    <mah:NumericUpDown x:Name="Overall_NumPos_NumericUpDown" 
-                                           HasDecimals="False" 
-                                           Width="100" 
-                                           Minimum="0" Maximum="100" Interval="1" 
-                                           Value="{Binding Path=Settings.NumOverallPos}"
-                                           ToolTip="Set number of overall positions exposed as properties. Note that this must be larger than all the cars as otherwise in class and relative positions may be missing some cars."/>
-                </StackPanel>
+                <Grid ToolTip="Set number of overall positions exposed as properties. Note that this must be larger than all the cars as otherwise in class and relative positions may be missing some cars.">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition MaxWidth="500"/>
+                        <ColumnDefinition MinWidth="100"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition MinHeight="35"/>
+                    </Grid.RowDefinitions>
+
+                    <TextBlock Grid.Column="0" Text="Number of overall positions" Style="{StaticResource Description}"/>
+                    <mah:NumericUpDown Grid.Column="1" x:Name="Overall_NumPos_NumericUpDown"
+                                       Style="{StaticResource NumPos}"
+                                       Value="{Binding Path=Settings.NumOverallPos}"
+                                       />
+                </Grid>
+                <Separator/>
+
 
                 <!-- Num relative overall pos -->
 
-                <StackPanel Orientation="Horizontal">
-                    <TextBlock Text="Number of relative overall positions: " Width="200"/>
-                    <mah:NumericUpDown x:Name="OverallRelative_NumPos_NumericUpDown" 
-                                           HasDecimals="False" 
-                                           Width="100" 
-                                           Minimum="0" Maximum="50" Interval="1" 
-                                           Value="{Binding Path=Settings.NumOverallRelativePos}"
-                                           ToolTip="Set number of overall relative positions exposed from the focused car in one direction. That is if it's set to 5, we show 5 cars ahead and 5 behind."
-                                           />
-                </StackPanel>
+                <Grid ToolTip="Set number of overall relative positions exposed from the focused car in one direction. That is if it's set to 5, we show 5 cars ahead and 5 behind.">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition MaxWidth="500"/>
+                        <ColumnDefinition MinWidth="100"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition MinHeight="35"/>
+                    </Grid.RowDefinitions>
+                    <TextBlock Grid.Column="0" Text="Number of relative overall positions" Style="{StaticResource Description}"/>
+                    <mah:NumericUpDown Grid.Column="1" x:Name="OverallRelative_NumPos_NumericUpDown" 
+                                       Style="{StaticResource NumPos}"
+                                       Maximum="50"
+                                       Value="{Binding Path=Settings.NumOverallRelativePos}"
+                                       />
+
+                </Grid>
+                <Separator/>
+
 
                 <!-- Num relative on track pos -->
-                
-                <StackPanel Orientation="Horizontal">
-                    <TextBlock Text="Number of relative on track positions: " Width="200"/>
-                    <mah:NumericUpDown x:Name="OnTrackRelative_NumPos_NumericUpDown" 
-                                           HasDecimals="False" 
-                                           Width="100" 
-                                           Minimum="0" Maximum="50" Interval="1" 
-                                           Value="{Binding Path=Settings.NumOnTrackRelativePos}"
-                                           ToolTip="Set number of on track relative positions exposed from the focused car in one direction. That is if it's set to 5, we show 5 cars ahead and 5 behind."
-                                           />
-                </StackPanel>
+
+                <Grid ToolTip="Set number of on track relative positions exposed from the focused car in one direction. That is if it's set to 5, we show 5 cars ahead and 5 behind.">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition MaxWidth="500"/>
+                        <ColumnDefinition MinWidth="100"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition MinHeight="35"/>
+                    </Grid.RowDefinitions>
+                    <TextBlock Grid.Column="0" Text="Number of relative on track positions" Style="{StaticResource Description}"/>
+                    <mah:NumericUpDown Grid.Column="1" x:Name="OnTrackRelative_NumPos_NumericUpDown" 
+                                       Style="{StaticResource NumPos}"
+                                       Maximum="50"
+                                       Value="{Binding Path=Settings.NumOnTrackRelativePos}"
+                                       />
+
+                </Grid>
+                <Separator/>
+
 
                 <!-- Num partial relative overall pos -->
 
-                <StackPanel Orientation="Horizontal">
-                    <TextBlock Text="Number of partial relative overall leaderboard overall positions: " Width="200"/>
-                    <mah:NumericUpDown x:Name="PartialRelativeOverall_NumOverallPos_NumericUpDown" 
-                                           HasDecimals="False" 
-                                           Width="100" 
-                                           Minimum="0" Maximum="100" Interval="1" 
-                                           Value="{Binding Path=Settings.PartialRelativeNumOverallPos}"
-                                           ToolTip="Set number of overall positions exposed for partial relative leaderboard."
-                                           />
-                </StackPanel>
+                <Grid ToolTip="Set number of overall positions exposed for partial relative leaderboard.">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition MaxWidth="500"/>
+                        <ColumnDefinition MinWidth="100"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition MinHeight="35"/>
+                    </Grid.RowDefinitions>
+                    <TextBlock Grid.Column="0" Text="Number of partial relative overall leaderboard overall positions: " Style="{StaticResource Description}"/>
+                    <mah:NumericUpDown Grid.Column="1" x:Name="PartialRelativeOverall_NumOverallPos_NumericUpDown" 
+                                       Style="{StaticResource NumPos}"
+                                       Value="{Binding Path=Settings.PartialRelativeNumOverallPos}"
+                                       />
+
+                </Grid>
+                <Separator/>
 
 
                 <!-- Num partial relative relative pos -->
 
-                <StackPanel Orientation="Horizontal">
-                    <TextBlock Text="Number of partial relative overall leaderboard relative positions: " Width="200"/>
-                    <mah:NumericUpDown x:Name="PartialRelativeOverall_NumRelativePos_NumericUpDown" 
-                                           HasDecimals="False" 
-                                           Width="100" 
-                                           Minimum="0" Maximum="50" Interval="1" 
-                                           Value="{Binding Path=Settings.PartialRelativeNumRelativePos}"
-                                           ToolTip="Set number of relative positions exposed for partial relative leaderboard from the focused car in one direction. That is if it's set to 5, we show 5 cars ahead and 5 behind."
-                                           />
-                </StackPanel>
+                <Grid ToolTip="Set number of relative positions exposed for partial relative leaderboard from the focused car in one direction. That is if it's set to 5, we show 5 cars ahead and 5 behind.">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition MaxWidth="500"/>
+                        <ColumnDefinition MinWidth="100"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition MinHeight="35"/>
+                    </Grid.RowDefinitions>
+                    <TextBlock Grid.Column="0" Text="Number of partial relative overall leaderboard relative positions: " Style="{StaticResource Description}"/>
+                    <mah:NumericUpDown Grid.Column="1" x:Name="PartialRelativeOverall_NumRelativePos_NumericUpDown" 
+                                       Style="{StaticResource NumPos}"
+                                       Maximum="50"
+                                       Value="{Binding Path=Settings.PartialRelativeNumRelativePos}"
+                                       />
 
-                <!-- Num drivers -->
+                </Grid>
+                <Separator/>
                 
-                <StackPanel Orientation="Horizontal">
-                    <TextBlock Text="Number of drivers: " Width="200"/>
-                    <mah:NumericUpDown x:Name="NumDrivers_NumericUpDown" 
-                                           HasDecimals="False" 
-                                           Width="100" 
-                                           Minimum="0" Maximum="10" Interval="1" 
-                                           Value="{Binding Path=Settings.NumDrivers}"
-                                           ToolTip="Set number of drivers shown per car. Should be higher or equal to the number of maximum drivers possible for you."/>
-                </StackPanel>
+                <!-- Num drivers -->
+
+                <Grid ToolTip="Set number of drivers shown per car. Should be higher or equal to the number of maximum drivers possible for you.">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition MaxWidth="500"/>
+                        <ColumnDefinition MinWidth="100"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition MinHeight="35"/>
+                    </Grid.RowDefinitions>
+                    <TextBlock Grid.Column="0" Text="Number of drivers: " Style="{StaticResource Description}"/>
+                    <mah:NumericUpDown Grid.Column="1" x:Name="NumDrivers_NumericUpDown" 
+                                       Style="{StaticResource NumPos}"
+                                       Maximum="10"
+                                       Value="{Binding Path=Settings.NumDrivers}"
+                                       />
+
+                </Grid>
+                <Separator/>
 
                 <!-- Update interval -->
 
-                <StackPanel Orientation="Horizontal">
-                <TextBlock Text="Data update interval: " Width="200"/>
-                <mah:NumericUpDown x:Name="UpdateInterval_NumericUpDown" 
-                                        HasDecimals="False" 
-                                        Width="100" 
-                                        Minimum="10" Maximum="5000" Interval="10" 
-                                        Value="{Binding Path=Settings.BroadcastDataUpdateRateMs}"
-                                        ToolTip="Sets the update interval of data from ACC. As leaderboard data doesn't change that fast something around 1000ms should work very well. But you can go lower to provide smoother visuals."/>
-                </StackPanel>
+                <Grid ToolTip="Sets the update interval of data from ACC. As leaderboard data doesn't change that fast something around 1000ms should work very well. But you can go lower to provide smoother visuals.">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition MaxWidth="500"/>
+                        <ColumnDefinition MinWidth="100"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition MinHeight="35"/>
+                    </Grid.RowDefinitions>
+                    <TextBlock Grid.Column="0" Text="Data update interval: " Style="{StaticResource Description}"/>
+                    <mah:NumericUpDown Grid.Column="1" x:Name="UpdateInterval_NumericUpDown" 
+                                       HasDecimals="False" 
+                                       Width="100" 
+                                       Minimum="10" Maximum="5000" Interval="10" 
+                                       VerticalAlignment="Center"
+                                       HorizontalAlignment="Left"
+                                       StringFormat="0ms"
+                                       Value="{Binding Path=Settings.BroadcastDataUpdateRateMs}"
+                                       />
+
+
+                </Grid>
+                <Separator/>
 
                 <!-- Enable logging -->
-                
-                <StackPanel Orientation="Horizontal">
-                    <TextBlock Text="Log info: " Width="200"/>
-                    <styles:SHToggleButton x:Name="Logging_ToggleButton" 
-                                               Click="Logging_ToggleButton_Click"
-                                               ToolTip="Enable or disable information logging. Errors will still be logged."/>
-                </StackPanel>
 
+                <Grid ToolTip="Enable or disable information logging. Errors will still be logged.">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition MaxWidth="500"/>
+                        <ColumnDefinition MinWidth="100"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition MinHeight="35"/>
+                    </Grid.RowDefinitions>
+
+                    <TextBlock Grid.Column="0" Text="Log info: " Style="{StaticResource Description}"/>
+                    <styles:SHToggleButton Grid.Column="1" x:Name="Logging_ToggleButton" 
+                                           HorizontalAlignment="Left"
+                                           VerticalAlignment="Center"
+                                           Click="Logging_ToggleButton_Click"
+                                           />
+                </Grid>
+                <Separator/>
 
             </StackPanel>
         </styles:SHTabItem>
@@ -275,6 +378,10 @@
                     <!-- Team cup colors -->
                     <styles:SHSectionTitle>Team cup category colors</styles:SHSectionTitle>
                     <StackPanel x:Name="TeamCupColors_StackPanel"/>
+
+                    <!-- Driver categoty colors -->
+                    <styles:SHSectionTitle>Driver category colors</styles:SHSectionTitle>
+                    <StackPanel x:Name="DriverCategoryColors_StackPanel"/>
 
                 </StackPanel>
             </ScrollViewer>

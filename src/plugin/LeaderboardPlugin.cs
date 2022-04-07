@@ -312,43 +312,31 @@ namespace KLPlugins.Leaderboard {
                 AddLapProp(OutLapProp.CurrentLapTime, () => _values.GetCar(i)?.NewData?.CurrentLap?.Laptime);
 
 
-                if (Settings.OutDriverProps.Includes(OutDriverProp.CurrentDriverInfo)) {
-                    var driverId = "Driver.01";
-                    AddDriverProp(OutDriverProp.FirstName, driverId, () => _values.GetCar(i)?.CurrentDriver?.FirstName);
-                    AddDriverProp(OutDriverProp.LastName, driverId, () => _values.GetCar(i)?.CurrentDriver?.LastName);
-                    AddDriverProp(OutDriverProp.ShortName, driverId, () => _values.GetCar(i)?.CurrentDriver?.ShortName);
-                    AddDriverProp(OutDriverProp.FullName, driverId, () => _values.GetCar(i)?.CurrentDriver?.FullName());
-                    AddDriverProp(OutDriverProp.InitialPlusLastName, driverId, () => _values.GetCar(i)?.CurrentDriver?.InitialPlusLastName());
-                    AddDriverProp(OutDriverProp.Nationality, driverId, () => _values.GetCar(i)?.CurrentDriver?.Nationality);
-                    AddDriverProp(OutDriverProp.Category, driverId, () => _values.GetCar(i)?.CurrentDriver?.Category);
-                    AddDriverProp(OutDriverProp.TotalLaps, driverId, () => _values.GetCar(i)?.CurrentDriver?.TotalLaps);
-                    AddDriverProp(OutDriverProp.BestLapTime, driverId, () => _values.GetCar(i)?.CurrentDriver?.BestSessionLap?.Laptime);
-                    AddDriverProp(OutDriverProp.TotalDrivingTime, driverId, () => _values.GetCar(i)?.CurrentDriverTotalDrivingTime);
+                void AddOneDriverFromList(int j) {
+                    if (Settings.NumDrivers > j) {
+                        var driverId = $"Driver.{j + 1:00}";
+                        AddDriverProp(OutDriverProp.FirstName, driverId, () => _values.GetCar(i)?.GetDriver(j)?.FirstName);
+                        AddDriverProp(OutDriverProp.LastName, driverId, () => _values.GetCar(i)?.GetDriver(j)?.LastName);
+                        AddDriverProp(OutDriverProp.ShortName, driverId, () => _values.GetCar(i)?.GetDriver(j)?.ShortName);
+                        AddDriverProp(OutDriverProp.FullName, driverId, () => _values.GetCar(i)?.GetDriver(j)?.FullName());
+                        AddDriverProp(OutDriverProp.InitialPlusLastName, driverId, () => _values.GetCar(i)?.GetDriver(j)?.InitialPlusLastName());
+                        AddDriverProp(OutDriverProp.Nationality, driverId, () => _values.GetCar(i)?.GetDriver(j)?.Nationality);
+                        AddDriverProp(OutDriverProp.Category, driverId, () => _values.GetCar(i)?.GetDriver(j)?.Category);
+                        AddDriverProp(OutDriverProp.TotalLaps, driverId, () => _values.GetCar(i)?.GetDriver(j)?.TotalLaps);
+                        AddDriverProp(OutDriverProp.BestLapTime, driverId, () => _values.GetCar(i)?.GetDriver(j)?.BestSessionLap?.Laptime);
+                        AddDriverProp(OutDriverProp.TotalDrivingTime, driverId, () => _values.GetCar(i)?.GetDriverTotalDrivingTime(j));
+                        AddDriverProp(OutDriverProp.CategoryColor, driverId, () => _values.GetCar(i)?.GetDriver(j)?.CategoryColor);
+                    }
                 }
 
-
                 if (Settings.OutDriverProps.Includes(OutDriverProp.AllDriversInfo)) {
-                    void AddOneDriverFromList(int j) {
-                        if (Settings.NumDrivers > j) {
-                            var driverId = $"Driver.{j + 1:00}";
-                            AddDriverProp(OutDriverProp.FirstName, driverId, () => _values.GetCar(i)?.GetDriver(j)?.FirstName);
-                            AddDriverProp(OutDriverProp.LastName, driverId, () => _values.GetCar(i)?.GetDriver(j)?.LastName);
-                            AddDriverProp(OutDriverProp.ShortName, driverId, () => _values.GetCar(i)?.GetDriver(j)?.ShortName);
-                            AddDriverProp(OutDriverProp.FullName, driverId, () => _values.GetCar(i)?.GetDriver(j)?.FullName());
-                            AddDriverProp(OutDriverProp.InitialPlusLastName, driverId, () => _values.GetCar(i)?.GetDriver(j)?.InitialPlusLastName());
-                            AddDriverProp(OutDriverProp.Nationality, driverId, () => _values.GetCar(i)?.GetDriver(j)?.Nationality);
-                            AddDriverProp(OutDriverProp.Category, driverId, () => _values.GetCar(i)?.GetDriver(j)?.Category);
-                            AddDriverProp(OutDriverProp.TotalLaps, driverId, () => _values.GetCar(i)?.GetDriver(j)?.TotalLaps);
-                            AddDriverProp(OutDriverProp.BestLapTime, driverId, () => _values.GetCar(i)?.GetDriver(j)?.BestSessionLap?.Laptime);
-                            AddDriverProp(OutDriverProp.TotalDrivingTime, driverId, () => _values.GetCar(i)?.GetDriverTotalDrivingTime(j));
-                        }
-                    }
-
                     for (int j = 0; j < Settings.NumDrivers; j++) {
                         AddOneDriverFromList(j);
                     }
-                }
-
+                } else if (Settings.OutDriverProps.Includes(OutDriverProp.CurrentDriverInfo)) {
+                    AddOneDriverFromList(0);
+                } 
+                
                 // Car and team
                 AddProp(OutCarProp.CarNumber, () => _values.GetCar(i)?.RaceNumber);
                 AddProp(OutCarProp.CarModel, () => _values.GetCar(i)?.CarModelType.ToPrettyString());

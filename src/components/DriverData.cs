@@ -15,6 +15,8 @@ namespace KLPlugins.Leaderboard {
         public NationalityEnum Nationality { get; internal set; }
         public int TotalLaps { get; internal set; } = 0;
         public LapInfo BestSessionLap { get; internal set; } = null;
+        public string CategoryColor => LeaderboardPlugin.Settings.DriverCategoryColors[Category];
+
         private double _totalDrivingTime = 0;
 
         public DriverData(DriverInfo info) { 

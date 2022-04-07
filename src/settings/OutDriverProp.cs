@@ -19,6 +19,7 @@ namespace KLPlugins.Leaderboard {
         TotalLaps = 1 << 9,
         TotalDrivingTime = 1 << 10,
         BestLapTime = 1 << 11,
+        CategoryColor = 1 << 12,
     }
 
     static class OutDriverPropExtensions {
@@ -63,6 +64,8 @@ namespace KLPlugins.Leaderboard {
                     return "Total driving time in seconds";
                 case OutDriverProp.BestLapTime:
                     return "Best lap time in seconds";
+                case OutDriverProp.CategoryColor:
+                    return "Color for driver category";
                 default:
                     throw new ArgumentOutOfRangeException($"Invalid enum variant {p}");
             }

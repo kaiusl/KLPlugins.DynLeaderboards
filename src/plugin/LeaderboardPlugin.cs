@@ -471,6 +471,26 @@ namespace KLPlugins.Leaderboard {
             if (Settings.OutGeneralProps.Includes(OutGeneralProp.SessionPhase)) this.AttachDelegate("Session.Phase", () => _values.RealtimeData?.Phase);
             if (Settings.OutGeneralProps.Includes(OutGeneralProp.MaxStintTime)) this.AttachDelegate("Session.MaxStintTime", () => _values.MaxDriverStintTime);
             if (Settings.OutGeneralProps.Includes(OutGeneralProp.MaxDriveTime)) this.AttachDelegate("Session.MaxDriveTime", () => _values.MaxDriverTotalDriveTime);
+
+
+            void addClassColor(CarClass cls) {
+                this.AttachDelegate($"Color.Class.{cls}", () => Settings.CarClassColors[cls]);
+            }
+
+            foreach (var c in Enum.GetValues(typeof(CarClass))) {
+                var cls = (CarClass)c;
+                if (cls == CarClass.Overall || cls == CarClass.Unknown) continue;
+                addClassColor(cls);
+            }
+
+            void addCupColor(CupCategory cup) {
+                this.AttachDelegate($"Color.Cup.{cup}", () => Settings.CupColors[cup]);
+                this.AttachDelegate($"Color.Cup.{cup}.Text", () => Settings.CupTextColors[cup]);
+            }
+
+            foreach (var c in Enum.GetValues(typeof(CupCategory))) {
+                addCupColor((CupCategory)c);
+            }
         }
 
         #region Logging

@@ -8,6 +8,10 @@ using System.Windows.Media;
 using MdXaml;
 using System.Windows.Data;
 using MahApps.Metro.Controls;
+using Xceed.Wpf.Toolkit;
+using KLPlugins.Leaderboard.Enums;
+using System.Collections.Generic;
+using KLPlugins.Leaderboard.ksBroadcastingNetwork;
 
 namespace KLPlugins.Leaderboard
 {
@@ -18,7 +22,10 @@ namespace KLPlugins.Leaderboard
     {
         public LeaderboardPlugin Plugin { get; }
         public PluginSettings Settings { get => LeaderboardPlugin.Settings; }
-        
+
+        private Dictionary<CarClass, ColorPicker> _classColorPickers = new Dictionary<CarClass, ColorPicker>(8);
+        private Dictionary<CupCategory, ColorPicker> _cupColorPickers = new Dictionary<CupCategory, ColorPicker>(5);
+        private Dictionary<CupCategory, ColorPicker> _cupTextColorPickers = new Dictionary<CupCategory, ColorPicker>(5);
 
         public SettingsControlDemo() {
             InitializeComponent();
@@ -29,6 +36,7 @@ namespace KLPlugins.Leaderboard
             this.Plugin = plugin;
             AddPluginDescription();
             AddToggles();
+            AddColors();
 
             // Set current values for other settings
             CurrentDriverInfo_ToggleButton.IsChecked = LeaderboardPlugin.Settings.OutDriverProps.Includes(OutDriverProp.CurrentDriverInfo);
@@ -49,6 +57,133 @@ namespace KLPlugins.Leaderboard
             ExposedOrderingsInfo_TextBlock.Text = @"Here you can select all other orderings like per class or relative to the focusd car.";
             PluginInfoMarkdown.Markdown = File.ReadAllText($"{LeaderboardPlugin.Settings.PluginDataLocation}\\README.md"); ;
         }
+
+        private void AddColors() {
+            AddClassColors();
+            AddTeamCupColors();
+        }
+
+        private void AddClassColors() {
+
+            foreach (var c in Enum.GetValues(typeof(CarClass))) {
+                var cls = (CarClass)c;
+                if (cls == CarClass.Unknown || cls == CarClass.Overall) continue;
+                
+                var sp = new StackPanel();
+                sp.Orientation = Orientation.Horizontal;
+                
+                var t = new TextBlock();
+                t.Text = cls.ToString() + ": ";
+                t.Width = 60;
+                
+                var cp = new ColorPicker();
+                cp.Width = 100;
+                cp.Height = 25;
+                cp.SelectedColor = (Color)ColorConverter.ConvertFromString(LeaderboardPlugin.Settings.CarClassColors[cls]);
+                cp.SelectedColorChanged += (sender, e) => SelectedColorChanged(sender, e, cls, LeaderboardPlugin.Settings.CarClassColors);
+
+                _classColorPickers.Add(cls, cp);
+
+                var btn = new SHButtonPrimary();
+                btn.Content = "Reset";
+                btn.Click += (sender, e) => ClassColorPickerReset(cls);
+                btn.Height = 25;
+
+                sp.Children.Add(t);
+                sp.Children.Add(cp);
+                sp.Children.Add(btn);
+
+                ClassColors_StackPanel.Children.Add(sp);
+            }
+        }
+
+        private void AddTeamCupColors() {
+            var sp = new StackPanel();
+            sp.Orientation = Orientation.Horizontal;
+
+            var t = new TextBlock();
+            t.Text = "Background";
+            t.Width = 190;
+            t.Margin = new Thickness(65, 0, 0, 0);
+            var t2 = new TextBlock();
+            t2.Text = "Text";
+            t2.Width = 100;
+
+            sp.Children.Add(t);
+            sp.Children.Add(t2);
+            TeamCupColors_StackPanel.Children.Add(sp);
+
+
+            foreach (var c in Enum.GetValues(typeof(CupCategory))) {
+                var cup = (CupCategory)c;
+
+                sp = new StackPanel();
+                sp.Orientation = Orientation.Horizontal;
+
+                t = new TextBlock();
+                t.Text = cup.ToString() + ": ";
+                t.Width = 60;
+
+                var cp1 = new ColorPicker();
+                cp1.Width = 100;
+                cp1.Height = 25;
+                cp1.SelectedColor = (Color)ColorConverter.ConvertFromString(LeaderboardPlugin.Settings.CupColors[cup]);
+                cp1.SelectedColorChanged += (sender, e) => SelectedColorChanged(sender, e, cup, LeaderboardPlugin.Settings.CupColors);
+                _cupColorPickers.Add(cup, cp1);
+
+                var btn1 = new SHButtonPrimary();
+                btn1.Content = "Reset";
+                btn1.Click += (sender, e) => TeamCupColorPickerReset(cup);
+                btn1.Height = 25;
+
+
+                var cp2 = new ColorPicker();
+                cp2.Margin = new Thickness(25, 0, 0, 0);
+                cp2.Width = 100;
+                cp2.Height = 25;
+                cp2.SelectedColor = (Color)ColorConverter.ConvertFromString(LeaderboardPlugin.Settings.CupTextColors[cup]);
+                cp2.SelectedColorChanged += (sender, e) => SelectedColorChanged(sender, e, cup, LeaderboardPlugin.Settings.CupTextColors);
+                _cupTextColorPickers.Add(cup, cp2);
+
+                var btn2 = new SHButtonPrimary();
+                btn2.Content = "Reset";
+                btn2.Click += (sender, e) => TeamCupTextColorPickerReset(cup);
+                btn2.Height = 25;
+
+                sp.Children.Add(t);
+                sp.Children.Add(cp1);
+                sp.Children.Add(btn1);
+                sp.Children.Add(cp2);
+                sp.Children.Add(btn2);
+
+                TeamCupColors_StackPanel.Children.Add(sp);
+            }
+        }
+
+
+        private void SelectedColorChanged<T>(object sender, RoutedPropertyChangedEventArgs<Color?> e, T c, Dictionary<T, string> settingsColors) {
+            if (e.NewValue != null) {
+                var newColor = (Color)e.NewValue;
+                settingsColors[c] = newColor.ToString();
+            }
+        }
+
+
+        private void ClassColorPickerReset(CarClass cls) {
+            LeaderboardPlugin.Settings.CarClassColors[cls] = cls.GetACCColor();
+            _classColorPickers[cls].SelectedColor = (Color)ColorConverter.ConvertFromString(cls.GetACCColor());
+        }
+
+        private void TeamCupColorPickerReset(CupCategory cup) {
+            LeaderboardPlugin.Settings.CupColors[cup] = cup.GetACCColor();
+            _cupColorPickers[cup].SelectedColor = (Color)ColorConverter.ConvertFromString(cup.GetACCColor());
+        }
+
+        private void TeamCupTextColorPickerReset(CupCategory cup) {
+            LeaderboardPlugin.Settings.CupTextColors[cup] = cup.GetACCColor();
+            _cupTextColorPickers[cup].SelectedColor = (Color)ColorConverter.ConvertFromString(cup.GetACCTextColor());
+        }
+
 
         private void AddToggles() {
             OutCarProps_StackPanel.Children.Add(CreateTogglesDescriptionRow());
@@ -419,5 +554,7 @@ namespace KLPlugins.Leaderboard
         }
 
         #endregion
+
+       
     }
 }

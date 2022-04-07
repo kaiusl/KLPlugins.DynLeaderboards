@@ -1,5 +1,8 @@
-﻿using Newtonsoft.Json;
+﻿using KLPlugins.Leaderboard.Enums;
+using KLPlugins.Leaderboard.ksBroadcastingNetwork;
+using Newtonsoft.Json;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
@@ -31,6 +34,11 @@ namespace KLPlugins.Leaderboard {
         public OutGeneralProp OutGeneralProps;
         public OutLapProp OutLapProps;
 
+        public Dictionary<CarClass, string> CarClassColors { get; set; } = CreateDefCarClassColors();
+        public Dictionary<CupCategory, string> CupColors { get; set; } = CreateDefCupColors();
+        public Dictionary<CupCategory, string> CupTextColors { get; set; } = CreateDefCupTextColors();
+
+
         private const string _defPluginsDataLocation = "PluginsData\\KLPlugins\\Leaderboard";
         private static readonly string _defAccDataLocation = "C:\\Users\\" + Environment.UserName + "\\Documents\\Assetto Corsa Competizione";
         private const int _defNumOverallPos = 30;
@@ -41,7 +49,36 @@ namespace KLPlugins.Leaderboard {
         private const int _defNumDrivers = 4;
 
 
-       
+        private static Dictionary<CarClass, string> CreateDefCarClassColors() { 
+            var carClassColors = new Dictionary<CarClass, string>(8);
+            foreach (var c in Enum.GetValues(typeof(CarClass))) {
+                var cls = (CarClass)c;
+                if (cls == CarClass.Unknown || cls == CarClass.Overall) continue;
+                carClassColors.Add(cls, cls.GetACCColor());
+            }
+            return carClassColors;
+        }
+
+        private static Dictionary<CupCategory, string> CreateDefCupColors() {
+            var cupColors = new Dictionary<CupCategory, string>(5);
+            foreach (var c in Enum.GetValues(typeof(CupCategory))) {
+                var cup = (CupCategory)c;
+                cupColors.Add(cup, cup.GetACCColor());
+            }
+            return cupColors;
+        }
+
+        private static Dictionary<CupCategory, string> CreateDefCupTextColors() {
+            var cupTextColors = new Dictionary<CupCategory, string>(5);
+            foreach (var c in Enum.GetValues(typeof(CupCategory))) {
+                var cup = (CupCategory)c;
+                cupTextColors.Add(cup, cup.GetACCTextColor());
+            }
+            return cupTextColors;
+        }
+
+
+
         public bool SetAccDataLocation(string newLoc) {
             if (!Directory.Exists($"{newLoc}\\Config")) {
                 if (Directory.Exists($"{_defAccDataLocation}\\Config")) {

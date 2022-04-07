@@ -6,9 +6,10 @@
              xmlns:local="clr-namespace:KLPlugins.Leaderboard"
              xmlns:styles="clr-namespace:SimHub.Plugins.Styles;assembly=SimHub.Plugins" 
              mc:Ignorable="d" 
-             xmlns:Mah="http://metro.mahapps.com/winfx/xaml/controls"
+             xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
              xmlns:ui="clr-namespace:SimHub.Plugins.UI;assembly=SimHub.Plugins" 
              xmlns:mdxam="clr-namespace:MdXaml;assembly=MdXaml"
+             xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
              d:DesignHeight="300" d:DesignWidth="600"
              >
 
@@ -166,7 +167,7 @@
 
                 <StackPanel Orientation="Horizontal">
                     <TextBlock Text="Number of overall positions: " Width="200"/>
-                    <Mah:NumericUpDown x:Name="Overall_NumPos_NumericUpDown" 
+                    <mah:NumericUpDown x:Name="Overall_NumPos_NumericUpDown" 
                                            HasDecimals="False" 
                                            Width="100" 
                                            Minimum="0" Maximum="100" Interval="1" 
@@ -178,7 +179,7 @@
 
                 <StackPanel Orientation="Horizontal">
                     <TextBlock Text="Number of relative overall positions: " Width="200"/>
-                    <Mah:NumericUpDown x:Name="OverallRelative_NumPos_NumericUpDown" 
+                    <mah:NumericUpDown x:Name="OverallRelative_NumPos_NumericUpDown" 
                                            HasDecimals="False" 
                                            Width="100" 
                                            Minimum="0" Maximum="50" Interval="1" 
@@ -191,7 +192,7 @@
                 
                 <StackPanel Orientation="Horizontal">
                     <TextBlock Text="Number of relative on track positions: " Width="200"/>
-                    <Mah:NumericUpDown x:Name="OnTrackRelative_NumPos_NumericUpDown" 
+                    <mah:NumericUpDown x:Name="OnTrackRelative_NumPos_NumericUpDown" 
                                            HasDecimals="False" 
                                            Width="100" 
                                            Minimum="0" Maximum="50" Interval="1" 
@@ -204,7 +205,7 @@
 
                 <StackPanel Orientation="Horizontal">
                     <TextBlock Text="Number of partial relative overall leaderboard overall positions: " Width="200"/>
-                    <Mah:NumericUpDown x:Name="PartialRelativeOverall_NumOverallPos_NumericUpDown" 
+                    <mah:NumericUpDown x:Name="PartialRelativeOverall_NumOverallPos_NumericUpDown" 
                                            HasDecimals="False" 
                                            Width="100" 
                                            Minimum="0" Maximum="100" Interval="1" 
@@ -218,7 +219,7 @@
 
                 <StackPanel Orientation="Horizontal">
                     <TextBlock Text="Number of partial relative overall leaderboard relative positions: " Width="200"/>
-                    <Mah:NumericUpDown x:Name="PartialRelativeOverall_NumRelativePos_NumericUpDown" 
+                    <mah:NumericUpDown x:Name="PartialRelativeOverall_NumRelativePos_NumericUpDown" 
                                            HasDecimals="False" 
                                            Width="100" 
                                            Minimum="0" Maximum="50" Interval="1" 
@@ -231,7 +232,7 @@
                 
                 <StackPanel Orientation="Horizontal">
                     <TextBlock Text="Number of drivers: " Width="200"/>
-                    <Mah:NumericUpDown x:Name="NumDrivers_NumericUpDown" 
+                    <mah:NumericUpDown x:Name="NumDrivers_NumericUpDown" 
                                            HasDecimals="False" 
                                            Width="100" 
                                            Minimum="0" Maximum="10" Interval="1" 
@@ -243,7 +244,7 @@
 
                 <StackPanel Orientation="Horizontal">
                 <TextBlock Text="Data update interval: " Width="200"/>
-                <Mah:NumericUpDown x:Name="UpdateInterval_NumericUpDown" 
+                <mah:NumericUpDown x:Name="UpdateInterval_NumericUpDown" 
                                         HasDecimals="False" 
                                         Width="100" 
                                         Minimum="10" Maximum="5000" Interval="10" 
@@ -259,7 +260,24 @@
                                                Click="Logging_ToggleButton_Click"
                                                ToolTip="Enable or disable information logging. Errors will still be logged."/>
                 </StackPanel>
+
+
             </StackPanel>
+        </styles:SHTabItem>
+
+        <styles:SHTabItem Header="Colors">
+            <ScrollViewer>
+                <StackPanel>
+                    <!-- Class colors -->
+                    <styles:SHSectionTitle>Car class colors</styles:SHSectionTitle>
+                    <StackPanel x:Name="ClassColors_StackPanel"/>
+
+                    <!-- Team cup colors -->
+                    <styles:SHSectionTitle>Team cup category colors</styles:SHSectionTitle>
+                    <StackPanel x:Name="TeamCupColors_StackPanel"/>
+
+                </StackPanel>
+            </ScrollViewer>
         </styles:SHTabItem>
 
         <styles:SHTabItem Header="Exposed properties">

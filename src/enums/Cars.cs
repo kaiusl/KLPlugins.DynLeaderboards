@@ -1,4 +1,5 @@
-﻿using System;
+﻿using KLPlugins.Leaderboard.ksBroadcastingNetwork;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -51,6 +52,28 @@ namespace KLPlugins.Leaderboard.Enums {
         MercedesAMGGT4 = 60,
         Porsche718CaymanGT4 = 61,
 
+        Unknown = 255
+    }
+
+    public enum CarClass {
+        Overall = 0,
+        GT3 = 1,
+        GT4 = 2,
+        ST15 = 3,
+        ST21 = 4,
+        CHL = 5,
+        CUP17 = 6,
+        CUP21 = 7,
+        TCX = 8,
+        Unknown = 255
+    }
+
+    public enum CarGroup {
+        Overall = 0,
+        GT3 = 1,
+        GT4 = 2,
+        GTC = 3,
+        TCX = 4,
         Unknown = 255
     }
 
@@ -296,33 +319,69 @@ namespace KLPlugins.Leaderboard.Enums {
                     return "KTM";
                 case CarType.MaseratiMCGT4:
                     return "Maserati";
-                
+
                 default:
                     return "Unknown";
             }
         }
-    }
 
-    public enum CarClass {
-        Overall = 0,
-        GT3 = 1,
-        GT4 = 2,
-        ST15 = 3,
-        ST21 = 4,
-        CHL = 5,
-        CUP17 = 6,
-        CUP21 = 7,
-        TCX = 8,
-        Unknown = 255
-    }
+        public static string GetACCColor(this CarClass c) {
+            switch (c) {
+                case CarClass.GT3:
+                    return "#FF000000";
+                case CarClass.GT4:
+                    return "#FF262660";
+                case CarClass.CUP17:
+                    return "#FF457C45";
+                case CarClass.CUP21:
+                    return "#FF284C28";
+                case CarClass.ST15:
+                    return "#FFCCBA00";
+                case CarClass.ST21:
+                    return "#FF988A00";
+                case CarClass.CHL:
+                    return "#FFB90000";
+                case CarClass.TCX:
+                    return "#FF007CA7";
+                default:
+                    return "#FF000000";
+            }
+        }
 
-    public enum CarGroup {
-        Overall = 0,
-        GT3 = 1,
-        GT4 = 2,
-        GTC = 3,
-        TCX = 4,
-        Unknown = 255
+        public static string GetACCColor(this CupCategory c) {
+            switch (c) {
+                case CupCategory.Overall:
+                    return "#FFFFFFFF";
+                case CupCategory.ProAm:
+                    return "#FF000000";
+                case CupCategory.Am:
+                    return "#FFE80000";
+                case CupCategory.Silver:
+                    return "#FF666666";
+                case CupCategory.National:
+                    return "#FF008F4B";
+                default:
+                    return "#FF000000";
+            }
+        }
+
+        public static string GetACCTextColor(this CupCategory c) {
+            switch (c) {
+                case CupCategory.Overall:
+                    return "#FF000000";
+                case CupCategory.ProAm:
+                    return "#FFFFFFFF";
+                case CupCategory.Am:
+                    return "#FF000000";
+                case CupCategory.Silver:
+                    return "#FFFFFFFF";
+                case CupCategory.National:
+                    return "#FFFFFFFF";
+                default:
+                    return "#FF000000";
+            }
+        }
+
     }
 
 }

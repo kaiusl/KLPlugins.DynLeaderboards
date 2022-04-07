@@ -37,7 +37,7 @@ namespace KLPlugins.Leaderboard {
         public Dictionary<CarClass, string> CarClassColors { get; set; } = CreateDefCarClassColors();
         public Dictionary<CupCategory, string> CupColors { get; set; } = CreateDefCupColors();
         public Dictionary<CupCategory, string> CupTextColors { get; set; } = CreateDefCupTextColors();
-
+        public Dictionary<DriverCategory, string> DriverCategoryColors { get; set; } = CreateDefDriverCategoryColors();
 
         private const string _defPluginsDataLocation = "PluginsData\\KLPlugins\\Leaderboard";
         private static readonly string _defAccDataLocation = "C:\\Users\\" + Environment.UserName + "\\Documents\\Assetto Corsa Competizione";
@@ -77,6 +77,15 @@ namespace KLPlugins.Leaderboard {
             return cupTextColors;
         }
 
+        private static Dictionary<DriverCategory, string> CreateDefDriverCategoryColors() { 
+            var dict = new Dictionary<DriverCategory, string>(4);
+            foreach (var c in Enum.GetValues(typeof(DriverCategory))) { 
+                var cat = (DriverCategory)c;
+                if (cat == DriverCategory.Error) continue;
+                dict.Add(cat, cat.GetAccColor());
+            }
+            return dict;
+        }
 
 
         public bool SetAccDataLocation(string newLoc) {

@@ -491,6 +491,16 @@ namespace KLPlugins.Leaderboard {
             foreach (var c in Enum.GetValues(typeof(CupCategory))) {
                 addCupColor((CupCategory)c);
             }
+
+            void addDriverCategoryColor(DriverCategory cat) {
+                this.AttachDelegate($"Color.DriverCategory.{cat}", () => Settings.DriverCategoryColors[cat]);
+            }
+
+            foreach (var c in Enum.GetValues(typeof(DriverCategory))) {
+                var cat = (DriverCategory)c;
+                if (cat == DriverCategory.Error) continue;
+                addDriverCategoryColor(cat);
+            }
         }
 
         #region Logging

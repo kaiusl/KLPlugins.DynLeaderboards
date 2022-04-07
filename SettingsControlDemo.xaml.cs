@@ -26,6 +26,7 @@ namespace KLPlugins.Leaderboard
         private Dictionary<CarClass, ColorPicker> _classColorPickers = new Dictionary<CarClass, ColorPicker>(8);
         private Dictionary<CupCategory, ColorPicker> _cupColorPickers = new Dictionary<CupCategory, ColorPicker>(5);
         private Dictionary<CupCategory, ColorPicker> _cupTextColorPickers = new Dictionary<CupCategory, ColorPicker>(5);
+        private Dictionary<DriverCategory, ColorPicker> _driverCategoryColorPickers = new Dictionary<DriverCategory, ColorPicker>(4);
 
         public SettingsControlDemo() {
             InitializeComponent();
@@ -61,6 +62,7 @@ namespace KLPlugins.Leaderboard
         private void AddColors() {
             AddClassColors();
             AddTeamCupColors();
+            AddDriverCategoryColors();
         }
 
         private void AddClassColors() {
@@ -160,6 +162,39 @@ namespace KLPlugins.Leaderboard
             }
         }
 
+        private void AddDriverCategoryColors() {
+
+            foreach (var c in Enum.GetValues(typeof(DriverCategory))) {
+                var cls = (DriverCategory)c;
+                if (cls == DriverCategory.Error) continue;
+
+                var sp = new StackPanel();
+                sp.Orientation = Orientation.Horizontal;
+
+                var t = new TextBlock();
+                t.Text = cls.ToString() + ": ";
+                t.Width = 60;
+
+                var cp = new ColorPicker();
+                cp.Width = 100;
+                cp.Height = 25;
+                cp.SelectedColor = (Color)ColorConverter.ConvertFromString(LeaderboardPlugin.Settings.DriverCategoryColors[cls]);
+                cp.SelectedColorChanged += (sender, e) => SelectedColorChanged(sender, e, cls, LeaderboardPlugin.Settings.DriverCategoryColors);
+
+                _driverCategoryColorPickers.Add(cls, cp);
+
+                var btn = new SHButtonPrimary();
+                btn.Content = "Reset";
+                btn.Click += (sender, e) => DriverCategoryColorPickerReset(cls);
+                btn.Height = 25;
+
+                sp.Children.Add(t);
+                sp.Children.Add(cp);
+                sp.Children.Add(btn);
+
+                DriverCategoryColors_StackPanel.Children.Add(sp);
+            }
+        }
 
         private void SelectedColorChanged<T>(object sender, RoutedPropertyChangedEventArgs<Color?> e, T c, Dictionary<T, string> settingsColors) {
             if (e.NewValue != null) {
@@ -182,6 +217,11 @@ namespace KLPlugins.Leaderboard
         private void TeamCupTextColorPickerReset(CupCategory cup) {
             LeaderboardPlugin.Settings.CupTextColors[cup] = cup.GetACCColor();
             _cupTextColorPickers[cup].SelectedColor = (Color)ColorConverter.ConvertFromString(cup.GetACCTextColor());
+        }
+
+        private void DriverCategoryColorPickerReset(DriverCategory cls) {
+            LeaderboardPlugin.Settings.DriverCategoryColors[cls] = cls.GetAccColor();
+            _driverCategoryColorPickers[cls].SelectedColor = (Color)ColorConverter.ConvertFromString(cls.GetAccColor());
         }
 
 

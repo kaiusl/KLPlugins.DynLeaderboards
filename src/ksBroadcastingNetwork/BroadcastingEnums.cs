@@ -186,6 +186,21 @@ namespace KLPlugins.Leaderboard.ksBroadcastingNetwork {
 
 			}
 		}
+
+		public static string GetAccColor(this DriverCategory c) {
+			switch (c) {
+				case DriverCategory.Platinum:
+					return "#FFFFFFFF";
+				case DriverCategory.Gold:
+					return "#FFFFD700";
+				case DriverCategory.Silver:
+					return "#FFA5A5A5";
+				case DriverCategory.Bronze:
+					return "#FFCD7F32";
+				default:
+					return "#FFFFFFFF";
+			}
+		}
 	}
 
 	

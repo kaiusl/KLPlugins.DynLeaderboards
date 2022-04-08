@@ -43,8 +43,12 @@ namespace KLPlugins.Leaderboard {
 
         public int[] PosInClassCarsIdxs { get; private set; }
         public int[] RelativePosOnTrackCarsIdxs { get; private set; }
+        
         public int[] RelativePosOverallCarsIdxs { get; private set; }
+        public int[] RelativePosClassCarsIdxs { get; private set; }
+
         public int[] PartialRelativeOverallCarsIdxs { get; private set; }
+        public int[] PartialRelativeClassCarsIdxs { get; private set; }
 
         public int FocusedCarIdx { get; private set; } = _defaultIdxValue;
         public CarClassArray<int> BestLapByClassCarIdxs { get; private set; } = new CarClassArray<int>(_defaultIdxValue);
@@ -63,7 +67,7 @@ namespace KLPlugins.Leaderboard {
         private readonly int _numOverallPos = LeaderboardPlugin.Settings.NumOverallPos;
         private readonly int _numOnTrackRelativePos = LeaderboardPlugin.Settings.NumOnTrackRelativePos*2 + 1;
         private readonly int _numOverallRelativePos = LeaderboardPlugin.Settings.NumOverallRelativePos*2 + 1;
-        private readonly int _numPartialRelativeOverallPos = LeaderboardPlugin.Settings.PartialRelativeNumOverallPos + LeaderboardPlugin.Settings.PartialRelativeNumRelativePos * 2 + 1;
+        private readonly int _numPartialRelativeOverallPos = LeaderboardPlugin.Settings.PartialRelativeOverallNumOverallPos + LeaderboardPlugin.Settings.PartialRelativeOverallNumRelativePos * 2 + 1;
 
         //public int?[] CarNumbers = new int?[LeaderboardPlugin.Settings.NumOverallPos];
         //public string[] DriverName = new string[LeaderboardPlugin.Settings.NumOverallPos];
@@ -84,6 +88,8 @@ namespace KLPlugins.Leaderboard {
             RelativePosOnTrackCarsIdxs = new int[_numOnTrackRelativePos];
             RelativePosOverallCarsIdxs = new int[_numOverallRelativePos];
             PartialRelativeOverallCarsIdxs = new int[_numPartialRelativeOverallPos];
+            RelativePosClassCarsIdxs = new int[_numOverallRelativePos];
+            PartialRelativeClassCarsIdxs = new int[_numPartialRelativeOverallPos];
 
             ResetPos();
             _broadcastConfig = new ACCUdpRemoteClientConfig("127.0.0.1", "KLLeaderboardPlugin", LeaderboardPlugin.Settings.BroadcastDataUpdateRateMs);
@@ -121,6 +127,14 @@ namespace KLPlugins.Leaderboard {
 
             for (int i = 0; i < _numPartialRelativeOverallPos; i++) {
                 PartialRelativeOverallCarsIdxs[i] = _defaultIdxValue;
+            }
+
+            for (int i = 0; i < _numOverallRelativePos; i++) {
+                RelativePosClassCarsIdxs[i] = _defaultIdxValue;
+            }
+
+            for (int i = 0; i < _numPartialRelativeOverallPos; i++) {
+                PartialRelativeClassCarsIdxs[i] = _defaultIdxValue;
             }
 
             _relativeSplinePositions.Clear();
@@ -312,6 +326,7 @@ namespace KLPlugins.Leaderboard {
             SetOverallOrder();
             FocusedCarIdx = Cars.FindIndex(x => x.CarIndex == update.FocusedCarIndex);
             SetOverallRelativeOrder();
+            SetClassRelativeOrder();
             if (FocusedCarIdx != _defaultIdxValue && !RealtimeData.IsNewSession) {
                 UpdateCarData();
             }
@@ -396,19 +411,29 @@ namespace KLPlugins.Leaderboard {
 
             for (int i = 0; i < _numPartialRelativeOverallPos; i++) {
                 var idx = i;
-                if (i > LeaderboardPlugin.Settings.PartialRelativeNumOverallPos - 1 && FocusedCarIdx > LeaderboardPlugin.Settings.PartialRelativeNumOverallPos + LeaderboardPlugin.Settings.PartialRelativeNumRelativePos) {
-                    idx += FocusedCarIdx - LeaderboardPlugin.Settings.PartialRelativeNumOverallPos - LeaderboardPlugin.Settings.PartialRelativeNumRelativePos;
+                if (i > LeaderboardPlugin.Settings.PartialRelativeOverallNumOverallPos - 1 && FocusedCarIdx > LeaderboardPlugin.Settings.PartialRelativeOverallNumOverallPos + LeaderboardPlugin.Settings.PartialRelativeOverallNumRelativePos) {
+                    idx += FocusedCarIdx - LeaderboardPlugin.Settings.PartialRelativeOverallNumOverallPos - LeaderboardPlugin.Settings.PartialRelativeOverallNumRelativePos;
                 }
                 PartialRelativeOverallCarsIdxs[i] = idx < Cars.Count ? idx : _defaultIdxValue;
             }
+        }
 
+        private void SetClassRelativeOrder() {
+            for (int i = 0; i < _numOverallRelativePos; i++) {
+                var idx = Cars[FocusedCarIdx].InClassPos - LeaderboardPlugin.Settings.NumOverallRelativePos + i;
+                idx = PosInClassCarsIdxs.ElementAtOrDefault(idx);
+                RelativePosClassCarsIdxs[i] = idx < Cars.Count && idx >= 0 ? idx : _defaultIdxValue;
+            }
 
-            //var idx = relativePosition
-            //var focusedIdx = $prop('LeaderboardPlugin.Focused.OverallPosition')
-            //if (idx > numOverallPos && focusedIdx > numOverallPos + numRelPos) {
-            //            idx += focusedIdx - (numRelPos + 1) - numOverallPos
-            //}
-
+            for (int i = 0; i < _numPartialRelativeOverallPos; i++) {
+                var idx = i;
+                var focusedClassPos = Cars[FocusedCarIdx].InClassPos;
+                if (i > LeaderboardPlugin.Settings.PartialRelativeOverallNumOverallPos - 1 && focusedClassPos > LeaderboardPlugin.Settings.PartialRelativeOverallNumOverallPos + LeaderboardPlugin.Settings.PartialRelativeOverallNumRelativePos) {
+                    idx += focusedClassPos - LeaderboardPlugin.Settings.PartialRelativeOverallNumOverallPos - LeaderboardPlugin.Settings.PartialRelativeOverallNumRelativePos;
+                }
+                idx = PosInClassCarsIdxs.ElementAtOrDefault(idx);
+                PartialRelativeClassCarsIdxs[i] = idx < Cars.Count && idx >= 0 ? idx : _defaultIdxValue;
+            }
         }
 
         private void SetStartionOrder() {

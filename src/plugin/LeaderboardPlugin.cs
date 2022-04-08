@@ -450,11 +450,31 @@ namespace KLPlugins.Leaderboard {
                     this.AttachDelegate($"PartialRelativeOverall.{i + 1}.OverallPosition", () => _values.PartialRelativeOverallCarsIdxs[i] + 1);
                 }
 
-                for (int i = 0; i < Settings.PartialRelativeNumOverallPos + Settings.PartialRelativeNumRelativePos * 2 + 1; i++) {
+                for (int i = 0; i < Settings.PartialRelativeOverallNumOverallPos + Settings.PartialRelativeOverallNumRelativePos * 2 + 1; i++) {
                     addPartialRelativeOverallIdxs(i);
                 }
             }
-           
+
+            if (Settings.OutOrders.Includes(OutOrder.RelativeClassPositions)) {
+                void addRelativeClassIdxs(int i) {
+                    this.AttachDelegate($"RelativeClass.{i + 1}.OverallPosition", () => _values.RelativePosClassCarsIdxs[i] + 1);
+                }
+
+                for (int i = 0; i < Settings.NumOverallRelativePos * 2 + 1; i++) {
+                    addRelativeClassIdxs(i);
+                }
+            }
+
+            if (Settings.OutOrders.Includes(OutOrder.PartialRelativeClassPositions)) {
+                void addPartialRelativeClassIdxs(int i) {
+                    this.AttachDelegate($"PartialRelativeClass.{i + 1}.OverallPosition", () => _values.PartialRelativeClassCarsIdxs[i] + 1);
+                }
+
+                for (int i = 0; i < Settings.PartialRelativeOverallNumOverallPos + Settings.PartialRelativeOverallNumRelativePos * 2 + 1; i++) {
+                    addPartialRelativeClassIdxs(i);
+                }
+            }
+
             if (Settings.OutOrders.Includes(OutOrder.FocusedCarPosition)) this.AttachDelegate("Focused.OverallPosition", () => _values.FocusedCarIdx + 1);
             if (Settings.OutOrders.Includes(OutOrder.OverallBestLapPosition)) this.AttachDelegate("Overall.BestLapCar.OverallPosition", () => _values.GetBestLapCarIdx(CarClass.Overall) + 1);
             if (Settings.OutOrders.Includes(OutOrder.InClassBestLapPosition)) this.AttachDelegate("InClass.BestLapCar.OverallPosition", () => _values.GetFocusedClassBestLapCarIdx() + 1);

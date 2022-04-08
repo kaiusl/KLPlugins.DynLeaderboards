@@ -77,11 +77,11 @@ namespace KLPlugins.Leaderboard {
                 case OutCarProp.MaxSpeed:
                     return "Maximum speed in this session.";
                 case OutCarProp.CarClassColor:
-                    return "Car class color.";
+                    return "Car class color. Values can be changed in settings.";
                 case OutCarProp.TeamCupCategoryColor:
-                    return "Team cup category background color.";
+                    return "Team cup category background color. Values can be changed in settings.";
                 case OutCarProp.TeamCupCategoryTextColor:
-                    return "Team cup category text color.";
+                    return "Team cup category text color. Values can be changed in settings.";
                 default:
                     throw new ArgumentOutOfRangeException($"Invalid enum variant {p}");
             }

@@ -210,7 +210,7 @@
                     </Grid.RowDefinitions>
 
                     <TextBlock Grid.Column="0" Text="Number of overall positions" Style="{StaticResource Description}"/>
-                    <mah:NumericUpDown Grid.Column="1" x:Name="Overall_NumPos_NumericUpDown"
+                    <mah:NumericUpDown Grid.Column="1"
                                        Style="{StaticResource NumPos}"
                                        Value="{Binding Path=Settings.NumOverallPos}"
                                        />
@@ -229,10 +229,30 @@
                         <RowDefinition MinHeight="35"/>
                     </Grid.RowDefinitions>
                     <TextBlock Grid.Column="0" Text="Number of relative overall positions" Style="{StaticResource Description}"/>
-                    <mah:NumericUpDown Grid.Column="1" x:Name="OverallRelative_NumPos_NumericUpDown" 
+                    <mah:NumericUpDown Grid.Column="1"
                                        Style="{StaticResource NumPos}"
                                        Maximum="50"
                                        Value="{Binding Path=Settings.NumOverallRelativePos}"
+                                       />
+
+                </Grid>
+                <Separator/>
+
+                <!-- Num relative class pos -->
+
+                <Grid ToolTip="Set number of class relative positions exposed from the focused car in one direction. That is if it's set to 5, we show 5 cars ahead and 5 behind.">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition MaxWidth="500"/>
+                        <ColumnDefinition MinWidth="100"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition MinHeight="35"/>
+                    </Grid.RowDefinitions>
+                    <TextBlock Grid.Column="0" Text="Number of relative class positions" Style="{StaticResource Description}"/>
+                    <mah:NumericUpDown Grid.Column="1" 
+                                       Style="{StaticResource NumPos}"
+                                       Maximum="50"
+                                       Value="{Binding Path=Settings.NumClassRelativePos}"
                                        />
 
                 </Grid>
@@ -250,7 +270,7 @@
                         <RowDefinition MinHeight="35"/>
                     </Grid.RowDefinitions>
                     <TextBlock Grid.Column="0" Text="Number of relative on track positions" Style="{StaticResource Description}"/>
-                    <mah:NumericUpDown Grid.Column="1" x:Name="OnTrackRelative_NumPos_NumericUpDown" 
+                    <mah:NumericUpDown Grid.Column="1"
                                        Style="{StaticResource NumPos}"
                                        Maximum="50"
                                        Value="{Binding Path=Settings.NumOnTrackRelativePos}"
@@ -260,9 +280,9 @@
                 <Separator/>
 
 
-                <!-- Num partial relative overall pos -->
+                <!-- Num partial relative overall overall pos -->
 
-                <Grid ToolTip="Set number of overall positions exposed for partial relative leaderboard.">
+                <Grid ToolTip="Set number of overall positions exposed for partial relative overall leaderboard.">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition MaxWidth="500"/>
                         <ColumnDefinition MinWidth="100"/>
@@ -271,18 +291,18 @@
                         <RowDefinition MinHeight="35"/>
                     </Grid.RowDefinitions>
                     <TextBlock Grid.Column="0" Text="Number of partial relative overall leaderboard overall positions: " Style="{StaticResource Description}"/>
-                    <mah:NumericUpDown Grid.Column="1" x:Name="PartialRelativeOverall_NumOverallPos_NumericUpDown" 
+                    <mah:NumericUpDown Grid.Column="1"
                                        Style="{StaticResource NumPos}"
-                                       Value="{Binding Path=Settings.PartialRelativeNumOverallPos}"
+                                       Value="{Binding Path=Settings.PartialRelativeOverallNumOverallPos}"
                                        />
 
                 </Grid>
                 <Separator/>
 
 
-                <!-- Num partial relative relative pos -->
+                <!-- Num partial relative overall relative pos -->
 
-                <Grid ToolTip="Set number of relative positions exposed for partial relative leaderboard from the focused car in one direction. That is if it's set to 5, we show 5 cars ahead and 5 behind.">
+                <Grid ToolTip="Set number of relative positions exposed for partial relative overall leaderboard from the focused car in one direction. That is if it's set to 5, we show 5 cars ahead and 5 behind.">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition MaxWidth="500"/>
                         <ColumnDefinition MinWidth="100"/>
@@ -291,15 +311,55 @@
                         <RowDefinition MinHeight="35"/>
                     </Grid.RowDefinitions>
                     <TextBlock Grid.Column="0" Text="Number of partial relative overall leaderboard relative positions: " Style="{StaticResource Description}"/>
-                    <mah:NumericUpDown Grid.Column="1" x:Name="PartialRelativeOverall_NumRelativePos_NumericUpDown" 
+                    <mah:NumericUpDown Grid.Column="1"
                                        Style="{StaticResource NumPos}"
                                        Maximum="50"
-                                       Value="{Binding Path=Settings.PartialRelativeNumRelativePos}"
+                                       Value="{Binding Path=Settings.PartialRelativeClassNumRelativePos}"
                                        />
 
                 </Grid>
                 <Separator/>
-                
+
+                <!-- Num partial relative class overall pos -->
+
+                <Grid ToolTip="Set number of class positions exposed for partial relative class leaderboard.">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition MaxWidth="500"/>
+                        <ColumnDefinition MinWidth="100"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition MinHeight="35"/>
+                    </Grid.RowDefinitions>
+                    <TextBlock Grid.Column="0" Text="Number of partial relative class leaderboard class positions: " Style="{StaticResource Description}"/>
+                    <mah:NumericUpDown Grid.Column="1"
+                                       Style="{StaticResource NumPos}"
+                                       Value="{Binding Path=Settings.PartialRelativeClassNumClassPos}"
+                                       />
+
+                </Grid>
+                <Separator/>
+
+
+                <!-- Num partial relative class relative pos -->
+
+                <Grid ToolTip="Set number of relative positions exposed for partial relative class leaderboard from the focused car in one direction. That is if it's set to 5, we show 5 cars ahead and 5 behind.">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition MaxWidth="500"/>
+                        <ColumnDefinition MinWidth="100"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition MinHeight="35"/>
+                    </Grid.RowDefinitions>
+                    <TextBlock Grid.Column="0" Text="Number of partial relative class leaderboard relative positions: " Style="{StaticResource Description}"/>
+                    <mah:NumericUpDown Grid.Column="1"
+                                       Style="{StaticResource NumPos}"
+                                       Maximum="50"
+                                       Value="{Binding Path=Settings.PartialRelativeClassNumRelativePos}"
+                                       />
+
+                </Grid>
+                <Separator/>
+
                 <!-- Num drivers -->
 
                 <Grid ToolTip="Set number of drivers shown per car. Should be higher or equal to the number of maximum drivers possible for you.">
@@ -311,7 +371,7 @@
                         <RowDefinition MinHeight="35"/>
                     </Grid.RowDefinitions>
                     <TextBlock Grid.Column="0" Text="Number of drivers: " Style="{StaticResource Description}"/>
-                    <mah:NumericUpDown Grid.Column="1" x:Name="NumDrivers_NumericUpDown" 
+                    <mah:NumericUpDown Grid.Column="1"
                                        Style="{StaticResource NumPos}"
                                        Maximum="10"
                                        Value="{Binding Path=Settings.NumDrivers}"
@@ -331,7 +391,7 @@
                         <RowDefinition MinHeight="35"/>
                     </Grid.RowDefinitions>
                     <TextBlock Grid.Column="0" Text="Data update interval: " Style="{StaticResource Description}"/>
-                    <mah:NumericUpDown Grid.Column="1" x:Name="UpdateInterval_NumericUpDown" 
+                    <mah:NumericUpDown Grid.Column="1"
                                        HasDecimals="False" 
                                        Width="100" 
                                        Minimum="10" Maximum="5000" Interval="10" 

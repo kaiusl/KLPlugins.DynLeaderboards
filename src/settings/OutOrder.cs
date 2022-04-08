@@ -61,13 +61,13 @@ For car properties use JavaScript function ´InClass(pos, propname)´";
                     return @"Overall positions of closest cars on track. Used to create relative leaderboards.
 For car properties use JavaScript function  ´Relative(pos, propname)´";
                 case OutOrder.RelativeOverallPositions:
-                    return "DESCRIPTION YET TO BE WRITTEN";
+                    return "Overall positions relative to the focused cars.";
                 case OutOrder.PartialRelativeOverallPositions:
-                    return "DESCRIPTION YET TO BE WRITTEN!";
+                    return "Overall positions where some number of top positions is shown and after that relative positions to the focused.";
                 case OutOrder.RelativeClassPositions:
-                    return "NOT IMPLEMENTED YET!";
+                    return "Class positions relative to the focused car.";
                 case OutOrder.PartialRelativeClassPositions:
-                    return "NOT IMPLEMENTED YET!";
+                    return "Class positions where some number of top positions is shown and after that relative positions to the focused.";
                 case OutOrder.FocusedCarPosition:
                     return @"Overall position of focused car.
 For car properties use JavaScript function ´Focused(propname)´";

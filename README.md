@@ -3,6 +3,33 @@
 This is an ACC specific (at least at the moment) leaderboard plugin. 
 I know that there are other leaderboard plugins around but I wanted to try my own, maybe someone else finds it useful.
 
+## Features
+
+### Available leaderboard types
+
+We provide several different leaderboard orderings or types. 
+
+- Overall leaderboards
+
+    `N` top positions. There are two types:
+    - Overall
+	- In the order of focused car's class
+- Relative leaderboards
+
+	`2N+1` relative positions to the focused car. There are three types:
+    - In overall order
+	- In the order of focused car's class
+	- In the relative track order
+- Partial relative leaderboards
+
+    `N` top positions and `2M+1` relative positions. If the focused car is inside the first `N + M + 1` positions the order will be just as the overall leaderboard. There are two types:
+	- In overall order
+	- In the order of foused car's class
+
+### Properties
+
+All available properties are listed in SimHub under Leadeboard plugin settings with more detailed description. You can also disable any of the properties that you don't need.
+
 ## Using the plugin
 
 The thing to know about this plugin is that we expose car properties only once in overall order through `Overall.xx.<property name>` properties. This means that we don't need to expose same property in multiple leaderboards like overall, class or relative. This also means that number of overall positions exported should be larger or equal to the number of total cars. 
@@ -13,11 +40,14 @@ Otherwise class or relative leaderboards may not have access to all the cars the
 
 Class or relative leaderboards can be constructed through `InClass.xx.OverallPosition` which returns the overall position of xx-th car in class.
 Then we can access all of the properties of that car from overall order.
-This means doing following
+This means doing following in javascript
 ```javascript
-var overallPos = $prop('LeaderboardPlugin.InClass.' + format(classPos, '00') + '.OverallPosition')
-if (overallPos == 0) return null;
-return $prop('LeaderboardPlugin.Overall.' + format(overallPos, '00') + '.' + 'CarNumber')
+var overallPos = $prop('LeaderboardPlugin.InClass.' + repeatindex() + '.OverallPosition')
+return $prop('LeaderboardPlugin.Overall.' + overallPos + '.CarNumber')
+```
+or in NCalc similarly
+```javascript
+prop('LeaderboardPlugin.Overall.' + prop('LeaderboardPlugin.InClass.' + repeatindex() + '.OverallPosition') + '.CarNumber')
 ```
 
 Granted this complicates accessing car properties a little but with the plugin is provided a JavaScript extension file 
@@ -27,6 +57,9 @@ which provies functions to do above and simplify accessing car properties. For e
 return InClass(5, 'CarNumber')
 ```
 and similarly for other orderings.
+
+***IMPORTANT:*** Note that the NCalc version is the fastest of three, followed by the 1st version and the javascript extension is the slowest. The difference between NCalc and javascipt extension seems to be around 1.5x for me.
+
 
 Currently we provide:
  - `Overall(pos, propname)`: Get property `propname` for `pos`-th car overall.
@@ -44,9 +77,8 @@ Currently we provide:
 
 For more examples you can see example dashboard provided with the plugin.
 
-### Properties
 
-All available properties are listen in SimHub under Leadeboard plugin settings with more detailed description. You can also disable any of the properties that you don't need.
+
 
 ## SH version
 

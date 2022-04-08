@@ -12,17 +12,17 @@ We provide several different leaderboard orderings or types.
 - Overall leaderboards
 
     `N` top positions. There are two types:
-    - Overall
+    - In overall order
 	- In the order of focused car's class
 - Relative leaderboards
 
-	`2N+1` relative positions to the focused car. There are three types:
+	`2N + 1` relative positions to the focused car. There are three types:
     - In overall order
 	- In the order of focused car's class
 	- In the relative track order
 - Partial relative leaderboards
 
-    `N` top positions and `2M+1` relative positions. If the focused car is inside the first `N + M + 1` positions the order will be just as the overall leaderboard. There are two types:
+    `N` top positions and `2M + 1` relative positions. If the focused car is inside the first `N + M + 1` positions the order will be just as the overall leaderboard. There are two types:
 	- In overall order
 	- In the order of foused car's class
 

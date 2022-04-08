@@ -145,7 +145,16 @@
 
     <styles:SHTabControl>
         <styles:SHTabItem  Header="Plugin info">
-            <mdxam:MarkdownScrollViewer x:Name="PluginInfoMarkdown" MarkdownStyle="{StaticResource DocumentStyle}" />
+            <StackPanel>
+                <TextBlock>
+                <Span xml:space="preserve"><Run> For detailed description of plugin go to: </Run><Hyperlink RequestNavigate="Hyperlink_RequestNavigate" NavigateUri="https://github.com/kaiusl/KLPlugins.Leaderboard">KLPlugins.Leaderboard</Hyperlink></Span>
+                </TextBlock>
+                <mdxam:MarkdownScrollViewer x:Name="PluginInfoMarkdown" MarkdownStyle="{StaticResource DocumentStyle}" />
+
+            </StackPanel>
+
+
+
         </styles:SHTabItem>
 
         <styles:SHTabItem Header="General settings">

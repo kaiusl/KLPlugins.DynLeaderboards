@@ -432,13 +432,36 @@ namespace KLPlugins.Leaderboard
                 ExposedOrderings_StackPanel.Children.Add(t);
             }
 
+            OutOrder[] order = new OutOrder[] {
+                OutOrder.InClassPositions,
+                OutOrder.RelativeOverallPositions,
+                OutOrder.RelativeClassPositions,
+                OutOrder.RelativeOnTrackPositions,
+                OutOrder.PartialRelativeOverallPositions,
+                OutOrder.PartialRelativeClassPositions,
+                OutOrder.FocusedCarPosition,
+                OutOrder.OverallBestLapPosition,
+                OutOrder.InClassBestLapPosition,
+            };
 
-            AddSmallTitle("Orders");
-            foreach (var v in (OutOrder[])Enum.GetValues(typeof(OutOrder))) {
+            foreach (var v in order) {
                 if (v == OutOrder.None) continue;
 
-                if (v == OutOrder.FocusedCarPosition) {
-                    AddSmallTitle("Single positions");
+                switch (v) { 
+                    case OutOrder.InClassPositions:
+                        AddSmallTitle("Overall leaderboards");
+                        break;
+                    case OutOrder.RelativeOverallPositions:
+                        AddSmallTitle("Relative leaderboards");
+                        break;
+                    case OutOrder.PartialRelativeOverallPositions:
+                        AddSmallTitle("Partial relative leaderboards");
+                        break;
+                    case OutOrder.FocusedCarPosition:
+                        AddSmallTitle("Single positions");
+                        break;
+                    default:
+                        break;
                 }
 
                 var sp = CreateToggleRow(
@@ -593,8 +616,11 @@ namespace KLPlugins.Leaderboard
             LeaderboardPlugin.Settings.Log = !LeaderboardPlugin.Settings.Log;
         }
 
+
         #endregion
 
-       
+        private void Hyperlink_RequestNavigate(object sender, System.Windows.Navigation.RequestNavigateEventArgs e) {
+            System.Diagnostics.Process.Start(e.Uri.ToString());
+        }
     }
 }

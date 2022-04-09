@@ -20,6 +20,25 @@ namespace KLPlugins.Leaderboard {
 
     static class OutOrderExtensions {
         public static bool Includes(this OutOrder p, OutOrder o) => (p & o) != 0;
+        public static bool IncludesAny(this OutOrder p, params OutOrder[] others) {
+            foreach (var o in others) {
+                if (p.Includes(o)) { 
+                    return true;
+                }
+            }
+            return false;
+        }
+        public static bool IncludesAll(this OutOrder p, params OutOrder[] others) {
+            foreach (var o in others) {
+                if (!p.Includes(o)) {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+
+
         public static void Combine(ref this OutOrder p, OutOrder o) => p |= o;
         public static void Remove(ref this OutOrder p, OutOrder o) => p &= ~o;
 

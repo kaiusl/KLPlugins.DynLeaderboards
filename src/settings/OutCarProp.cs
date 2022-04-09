@@ -152,6 +152,24 @@ namespace KLPlugins.Leaderboard {
 
     static class OutPosPropExtensions {
         public static bool Includes(this OutPosProp p, OutPosProp o) => (p & o) != 0;
+        public static bool IncludesAny(this OutPosProp p, params OutPosProp[] others) {
+            foreach (var o in others) {
+                if (p.Includes(o)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+        public static bool IncludesAll(this OutPosProp p, params OutPosProp[] others) {
+            foreach (var o in others) {
+                if (!p.Includes(o)) {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+
         public static void Combine(ref this OutPosProp p, OutPosProp o) => p |= o;
         public static void Remove(ref this OutPosProp p, OutPosProp o) => p &= ~o;
 

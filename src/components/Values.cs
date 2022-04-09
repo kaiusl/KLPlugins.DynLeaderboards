@@ -14,7 +14,47 @@ using KLPlugins.Leaderboard.src.ksBroadcastingNetwork.Structs;
 using System.Threading;
 
 namespace KLPlugins.Leaderboard {
+    public class LeaderboardOrder {
+        public static int DefaultIdxValue = -1;
+        private int[] _pos;
+        private OutOrder _outOrder;
+        private int _size;
 
+        public LeaderboardOrder(OutOrder outOrder, int size, OutOrder exposedOrders) { 
+            _outOrder = outOrder;
+            _size = size;
+            if (exposedOrders.Includes(outOrder)) { 
+                _pos = new int[size];
+                Reset();
+            }
+        }
+
+        public void Reset() {
+            if (_pos != null) {
+                for (int i = 0; i < _pos.Length; i++) { 
+                    _pos[i] = -1;
+                }
+            }
+        }
+
+
+        public int this[int key] {
+            get {
+                if (_pos != null) {
+                    return _pos[key];
+                } else { 
+                    return -1;
+                }
+            }
+            set {
+                if (_pos != null) {
+                    _pos[key] = value;
+                }
+            }
+        }
+
+
+    }
 
     /// <summary>
     /// Storage and calculation of new properties
@@ -61,7 +101,7 @@ namespace KLPlugins.Leaderboard {
         private CarClassArray<int> _classLeaderIdxs = new CarClassArray<int>(_defaultIdxValue); // Indexes of class leaders in Cars list
         private List<ushort> _lastUpdateCarIds = new List<ushort>();
         private ACCUdpRemoteClientConfig _broadcastConfig;
-        private bool _startingPositionsSet = false;
+        private bool _startingPositionsSet = !LeaderboardPlugin.Settings.OutPosProps.IncludesAny(OutPosProp.OverallPositionStart, OutPosProp.ClassPositionStart);
         private const int _defaultIdxValue = -1;
 
         private readonly int _numOverallPos = LeaderboardPlugin.Settings.NumOverallPos;
@@ -84,12 +124,12 @@ namespace KLPlugins.Leaderboard {
 
         public Values() {
             Cars = new List<CarData>();
-            PosInClassCarsIdxs = new int[_numOverallPos];
-            RelativePosOnTrackCarsIdxs = new int[_numOnTrackRelativePos];
-            RelativePosOverallCarsIdxs = new int[_numOverallRelativePos];
-            PartialRelativeOverallCarsIdxs = new int[_numPartialRelativeOverallPos];
-            RelativePosClassCarsIdxs = new int[_numOverallRelativePos];
-            PartialRelativeClassCarsIdxs = new int[_numPartialRelativeOverallPos];
+            if (LeaderboardPlugin.Settings.OutOrders.IncludesAny(OutOrder.InClassPositions, OutOrder.RelativeClassPositions, OutOrder.PartialRelativeClassPositions)) PosInClassCarsIdxs = new int[_numOverallPos];
+            if (LeaderboardPlugin.Settings.OutOrders.Includes(OutOrder.RelativeOnTrackPositions)) RelativePosOnTrackCarsIdxs = new int[_numOnTrackRelativePos];
+            if (LeaderboardPlugin.Settings.OutOrders.Includes(OutOrder.RelativeOverallPositions)) RelativePosOverallCarsIdxs = new int[_numOverallRelativePos];
+            if (LeaderboardPlugin.Settings.OutOrders.Includes(OutOrder.PartialRelativeOverallPositions)) PartialRelativeOverallCarsIdxs = new int[_numPartialRelativeOverallPos];
+            if (LeaderboardPlugin.Settings.OutOrders.Includes(OutOrder.RelativeClassPositions)) RelativePosClassCarsIdxs = new int[_numOverallRelativePos];
+            if (LeaderboardPlugin.Settings.OutOrders.Includes(OutOrder.PartialRelativeClassPositions)) PartialRelativeClassCarsIdxs = new int[_numPartialRelativeOverallPos];
 
             ResetPos();
             _broadcastConfig = new ACCUdpRemoteClientConfig("127.0.0.1", "KLLeaderboardPlugin", LeaderboardPlugin.Settings.BroadcastDataUpdateRateMs);
@@ -107,40 +147,29 @@ namespace KLPlugins.Leaderboard {
             _classLeaderIdxs.Reset();
             BestLapByClassCarIdxs.Reset();
             _relativeSplinePositions.Clear();
-            _startingPositionsSet = false;
+            _startingPositionsSet =  !LeaderboardPlugin.Settings.OutPosProps.IncludesAny(OutPosProp.OverallPositionStart, OutPosProp.ClassPositionStart);
             MaxDriverStintTime = -1;
             MaxDriverTotalDriveTime = -1;           
         }
 
+        private void ResetIdxs(int[] arr) {
+            if (arr != null) {
+                for (int i = 0; i < arr.Length; i++) {
+                    arr[i] = _defaultIdxValue;
+                }
+            }
+        }
+
         private void ResetPos() {
-            for (int i = 0; i < _numOverallPos; i++) {
-                PosInClassCarsIdxs[i] = _defaultIdxValue;
-            }
-
-            for (int i = 0; i < _numOnTrackRelativePos; i++) {
-                RelativePosOnTrackCarsIdxs[i] = _defaultIdxValue;
-            }
-
-            for (int i = 0; i < _numOverallRelativePos; i++) {
-                RelativePosOverallCarsIdxs[i] = _defaultIdxValue;
-            }
-
-            for (int i = 0; i < _numPartialRelativeOverallPos; i++) {
-                PartialRelativeOverallCarsIdxs[i] = _defaultIdxValue;
-            }
-
-            for (int i = 0; i < _numOverallRelativePos; i++) {
-                RelativePosClassCarsIdxs[i] = _defaultIdxValue;
-            }
-
-            for (int i = 0; i < _numPartialRelativeOverallPos; i++) {
-                PartialRelativeClassCarsIdxs[i] = _defaultIdxValue;
-            }
-
+            ResetIdxs(PosInClassCarsIdxs);
+            ResetIdxs(RelativePosClassCarsIdxs);
+            ResetIdxs(RelativePosOverallCarsIdxs);
+            ResetIdxs(RelativePosOnTrackCarsIdxs);
+            ResetIdxs(PartialRelativeClassCarsIdxs);
+            ResetIdxs(PartialRelativeOverallCarsIdxs);
             _relativeSplinePositions.Clear();
             FocusedCarIdx = _defaultIdxValue;
         }
-
 
         #region IDisposable Support
         ~Values() {
@@ -290,7 +319,7 @@ namespace KLPlugins.Leaderboard {
 
 
         private void OnBroadcastRealtimeUpdate(string sender, RealtimeUpdate update) {
-            //var swatch = Stopwatch.StartNew();
+            var swatch = Stopwatch.StartNew();
             //LeaderboardPlugin.LogInfo($"RealtimeUpdate update. ThreadId={Thread.CurrentThread.ManagedThreadId}");
 
             if (RealtimeData == null) {
@@ -331,9 +360,9 @@ namespace KLPlugins.Leaderboard {
                 UpdateCarData();
             }
 
-            //swatch.Stop();
-            //TimeSpan ts = swatch.Elapsed;
-            //File.AppendAllText($"{LeaderboardPlugin.Settings.PluginDataLocation}\\Logs\\timings\\OnRealtimeUpdate_{LeaderboardPlugin.PluginStartTime}.txt", $"{ts.TotalMilliseconds}\n");
+            swatch.Stop();
+            TimeSpan ts = swatch.Elapsed;
+            File.AppendAllText($"{LeaderboardPlugin.Settings.PluginDataLocation}\\Logs\\timings\\OnRealtimeUpdate_{LeaderboardPlugin.PluginStartTime}.txt", $"{ts.TotalMilliseconds}\n");
         }
 
         private void ClearMissingCars() {
@@ -404,35 +433,43 @@ namespace KLPlugins.Leaderboard {
         }
 
         private void SetOverallRelativeOrder() {
-            for (int i = 0; i < _numOverallRelativePos; i++) {
-                var idx = FocusedCarIdx - LeaderboardPlugin.Settings.NumOverallRelativePos + i;
-                RelativePosOverallCarsIdxs[i] = idx < Cars.Count && idx >= 0 ? idx : _defaultIdxValue;
+            if (RelativePosOverallCarsIdxs != null) {
+                for (int i = 0; i < _numOverallRelativePos; i++) {
+                    var idx = FocusedCarIdx - LeaderboardPlugin.Settings.NumOverallRelativePos + i;
+                    RelativePosOverallCarsIdxs[i] = idx < Cars.Count && idx >= 0 ? idx : _defaultIdxValue;
+                }
             }
 
-            for (int i = 0; i < _numPartialRelativeOverallPos; i++) {
-                var idx = i;
-                if (i > LeaderboardPlugin.Settings.PartialRelativeOverallNumOverallPos - 1 && FocusedCarIdx > LeaderboardPlugin.Settings.PartialRelativeOverallNumOverallPos + LeaderboardPlugin.Settings.PartialRelativeOverallNumRelativePos) {
-                    idx += FocusedCarIdx - LeaderboardPlugin.Settings.PartialRelativeOverallNumOverallPos - LeaderboardPlugin.Settings.PartialRelativeOverallNumRelativePos;
+            if (PartialRelativeOverallCarsIdxs != null) {
+                for (int i = 0; i < _numPartialRelativeOverallPos; i++) {
+                    var idx = i;
+                    if (i > LeaderboardPlugin.Settings.PartialRelativeOverallNumOverallPos - 1 && FocusedCarIdx > LeaderboardPlugin.Settings.PartialRelativeOverallNumOverallPos + LeaderboardPlugin.Settings.PartialRelativeOverallNumRelativePos) {
+                        idx += FocusedCarIdx - LeaderboardPlugin.Settings.PartialRelativeOverallNumOverallPos - LeaderboardPlugin.Settings.PartialRelativeOverallNumRelativePos;
+                    }
+                    PartialRelativeOverallCarsIdxs[i] = idx < Cars.Count ? idx : _defaultIdxValue;
                 }
-                PartialRelativeOverallCarsIdxs[i] = idx < Cars.Count ? idx : _defaultIdxValue;
             }
         }
 
         private void SetClassRelativeOrder() {
-            for (int i = 0; i < _numOverallRelativePos; i++) {
-                var idx = Cars[FocusedCarIdx].InClassPos - LeaderboardPlugin.Settings.NumOverallRelativePos + i;
-                idx = PosInClassCarsIdxs.ElementAtOrDefault(idx);
-                RelativePosClassCarsIdxs[i] = idx < Cars.Count && idx >= 0 ? idx : _defaultIdxValue;
-            }
-
-            for (int i = 0; i < _numPartialRelativeOverallPos; i++) {
-                var idx = i;
-                var focusedClassPos = Cars[FocusedCarIdx].InClassPos;
-                if (i > LeaderboardPlugin.Settings.PartialRelativeOverallNumOverallPos - 1 && focusedClassPos > LeaderboardPlugin.Settings.PartialRelativeOverallNumOverallPos + LeaderboardPlugin.Settings.PartialRelativeOverallNumRelativePos) {
-                    idx += focusedClassPos - LeaderboardPlugin.Settings.PartialRelativeOverallNumOverallPos - LeaderboardPlugin.Settings.PartialRelativeOverallNumRelativePos;
+            if (RelativePosClassCarsIdxs != null) {
+                for (int i = 0; i < _numOverallRelativePos; i++) {
+                    var idx = Cars[FocusedCarIdx].InClassPos - LeaderboardPlugin.Settings.NumOverallRelativePos + i;
+                    idx = PosInClassCarsIdxs.ElementAtOrDefault(idx);
+                    RelativePosClassCarsIdxs[i] = idx < Cars.Count && idx >= 0 ? idx : _defaultIdxValue;
                 }
-                idx = PosInClassCarsIdxs.ElementAtOrDefault(idx);
-                PartialRelativeClassCarsIdxs[i] = idx < Cars.Count && idx >= 0 ? idx : _defaultIdxValue;
+            }
+            
+            if (PartialRelativeClassCarsIdxs != null) {
+                for (int i = 0; i < _numPartialRelativeOverallPos; i++) {
+                    var idx = i;
+                    var focusedClassPos = Cars[FocusedCarIdx].InClassPos;
+                    if (i > LeaderboardPlugin.Settings.PartialRelativeOverallNumOverallPos - 1 && focusedClassPos > LeaderboardPlugin.Settings.PartialRelativeOverallNumOverallPos + LeaderboardPlugin.Settings.PartialRelativeOverallNumRelativePos) {
+                        idx += focusedClassPos - LeaderboardPlugin.Settings.PartialRelativeOverallNumOverallPos - LeaderboardPlugin.Settings.PartialRelativeOverallNumRelativePos;
+                    }
+                    idx = PosInClassCarsIdxs.ElementAtOrDefault(idx);
+                    PartialRelativeClassCarsIdxs[i] = idx < Cars.Count && idx >= 0 ? idx : _defaultIdxValue;
+                }
             }
         }
 
@@ -456,9 +493,16 @@ namespace KLPlugins.Leaderboard {
                 thisCar.SetStartingPositions(i + 1, clsPos);
                 classPos[thisClass] = clsPos;
             }
-            _startingPositionsSet = true;
+            _startingPositionsSet = true;           
         }
 
+
+        private bool _updateBestLapIdxs = LeaderboardPlugin.Settings.OutOrders.IncludesAny(OutOrder.OverallBestLapPosition, OutOrder.InClassBestLapPosition)
+            || LeaderboardPlugin.Settings.OutLapProps.IncludesAny(
+                OutLapProp.BestLapDeltaToOverallBest,
+                OutLapProp.BestLapDeltaToClassBest,
+                OutLapProp.LastLapDeltaToOverallBest,
+                OutLapProp.LastLapDeltaToClassBest);
         /// <summary>
         /// Update car related data like positions and gaps
         /// </summary>
@@ -473,7 +517,7 @@ namespace KLPlugins.Leaderboard {
             var focusedClass = focusedCar.CarClass;
             var aheadInClassCarIdxs = new CarClassArray<int>(_defaultIdxValue);
 
-            UpdateBestLapIdxs();
+            if (_updateBestLapIdxs) UpdateBestLapIdxs();
 
             for (int i = 0; i < Cars.Count; i++) {
                 var thisCar = Cars[i];
@@ -489,7 +533,7 @@ namespace KLPlugins.Leaderboard {
                 }
                 classPositions[thisClass] = clsPos;
 
-                if (thisClass == focusedClass) {
+                if (PosInClassCarsIdxs != null && thisClass == focusedClass) {
                     PosInClassCarsIdxs[clsPos - 1] = i;
                 }
 
@@ -520,16 +564,18 @@ namespace KLPlugins.Leaderboard {
             }
 
             // If somebody left the session, need to reset following class positions
-            var startpos = classPositions[focusedClass];
-            if (startpos == classPositions.DefaultValue) {
-                startpos = 0;
+            if (PosInClassCarsIdxs != null) {
+                var startpos = classPositions[focusedClass];
+                if (startpos == classPositions.DefaultValue) {
+                    startpos = 0;
+                }
+                for (int i = startpos; i < LeaderboardPlugin.Settings.NumOverallPos; i++) {
+                    if (PosInClassCarsIdxs[i] == _defaultIdxValue) break; // All following must already be -1
+                    PosInClassCarsIdxs[i] = _defaultIdxValue;
+                }
             }
-            for (int i = startpos; i < LeaderboardPlugin.Settings.NumOverallPos; i++) {
-                if (PosInClassCarsIdxs[i] == _defaultIdxValue) break; // All following must already be -1
-                PosInClassCarsIdxs[i] = _defaultIdxValue;
-            }
-
-            UpdateRelativeOrder();
+           
+            if (RelativePosOnTrackCarsIdxs != null) UpdateRelativeOrder();
         }
 
         private void UpdateBestLapIdxs() {

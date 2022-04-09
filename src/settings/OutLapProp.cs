@@ -39,6 +39,23 @@ namespace KLPlugins.Leaderboard {
 
     static class OutLapPropExtensions {
         public static bool Includes(this OutLapProp p, OutLapProp o) => (p & o) != 0;
+        public static bool IncludesAny(this OutLapProp p, params OutLapProp[] others) {
+            foreach (var o in others) {
+                if (p.Includes(o)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+        public static bool IncludesAll(this OutLapProp p, params OutLapProp[] others) {
+            foreach (var o in others) {
+                if (!p.Includes(o)) {
+                    return false;
+                }
+            }
+            return true;
+        }
+
         public static void Combine(ref this OutLapProp p, OutLapProp o) => p |= o;
         public static void Remove(ref this OutLapProp p, OutLapProp o) => p &= ~o;
 

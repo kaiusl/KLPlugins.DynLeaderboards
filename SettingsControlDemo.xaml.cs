@@ -196,35 +196,6 @@ namespace KLPlugins.Leaderboard
             }
         }
 
-        private void SelectedColorChanged<T>(object sender, RoutedPropertyChangedEventArgs<Color?> e, T c, Dictionary<T, string> settingsColors) {
-            if (e.NewValue != null) {
-                var newColor = (Color)e.NewValue;
-                settingsColors[c] = newColor.ToString();
-            }
-        }
-
-
-        private void ClassColorPickerReset(CarClass cls) {
-            LeaderboardPlugin.Settings.CarClassColors[cls] = cls.GetACCColor();
-            _classColorPickers[cls].SelectedColor = (Color)ColorConverter.ConvertFromString(cls.GetACCColor());
-        }
-
-        private void TeamCupColorPickerReset(TeamCupCategory cup) {
-            LeaderboardPlugin.Settings.TeamCupCategoryColors[cup] = cup.GetACCColor();
-            _cupColorPickers[cup].SelectedColor = (Color)ColorConverter.ConvertFromString(cup.GetACCColor());
-        }
-
-        private void TeamCupTextColorPickerReset(TeamCupCategory cup) {
-            LeaderboardPlugin.Settings.TeamCupCategoryTextColors[cup] = cup.GetACCColor();
-            _cupTextColorPickers[cup].SelectedColor = (Color)ColorConverter.ConvertFromString(cup.GetACCTextColor());
-        }
-
-        private void DriverCategoryColorPickerReset(DriverCategory cls) {
-            LeaderboardPlugin.Settings.DriverCategoryColors[cls] = cls.GetAccColor();
-            _driverCategoryColorPickers[cls].SelectedColor = (Color)ColorConverter.ConvertFromString(cls.GetAccColor());
-        }
-
-
         private void AddToggles() {
             OutCarProps_StackPanel.Children.Add(CreateTogglesDescriptionRow());
             AddPitToggles();
@@ -616,11 +587,38 @@ namespace KLPlugins.Leaderboard
             LeaderboardPlugin.Settings.Log = !LeaderboardPlugin.Settings.Log;
         }
 
+        private void SelectedColorChanged<T>(object sender, RoutedPropertyChangedEventArgs<Color?> e, T c, Dictionary<T, string> settingsColors) {
+            if (e.NewValue != null) {
+                var newColor = (Color)e.NewValue;
+                settingsColors[c] = newColor.ToString();
+            }
+        }
 
-        #endregion
+
+        private void ClassColorPickerReset(CarClass cls) {
+            LeaderboardPlugin.Settings.CarClassColors[cls] = cls.GetACCColor();
+            _classColorPickers[cls].SelectedColor = (Color)ColorConverter.ConvertFromString(cls.GetACCColor());
+        }
+
+        private void TeamCupColorPickerReset(TeamCupCategory cup) {
+            LeaderboardPlugin.Settings.TeamCupCategoryColors[cup] = cup.GetACCColor();
+            _cupColorPickers[cup].SelectedColor = (Color)ColorConverter.ConvertFromString(cup.GetACCColor());
+        }
+
+        private void TeamCupTextColorPickerReset(TeamCupCategory cup) {
+            LeaderboardPlugin.Settings.TeamCupCategoryTextColors[cup] = cup.GetACCColor();
+            _cupTextColorPickers[cup].SelectedColor = (Color)ColorConverter.ConvertFromString(cup.GetACCTextColor());
+        }
+
+        private void DriverCategoryColorPickerReset(DriverCategory cls) {
+            LeaderboardPlugin.Settings.DriverCategoryColors[cls] = cls.GetAccColor();
+            _driverCategoryColorPickers[cls].SelectedColor = (Color)ColorConverter.ConvertFromString(cls.GetAccColor());
+        }
 
         private void Hyperlink_RequestNavigate(object sender, System.Windows.Navigation.RequestNavigateEventArgs e) {
             System.Diagnostics.Process.Start(e.Uri.ToString());
         }
+
+        #endregion
     }
 }

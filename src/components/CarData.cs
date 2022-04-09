@@ -101,11 +101,6 @@ namespace KLPlugins.Leaderboard.ksBroadcastingNetwork.Structs {
         public double?[] BestLapSectors { get; private set; } = new double?[] { null, null, null };
         public double MaxSpeed { get; private set; } = 0.0;
 
-
-
-
-
-
         internal int MissedRealtimeUpdates { get; set; } = 0;
 
         private double? _stintStartTime = null;
@@ -572,6 +567,9 @@ namespace KLPlugins.Leaderboard.ksBroadcastingNetwork.Structs {
 
                 var classLeaderBestLap = classLeader?.NewData?.BestSessionLap?.Laptime;
                 GapToClassLeader = classLeaderBestLap != null ? ((double)thisBestLap - (double)classLeaderBestLap) : double.NaN;
+
+                var focusedBestLap = focused?.NewData?.BestSessionLap?.Laptime;
+                GapToFocusedTotal = focusedBestLap != null ? ((double)thisBestLap - (double)focusedBestLap) : double.NaN;
 
                 var aheadBestLap = carAhead?.NewData?.BestSessionLap?.Laptime;
                 GapToAhead = aheadBestLap != null ? ((double)thisBestLap - (double)aheadBestLap) : double.NaN;

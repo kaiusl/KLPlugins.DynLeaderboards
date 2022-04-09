@@ -319,7 +319,7 @@ namespace KLPlugins.Leaderboard {
 
 
         private void OnBroadcastRealtimeUpdate(string sender, RealtimeUpdate update) {
-            var swatch = Stopwatch.StartNew();
+            //var swatch = Stopwatch.StartNew();
             //LeaderboardPlugin.LogInfo($"RealtimeUpdate update. ThreadId={Thread.CurrentThread.ManagedThreadId}");
 
             if (RealtimeData == null) {
@@ -360,9 +360,9 @@ namespace KLPlugins.Leaderboard {
                 UpdateCarData();
             }
 
-            swatch.Stop();
-            TimeSpan ts = swatch.Elapsed;
-            File.AppendAllText($"{LeaderboardPlugin.Settings.PluginDataLocation}\\Logs\\timings\\OnRealtimeUpdate_{LeaderboardPlugin.PluginStartTime}.txt", $"{ts.TotalMilliseconds}\n");
+            //swatch.Stop();
+            //TimeSpan ts = swatch.Elapsed;
+            //File.AppendAllText($"{LeaderboardPlugin.Settings.PluginDataLocation}\\Logs\\timings\\OnRealtimeUpdate_{LeaderboardPlugin.PluginStartTime}.txt", $"{ts.TotalMilliseconds}\n");
         }
 
         private void ClearMissingCars() {

@@ -14,48 +14,6 @@ using KLPlugins.Leaderboard.src.ksBroadcastingNetwork.Structs;
 using System.Threading;
 
 namespace KLPlugins.Leaderboard {
-    public class LeaderboardOrder {
-        public static int DefaultIdxValue = -1;
-        private int[] _pos;
-        private OutOrder _outOrder;
-        private int _size;
-
-        public LeaderboardOrder(OutOrder outOrder, int size, OutOrder exposedOrders) { 
-            _outOrder = outOrder;
-            _size = size;
-            if (exposedOrders.Includes(outOrder)) { 
-                _pos = new int[size];
-                Reset();
-            }
-        }
-
-        public void Reset() {
-            if (_pos != null) {
-                for (int i = 0; i < _pos.Length; i++) { 
-                    _pos[i] = -1;
-                }
-            }
-        }
-
-
-        public int this[int key] {
-            get {
-                if (_pos != null) {
-                    return _pos[key];
-                } else { 
-                    return -1;
-                }
-            }
-            set {
-                if (_pos != null) {
-                    _pos[key] = value;
-                }
-            }
-        }
-
-
-    }
-
     /// <summary>
     /// Storage and calculation of new properties
     /// </summary>
@@ -95,6 +53,9 @@ namespace KLPlugins.Leaderboard {
         public double MaxDriverStintTime { get; private set; } = -1;
         public double MaxDriverTotalDriveTime { get; private set; } = -1;
 
+        public delegate CarData DynamicCarDelegate(int i);
+        public DynamicCarDelegate GetDynamicCar { get; private set; }
+
         // Store relative spline positions for relative leaderboard,
         // need to store separately as we need to sort by spline pos at the end on update loop
         private List<CarSplinePos> _relativeSplinePositions = new List<CarSplinePos>();
@@ -133,7 +94,49 @@ namespace KLPlugins.Leaderboard {
 
             ResetPos();
             _broadcastConfig = new ACCUdpRemoteClientConfig("127.0.0.1", "KLLeaderboardPlugin", LeaderboardPlugin.Settings.BroadcastDataUpdateRateMs);
+            SetDynamicCarGetter();
         }
+
+        private CarData GetCar(int i, int[] idxs) {
+            if (i > idxs.Length - 1) return null;
+            var idx = idxs[i];
+            if (idx == -1) return null;
+            return Cars[idx];
+        }
+
+
+        public void SetDynamicCarGetter() {
+            switch (LeaderboardPlugin.CurrentLeaderboard) {
+                case Leaderboard.Overall:
+                    GetDynamicCar = (i) => GetCar(i);
+                    break;
+                case Leaderboard.Class:
+                    GetDynamicCar = (i) => GetCar(i, PosInClassCarsIdxs);
+                    break;
+                case Leaderboard.RelativeOverall:
+                    GetDynamicCar = (i) => GetCar(i, RelativePosOverallCarsIdxs);
+                    break;
+                case Leaderboard.RelativeClass:
+                    GetDynamicCar = (i) => GetCar(i, RelativePosClassCarsIdxs);
+                    break;
+                case Leaderboard.PartialRelativeOverall:
+                    GetDynamicCar = (i) => GetCar(i, PartialRelativeOverallCarsIdxs);
+                    break;
+                case Leaderboard.PartialRelativeClass:
+                    GetDynamicCar = (i) => GetCar(i, PartialRelativeClassCarsIdxs);
+                    break;
+                case Leaderboard.RelativeOnTrack:
+                    GetDynamicCar = (i) => GetCar(i, RelativePosOnTrackCarsIdxs);
+                    break;
+                default:
+                    GetDynamicCar = (i) => null;
+                    break;
+            }
+            foreach (var c in Cars) {
+                c.SetDynamicGetters();
+            }
+        }
+
 
         public void Reset() {
             if (BroadcastClient != null) {

@@ -10,7 +10,7 @@
              xmlns:ui="clr-namespace:SimHub.Plugins.UI;assembly=SimHub.Plugins" 
              xmlns:mdxam="clr-namespace:MdXaml;assembly=MdXaml"
              xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
-             d:DesignHeight="300" d:DesignWidth="600"
+             d:DesignHeight="600" d:DesignWidth="600"
              >
 
     <UserControl.Resources>
@@ -144,6 +144,7 @@
     </UserControl.Resources>
 
     <styles:SHTabControl>
+        
         <styles:SHTabItem  Header="Plugin info">
             <StackPanel>
                 <TextBlock>
@@ -152,9 +153,6 @@
                 <mdxam:MarkdownScrollViewer x:Name="PluginInfoMarkdown" MarkdownStyle="{StaticResource DocumentStyle}" />
 
             </StackPanel>
-
-
-
         </styles:SHTabItem>
 
         <styles:SHTabItem Header="General settings">
@@ -437,6 +435,33 @@
             </StackPanel>
         </styles:SHTabItem>
 
+        <styles:SHTabItem Header="Dynamic leaderboard">
+
+            <StackPanel>
+                <TextBlock>Here you can customize the functionality of your dynamic leaderboard.</TextBlock>
+
+                <Separator/>
+
+
+                <styles:SHSectionTitle>Define leaderboard rotation</styles:SHSectionTitle>
+                <TextBlock MaxWidth="600" TextWrapping="Wrap">You can enable/disable specific leaderboards and choose the order in which they appear. 
+                    For more information about what each leaderboard looks like see Plugin info page.</TextBlock>
+                
+                <StackPanel Orientation="Horizontal">
+                    <styles:SHButtonSecondary Click="DynLeaderboard_ListView_Up">Up</styles:SHButtonSecondary>
+                    <styles:SHButtonSecondary Click="DynLeaderboard_ListView_Down">Down</styles:SHButtonSecondary>
+                    
+                </StackPanel>
+
+                <ListView x:Name="DynLeaderboards_ListView" Margin="10,10,0,13" HorizontalAlignment="Left" VerticalAlignment="Top" />
+
+            </StackPanel>
+            
+           
+
+        </styles:SHTabItem>
+        
+        
         <styles:SHTabItem Header="Colors">
             <ScrollViewer>
                 <StackPanel>

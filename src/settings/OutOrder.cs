@@ -5,6 +5,7 @@ namespace KLPlugins.Leaderboard {
     [Flags]
     public enum OutOrder {
         None = 0,
+        Overall = 1 << 0,
         InClassPositions = 1 << 1,
         RelativeOnTrackPositions = 1 << 2,
 
@@ -39,13 +40,24 @@ namespace KLPlugins.Leaderboard {
 
 
 
-        public static void Combine(ref this OutOrder p, OutOrder o) => p |= o;
-        public static void Remove(ref this OutOrder p, OutOrder o) => p &= ~o;
+        public static void Combine(ref this OutOrder p, OutOrder o) {
+            p |= OutOrder.Overall;
+            p |= o;
+        }
+        public static void Remove(ref this OutOrder p, OutOrder o) {
+            if (o == OutOrder.Overall) {
+                p = OutOrder.None;
+            } else {
+                p &= ~o;
+            }
+        }
 
         public static string ToPropName(this OutOrder p) {
             switch (p) {
                 case OutOrder.None:
                     return "None";
+                case OutOrder.Overall:
+                    return "Overall.5";
                 case OutOrder.InClassPositions:
                     return "InClass.5.OverallPosition";
                 case OutOrder.RelativeOnTrackPositions:
@@ -73,6 +85,8 @@ namespace KLPlugins.Leaderboard {
             switch (p) {
                 case OutOrder.None:
                     return "None";
+                case OutOrder.Overall:
+                    return "Exposes overall order. This is a prerequisite for any other order below.";
                 case OutOrder.InClassPositions:
                     return @"Overall positions of cars in focused car's class. Used to create class leaderboards.
 For car properties use JavaScript function ´InClass(pos, propname)´";

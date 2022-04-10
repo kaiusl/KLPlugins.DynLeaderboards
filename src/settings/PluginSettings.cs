@@ -37,6 +37,8 @@ namespace KLPlugins.Leaderboard {
         public OutGeneralProp OutGeneralProps;
         public OutLapProp OutLapProps;
 
+        public List<Leaderboard> DynamicLeaderboards { get; set; } = new List<Leaderboard>();
+
         public Dictionary<CarClass, string> CarClassColors { get; set; } = CreateDefCarClassColors();
         public Dictionary<TeamCupCategory, string> TeamCupCategoryColors { get; set; } = CreateDefCupColors();
         public Dictionary<TeamCupCategory, string> TeamCupCategoryTextColors { get; set; } = CreateDefCupTextColors();
@@ -50,7 +52,6 @@ namespace KLPlugins.Leaderboard {
         private const int _updateIntervalMax = 5000;
         private const int _updateIntevalMin = 50;
         private const int _defNumDrivers = 4;
-
 
         private static Dictionary<CarClass, string> CreateDefCarClassColors() { 
             var carClassColors = new Dictionary<CarClass, string>(8);

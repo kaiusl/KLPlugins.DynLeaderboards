@@ -27,6 +27,7 @@ namespace KLPlugins.Leaderboard
         private Dictionary<TeamCupCategory, ColorPicker> _cupColorPickers = new Dictionary<TeamCupCategory, ColorPicker>(5);
         private Dictionary<TeamCupCategory, ColorPicker> _cupTextColorPickers = new Dictionary<TeamCupCategory, ColorPicker>(5);
         private Dictionary<DriverCategory, ColorPicker> _driverCategoryColorPickers = new Dictionary<DriverCategory, ColorPicker>(4);
+        private Dictionary<OutOrder, SHToggleButton> _orderToggles = new Dictionary<OutOrder, SHToggleButton>(7);
 
         public SettingsControlDemo() {
             InitializeComponent();
@@ -48,10 +49,68 @@ namespace KLPlugins.Leaderboard
 
             // Add listeners to drivers toggles
             CurrentDriverInfo_ToggleButton.Checked += CurrentDriverTbChecked;
-            CurrentDriverInfo_ToggleButton.Unchecked += (sender, ee) => TbChanged<OutDriverProp>(sender, ee, (o) => LeaderboardPlugin.Settings.OutDriverProps.Remove(o));
+            CurrentDriverInfo_ToggleButton.Unchecked += (sender, ee) => LeaderboardPlugin.Settings.OutDriverProps.Remove(OutDriverProp.CurrentDriverInfo);
             AllDriversInfo_ToggleButton.Checked += AllDriverTbChecked;
-            AllDriversInfo_ToggleButton.Unchecked += (sender, ee) => TbChanged<OutDriverProp>(sender, ee, (o) => LeaderboardPlugin.Settings.OutDriverProps.Remove(o));
+            AllDriversInfo_ToggleButton.Unchecked += (sender, ee) => LeaderboardPlugin.Settings.OutDriverProps.Remove(OutDriverProp.AllDriversInfo);
+
+            foreach (var l in Settings.DynamicLeaderboards) {
+                var sp = new StackPanel();
+                sp.Orientation = Orientation.Horizontal;
+
+                var tb = new SHToggleButton();
+                tb.Name = $"{l.ToString()}_toggle_listview";
+                tb.IsChecked = true;
+                tb.Checked += (a, b) => CreateDynamicLeaderboardList();
+                tb.Unchecked += (a, b) => CreateDynamicLeaderboardList();
+                //tb.ToolTip = tooltip;
+
+                var t = new TextBlock();
+                t.Text = l.ToString();
+
+                sp.Children.Add(tb);
+                sp.Children.Add(t);
+
+                DynLeaderboards_ListView.Items.Add(sp);
+            }
+
+            foreach (var l in (Leaderboard[])Enum.GetValues(typeof(Leaderboard))) {
+                if (Settings.DynamicLeaderboards.Contains(l)) continue;
+                var sp = new StackPanel();
+                sp.Orientation = Orientation.Horizontal;
+
+                var tb = new SHToggleButton();
+                tb.Name = $"{l.ToString()}_toggle_listview";
+                tb.IsChecked = false;
+                tb.Checked += (a, b) => CreateDynamicLeaderboardList();
+                tb.Unchecked += (a, b) => CreateDynamicLeaderboardList();
+                //tb.ToolTip = tooltip;
+
+                var t = new TextBlock();
+                t.Text = l.ToString();
+
+                sp.Children.Add(tb);
+                sp.Children.Add(t);
+
+                DynLeaderboards_ListView.Items.Add(sp);
+            }
         }
+
+
+        private void CreateDynamicLeaderboardList() { 
+            Settings.DynamicLeaderboards.Clear();
+            foreach (var v in DynLeaderboards_ListView.Items) {
+                var sp = (StackPanel)v;
+                var tb = (SHToggleButton)sp.Children[0];
+                var txt = (TextBlock)sp.Children[1];
+                if (tb.IsChecked == null || tb.IsChecked == false) continue;
+
+                if (Enum.TryParse(txt.Text, out Leaderboard variant)) { 
+                    Settings.DynamicLeaderboards.Add(variant);
+                }
+            }
+        }
+
+
 
         #region Add ui items
         private void AddPluginDescription() {
@@ -222,8 +281,8 @@ namespace KLPlugins.Leaderboard
                        v.ToString(),
                        v.ToPropName(),
                        LeaderboardPlugin.Settings.OutCarProps.Includes(v),
-                       (sender, e) => TbChanged<OutCarProp>(sender, e, (o) => LeaderboardPlugin.Settings.OutCarProps.Combine(o)),
-                       (sender, e) => TbChanged<OutCarProp>(sender, e, (o) => LeaderboardPlugin.Settings.OutCarProps.Remove(o)),
+                       (sender, e) => LeaderboardPlugin.Settings.OutCarProps.Combine(v),
+                       (sender, e) => LeaderboardPlugin.Settings.OutCarProps.Remove(v),
                        v.ToolTipText()
                    );
 
@@ -259,8 +318,8 @@ namespace KLPlugins.Leaderboard
                        v.ToString(),
                        v.ToPropName(),
                        LeaderboardPlugin.Settings.OutLapProps.Includes(v),
-                       (sender, e) => TbChanged<OutLapProp>(sender, e, (o) => LeaderboardPlugin.Settings.OutLapProps.Combine(o)),
-                       (sender, e) => TbChanged<OutLapProp>(sender, e, (o) => LeaderboardPlugin.Settings.OutLapProps.Remove(o)),
+                       (sender, e) => LeaderboardPlugin.Settings.OutLapProps.Combine(v),
+                       (sender, e) => LeaderboardPlugin.Settings.OutLapProps.Remove(v),
                        v.ToolTipText()
                    );
 
@@ -278,8 +337,8 @@ namespace KLPlugins.Leaderboard
                        v.ToString(),
                        v.ToPropName(),
                        LeaderboardPlugin.Settings.OutStintProps.Includes(v),
-                       (sender, e) => TbChanged<OutStintProp>(sender, e, (o) => LeaderboardPlugin.Settings.OutStintProps.Combine(o)),
-                       (sender, e) => TbChanged<OutStintProp>(sender, e, (o) => LeaderboardPlugin.Settings.OutStintProps.Remove(o)),
+                       (sender, e) => LeaderboardPlugin.Settings.OutStintProps.Combine(v),
+                       (sender, e) => LeaderboardPlugin.Settings.OutStintProps.Remove(v),
                        v.ToolTipText()
                    );
 
@@ -297,8 +356,8 @@ namespace KLPlugins.Leaderboard
                        v.ToString(),
                        v.ToPropName(),
                        LeaderboardPlugin.Settings.OutDistanceProps.Includes(v),
-                       (sender, e) => TbChanged<OutDistanceProp>(sender, e, (o) => LeaderboardPlugin.Settings.OutDistanceProps.Combine(o)),
-                       (sender, e) => TbChanged<OutDistanceProp>(sender, e, (o) => LeaderboardPlugin.Settings.OutDistanceProps.Remove(o)),
+                       (sender, e) => LeaderboardPlugin.Settings.OutDistanceProps.Combine(v),
+                       (sender, e) => LeaderboardPlugin.Settings.OutDistanceProps.Remove(v),
                        v.ToolTipText()
                    );
 
@@ -316,8 +375,8 @@ namespace KLPlugins.Leaderboard
                        v.ToString(),
                        v.ToPropName(),
                        LeaderboardPlugin.Settings.OutGapProps.Includes(v),
-                       (sender, e) => TbChanged<OutGapProp>(sender, e, (o) => LeaderboardPlugin.Settings.OutGapProps.Combine(o)),
-                       (sender, e) => TbChanged<OutGapProp>(sender, e, (o) => LeaderboardPlugin.Settings.OutGapProps.Remove(o)),
+                       (sender, e) => LeaderboardPlugin.Settings.OutGapProps.Combine(v),
+                       (sender, e) => LeaderboardPlugin.Settings.OutGapProps.Remove(v),
                        v.ToolTipText()
                    );
 
@@ -335,8 +394,8 @@ namespace KLPlugins.Leaderboard
                        v.ToString(),
                        v.ToPropName(),
                        LeaderboardPlugin.Settings.OutPosProps.Includes(v),
-                       (sender, e) => TbChanged<OutPosProp>(sender, e, (o) => LeaderboardPlugin.Settings.OutPosProps.Combine(o)),
-                       (sender, e) => TbChanged<OutPosProp>(sender, e, (o) => LeaderboardPlugin.Settings.OutPosProps.Remove(o)),
+                       (sender, e) => LeaderboardPlugin.Settings.OutPosProps.Combine(v),
+                       (sender, e) => LeaderboardPlugin.Settings.OutPosProps.Remove(v),
                        v.ToolTipText()
                    );
 
@@ -354,8 +413,8 @@ namespace KLPlugins.Leaderboard
                        v.ToString(),
                        v.ToPropName(),
                        LeaderboardPlugin.Settings.OutPitProps.Includes(v),
-                       (sender, e) => TbChanged<OutPitProp>(sender, e, (o) => LeaderboardPlugin.Settings.OutPitProps.Combine(o)),
-                       (sender, e) => TbChanged<OutPitProp>(sender, e, (o) => LeaderboardPlugin.Settings.OutPitProps.Remove(o)),
+                       (sender, e) => LeaderboardPlugin.Settings.OutPitProps.Combine(v),
+                       (sender, e) => LeaderboardPlugin.Settings.OutPitProps.Remove(v),
                        v.ToolTipText()
                    );
 
@@ -384,8 +443,8 @@ namespace KLPlugins.Leaderboard
                     v.ToString(), 
                     v.ToString(), 
                     LeaderboardPlugin.Settings.OutDriverProps.Includes(v),
-                    (sender, e) => TbChanged<OutDriverProp>(sender, e, (o) => LeaderboardPlugin.Settings.OutDriverProps.Combine(o)),
-                    (sender, e) => TbChanged<OutDriverProp>(sender, e, (o) => LeaderboardPlugin.Settings.OutDriverProps.Remove(o)),
+                    (sender, e) => LeaderboardPlugin.Settings.OutDriverProps.Combine(v),
+                    (sender, e) => LeaderboardPlugin.Settings.OutDriverProps.Remove(v),
                     v.ToolTipText()
                 );
                 ExposedDriverProperties_StackPanel.Children.Add(sp);
@@ -404,6 +463,7 @@ namespace KLPlugins.Leaderboard
             }
 
             OutOrder[] order = new OutOrder[] {
+                OutOrder.Overall,
                 OutOrder.InClassPositions,
                 OutOrder.RelativeOverallPositions,
                 OutOrder.RelativeClassPositions,
@@ -439,10 +499,22 @@ namespace KLPlugins.Leaderboard
                     v.ToString(), 
                     v.ToPropName(), 
                     LeaderboardPlugin.Settings.OutOrders.Includes(v),
-                    (sender, e) => TbChanged<OutOrder>(sender, e, (o) => LeaderboardPlugin.Settings.OutOrders.Combine(o)),
-                    (sender, e) => TbChanged<OutOrder>(sender, e, (o) => LeaderboardPlugin.Settings.OutOrders.Remove(o)),
+                    (sender, e) => {
+                        _orderToggles[OutOrder.Overall].IsChecked = true;
+                        LeaderboardPlugin.Settings.OutOrders.Combine(v);
+                    },
+                    (sender, e) => {
+                        if (v == OutOrder.Overall) {
+                            foreach (var kv in _orderToggles) {
+                                kv.Value.IsChecked = false;
+                            }
+                        }
+
+                        LeaderboardPlugin.Settings.OutOrders.Remove(v);
+                    },
                     v.ToolTipText()
                 );
+                _orderToggles.Add(v, sp.FindChild<SHToggleButton>($"{v}_toggle"));
 
                 ExposedOrderings_StackPanel.Children.Add(sp);
                 ExposedOrderings_StackPanel.Children.Add(CreateToggleSeparator());
@@ -459,8 +531,8 @@ namespace KLPlugins.Leaderboard
                     v.ToString(),
                     v.ToString(),
                     LeaderboardPlugin.Settings.OutGeneralProps.Includes(v),
-                    (sender, e) => TbChanged<OutGeneralProp>(sender, e, (o) => LeaderboardPlugin.Settings.OutGeneralProps.Combine(o)),
-                    (sender, e) => TbChanged<OutGeneralProp>(sender, e, (o) => LeaderboardPlugin.Settings.OutGeneralProps.Remove(o)),
+                    (sender, e) => LeaderboardPlugin.Settings.OutGeneralProps.Combine(v),
+                    (sender, e) => LeaderboardPlugin.Settings.OutGeneralProps.Remove(v),
                     v.ToolTipText()
                 );
 
@@ -533,43 +605,16 @@ namespace KLPlugins.Leaderboard
 
         #endregion
 
-        #region Callbacks
-        /// <summary>
-        /// Called when property toggle button changes.
-        /// </summary>
-        /// <typeparam name="TEnum">Flags enum type.</typeparam>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        /// <param name="removeProp">Function that handles adding or removing property from the flags enum.</param>
-        private void TbChanged<TEnum>(object sender, RoutedEventArgs e, Action<TEnum> removeProp)
-            where TEnum : struct 
-        {
-            Control ctrl = sender as Control;
-            if (ctrl != null) {
-                string name = ctrl.Name.Split('_')[0];
-                if (Enum.TryParse(name, out TEnum newVariant)) {
-                    removeProp(newVariant);
-                } else {
-                    LeaderboardPlugin.LogWarn($"Found unknown setting '{name}' in Properties");
-                }
-
-                LeaderboardPlugin.LogInfo($"Checked button {name}");
-            }
-        }
+        #region Callbacks           
 
         private void CurrentDriverTbChecked(object sender, RoutedEventArgs e) {
-            // Checked to only show current driver
-            LeaderboardPlugin.Settings.OutDriverProps.Remove(OutDriverProp.AllDriversInfo);
-            AllDriversInfo_ToggleButton.IsChecked = false;
-
             LeaderboardPlugin.Settings.OutDriverProps.Combine(OutDriverProp.CurrentDriverInfo);
+            AllDriversInfo_ToggleButton.IsChecked = false;
         }
 
         private void AllDriverTbChecked(object sender, RoutedEventArgs e) {
-            LeaderboardPlugin.Settings.OutDriverProps.Remove(OutDriverProp.CurrentDriverInfo);
-            CurrentDriverInfo_ToggleButton.IsChecked = false;
-
             LeaderboardPlugin.Settings.OutDriverProps.Combine(OutDriverProp.AllDriversInfo);
+            CurrentDriverInfo_ToggleButton.IsChecked = false;
         }
 
 
@@ -620,5 +665,32 @@ namespace KLPlugins.Leaderboard
         }
 
         #endregion
+
+        // From https://stackoverflow.com/questions/12540457/moving-an-item-up-and-down-in-a-wpf-list-box
+        private void DynLeaderboard_ListView_Up(object sender, RoutedEventArgs e) {
+            var selectedIndex = DynLeaderboards_ListView.SelectedIndex;
+
+            if (selectedIndex > 0) {
+                var itemToMoveUp = DynLeaderboards_ListView.Items[selectedIndex];
+                DynLeaderboards_ListView.Items.RemoveAt(selectedIndex);
+                DynLeaderboards_ListView.Items.Insert(selectedIndex - 1, itemToMoveUp);
+                DynLeaderboards_ListView.SelectedIndex = selectedIndex - 1;
+            }
+
+            CreateDynamicLeaderboardList();
+        }
+
+        private void DynLeaderboard_ListView_Down(object sender, RoutedEventArgs e) {
+            var selectedIndex = DynLeaderboards_ListView.SelectedIndex;
+
+            if (selectedIndex + 1 < DynLeaderboards_ListView.Items.Count) {
+                var itemToMoveDown = DynLeaderboards_ListView.Items[selectedIndex];
+                DynLeaderboards_ListView.Items.RemoveAt(selectedIndex);
+                DynLeaderboards_ListView.Items.Insert(selectedIndex + 1, itemToMoveDown);
+                DynLeaderboards_ListView.SelectedIndex = selectedIndex + 1;
+            }
+
+            CreateDynamicLeaderboardList();
+        }
     }
 }

@@ -215,6 +215,8 @@ namespace KLPlugins.Leaderboard {
         GapToFocusedOnTrack = 1 << 3,
         GapToAheadOverall = 1 << 4,
         GapToAheadInClass = 1 << 5,
+        DynamicGapToFocused = 1 << 6,
+        DynamicGapToAhead = 1 << 7,
     }
 
     static class OutGapPropExtensions {
@@ -236,6 +238,10 @@ namespace KLPlugins.Leaderboard {
                     return "Gap.ToOverallAhead";
                 case OutGapProp.GapToAheadInClass:
                     return "Gap.ToClassAhead";
+                case OutGapProp.DynamicGapToFocused:
+                    return "Gap.Dynamic.ToFocused";
+                case OutGapProp.DynamicGapToAhead:
+                    return "Gap.Dynamic.ToAhead";
                 default:
                     throw new ArgumentOutOfRangeException($"Invalid enum variant {p}");
             }
@@ -255,6 +261,10 @@ namespace KLPlugins.Leaderboard {
                     return "Total gap to the car ahead in overall in seconds";
                 case OutGapProp.GapToAheadInClass:
                     return "Total gap to the car ahead in class in seconds";
+                case OutGapProp.DynamicGapToFocused:
+                    return "Gap that changes based of currently displayed dynamic leaderboard. Overall -> gap to leader, class -> gap to class leader, partial relative, relative overall/class -> gap to focused total, relative on track -> gap to focused on track.";
+                case OutGapProp.DynamicGapToAhead:
+                    return "Gap to the car ahead that changes based on the currently displayed dynamic leaderboard.";
                 default:
                     throw new ArgumentOutOfRangeException($"Invalid enum variant {p}");
             }

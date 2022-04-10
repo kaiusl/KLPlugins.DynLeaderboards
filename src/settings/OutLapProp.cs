@@ -3,38 +3,42 @@
 
 namespace KLPlugins.Leaderboard {
     [Flags]
-    public enum OutLapProp {
+    public enum OutLapProp : long {
         None = 0,
-        Laps = 1 << 0,
-        LastLapTime = 1 << 1,
-        LastLapSectors = 1 << 2,
-        BestLapTime = 1 << 3,
-        BestLapSectors = 1 << 4,
-        BestSectors = 1 << 5,
-        CurrentLapTime = 1 << 6,
+        Laps = 1L << 0,
+        LastLapTime = 1L << 1,
+        LastLapSectors = 1L << 2,
+        BestLapTime = 1L << 3,
+        BestLapSectors = 1L << 4,
+        BestSectors = 1L << 5,
+        CurrentLapTime = 1L << 6,
 
-        BestLapDeltaToOverallBest = 1 << 10,
-        BestLapDeltaToClassBest = 1 << 11,
-        BestLapDeltaToLeaderBest = 1 << 12,
-        BestLapDeltaToClassLeaderBest = 1 << 13,
-        BestLapDeltaToFocusedBest = 1 << 14,
-        BestLapDeltaToAheadBest = 1 << 15,
-        BestLapDeltaToAheadInClassBest = 1 << 16,
+        BestLapDeltaToOverallBest = 1L << 10,
+        BestLapDeltaToClassBest = 1L << 11,
+        BestLapDeltaToLeaderBest = 1L << 12,
+        BestLapDeltaToClassLeaderBest = 1L << 13,
+        BestLapDeltaToFocusedBest = 1L << 14,
+        BestLapDeltaToAheadBest = 1L << 15,
+        BestLapDeltaToAheadInClassBest = 1L << 16,
 
-        LastLapDeltaToOverallBest = 1 << 17,
-        LastLapDeltaToClassBest = 1 << 18,
-        LastLapDeltaToLeaderBest = 1 << 19,
-        LastLapDeltaToClassLeaderBest = 1 << 20,
-        LastLapDeltaToFocusedBest = 1 << 21,
-        LastLapDeltaToAheadBest = 1 << 22,
-        LastLapDeltaToAheadInClassBest = 1 << 23,
-        LastLapDeltaToOwnBest = 1 << 24,
+        LastLapDeltaToOverallBest = 1L << 17,
+        LastLapDeltaToClassBest = 1L << 18,
+        LastLapDeltaToLeaderBest = 1L << 19,
+        LastLapDeltaToClassLeaderBest = 1L << 20,
+        LastLapDeltaToFocusedBest = 1L << 21,
+        LastLapDeltaToAheadBest = 1L << 22,
+        LastLapDeltaToAheadInClassBest = 1L << 23,
+        LastLapDeltaToOwnBest = 1L << 24,
 
-        LastLapDeltaToLeaderLast = 1 << 25,
-        LastLapDeltaToClassLeaderLast = 1 << 26,
-        LastLapDeltaToFocusedLast = 1 << 27,
-        LastLapDeltaToAheadLast = 1 << 28,
-        LastLapDeltaToAheadInClassLast = 1 << 29,
+        LastLapDeltaToLeaderLast = 1L << 25,
+        LastLapDeltaToClassLeaderLast = 1L << 26,
+        LastLapDeltaToFocusedLast = 1L << 27,
+        LastLapDeltaToAheadLast = 1L << 28,
+        LastLapDeltaToAheadInClassLast = 1L << 29,
+
+        DynamicBestLapDeltaToFocusedBest = 1L << 30,
+        DynamicLastLapDeltaToFocusedBest = 1L << 31,
+        DynamicLastLapDeltaToFocusedLast = 1L << 32,
     }
 
     static class OutLapPropExtensions {
@@ -115,6 +119,12 @@ namespace KLPlugins.Leaderboard {
                     return "Laps.Last.Delta.ToAheadLast";
                 case OutLapProp.LastLapDeltaToAheadInClassLast:
                     return "Laps.Last.Delta.ToAheadInClassLast";
+                case OutLapProp.DynamicBestLapDeltaToFocusedBest:
+                    return "Laps.Best.Delta.Dynamic.ToFocusedBest";
+                case OutLapProp.DynamicLastLapDeltaToFocusedBest:
+                    return "Laps.Last.Delta.Dynamic.ToFocusedBest";
+                case OutLapProp.DynamicLastLapDeltaToFocusedLast:
+                    return "Laps.Last.Delta.Dynamic.ToFocusedLast";
                 default:
                     throw new ArgumentOutOfRangeException("Invalid enum variant");
             }
@@ -176,6 +186,12 @@ namespace KLPlugins.Leaderboard {
                     return "Last lap delta to the ahead car's last lap in seconds.";
                 case OutLapProp.LastLapDeltaToAheadInClassLast:
                     return "Last lap delta to the in class ahead car's last lap in seconds.";
+                case OutLapProp.DynamicBestLapDeltaToFocusedBest:
+                    return "Best lap delta to the car's best based on currently displayed dynamic leaderboard. Overall -> to leader's, Class -> to class leader's, Any relative -> to focused car's";
+                case OutLapProp.DynamicLastLapDeltaToFocusedBest:
+                    return "Last lap delta to the car's best based on currently displayed dynamic leaderboard. Overall -> to leader's, Class -> to class leader's, Any relative -> to focused car's";
+                case OutLapProp.DynamicLastLapDeltaToFocusedLast:
+                    return "Last lap delta to the car's last based on currently displayed dynamic leaderboard. Overall -> to leader's, Class -> to class leader's, Any relative -> to focused car's";
                 default:
                     throw new ArgumentOutOfRangeException("Invalid enum variant");
             }

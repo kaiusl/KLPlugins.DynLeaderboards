@@ -18,8 +18,7 @@ namespace KLPlugins.Leaderboard
     /// <summary>
     /// Logique d'interaction pour SettingsControlDemo.xaml
     /// </summary>
-    public partial class SettingsControlDemo : UserControl
-    {
+    public partial class SettingsControlDemo : UserControl {
         public LeaderboardPlugin Plugin { get; }
         public PluginSettings Settings { get => LeaderboardPlugin.Settings; }
 
@@ -27,7 +26,6 @@ namespace KLPlugins.Leaderboard
         private Dictionary<TeamCupCategory, ColorPicker> _cupColorPickers = new Dictionary<TeamCupCategory, ColorPicker>(5);
         private Dictionary<TeamCupCategory, ColorPicker> _cupTextColorPickers = new Dictionary<TeamCupCategory, ColorPicker>(5);
         private Dictionary<DriverCategory, ColorPicker> _driverCategoryColorPickers = new Dictionary<DriverCategory, ColorPicker>(4);
-        private Dictionary<OutOrder, SHToggleButton> _orderToggles = new Dictionary<OutOrder, SHToggleButton>(7);
 
         public SettingsControlDemo() {
             InitializeComponent();
@@ -36,16 +34,16 @@ namespace KLPlugins.Leaderboard
 
         public SettingsControlDemo(LeaderboardPlugin plugin) : this() {
             this.Plugin = plugin;
-            AddPluginDescription();
+
             AddToggles();
             AddColors();
 
             // Set current values for other settings
-            AccDataLocation_TextBox.Text = LeaderboardPlugin.Settings.AccDataLocation;
+            AccDataLocation_TextBox.Text = Settings.AccDataLocation;
             AccDataLocation_TextBox.Background = Brushes.LightGreen;
-            Logging_ToggleButton.IsChecked = LeaderboardPlugin.Settings.Log;
+            Logging_ToggleButton.IsChecked = Settings.Log;
 
-            foreach (var l in Settings.DynamicLeaderboards) {
+            foreach (var l in Settings.DynLeaderboardSettings.Order) {
                 var sp = new StackPanel();
                 sp.Orientation = Orientation.Horizontal;
 
@@ -66,7 +64,7 @@ namespace KLPlugins.Leaderboard
             }
 
             foreach (var l in (Leaderboard[])Enum.GetValues(typeof(Leaderboard))) {
-                if (Settings.DynamicLeaderboards.Contains(l)) continue;
+                if (Settings.DynLeaderboardSettings.Order.Contains(l)) continue;
                 var sp = new StackPanel();
                 sp.Orientation = Orientation.Horizontal;
 
@@ -89,7 +87,7 @@ namespace KLPlugins.Leaderboard
 
 
         private void CreateDynamicLeaderboardList() { 
-            Settings.DynamicLeaderboards.Clear();
+            Settings.DynLeaderboardSettings.Order.Clear();
             foreach (var v in DynLeaderboards_ListView.Items) {
                 var sp = (StackPanel)v;
                 var tb = (SHToggleButton)sp.Children[0];
@@ -97,7 +95,7 @@ namespace KLPlugins.Leaderboard
                 if (tb.IsChecked == null || tb.IsChecked == false) continue;
 
                 if (Enum.TryParse(txt.Text, out Leaderboard variant)) { 
-                    Settings.DynamicLeaderboards.Add(variant);
+                    Settings.DynLeaderboardSettings.Order.Add(variant);
                 }
             }
         }
@@ -105,9 +103,6 @@ namespace KLPlugins.Leaderboard
 
 
         #region Add ui items
-        private void AddPluginDescription() {
-            ExposedOrderingsInfo_TextBlock.Text = @"Here you can select all other orderings like per class or relative to the focusd car.";
-        }
 
         private void AddColors() {
             AddClassColors();
@@ -256,7 +251,6 @@ namespace KLPlugins.Leaderboard
             AddLapToggles();
             AddCarToggles();
             AddDriverToggles();
-            AddOrderingsToggles();
             AddOtherToggles();
         }
 
@@ -271,9 +265,9 @@ namespace KLPlugins.Leaderboard
                 StackPanel sp = CreateToggleRow(
                        v.ToString(),
                        v.ToPropName(),
-                       LeaderboardPlugin.Settings.OutCarProps.Includes(v),
-                       (sender, e) => LeaderboardPlugin.Settings.OutCarProps.Combine(v),
-                       (sender, e) => LeaderboardPlugin.Settings.OutCarProps.Remove(v),
+                       LeaderboardPlugin.Settings.DynLeaderboardSettings.OutCarProps.Includes(v),
+                       (sender, e) => LeaderboardPlugin.Settings.DynLeaderboardSettings.OutCarProps.Combine(v),
+                       (sender, e) => LeaderboardPlugin.Settings.DynLeaderboardSettings.OutCarProps.Remove(v),
                        v.ToolTipText()
                    );
 
@@ -308,9 +302,9 @@ namespace KLPlugins.Leaderboard
                 StackPanel sp = CreateToggleRow(
                        v.ToString(),
                        v.ToPropName(),
-                       LeaderboardPlugin.Settings.OutLapProps.Includes(v),
-                       (sender, e) => LeaderboardPlugin.Settings.OutLapProps.Combine(v),
-                       (sender, e) => LeaderboardPlugin.Settings.OutLapProps.Remove(v),
+                       LeaderboardPlugin.Settings.DynLeaderboardSettings.OutLapProps.Includes(v),
+                       (sender, e) => LeaderboardPlugin.Settings.DynLeaderboardSettings.OutLapProps.Combine(v),
+                       (sender, e) => LeaderboardPlugin.Settings.DynLeaderboardSettings.OutLapProps.Remove(v),
                        v.ToolTipText()
                    );
 
@@ -327,9 +321,9 @@ namespace KLPlugins.Leaderboard
                 StackPanel sp = CreateToggleRow(
                        v.ToString(),
                        v.ToPropName(),
-                       LeaderboardPlugin.Settings.OutStintProps.Includes(v),
-                       (sender, e) => LeaderboardPlugin.Settings.OutStintProps.Combine(v),
-                       (sender, e) => LeaderboardPlugin.Settings.OutStintProps.Remove(v),
+                       LeaderboardPlugin.Settings.DynLeaderboardSettings.OutStintProps.Includes(v),
+                       (sender, e) => LeaderboardPlugin.Settings.DynLeaderboardSettings.OutStintProps.Combine(v),
+                       (sender, e) => LeaderboardPlugin.Settings.DynLeaderboardSettings.OutStintProps.Remove(v),
                        v.ToolTipText()
                    );
 
@@ -346,9 +340,9 @@ namespace KLPlugins.Leaderboard
                 StackPanel sp = CreateToggleRow(
                        v.ToString(),
                        v.ToPropName(),
-                       LeaderboardPlugin.Settings.OutDistanceProps.Includes(v),
-                       (sender, e) => LeaderboardPlugin.Settings.OutDistanceProps.Combine(v),
-                       (sender, e) => LeaderboardPlugin.Settings.OutDistanceProps.Remove(v),
+                       LeaderboardPlugin.Settings.DynLeaderboardSettings.OutDistanceProps.Includes(v),
+                       (sender, e) => LeaderboardPlugin.Settings.DynLeaderboardSettings.OutDistanceProps.Combine(v),
+                       (sender, e) => LeaderboardPlugin.Settings.DynLeaderboardSettings.OutDistanceProps.Remove(v),
                        v.ToolTipText()
                    );
 
@@ -365,9 +359,9 @@ namespace KLPlugins.Leaderboard
                 StackPanel sp = CreateToggleRow(
                        v.ToString(),
                        v.ToPropName(),
-                       LeaderboardPlugin.Settings.OutGapProps.Includes(v),
-                       (sender, e) => LeaderboardPlugin.Settings.OutGapProps.Combine(v),
-                       (sender, e) => LeaderboardPlugin.Settings.OutGapProps.Remove(v),
+                       LeaderboardPlugin.Settings.DynLeaderboardSettings.OutGapProps.Includes(v),
+                       (sender, e) => LeaderboardPlugin.Settings.DynLeaderboardSettings.OutGapProps.Combine(v),
+                       (sender, e) => LeaderboardPlugin.Settings.DynLeaderboardSettings.OutGapProps.Remove(v),
                        v.ToolTipText()
                    );
 
@@ -384,9 +378,9 @@ namespace KLPlugins.Leaderboard
                 StackPanel sp = CreateToggleRow(
                        v.ToString(),
                        v.ToPropName(),
-                       LeaderboardPlugin.Settings.OutPosProps.Includes(v),
-                       (sender, e) => LeaderboardPlugin.Settings.OutPosProps.Combine(v),
-                       (sender, e) => LeaderboardPlugin.Settings.OutPosProps.Remove(v),
+                       LeaderboardPlugin.Settings.DynLeaderboardSettings.OutPosProps.Includes(v),
+                       (sender, e) => LeaderboardPlugin.Settings.DynLeaderboardSettings.OutPosProps.Combine(v),
+                       (sender, e) => LeaderboardPlugin.Settings.DynLeaderboardSettings.OutPosProps.Remove(v),
                        v.ToolTipText()
                    );
 
@@ -403,9 +397,9 @@ namespace KLPlugins.Leaderboard
                 StackPanel sp = CreateToggleRow(
                        v.ToString(),
                        v.ToPropName(),
-                       LeaderboardPlugin.Settings.OutPitProps.Includes(v),
-                       (sender, e) => LeaderboardPlugin.Settings.OutPitProps.Combine(v),
-                       (sender, e) => LeaderboardPlugin.Settings.OutPitProps.Remove(v),
+                       LeaderboardPlugin.Settings.DynLeaderboardSettings.OutPitProps.Includes(v),
+                       (sender, e) => LeaderboardPlugin.Settings.DynLeaderboardSettings.OutPitProps.Combine(v),
+                       (sender, e) => LeaderboardPlugin.Settings.DynLeaderboardSettings.OutPitProps.Remove(v),
                        v.ToolTipText()
                    );
 
@@ -433,82 +427,13 @@ namespace KLPlugins.Leaderboard
                 var sp = CreateToggleRow(
                     v.ToString(), 
                     v.ToString(), 
-                    LeaderboardPlugin.Settings.OutDriverProps.Includes(v),
-                    (sender, e) => LeaderboardPlugin.Settings.OutDriverProps.Combine(v),
-                    (sender, e) => LeaderboardPlugin.Settings.OutDriverProps.Remove(v),
+                    LeaderboardPlugin.Settings.DynLeaderboardSettings.OutDriverProps.Includes(v),
+                    (sender, e) => LeaderboardPlugin.Settings.DynLeaderboardSettings.OutDriverProps.Combine(v),
+                    (sender, e) => LeaderboardPlugin.Settings.DynLeaderboardSettings.OutDriverProps.Remove(v),
                     v.ToolTipText()
                 );
                 ExposedDriverProperties_StackPanel.Children.Add(sp);
                 ExposedDriverProperties_StackPanel.Children.Add(CreateToggleSeparator());
-            }
-        }
-
-        private void AddOrderingsToggles() {
-            ExposedOrderings_StackPanel.Children.Add(CreateTogglesDescriptionRow());
-            ExposedOrderings_StackPanel.Children.Add(CreateToggleSeparator());
-
-            void AddSmallTitle(string name) {
-                var t = new SHSmallTitle();
-                t.Content = name;
-                ExposedOrderings_StackPanel.Children.Add(t);
-            }
-
-            OutOrder[] order = new OutOrder[] {
-                OutOrder.Overall,
-                OutOrder.InClassPositions,
-                OutOrder.RelativeOverallPositions,
-                OutOrder.RelativeClassPositions,
-                OutOrder.RelativeOnTrackPositions,
-                OutOrder.PartialRelativeOverallPositions,
-                OutOrder.PartialRelativeClassPositions,
-                OutOrder.FocusedCarPosition,
-                OutOrder.OverallBestLapPosition,
-                OutOrder.InClassBestLapPosition,
-            };
-
-            foreach (var v in order) {
-                if (v == OutOrder.None) continue;
-
-                switch (v) { 
-                    case OutOrder.InClassPositions:
-                        AddSmallTitle("Overall leaderboards");
-                        break;
-                    case OutOrder.RelativeOverallPositions:
-                        AddSmallTitle("Relative leaderboards");
-                        break;
-                    case OutOrder.PartialRelativeOverallPositions:
-                        AddSmallTitle("Partial relative leaderboards");
-                        break;
-                    case OutOrder.FocusedCarPosition:
-                        AddSmallTitle("Single positions");
-                        break;
-                    default:
-                        break;
-                }
-
-                var sp = CreateToggleRow(
-                    v.ToString(), 
-                    v.ToPropName(), 
-                    LeaderboardPlugin.Settings.OutOrders.Includes(v),
-                    (sender, e) => {
-                        _orderToggles[OutOrder.Overall].IsChecked = true;
-                        LeaderboardPlugin.Settings.OutOrders.Combine(v);
-                    },
-                    (sender, e) => {
-                        if (v == OutOrder.Overall) {
-                            foreach (var kv in _orderToggles) {
-                                kv.Value.IsChecked = false;
-                            }
-                        }
-
-                        LeaderboardPlugin.Settings.OutOrders.Remove(v);
-                    },
-                    v.ToolTipText()
-                );
-                _orderToggles.Add(v, sp.FindChild<SHToggleButton>($"{v}_toggle"));
-
-                ExposedOrderings_StackPanel.Children.Add(sp);
-                ExposedOrderings_StackPanel.Children.Add(CreateToggleSeparator());
             }
         }
 

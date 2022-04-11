@@ -250,7 +250,7 @@
                         <TextBlock Grid.Column="0" Text="Overall: " Style="{StaticResource Description}"/>
                         <mah:NumericUpDown Grid.Column="1"
                                     Style="{StaticResource NumPos}"
-                                    Value="{Binding Path=Settings.NumOverallPos}"
+                                    Value="{Binding Path=Settings.DynLeaderboardSettings.NumOverallPos}"
                                     />
                     </StackPanel>
                     <Separator Style="{StaticResource RowSep}"/>
@@ -264,7 +264,7 @@
                         <mah:NumericUpDown Grid.Column="1"
                                     Style="{StaticResource NumPos}"
                                     Maximum="50"
-                                    Value="{Binding Path=Settings.NumOverallRelativePos}"
+                                    Value="{Binding Path=Settings.DynLeaderboardSettings.NumOverallRelativePos}"
                                     />
 
                     </StackPanel>
@@ -277,7 +277,7 @@
                         <mah:NumericUpDown Grid.Column="1" 
                                     Style="{StaticResource NumPos}"
                                     Maximum="50"
-                                    Value="{Binding Path=Settings.NumClassRelativePos}"
+                                    Value="{Binding Path=Settings.DynLeaderboardSettings.NumClassRelativePos}"
                                     />
 
                     </StackPanel>
@@ -291,7 +291,7 @@
                         <mah:NumericUpDown Grid.Column="1"
                                     Style="{StaticResource NumPos}"
                                     Maximum="50"
-                                    Value="{Binding Path=Settings.NumOnTrackRelativePos}"
+                                    Value="{Binding Path=Settings.DynLeaderboardSettings.NumOnTrackRelativePos}"
                                     />
 
                     </StackPanel>
@@ -306,7 +306,7 @@
                         <TextBlock Grid.Column="0" Text="Overall - top positions: " Style="{StaticResource Description}"/>
                         <mah:NumericUpDown Grid.Column="1"
                                     Style="{StaticResource NumPos}"
-                                    Value="{Binding Path=Settings.PartialRelativeOverallNumOverallPos}"
+                                    Value="{Binding Path=Settings.DynLeaderboardSettings.PartialRelativeOverallNumOverallPos}"
                                     />
 
                     </StackPanel>
@@ -320,7 +320,7 @@
                         <mah:NumericUpDown Grid.Column="1"
                                     Style="{StaticResource NumPos}"
                                     Maximum="50"
-                                    Value="{Binding Path=Settings.PartialRelativeClassNumRelativePos}"
+                                    Value="{Binding Path=Settings.DynLeaderboardSettings.PartialRelativeClassNumRelativePos}"
                                     />
 
                     </StackPanel>
@@ -332,7 +332,7 @@
                         <TextBlock Grid.Column="0" Text="Class    - top positions: " Style="{StaticResource Description}"/>
                         <mah:NumericUpDown Grid.Column="1"
                                     Style="{StaticResource NumPos}"
-                                    Value="{Binding Path=Settings.PartialRelativeClassNumClassPos}"
+                                    Value="{Binding Path=Settings.DynLeaderboardSettings.PartialRelativeClassNumClassPos}"
                                     />
 
                     </StackPanel>
@@ -346,7 +346,7 @@
                         <mah:NumericUpDown Grid.Column="1"
                                     Style="{StaticResource NumPos}"
                                     Maximum="50"
-                                    Value="{Binding Path=Settings.PartialRelativeClassNumRelativePos}"
+                                    Value="{Binding Path=Settings.DynLeaderboardSettings.PartialRelativeClassNumRelativePos}"
                                     />
 
                     </StackPanel>
@@ -361,7 +361,7 @@
                         <mah:NumericUpDown Grid.Column="1"
                                     Style="{StaticResource NumPos}"
                                     Maximum="10"
-                                    Value="{Binding Path=Settings.NumDrivers}"
+                                    Value="{Binding Path=Settings.DynLeaderboardSettings.NumDrivers}"
                                     />
 
                     </StackPanel>
@@ -413,19 +413,6 @@
 
         </styles:SHTabItem>
         
-        
-        <styles:SHTabItem Header="Exposed orderings">
-            <ScrollViewer>
-                <StackPanel>
-                    <TextBlock x:Name="ExposedOrderingsInfo_TextBlock" TextWrapping="Wrap" HorizontalAlignment="Left"/>
-
-                    <Separator Margin="0,15,0,1"/>
-                    <Separator Margin="0,1,0,10"/>
-                    <StackPanel x:Name="ExposedOrderings_StackPanel"/>
-
-                </StackPanel>
-            </ScrollViewer>
-        </styles:SHTabItem>
 
     </styles:SHTabControl>
 

@@ -143,7 +143,7 @@ namespace KLPlugins.Leaderboard.ksBroadcastingNetwork.Structs {
         }
 
         public void SetDynamicGetters() {
-            switch (LeaderboardPlugin.CurrentLeaderboard) {
+            switch (LeaderboardPlugin.Settings.DynLeaderboardSettings.CurrentLeaderboard()) {
                 case Leaderboard.Overall:
                     GetDynamicGapToFocused = () => GapToLeader;
                     GetDynamicGapToAhead = () => GapToAhead;

@@ -118,7 +118,6 @@
     <Compile Include="src\settings\OutDriverProp.cs" />
     <Compile Include="src\settings\OutGeneralProp.cs" />
     <Compile Include="src\settings\OutLapProp.cs" />
-    <Compile Include="src\settings\OutOrder.cs" />
     <Compile Include="src\settings\PluginSettings.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\Resources.Designer.cs">

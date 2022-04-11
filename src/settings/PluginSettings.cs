@@ -8,36 +8,49 @@ using System.Linq;
 
 
 namespace KLPlugins.Leaderboard {
+    public class DynLeaderboardSettings {
+        public OutCarProp OutCarProps = OutCarProp.None;
+        public OutPitProp OutPitProps = OutPitProp.None;
+        public OutPosProp OutPosProps = OutPosProp.None;
+        public OutGapProp OutGapProps = OutGapProp.None;
+        public OutDistanceProp OutDistanceProps = OutDistanceProp.None;
+        public OutStintProp OutStintProps = OutStintProp.None;
+        public OutDriverProp OutDriverProps = OutDriverProp.None;
+        public OutLapProp OutLapProps = OutLapProp.None;
+
+        public int NumOverallPos { get; set; } = 16;
+        public int NumOnTrackRelativePos { get; set; } = 5;
+        public int NumOverallRelativePos { get; set; } = 5;
+        public int NumClassRelativePos { get; set; } = 5;
+        public int NumDrivers { get; set; } = 1;
+        public int PartialRelativeOverallNumOverallPos { get; set; } = 5;
+        public int PartialRelativeOverallNumRelativePos { get; set; } = 5;
+        public int PartialRelativeClassNumClassPos { get; set; } = 5;
+        public int PartialRelativeClassNumRelativePos { get; set; } = 5;
+
+        public List<Leaderboard> Order { get; set; } = new List<Leaderboard>();
+
+        public int CurrentLeaderboardIdx = 0;
+        public Leaderboard CurrentLeaderboard() {
+            if (Order.Count > 0) {
+                return Order[CurrentLeaderboardIdx];
+            } else {
+                return Leaderboard.None;
+            }
+        }
+    }
+
     /// <summary>
     /// Settings class, make sure it can be correctly serialized using JSON.net
     /// </summary>
     public class PluginSettings {
         internal string PluginDataLocation { get; set; } = _defPluginsDataLocation;
+
         public string AccDataLocation { get; set; } = _defAccDataLocation;
         public bool Log { get; set; } = false;
-        public int NumOverallPos { get; set; } = _defNumOverallPos;
-        public int NumOnTrackRelativePos { get; set; } = _defNumRelativePos;
-        public int NumOverallRelativePos { get; set; } = _defNumRelativePos;
-        public int NumClassRelativePos { get; set; } = _defNumRelativePos;
-        public int NumDrivers { get; set; } = _defNumDrivers;
-        public int BroadcastDataUpdateRateMs { get; set; } = _defUpdateInterval;
-        public int PartialRelativeOverallNumOverallPos { get; set; } = _defNumRelativePos;
-        public int PartialRelativeOverallNumRelativePos { get; set; } = _defNumRelativePos;
-        public int PartialRelativeClassNumClassPos { get; set; } = _defNumRelativePos;
-        public int PartialRelativeClassNumRelativePos { get; set; } = _defNumRelativePos;
-
-        public OutCarProp OutCarProps;
-        public OutPitProp OutPitProps;
-        public OutPosProp OutPosProps;
-        public OutGapProp OutGapProps;
-        public OutDistanceProp OutDistanceProps;
-        public OutStintProp OutStintProps;
-        public OutDriverProp OutDriverProps;
-        public OutOrder OutOrders;
+        public int BroadcastDataUpdateRateMs { get; set; } = 1000;
+        public DynLeaderboardSettings DynLeaderboardSettings { get; set; } = new DynLeaderboardSettings();
         public OutGeneralProp OutGeneralProps;
-        public OutLapProp OutLapProps;
-
-        public List<Leaderboard> DynamicLeaderboards { get; set; } = new List<Leaderboard>();
 
         public Dictionary<CarClass, string> CarClassColors { get; set; } = CreateDefCarClassColors();
         public Dictionary<TeamCupCategory, string> TeamCupCategoryColors { get; set; } = CreateDefCupColors();
@@ -46,12 +59,7 @@ namespace KLPlugins.Leaderboard {
 
         private const string _defPluginsDataLocation = "PluginsData\\KLPlugins\\Leaderboard";
         private static readonly string _defAccDataLocation = "C:\\Users\\" + Environment.UserName + "\\Documents\\Assetto Corsa Competizione";
-        private const int _defNumOverallPos = 30;
-        private const int _defNumRelativePos = 5;
-        private const int _defUpdateInterval = 1000;
-        private const int _updateIntervalMax = 5000;
-        private const int _updateIntevalMin = 50;
-        private const int _defNumDrivers = 4;
+
 
         private static Dictionary<CarClass, string> CreateDefCarClassColors() { 
             var carClassColors = new Dictionary<CarClass, string>(8);

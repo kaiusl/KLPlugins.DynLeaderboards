@@ -6,8 +6,6 @@ namespace KLPlugins.Leaderboard {
     public enum OutDriverProp {
         None = 0,
 
-        CurrentDriverInfo = 1 << 0,
-        AllDriversInfo = 1 << 1,
 
         FirstName = 1 << 2,
         LastName = 1 << 3,
@@ -27,10 +25,6 @@ namespace KLPlugins.Leaderboard {
         public static bool Includes(this OutDriverProp p, OutDriverProp o) => (p & o) != 0;
 
         public static void Combine(ref this OutDriverProp p, OutDriverProp o) {
-            // These two are exclusive, both cannot be enabled at once
-            if (o == OutDriverProp.CurrentDriverInfo) p.Remove(OutDriverProp.AllDriversInfo);
-            if (o == OutDriverProp.AllDriversInfo) p.Remove(OutDriverProp.CurrentDriverInfo);
-
             p |= o;
         }
 
@@ -40,10 +34,6 @@ namespace KLPlugins.Leaderboard {
             switch (p) {
                 case OutDriverProp.None:
                     return "None";
-                case OutDriverProp.CurrentDriverInfo:
-                    return "Current driver information";
-                case OutDriverProp.AllDriversInfo:
-                    return "Information of all drivers";
                 case OutDriverProp.FirstName:
                     return "First name (Abcde)";
                 case OutDriverProp.LastName:

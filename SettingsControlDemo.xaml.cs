@@ -41,17 +41,9 @@ namespace KLPlugins.Leaderboard
             AddColors();
 
             // Set current values for other settings
-            CurrentDriverInfo_ToggleButton.IsChecked = LeaderboardPlugin.Settings.OutDriverProps.Includes(OutDriverProp.CurrentDriverInfo);
-            AllDriversInfo_ToggleButton.IsChecked = LeaderboardPlugin.Settings.OutDriverProps.Includes(OutDriverProp.AllDriversInfo);
             AccDataLocation_TextBox.Text = LeaderboardPlugin.Settings.AccDataLocation;
             AccDataLocation_TextBox.Background = Brushes.LightGreen;
             Logging_ToggleButton.IsChecked = LeaderboardPlugin.Settings.Log;
-
-            // Add listeners to drivers toggles
-            CurrentDriverInfo_ToggleButton.Checked += CurrentDriverTbChecked;
-            CurrentDriverInfo_ToggleButton.Unchecked += (sender, ee) => LeaderboardPlugin.Settings.OutDriverProps.Remove(OutDriverProp.CurrentDriverInfo);
-            AllDriversInfo_ToggleButton.Checked += AllDriverTbChecked;
-            AllDriversInfo_ToggleButton.Unchecked += (sender, ee) => LeaderboardPlugin.Settings.OutDriverProps.Remove(OutDriverProp.AllDriversInfo);
 
             foreach (var l in Settings.DynamicLeaderboards) {
                 var sp = new StackPanel();
@@ -115,7 +107,6 @@ namespace KLPlugins.Leaderboard
         #region Add ui items
         private void AddPluginDescription() {
             ExposedOrderingsInfo_TextBlock.Text = @"Here you can select all other orderings like per class or relative to the focusd car.";
-            PluginInfoMarkdown.Markdown = File.ReadAllText($"{LeaderboardPlugin.Settings.PluginDataLocation}\\README.md"); ;
         }
 
         private void AddColors() {
@@ -426,7 +417,7 @@ namespace KLPlugins.Leaderboard
         private void AddDriverToggles() {
             ExposedDriverProperties_StackPanel.Children.Add(CreateTogglesDescriptionRow());
             foreach (var v in (OutDriverProp[])Enum.GetValues(typeof(OutDriverProp))) {
-                if (v == OutDriverProp.None || v == OutDriverProp.AllDriversInfo || v == OutDriverProp.CurrentDriverInfo) continue;
+                if (v == OutDriverProp.None) continue;
 
                 if (v == OutDriverProp.FirstName) {
                     var stitle = new SHSmallTitle();
@@ -598,7 +589,7 @@ namespace KLPlugins.Leaderboard
         private Separator CreateToggleSeparator() {
             var s = new Separator();
             s.Background = Brushes.LightGray;
-            s.Height = 0.75;
+            s.Height = 1;
             s.Margin = new Thickness(25, 0, 25, 0);
             return s;
         }
@@ -606,17 +597,6 @@ namespace KLPlugins.Leaderboard
         #endregion
 
         #region Callbacks           
-
-        private void CurrentDriverTbChecked(object sender, RoutedEventArgs e) {
-            LeaderboardPlugin.Settings.OutDriverProps.Combine(OutDriverProp.CurrentDriverInfo);
-            AllDriversInfo_ToggleButton.IsChecked = false;
-        }
-
-        private void AllDriverTbChecked(object sender, RoutedEventArgs e) {
-            LeaderboardPlugin.Settings.OutDriverProps.Combine(OutDriverProp.AllDriversInfo);
-            CurrentDriverInfo_ToggleButton.IsChecked = false;
-        }
-
 
         private void AccDataLocation_TextChanged(object sender, TextChangedEventArgs e) {
             var success = LeaderboardPlugin.Settings.SetAccDataLocation(AccDataLocation_TextBox.Text);

@@ -346,12 +346,10 @@ namespace KLPlugins.Leaderboard {
                         }
                     }
 
-                    if (Settings.OutDriverProps.Includes(OutDriverProp.AllDriversInfo)) {
+                    if (Settings.NumDrivers > 0) {
                         for (int j = 0; j < Settings.NumDrivers; j++) {
                             AddOneDriverFromList(j);
                         }
-                    } else if (Settings.OutDriverProps.Includes(OutDriverProp.CurrentDriverInfo)) {
-                        AddOneDriverFromList(0);
                     }
 
                     // Car and team
@@ -612,12 +610,10 @@ namespace KLPlugins.Leaderboard {
                     }
                 }
 
-                if (Settings.OutDriverProps.Includes(OutDriverProp.AllDriversInfo)) {
+                if (Settings.NumDrivers > 0) {
                     for (int j = 0; j < Settings.NumDrivers; j++) {
                         AddOneDriverFromList(j);
                     }
-                } else if (Settings.OutDriverProps.Includes(OutDriverProp.CurrentDriverInfo)) {
-                    AddOneDriverFromList(0);
                 }
 
                 // Car and team
@@ -704,6 +700,7 @@ namespace KLPlugins.Leaderboard {
             }
 
             this.AttachDelegate("Dynamic.CurrentLeaderboard", () => Settings.DynamicLeaderboards[_currentLeaderboardIdx].ToString());
+            this.AttachDelegate("Dynamic.FocusedPosInCurrentLeaderboard", () => _values.GetFocusedCarIdxInDynLeaderboard());
 
             // Declare an action which can be called
             this.AddAction("NextLeaderboard", (a, b) => {

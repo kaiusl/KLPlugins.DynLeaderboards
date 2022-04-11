@@ -8,7 +8,6 @@
              mc:Ignorable="d" 
              xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
              xmlns:ui="clr-namespace:SimHub.Plugins.UI;assembly=SimHub.Plugins" 
-             xmlns:mdxam="clr-namespace:MdXaml;assembly=MdXaml"
              xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
              d:DesignHeight="600" d:DesignWidth="600"
              >
@@ -48,98 +47,13 @@
             <Setter Property="FontSize" Value="20"/>
         </Style>
 
-        <!-- Markdown style based on https://github.com/whistyun/MdXaml/blob/master/MdXaml/MarkdownMigFree.Style.xaml -->
-        <Style TargetType="FlowDocument" x:Key="DocumentStyle">
-            <Setter Property="FontFamily"    Value="Helvetica" />
-            <Setter Property="TextAlignment" Value="Left" />
-            <Setter Property="PagePadding"   Value="0"/>
-            <Setter Property="FontSize"      Value="14"/>
-
-            <Style.Resources>
-                <Style TargetType="Section">
-                    <Setter Property="Padding"         Value="10, 5"/>
-                    <Setter Property="BorderBrush"     Value="#DEDEDE"/>
-                    <Setter Property="BorderThickness" Value="5,0,0,0"/>
-                </Style>
-
-                <Style TargetType="avalonEdit:TextEditor" xmlns:avalonEdit="http://icsharpcode.net/sharpdevelop/avalonedit">
-                    <Setter Property="Background"                    Value="#EEEEEE"/>
-                    <Setter Property="HorizontalScrollBarVisibility" Value="Auto"/>
-                    <Setter Property="VerticalScrollBarVisibility"   Value="Auto"/>
-                    <Setter Property="Margin"                        Value="2,0,2,0"/>
-                    <Setter Property="Padding"                       Value="3"/>
-                </Style>
-
-                <Style TargetType="Paragraph">
-                    <Setter Property="Margin" Value="0, 7, 0, 0"/>
-
-                    <Style.Triggers>
-                        <Trigger Property="Tag" Value="Heading1">
-                            <Setter Property="Margin" Value="0, 0, 15, 0"/>
-
-                            <Setter Property="Foreground"  Value="#ff000000" />
-                            <Setter Property="FontSize"    Value="28"/>
-                            <Setter Property="FontWeight"  Value="Bold" />
-                        </Trigger>
-
-                        <Trigger Property="Tag" Value="Heading2">
-                            <Setter Property="Margin" Value="0, 0, 15, 0"/>
-
-                            <Setter Property="Foreground"  Value="#ff000000" />
-                            <Setter Property="FontSize"    Value="21"/>
-                            <Setter Property="FontWeight"  Value="Bold" />
-                        </Trigger>
-
-                        <Trigger Property="Tag" Value="Heading3">
-                            <Setter Property="Margin" Value="0, 0, 10, 0"/>
-
-                            <Setter Property="Foreground"  Value="#ff000000" />
-                            <Setter Property="FontSize"    Value="17" />
-                            <Setter Property="FontWeight"  Value="Bold" />
-                        </Trigger>
-
-                        <Trigger Property="Tag" Value="Heading4">
-                            <Setter Property="Margin" Value="0, 0, 5, 0"/>
-
-                            <Setter Property="Foreground"  Value="#ff000000" />
-                            <Setter Property="FontSize"    Value="14"/>
-                            <Setter Property="FontWeight"  Value="Bold" />
-                        </Trigger>
-
-                        <Trigger Property="Tag" Value="CodeBlock">
-                            <Setter Property="FontFamily" Value="Helvetica"/>
-                            <Setter Property="FontSize"   Value="12"/>
-                            <Setter Property="Background" Value="#12181F25"/>
-                            <Setter Property="Padding"     Value="20, 10"/>
-                        </Trigger>
-
-                        <Trigger Property="Tag" Value="Note">
-                            <Setter Property="Margin"      Value="5,0,5,0"/>
-                            <Setter Property="Padding"     Value="10, 5"/>
-                            <Setter Property="BorderBrush" Value="#DEDEDE"/>
-                            <Setter Property="BorderThickness" Value="3,3,3,3"/>
-                            <Setter Property="Background"  Value="#FAFAFA"/>
-                        </Trigger>
-
-                    </Style.Triggers>
-                </Style>
-
-                <Style TargetType="Run">
-                    <Style.Triggers>
-                        <Trigger Property="Tag" Value="CodeSpan">
-                            <Setter Property="FontFamily" Value="Helvetica"/>
-                            <Setter Property="FontSize"   Value="14"/>
-                            <Setter Property="Background" Value="#12181F25"/>
-                        </Trigger>
-                    </Style.Triggers>
-                </Style>
-
-                <Style TargetType="Hyperlink">
-                    <Setter Property="TextDecorations"    Value="None" />
-                </Style>
-
-            </Style.Resources>
+        <!-- Row separator -->
+        <Style x:Key="RowSep" TargetType="Separator">
+            <Setter Property="Background" Value="LightGray"/>
+            <Setter Property="Height" Value="1"/>
+            <Setter Property="Margin" Value="0,0,20,0"/>
         </Style>
+
 
     </UserControl.Resources>
 
@@ -150,13 +64,12 @@
                 <TextBlock>
                 <Span xml:space="preserve"><Run> For detailed description of plugin go to: </Run><Hyperlink RequestNavigate="Hyperlink_RequestNavigate" NavigateUri="https://github.com/kaiusl/KLPlugins.Leaderboard">KLPlugins.Leaderboard</Hyperlink></Span>
                 </TextBlock>
-                <mdxam:MarkdownScrollViewer x:Name="PluginInfoMarkdown" MarkdownStyle="{StaticResource DocumentStyle}" />
-
             </StackPanel>
         </styles:SHTabItem>
 
         <styles:SHTabItem Header="General settings">
-            <StackPanel x:Name="GenSettings_StackPanel" Margin="20,0,20,0">
+            <ScrollViewer>
+                <StackPanel x:Name="GenSettings_StackPanel" Margin="20,0,20,0">
                 <StackPanel.Resources>
 
                     <Style x:Key="Description" TargetType="TextBlock">
@@ -205,188 +118,6 @@
                 </Grid>
                 <Separator/>
 
-                <!-- Num overall pos -->
-
-                <Grid ToolTip="Set number of overall positions exposed as properties. Note that this must be larger than all the cars as otherwise in class and relative positions may be missing some cars.">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition MaxWidth="500"/>
-                        <ColumnDefinition MinWidth="100"/>
-                    </Grid.ColumnDefinitions>
-                    <Grid.RowDefinitions>
-                        <RowDefinition MinHeight="35"/>
-                    </Grid.RowDefinitions>
-
-                    <TextBlock Grid.Column="0" Text="Number of overall positions" Style="{StaticResource Description}"/>
-                    <mah:NumericUpDown Grid.Column="1"
-                                       Style="{StaticResource NumPos}"
-                                       Value="{Binding Path=Settings.NumOverallPos}"
-                                       />
-                </Grid>
-                <Separator/>
-
-
-                <!-- Num relative overall pos -->
-
-                <Grid ToolTip="Set number of overall relative positions exposed from the focused car in one direction. That is if it's set to 5, we show 5 cars ahead and 5 behind.">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition MaxWidth="500"/>
-                        <ColumnDefinition MinWidth="100"/>
-                    </Grid.ColumnDefinitions>
-                    <Grid.RowDefinitions>
-                        <RowDefinition MinHeight="35"/>
-                    </Grid.RowDefinitions>
-                    <TextBlock Grid.Column="0" Text="Number of relative overall positions" Style="{StaticResource Description}"/>
-                    <mah:NumericUpDown Grid.Column="1"
-                                       Style="{StaticResource NumPos}"
-                                       Maximum="50"
-                                       Value="{Binding Path=Settings.NumOverallRelativePos}"
-                                       />
-
-                </Grid>
-                <Separator/>
-
-                <!-- Num relative class pos -->
-
-                <Grid ToolTip="Set number of class relative positions exposed from the focused car in one direction. That is if it's set to 5, we show 5 cars ahead and 5 behind.">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition MaxWidth="500"/>
-                        <ColumnDefinition MinWidth="100"/>
-                    </Grid.ColumnDefinitions>
-                    <Grid.RowDefinitions>
-                        <RowDefinition MinHeight="35"/>
-                    </Grid.RowDefinitions>
-                    <TextBlock Grid.Column="0" Text="Number of relative class positions" Style="{StaticResource Description}"/>
-                    <mah:NumericUpDown Grid.Column="1" 
-                                       Style="{StaticResource NumPos}"
-                                       Maximum="50"
-                                       Value="{Binding Path=Settings.NumClassRelativePos}"
-                                       />
-
-                </Grid>
-                <Separator/>
-
-
-                <!-- Num relative on track pos -->
-
-                <Grid ToolTip="Set number of on track relative positions exposed from the focused car in one direction. That is if it's set to 5, we show 5 cars ahead and 5 behind.">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition MaxWidth="500"/>
-                        <ColumnDefinition MinWidth="100"/>
-                    </Grid.ColumnDefinitions>
-                    <Grid.RowDefinitions>
-                        <RowDefinition MinHeight="35"/>
-                    </Grid.RowDefinitions>
-                    <TextBlock Grid.Column="0" Text="Number of relative on track positions" Style="{StaticResource Description}"/>
-                    <mah:NumericUpDown Grid.Column="1"
-                                       Style="{StaticResource NumPos}"
-                                       Maximum="50"
-                                       Value="{Binding Path=Settings.NumOnTrackRelativePos}"
-                                       />
-
-                </Grid>
-                <Separator/>
-
-
-                <!-- Num partial relative overall overall pos -->
-
-                <Grid ToolTip="Set number of overall positions exposed for partial relative overall leaderboard.">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition MaxWidth="500"/>
-                        <ColumnDefinition MinWidth="100"/>
-                    </Grid.ColumnDefinitions>
-                    <Grid.RowDefinitions>
-                        <RowDefinition MinHeight="35"/>
-                    </Grid.RowDefinitions>
-                    <TextBlock Grid.Column="0" Text="Number of partial relative overall leaderboard overall positions: " Style="{StaticResource Description}"/>
-                    <mah:NumericUpDown Grid.Column="1"
-                                       Style="{StaticResource NumPos}"
-                                       Value="{Binding Path=Settings.PartialRelativeOverallNumOverallPos}"
-                                       />
-
-                </Grid>
-                <Separator/>
-
-
-                <!-- Num partial relative overall relative pos -->
-
-                <Grid ToolTip="Set number of relative positions exposed for partial relative overall leaderboard from the focused car in one direction. That is if it's set to 5, we show 5 cars ahead and 5 behind.">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition MaxWidth="500"/>
-                        <ColumnDefinition MinWidth="100"/>
-                    </Grid.ColumnDefinitions>
-                    <Grid.RowDefinitions>
-                        <RowDefinition MinHeight="35"/>
-                    </Grid.RowDefinitions>
-                    <TextBlock Grid.Column="0" Text="Number of partial relative overall leaderboard relative positions: " Style="{StaticResource Description}"/>
-                    <mah:NumericUpDown Grid.Column="1"
-                                       Style="{StaticResource NumPos}"
-                                       Maximum="50"
-                                       Value="{Binding Path=Settings.PartialRelativeClassNumRelativePos}"
-                                       />
-
-                </Grid>
-                <Separator/>
-
-                <!-- Num partial relative class overall pos -->
-
-                <Grid ToolTip="Set number of class positions exposed for partial relative class leaderboard.">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition MaxWidth="500"/>
-                        <ColumnDefinition MinWidth="100"/>
-                    </Grid.ColumnDefinitions>
-                    <Grid.RowDefinitions>
-                        <RowDefinition MinHeight="35"/>
-                    </Grid.RowDefinitions>
-                    <TextBlock Grid.Column="0" Text="Number of partial relative class leaderboard class positions: " Style="{StaticResource Description}"/>
-                    <mah:NumericUpDown Grid.Column="1"
-                                       Style="{StaticResource NumPos}"
-                                       Value="{Binding Path=Settings.PartialRelativeClassNumClassPos}"
-                                       />
-
-                </Grid>
-                <Separator/>
-
-
-                <!-- Num partial relative class relative pos -->
-
-                <Grid ToolTip="Set number of relative positions exposed for partial relative class leaderboard from the focused car in one direction. That is if it's set to 5, we show 5 cars ahead and 5 behind.">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition MaxWidth="500"/>
-                        <ColumnDefinition MinWidth="100"/>
-                    </Grid.ColumnDefinitions>
-                    <Grid.RowDefinitions>
-                        <RowDefinition MinHeight="35"/>
-                    </Grid.RowDefinitions>
-                    <TextBlock Grid.Column="0" Text="Number of partial relative class leaderboard relative positions: " Style="{StaticResource Description}"/>
-                    <mah:NumericUpDown Grid.Column="1"
-                                       Style="{StaticResource NumPos}"
-                                       Maximum="50"
-                                       Value="{Binding Path=Settings.PartialRelativeClassNumRelativePos}"
-                                       />
-
-                </Grid>
-                <Separator/>
-
-                <!-- Num drivers -->
-
-                <Grid ToolTip="Set number of drivers shown per car. Should be higher or equal to the number of maximum drivers possible for you.">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition MaxWidth="500"/>
-                        <ColumnDefinition MinWidth="100"/>
-                    </Grid.ColumnDefinitions>
-                    <Grid.RowDefinitions>
-                        <RowDefinition MinHeight="35"/>
-                    </Grid.RowDefinitions>
-                    <TextBlock Grid.Column="0" Text="Number of drivers: " Style="{StaticResource Description}"/>
-                    <mah:NumericUpDown Grid.Column="1"
-                                       Style="{StaticResource NumPos}"
-                                       Maximum="10"
-                                       Value="{Binding Path=Settings.NumDrivers}"
-                                       />
-
-                </Grid>
-                <Separator/>
-
                 <!-- Update interval -->
 
                 <Grid ToolTip="Sets the update interval of data from ACC. As leaderboard data doesn't change that fast something around 1000ms should work very well. But you can go lower to provide smoother visuals.">
@@ -432,71 +163,218 @@
                 </Grid>
                 <Separator/>
 
+                <styles:SHSectionTitle Text="EXPOSED PROPERTIES"/>
+                <StackPanel x:Name="OtherProperties_StackPanel">
+                </StackPanel>
+
+                <styles:SHSectionTitle Text="COLORS"/>
+                    <!-- Class colors -->
+                <styles:SHSmallTitle>Car class</styles:SHSmallTitle>
+                <StackPanel x:Name="ClassColors_StackPanel"/>
+
+                <!-- Team cup colors -->
+                <styles:SHSmallTitle>Team cup category</styles:SHSmallTitle>
+                <StackPanel x:Name="TeamCupColors_StackPanel"/>
+
+                <!-- Driver categoty colors -->
+                <styles:SHSmallTitle>Driver category</styles:SHSmallTitle>
+                <StackPanel x:Name="DriverCategoryColors_StackPanel"/>
+
+
             </StackPanel>
+            </ScrollViewer>
         </styles:SHTabItem>
 
         <styles:SHTabItem Header="Dynamic leaderboard">
 
-            <StackPanel>
-                <TextBlock>Here you can customize the functionality of your dynamic leaderboard.</TextBlock>
 
-                <Separator/>
-
-
-                <styles:SHSectionTitle>Define leaderboard rotation</styles:SHSectionTitle>
-                <TextBlock MaxWidth="600" TextWrapping="Wrap">You can enable/disable specific leaderboards and choose the order in which they appear. 
-                    For more information about what each leaderboard looks like see Plugin info page.</TextBlock>
+            <ScrollViewer>
                 
-                <StackPanel Orientation="Horizontal">
-                    <styles:SHButtonSecondary Click="DynLeaderboard_ListView_Up">Up</styles:SHButtonSecondary>
-                    <styles:SHButtonSecondary Click="DynLeaderboard_ListView_Down">Down</styles:SHButtonSecondary>
-                    
-                </StackPanel>
-
-                <ListView x:Name="DynLeaderboards_ListView" Margin="10,10,0,13" HorizontalAlignment="Left" VerticalAlignment="Top" />
-
-            </StackPanel>
-            
-           
-
-        </styles:SHTabItem>
-        
-        
-        <styles:SHTabItem Header="Colors">
-            <ScrollViewer>
                 <StackPanel>
-                    <!-- Class colors -->
-                    <styles:SHSectionTitle>Car class colors</styles:SHSectionTitle>
-                    <StackPanel x:Name="ClassColors_StackPanel"/>
+                    <StackPanel.Resources>
 
-                    <!-- Team cup colors -->
-                    <styles:SHSectionTitle>Team cup category colors</styles:SHSectionTitle>
-                    <StackPanel x:Name="TeamCupColors_StackPanel"/>
+                        <Style x:Key="Description" TargetType="TextBlock">
+                            <Setter Property="HorizontalAlignment" Value="Left"/>
+                            <Setter Property="VerticalAlignment" Value="Center"/>
+                            <Setter Property="TextWrapping" Value="Wrap"/>
+                            <Setter Property="Width" Value="200"/>
+                            <Setter Property="Margin" Value="3,3,3,3"/>
+                        </Style>
 
-                    <!-- Driver categoty colors -->
-                    <styles:SHSectionTitle>Driver category colors</styles:SHSectionTitle>
-                    <StackPanel x:Name="DriverCategoryColors_StackPanel"/>
+                        <Style x:Key="NumPos" TargetType="mah:NumericUpDown">
+                            <Setter Property="HorizontalAlignment" Value="Left"/>
+                            <Setter Property="VerticalAlignment" Value="Center"/>
+                            <Setter Property="Height" Value="25"/>
+                            <Setter Property="Width" Value="100"/>
+                            <Setter Property="HasDecimals" Value="False"/>
+                            <Setter Property="Minimum" Value="0"/>
+                            <Setter Property="Maximum" Value="100"/>
+                            <Setter Property="Interval" Value="1"/>
+                            <Setter Property="Margin" Value="3,3,3,3"/>
+                        </Style>
+                    </StackPanel.Resources>
 
-                </StackPanel>
-            </ScrollViewer>
-        </styles:SHTabItem>
+                    <TextBlock>Here you can customize the functionality of your dynamic leaderboard.</TextBlock>
 
-        <styles:SHTabItem Header="Exposed properties">
+                    <Separator Margin="0,15,0,1"/>
+                    <Separator Margin="0,1,0,10"/>
 
-            <ScrollViewer>
-                <StackPanel>
+                    <styles:SHSectionTitle>LEADERBOARD ROTATION</styles:SHSectionTitle>
+                    <TextBlock MaxWidth="600" TextWrapping="Wrap">You can enable/disable specific leaderboards and choose the order in which they appear. 
+                    For more information about what each leaderboard looks like see Plugin info page.</TextBlock>
 
-                    <TextBlock x:Name="ExposedPropertiesInfo_TextBlock" 
-                               Text="Here you can select all the properties you wish to use."
-                               TextWrapping="Wrap" HorizontalAlignment="Left"/>
+                    <StackPanel Orientation="Horizontal">
+                        <styles:SHButtonSecondary Click="DynLeaderboard_ListView_Up">Up</styles:SHButtonSecondary>
+                        <styles:SHButtonSecondary Click="DynLeaderboard_ListView_Down">Down</styles:SHButtonSecondary>
+
+                    </StackPanel>
+
+                    <ListView x:Name="DynLeaderboards_ListView" Margin="10,10,0,13" HorizontalAlignment="Left" VerticalAlignment="Top" />
+
+                    <Separator Margin="0,15,0,1"/>
+                    <Separator Margin="0,1,0,10"/>
+                    <styles:SHSectionTitle>NUMBER OF POSITIONS</styles:SHSectionTitle>
+
+                    <TextBlock TextWrapping="Wrap" MaxWidth="750">Couple of notes. <LineBreak/> 
+                        * For relative positions we set the number of positions shown ahead and behind. 
+                        That is if set to 5 for example, we show 5 cars ahead and 5 car behind.
+                    <LineBreak/>
+                        * The driver indices are set such that current driver is always first. If you set number of drivers to 1 then we only show current driver.
+                    </TextBlock>
+
+                    <!-- Num overall pos -->
+
+                    <styles:SHSmallTitle>Overall leaderboards</styles:SHSmallTitle>
+
+                    <StackPanel Orientation="Horizontal" ToolTip="Set number of overall positions exposed as properties. Note that this must be larger than all the cars as otherwise in class and relative positions may be missing some cars.">
+                        <TextBlock Grid.Column="0" Text="Overall: " Style="{StaticResource Description}"/>
+                        <mah:NumericUpDown Grid.Column="1"
+                                    Style="{StaticResource NumPos}"
+                                    Value="{Binding Path=Settings.NumOverallPos}"
+                                    />
+                    </StackPanel>
+                    <Separator Style="{StaticResource RowSep}"/>
+
+                    <styles:SHSmallTitle>Relative leaderboards</styles:SHSmallTitle>
+
+                    <!-- Num relative overall pos -->
+
+                    <StackPanel Orientation="Horizontal" ToolTip="Set number of overall relative positions exposed from the focused car in one direction. That is if it's set to 5, we show 5 cars ahead and 5 behind.">
+                        <TextBlock Grid.Column="0" Text="Overall: " Style="{StaticResource Description}"/>
+                        <mah:NumericUpDown Grid.Column="1"
+                                    Style="{StaticResource NumPos}"
+                                    Maximum="50"
+                                    Value="{Binding Path=Settings.NumOverallRelativePos}"
+                                    />
+
+                    </StackPanel>
+                    <Separator Style="{StaticResource RowSep}"/>
+
+                    <!-- Num relative class pos -->
+
+                    <StackPanel Orientation="Horizontal" ToolTip="Set number of class relative positions exposed from the focused car in one direction. That is if it's set to 5, we show 5 cars ahead and 5 behind.">
+                        <TextBlock Grid.Column="0" Text="Class: " Style="{StaticResource Description}"/>
+                        <mah:NumericUpDown Grid.Column="1" 
+                                    Style="{StaticResource NumPos}"
+                                    Maximum="50"
+                                    Value="{Binding Path=Settings.NumClassRelativePos}"
+                                    />
+
+                    </StackPanel>
+                    <Separator Style="{StaticResource RowSep}"/>
+
+
+                    <!-- Num relative on track pos -->
+
+                    <StackPanel Orientation="Horizontal" ToolTip="Set number of on track relative positions exposed from the focused car in one direction. That is if it's set to 5, we show 5 cars ahead and 5 behind.">
+                        <TextBlock Grid.Column="0" Text="On track: " Style="{StaticResource Description}"/>
+                        <mah:NumericUpDown Grid.Column="1"
+                                    Style="{StaticResource NumPos}"
+                                    Maximum="50"
+                                    Value="{Binding Path=Settings.NumOnTrackRelativePos}"
+                                    />
+
+                    </StackPanel>
+                    <Separator Style="{StaticResource RowSep}"/>
+
+                    <styles:SHSmallTitle>Partial relative leaderboards</styles:SHSmallTitle>
+
+
+                    <!-- Num partial relative overall overall pos -->
+
+                    <StackPanel Orientation="Horizontal" ToolTip="Set number of overall positions exposed for partial relative overall leaderboard.">
+                        <TextBlock Grid.Column="0" Text="Overall - top positions: " Style="{StaticResource Description}"/>
+                        <mah:NumericUpDown Grid.Column="1"
+                                    Style="{StaticResource NumPos}"
+                                    Value="{Binding Path=Settings.PartialRelativeOverallNumOverallPos}"
+                                    />
+
+                    </StackPanel>
+                    <Separator Style="{StaticResource RowSep}"/>
+
+
+                    <!-- Num partial relative overall relative pos -->
+
+                    <StackPanel Orientation="Horizontal" ToolTip="Set number of relative positions exposed for partial relative overall leaderboard from the focused car in one direction. That is if it's set to 5, we show 5 cars ahead and 5 behind.">
+                        <TextBlock Grid.Column="0" Text="Overall - relative positions: " Style="{StaticResource Description}"/>
+                        <mah:NumericUpDown Grid.Column="1"
+                                    Style="{StaticResource NumPos}"
+                                    Maximum="50"
+                                    Value="{Binding Path=Settings.PartialRelativeClassNumRelativePos}"
+                                    />
+
+                    </StackPanel>
+                    <Separator Style="{StaticResource RowSep}"/>
+
+                    <!-- Num partial relative class overall pos -->
+
+                    <StackPanel Orientation="Horizontal" ToolTip="Set number of class positions exposed for partial relative class leaderboard.">
+                        <TextBlock Grid.Column="0" Text="Class    - top positions: " Style="{StaticResource Description}"/>
+                        <mah:NumericUpDown Grid.Column="1"
+                                    Style="{StaticResource NumPos}"
+                                    Value="{Binding Path=Settings.PartialRelativeClassNumClassPos}"
+                                    />
+
+                    </StackPanel>
+                    <Separator Style="{StaticResource RowSep}"/>
+
+
+                    <!-- Num partial relative class relative pos -->
+
+                    <StackPanel Orientation="Horizontal" ToolTip="Set number of relative positions exposed for partial relative class leaderboard from the focused car in one direction. That is if it's set to 5, we show 5 cars ahead and 5 behind.">
+                        <TextBlock Grid.Column="0" Text="Class    - relative positions: " Style="{StaticResource Description}"/>
+                        <mah:NumericUpDown Grid.Column="1"
+                                    Style="{StaticResource NumPos}"
+                                    Maximum="50"
+                                    Value="{Binding Path=Settings.PartialRelativeClassNumRelativePos}"
+                                    />
+
+                    </StackPanel>
+                    <Separator Style="{StaticResource RowSep}"/>
+
+                    <styles:SHSmallTitle>Drivers</styles:SHSmallTitle>
+
+                    <!-- Num drivers -->
+
+                    <StackPanel Orientation="Horizontal" ToolTip="Set number of drivers shown per car. If set to 1 shown only current driver.">
+                        <TextBlock Grid.Column="0" Text="Number of drivers: " Style="{StaticResource Description}"/>
+                        <mah:NumericUpDown Grid.Column="1"
+                                    Style="{StaticResource NumPos}"
+                                    Maximum="10"
+                                    Value="{Binding Path=Settings.NumDrivers}"
+                                    />
+
+                    </StackPanel>
+
 
                     <!-- Properties for each car -->
-                    
+
                     <Separator Margin="0,15,0,1"/>
                     <Separator Margin="0,1,0,10"/>
                     <styles:SHSectionTitle Text="PROPERTIES FOR EACH CAR"/>
+
                     <TextBlock Width="600" TextWrapping="Wrap">
-                            Each properties car be accessed as "Overall.05.<Italic>propertyName</Italic>".
+                            Each properties car be accessed as "Dynamic.5.<Italic>propertyName</Italic>".
                     </TextBlock>
 
                     <styles:SHSmallTitle>Car information</styles:SHSmallTitle>
@@ -523,62 +401,19 @@
                     <styles:SHSmallTitle>Other</styles:SHSmallTitle>
                     <StackPanel x:Name="OutOtherProps_StackPanel"/>
 
-                    <!-- Exposed drivers -->
-
-                    <Separator Margin="0,15,0,1"/>
-                    <Separator Margin="0,1,0,10"/>
-                    <styles:SHSectionTitle Text="EXPOSED DRIVERS"/>
-                    <StackPanel x:Name="ExposedDrivers_StackPanel">
-                        <TextBlock Width="600" TextWrapping="Wrap">
-                            Here you can select which drivers you want exposed. Current driver is always show as first driver.
-                        </TextBlock>
-
-
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="Current driver: " Width="100"/>
-                            <styles:SHToggleButton x:Name="CurrentDriverInfo_ToggleButton"/>
-                            <TextBlock Width="600" TextWrapping="Wrap">
-                                Expose properties of only current driver as "Overall.05.Driver.01.<Italic>propertyName</Italic>".
-                            </TextBlock>
-
-                        </StackPanel>
-
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="All drivers: " Width="100"/>
-                            <styles:SHToggleButton x:Name="AllDriversInfo_ToggleButton" />
-                            <TextBlock Width="600" TextWrapping="Wrap">
-                                Expose properties of all drivers as "Overall.05.Driver.03.<Italic>propertyName</Italic>".
-                            </TextBlock>
-                        </StackPanel>
-                    </StackPanel>
-
                     <!-- Properties for each car -->
-                    
+
                     <Separator Margin="0,15,0,1"/>
                     <Separator Margin="0,1,0,10"/>
                     <styles:SHSectionTitle Text="PROPERTIES FOR EACH DRIVER"/>
                     <StackPanel x:Name="ExposedDriverProperties_StackPanel"/>
 
-                    <!-- Other properties -->
-
-                    <Separator Margin="0,15,0,1"/>
-                    <Separator Margin="0,1,0,10"/>
-                    <styles:SHSectionTitle Text="OTHER PROPERTIES"/>
-                    <StackPanel x:Name="OtherProperties_StackPanel">
-                        <TextBlock Width="600" TextWrapping="Wrap">
-                                These are exposed as standalone properties not linked to any cars.
-                        </TextBlock>
-
-                    </StackPanel>
-
-                    <!-- -->
-
                 </StackPanel>
             </ScrollViewer>
 
-
         </styles:SHTabItem>
-
+        
+        
         <styles:SHTabItem Header="Exposed orderings">
             <ScrollViewer>
                 <StackPanel>

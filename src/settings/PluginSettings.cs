@@ -9,7 +9,9 @@ using System.Linq;
 
 namespace KLPlugins.Leaderboard {
     public class DynLeaderboardSettings {
-        public OutCarProp OutCarProps = OutCarProp.None;
+        public string Name { get; set; }
+
+        public OutCarProp OutCarProps = OutCarProp.CarNumber;
         public OutPitProp OutPitProps = OutPitProp.None;
         public OutPosProp OutPosProps = OutPosProp.None;
         public OutGapProp OutGapProps = OutGapProp.None;
@@ -38,28 +40,55 @@ namespace KLPlugins.Leaderboard {
                 return Leaderboard.None;
             }
         }
+
+        public DynLeaderboardSettings(string name) { 
+            Name = name;
+        }
     }
 
     /// <summary>
     /// Settings class, make sure it can be correctly serialized using JSON.net
     /// </summary>
     public class PluginSettings {
-        internal string PluginDataLocation { get; set; } = _defPluginsDataLocation;
+        internal string PluginDataLocation { get; set; }
 
-        public string AccDataLocation { get; set; } = _defAccDataLocation;
-        public bool Log { get; set; } = false;
-        public int BroadcastDataUpdateRateMs { get; set; } = 1000;
-        public DynLeaderboardSettings DynLeaderboardSettings { get; set; } = new DynLeaderboardSettings();
+        public string AccDataLocation { get; set; }
+        public bool Log { get; set; }
+        public int BroadcastDataUpdateRateMs { get; set; }
+        public List<DynLeaderboardSettings> DynLeaderboardSettings { get; set; }
         public OutGeneralProp OutGeneralProps;
 
-        public Dictionary<CarClass, string> CarClassColors { get; set; } = CreateDefCarClassColors();
-        public Dictionary<TeamCupCategory, string> TeamCupCategoryColors { get; set; } = CreateDefCupColors();
-        public Dictionary<TeamCupCategory, string> TeamCupCategoryTextColors { get; set; } = CreateDefCupTextColors();
-        public Dictionary<DriverCategory, string> DriverCategoryColors { get; set; } = CreateDefDriverCategoryColors();
+        public Dictionary<CarClass, string> CarClassColors { get; set; }
+        public Dictionary<TeamCupCategory, string> TeamCupCategoryColors { get; set; }
+        public Dictionary<TeamCupCategory, string> TeamCupCategoryTextColors { get; set; }
+        public Dictionary<DriverCategory, string> DriverCategoryColors { get; set; }
 
         private const string _defPluginsDataLocation = "PluginsData\\KLPlugins\\Leaderboard";
         private static readonly string _defAccDataLocation = "C:\\Users\\" + Environment.UserName + "\\Documents\\Assetto Corsa Competizione";
 
+        public PluginSettings() {
+            PluginDataLocation = _defPluginsDataLocation;
+            AccDataLocation = _defAccDataLocation;
+            Log = false;
+            BroadcastDataUpdateRateMs = 1000;
+            DynLeaderboardSettings = new List<DynLeaderboardSettings>();
+            OutGeneralProps = OutGeneralProp.None;
+            CarClassColors = CreateDefCarClassColors();
+            TeamCupCategoryColors = CreateDefCupColors();
+            TeamCupCategoryTextColors = CreateDefCupTextColors();
+            DriverCategoryColors = CreateDefDriverCategoryColors();
+
+        }
+
+        public int GetMaxNumOverallPos() {
+            int max = 0;
+            if (DynLeaderboardSettings.Count > 0) {
+                foreach (var v in DynLeaderboardSettings) {
+                    max = Math.Max(max, v.NumOverallPos);
+                }
+            }
+            return max;
+        }
 
         private static Dictionary<CarClass, string> CreateDefCarClassColors() { 
             var carClassColors = new Dictionary<CarClass, string>(8);

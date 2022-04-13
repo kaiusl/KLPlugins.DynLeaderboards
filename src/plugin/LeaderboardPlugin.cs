@@ -15,6 +15,7 @@ using KLPlugins.Leaderboard.Enums;
 using System.Collections.Generic;
 using System.Linq;
 using KLPlugins.Leaderboard.ksBroadcastingNetwork.Structs;
+using System.Linq.Expressions;
 
 namespace KLPlugins.Leaderboard {
     public enum Leaderboard {
@@ -153,7 +154,22 @@ namespace KLPlugins.Leaderboard {
             SubscribeToSimHubEvents();
 
             AttachGeneralDelegates();
-            AttachDynamicLeaderboard("Dynamic", Settings.DynLeaderboardSettings);
+            if (Settings.DynLeaderboardSettings.Count > 0) {
+                LogInfo($"Settings.DynLeaderboardSettings.Count = {Settings.DynLeaderboardSettings.Count}, _values.LeaderboardValues.Count = {_values.LeaderboardValues.Count}");
+
+                for (int i = 0; i < Settings.DynLeaderboardSettings.Count; i++) {
+                    AttachDynamicLeaderboard($"Dynamic{i}", _values.LeaderboardValues[i]);
+                }
+            }
+            
+        }
+
+        public void AddNewLeaderboard(DynLeaderboardSettings s) {
+            _values.AddNewLeaderboard(s);
+        }
+
+        public void RemoveLeaderboardAt(int i) {
+            _values.LeaderboardValues.RemoveAt(i);
         }
 
         private void SubscribeToSimHubEvents() {
@@ -207,181 +223,180 @@ namespace KLPlugins.Leaderboard {
         }
 
 
-        private void AttachDynamicLeaderboard(string name, DynLeaderboardSettings settings) {
+
+        private void AttachDynamicLeaderboard(string name, Values.DynLeaderboardValues l) {
             void addCar(int i) {
                 var startName = $"{name}.{i + 1}";
                 void AddProp<T>(OutCarProp prop, Func<T> valueProvider) {
-                    if (settings.OutCarProps.Includes(prop)) this.AttachDelegate($"{startName}.{prop.ToPropName()}", valueProvider);
+                    if (l.Settings.OutCarProps.Includes(prop)) this.AttachDelegate($"{startName}.{prop.ToPropName()}", valueProvider);
                 }
 
                 void AddDriverProp<T>(OutDriverProp prop, string driverId, Func<T> valueProvider) {
-                    if (settings.OutDriverProps.Includes(prop)) this.AttachDelegate($"{startName}.{driverId}.{prop}", valueProvider);
+                    if (l.Settings.OutDriverProps.Includes(prop)) this.AttachDelegate($"{startName}.{driverId}.{prop}", valueProvider);
                 }
 
                 void AddLapProp<T>(OutLapProp prop, Func<T> valueProvider) {
-                    if (settings.OutLapProps.Includes(prop)) this.AttachDelegate($"{startName}.{prop.ToPropName()}", valueProvider);
+                    if (l.Settings.OutLapProps.Includes(prop)) this.AttachDelegate($"{startName}.{prop.ToPropName()}", valueProvider);
                 }
 
                 void AddStintProp<T>(OutStintProp prop, Func<T> valueProvider) {
-                    if (settings.OutStintProps.Includes(prop)) this.AttachDelegate($"{startName}.{prop.ToPropName()}", valueProvider);
+                    if (l.Settings.OutStintProps.Includes(prop)) this.AttachDelegate($"{startName}.{prop.ToPropName()}", valueProvider);
                 }
 
                 void AddDistanceProp<T>(OutDistanceProp prop, Func<T> valueProvider) {
-                    if (settings.OutDistanceProps.Includes(prop)) this.AttachDelegate($"{startName}.{prop.ToPropName()}", valueProvider);
+                    if (l.Settings.OutDistanceProps.Includes(prop)) this.AttachDelegate($"{startName}.{prop.ToPropName()}", valueProvider);
                 }
 
                 void AddGapProp<T>(OutGapProp prop, Func<T> valueProvider) {
-                    if (settings.OutGapProps.Includes(prop)) this.AttachDelegate($"{startName}.{prop.ToPropName()}", valueProvider);
+                    if (l.Settings.OutGapProps.Includes(prop)) this.AttachDelegate($"{startName}.{prop.ToPropName()}", valueProvider);
                 }
 
 
                 void AddPosProp<T>(OutPosProp prop, Func<T> valueProvider) {
-                    if (settings.OutPosProps.Includes(prop)) this.AttachDelegate($"{startName}.{prop.ToPropName()}", valueProvider);
+                    if (l.Settings.OutPosProps.Includes(prop)) this.AttachDelegate($"{startName}.{prop.ToPropName()}", valueProvider);
                 }
 
                 void AddPitProp<T>(OutPitProp prop, Func<T> valueProvider) {
-                    if (settings.OutPitProps.Includes(prop)) this.AttachDelegate($"{startName}.{prop.ToPropName()}", valueProvider);
+                    if (l.Settings.OutPitProps.Includes(prop)) this.AttachDelegate($"{startName}.{prop.ToPropName()}", valueProvider);
                 }
 
                 // Laps and sectors
-                AddLapProp(OutLapProp.Laps, () => _values.GetDynamicCar(i)?.NewData?.Laps);
-                AddLapProp(OutLapProp.LastLapTime, () => _values.GetDynamicCar(i)?.NewData?.LastLap?.Laptime);
-                if (settings.OutLapProps.Includes(OutLapProp.LastLapSectors)) {
-                    this.AttachDelegate($"{startName}.Laps.Last.S1", () => _values.GetDynamicCar(i)?.NewData?.LastLap?.Splits?[0]);
-                    this.AttachDelegate($"{startName}.Laps.Last.S2", () => _values.GetDynamicCar(i)?.NewData?.LastLap?.Splits?[1]);
-                    this.AttachDelegate($"{startName}.Laps.Last.S3", () => _values.GetDynamicCar(i)?.NewData?.LastLap?.Splits?[2]);
+                AddLapProp(OutLapProp.Laps, () => l.GetDynamicCar(i)?.NewData?.Laps);
+                AddLapProp(OutLapProp.LastLapTime, () => l.GetDynamicCar(i)?.NewData?.LastLap?.Laptime);
+                if (l.Settings.OutLapProps.Includes(OutLapProp.LastLapSectors)) {
+                    this.AttachDelegate($"{startName}.Laps.Last.S1", () => l.GetDynamicCar(i)?.NewData?.LastLap?.Splits?[0]);
+                    this.AttachDelegate($"{startName}.Laps.Last.S2", () => l.GetDynamicCar(i)?.NewData?.LastLap?.Splits?[1]);
+                    this.AttachDelegate($"{startName}.Laps.Last.S3", () => l.GetDynamicCar(i)?.NewData?.LastLap?.Splits?[2]);
                 }
 
-                AddLapProp(OutLapProp.BestLapTime, () => _values.GetDynamicCar(i)?.NewData?.BestSessionLap?.Laptime);
-                if (settings.OutLapProps.Includes(OutLapProp.BestLapSectors)) {
-                    this.AttachDelegate($"{startName}.Laps.Best.S1", () => _values.GetDynamicCar(i)?.BestLapSectors?[0]);
-                    this.AttachDelegate($"{startName}.Laps.Best.S2", () => _values.GetDynamicCar(i)?.BestLapSectors?[1]);
-                    this.AttachDelegate($"{startName}.Laps.Best.S3", () => _values.GetDynamicCar(i)?.BestLapSectors?[2]);
+                AddLapProp(OutLapProp.BestLapTime, () => l.GetDynamicCar(i)?.NewData?.BestSessionLap?.Laptime);
+                if (l.Settings.OutLapProps.Includes(OutLapProp.BestLapSectors)) {
+                    this.AttachDelegate($"{startName}.Laps.Best.S1", () => l.GetDynamicCar(i)?.BestLapSectors?[0]);
+                    this.AttachDelegate($"{startName}.Laps.Best.S2", () => l.GetDynamicCar(i)?.BestLapSectors?[1]);
+                    this.AttachDelegate($"{startName}.Laps.Best.S3", () => l.GetDynamicCar(i)?.BestLapSectors?[2]);
                 }
-                if (settings.OutLapProps.Includes(OutLapProp.BestSectors)) {
-                    this.AttachDelegate($"{startName}.BestS1", () => _values.GetDynamicCar(i)?.NewData?.BestSessionLap?.Splits?[0]);
-                    this.AttachDelegate($"{startName}.BestS2", () => _values.GetDynamicCar(i)?.NewData?.BestSessionLap?.Splits?[1]);
-                    this.AttachDelegate($"{startName}.BestS3", () => _values.GetDynamicCar(i)?.NewData?.BestSessionLap?.Splits?[2]);
+                if (l.Settings.OutLapProps.Includes(OutLapProp.BestSectors)) {
+                    this.AttachDelegate($"{startName}.BestS1", () => l.GetDynamicCar(i)?.NewData?.BestSessionLap?.Splits?[0]);
+                    this.AttachDelegate($"{startName}.BestS2", () => l.GetDynamicCar(i)?.NewData?.BestSessionLap?.Splits?[1]);
+                    this.AttachDelegate($"{startName}.BestS3", () => l.GetDynamicCar(i)?.NewData?.BestSessionLap?.Splits?[2]);
                 }
 
-                AddLapProp(OutLapProp.CurrentLapTime, () => _values.GetDynamicCar(i)?.NewData?.CurrentLap?.Laptime);
+                AddLapProp(OutLapProp.CurrentLapTime, () => l.GetDynamicCar(i)?.NewData?.CurrentLap?.Laptime);
 
 
                 void AddOneDriverFromList(int j) {
-                    if (settings.NumDrivers > j) {
-                        var driverId = $"Driver.{j + 1:00}";
-                        AddDriverProp(OutDriverProp.FirstName, driverId, () => _values.GetDynamicCar(i)?.GetDriver(j)?.FirstName);
-                        AddDriverProp(OutDriverProp.LastName, driverId, () => _values.GetDynamicCar(i)?.GetDriver(j)?.LastName);
-                        AddDriverProp(OutDriverProp.ShortName, driverId, () => _values.GetDynamicCar(i)?.GetDriver(j)?.ShortName);
-                        AddDriverProp(OutDriverProp.FullName, driverId, () => _values.GetDynamicCar(i)?.GetDriver(j)?.FullName());
-                        AddDriverProp(OutDriverProp.InitialPlusLastName, driverId, () => _values.GetDynamicCar(i)?.GetDriver(j)?.InitialPlusLastName());
-                        AddDriverProp(OutDriverProp.Nationality, driverId, () => _values.GetDynamicCar(i)?.GetDriver(j)?.Nationality);
-                        AddDriverProp(OutDriverProp.Category, driverId, () => _values.GetDynamicCar(i)?.GetDriver(j)?.Category);
-                        AddDriverProp(OutDriverProp.TotalLaps, driverId, () => _values.GetDynamicCar(i)?.GetDriver(j)?.TotalLaps);
-                        AddDriverProp(OutDriverProp.BestLapTime, driverId, () => _values.GetDynamicCar(i)?.GetDriver(j)?.BestSessionLap?.Laptime);
-                        AddDriverProp(OutDriverProp.TotalDrivingTime, driverId, () => _values.GetDynamicCar(i)?.GetDriverTotalDrivingTime(j));
-                        AddDriverProp(OutDriverProp.CategoryColor, driverId, () => _values.GetDynamicCar(i)?.GetDriver(j)?.CategoryColor);
-                    }
+                    var driverId = $"Driver.{j + 1:00}";
+                    AddDriverProp(OutDriverProp.FirstName, driverId, () => l.GetDynamicCar(i)?.GetDriver(j)?.FirstName);
+                    AddDriverProp(OutDriverProp.LastName, driverId, () => l.GetDynamicCar(i)?.GetDriver(j)?.LastName);
+                    AddDriverProp(OutDriverProp.ShortName, driverId, () => l.GetDynamicCar(i)?.GetDriver(j)?.ShortName);
+                    AddDriverProp(OutDriverProp.FullName, driverId, () => l.GetDynamicCar(i)?.GetDriver(j)?.FullName());
+                    AddDriverProp(OutDriverProp.InitialPlusLastName, driverId, () => l.GetDynamicCar(i)?.GetDriver(j)?.InitialPlusLastName());
+                    AddDriverProp(OutDriverProp.Nationality, driverId, () => l.GetDynamicCar(i)?.GetDriver(j)?.Nationality);
+                    AddDriverProp(OutDriverProp.Category, driverId, () => l.GetDynamicCar(i)?.GetDriver(j)?.Category);
+                    AddDriverProp(OutDriverProp.TotalLaps, driverId, () => l.GetDynamicCar(i)?.GetDriver(j)?.TotalLaps);
+                    AddDriverProp(OutDriverProp.BestLapTime, driverId, () => l.GetDynamicCar(i)?.GetDriver(j)?.BestSessionLap?.Laptime);
+                    AddDriverProp(OutDriverProp.TotalDrivingTime, driverId, () => l.GetDynamicCar(i)?.GetDriverTotalDrivingTime(j));
+                    AddDriverProp(OutDriverProp.CategoryColor, driverId, () => l.GetDynamicCar(i)?.GetDriver(j)?.CategoryColor);
                 }
 
-                if (settings.NumDrivers > 0) {
-                    for (int j = 0; j < settings.NumDrivers; j++) {
+                if (l.Settings.NumDrivers > 0) {
+                    for (int j = 0; j < l.Settings.NumDrivers; j++) {
                         AddOneDriverFromList(j);
                     }
                 }
 
                 // Car and team
-                AddProp(OutCarProp.CarNumber, () => _values.GetDynamicCar(i)?.RaceNumber);
-                AddProp(OutCarProp.CarModel, () => _values.GetDynamicCar(i)?.CarModelType.ToPrettyString());
-                AddProp(OutCarProp.CarManufacturer, () => _values.GetDynamicCar(i)?.CarModelType.GetMark());
-                AddProp(OutCarProp.CarClass, () => _values.GetDynamicCar(i)?.CarClass.ToString());
-                AddProp(OutCarProp.TeamName, () => _values.GetDynamicCar(i)?.TeamName);
-                AddProp(OutCarProp.TeamCupCategory, () => _values.GetDynamicCar(i)?.TeamCupCategory.ToString());
-                AddStintProp(OutStintProp.CurrentStintTime, () => _values.GetDynamicCar(i)?.CurrentStintTime);
-                AddStintProp(OutStintProp.LastStintTime, () => _values.GetDynamicCar(i)?.LastStintTime);
-                AddStintProp(OutStintProp.CurrentStintLaps, () => _values.GetDynamicCar(i)?.CurrentStintLaps);
-                AddStintProp(OutStintProp.LastStintLaps, () => _values.GetDynamicCar(i)?.LastStintLaps);
+                AddProp(OutCarProp.CarNumber, () => l.GetDynamicCar(i)?.RaceNumber);
+                AddProp(OutCarProp.CarModel, () => l.GetDynamicCar(i)?.CarModelType.ToPrettyString());
+                AddProp(OutCarProp.CarManufacturer, () => l.GetDynamicCar(i)?.CarModelType.GetMark());
+                AddProp(OutCarProp.CarClass, () => l.GetDynamicCar(i)?.CarClass.ToString());
+                AddProp(OutCarProp.TeamName, () => l.GetDynamicCar(i)?.TeamName);
+                AddProp(OutCarProp.TeamCupCategory, () => l.GetDynamicCar(i)?.TeamCupCategory.ToString());
+                AddStintProp(OutStintProp.CurrentStintTime, () => l.GetDynamicCar(i)?.CurrentStintTime);
+                AddStintProp(OutStintProp.LastStintTime, () => l.GetDynamicCar(i)?.LastStintTime);
+                AddStintProp(OutStintProp.CurrentStintLaps, () => l.GetDynamicCar(i)?.CurrentStintLaps);
+                AddStintProp(OutStintProp.LastStintLaps, () => l.GetDynamicCar(i)?.LastStintLaps);
 
-                AddProp(OutCarProp.CarClassColor, () => _values.GetDynamicCar(i)?.CarClassColor);
-                AddProp(OutCarProp.TeamCupCategoryColor, () => _values.GetDynamicCar(i)?.TeamCupCategoryColor);
-                AddProp(OutCarProp.TeamCupCategoryTextColor, () => _values.GetDynamicCar(i)?.TeamCupCategoryTextColor);
+                AddProp(OutCarProp.CarClassColor, () => l.GetDynamicCar(i)?.CarClassColor);
+                AddProp(OutCarProp.TeamCupCategoryColor, () => l.GetDynamicCar(i)?.TeamCupCategoryColor);
+                AddProp(OutCarProp.TeamCupCategoryTextColor, () => l.GetDynamicCar(i)?.TeamCupCategoryTextColor);
 
                 // Gaps and distances
-                AddDistanceProp(OutDistanceProp.DistanceToLeader, () => _values.GetDynamicCar(i)?.DistanceToLeader);
-                AddDistanceProp(OutDistanceProp.DistanceToClassLeader, () => _values.GetDynamicCar(i)?.DistanceToClassLeader);
-                AddDistanceProp(OutDistanceProp.DistanceToFocusedTotal, () => _values.GetDynamicCar(i)?.TotalDistanceToFocused);
-                AddDistanceProp(OutDistanceProp.DistanceToFocusedOnTrack, () => _values.GetDynamicCar(i)?.OnTrackDistanceToFocused);
+                AddDistanceProp(OutDistanceProp.DistanceToLeader, () => l.GetDynamicCar(i)?.DistanceToLeader);
+                AddDistanceProp(OutDistanceProp.DistanceToClassLeader, () => l.GetDynamicCar(i)?.DistanceToClassLeader);
+                AddDistanceProp(OutDistanceProp.DistanceToFocusedTotal, () => l.GetDynamicCar(i)?.TotalDistanceToFocused);
+                AddDistanceProp(OutDistanceProp.DistanceToFocusedOnTrack, () => l.GetDynamicCar(i)?.OnTrackDistanceToFocused);
 
-                AddGapProp(OutGapProp.GapToLeader, () => _values.GetDynamicCar(i)?.GapToLeader);
-                AddGapProp(OutGapProp.GapToClassLeader, () => _values.GetDynamicCar(i)?.GapToClassLeader);
-                AddGapProp(OutGapProp.GapToFocusedOnTrack, () => _values.GetDynamicCar(i)?.GapToFocusedOnTrack);
-                AddGapProp(OutGapProp.GapToFocusedTotal, () => _values.GetDynamicCar(i)?.GapToFocusedTotal);
-                AddGapProp(OutGapProp.GapToAheadOverall, () => _values.GetDynamicCar(i)?.GapToAhead);
-                AddGapProp(OutGapProp.GapToAheadInClass, () => _values.GetDynamicCar(i)?.GapToAheadInClass);
+                AddGapProp(OutGapProp.GapToLeader, () => l.GetDynamicCar(i)?.GapToLeader);
+                AddGapProp(OutGapProp.GapToClassLeader, () => l.GetDynamicCar(i)?.GapToClassLeader);
+                AddGapProp(OutGapProp.GapToFocusedOnTrack, () => l.GetDynamicCar(i)?.GapToFocusedOnTrack);
+                AddGapProp(OutGapProp.GapToFocusedTotal, () => l.GetDynamicCar(i)?.GapToFocusedTotal);
+                AddGapProp(OutGapProp.GapToAheadOverall, () => l.GetDynamicCar(i)?.GapToAhead);
+                AddGapProp(OutGapProp.GapToAheadInClass, () => l.GetDynamicCar(i)?.GapToAheadInClass);
 
-                AddGapProp(OutGapProp.DynamicGapToFocused, () => _values.GetDynamicCar(i)?.GetDynamicGapToFocused());
-                AddGapProp(OutGapProp.DynamicGapToAhead, () => _values.GetDynamicCar(i)?.GetDynamicGapToAhead());
+                AddGapProp(OutGapProp.DynamicGapToFocused, () => l.GetDynamicGapToFocused(i));
+                AddGapProp(OutGapProp.DynamicGapToAhead, () => l.GetDynamicGapToAhead(i));
 
                 //// Positions
-                AddPosProp(OutPosProp.ClassPosition, () => _values.GetDynamicCar(i)?.InClassPos);
-                AddPosProp(OutPosProp.OverallPosition, () => _values.GetDynamicCar(i)?.OverallPos);
-                AddPosProp(OutPosProp.ClassPositionStart, () => _values.GetDynamicCar(i)?.StartPosInClass);
-                AddPosProp(OutPosProp.OverallPositionStart, () => _values.GetDynamicCar(i)?.StartPos);
+                AddPosProp(OutPosProp.ClassPosition, () => l.GetDynamicCar(i)?.InClassPos);
+                AddPosProp(OutPosProp.OverallPosition, () => l.GetDynamicCar(i)?.OverallPos);
+                AddPosProp(OutPosProp.ClassPositionStart, () => l.GetDynamicCar(i)?.StartPosInClass);
+                AddPosProp(OutPosProp.OverallPositionStart, () => l.GetDynamicCar(i)?.StartPos);
 
                 // Pit
-                AddPitProp(OutPitProp.IsInPitLane, () => (_values.GetDynamicCar(i)?.NewData?.CarLocation ?? CarLocationEnum.NONE) == CarLocationEnum.Pitlane ? 1 : 0);
-                AddPitProp(OutPitProp.PitStopCount, () => _values.GetDynamicCar(i)?.PitCount);
-                AddPitProp(OutPitProp.PitTimeTotal, () => _values.GetDynamicCar(i)?.TotalPitTime);
-                AddPitProp(OutPitProp.PitTimeLast, () => _values.GetDynamicCar(i)?.LastPitTime);
-                AddPitProp(OutPitProp.PitTimeCurrent, () => _values.GetDynamicCar(i)?.CurrentTimeInPits);
+                AddPitProp(OutPitProp.IsInPitLane, () => (l.GetDynamicCar(i)?.NewData?.CarLocation ?? CarLocationEnum.NONE) == CarLocationEnum.Pitlane ? 1 : 0);
+                AddPitProp(OutPitProp.PitStopCount, () => l.GetDynamicCar(i)?.PitCount);
+                AddPitProp(OutPitProp.PitTimeTotal, () => l.GetDynamicCar(i)?.TotalPitTime);
+                AddPitProp(OutPitProp.PitTimeLast, () => l.GetDynamicCar(i)?.LastPitTime);
+                AddPitProp(OutPitProp.PitTimeCurrent, () => l.GetDynamicCar(i)?.CurrentTimeInPits);
 
                 // Lap deltas
 
-                AddLapProp(OutLapProp.BestLapDeltaToOverallBest, () => _values.GetDynamicCar(i)?.BestLapDeltaToOverallBest);
-                AddLapProp(OutLapProp.BestLapDeltaToClassBest, () => _values.GetDynamicCar(i)?.BestLapDeltaToClassBest);
-                AddLapProp(OutLapProp.BestLapDeltaToLeaderBest, () => _values.GetDynamicCar(i)?.BestLapDeltaToLeaderBest);
-                AddLapProp(OutLapProp.BestLapDeltaToClassLeaderBest, () => _values.GetDynamicCar(i)?.BestLapDeltaToClassLeaderBest);
-                AddLapProp(OutLapProp.BestLapDeltaToFocusedBest, () => _values.GetDynamicCar(i)?.BestLapDeltaToFocusedBest);
-                AddLapProp(OutLapProp.BestLapDeltaToAheadBest, () => _values.GetDynamicCar(i)?.BestLapDeltaToAheadBest);
-                AddLapProp(OutLapProp.BestLapDeltaToAheadInClassBest, () => _values.GetDynamicCar(i)?.BestLapDeltaToAheadInClassBest);
+                AddLapProp(OutLapProp.BestLapDeltaToOverallBest, () => l.GetDynamicCar(i)?.BestLapDeltaToOverallBest);
+                AddLapProp(OutLapProp.BestLapDeltaToClassBest, () => l.GetDynamicCar(i)?.BestLapDeltaToClassBest);
+                AddLapProp(OutLapProp.BestLapDeltaToLeaderBest, () => l.GetDynamicCar(i)?.BestLapDeltaToLeaderBest);
+                AddLapProp(OutLapProp.BestLapDeltaToClassLeaderBest, () => l.GetDynamicCar(i)?.BestLapDeltaToClassLeaderBest);
+                AddLapProp(OutLapProp.BestLapDeltaToFocusedBest, () => l.GetDynamicCar(i)?.BestLapDeltaToFocusedBest);
+                AddLapProp(OutLapProp.BestLapDeltaToAheadBest, () => l.GetDynamicCar(i)?.BestLapDeltaToAheadBest);
+                AddLapProp(OutLapProp.BestLapDeltaToAheadInClassBest, () => l.GetDynamicCar(i)?.BestLapDeltaToAheadInClassBest);
 
-                AddLapProp(OutLapProp.LastLapDeltaToOverallBest, () => _values.GetDynamicCar(i)?.LastLapDeltaToOverallBest);
-                AddLapProp(OutLapProp.LastLapDeltaToClassBest, () => _values.GetDynamicCar(i)?.LastLapDeltaToClassBest);
-                AddLapProp(OutLapProp.LastLapDeltaToLeaderBest, () => _values.GetDynamicCar(i)?.LastLapDeltaToLeaderBest);
-                AddLapProp(OutLapProp.LastLapDeltaToClassLeaderBest, () => _values.GetDynamicCar(i)?.LastLapDeltaToClassLeaderBest);
-                AddLapProp(OutLapProp.LastLapDeltaToFocusedBest, () => _values.GetDynamicCar(i)?.LastLapDeltaToFocusedBest);
-                AddLapProp(OutLapProp.LastLapDeltaToAheadBest, () => _values.GetDynamicCar(i)?.LastLapDeltaToAheadBest);
-                AddLapProp(OutLapProp.LastLapDeltaToAheadInClassBest, () => _values.GetDynamicCar(i)?.LastLapDeltaToAheadInClassBest);
-                AddLapProp(OutLapProp.LastLapDeltaToOwnBest, () => _values.GetDynamicCar(i)?.LastLapDeltaToOwnBest);
+                AddLapProp(OutLapProp.LastLapDeltaToOverallBest, () => l.GetDynamicCar(i)?.LastLapDeltaToOverallBest);
+                AddLapProp(OutLapProp.LastLapDeltaToClassBest, () => l.GetDynamicCar(i)?.LastLapDeltaToClassBest);
+                AddLapProp(OutLapProp.LastLapDeltaToLeaderBest, () => l.GetDynamicCar(i)?.LastLapDeltaToLeaderBest);
+                AddLapProp(OutLapProp.LastLapDeltaToClassLeaderBest, () => l.GetDynamicCar(i)?.LastLapDeltaToClassLeaderBest);
+                AddLapProp(OutLapProp.LastLapDeltaToFocusedBest, () => l.GetDynamicCar(i)?.LastLapDeltaToFocusedBest);
+                AddLapProp(OutLapProp.LastLapDeltaToAheadBest, () => l.GetDynamicCar(i)?.LastLapDeltaToAheadBest);
+                AddLapProp(OutLapProp.LastLapDeltaToAheadInClassBest, () => l.GetDynamicCar(i)?.LastLapDeltaToAheadInClassBest);
+                AddLapProp(OutLapProp.LastLapDeltaToOwnBest, () => l.GetDynamicCar(i)?.LastLapDeltaToOwnBest);
 
-                AddLapProp(OutLapProp.LastLapDeltaToLeaderLast, () => _values.GetDynamicCar(i)?.LastLapDeltaToLeaderLast);
-                AddLapProp(OutLapProp.LastLapDeltaToClassLeaderLast, () => _values.GetDynamicCar(i)?.LastLapDeltaToClassLeaderLast);
-                AddLapProp(OutLapProp.LastLapDeltaToFocusedLast, () => _values.GetDynamicCar(i)?.LastLapDeltaToFocusedLast);
-                AddLapProp(OutLapProp.LastLapDeltaToAheadLast, () => _values.GetDynamicCar(i)?.LastLapDeltaToAheadLast);
-                AddLapProp(OutLapProp.LastLapDeltaToAheadInClassLast, () => _values.GetDynamicCar(i)?.LastLapDeltaToAheadInClassLast);
+                AddLapProp(OutLapProp.LastLapDeltaToLeaderLast, () => l.GetDynamicCar(i)?.LastLapDeltaToLeaderLast);
+                AddLapProp(OutLapProp.LastLapDeltaToClassLeaderLast, () => l.GetDynamicCar(i)?.LastLapDeltaToClassLeaderLast);
+                AddLapProp(OutLapProp.LastLapDeltaToFocusedLast, () => l.GetDynamicCar(i)?.LastLapDeltaToFocusedLast);
+                AddLapProp(OutLapProp.LastLapDeltaToAheadLast, () => l.GetDynamicCar(i)?.LastLapDeltaToAheadLast);
+                AddLapProp(OutLapProp.LastLapDeltaToAheadInClassLast, () => l.GetDynamicCar(i)?.LastLapDeltaToAheadInClassLast);
 
-                AddLapProp(OutLapProp.DynamicBestLapDeltaToFocusedBest, () => _values.GetDynamicCar(i).GetDynamicBestLapDeltaToFocusedBest());
-                AddLapProp(OutLapProp.DynamicLastLapDeltaToFocusedBest, () => _values.GetDynamicCar(i).GetDynamicLastLapDeltaToFocusedBest());
-                AddLapProp(OutLapProp.DynamicLastLapDeltaToFocusedLast, () => _values.GetDynamicCar(i).GetDynamicLastLapDeltaToFocusedLast());
+                AddLapProp(OutLapProp.DynamicBestLapDeltaToFocusedBest, () => l.GetDynamicBestLapDeltaToFocusedBest(i));
+                AddLapProp(OutLapProp.DynamicLastLapDeltaToFocusedBest, () => l.GetDynamicLastLapDeltaToFocusedBest(i));
+                AddLapProp(OutLapProp.DynamicLastLapDeltaToFocusedLast, () => l.GetDynamicLastLapDeltaToFocusedLast(i));
 
                 // Else
-                AddProp(OutCarProp.IsFinished, () => (_values.GetDynamicCar(i)?.IsFinished ?? false) ? 1 : 0);
-                AddProp(OutCarProp.MaxSpeed, () => _values.GetDynamicCar(i)?.MaxSpeed);
+                AddProp(OutCarProp.IsFinished, () => (l.GetDynamicCar(i)?.IsFinished ?? false) ? 1 : 0);
+                AddProp(OutCarProp.MaxSpeed, () => l.GetDynamicCar(i)?.MaxSpeed);
             };
 
-            for (int i = 0; i < settings.NumOverallPos; i++) {
+            for (int i = 0; i < l.Settings.NumOverallPos; i++) {
                 addCar(i);
             }
 
-            this.AttachDelegate("Dynamic.CurrentLeaderboard", () => settings.CurrentLeaderboard().ToString());
-            this.AttachDelegate("Dynamic.FocusedPosInCurrentLeaderboard", () => _values.GetFocusedCarIdxInDynLeaderboard());
+            this.AttachDelegate($"{name}.CurrentLeaderboard", () => l.Settings.CurrentLeaderboard().ToString());
+            this.AttachDelegate($"{name}.FocusedPosInCurrentLeaderboard", () => l.GetFocusedCarIdxInDynLeaderboard());
 
             // Declare an action which can be called
             this.AddAction($"{name}.NextLeaderboard", (a, b) => {
-                if (settings.CurrentLeaderboardIdx == settings.Order.Count - 1) {
-                    settings.CurrentLeaderboardIdx = 0;
+                if (l.Settings.CurrentLeaderboardIdx == l.Settings.Order.Count - 1) {
+                    l.Settings.CurrentLeaderboardIdx = 0;
                 } else {
-                    settings.CurrentLeaderboardIdx++;
+                    l.Settings.CurrentLeaderboardIdx++;
                 }
                 _values.SetDynamicCarGetter();
                 SimHub.Logging.Current.Info("Speed warning changed");

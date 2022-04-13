@@ -216,6 +216,20 @@
 
                     <TextBlock>Here you can customize the functionality of your dynamic leaderboard.</TextBlock>
 
+                    <StackPanel Orientation="Horizontal">
+                        <ComboBox x:Name="SelectDynLeaderboard_ComboBox" 
+                                  Margin="5,5,5,5" 
+                                  HorizontalAlignment="Left" 
+                                  VerticalAlignment="Top" 
+                                  SelectionChanged="SelectDynLeaderboard_ComboBox_SelectionChanged"
+                                  />
+                        <styles:SHButtonPrimary HorizontalAlignment="Left" 
+                                                Margin="5,5,5,5" 
+                                                Click="RemoveLeaderboard_ButtonClick">Remove</styles:SHButtonPrimary>
+                    </StackPanel>
+                    
+                    <styles:SHButtonPrimary HorizontalAlignment="Left" Margin="5,5,5,5" Click="AddNewLeaderboard_Button_Click">Add new leaderboard</styles:SHButtonPrimary>
+                    
                     <Separator Margin="0,15,0,1"/>
                     <Separator Margin="0,1,0,10"/>
 
@@ -242,130 +256,7 @@
                         * The driver indices are set such that current driver is always first. If you set number of drivers to 1 then we only show current driver.
                     </TextBlock>
 
-                    <!-- Num overall pos -->
-
-                    <styles:SHSmallTitle>Overall leaderboards</styles:SHSmallTitle>
-
-                    <StackPanel Orientation="Horizontal" ToolTip="Set number of overall positions exposed as properties. Note that this must be larger than all the cars as otherwise in class and relative positions may be missing some cars.">
-                        <TextBlock Grid.Column="0" Text="Overall: " Style="{StaticResource Description}"/>
-                        <mah:NumericUpDown Grid.Column="1"
-                                    Style="{StaticResource NumPos}"
-                                    Value="{Binding Path=Settings.DynLeaderboardSettings.NumOverallPos}"
-                                    />
-                    </StackPanel>
-                    <Separator Style="{StaticResource RowSep}"/>
-
-                    <styles:SHSmallTitle>Relative leaderboards</styles:SHSmallTitle>
-
-                    <!-- Num relative overall pos -->
-
-                    <StackPanel Orientation="Horizontal" ToolTip="Set number of overall relative positions exposed from the focused car in one direction. That is if it's set to 5, we show 5 cars ahead and 5 behind.">
-                        <TextBlock Grid.Column="0" Text="Overall: " Style="{StaticResource Description}"/>
-                        <mah:NumericUpDown Grid.Column="1"
-                                    Style="{StaticResource NumPos}"
-                                    Maximum="50"
-                                    Value="{Binding Path=Settings.DynLeaderboardSettings.NumOverallRelativePos}"
-                                    />
-
-                    </StackPanel>
-                    <Separator Style="{StaticResource RowSep}"/>
-
-                    <!-- Num relative class pos -->
-
-                    <StackPanel Orientation="Horizontal" ToolTip="Set number of class relative positions exposed from the focused car in one direction. That is if it's set to 5, we show 5 cars ahead and 5 behind.">
-                        <TextBlock Grid.Column="0" Text="Class: " Style="{StaticResource Description}"/>
-                        <mah:NumericUpDown Grid.Column="1" 
-                                    Style="{StaticResource NumPos}"
-                                    Maximum="50"
-                                    Value="{Binding Path=Settings.DynLeaderboardSettings.NumClassRelativePos}"
-                                    />
-
-                    </StackPanel>
-                    <Separator Style="{StaticResource RowSep}"/>
-
-
-                    <!-- Num relative on track pos -->
-
-                    <StackPanel Orientation="Horizontal" ToolTip="Set number of on track relative positions exposed from the focused car in one direction. That is if it's set to 5, we show 5 cars ahead and 5 behind.">
-                        <TextBlock Grid.Column="0" Text="On track: " Style="{StaticResource Description}"/>
-                        <mah:NumericUpDown Grid.Column="1"
-                                    Style="{StaticResource NumPos}"
-                                    Maximum="50"
-                                    Value="{Binding Path=Settings.DynLeaderboardSettings.NumOnTrackRelativePos}"
-                                    />
-
-                    </StackPanel>
-                    <Separator Style="{StaticResource RowSep}"/>
-
-                    <styles:SHSmallTitle>Partial relative leaderboards</styles:SHSmallTitle>
-
-
-                    <!-- Num partial relative overall overall pos -->
-
-                    <StackPanel Orientation="Horizontal" ToolTip="Set number of overall positions exposed for partial relative overall leaderboard.">
-                        <TextBlock Grid.Column="0" Text="Overall - top positions: " Style="{StaticResource Description}"/>
-                        <mah:NumericUpDown Grid.Column="1"
-                                    Style="{StaticResource NumPos}"
-                                    Value="{Binding Path=Settings.DynLeaderboardSettings.PartialRelativeOverallNumOverallPos}"
-                                    />
-
-                    </StackPanel>
-                    <Separator Style="{StaticResource RowSep}"/>
-
-
-                    <!-- Num partial relative overall relative pos -->
-
-                    <StackPanel Orientation="Horizontal" ToolTip="Set number of relative positions exposed for partial relative overall leaderboard from the focused car in one direction. That is if it's set to 5, we show 5 cars ahead and 5 behind.">
-                        <TextBlock Grid.Column="0" Text="Overall - relative positions: " Style="{StaticResource Description}"/>
-                        <mah:NumericUpDown Grid.Column="1"
-                                    Style="{StaticResource NumPos}"
-                                    Maximum="50"
-                                    Value="{Binding Path=Settings.DynLeaderboardSettings.PartialRelativeClassNumRelativePos}"
-                                    />
-
-                    </StackPanel>
-                    <Separator Style="{StaticResource RowSep}"/>
-
-                    <!-- Num partial relative class overall pos -->
-
-                    <StackPanel Orientation="Horizontal" ToolTip="Set number of class positions exposed for partial relative class leaderboard.">
-                        <TextBlock Grid.Column="0" Text="Class    - top positions: " Style="{StaticResource Description}"/>
-                        <mah:NumericUpDown Grid.Column="1"
-                                    Style="{StaticResource NumPos}"
-                                    Value="{Binding Path=Settings.DynLeaderboardSettings.PartialRelativeClassNumClassPos}"
-                                    />
-
-                    </StackPanel>
-                    <Separator Style="{StaticResource RowSep}"/>
-
-
-                    <!-- Num partial relative class relative pos -->
-
-                    <StackPanel Orientation="Horizontal" ToolTip="Set number of relative positions exposed for partial relative class leaderboard from the focused car in one direction. That is if it's set to 5, we show 5 cars ahead and 5 behind.">
-                        <TextBlock Grid.Column="0" Text="Class    - relative positions: " Style="{StaticResource Description}"/>
-                        <mah:NumericUpDown Grid.Column="1"
-                                    Style="{StaticResource NumPos}"
-                                    Maximum="50"
-                                    Value="{Binding Path=Settings.DynLeaderboardSettings.PartialRelativeClassNumRelativePos}"
-                                    />
-
-                    </StackPanel>
-                    <Separator Style="{StaticResource RowSep}"/>
-
-                    <styles:SHSmallTitle>Drivers</styles:SHSmallTitle>
-
-                    <!-- Num drivers -->
-
-                    <StackPanel Orientation="Horizontal" ToolTip="Set number of drivers shown per car. If set to 1 shown only current driver.">
-                        <TextBlock Grid.Column="0" Text="Number of drivers: " Style="{StaticResource Description}"/>
-                        <mah:NumericUpDown Grid.Column="1"
-                                    Style="{StaticResource NumPos}"
-                                    Maximum="10"
-                                    Value="{Binding Path=Settings.DynLeaderboardSettings.NumDrivers}"
-                                    />
-
-                    </StackPanel>
-
+                    <StackPanel x:Name="NumPositions_StackPanel"/>
 
                     <!-- Properties for each car -->
 

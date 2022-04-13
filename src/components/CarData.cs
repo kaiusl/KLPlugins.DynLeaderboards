@@ -51,12 +51,6 @@ namespace KLPlugins.Leaderboard.ksBroadcastingNetwork.Structs {
         public double GapToAheadInClass { get; internal set; } = double.NaN;
         public double GapToAhead { get; private set; } = double.NaN;
 
-        public delegate double DynamicGapToFocused();
-        public DynamicGapToFocused GetDynamicGapToFocused { get; private set; }
-
-        public delegate double DynamicGapToAhead();
-        public DynamicGapToAhead GetDynamicGapToAhead { get; private set; }
-
         // Positions
         public int InClassPos { get; private set; } = -1;
         public int OverallPos { get; private set; } = -1;
@@ -86,9 +80,6 @@ namespace KLPlugins.Leaderboard.ksBroadcastingNetwork.Structs {
         public double BestLapDeltaToAheadBest { get; private set; } = double.NaN;
         public double BestLapDeltaToAheadInClassBest { get; private set; } = double.NaN;
 
-        public delegate double DynamicBestLapDeltaToFocusedBest();
-        public DynamicBestLapDeltaToFocusedBest GetDynamicBestLapDeltaToFocusedBest { get; private set; }
-
         public double LastLapDeltaToOverallBest { get; private set; } = double.NaN;
         public double LastLapDeltaToClassBest { get; private set; } = double.NaN;
         public double LastLapDeltaToLeaderBest { get; private set; } = double.NaN;
@@ -98,17 +89,11 @@ namespace KLPlugins.Leaderboard.ksBroadcastingNetwork.Structs {
         public double LastLapDeltaToAheadInClassBest { get; private set; } = double.NaN;
         public double LastLapDeltaToOwnBest { get; private set; } = double.NaN;
 
-        public delegate double DynamicLastLapDeltaToFocusedBest();
-        public DynamicLastLapDeltaToFocusedBest GetDynamicLastLapDeltaToFocusedBest { get; private set; }
-
         public double LastLapDeltaToLeaderLast { get; private set; } = double.NaN;
         public double LastLapDeltaToClassLeaderLast { get; private set; } = double.NaN;
         public double LastLapDeltaToFocusedLast { get; private set; } = double.NaN;
         public double LastLapDeltaToAheadLast { get; private set; } = double.NaN;
         public double LastLapDeltaToAheadInClassLast { get; private set; } = double.NaN;
-
-        public delegate double DynamicLastLapDeltaToFocusedLast();
-        public DynamicLastLapDeltaToFocusedLast GetDynamicLastLapDeltaToFocusedLast { get; private set; }
 
         // Else
         public bool IsFinished { get; private set; } = false;
@@ -139,71 +124,7 @@ namespace KLPlugins.Leaderboard.ksBroadcastingNetwork.Structs {
             TeamNationality = info.Nationality;
 
             NewData = update;
-            SetDynamicGetters();
         }
-
-        public void SetDynamicGetters() {
-            switch (LeaderboardPlugin.Settings.DynLeaderboardSettings.CurrentLeaderboard()) {
-                case Leaderboard.Overall:
-                    GetDynamicGapToFocused = () => GapToLeader;
-                    GetDynamicGapToAhead = () => GapToAhead;
-                    GetDynamicBestLapDeltaToFocusedBest = () => BestLapDeltaToLeaderBest;
-                    GetDynamicLastLapDeltaToFocusedBest = () => LastLapDeltaToLeaderBest;
-                    GetDynamicLastLapDeltaToFocusedLast = () => LastLapDeltaToLeaderLast;
-                    break;
-                case Leaderboard.Class:
-                    GetDynamicGapToFocused = () => GapToClassLeader;
-                    GetDynamicGapToAhead = () => GapToAheadInClass;
-                    GetDynamicBestLapDeltaToFocusedBest = () => BestLapDeltaToClassLeaderBest;
-                    GetDynamicLastLapDeltaToFocusedBest = () => LastLapDeltaToClassLeaderBest;
-                    GetDynamicLastLapDeltaToFocusedLast = () => LastLapDeltaToClassLeaderLast;
-                    break;
-                case Leaderboard.RelativeOverall:
-                    GetDynamicGapToFocused = () => GapToFocusedTotal;
-                    GetDynamicGapToAhead = () => GapToAhead;
-                    GetDynamicBestLapDeltaToFocusedBest = () => BestLapDeltaToFocusedBest;
-                    GetDynamicLastLapDeltaToFocusedBest = () => LastLapDeltaToFocusedBest;
-                    GetDynamicLastLapDeltaToFocusedLast = () => LastLapDeltaToFocusedLast;
-                    break;
-                case Leaderboard.RelativeClass:
-                    GetDynamicGapToFocused = () => GapToFocusedTotal;
-                    GetDynamicGapToAhead = () => GapToAheadInClass;
-                    GetDynamicBestLapDeltaToFocusedBest = () => BestLapDeltaToFocusedBest;
-                    GetDynamicLastLapDeltaToFocusedBest = () => LastLapDeltaToFocusedBest;
-                    GetDynamicLastLapDeltaToFocusedLast = () => LastLapDeltaToFocusedLast;
-                    break;
-                case Leaderboard.PartialRelativeOverall:
-                    GetDynamicGapToFocused = () => GapToFocusedTotal;
-                    GetDynamicGapToAhead = () => GapToAhead;
-                    GetDynamicBestLapDeltaToFocusedBest = () => BestLapDeltaToFocusedBest;
-                    GetDynamicLastLapDeltaToFocusedBest = () => LastLapDeltaToFocusedBest;
-                    GetDynamicLastLapDeltaToFocusedLast = () => LastLapDeltaToFocusedLast;
-                    break;
-                case Leaderboard.PartialRelativeClass:
-                    GetDynamicGapToFocused = () => GapToFocusedTotal;
-                    GetDynamicGapToAhead = () => GapToAheadInClass;
-                    GetDynamicBestLapDeltaToFocusedBest = () => BestLapDeltaToFocusedBest;
-                    GetDynamicLastLapDeltaToFocusedBest = () => LastLapDeltaToFocusedBest;
-                    GetDynamicLastLapDeltaToFocusedLast = () => LastLapDeltaToFocusedLast;
-                    break;
-                case Leaderboard.RelativeOnTrack:
-                    GetDynamicGapToFocused = () => GapToFocusedOnTrack;
-                    // TODO! Calculate gap to ahead in relative on track order
-                    GetDynamicGapToAhead = () => double.NaN;
-                    GetDynamicBestLapDeltaToFocusedBest = () => BestLapDeltaToFocusedBest;
-                    GetDynamicLastLapDeltaToFocusedBest = () => LastLapDeltaToFocusedBest;
-                    GetDynamicLastLapDeltaToFocusedLast = () => LastLapDeltaToFocusedLast;
-                    break;
-                default:
-                    GetDynamicGapToFocused = () => double.NaN;
-                    GetDynamicGapToAhead = () => double.NaN;
-                    GetDynamicBestLapDeltaToFocusedBest = () => double.NaN;
-                    GetDynamicLastLapDeltaToFocusedBest = () => double.NaN;
-                    GetDynamicLastLapDeltaToFocusedLast = () => double.NaN;
-                    break;
-            }
-        }
-
 
         /// <summary>
         /// Return current driver always as first driver. Other drivers in order as they are in drivers list.

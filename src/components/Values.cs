@@ -118,7 +118,7 @@ namespace KLPlugins.Leaderboard {
 
         public Values() {
             Cars = new List<CarData>();
-            var num = LeaderboardPlugin.Settings.GetMaxNumOverallPos();
+            var num = LeaderboardPlugin.Settings.GetMaxNumClassPos();
             if (num > 0) PosInClassCarsIdxs = new int[num];
       
             ResetPos();
@@ -631,7 +631,7 @@ namespace KLPlugins.Leaderboard {
                 if (startpos == classPositions.DefaultValue) {
                     startpos = 0;
                 }
-                for (int i = startpos; i < LeaderboardPlugin.Settings.GetMaxNumOverallPos(); i++) {
+                for (int i = startpos; i < LeaderboardPlugin.Settings.GetMaxNumClassPos(); i++) {
                     if (PosInClassCarsIdxs[i] == _defaultIdxValue) break; // All following must already be -1
                     PosInClassCarsIdxs[i] = _defaultIdxValue;
                 }

@@ -203,37 +203,46 @@
                         </Style>
                     </StackPanel.Resources>
 
-                    <TextBlock>Here you can customize the functionality of your dynamic leaderboard. Also make sure to restart SimHub for the changes to take effect.
+                    <TextBlock>Here you can customize the functionality of your dynamic leaderboard. For the changes to take effect you need to restart SimHub.
                         <LineBreak/><LineBreak/>
                         First you can add multiple dynamic leaderboards and change it's name in the dropdown list below.
-                        Properties for each leaderboard will be accessible as &quot;&lt;leaderboard name&gt;.&lt;position&gt;.&lt;property name&gt;&quot;, for example &quot;Dynamic.5.Car.Number&quot;.
                         </TextBlock>
+                    <TextBlock x:Name="DynLeaderboardPropertyAccess_TextBlock"/>
 
-                    <StackPanel Orientation="Horizontal">
+                    <StackPanel x:Name="DynLeaderboardsList_StackPanel" Orientation="Horizontal">
                         <ComboBox x:Name="SelectDynLeaderboard_ComboBox" 
                                   Margin="5,5,5,5" 
                                   HorizontalAlignment="Left" 
                                   VerticalAlignment="Top" 
                                   SelectionChanged="SelectDynLeaderboard_ComboBox_SelectionChanged"
                                   />
+                        
                         <styles:SHButtonPrimary HorizontalAlignment="Left" 
                                                 Margin="5,5,5,5" 
-                                                Click="RemoveLeaderboard_ButtonClick">Remove</styles:SHButtonPrimary>
+                                                Click="RemoveLeaderboard_ButtonClick"
+                                                ToolTip="Removes currently selected dynamic leaderboard."
+                                                >
+                            Remove
+                        </styles:SHButtonPrimary>
                     </StackPanel>
                     
-                    <styles:SHButtonPrimary HorizontalAlignment="Left" Margin="5,5,5,5" Click="AddNewLeaderboard_Button_Click">Add new leaderboard</styles:SHButtonPrimary>
+                    <styles:SHButtonPrimary HorizontalAlignment="Left" 
+                                            Margin="5,5,5,5" 
+                                            Click="AddNewLeaderboard_Button_Click"
+                                            >
+                        Add new leaderboard
+                    </styles:SHButtonPrimary>
                     
                     <Separator Margin="0,15,0,1"/>
                     <Separator Margin="0,1,0,10"/>
 
                     <styles:SHSectionTitle>LEADERBOARD ROTATION</styles:SHSectionTitle>
-                    <TextBlock MaxWidth="600" TextWrapping="Wrap">You can enable/disable specific leaderboards and choose the order in which they appear. 
-                    For more information about what each leaderboard looks like see Plugin info page.</TextBlock>
+                    <TextBlock MaxWidth="600" TextWrapping="Wrap">You can enable/disable specific leaderboards and choose the order in which they appear.
+                    For more information about what each leaderboard looks like see Plugin info page or the example dash.</TextBlock>
 
                     <StackPanel Orientation="Horizontal">
-                        <styles:SHButtonSecondary Click="DynLeaderboard_ListView_Up">Up</styles:SHButtonSecondary>
-                        <styles:SHButtonSecondary Click="DynLeaderboard_ListView_Down">Down</styles:SHButtonSecondary>
-
+                        <styles:SHButtonSecondary Click="DynLeaderboard_ListView_Up" ToolTip="Move currently selected leaderboard one position up.">Up</styles:SHButtonSecondary>
+                        <styles:SHButtonSecondary Click="DynLeaderboard_ListView_Down" ToolTip="Move currently selected leaderboard one position down.">Down</styles:SHButtonSecondary>
                     </StackPanel>
 
                     <ListView x:Name="DynLeaderboards_ListView" Margin="10,10,0,13" HorizontalAlignment="Left" VerticalAlignment="Top" />
@@ -257,9 +266,7 @@
                     <Separator Margin="0,1,0,10"/>
                     <styles:SHSectionTitle Text="PROPERTIES FOR EACH CAR"/>
 
-                    <TextBlock Width="600" TextWrapping="Wrap">
-                            Each properties car be accessed as "Dynamic.5.<Italic>propertyName</Italic>".
-                    </TextBlock>
+                    <TextBlock x:Name="EnablePropertiesDescription_TextBlock" Width="600" TextWrapping="Wrap"/>
 
                     <styles:SHSmallTitle>Car information</styles:SHSmallTitle>
                     <StackPanel x:Name="OutCarProps_StackPanel"/>

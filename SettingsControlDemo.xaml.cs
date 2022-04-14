@@ -38,7 +38,7 @@ namespace KLPlugins.Leaderboard
             this.Plugin = plugin;
             
             if (Settings.DynLeaderboardConfigs.Count == 0) {
-                Settings.DynLeaderboardConfigs.Add(new PluginSettings.DynLeaderboardConfig($"Dynamic1"));
+                Settings.DynLeaderboardConfigs.Add(new PluginSettings.DynLeaderboardConfig($"Dynamic"));
                 Plugin.AddNewLeaderboard(Settings.DynLeaderboardConfigs.Last());
             }
             CurrentDynLeaderboardSettings = Settings.DynLeaderboardConfigs[0];
@@ -284,6 +284,10 @@ namespace KLPlugins.Leaderboard
             var binding = new Binding("Name");
             binding.Source = l;
             t.SetBinding(TextBox.TextProperty, binding);
+            t.TextChanged += (a, b) => {
+                EnablePropertiesDescription_TextBlock.Text = $"Enable/disable properties for currently selected dynamic leaderboard. Each properties car be accessed as \"{t.Text}.5.<property name>\"";
+                DynLeaderboardPropertyAccess_TextBlock.Text = $"Properties for each leaderboard will be accessible as \"{t.Text}.<pos>.<property name>\", for example \"{t.Text}.5.Car.Number\"";
+            };
 
             var t2 = new TextBlock();
             t2.Text = "Select";
@@ -306,6 +310,10 @@ namespace KLPlugins.Leaderboard
         private void AddDynLeaderboardSettings() {
             // Techically we don't need to reset all setting ui items but only bindings and values.
             // But it's not critical and this is way simpler.
+
+            EnablePropertiesDescription_TextBlock.Text = $"Enable/disable properties for currently selected dynamic leaderboard. Each properties car be accessed as \"{CurrentDynLeaderboardSettings.Name}.5.<property name>\"";
+            DynLeaderboardPropertyAccess_TextBlock.Text = $"Properties for each leaderboard will be accessible as \"{CurrentDynLeaderboardSettings.Name}.<pos>.<property name>\", for example \"{CurrentDynLeaderboardSettings.Name}.5.Car.Number\"";
+
             AddDynLeaderboardToggles();
             AddNumPositionsSetters();
             AddPropertyToggles();
@@ -328,16 +336,24 @@ namespace KLPlugins.Leaderboard
             NumPositions_StackPanel.Children.Add(
                 CreateNumRow(
                     "Overall: ",
-                    "Set number of overall positions exposed as properties. " +
-                    "Note that this must be larger than all the cars as otherwise " +
-                    "in class and relative positions may be missing some cars.",
+                    "Set number of overall positions exposed as properties.",
                     nameof(PluginSettings.DynLeaderboardConfig.NumOverallPos),
                     0,
                     100,
                     1
                 )
             );
-
+            NumPositions_StackPanel.Children.Add(CreateToggleSeparator());
+            NumPositions_StackPanel.Children.Add(
+               CreateNumRow(
+                   "Class: ",
+                   "Set number of class positions exposed as properties. ",
+                   nameof(PluginSettings.DynLeaderboardConfig.NumClassPos),
+                   0,
+                   100,
+                   1
+                )
+            );
 
             AddSmallTitle("Relative leaderboards");
 

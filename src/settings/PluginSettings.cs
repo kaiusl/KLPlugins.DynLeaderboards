@@ -15,16 +15,21 @@ namespace KLPlugins.Leaderboard {
         public class DynLeaderboardConfig {
             public string Name { get; set; }
 
-            public OutCarProp OutCarProps = OutCarProp.CarNumber;
-            public OutPitProp OutPitProps = OutPitProp.None;
-            public OutPosProp OutPosProps = OutPosProp.None;
-            public OutGapProp OutGapProps = OutGapProp.None;
+            public OutCarProp OutCarProps = OutCarProp.CarNumber | OutCarProp.CarClass | OutCarProp.IsFinished;
+            public OutPitProp OutPitProps = OutPitProp.IsInPitLane;
+            public OutPosProp OutPosProps = OutPosProp.OverallPosition | OutPosProp.ClassPosition;
+            public OutGapProp OutGapProps = OutGapProp.DynamicGapToFocused;
             public OutDistanceProp OutDistanceProps = OutDistanceProp.None;
             public OutStintProp OutStintProps = OutStintProp.None;
-            public OutDriverProp OutDriverProps = OutDriverProp.None;
-            public OutLapProp OutLapProps = OutLapProp.None;
+            public OutDriverProp OutDriverProps = OutDriverProp.InitialPlusLastName;
+            public OutLapProp OutLapProps = OutLapProp.Laps 
+                | OutLapProp.LastLapTime 
+                | OutLapProp.BestLapTime
+                | OutLapProp.DynamicBestLapDeltaToFocusedBest
+                | OutLapProp.DynamicLastLapDeltaToFocusedLast;
 
             public int NumOverallPos { get; set; } = 16;
+            public int NumClassPos { get; set; } = 16;
             public int NumOnTrackRelativePos { get; set; } = 5;
             public int NumOverallRelativePos { get; set; } = 5;
             public int NumClassRelativePos { get; set; } = 5;
@@ -34,7 +39,15 @@ namespace KLPlugins.Leaderboard {
             public int PartialRelativeClassNumClassPos { get; set; } = 5;
             public int PartialRelativeClassNumRelativePos { get; set; } = 5;
 
-            public List<Leaderboard> Order { get; set; } = new List<Leaderboard>();
+            public List<Leaderboard> Order { get; set; } = new List<Leaderboard>() { 
+                Leaderboard.Overall,
+                Leaderboard.Class,
+                Leaderboard.PartialRelativeOverall,
+                Leaderboard.PartialRelativeClass,
+                Leaderboard.RelativeOverall,
+                Leaderboard.RelativeClass,
+                Leaderboard.RelativeOnTrack
+            };
 
             public int CurrentLeaderboardIdx = 0;
             public Leaderboard CurrentLeaderboard() {
@@ -56,7 +69,9 @@ namespace KLPlugins.Leaderboard {
         public bool Log { get; set; }
         public int BroadcastDataUpdateRateMs { get; set; }
         public List<DynLeaderboardConfig> DynLeaderboardConfigs { get; set; }
-        public OutGeneralProp OutGeneralProps;
+        public OutGeneralProp OutGeneralProps = OutGeneralProp.CarClassColors 
+                                                | OutGeneralProp.TeamCupColors 
+                                                | OutGeneralProp.TeamCupTextColors;
 
         public Dictionary<CarClass, string> CarClassColors { get; set; }
         public Dictionary<TeamCupCategory, string> TeamCupCategoryColors { get; set; }
@@ -72,7 +87,6 @@ namespace KLPlugins.Leaderboard {
             Log = false;
             BroadcastDataUpdateRateMs = 1000;
             DynLeaderboardConfigs = new List<DynLeaderboardConfig>();
-            OutGeneralProps = OutGeneralProp.None;
             CarClassColors = CreateDefCarClassColors();
             TeamCupCategoryColors = CreateDefCupColors();
             TeamCupCategoryTextColors = CreateDefCupTextColors();
@@ -80,11 +94,11 @@ namespace KLPlugins.Leaderboard {
 
         }
 
-        public int GetMaxNumOverallPos() {
+        public int GetMaxNumClassPos() {
             int max = 0;
             if (DynLeaderboardConfigs.Count > 0) {
                 foreach (var v in DynLeaderboardConfigs) {
-                    max = Math.Max(max, v.NumOverallPos);
+                    max = Math.Max(max, v.NumClassPos);
                 }
             }
             return max;

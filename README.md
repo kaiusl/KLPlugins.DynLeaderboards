@@ -1,11 +1,25 @@
 # SimHub ACC Leaderboard Plugin
 
-This is an ACC specific (at least at the moment) leaderboard plugin. 
-I know that there are other leaderboard plugins around but I wanted to try my own, maybe someone else finds it useful.
+This is an ACC specific (at least at the moment) leaderboard plugin providing simple switching between overall/class/relative leaderboards. 
 
-## Features
+The reason for this plugin is that I found myself creating effectively the same dash leaderboard layout several times for overall leaderboard and then again for class leaderboard and so on. With this plugin you need to create only one SimHub dash and assign buttons to swap between different leaderboard types. I provide example dash which I created for my use.
 
-### Available leaderboard types
+## Using the plugin
+
+* Download the latest release from Racedepartment or here
+* Copy all the *.dll files to the SimHub root
+* Open SimHub and enable the plugin
+* Check plugin settings for correct "ACC configuration location" under "General settings". This location is used to read information needed to connct to ACC broadcasting client.
+* Go to "Controls and events" from SimHub sidebar and add a mappings for "LeaderboardPlugin.&lt;leaderboard name&gt;.NextLeaderboard" and "LeaderboardPlugin.&lt;leaderboard name&gt;.PreviousLeaderboard" actions. For mapping to controller inputs you need to enable "Controllers input" plugin and for keyboard inputs "Keyboard Input" plugin.
+    
+	Note that if you add multiple dynamic leaderboards each, you need to add mappings for each leaderboard. It can be the same button for all of them.
+* Now the example dash should work.
+ 
+	By default the plugin is configured to run provided example dash but you can add and configure more leaderboards under "Dynamic leaderboard". Further exmplanation of each option is explained directly in the setting pages and by the tooltips of settings.
+
+	If something is unclear or you have suggestions, let me know.
+
+## Available leaderboard types
 
 We provide several different leaderboard orderings or types. 
 
@@ -26,59 +40,11 @@ We provide several different leaderboard orderings or types.
 	- In overall order
 	- In the order of foused car's class
 
-### Properties
+Again see the example dash to see exactly what each dash looks like.
+
+## Properties
 
 All available properties are listed in SimHub under Leadeboard plugin settings with more detailed description. You can also disable any of the properties that you don't need.
-
-## Using the plugin
-
-The thing to know about this plugin is that we expose car properties only once in overall order through `Overall.xx.<property name>` properties. This means that we don't need to expose same property in multiple leaderboards like overall, class or relative. This also means that number of overall positions exported should be larger or equal to the number of total cars. 
-Otherwise class or relative leaderboards may not have access to all the cars they need. The number of shown overall positions can be changed in settings.
-
-
-### Constructing leaderboards in different order
-
-Class or relative leaderboards can be constructed through `InClass.xx.OverallPosition` which returns the overall position of xx-th car in class.
-Then we can access all of the properties of that car from overall order.
-This means doing following in javascript
-```javascript
-var overallPos = $prop('LeaderboardPlugin.InClass.' + repeatindex() + '.OverallPosition')
-return $prop('LeaderboardPlugin.Overall.' + overallPos + '.CarNumber')
-```
-or in NCalc similarly
-```javascript
-prop('LeaderboardPlugin.Overall.' + prop('LeaderboardPlugin.InClass.' + repeatindex() + '.OverallPosition') + '.CarNumber')
-```
-
-Granted this complicates accessing car properties a little but with the plugin is provided a JavaScript extension file 
-which provies functions to do above and simplify accessing car properties. For example the car number of 5th car in class can be accessed by 
-
-```javascript
-return InClass(5, 'CarNumber')
-```
-and similarly for other orderings.
-
-***IMPORTANT:*** Note that the NCalc version is the fastest of three, followed by the 1st version and the javascript extension is the slowest. The difference between NCalc and javascipt extension seems to be around 1.5x for me.
-
-
-Currently we provide:
- - `Overall(pos, propname)`: Get property `propname` for `pos`-th car overall.
- - `InClass(pos, propname)`: Get property `propname` for `pos`-th car in class.
- - `OverallRelativeToFocused(pos, propname, numRelPos)`: Get property `propname` for `pos`-th car relative to currently focused car in overall order.
- 
-	Note that `pos` starts from 1 and that would be the car that is `numRelPos` positions ahead of the focused car. `pos == numRelPos + 1` is the focused car and `pos == 2numRelPos + 1` is the last car shown and `numRelPos` behind the focused car. The reason for this is that in SimHub you probably use repeated group to build the leaderboard and it's indexer `repeatindex()` starts at 1. So we also start counting at 1.
- - `OverallRelativeToFocusedPartial(pos, propname, numRelPos, numOverallPos)`: Get property `propname` for `pos`-th car relative to currently focused car in overall order or `pos`-th car overall if `pos < numOverallPos`. That is we show `numOverallPos` positions from the top of overall standings and then `numRelPos` realative positions around each side of focused car. See "Relative overall" screen on example dash.
- - `RelativeOnTrack(pos, propname)`: Get property `propname` for `pos`-th car relative on track to currently focused car. 
- 
-	Note that `pos` starts from 1. That is if `n` is the number of relative position specified in settings then `pos=1` is the car that is `n` positions ahead of focused car. `pos == n+1` is the focused car and `pos == 2n+1` is the last car, `n` positions behind focused car.
- - `Focused(propname)`: Get property `propname` for currently focused car.
- - `OverallBestLap(propname)`: Get property `propname` for the car that has best lap overall.
- - `InClassBestLap(propname)`: Get property `propname` for the car that has best lap in class.
-
-For more examples you can see example dashboard provided with the plugin.
-
-
-
 
 ## SH version
 

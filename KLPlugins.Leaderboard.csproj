@@ -145,7 +145,6 @@
     <Content Include="DashPerf.png" />
     <Content Include="ExportPerf.png" />
     <Content Include="sdkmenuicon.png" />
-    <Content Include="src\JavascriptExtensions\KLPlugins_Leaderboard_Extensions.js" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Properties\Resources.resx">

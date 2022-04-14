@@ -215,8 +215,9 @@ namespace KLPlugins.Leaderboard {
         GapToFocusedOnTrack = 1 << 3,
         GapToAheadOverall = 1 << 4,
         GapToAheadInClass = 1 << 5,
-        DynamicGapToFocused = 1 << 6,
-        DynamicGapToAhead = 1 << 7,
+        GapToAheadOnTrack = 1 << 6,
+        DynamicGapToFocused = 1 << 20,
+        DynamicGapToAhead = 1 << 21,
     }
 
     static class OutGapPropExtensions {
@@ -235,9 +236,11 @@ namespace KLPlugins.Leaderboard {
                 case OutGapProp.GapToFocusedOnTrack:
                     return "Gap.ToFocused.OnTrack";
                 case OutGapProp.GapToAheadOverall:
-                    return "Gap.ToOverallAhead";
+                    return "Gap.ToAhead.Overall";
                 case OutGapProp.GapToAheadInClass:
-                    return "Gap.ToClassAhead";
+                    return "Gap.ToAhead.Class";
+                case OutGapProp.GapToAheadOnTrack:
+                    return "Gap.ToAhead.OnTrack";
                 case OutGapProp.DynamicGapToFocused:
                     return "Gap.Dynamic.ToFocused";
                 case OutGapProp.DynamicGapToAhead:
@@ -261,6 +264,8 @@ namespace KLPlugins.Leaderboard {
                     return "Total gap to the car ahead in overall in seconds";
                 case OutGapProp.GapToAheadInClass:
                     return "Total gap to the car ahead in class in seconds";
+                case OutGapProp.GapToAheadOnTrack:
+                    return "Relative on track gap to car ahead in seconds";
                 case OutGapProp.DynamicGapToFocused:
                     return "Gap that changes based of currently displayed dynamic leaderboard. Overall -> gap to leader, class -> gap to class leader, partial relative, relative overall/class -> gap to focused total, relative on track -> gap to focused on track.";
                 case OutGapProp.DynamicGapToAhead:

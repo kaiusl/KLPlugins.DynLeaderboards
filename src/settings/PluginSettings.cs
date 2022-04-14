@@ -8,54 +8,54 @@ using System.Linq;
 
 
 namespace KLPlugins.Leaderboard {
-    public class DynLeaderboardSettings {
-        public string Name { get; set; }
-
-        public OutCarProp OutCarProps = OutCarProp.CarNumber;
-        public OutPitProp OutPitProps = OutPitProp.None;
-        public OutPosProp OutPosProps = OutPosProp.None;
-        public OutGapProp OutGapProps = OutGapProp.None;
-        public OutDistanceProp OutDistanceProps = OutDistanceProp.None;
-        public OutStintProp OutStintProps = OutStintProp.None;
-        public OutDriverProp OutDriverProps = OutDriverProp.None;
-        public OutLapProp OutLapProps = OutLapProp.None;
-
-        public int NumOverallPos { get; set; } = 16;
-        public int NumOnTrackRelativePos { get; set; } = 5;
-        public int NumOverallRelativePos { get; set; } = 5;
-        public int NumClassRelativePos { get; set; } = 5;
-        public int NumDrivers { get; set; } = 1;
-        public int PartialRelativeOverallNumOverallPos { get; set; } = 5;
-        public int PartialRelativeOverallNumRelativePos { get; set; } = 5;
-        public int PartialRelativeClassNumClassPos { get; set; } = 5;
-        public int PartialRelativeClassNumRelativePos { get; set; } = 5;
-
-        public List<Leaderboard> Order { get; set; } = new List<Leaderboard>();
-
-        public int CurrentLeaderboardIdx = 0;
-        public Leaderboard CurrentLeaderboard() {
-            if (Order.Count > 0) {
-                return Order[CurrentLeaderboardIdx];
-            } else {
-                return Leaderboard.None;
-            }
-        }
-
-        public DynLeaderboardSettings(string name) { 
-            Name = name;
-        }
-    }
-
     /// <summary>
     /// Settings class, make sure it can be correctly serialized using JSON.net
     /// </summary>
     public class PluginSettings {
+        public class DynLeaderboardConfig {
+            public string Name { get; set; }
+
+            public OutCarProp OutCarProps = OutCarProp.CarNumber;
+            public OutPitProp OutPitProps = OutPitProp.None;
+            public OutPosProp OutPosProps = OutPosProp.None;
+            public OutGapProp OutGapProps = OutGapProp.None;
+            public OutDistanceProp OutDistanceProps = OutDistanceProp.None;
+            public OutStintProp OutStintProps = OutStintProp.None;
+            public OutDriverProp OutDriverProps = OutDriverProp.None;
+            public OutLapProp OutLapProps = OutLapProp.None;
+
+            public int NumOverallPos { get; set; } = 16;
+            public int NumOnTrackRelativePos { get; set; } = 5;
+            public int NumOverallRelativePos { get; set; } = 5;
+            public int NumClassRelativePos { get; set; } = 5;
+            public int NumDrivers { get; set; } = 1;
+            public int PartialRelativeOverallNumOverallPos { get; set; } = 5;
+            public int PartialRelativeOverallNumRelativePos { get; set; } = 5;
+            public int PartialRelativeClassNumClassPos { get; set; } = 5;
+            public int PartialRelativeClassNumRelativePos { get; set; } = 5;
+
+            public List<Leaderboard> Order { get; set; } = new List<Leaderboard>();
+
+            public int CurrentLeaderboardIdx = 0;
+            public Leaderboard CurrentLeaderboard() {
+                if (Order.Count > 0) {
+                    return Order[CurrentLeaderboardIdx];
+                } else {
+                    return Leaderboard.None;
+                }
+            }
+
+            public DynLeaderboardConfig(string name) {
+                Name = name;
+            }
+        }
+
         internal string PluginDataLocation { get; set; }
 
         public string AccDataLocation { get; set; }
         public bool Log { get; set; }
         public int BroadcastDataUpdateRateMs { get; set; }
-        public List<DynLeaderboardSettings> DynLeaderboardSettings { get; set; }
+        public List<DynLeaderboardConfig> DynLeaderboardConfigs { get; set; }
         public OutGeneralProp OutGeneralProps;
 
         public Dictionary<CarClass, string> CarClassColors { get; set; }
@@ -71,7 +71,7 @@ namespace KLPlugins.Leaderboard {
             AccDataLocation = _defAccDataLocation;
             Log = false;
             BroadcastDataUpdateRateMs = 1000;
-            DynLeaderboardSettings = new List<DynLeaderboardSettings>();
+            DynLeaderboardConfigs = new List<DynLeaderboardConfig>();
             OutGeneralProps = OutGeneralProp.None;
             CarClassColors = CreateDefCarClassColors();
             TeamCupCategoryColors = CreateDefCupColors();
@@ -82,8 +82,8 @@ namespace KLPlugins.Leaderboard {
 
         public int GetMaxNumOverallPos() {
             int max = 0;
-            if (DynLeaderboardSettings.Count > 0) {
-                foreach (var v in DynLeaderboardSettings) {
+            if (DynLeaderboardConfigs.Count > 0) {
+                foreach (var v in DynLeaderboardConfigs) {
                     max = Math.Max(max, v.NumOverallPos);
                 }
             }

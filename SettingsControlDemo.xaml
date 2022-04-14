@@ -9,7 +9,7 @@
              xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
              xmlns:ui="clr-namespace:SimHub.Plugins.UI;assembly=SimHub.Plugins" 
              xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
-             d:DesignHeight="600" d:DesignWidth="600"
+             d:DesignHeight="600" d:DesignWidth="800"
              >
 
     <UserControl.Resources>
@@ -76,17 +76,6 @@
                         <Setter Property="HorizontalAlignment" Value="Left"/>
                         <Setter Property="VerticalAlignment" Value="Center"/>
                         <Setter Property="TextWrapping" Value="Wrap"/>
-                    </Style>
-
-                    <Style x:Key="NumPos" TargetType="mah:NumericUpDown">
-                        <Setter Property="HorizontalAlignment" Value="Left"/>
-                        <Setter Property="VerticalAlignment" Value="Center"/>
-                        <Setter Property="Height" Value="25"/>
-                        <Setter Property="Width" Value="100"/>
-                        <Setter Property="HasDecimals" Value="False"/>
-                        <Setter Property="Minimum" Value="0"/>
-                        <Setter Property="Maximum" Value="100"/>
-                        <Setter Property="Interval" Value="1"/>
                     </Style>
 
                     <Style TargetType="Separator">
@@ -214,7 +203,11 @@
                         </Style>
                     </StackPanel.Resources>
 
-                    <TextBlock>Here you can customize the functionality of your dynamic leaderboard.</TextBlock>
+                    <TextBlock>Here you can customize the functionality of your dynamic leaderboard. Also make sure to restart SimHub for the changes to take effect.
+                        <LineBreak/><LineBreak/>
+                        First you can add multiple dynamic leaderboards and change it's name in the dropdown list below.
+                        Properties for each leaderboard will be accessible as &quot;&lt;leaderboard name&gt;.&lt;position&gt;.&lt;property name&gt;&quot;, for example &quot;Dynamic.5.Car.Number&quot;.
+                        </TextBlock>
 
                     <StackPanel Orientation="Horizontal">
                         <ComboBox x:Name="SelectDynLeaderboard_ComboBox" 
@@ -286,7 +279,7 @@
                     <styles:SHSmallTitle>Positions</styles:SHSmallTitle>
                     <StackPanel x:Name="OutPosProps_StackPanel"/>
 
-                    <styles:SHSmallTitle>Pit informations</styles:SHSmallTitle>
+                    <styles:SHSmallTitle>Pit information</styles:SHSmallTitle>
                     <StackPanel x:Name="OutPitProps_StackPanel"/>
 
                     <styles:SHSmallTitle>Other</styles:SHSmallTitle>

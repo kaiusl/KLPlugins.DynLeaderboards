@@ -22,7 +22,7 @@ namespace KLPlugins.Leaderboard
     public partial class SettingsControlDemo : UserControl {
         public LeaderboardPlugin Plugin { get; }
         public PluginSettings Settings { get => LeaderboardPlugin.Settings; }
-        public DynLeaderboardSettings CurrentDynLeaderboardSettings { get; private set; }
+        public PluginSettings.DynLeaderboardConfig CurrentDynLeaderboardSettings { get; private set; }
 
         private Dictionary<CarClass, ColorPicker> _classColorPickers = new Dictionary<CarClass, ColorPicker>(8);
         private Dictionary<TeamCupCategory, ColorPicker> _cupColorPickers = new Dictionary<TeamCupCategory, ColorPicker>(5);
@@ -37,16 +37,17 @@ namespace KLPlugins.Leaderboard
         public SettingsControlDemo(LeaderboardPlugin plugin) : this() {
             this.Plugin = plugin;
             
-            if (Settings.DynLeaderboardSettings.Count == 0) {
-                Settings.DynLeaderboardSettings.Add(new DynLeaderboardSettings($"Dynamic1"));
-                Plugin.AddNewLeaderboard(Settings.DynLeaderboardSettings.Last());
+            if (Settings.DynLeaderboardConfigs.Count == 0) {
+                Settings.DynLeaderboardConfigs.Add(new PluginSettings.DynLeaderboardConfig($"Dynamic1"));
+                Plugin.AddNewLeaderboard(Settings.DynLeaderboardConfigs.Last());
             }
-            CurrentDynLeaderboardSettings = Settings.DynLeaderboardSettings[0];
+            CurrentDynLeaderboardSettings = Settings.DynLeaderboardConfigs[0];
 
-            SelectDynLeaderboard_ComboBox.SelectedIndex = 0;
-            foreach (var l in Settings.DynLeaderboardSettings) { 
-                SelectDynLeaderboard_ComboBox.Items.Add(l.Name);
+
+            foreach (var l in Settings.DynLeaderboardConfigs) {
+                AddSelectDynLeaderboard_ComboBoxItem(l);
             }
+            SelectDynLeaderboard_ComboBox.SelectedIndex = 0;
 
             AddDynLeaderboardSettings();
             AddOtherToggles();
@@ -273,6 +274,29 @@ namespace KLPlugins.Leaderboard
 
         #region Dynamic leaderboard
 
+        private void AddSelectDynLeaderboard_ComboBoxItem(PluginSettings.DynLeaderboardConfig l) {
+            var sp = new StackPanel();
+            sp.Orientation = Orientation.Horizontal;
+
+            var t = new TextBox();
+            t.Width = 200;
+            
+            var binding = new Binding("Name");
+            binding.Source = l;
+            t.SetBinding(TextBox.TextProperty, binding);
+
+            var t2 = new TextBlock();
+            t2.Text = "Select";
+            t2.HorizontalAlignment = HorizontalAlignment.Left;
+            t2.Margin = new Thickness(5,0,0,0);
+
+            sp.Children.Add(t);
+            sp.Children.Add(t2);
+
+            SelectDynLeaderboard_ComboBox.Items.Add(sp);
+
+        }
+
 
         /// <summary>
         /// Add settings for currently selected dynamic leaderboard.
@@ -307,7 +331,7 @@ namespace KLPlugins.Leaderboard
                     "Set number of overall positions exposed as properties. " +
                     "Note that this must be larger than all the cars as otherwise " +
                     "in class and relative positions may be missing some cars.",
-                    nameof(DynLeaderboardSettings.NumOverallPos),
+                    nameof(PluginSettings.DynLeaderboardConfig.NumOverallPos),
                     0,
                     100,
                     1
@@ -322,7 +346,7 @@ namespace KLPlugins.Leaderboard
                     "Overall: ",
                     "Set number of overall relative positions exposed from the focused car in one direction." +
                     " That is if it's set to 5, we show 5 cars ahead and 5 behind.",
-                    nameof(DynLeaderboardSettings.NumOverallRelativePos),
+                    nameof(PluginSettings.DynLeaderboardConfig.NumOverallRelativePos),
                     0,
                     50,
                     1
@@ -334,7 +358,7 @@ namespace KLPlugins.Leaderboard
                     "Class: ",
                     "Set number of class relative positions exposed from the focused car in one direction." +
                     " That is if it's set to 5, we show 5 cars ahead and 5 behind.",
-                    nameof(DynLeaderboardSettings.NumClassRelativePos),
+                    nameof(PluginSettings.DynLeaderboardConfig.NumClassRelativePos),
                     0,
                     50,
                     1
@@ -346,7 +370,7 @@ namespace KLPlugins.Leaderboard
                     "On track: ",
                     "Set number of on track relative positions exposed from the focused car in one direction. " +
                     "That is if it's set to 5, we show 5 cars ahead and 5 behind.",
-                    nameof(DynLeaderboardSettings.NumOnTrackRelativePos),
+                    nameof(PluginSettings.DynLeaderboardConfig.NumOnTrackRelativePos),
                     0,
                     50,
                     1
@@ -358,7 +382,7 @@ namespace KLPlugins.Leaderboard
                CreateNumRow(
                    "Overall - top positions: ",
                    "Set number of overall positions exposed for partial relative overall leaderboard.",
-                   nameof(DynLeaderboardSettings.PartialRelativeOverallNumOverallPos),
+                   nameof(PluginSettings.DynLeaderboardConfig.PartialRelativeOverallNumOverallPos),
                    0,
                    100,
                    1
@@ -371,7 +395,7 @@ namespace KLPlugins.Leaderboard
                    "Set number of relative positions exposed for partial relative overall " +
                    "leaderboard from the focused car in one direction. That is if it's set to 5, " +
                    "we show 5 cars ahead and 5 behind.",
-                   nameof(DynLeaderboardSettings.PartialRelativeOverallNumRelativePos),
+                   nameof(PluginSettings.DynLeaderboardConfig.PartialRelativeOverallNumRelativePos),
                    0,
                    50,
                    1
@@ -382,7 +406,7 @@ namespace KLPlugins.Leaderboard
                CreateNumRow(
                    "Class    - top positions: ",
                    "Set number of class positions exposed for partial relative class leaderboard.",
-                   nameof(DynLeaderboardSettings.PartialRelativeClassNumClassPos),
+                   nameof(PluginSettings.DynLeaderboardConfig.PartialRelativeClassNumClassPos),
                    0,
                    100,
                    1
@@ -395,7 +419,7 @@ namespace KLPlugins.Leaderboard
                    "Set number of relative positions exposed for partial relative class " +
                    "leaderboard from the focused car in one direction. " +
                    "That is if it's set to 5, we show 5 cars ahead and 5 behind.",
-                   nameof(DynLeaderboardSettings.PartialRelativeOverallNumRelativePos),
+                   nameof(PluginSettings.DynLeaderboardConfig.PartialRelativeOverallNumRelativePos),
                    0,
                    50,
                    1
@@ -408,7 +432,7 @@ namespace KLPlugins.Leaderboard
                CreateNumRow(
                    "Number of drivers",
                    "Set number of drivers shown per car. If set to 1 shown only current driver.",
-                   nameof(DynLeaderboardSettings.NumDrivers),
+                   nameof(PluginSettings.DynLeaderboardConfig.NumDrivers),
                    0,
                    10,
                    1
@@ -452,11 +476,9 @@ namespace KLPlugins.Leaderboard
             num.Maximum = max;
             num.Interval = interval;
             num.Margin = new Thickness(3, 3, 3, 3);
-
             var bind = new Binding(settingsPropertyName);
             bind.Source = CurrentDynLeaderboardSettings;
             bind.Mode = BindingMode.TwoWay;
-
             num.SetBinding(NumericUpDown.ValueProperty, bind);
 
             sp.Children.Add(t);
@@ -491,7 +513,7 @@ namespace KLPlugins.Leaderboard
 
             // Add all others to the end
             foreach (var l in (Leaderboard[])Enum.GetValues(typeof(Leaderboard))) {
-                if (CurrentDynLeaderboardSettings.Order.Contains(l)) continue;
+                if (l == Leaderboard.None || CurrentDynLeaderboardSettings.Order.Contains(l)) continue;
                 var sp = new StackPanel();
                 sp.Orientation = Orientation.Horizontal;
 
@@ -517,7 +539,7 @@ namespace KLPlugins.Leaderboard
         /// </summary>
         private void CreateDynamicLeaderboardList() {
             var selected = SelectDynLeaderboard_ComboBox.SelectedIndex;
-            Settings.DynLeaderboardSettings[selected].Order.Clear();
+            Settings.DynLeaderboardConfigs[selected].Order.Clear();
             foreach (var v in DynLeaderboards_ListView.Items) {
                 var sp = (StackPanel)v;
                 var tb = (SHToggleButton)sp.Children[0];
@@ -525,7 +547,7 @@ namespace KLPlugins.Leaderboard
                 if (tb.IsChecked == null || tb.IsChecked == false) continue;
 
                 if (Enum.TryParse(txt.Text, out Leaderboard variant)) {
-                    Settings.DynLeaderboardSettings[selected].Order.Add(variant);
+                    Settings.DynLeaderboardConfigs[selected].Order.Add(variant);
                 }
             }
         }
@@ -570,22 +592,26 @@ namespace KLPlugins.Leaderboard
         private void AddLapToggles() {
             // Add Lap Properties
             OutLapProps_StackPanel.Children.Clear();
+
+            void AddSmallTitle(string name, Brush bgColor = null) {
+                var t = new SHSmallTitle();
+                t.Content = name;
+                t.Margin = new Thickness(25, 0, 0, 0);
+                OutLapProps_StackPanel.Children.Add(t);
+            }
+
             foreach (var v in (OutLapProp[])Enum.GetValues(typeof(OutLapProp))) {
                 if (v == OutLapProp.None) continue;
-
-                void AddSmallTitle(string name) {
-                    var t = new SHSmallTitle();
-                    t.Content = name;
-                    OutLapProps_StackPanel.Children.Add(t);
-                }
-
                 // Group by similarity
                 switch (v) {
                     case OutLapProp.BestLapDeltaToOverallBest:
-                        AddSmallTitle("Best lap deltas");
+                        AddSmallTitle("Best to best", Brushes.White);
                         break;
                     case OutLapProp.LastLapDeltaToOverallBest:
-                        AddSmallTitle("Last lap deltas");
+                        AddSmallTitle("Last to best", Brushes.White);
+                        break;
+                    case OutLapProp.LastLapDeltaToLeaderLast:
+                        AddSmallTitle("Last to last", Brushes.White);
                         break;
                     default:
                         break;
@@ -648,8 +674,17 @@ namespace KLPlugins.Leaderboard
         private void AddGapToggles() {
             OutGapsProps_StackPanel.Children.Clear();
             // Add Gap Properties
+            void AddSmallTitle(string name, Brush bgColor = null) {
+                var t = new SHSmallTitle();
+                t.Content = name;
+                t.Margin = new Thickness(25, 0, 0, 0);
+                OutGapsProps_StackPanel.Children.Add(t);
+            }
+
             foreach (var v in (OutGapProp[])Enum.GetValues(typeof(OutGapProp))) {
                 if (v == OutGapProp.None) continue;
+
+                if (v == OutGapProp.DynamicGapToFocused) AddSmallTitle("Dynamic gaps");
 
                 StackPanel sp = CreatePropertyToggleRow(
                        v.ToString(),
@@ -835,25 +870,33 @@ namespace KLPlugins.Leaderboard
         }
 
         private void AddNewLeaderboard_Button_Click(object sender, RoutedEventArgs e) {
-            Settings.DynLeaderboardSettings.Add(new DynLeaderboardSettings($"Dynamic{Settings.DynLeaderboardSettings.Count + 1}"));
-            SelectDynLeaderboard_ComboBox.Items.Add($"Dynamic{Settings.DynLeaderboardSettings.Count}");
-            Plugin.AddNewLeaderboard(Settings.DynLeaderboardSettings.Last());
+            Settings.DynLeaderboardConfigs.Add(new PluginSettings.DynLeaderboardConfig($"Dynamic{Settings.DynLeaderboardConfigs.Count + 1}"));
+            Plugin.AddNewLeaderboard(Settings.DynLeaderboardConfigs.Last());
+            AddSelectDynLeaderboard_ComboBoxItem(Settings.DynLeaderboardConfigs.Last());
+            SelectDynLeaderboard_ComboBox.SelectedIndex = SelectDynLeaderboard_ComboBox.Items.Count - 1;
         }
 
         private void RemoveLeaderboard_ButtonClick(object sender, RoutedEventArgs e) {
             if (SelectDynLeaderboard_ComboBox.Items.Count == 1) return;
 
             int selected = SelectDynLeaderboard_ComboBox.SelectedIndex;
-            SelectDynLeaderboard_ComboBox.SelectedIndex = 0;
-            DynLeaderboards_ListView.Items.RemoveAt(selected);
-            Plugin.RemoveLeaderboardAt(selected);
-            Settings.DynLeaderboardSettings.RemoveAt(selected);
+            if (selected == 0) {
+                SelectDynLeaderboard_ComboBox.SelectedIndex++;
+            } else {
+                SelectDynLeaderboard_ComboBox.SelectedIndex--;
+            }
 
+
+
+            SelectDynLeaderboard_ComboBox.Items.RemoveAt(selected);
+            Plugin.RemoveLeaderboardAt(selected);
+            Settings.DynLeaderboardConfigs.RemoveAt(selected);
+            SelectDynLeaderboard_ComboBox.SelectedIndex = 0;
         }
 
         private void SelectDynLeaderboard_ComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e) {
             int selected = SelectDynLeaderboard_ComboBox.SelectedIndex;
-            CurrentDynLeaderboardSettings = Settings.DynLeaderboardSettings[selected];
+            CurrentDynLeaderboardSettings = Settings.DynLeaderboardConfigs[selected];
 
             AddDynLeaderboardSettings();
         }

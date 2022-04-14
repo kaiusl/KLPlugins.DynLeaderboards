@@ -41,25 +41,25 @@ namespace KLPlugins.Leaderboard {
             public int[] PartialRelativeClassCarsIdxs { get; internal set; }
             public int? FocusedCarPosInPartialRelativeClassCarsIdxs { get; internal set; }
 
-            public delegate CarData GetDynamicCarDelegate(int i);
+            public delegate CarData GetDynCarDelegate(int i);
             public delegate int? GetFocusedCarIdxInLDynLeaderboardDelegate();
-            public delegate double? DynamicGapToFocused(int i);
-            public delegate double? DynamicGapToAhead(int i);
-            public delegate double? DynamicBestLapDeltaToFocusedBest(int i);
-            public delegate double? DynamicLastLapDeltaToFocusedBest(int i);
-            public delegate double? DynamicLastLapDeltaToFocusedLast(int i);
+            public delegate double? DynGapToFocusedDelegate(int i);
+            public delegate double? DynGapToAheadDelegate(int i);
+            public delegate double? DynBestLapDeltaToFocusedBestDelegate(int i);
+            public delegate double? DynLastLapDeltaToFocusedBestDelegate(int i);
+            public delegate double? DynLastLapDeltaToFocusedLastDelegate(int i);
 
-            public GetDynamicCarDelegate GetDynamicCar { get; internal set; }
+            public GetDynCarDelegate GetDynCar { get; internal set; }
             public GetFocusedCarIdxInLDynLeaderboardDelegate GetFocusedCarIdxInDynLeaderboard { get; internal set; }
-            public DynamicGapToFocused GetDynamicGapToFocused { get; internal set; }
-            public DynamicGapToAhead GetDynamicGapToAhead { get; internal set; }
-            public DynamicBestLapDeltaToFocusedBest GetDynamicBestLapDeltaToFocusedBest { get; internal set; }
-            public DynamicLastLapDeltaToFocusedBest GetDynamicLastLapDeltaToFocusedBest { get; internal set; }
-            public DynamicLastLapDeltaToFocusedLast GetDynamicLastLapDeltaToFocusedLast { get; internal set; }
+            public DynGapToFocusedDelegate GetDynGapToFocused { get; internal set; }
+            public DynGapToAheadDelegate GetDynGapToAhead { get; internal set; }
+            public DynBestLapDeltaToFocusedBestDelegate GetDynBestLapDeltaToFocusedBest { get; internal set; }
+            public DynLastLapDeltaToFocusedBestDelegate GetDynLastLapDeltaToFocusedBest { get; internal set; }
+            public DynLastLapDeltaToFocusedLastDelegate GetDynLastLapDeltaToFocusedLast { get; internal set; }
 
-            public DynLeaderboardSettings Settings { get; private set; }
+            public PluginSettings.DynLeaderboardConfig Settings { get; private set; }
 
-            public DynLeaderboardValues(DynLeaderboardSettings settings) {
+            public DynLeaderboardValues(PluginSettings.DynLeaderboardConfig settings) {
                 Settings = settings;
 
                 if (DynLeaderboardContainsAny(Leaderboard.RelativeOnTrack))
@@ -86,8 +86,6 @@ namespace KLPlugins.Leaderboard {
                 }
                 return false;
             }
-
-
         }
 
         public ACCUdpRemoteClient BroadcastClient { get; private set; }
@@ -126,100 +124,8 @@ namespace KLPlugins.Leaderboard {
             ResetPos();
             _broadcastConfig = new ACCUdpRemoteClientConfig("127.0.0.1", "KLLeaderboardPlugin", LeaderboardPlugin.Settings.BroadcastDataUpdateRateMs);
             SetDynamicCarGetter();
-            foreach (var l in LeaderboardPlugin.Settings.DynLeaderboardSettings) {
+            foreach (var l in LeaderboardPlugin.Settings.DynLeaderboardConfigs) {
                 LeaderboardValues.Add(new DynLeaderboardValues(l));
-            }
-        }
-
-        public void AddNewLeaderboard(DynLeaderboardSettings s) {
-            LeaderboardValues.Add(new DynLeaderboardValues(s));
-        }
-
-        private CarData GetCar(int i, int[] idxs) {
-            if (i > idxs.Length - 1) return null;
-            var idx = idxs[i];
-            if (idx == -1) return null;
-            return Cars[idx];
-        }
-
-
-        public void SetDynamicCarGetter() {
-            foreach (var l in LeaderboardValues) {
-                switch (l.Settings.CurrentLeaderboard()) {
-                    case Leaderboard.Overall:
-                        l.GetDynamicCar = (i) => GetCar(i);
-                        l.GetFocusedCarIdxInDynLeaderboard = () => FocusedCarIdx;
-                        l.GetDynamicGapToFocused = (i) => GetCar(i)?.GapToLeader;
-                        l.GetDynamicGapToAhead = (i) => GetCar(i)?.GapToAhead;
-                        l.GetDynamicBestLapDeltaToFocusedBest = (i) => GetCar(i)?.BestLapDeltaToLeaderBest;
-                        l.GetDynamicLastLapDeltaToFocusedBest = (i) => GetCar(i)?.LastLapDeltaToLeaderBest;
-                        l.GetDynamicLastLapDeltaToFocusedLast = (i) => GetCar(i)?.LastLapDeltaToLeaderLast;
-                        break;
-                    case Leaderboard.Class:
-                        l.GetDynamicCar = (i) => GetCar(i, PosInClassCarsIdxs);
-                        l.GetFocusedCarIdxInDynLeaderboard = () => FocusedCarPosInClassCarsIdxs;
-                        l.GetDynamicGapToFocused = (i) => l.GetDynamicCar(i)?.GapToClassLeader;
-                        l.GetDynamicGapToAhead = (i) => l.GetDynamicCar(i)?.GapToAheadInClass;
-                        l.GetDynamicBestLapDeltaToFocusedBest = (i) => l.GetDynamicCar(i)?.BestLapDeltaToClassLeaderBest;
-                        l.GetDynamicLastLapDeltaToFocusedBest = (i) => l.GetDynamicCar(i)?.LastLapDeltaToClassLeaderBest;
-                        l.GetDynamicLastLapDeltaToFocusedLast = (i) => l.GetDynamicCar(i)?.LastLapDeltaToClassLeaderLast;
-                        break;
-                    case Leaderboard.RelativeOverall:
-                        l.GetDynamicCar = (i) => GetCar(i, l.RelativePosOverallCarsIdxs);
-                        l.GetFocusedCarIdxInDynLeaderboard = () => l.Settings.NumOverallRelativePos;
-                        l.GetDynamicGapToFocused = (i) => l.GetDynamicCar(i)?.GapToFocusedTotal;
-                        l.GetDynamicGapToAhead = (i) => l.GetDynamicCar(i)?.GapToAhead;
-                        l.GetDynamicBestLapDeltaToFocusedBest = (i) => l.GetDynamicCar(i)?.BestLapDeltaToFocusedBest;
-                        l.GetDynamicLastLapDeltaToFocusedBest = (i) => l.GetDynamicCar(i)?.LastLapDeltaToFocusedBest;
-                        l.GetDynamicLastLapDeltaToFocusedLast = (i) => l.GetDynamicCar(i)?.LastLapDeltaToFocusedLast;
-                        break;
-                    case Leaderboard.RelativeClass:
-                        l.GetDynamicCar = (i) => GetCar(i, l.RelativePosClassCarsIdxs);
-                        l.GetFocusedCarIdxInDynLeaderboard = () => l.Settings.NumClassRelativePos;
-                        l.GetDynamicGapToFocused = (i) => l.GetDynamicCar(i)?.GapToFocusedTotal;
-                        l.GetDynamicGapToAhead = (i) => l.GetDynamicCar(i)?.GapToAheadInClass;
-                        l.GetDynamicBestLapDeltaToFocusedBest = (i) => l.GetDynamicCar(i)?.BestLapDeltaToFocusedBest;
-                        l.GetDynamicLastLapDeltaToFocusedBest = (i) => l.GetDynamicCar(i)?.LastLapDeltaToFocusedBest;
-                        l.GetDynamicLastLapDeltaToFocusedLast = (i) => l.GetDynamicCar(i)?.LastLapDeltaToFocusedLast;
-                        break;
-                    case Leaderboard.PartialRelativeOverall:
-                        l.GetDynamicCar = (i) => GetCar(i, l.PartialRelativeOverallCarsIdxs);
-                        l.GetFocusedCarIdxInDynLeaderboard = () => l.FocusedCarPosInPartialRelativeOverallCarsIdxs;
-                        l.GetDynamicGapToFocused = (i) => l.GetDynamicCar(i)?.GapToFocusedTotal;
-                        l.GetDynamicGapToAhead = (i) => l.GetDynamicCar(i)?.GapToAhead;
-                        l.GetDynamicBestLapDeltaToFocusedBest = (i) => l.GetDynamicCar(i)?.BestLapDeltaToFocusedBest;
-                        l.GetDynamicLastLapDeltaToFocusedBest = (i) => l.GetDynamicCar(i)?.LastLapDeltaToFocusedBest;
-                        l.GetDynamicLastLapDeltaToFocusedLast = (i) => l.GetDynamicCar(i)?.LastLapDeltaToFocusedLast;
-                        break;
-                    case Leaderboard.PartialRelativeClass:
-                        l.GetDynamicCar = (i) => GetCar(i, l.PartialRelativeClassCarsIdxs);
-                        l.GetFocusedCarIdxInDynLeaderboard = () => l.FocusedCarPosInPartialRelativeClassCarsIdxs;
-                        l.GetDynamicGapToFocused = (i) => l.GetDynamicCar(i)?.GapToFocusedTotal;
-                        l.GetDynamicGapToAhead = (i) => l.GetDynamicCar(i)?.GapToAheadInClass;
-                        l.GetDynamicBestLapDeltaToFocusedBest = (i) => l.GetDynamicCar(i)?.BestLapDeltaToFocusedBest;
-                        l.GetDynamicLastLapDeltaToFocusedBest = (i) => l.GetDynamicCar(i)?.LastLapDeltaToFocusedBest;
-                        l.GetDynamicLastLapDeltaToFocusedLast = (i) => l.GetDynamicCar(i)?.LastLapDeltaToFocusedLast;
-                        break;
-                    case Leaderboard.RelativeOnTrack:
-                        l.GetDynamicCar = (i) => GetCar(i, l.RelativePosOnTrackCarsIdxs);
-                        l.GetFocusedCarIdxInDynLeaderboard = () => l.Settings.NumOnTrackRelativePos;
-                        l.GetDynamicGapToFocused = (i) => l.GetDynamicCar(i)?.GapToFocusedOnTrack;
-                        // TODO! Calculate gap to ahead in relative on track order
-                        l.GetDynamicGapToAhead = (i) => double.NaN;
-                        l.GetDynamicBestLapDeltaToFocusedBest = (i) => l.GetDynamicCar(i)?.BestLapDeltaToFocusedBest;
-                        l.GetDynamicLastLapDeltaToFocusedBest = (i) => l.GetDynamicCar(i)?.LastLapDeltaToFocusedBest;
-                        l.GetDynamicLastLapDeltaToFocusedLast = (i) => l.GetDynamicCar(i)?.LastLapDeltaToFocusedLast;
-                        break;
-                    default:
-                        l.GetDynamicCar = (i) => null;
-                        l.GetFocusedCarIdxInDynLeaderboard = () => null;
-                        l.GetDynamicGapToFocused = (i) => double.NaN;
-                        l.GetDynamicGapToAhead = (i) => double.NaN;
-                        l.GetDynamicBestLapDeltaToFocusedBest = (i) => double.NaN;
-                        l.GetDynamicLastLapDeltaToFocusedBest = (i) => double.NaN;
-                        l.GetDynamicLastLapDeltaToFocusedLast = (i) => double.NaN;
-                        break;
-                }
             }
         }
 
@@ -299,30 +205,16 @@ namespace KLPlugins.Leaderboard {
 
         }
 
-        public void OnDataUpdate(PluginManager pm, GameData data) {
-
-            //if (Cars.Count != 0) {
-            //    for (int i = 0; i < Cars.Count; i++) {
-            //        var c = Cars[i];
-            //        CarNumbers[i] = c.RaceNumber;
-            //        CarClasses[i] = c.CarClass.ToString();
-            //        DriverName[i] = c.CurrentDriver.InitialPlusLastName();
-            //        TeamCategory[i] = c.CupCategory.ToString();
-            //        GapToLeader[i] = c.GapToLeader;
-            //        GapToAhead[i] = c.GapToAhead;
-            //        LastLap[i] = c.NewData?.LastLap?.Laptime;
-            //        BestLap[i] = c.NewData?.BestSessionLap?.Laptime;
-            //        LastLapDeltaToLeader[i] = c.LastLapDeltaToLeaderLast;
-            //        BestLapDeltaToLeader[i] = c.BestLapDeltaToLeaderBest;
-            //        IsInPit[i] = (c.NewData?.CarLocation ?? CarLocationEnum.NONE) == CarLocationEnum.Pitlane ? 1 : 0;
-            //        OutCars[i] = Cars[i];
-            //    }
-            //}
-
-
-        }
+        public void OnDataUpdate(PluginManager pm, GameData data) {}
 
         public CarData GetCar(int i) => Cars.ElementAtOrDefault(i);
+
+        private CarData GetCar(int i, int[] idxs) {
+            if (i > idxs.Length - 1) return null;
+            var idx = idxs[i];
+            if (idx == -1) return null;
+            return Cars[idx];
+        }
 
         public CarData GetFocusedCar() {
             if (FocusedCarIdx == _defaultIdxValue) return null;
@@ -351,6 +243,89 @@ namespace KLPlugins.Leaderboard {
             var focusedClass = GetFocusedCar()?.CarClass;
             if (focusedClass == null) return null;
             return BestLapByClassCarIdxs[(CarClass)focusedClass];
+        }
+
+        public void AddNewLeaderboard(PluginSettings.DynLeaderboardConfig s) {
+            LeaderboardValues.Add(new DynLeaderboardValues(s));
+        }
+
+        public void SetDynamicCarGetter() {
+            foreach (var l in LeaderboardValues) {
+                switch (l.Settings.CurrentLeaderboard()) {
+                    case Leaderboard.Overall:
+                        l.GetDynCar = (i) => GetCar(i);
+                        l.GetFocusedCarIdxInDynLeaderboard = () => FocusedCarIdx;
+                        l.GetDynGapToFocused = (i) => GetCar(i)?.GapToLeader;
+                        l.GetDynGapToAhead = (i) => GetCar(i)?.GapToAhead;
+                        l.GetDynBestLapDeltaToFocusedBest = (i) => GetCar(i)?.BestLapDeltaToLeaderBest;
+                        l.GetDynLastLapDeltaToFocusedBest = (i) => GetCar(i)?.LastLapDeltaToLeaderBest;
+                        l.GetDynLastLapDeltaToFocusedLast = (i) => GetCar(i)?.LastLapDeltaToLeaderLast;
+                        break;
+                    case Leaderboard.Class:
+                        l.GetDynCar = (i) => GetCar(i, PosInClassCarsIdxs);
+                        l.GetFocusedCarIdxInDynLeaderboard = () => FocusedCarPosInClassCarsIdxs;
+                        l.GetDynGapToFocused = (i) => l.GetDynCar(i)?.GapToClassLeader;
+                        l.GetDynGapToAhead = (i) => l.GetDynCar(i)?.GapToAheadInClass;
+                        l.GetDynBestLapDeltaToFocusedBest = (i) => l.GetDynCar(i)?.BestLapDeltaToClassLeaderBest;
+                        l.GetDynLastLapDeltaToFocusedBest = (i) => l.GetDynCar(i)?.LastLapDeltaToClassLeaderBest;
+                        l.GetDynLastLapDeltaToFocusedLast = (i) => l.GetDynCar(i)?.LastLapDeltaToClassLeaderLast;
+                        break;
+                    case Leaderboard.RelativeOverall:
+                        l.GetDynCar = (i) => GetCar(i, l.RelativePosOverallCarsIdxs);
+                        l.GetFocusedCarIdxInDynLeaderboard = () => l.Settings.NumOverallRelativePos;
+                        l.GetDynGapToFocused = (i) => l.GetDynCar(i)?.GapToFocusedTotal;
+                        l.GetDynGapToAhead = (i) => l.GetDynCar(i)?.GapToAhead;
+                        l.GetDynBestLapDeltaToFocusedBest = (i) => l.GetDynCar(i)?.BestLapDeltaToFocusedBest;
+                        l.GetDynLastLapDeltaToFocusedBest = (i) => l.GetDynCar(i)?.LastLapDeltaToFocusedBest;
+                        l.GetDynLastLapDeltaToFocusedLast = (i) => l.GetDynCar(i)?.LastLapDeltaToFocusedLast;
+                        break;
+                    case Leaderboard.RelativeClass:
+                        l.GetDynCar = (i) => GetCar(i, l.RelativePosClassCarsIdxs);
+                        l.GetFocusedCarIdxInDynLeaderboard = () => l.Settings.NumClassRelativePos;
+                        l.GetDynGapToFocused = (i) => l.GetDynCar(i)?.GapToFocusedTotal;
+                        l.GetDynGapToAhead = (i) => l.GetDynCar(i)?.GapToAheadInClass;
+                        l.GetDynBestLapDeltaToFocusedBest = (i) => l.GetDynCar(i)?.BestLapDeltaToFocusedBest;
+                        l.GetDynLastLapDeltaToFocusedBest = (i) => l.GetDynCar(i)?.LastLapDeltaToFocusedBest;
+                        l.GetDynLastLapDeltaToFocusedLast = (i) => l.GetDynCar(i)?.LastLapDeltaToFocusedLast;
+                        break;
+                    case Leaderboard.PartialRelativeOverall:
+                        l.GetDynCar = (i) => GetCar(i, l.PartialRelativeOverallCarsIdxs);
+                        l.GetFocusedCarIdxInDynLeaderboard = () => l.FocusedCarPosInPartialRelativeOverallCarsIdxs;
+                        l.GetDynGapToFocused = (i) => l.GetDynCar(i)?.GapToFocusedTotal;
+                        l.GetDynGapToAhead = (i) => l.GetDynCar(i)?.GapToAhead;
+                        l.GetDynBestLapDeltaToFocusedBest = (i) => l.GetDynCar(i)?.BestLapDeltaToFocusedBest;
+                        l.GetDynLastLapDeltaToFocusedBest = (i) => l.GetDynCar(i)?.LastLapDeltaToFocusedBest;
+                        l.GetDynLastLapDeltaToFocusedLast = (i) => l.GetDynCar(i)?.LastLapDeltaToFocusedLast;
+                        break;
+                    case Leaderboard.PartialRelativeClass:
+                        l.GetDynCar = (i) => GetCar(i, l.PartialRelativeClassCarsIdxs);
+                        l.GetFocusedCarIdxInDynLeaderboard = () => l.FocusedCarPosInPartialRelativeClassCarsIdxs;
+                        l.GetDynGapToFocused = (i) => l.GetDynCar(i)?.GapToFocusedTotal;
+                        l.GetDynGapToAhead = (i) => l.GetDynCar(i)?.GapToAheadInClass;
+                        l.GetDynBestLapDeltaToFocusedBest = (i) => l.GetDynCar(i)?.BestLapDeltaToFocusedBest;
+                        l.GetDynLastLapDeltaToFocusedBest = (i) => l.GetDynCar(i)?.LastLapDeltaToFocusedBest;
+                        l.GetDynLastLapDeltaToFocusedLast = (i) => l.GetDynCar(i)?.LastLapDeltaToFocusedLast;
+                        break;
+                    case Leaderboard.RelativeOnTrack:
+                        l.GetDynCar = (i) => GetCar(i, l.RelativePosOnTrackCarsIdxs);
+                        l.GetFocusedCarIdxInDynLeaderboard = () => l.Settings.NumOnTrackRelativePos;
+                        l.GetDynGapToFocused = (i) => l.GetDynCar(i)?.GapToFocusedOnTrack;
+                        l.GetDynGapToAhead = (i) => l.GetDynCar(i)?.GapToAheadOnTrack;
+                        l.GetDynBestLapDeltaToFocusedBest = (i) => l.GetDynCar(i)?.BestLapDeltaToFocusedBest;
+                        l.GetDynLastLapDeltaToFocusedBest = (i) => l.GetDynCar(i)?.LastLapDeltaToFocusedBest;
+                        l.GetDynLastLapDeltaToFocusedLast = (i) => l.GetDynCar(i)?.LastLapDeltaToFocusedLast;
+                        break;
+                    default:
+                        l.GetDynCar = (i) => null;
+                        l.GetFocusedCarIdxInDynLeaderboard = () => null;
+                        l.GetDynGapToFocused = (i) => double.NaN;
+                        l.GetDynGapToAhead = (i) => double.NaN;
+                        l.GetDynBestLapDeltaToFocusedBest = (i) => double.NaN;
+                        l.GetDynLastLapDeltaToFocusedBest = (i) => double.NaN;
+                        l.GetDynLastLapDeltaToFocusedLast = (i) => double.NaN;
+                        break;
+                }
+            }
         }
 
         #region Broadcast client connection
@@ -600,7 +575,8 @@ namespace KLPlugins.Leaderboard {
             var focusedClass = focusedCar.CarClass;
             var aheadInClassCarIdxs = new CarClassArray<int>(_defaultIdxValue);
 
-            UpdateBestLapIdxs();
+            UpdateBestLapIdxs(focusedCar);
+            UpdateRelativeOrder();
 
             for (int i = 0; i < Cars.Count; i++) {
                 var thisCar = Cars[i];
@@ -637,6 +613,7 @@ namespace KLPlugins.Leaderboard {
                     focusedCar: focusedCar, 
                     carAhead: carAhead, 
                     carAheadInClass: carAheadInClass, 
+                    carAheadOnTrack: GetCarAheadOnTrack(thisCar),
                     overallBestLapCar: overallBestLapCarIdx != BestLapByClassCarIdxs.DefaultValue ?  Cars[overallBestLapCarIdx] : null,
                     classBestLapCar: classBestLapCarIdx != BestLapByClassCarIdxs.DefaultValue ? Cars[classBestLapCarIdx] : null,
                     overallPos: i + 1, 
@@ -645,8 +622,7 @@ namespace KLPlugins.Leaderboard {
                     );
                 aheadInClassCarIdxs[thisClass] = i;
 
-                // Since we cannot remove cars after finish, don't add cars that have left to the relative
-                if (thisCar.MissedRealtimeUpdates < 10) _relativeSplinePositions.Add(new CarSplinePos(i, relSplinePos));
+
             }
 
             // If somebody left the session, need to reset following class positions
@@ -660,11 +636,22 @@ namespace KLPlugins.Leaderboard {
                     PosInClassCarsIdxs[i] = _defaultIdxValue;
                 }
             }
-           
-           UpdateRelativeOrder();
         }
 
-        private void UpdateBestLapIdxs() {
+        private CarData GetCarAheadOnTrack(CarData c) {
+            CarData closestCar = null;
+            double relsplinepos = double.MaxValue;
+            foreach (var car in Cars) {
+                var pos = c.CalculateRelativeSplinePosition(car);
+                if (pos > 0 && pos < relsplinepos) {
+                    closestCar = car;
+                    relsplinepos = pos;
+                }
+            }
+            return closestCar;
+        }
+
+        private void UpdateBestLapIdxs(CarData focusedCar) {
             BestLapByClassCarIdxs.Reset();
             // We need to update best lap idxs first as we need to pass best lap cars on,
             // and we cannot do it if BestLapByClassCarIdxs contains false indices as some cars may have left.
@@ -687,6 +674,10 @@ namespace KLPlugins.Leaderboard {
                         BestLapByClassCarIdxs[(int)CarClass.Overall] = i;
                     }
                 }
+
+                var relSplinePos = thisCar.CalculateRelativeSplinePosition(focusedCar);
+                // Since we cannot remove cars after finish, don't add cars that have left to the relative
+                if (thisCar.MissedRealtimeUpdates < 10) _relativeSplinePositions.Add(new CarSplinePos(i, relSplinePos));
             }
         }
 

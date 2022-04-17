@@ -280,9 +280,6 @@
                     <styles:SHSmallTitle>Gaps</styles:SHSmallTitle>
                     <StackPanel x:Name="OutGapsProps_StackPanel"/>
 
-                    <styles:SHSmallTitle>Distances</styles:SHSmallTitle>
-                    <StackPanel x:Name="OutDistancesProps_StackPanel"/>
-
                     <styles:SHSmallTitle>Positions</styles:SHSmallTitle>
                     <StackPanel x:Name="OutPosProps_StackPanel"/>
 

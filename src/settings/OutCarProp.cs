@@ -278,52 +278,6 @@ namespace KLPlugins.Leaderboard {
 
 
     [Flags]
-    public enum OutDistanceProp {
-        None = 0,
-        DistanceToLeader = 1 << 0,
-        DistanceToClassLeader = 1 << 1,
-        DistanceToFocusedTotal = 1 << 2,
-        DistanceToFocusedOnTrack = 1 << 3,
-    }
-
-    static class OutDistancePropExtensions {
-        public static bool Includes(this OutDistanceProp p, OutDistanceProp o) => (p & o) != 0;
-        public static void Combine(ref this OutDistanceProp p, OutDistanceProp o) => p |= o;
-        public static void Remove(ref this OutDistanceProp p, OutDistanceProp o) => p &= ~o;
-
-        public static string ToPropName(this OutDistanceProp p) {
-            switch (p) {
-                case OutDistanceProp.DistanceToLeader:
-                    return "Distance.ToOverallLeader";
-                case OutDistanceProp.DistanceToClassLeader:
-                    return "Distance.ToClassLeader";
-                case OutDistanceProp.DistanceToFocusedTotal:
-                    return "Distance.ToFocused.Total";
-                case OutDistanceProp.DistanceToFocusedOnTrack:
-                    return "Distance.ToFocused.OnTrack";
-                default:
-                    throw new ArgumentOutOfRangeException($"Invalid enum variant {p}");
-            }
-        }
-
-        public static string ToolTipText(this OutDistanceProp p) {
-            switch (p) {
-                case OutDistanceProp.DistanceToLeader:
-                    return "Total distance to the leader in meters";
-                case OutDistanceProp.DistanceToClassLeader:
-                    return "Total distance to the class leader in meters";
-                case OutDistanceProp.DistanceToFocusedTotal:
-                    return "Total distance to the focused car in meters";
-                case OutDistanceProp.DistanceToFocusedOnTrack:
-                    return "On track distance to the focused car in meters";
-                default:
-                    throw new ArgumentOutOfRangeException($"Invalid enum variant {p}");
-            }
-        }
-    }
-
-
-    [Flags]
     public enum OutStintProp {
         None = 0,
         CurrentStintTime = 1 << 0,

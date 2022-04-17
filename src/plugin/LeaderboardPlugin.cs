@@ -243,10 +243,6 @@ namespace KLPlugins.Leaderboard {
                     if (l.Settings.OutStintProps.Includes(prop)) this.AttachDelegate($"{startName}.{prop.ToPropName()}", valueProvider);
                 }
 
-                void AddDistanceProp<T>(OutDistanceProp prop, Func<T> valueProvider) {
-                    if (l.Settings.OutDistanceProps.Includes(prop)) this.AttachDelegate($"{startName}.{prop.ToPropName()}", valueProvider);
-                }
-
                 void AddGapProp<T>(OutGapProp prop, Func<T> valueProvider) {
                     if (l.Settings.OutGapProps.Includes(prop)) this.AttachDelegate($"{startName}.{prop.ToPropName()}", valueProvider);
                 }
@@ -285,7 +281,7 @@ namespace KLPlugins.Leaderboard {
 
 
                 void AddOneDriverFromList(int j) {
-                    var driverId = $"Driver.{j + 1:00}";
+                    var driverId = $"Driver.{j + 1}";
                     AddDriverProp(OutDriverProp.FirstName, driverId, () => l.GetDynCar(i)?.GetDriver(j)?.FirstName);
                     AddDriverProp(OutDriverProp.LastName, driverId, () => l.GetDynCar(i)?.GetDriver(j)?.LastName);
                     AddDriverProp(OutDriverProp.ShortName, driverId, () => l.GetDynCar(i)?.GetDriver(j)?.ShortName);
@@ -320,12 +316,6 @@ namespace KLPlugins.Leaderboard {
                 AddProp(OutCarProp.CarClassColor, () => l.GetDynCar(i)?.CarClassColor);
                 AddProp(OutCarProp.TeamCupCategoryColor, () => l.GetDynCar(i)?.TeamCupCategoryColor);
                 AddProp(OutCarProp.TeamCupCategoryTextColor, () => l.GetDynCar(i)?.TeamCupCategoryTextColor);
-
-                // Gaps and distances
-                AddDistanceProp(OutDistanceProp.DistanceToLeader, () => l.GetDynCar(i)?.DistanceToLeader);
-                AddDistanceProp(OutDistanceProp.DistanceToClassLeader, () => l.GetDynCar(i)?.DistanceToClassLeader);
-                AddDistanceProp(OutDistanceProp.DistanceToFocusedTotal, () => l.GetDynCar(i)?.TotalDistanceToFocused);
-                AddDistanceProp(OutDistanceProp.DistanceToFocusedOnTrack, () => l.GetDynCar(i)?.OnTrackDistanceToFocused);
 
                 AddGapProp(OutGapProp.GapToLeader, () => l.GetDynCar(i)?.GapToLeader);
                 AddGapProp(OutGapProp.GapToClassLeader, () => l.GetDynCar(i)?.GapToClassLeader);

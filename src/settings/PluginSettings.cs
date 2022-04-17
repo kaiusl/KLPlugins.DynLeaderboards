@@ -19,7 +19,6 @@ namespace KLPlugins.Leaderboard {
             public OutPitProp OutPitProps = OutPitProp.IsInPitLane;
             public OutPosProp OutPosProps = OutPosProp.OverallPosition | OutPosProp.ClassPosition;
             public OutGapProp OutGapProps = OutGapProp.DynamicGapToFocused;
-            public OutDistanceProp OutDistanceProps = OutDistanceProp.None;
             public OutStintProp OutStintProps = OutStintProp.None;
             public OutDriverProp OutDriverProps = OutDriverProp.InitialPlusLastName;
             public OutLapProp OutLapProps = OutLapProp.Laps 

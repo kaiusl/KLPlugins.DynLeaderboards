@@ -573,7 +573,6 @@ namespace KLPlugins.Leaderboard
             AddPitToggles();
             AddPosToggles();
             AddGapToggles();
-            AddDistanceToggles();
             AddStintToggles();
             AddLapToggles();
             AddCarToggles();
@@ -664,26 +663,6 @@ namespace KLPlugins.Leaderboard
 
                 OutStintProps_StackPanel.Children.Add(sp);
                 OutStintProps_StackPanel.Children.Add(CreateToggleSeparator());
-            }
-        }
-
-        private void AddDistanceToggles() {
-            OutDistancesProps_StackPanel.Children.Clear();
-            // Add Distance Properties
-            foreach (var v in (OutDistanceProp[])Enum.GetValues(typeof(OutDistanceProp))) {
-                if (v == OutDistanceProp.None) continue;
-
-                StackPanel sp = CreatePropertyToggleRow(
-                       v.ToString(),
-                       v.ToPropName(),
-                       CurrentDynLeaderboardSettings.OutDistanceProps.Includes(v),
-                       (sender, e) => CurrentDynLeaderboardSettings.OutDistanceProps.Combine(v),
-                       (sender, e) => CurrentDynLeaderboardSettings.OutDistanceProps.Remove(v),
-                       v.ToolTipText()
-                   );
-
-                OutDistancesProps_StackPanel.Children.Add(sp);
-                OutDistancesProps_StackPanel.Children.Add(CreateToggleSeparator());
             }
         }
 

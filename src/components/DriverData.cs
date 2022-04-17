@@ -38,8 +38,8 @@ namespace KLPlugins.Leaderboard {
             _totalDrivingTime += lastStintTime;
         }
 
-        public double GetTotalDrivingTime(bool isDriving = false, double currentStintTime = double.NaN) {
-            if (isDriving && !double.IsNaN(currentStintTime)) return _totalDrivingTime + currentStintTime;
+        public double GetTotalDrivingTime(bool isDriving = false, double? currentStintTime = null) {
+            if (isDriving && currentStintTime != null) return _totalDrivingTime + (double)currentStintTime;
             return _totalDrivingTime;
         }
  

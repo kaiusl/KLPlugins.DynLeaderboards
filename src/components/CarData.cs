@@ -37,21 +37,15 @@ namespace KLPlugins.Leaderboard.ksBroadcastingNetwork.Structs {
         public float TotalSplinePosition { get; private set; } = 0.0f;
         public int LapsBySplinePosition { get; private set; } = 0;
 
-        // Distances
-        public float OnTrackDistanceToFocused { get; private set; } = float.NaN;
-        public float DistanceToLeader { get; private set; } = float.NaN;
-        public float DistanceToClassLeader { get; private set; } = float.NaN;
-        public float TotalDistanceToFocused { get; private set; } = float.NaN;
-
         // Gaps
-        public double GapToLeader { get; private set; } = double.NaN;
-        public double GapToClassLeader { get; private set; } = double.NaN;
-        public double GapToFocusedTotal { get; private set; } = double.NaN;
-        public double GapToFocusedOnTrack { get; private set; } = double.NaN;
+        public double? GapToLeader { get; private set; } = null;
+        public double? GapToClassLeader { get; private set; } = null;
+        public double? GapToFocusedTotal { get; private set; } = null;
+        public double? GapToFocusedOnTrack { get; private set; } = null;
 
-        public double GapToAhead { get; private set; } = double.NaN;
-        public double GapToAheadInClass { get; internal set; } = double.NaN;
-        public double GapToAheadOnTrack { get; internal set; } = double.NaN;
+        public double? GapToAhead { get; private set; } = null;
+        public double? GapToAheadInClass { get; internal set; } = null;
+        public double? GapToAheadOnTrack { get; internal set; } = null;
 
         // Positions
         public int InClassPos { get; private set; } = -1;
@@ -63,39 +57,39 @@ namespace KLPlugins.Leaderboard.ksBroadcastingNetwork.Structs {
         public int PitCount { get; private set; } = 0;
         public double PitEntryTime { get; private set; } = double.NaN;
         public double TotalPitTime { get; private set; } = 0;
-        public double LastPitTime { get; private set; } = 0;
-        public double CurrentTimeInPits { get; private set; } = double.NaN;
+        public double? LastPitTime { get; private set; } = null;
+        public double? CurrentTimeInPits { get; private set; } = null;
 
         // Stint info
-        public double LastStintTime { get; private set; } = double.NaN;
-        public double CurrentStintTime { get; private set; } = double.NaN;
+        public double? LastStintTime { get; private set; } = null;
+        public double? CurrentStintTime { get; private set; } = null;
         public int LastStintLaps { get; private set; } = 0;
         public int CurrentStintLaps { get; private set; } = 0;
         public double CurrentDriverTotalDrivingTime => CurrentDriver.GetTotalDrivingTime(true, CurrentStintTime);
 
         // Lap deltas
-        public double BestLapDeltaToOverallBest { get; private set; } = double.NaN;
-        public double BestLapDeltaToClassBest { get; private set; } = double.NaN;
-        public double BestLapDeltaToLeaderBest { get; private set; } = double.NaN;
-        public double BestLapDeltaToClassLeaderBest { get; private set; } = double.NaN;
-        public double BestLapDeltaToFocusedBest { get; private set; } = double.NaN;
-        public double BestLapDeltaToAheadBest { get; private set; } = double.NaN;
-        public double BestLapDeltaToAheadInClassBest { get; private set; } = double.NaN;
-
-        public double LastLapDeltaToOverallBest { get; private set; } = double.NaN;
-        public double LastLapDeltaToClassBest { get; private set; } = double.NaN;
-        public double LastLapDeltaToLeaderBest { get; private set; } = double.NaN;
-        public double LastLapDeltaToClassLeaderBest { get; private set; } = double.NaN;
-        public double LastLapDeltaToFocusedBest { get; private set; } = double.NaN;
-        public double LastLapDeltaToAheadBest { get; private set; } = double.NaN;
-        public double LastLapDeltaToAheadInClassBest { get; private set; } = double.NaN;
-        public double LastLapDeltaToOwnBest { get; private set; } = double.NaN;
-
-        public double LastLapDeltaToLeaderLast { get; private set; } = double.NaN;
-        public double LastLapDeltaToClassLeaderLast { get; private set; } = double.NaN;
-        public double LastLapDeltaToFocusedLast { get; private set; } = double.NaN;
-        public double LastLapDeltaToAheadLast { get; private set; } = double.NaN;
-        public double LastLapDeltaToAheadInClassLast { get; private set; } = double.NaN;
+        public double? BestLapDeltaToOverallBest { get; private set; } = null;
+        public double? BestLapDeltaToClassBest { get; private set; } = null;
+        public double? BestLapDeltaToLeaderBest { get; private set; } = null;
+        public double? BestLapDeltaToClassLeaderBest { get; private set; } = null;
+        public double? BestLapDeltaToFocusedBest { get; private set; } = null;
+        public double? BestLapDeltaToAheadBest { get; private set; } = null;
+        public double? BestLapDeltaToAheadInClassBest { get; private set; } = null;
+                     
+        public double? LastLapDeltaToOverallBest { get; private set; } = null;
+        public double? LastLapDeltaToClassBest { get; private set; } = null;
+        public double? LastLapDeltaToLeaderBest { get; private set; } = null;
+        public double? LastLapDeltaToClassLeaderBest { get; private set; } = null;
+        public double? LastLapDeltaToFocusedBest { get; private set; } = null;
+        public double? LastLapDeltaToAheadBest { get; private set; } = null;
+        public double? LastLapDeltaToAheadInClassBest { get; private set; } = null;
+        public double? LastLapDeltaToOwnBest { get; private set; } = null;
+                     
+        public double? LastLapDeltaToLeaderLast { get; private set; } = null;
+        public double? LastLapDeltaToClassLeaderLast { get; private set; } = null;
+        public double? LastLapDeltaToFocusedLast { get; private set; } = null;
+        public double? LastLapDeltaToAheadLast { get; private set; } = null;
+        public double? LastLapDeltaToAheadInClassLast { get; private set; } = null;
 
         // Else
         public bool IsFinished { get; private set; } = false;
@@ -134,13 +128,8 @@ namespace KLPlugins.Leaderboard.ksBroadcastingNetwork.Structs {
         /// <param name="i"></param>
         /// <returns></returns>
         public DriverData GetDriver(int i) {
-            if (i == 0) {
-                return Drivers.ElementAtOrDefault(CurrentDriverIndex);
-            }
-
-            if (i <= CurrentDriverIndex) { 
-                return Drivers.ElementAtOrDefault(i-1);
-            }
+            if (i == 0) { return Drivers.ElementAtOrDefault(CurrentDriverIndex); }
+            if (i <= CurrentDriverIndex) { return Drivers.ElementAtOrDefault(i-1); }
             return Drivers.ElementAtOrDefault(i);
         }
 
@@ -151,8 +140,6 @@ namespace KLPlugins.Leaderboard.ksBroadcastingNetwork.Structs {
         public double? GetDriverTotalDrivingTime(int i) {
             return Drivers.ElementAtOrDefault(i)?.GetTotalDrivingTime(i == CurrentDriverIndex, CurrentStintTime);
         }
-
-        public int GetCurrentDriverIndex() => NewData?.DriverIndex ?? CurrentDriverIndex;
 
         #region Entry list update
 
@@ -230,13 +217,13 @@ namespace KLPlugins.Leaderboard.ksBroadcastingNetwork.Structs {
 
             OldData = NewData;
             NewData = update;
-            if (NewData?.DriverIndex != null) CurrentDriverIndex = NewData.DriverIndex;
-
             // Wait for one more update at the beginning of session, so we have all relevant data for calculations below
             if (OldData == null) return;
 
+            if (NewData?.DriverIndex != null) CurrentDriverIndex = NewData.DriverIndex;
+
             if (realtimeData.IsRace) {
-                if (!AddInitialLaps(realtimeData)) return; // If we didn't succeed, we don't want to continue with calculation but just wait for another update.
+                if (!TryAddInitialLaps(realtimeData)) return; // If we didn't succeed, we don't want to continue with calculation but just wait for another update.
                 UpdateLapsBySplinePosition(realtimeData);
                 TotalSplinePosition = NewData.SplinePosition + LapsBySplinePosition;
                 UpdatePitInfo(realtimeData);
@@ -250,7 +237,6 @@ namespace KLPlugins.Leaderboard.ksBroadcastingNetwork.Structs {
             UpdateBestLapSectors();
 
             MaxSpeed = Math.Max(MaxSpeed, NewData.Kmh);
-
         }
 
         private void UpdateLapsBySplinePosition(RealtimeData realtimeData) {
@@ -282,18 +268,26 @@ namespace KLPlugins.Leaderboard.ksBroadcastingNetwork.Structs {
         /// </returns>
         /// <param name="realtimeData"></param>
         /// <returns></returns>
-        private bool AddInitialLaps(RealtimeData realtimeData) {
+        private bool TryAddInitialLaps(RealtimeData realtimeData) {
             // If we start SimHub in the middle of session and cars are on the different laps, the car behind will gain a lap over
             // For example: P1 has just crossed the line and has completed 3 laps, P2 has 2 laps
             // But LapsBySplinePosition is 0 for both, if now P2 crosses the line,
             // it's LapsBySplinePosition is increased and it would be shown lap ahead of tha actual leader
             // Thus we add current laps to the LapsBySplinePosition
             if (_isFirstUpdate && realtimeData.IsSession) {
-                if (Values.TrackData == null || NewData.SplinePosition == 1 || NewData.SplinePosition == 0
-                    || (Values.TrackData.TrackId == TrackType.Silverstone && 0.9789979 < NewData.SplinePosition && NewData.SplinePosition < 0.9791052) // Silverstone
-                    || (Values.TrackData.TrackId == TrackType.Spa && 0.9961125 < NewData.SplinePosition && NewData.SplinePosition < 0.9962250) // Spa
+                if (Values.TrackData == null 
+                    || NewData.SplinePosition > 0.99 
+                    || NewData.SplinePosition < 0.01
+                    || (Values.TrackData.TrackId == TrackType.Silverstone 
+                        && 0.9789979 < NewData.SplinePosition 
+                        && NewData.SplinePosition < 0.9791052
+                        ) // Silverstone
+                    || (Values.TrackData.TrackId == TrackType.Spa 
+                        && 0.9961125 < NewData.SplinePosition 
+                        && NewData.SplinePosition < 0.9962250
+                        ) // Spa
                 ) {
-                    LeaderboardPlugin.LogInfo($"Ignored car #{RaceNumber} at start up.");
+                    //LeaderboardPlugin.LogInfo($"Ignored car #{RaceNumber} at start up.");
                     // This is critical point when the lap changes, we don't know yet if it's the old lap or new
                     // Wait for the next update where we know that laps counter has been increased
                     return false;
@@ -307,7 +301,7 @@ namespace KLPlugins.Leaderboard.ksBroadcastingNetwork.Structs {
                             // This is the position of finish line, position where lap count is increased.
                             // This means that in above we added one extra lap as by SplinePosition it's not new lap yet.
                             LapsBySplinePosition -= 1;
-                            //LeaderboardPlugin.LogInfo($"Remove lap from #{Info.RaceNumber}");
+                            LeaderboardPlugin.LogInfo($"Remove lap from #{RaceNumber} at splinePos={NewData.SplinePosition}");
                         }
 
                         LeaderboardPlugin.LogInfo($"Set initial laps of #{RaceNumber} to {LapsBySplinePosition}");
@@ -320,10 +314,13 @@ namespace KLPlugins.Leaderboard.ksBroadcastingNetwork.Structs {
         }
 
         private void UpdatePitInfo(RealtimeData realtimeData) {
-            if (OldData.CarLocation != CarLocationEnum.Pitlane && NewData.CarLocation == CarLocationEnum.Pitlane
-                || (double.IsNaN(PitEntryTime) && NewData.CarLocation == CarLocationEnum.Pitlane && (realtimeData.IsSession || realtimeData.IsPostSession)) // We join/start simhub mid session
+            if (OldData.CarLocation != CarLocationEnum.Pitlane  && NewData.CarLocation == CarLocationEnum.Pitlane // Entered pitlane
+                || (double.IsNaN(PitEntryTime) 
+                    && NewData.CarLocation == CarLocationEnum.Pitlane 
+                    && (realtimeData.IsSession 
+                    || realtimeData.IsPostSession)
+                    ) // We join/start simhub mid session
                 ) {
-                // Entered pitlane
                 PitCount++;
                 PitEntryTime = realtimeData.SessionTime.TotalSeconds;
                 LeaderboardPlugin.LogInfo($"#{RaceNumber} entered pitlane at {PitEntryTime}.");
@@ -332,9 +329,9 @@ namespace KLPlugins.Leaderboard.ksBroadcastingNetwork.Structs {
             if (!double.IsNaN(PitEntryTime) && NewData.CarLocation != CarLocationEnum.Pitlane) {
                 // Left the pitlane
                 LastPitTime = (realtimeData.SessionTime).TotalSeconds - PitEntryTime;
-                TotalPitTime += LastPitTime;
+                TotalPitTime += (double)LastPitTime;
                 PitEntryTime = double.NaN;
-                CurrentTimeInPits = double.NaN;
+                CurrentTimeInPits = null;
                 LeaderboardPlugin.LogInfo($"#{RaceNumber} exited pitlane. Time in pits (Total,Last) = ({TotalPitTime:00.0}s,{LastPitTime:00.0}s)");
             }
 
@@ -361,19 +358,16 @@ namespace KLPlugins.Leaderboard.ksBroadcastingNetwork.Structs {
 
             // Stint ended
             if (OldData.CarLocation != CarLocationEnum.Pitlane && NewData.CarLocation == CarLocationEnum.Pitlane) { // Pitlane entry
-
-
                 if (_stintStartTime != null) {
                     LastStintTime = realtimeData.SessionTime.TotalSeconds - (double)_stintStartTime;
-                    CurrentDriver.OnStintEnd(LastStintTime);
+                    CurrentDriver.OnStintEnd((double)LastStintTime);
                     _stintStartTime = null;
-                    CurrentStintTime = double.NaN;
+                    CurrentStintTime = null;
                 }
                 LastStintLaps = CurrentStintLaps;
                 CurrentStintLaps = 0;
 
                 LeaderboardPlugin.LogInfo($"#{RaceNumber} stint ended: {LastStintLaps} laps in {LastStintTime/60.0:00.0}min");
-
             }
 
             if (_stintStartTime != null) {
@@ -408,8 +402,7 @@ namespace KLPlugins.Leaderboard.ksBroadcastingNetwork.Structs {
             CarData overallBestLapCar,
             CarData classBestLapCar,
             int overallPos, 
-            int classPos, 
-            float relSplinePos
+            int classPos
         ) {
             if (IsFinished && _isRaceFinishPosSet) return;
             InClassPos = classPos;
@@ -426,14 +419,6 @@ namespace KLPlugins.Leaderboard.ksBroadcastingNetwork.Structs {
                 }
             }
 
-            // After finish we want to freeze total distances and gaps, but keep updating relatives
-            if (!leaderCar.IsFinished) {
-                DistanceToLeader = (leaderCar.TotalSplinePosition - TotalSplinePosition) * Values.TrackData.TrackMeters;
-                DistanceToClassLeader = (classLeaderCar.TotalSplinePosition - TotalSplinePosition) * Values.TrackData.TrackMeters;
-                TotalDistanceToFocused = (focusedCar.TotalSplinePosition - TotalSplinePosition) * Values.TrackData.TrackMeters;
-            }
-
-            OnTrackDistanceToFocused = relSplinePos * Values.TrackData.TrackMeters;
             SetGaps(realtimeData, leaderCar, classLeaderCar, focusedCar, carAhead, carAheadInClass, carAheadOnTrack);
             SetLapDeltas(leaderCar, classLeaderCar, focusedCar, carAhead, carAheadInClass, overallBestLapCar, classBestLapCar);
 
@@ -466,9 +451,9 @@ namespace KLPlugins.Leaderboard.ksBroadcastingNetwork.Structs {
                 if (classBest != null) BestLapDeltaToClassBest = (double)thisBest - (double)(classBest);
                 if (leaderBest != null) BestLapDeltaToLeaderBest = (double)thisBest - (double)leaderBest;
                 if (classLeaderBest != null) BestLapDeltaToClassLeaderBest = (double)thisBest - (double)classLeaderBest;
-                if (focusedBest != null) BestLapDeltaToFocusedBest = (double)thisBest - (double)focusedBest;
-                BestLapDeltaToAheadBest = aheadBest != null ? (double)thisBest - (double)aheadBest : double.NaN;
-                BestLapDeltaToAheadInClassBest = aheadInClassBest != null ? (double)thisBest - (double)aheadInClassBest : double.NaN;
+                BestLapDeltaToFocusedBest = focusedBest != null ? (double)thisBest - (double)focusedBest : (double?)null;
+                BestLapDeltaToAheadBest = aheadBest != null ? (double)thisBest - (double)aheadBest : (double?)null;
+                BestLapDeltaToAheadInClassBest = aheadInClassBest != null ? (double)thisBest - (double)aheadInClassBest : (double?)null;
             }
 
             if (thisLast != null) {
@@ -476,9 +461,10 @@ namespace KLPlugins.Leaderboard.ksBroadcastingNetwork.Structs {
                 if (classBest != null) LastLapDeltaToClassBest = (double)thisLast - (double)classBest;
                 if (leaderBest != null) LastLapDeltaToLeaderBest = (double)thisLast - (double)leaderBest;
                 if (classLeaderBest != null) LastLapDeltaToClassLeaderBest = (double)thisLast - (double)classLeaderBest;
-                if (focusedBest != null) LastLapDeltaToFocusedBest = (double)thisLast - (double)focusedBest;
-                LastLapDeltaToAheadBest = aheadBest != null ? (double)thisLast - (double)aheadBest : double.NaN;
-                LastLapDeltaToAheadInClassBest = aheadInClassBest != null ? (double)thisLast - (double)aheadInClassBest : double.NaN;
+                LastLapDeltaToFocusedBest = focusedBest != null ? (double)thisLast - (double)focusedBest : (double?)null;
+                LastLapDeltaToAheadBest = aheadBest != null ? (double)thisLast - (double)aheadBest : (double?)null;
+                LastLapDeltaToAheadInClassBest = aheadInClassBest != null ? (double)thisLast - (double)aheadInClassBest : (double?)null;
+
                 if (thisBest != null) LastLapDeltaToOwnBest = (double)thisLast - (double)thisBest;
 
                 var leaderLast = leaderCar?.NewData?.LastLap?.Laptime;
@@ -489,12 +475,11 @@ namespace KLPlugins.Leaderboard.ksBroadcastingNetwork.Structs {
 
                 if (leaderLast != null) LastLapDeltaToLeaderLast = (double)thisLast - (double)leaderLast;
                 if (classLeaderLast != null) LastLapDeltaToClassLeaderLast = (double)thisLast - (double)classLeaderLast;
-                if (focusedLast != null) LastLapDeltaToFocusedLast = (double)thisLast - (double)focusedLast;
-                LastLapDeltaToAheadLast = aheadLast != null ? (double)thisLast - (double)aheadLast : double.NaN;
-                LastLapDeltaToAheadInClassLast = aheadInClassLast != null ? (double)thisLast - (double)aheadInClassLast : double.NaN;
+                LastLapDeltaToFocusedLast = focusedLast != null ? (double)thisLast - (double)focusedLast : (double?)null;
+                LastLapDeltaToAheadLast = aheadLast != null ? (double)thisLast - (double)aheadLast : (double?)null;
+                LastLapDeltaToAheadInClassLast = aheadInClassLast != null ? (double)thisLast - (double)aheadInClassLast : (double?)null;
 
             }
-
         }
 
 
@@ -509,7 +494,7 @@ namespace KLPlugins.Leaderboard.ksBroadcastingNetwork.Structs {
                 // That would result in wrong gaps. We keep the gaps at the last valid value and update once both cars have finished.
 
                 var gapToLeader = CalculateGap(this, leader);
-                if (!double.IsNaN(gapToLeader)) GapToLeader = gapToLeader;
+                if (gapToLeader != null) GapToLeader = gapToLeader;
 
                 if (classLeader.CarIndex == CarIndex) {
                     GapToClassLeader = 0.0;
@@ -517,7 +502,7 @@ namespace KLPlugins.Leaderboard.ksBroadcastingNetwork.Structs {
                     GapToClassLeader = GapToLeader;
                 } else {
                     var gapToClassLeader = CalculateGap(this, classLeader);
-                    if (!double.IsNaN(gapToClassLeader)) GapToClassLeader = gapToClassLeader;
+                    if (gapToClassLeader != null) GapToClassLeader = gapToClassLeader;
                 }
 
                 if (focused.CarIndex == CarIndex) {
@@ -528,11 +513,11 @@ namespace KLPlugins.Leaderboard.ksBroadcastingNetwork.Structs {
                     GapToFocusedTotal = GapToClassLeader;
                 } else {
                     var gapToFocusedTotal = CalculateGap(focused, this);
-                    if (!double.IsNaN(gapToFocusedTotal)) GapToFocusedTotal = gapToFocusedTotal;
+                    if (gapToFocusedTotal != null) GapToFocusedTotal = gapToFocusedTotal;
                 }
 
                 if (carAhead == null) {
-                    GapToAhead = double.NaN;
+                    GapToAhead = null;
                 } else if (carAhead.CarIndex == leader.CarIndex) {
                     GapToAhead = GapToLeader;
                 } else if (carAhead.CarIndex == classLeader.CarIndex) {
@@ -541,11 +526,11 @@ namespace KLPlugins.Leaderboard.ksBroadcastingNetwork.Structs {
                     GapToAhead = -GapToFocusedTotal;
                 } else {
                     var gapToAhead = CalculateGap(this, carAhead);
-                    if (!double.IsNaN(gapToAhead)) GapToAhead = gapToAhead;
+                    if (gapToAhead != null) GapToAhead = gapToAhead;
                 }
 
                 if (carAheadInClass == null) {
-                    GapToAheadInClass = double.NaN;
+                    GapToAheadInClass = null;
                 } else if (carAheadInClass.CarIndex == carAhead.CarIndex) {
                     GapToAheadInClass = GapToAhead;
                 } else if (carAheadInClass.CarIndex == leader.CarIndex) {
@@ -556,42 +541,43 @@ namespace KLPlugins.Leaderboard.ksBroadcastingNetwork.Structs {
                     GapToAheadInClass = -GapToFocusedTotal;
                 } else {
                     var gapToAheadInClass = CalculateGap(this, carAheadInClass);
-                    if (!double.IsNaN(gapToAheadInClass)) GapToAheadInClass = gapToAheadInClass;
+                    if (gapToAheadInClass != null) GapToAheadInClass = gapToAheadInClass;
                 }
 
             } else {
                 // Use best laps to calculate gaps
                 var thisBestLap = NewData?.BestSessionLap?.Laptime;
                 if (thisBestLap == null) {
-                    GapToLeader = double.NaN;
-                    GapToAheadInClass = double.NaN;
-                    GapToClassLeader = double.NaN;
-                    GapToAhead = double.NaN;
+                    GapToLeader = null;
+                    GapToAheadInClass = null;
+                    GapToClassLeader = null;
+                    GapToAhead = null;
                     return;
                 }
 
                 var leaderBestLap = leader?.NewData?.BestSessionLap?.Laptime;
-                GapToLeader = leaderBestLap != null ? ((double)thisBestLap - (double)leaderBestLap) : double.NaN;
+                GapToLeader = leaderBestLap != null ? ((double)thisBestLap - (double)leaderBestLap) : (double?)null;
 
                 var classLeaderBestLap = classLeader?.NewData?.BestSessionLap?.Laptime;
-                GapToClassLeader = classLeaderBestLap != null ? ((double)thisBestLap - (double)classLeaderBestLap) : double.NaN;
+                GapToClassLeader = classLeaderBestLap != null ? ((double)thisBestLap - (double)classLeaderBestLap) : (double?)null;
 
                 var focusedBestLap = focused?.NewData?.BestSessionLap?.Laptime;
-                GapToFocusedTotal = focusedBestLap != null ? ((double)thisBestLap - (double)focusedBestLap) : double.NaN;
+                GapToFocusedTotal = focusedBestLap != null ? ((double)thisBestLap - (double)focusedBestLap) : (double?)null;
 
                 var aheadBestLap = carAhead?.NewData?.BestSessionLap?.Laptime;
-                GapToAhead = aheadBestLap != null ? ((double)thisBestLap - (double)aheadBestLap) : double.NaN;
+                GapToAhead = aheadBestLap != null ? ((double)thisBestLap - (double)aheadBestLap) : (double?)null;
 
                 var aheadInClassBestLap = carAheadInClass?.NewData?.BestSessionLap?.Laptime;
-                GapToAheadInClass = aheadInClassBestLap != null ? ((double)thisBestLap - (double)aheadInClassBestLap) : double.NaN;
+                GapToAheadInClass = aheadInClassBestLap != null ? ((double)thisBestLap - (double)aheadInClassBestLap) : (double?)null;
             }
 
-            CalculateOnTrackGap(this, focused);
+            var gap = CalculateOnTrackGap(this, focused);
+            if (gap != null) GapToFocusedOnTrack = gap;
             if (carAheadOnTrack == null) {
-                GapToAheadOnTrack = double.NaN;
+                GapToAheadOnTrack = null;
             } else {
-                var gapToAheadOnTrack = CalculateOnTrackGap(this, carAheadOnTrack);
-                if (!double.IsNaN(gapToAheadOnTrack)) GapToAheadOnTrack = gapToAheadOnTrack;
+                var gapToAheadOnTrack = CalculateOnTrackGap(carAheadOnTrack, this);
+                if (gapToAheadOnTrack != null) GapToAheadOnTrack = gapToAheadOnTrack;
             }
 
         }
@@ -609,7 +595,7 @@ namespace KLPlugins.Leaderboard.ksBroadcastingNetwork.Structs {
         /// <param name="from"></param>
         /// <param name="to"></param>
         /// <returns></returns>
-        public static double CalculateGap(CarData from, CarData to) {
+        public static double? CalculateGap(CarData from, CarData to) {
             if (from.CarIndex == to.CarIndex)  return 0;
 
             var distBetween = to.TotalSplinePosition - from.TotalSplinePosition; // Negative if 'To' is behind
@@ -626,7 +612,7 @@ namespace KLPlugins.Leaderboard.ksBroadcastingNetwork.Structs {
                 if (from.IsFinished && to.IsFinished) {
                     return ((TimeSpan)from.FinishTime).TotalSeconds - ((TimeSpan)to.FinishTime).TotalSeconds;
                 } else if (from.IsFinished || to.IsFinished) {
-                    return double.NaN;
+                    return null;
                 }
 
                 // We don't have lap interpolators available, use naive method to calculate the gap
@@ -639,9 +625,9 @@ namespace KLPlugins.Leaderboard.ksBroadcastingNetwork.Structs {
 
                 var fromPos = from.NewData?.SplinePosition;
                 var toPos = to.NewData?.SplinePosition;
-                if (fromPos == null || toPos == null) return double.NaN;
+                if (fromPos == null || toPos == null) return null;
 
-                double gap = double.NaN;
+                double? gap;
                 if (distBetween > 0) {
                     // To car is ahead of from, gap should be the time it takes 'from' car to reach 'to' car's position
                     // That is use 'from' lap data to calculate the gap
@@ -657,12 +643,12 @@ namespace KLPlugins.Leaderboard.ksBroadcastingNetwork.Structs {
             }
         }
 
-        public static double CalculateOnTrackGap(CarData from, CarData to) {
+        public static double? CalculateOnTrackGap(CarData from, CarData to) {
             if (from.CarIndex == to.CarIndex) return 0;
 
             var fromPos = from.NewData?.SplinePosition;
             var toPos = to.NewData?.SplinePosition;
-            if (fromPos == null || toPos == null) return double.NaN;
+            if (fromPos == null || toPos == null) return null;
 
             var relativeSplinePos = CalculateRelativeSplinePosition((float)fromPos, (float)toPos);
 
@@ -674,17 +660,17 @@ namespace KLPlugins.Leaderboard.ksBroadcastingNetwork.Structs {
                 return relativeSplinePos * Values.TrackData.TrackMeters / (175.0 / 3.6);
             }
 
-            double gap = double.NaN;
-            if (relativeSplinePos > 0) {
+            double? gap;
+            if (relativeSplinePos < 0) {
                 // To car is ahead of from, gap should be the time it takes 'from' car to reach 'to' car's position
                 // That is use 'from' lap data to calculate the gap
                 var cls = TrackData.LapInterpolators[from.CarClass] != null ? from.CarClass : to.CarClass;
-                gap = CalculateGapBetweenPos((float)fromPos, (float)toPos, from.GetSplinePosTime(cls), to.GetSplinePosTime(cls), TrackData.LapInterpolators[cls].LapTime);
+                gap = -CalculateGapBetweenPos((float)fromPos, (float)toPos, from.GetSplinePosTime(cls), to.GetSplinePosTime(cls), TrackData.LapInterpolators[cls].LapTime);
             } else {
                 // 'to' car is behind of 'from', gap should be the time it takes 'to' to reach 'from'
                 // That is use 'to' cars lap data to calculate the gap
                 var cls = TrackData.LapInterpolators[to.CarClass] != null ? to.CarClass : from.CarClass;
-                gap = -CalculateGapBetweenPos((float)toPos, (float)fromPos, to.GetSplinePosTime(cls), from.GetSplinePosTime(cls), TrackData.LapInterpolators[cls].LapTime);
+                gap = CalculateGapBetweenPos((float)toPos, (float)fromPos, to.GetSplinePosTime(cls), from.GetSplinePosTime(cls), TrackData.LapInterpolators[cls].LapTime);
             }
             return gap;
         }
@@ -770,15 +756,6 @@ namespace KLPlugins.Leaderboard.ksBroadcastingNetwork.Structs {
         }
 
         #endregion
-
-        public override string ToString() {
-            var pos = NewData?.Position ?? -1;
-            float splinepos = NewData?.SplinePosition ?? -1;
-            float speed = NewData?.Kmh ?? 200;
-            return $"CarId {CarIndex:000} #{RaceNumber,-4}, {Drivers[0].InitialPlusLastName(),-20} P{pos:00}/{InClassPos:00} L{NewData?.Laps ?? -1 :00}: SplinePos:{splinepos:0.000} LapsBySplinePos:{LapsBySplinePosition:00} TotalSplinePos:{TotalSplinePosition:0.000} Gaps_ToLeader:{GapToLeader:000.0}| ToClassLeader:{GapToClassLeader:000.0}| ToFocusedOnTrack:{GapToFocusedOnTrack:000.0}| ToFocusedTotal:{GapToFocusedTotal:000.0}, Distances_ToLeader:{DistanceToLeader:00000.0}| ToClassLeader:{DistanceToClassLeader:00000.0}| ToFocusedOnTrack:{OnTrackDistanceToFocused:00000.0}| ToFocusedTotal:{TotalDistanceToFocused:00000.0}";
-        }
-
-
 
     }
 }

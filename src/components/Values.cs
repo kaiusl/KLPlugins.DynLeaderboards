@@ -325,6 +325,7 @@ namespace KLPlugins.Leaderboard {
 
         public void AddNewLeaderboard(PluginSettings.DynLeaderboardConfig s) {
             LeaderboardValues.Add(new DynLeaderboardValues(s));
+            SetDynamicCarGetter();
         }
 
         #region Broadcast client connection

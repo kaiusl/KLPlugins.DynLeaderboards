@@ -5,7 +5,6 @@ using SimHub.Plugins.UI;
 using SimHub.Plugins.Styles;
 using System.IO;
 using System.Windows.Media;
-using MdXaml;
 using System.Windows.Data;
 using MahApps.Metro.Controls;
 using Xceed.Wpf.Toolkit;

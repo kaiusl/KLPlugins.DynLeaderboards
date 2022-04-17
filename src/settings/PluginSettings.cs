@@ -15,7 +15,12 @@ namespace KLPlugins.Leaderboard {
         public class DynLeaderboardConfig {
             public string Name { get; set; }
 
-            public OutCarProp OutCarProps = OutCarProp.CarNumber | OutCarProp.CarClass | OutCarProp.IsFinished;
+            public OutCarProp OutCarProps = OutCarProp.CarNumber 
+                | OutCarProp.CarClass 
+                | OutCarProp.IsFinished 
+                | OutCarProp.CarClassColor 
+                | OutCarProp.TeamCupCategoryColor 
+                | OutCarProp.TeamCupCategoryTextColor;
             public OutPitProp OutPitProps = OutPitProp.IsInPitLane;
             public OutPosProp OutPosProps = OutPosProp.OverallPosition | OutPosProp.ClassPosition;
             public OutGapProp OutGapProps = OutGapProp.DynamicGapToFocused;
@@ -68,9 +73,7 @@ namespace KLPlugins.Leaderboard {
         public bool Log { get; set; }
         public int BroadcastDataUpdateRateMs { get; set; }
         public List<DynLeaderboardConfig> DynLeaderboardConfigs { get; set; }
-        public OutGeneralProp OutGeneralProps = OutGeneralProp.CarClassColors 
-                                                | OutGeneralProp.TeamCupColors 
-                                                | OutGeneralProp.TeamCupTextColors;
+        public OutGeneralProp OutGeneralProps = OutGeneralProp.None;
 
         public Dictionary<CarClass, string> CarClassColors { get; set; }
         public Dictionary<TeamCupCategory, string> TeamCupCategoryColors { get; set; }

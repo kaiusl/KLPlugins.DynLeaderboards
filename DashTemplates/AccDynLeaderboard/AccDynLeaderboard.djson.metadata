@@ -1,0 +1,24 @@
+{
+  "Category": null,
+  "Title": "AccDynLeaderboard",
+  "Description": null,
+  "Author": "Kaius Loos",
+  "ScreenCount": 1.0,
+  "InGameScreensIndexs": [
+    0
+  ],
+  "IdleScreensIndexs": [
+    0
+  ],
+  "MainPreviewIndex": 0,
+  "IsOverlay": false,
+  "ShowInTaskBar": true,
+  "Width": 1920.0,
+  "Height": 1120.0,
+  "OverlaySizeWarning": true,
+  "MetadataVersion": 2.0,
+  "EnableOnDashboardMessaging": true,
+  "PitScreensIndexs": [
+    0
+  ]
+}

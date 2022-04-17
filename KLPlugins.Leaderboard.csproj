@@ -40,9 +40,6 @@
       <HintPath>C:\Program Files\SimHub\GameReaderCommon.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="ICSharpCode.AvalonEdit, Version=6.0.1.278, Culture=neutral, PublicKeyToken=9cc39be672370310, processorArchitecture=MSIL">
-      <HintPath>packages\AvalonEdit.6.0.1\lib\net45\ICSharpCode.AvalonEdit.dll</HintPath>
-    </Reference>
     <Reference Include="InputManagerCS, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>C:\Program Files\SimHub\InputManagerCS.dll</HintPath>
@@ -57,9 +54,6 @@
     </Reference>
     <Reference Include="MathNet.Numerics, Version=5.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>packages\MathNet.Numerics.5.0.0\lib\net48\MathNet.Numerics.dll</HintPath>
-    </Reference>
-    <Reference Include="MdXaml, Version=1.13.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>packages\MdXaml.1.13.0\lib\net45\MdXaml.dll</HintPath>
     </Reference>
     <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>packages\Newtonsoft.Json.12.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
@@ -143,6 +137,8 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="DashPerf.png" />
+    <Content Include="DashTemplates\AccDynLeaderboard\AccDynLeaderboard.djson.00.png" />
+    <Content Include="DashTemplates\AccDynLeaderboard\AccDynLeaderboard.djson.png" />
     <Content Include="ExportPerf.png" />
     <Content Include="sdkmenuicon.png" />
   </ItemGroup>
@@ -153,10 +149,17 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
+    <None Include="DashTemplates\AccDynLeaderboard\AccDynLeaderboard.djson" />
+    <None Include="DashTemplates\AccDynLeaderboard\AccDynLeaderboard.djson.metadata" />
+    <None Include="DashTemplates\AccDynLeaderboard\_Backups\AccDynLeaderboard_b1.djson" />
+    <None Include="DashTemplates\AccDynLeaderboard\_Backups\AccDynLeaderboard_b2.djson" />
+    <None Include="DashTemplates\AccDynLeaderboard\_Backups\AccDynLeaderboard_b3.djson" />
+    <None Include="DashTemplates\AccDynLeaderboard\_Backups\AccDynLeaderboard_b4.djson" />
     <None Include="packages.config" />
     <None Include="README.md" />
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="DashTemplates\AccDynLeaderboard\_SHFonts\" />
     <Folder Include="src\xaml\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

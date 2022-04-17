@@ -135,10 +135,10 @@ namespace KLPlugins.Leaderboard {
             var gameName = (string)pluginManager.GetPropertyValue<SimHub.Plugins.DataPlugins.DataCore.DataCorePlugin>("CurrentGame");
             Game = new Game(gameName);
             if (!Game.IsAcc) return;
-            var timingFName = $"{Settings.PluginDataLocation}\\Logs\\timings\\frametime\\{PluginStartTime}.txt";
-            Directory.CreateDirectory(Path.GetDirectoryName(timingFName));
-            _timingFile = File.Create(timingFName);
-            _timingWriter = new StreamWriter(_timingFile);
+            //var timingFName = $"{Settings.PluginDataLocation}\\Logs\\timings\\frametime\\{PluginStartTime}.txt";
+            //Directory.CreateDirectory(Path.GetDirectoryName(timingFName));
+            //_timingFile = File.Create(timingFName);
+            //_timingWriter = new StreamWriter(_timingFile);
 
             PManager = pluginManager;
 
@@ -148,6 +148,11 @@ namespace KLPlugins.Leaderboard {
             LogInfo("Starting plugin");
             
             GameDataPath = $@"{Settings.PluginDataLocation}\{gameName}";
+
+            if (Settings.DynLeaderboardConfigs.Count == 0) {
+                var s = new PluginSettings.DynLeaderboardConfig("Dynamic");
+                Settings.DynLeaderboardConfigs.Add(s);
+            }
             _values = new Values();
 
             SubscribeToSimHubEvents();

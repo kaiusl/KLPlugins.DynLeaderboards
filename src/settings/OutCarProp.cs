@@ -1,7 +1,7 @@
 ﻿using System;
 
 
-namespace KLPlugins.Leaderboard {
+namespace KLPlugins.DynLeaderboards {
 
 
     [Flags]

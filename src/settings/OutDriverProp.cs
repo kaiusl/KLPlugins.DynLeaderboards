@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace KLPlugins.Leaderboard {
+namespace KLPlugins.DynLeaderboards {
 
     [Flags]
     public enum OutDriverProp {

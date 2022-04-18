@@ -6,11 +6,11 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using KLPlugins.Leaderboard.Enums;
-using KLPlugins.Leaderboard.src.ksBroadcastingNetwork.Structs;
+using KLPlugins.DynLeaderboards.Enums;
+using KLPlugins.DynLeaderboards.src.ksBroadcastingNetwork.Structs;
 using MathNet.Numerics.Interpolation;
 
-namespace KLPlugins.Leaderboard.ksBroadcastingNetwork.Structs {
+namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork.Structs {
     public class CarData {
         // Information from CarInfo
         public ushort CarIndex { get; }
@@ -22,9 +22,9 @@ namespace KLPlugins.Leaderboard.ksBroadcastingNetwork.Structs {
         private int _currentDriverIndex { get; set; }
         public List<DriverData> Drivers { get; internal set; } = new List<DriverData>();
         public NationalityEnum TeamNationality { get; internal set; }
-        public string CarClassColor => LeaderboardPlugin.Settings.CarClassColors[CarClass];
-        public string TeamCupCategoryColor => LeaderboardPlugin.Settings.TeamCupCategoryColors[TeamCupCategory];
-        public string TeamCupCategoryTextColor => LeaderboardPlugin.Settings.TeamCupCategoryTextColors[TeamCupCategory];
+        public string CarClassColor => DynLeaderboardsPlugin.Settings.CarClassColors[CarClass];
+        public string TeamCupCategoryColor => DynLeaderboardsPlugin.Settings.TeamCupCategoryColors[TeamCupCategory];
+        public string TeamCupCategoryTextColor => DynLeaderboardsPlugin.Settings.TeamCupCategoryTextColors[TeamCupCategory];
 
         // RealtimeCarUpdates
         public RealtimeCarUpdate NewData { get; private set; } = null;
@@ -146,7 +146,7 @@ namespace KLPlugins.Leaderboard.ksBroadcastingNetwork.Structs {
         #region Entry list update
 
         /// <summary>
-        /// Updates this cars static info. Should be called when new entry list update for this car is recieved.
+        /// Updates this cars static info. Should be called when new entry list update for this car is received.
         /// </summary>
         /// <param name="info"></param>
         public void UpdateCarInfo(CarInfo info) {
@@ -156,7 +156,7 @@ namespace KLPlugins.Leaderboard.ksBroadcastingNetwork.Structs {
             // as they might rejoin and then we need to have the old data. (I'm not sure if ACC keeps those drivers or not, but we make sure to keep the data.)
             CurrentDriverIndex = info.CurrentDriverIndex;
             if (Drivers.Count == info.Drivers.Count && Drivers.Zip(info.Drivers, (a, b) => a.Equals(b)).All(x => x)) {
-                LeaderboardPlugin.LogInfo($"All drivers same.");
+                DynLeaderboardsPlugin.LogInfo($"All drivers same.");
                 return;
             } // All drivers are same
 
@@ -166,25 +166,25 @@ namespace KLPlugins.Leaderboard.ksBroadcastingNetwork.Structs {
             }
 
             for (int i = 0; i < info.Drivers.Count; i++) {
-                LeaderboardPlugin.LogInfo($"Current drivers are: {currentDrivers}");
+                DynLeaderboardsPlugin.LogInfo($"Current drivers are: {currentDrivers}");
 
                 var currentDriver = Drivers[i];
                 var newDriver = info.Drivers[i];
-                LeaderboardPlugin.LogInfo($"Comparing drivers #{i}: current:{currentDriver.FirstName} {currentDriver.LastName}, new:{newDriver.FirstName} {newDriver.LastName}");
+                DynLeaderboardsPlugin.LogInfo($"Comparing drivers #{i}: current:{currentDriver.FirstName} {currentDriver.LastName}, new:{newDriver.FirstName} {newDriver.LastName}");
 
                 if (currentDriver.Equals(newDriver)) {
-                    LeaderboardPlugin.LogInfo($"Result: Drivers are same.");
+                    DynLeaderboardsPlugin.LogInfo($"Result: Drivers are same.");
                     continue; // this driver is same
                 }
 
                 var oldIdx = Drivers.FindIndex(x => x.Equals(newDriver));
                 if (oldIdx == -1) {
                     // Must be new driver
-                    LeaderboardPlugin.LogInfo($"Found new driver. Inserting.");
+                    DynLeaderboardsPlugin.LogInfo($"Found new driver. Inserting.");
                     Drivers.Insert(i, new DriverData(newDriver));
                 } else {
                     // Driver is present but it's order has changed
-                    LeaderboardPlugin.LogInfo($"Drivers are reordered.");
+                    DynLeaderboardsPlugin.LogInfo($"Drivers are reordered.");
 
                     var old = Drivers[oldIdx];
                     Drivers.RemoveAt(oldIdx);
@@ -209,7 +209,7 @@ namespace KLPlugins.Leaderboard.ksBroadcastingNetwork.Structs {
 
 
         /// <summary>
-        /// Updates this cars data. Should be called when RealtimeCarUpdate for this car is recieved.
+        /// Updates this cars data. Should be called when RealtimeCarUpdate for this car is received.
         /// </summary>
         /// <param name="update"></param>
         /// <param name="realtimeData"></param>
@@ -264,7 +264,7 @@ namespace KLPlugins.Leaderboard.ksBroadcastingNetwork.Structs {
 
 
         /// <summary>
-        /// Add inital laps to the car. It's important when starting SimHub mid session.
+        /// Add initial laps to the car. It's important when starting SimHub mid session.
         /// </summary>
         /// <returns>
         /// <c>true</c> if succeeded in adding the laps, <c>false</c> otherwise.
@@ -275,7 +275,7 @@ namespace KLPlugins.Leaderboard.ksBroadcastingNetwork.Structs {
             // If we start SimHub in the middle of session and cars are on the different laps, the car behind will gain a lap over
             // For example: P1 has just crossed the line and has completed 3 laps, P2 has 2 laps
             // But LapsBySplinePosition is 0 for both, if now P2 crosses the line,
-            // it's LapsBySplinePosition is increased and it would be shown lap ahead of tha actual leader
+            // it's LapsBySplinePosition is increased and it would be shown lap ahead of the actual leader
             // Thus we add current laps to the LapsBySplinePosition
             if (_isFirstUpdate && realtimeData.IsSession) {
                 if (Values.TrackData == null 
@@ -304,10 +304,10 @@ namespace KLPlugins.Leaderboard.ksBroadcastingNetwork.Structs {
                             // This is the position of finish line, position where lap count is increased.
                             // This means that in above we added one extra lap as by SplinePosition it's not new lap yet.
                             LapsBySplinePosition -= 1;
-                            LeaderboardPlugin.LogInfo($"Remove lap from #{RaceNumber} at splinePos={NewData.SplinePosition}");
+                            DynLeaderboardsPlugin.LogInfo($"Remove lap from #{RaceNumber} at splinePos={NewData.SplinePosition}");
                         }
 
-                        LeaderboardPlugin.LogInfo($"Set initial laps of #{RaceNumber} to {LapsBySplinePosition}");
+                        DynLeaderboardsPlugin.LogInfo($"Set initial laps of #{RaceNumber} to {LapsBySplinePosition}");
                     }
                     _isFirstUpdate = false;
                 }
@@ -322,11 +322,11 @@ namespace KLPlugins.Leaderboard.ksBroadcastingNetwork.Structs {
                     && NewData.CarLocation == CarLocationEnum.Pitlane 
                     && (realtimeData.IsSession 
                     || realtimeData.IsPostSession)
-                    ) // We join/start simhub mid session
+                    ) // We join/start SimHub mid session
                 ) {
                 PitCount++;
                 PitEntryTime = realtimeData.SessionTime.TotalSeconds;
-                LeaderboardPlugin.LogInfo($"#{RaceNumber} entered pitlane at {PitEntryTime}.");
+                DynLeaderboardsPlugin.LogInfo($"#{RaceNumber} entered pitlane at {PitEntryTime}.");
             }
 
             if (!double.IsNaN(PitEntryTime) && NewData.CarLocation != CarLocationEnum.Pitlane) {
@@ -335,7 +335,7 @@ namespace KLPlugins.Leaderboard.ksBroadcastingNetwork.Structs {
                 TotalPitTime += (double)LastPitTime;
                 PitEntryTime = double.NaN;
                 CurrentTimeInPits = null;
-                LeaderboardPlugin.LogInfo($"#{RaceNumber} exited pitlane. Time in pits (Total,Last) = ({TotalPitTime:00.0}s,{LastPitTime:00.0}s)");
+                DynLeaderboardsPlugin.LogInfo($"#{RaceNumber} exited pitlane. Time in pits (Total,Last) = ({TotalPitTime:00.0}s,{LastPitTime:00.0}s)");
             }
 
             if (!double.IsNaN(PitEntryTime)) { 
@@ -353,10 +353,10 @@ namespace KLPlugins.Leaderboard.ksBroadcastingNetwork.Structs {
             // Stint started
             if ((OldData.CarLocation == CarLocationEnum.Pitlane && NewData.CarLocation != CarLocationEnum.Pitlane) // Pitlane exit
                 || (realtimeData.IsRace && realtimeData.IsSessionStart) // Race start
-                || (_stintStartTime == null && NewData.CarLocation == CarLocationEnum.Track && (realtimeData.IsSession || realtimeData.IsPostSession)) // We join/start simhub mid session
+                || (_stintStartTime == null && NewData.CarLocation == CarLocationEnum.Track && (realtimeData.IsSession || realtimeData.IsPostSession)) // We join/start SimHub mid session
             ) {
                 _stintStartTime = realtimeData.SessionTime.TotalSeconds;
-                LeaderboardPlugin.LogInfo($"#{RaceNumber} started stint at {_stintStartTime}");
+                DynLeaderboardsPlugin.LogInfo($"#{RaceNumber} started stint at {_stintStartTime}");
             }
 
             // Stint ended
@@ -370,7 +370,7 @@ namespace KLPlugins.Leaderboard.ksBroadcastingNetwork.Structs {
                 LastStintLaps = CurrentStintLaps;
                 CurrentStintLaps = 0;
 
-                LeaderboardPlugin.LogInfo($"#{RaceNumber} stint ended: {LastStintLaps} laps in {LastStintTime/60.0:00.0}min");
+                DynLeaderboardsPlugin.LogInfo($"#{RaceNumber} stint ended: {LastStintLaps} laps in {LastStintTime/60.0:00.0}min");
             }
 
             if (_stintStartTime != null) {
@@ -417,7 +417,7 @@ namespace KLPlugins.Leaderboard.ksBroadcastingNetwork.Structs {
                     if (NewData.Laps != OldData.Laps) {
                         IsFinished = true;
                         FinishTime = realtimeData.SessionTime;
-                        LeaderboardPlugin.LogInfo($"Car #{RaceNumber} finished at {FinishTime}");
+                        DynLeaderboardsPlugin.LogInfo($"Car #{RaceNumber} finished at {FinishTime}");
                     }
                 }
             }
@@ -631,15 +631,15 @@ namespace KLPlugins.Leaderboard.ksBroadcastingNetwork.Structs {
                 if (fromPos == null || toPos == null) return null;
 
                 double? gap;
+                var cls = TrackData.LapInterpolators[to.CarClass] != null ? to.CarClass : from.CarClass;
                 if (distBetween > 0) {
                     // To car is ahead of from, gap should be the time it takes 'from' car to reach 'to' car's position
                     // That is use 'from' lap data to calculate the gap
-                    var cls = TrackData.LapInterpolators[from.CarClass] != null ? from.CarClass : to.CarClass;
                     gap = CalculateGapBetweenPos((float)fromPos, (float)toPos, from.GetSplinePosTime(cls), to.GetSplinePosTime(cls), TrackData.LapInterpolators[cls].LapTime);
                 } else {
                     // 'to' car is behind of 'from', gap should be the time it takes 'to' to reach 'from'
                     // That is use 'to' cars lap data to calculate the gap
-                    var cls = TrackData.LapInterpolators[to.CarClass] != null ? to.CarClass : from.CarClass;
+                    //var cls = TrackData.LapInterpolators[to.CarClass] != null ? to.CarClass : from.CarClass;
                     gap = -CalculateGapBetweenPos((float)toPos, (float)fromPos, to.GetSplinePosTime(cls), from.GetSplinePosTime(cls), TrackData.LapInterpolators[cls].LapTime);
                 }
                 return gap;
@@ -664,15 +664,15 @@ namespace KLPlugins.Leaderboard.ksBroadcastingNetwork.Structs {
             }
 
             double? gap;
+            var cls = TrackData.LapInterpolators[to.CarClass] != null ? to.CarClass : from.CarClass;
             if (relativeSplinePos < 0) {
                 // To car is ahead of from, gap should be the time it takes 'from' car to reach 'to' car's position
                 // That is use 'from' lap data to calculate the gap
-                var cls = TrackData.LapInterpolators[from.CarClass] != null ? from.CarClass : to.CarClass;
                 gap = -CalculateGapBetweenPos((float)fromPos, (float)toPos, from.GetSplinePosTime(cls), to.GetSplinePosTime(cls), TrackData.LapInterpolators[cls].LapTime);
             } else {
                 // 'to' car is behind of 'from', gap should be the time it takes 'to' to reach 'from'
                 // That is use 'to' cars lap data to calculate the gap
-                var cls = TrackData.LapInterpolators[to.CarClass] != null ? to.CarClass : from.CarClass;
+                //var cls = TrackData.LapInterpolators[to.CarClass] != null ? to.CarClass : from.CarClass;
                 gap = CalculateGapBetweenPos((float)toPos, (float)fromPos, to.GetSplinePosTime(cls), from.GetSplinePosTime(cls), TrackData.LapInterpolators[cls].LapTime);
             }
             return gap;
@@ -715,7 +715,7 @@ namespace KLPlugins.Leaderboard.ksBroadcastingNetwork.Structs {
         /// <returns></returns>
         public static double CalculateGapBetweenPos(float behindPos, float aheadPos, double start, double end, double lapTime) {
             if (aheadPos < behindPos) {
-                // Ahead is on another lap, gap is time for behindpos to end lap, and then reach aheadpos
+                // Ahead is on another lap, gap is time for `behindpos` to end lap, and then reach aheadpos
                 return lapTime - start + end;
             } else {
                 // We must be on the same lap, gap is time for behindpos to reach aheadpos

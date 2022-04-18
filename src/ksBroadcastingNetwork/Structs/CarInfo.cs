@@ -1,11 +1,11 @@
-﻿using KLPlugins.Leaderboard.Enums;
+﻿using KLPlugins.DynLeaderboards.Enums;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace KLPlugins.Leaderboard.ksBroadcastingNetwork.Structs
+namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork.Structs
 {
     public class CarInfo
     {

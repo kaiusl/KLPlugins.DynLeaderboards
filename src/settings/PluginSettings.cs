@@ -1,5 +1,5 @@
-﻿using KLPlugins.Leaderboard.Enums;
-using KLPlugins.Leaderboard.ksBroadcastingNetwork;
+﻿using KLPlugins.DynLeaderboards.Enums;
+using KLPlugins.DynLeaderboards.ksBroadcastingNetwork;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -7,7 +7,7 @@ using System.IO;
 using System.Linq;
 
 
-namespace KLPlugins.Leaderboard {
+namespace KLPlugins.DynLeaderboards {
     /// <summary>
     /// Settings class, make sure it can be correctly serialized using JSON.net
     /// </summary>
@@ -80,14 +80,14 @@ namespace KLPlugins.Leaderboard {
         public Dictionary<TeamCupCategory, string> TeamCupCategoryTextColors { get; set; }
         public Dictionary<DriverCategory, string> DriverCategoryColors { get; set; }
 
-        private const string _defPluginsDataLocation = "PluginsData\\KLPlugins\\Leaderboard";
+        private const string _defPluginsDataLocation = "PluginsData\\KLPlugins\\DynLeaderboards";
         private static readonly string _defAccDataLocation = "C:\\Users\\" + Environment.UserName + "\\Documents\\Assetto Corsa Competizione";
 
         public PluginSettings() {
             PluginDataLocation = _defPluginsDataLocation;
             AccDataLocation = _defAccDataLocation;
             Log = false;
-            BroadcastDataUpdateRateMs = 1000;
+            BroadcastDataUpdateRateMs = 200;
             DynLeaderboardConfigs = new List<DynLeaderboardConfig>();
             CarClassColors = CreateDefCarClassColors();
             TeamCupCategoryColors = CreateDefCupColors();
@@ -149,10 +149,10 @@ namespace KLPlugins.Leaderboard {
             if (!Directory.Exists($"{newLoc}\\Config")) {
                 if (Directory.Exists($"{_defAccDataLocation}\\Config")) {
                     AccDataLocation = _defAccDataLocation;
-                    LeaderboardPlugin.LogWarn($"Set ACC data location doesn't exist. Using default location '{_defAccDataLocation}'");
+                    DynLeaderboardsPlugin.LogWarn($"Set ACC data location doesn't exist. Using default location '{_defAccDataLocation}'");
                     return false;
                 } else {
-                    LeaderboardPlugin.LogWarn("Set ACC data location doesn't exist. Please check your configuration file.");
+                    DynLeaderboardsPlugin.LogWarn("Set ACC data location doesn't exist. Please check your configuration file.");
                     return false;
                 }
             } else {

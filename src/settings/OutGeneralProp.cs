@@ -1,7 +1,7 @@
 ﻿using System;
 
 
-namespace KLPlugins.Leaderboard {
+namespace KLPlugins.DynLeaderboards {
     [Flags]
     public enum OutGeneralProp {
         None = 0,
@@ -30,7 +30,7 @@ namespace KLPlugins.Leaderboard {
                 case OutGeneralProp.CarClassColors:
                     return "Color for every car class.";
                 case OutGeneralProp.TeamCupColors:
-                    return "Background colors for every team cup categorty.";
+                    return "Background colors for every team cup category.";
                 case OutGeneralProp.TeamCupTextColors:
                     return "Text colors for every team cup category";
                 case OutGeneralProp.DriverCategoryColors:

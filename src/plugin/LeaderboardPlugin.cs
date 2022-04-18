@@ -10,14 +10,14 @@ using System.Runtime.CompilerServices;
 using System.Diagnostics;
 using System.Reflection;
 using GameReaderCommon.Enums;
-using KLPlugins.Leaderboard.ksBroadcastingNetwork;
-using KLPlugins.Leaderboard.Enums;
+using KLPlugins.DynLeaderboards.ksBroadcastingNetwork;
+using KLPlugins.DynLeaderboards.Enums;
 using System.Collections.Generic;
 using System.Linq;
-using KLPlugins.Leaderboard.ksBroadcastingNetwork.Structs;
+using KLPlugins.DynLeaderboards.ksBroadcastingNetwork.Structs;
 using System.Linq.Expressions;
 
-namespace KLPlugins.Leaderboard {
+namespace KLPlugins.DynLeaderboards {
     public enum Leaderboard {
         None,
         Overall,
@@ -58,14 +58,14 @@ namespace KLPlugins.Leaderboard {
 
     [PluginDescription("")]
     [PluginAuthor("Kaius Loos")]
-    [PluginName("LeaderboardPlugin")]
-    public class LeaderboardPlugin : IPlugin, IDataPlugin, IWPFSettingsV2 {
+    [PluginName("DynLeaderboardsPlugin")]
+    public class DynLeaderboardsPlugin : IPlugin, IDataPlugin, IWPFSettingsV2 {
         public static PluginSettings Settings;
         public PluginManager PluginManager { get; set; }
         public ImageSource PictureIcon => this.ToIcon(Properties.Resources.sdkmenuicon);
         public string LeftMenuTitle => PluginName;
 
-        internal const string PluginName = "Leaderboard";
+        internal const string PluginName = "DynLeaderboards";
         internal static Game Game; // Const during the lifetime of this plugin, plugin is rebuilt at game change
         internal static string GameDataPath; // Same as above
         internal static string PluginStartTime = $"{DateTime.Now.ToString("dd-MM-yyyy_HH-mm-ss")}";
@@ -74,13 +74,12 @@ namespace KLPlugins.Leaderboard {
         private static FileStream _logFile;
         private static StreamWriter _logWriter;
         private static bool _isLogFlushed = false;
-        private const string SettingsPath = @"PluginsData\KLPlugins\\Leaderboard\Settings.json";
         private string LogFileName;
         private Values _values;
 
         /// <summary>
         /// Called one time per game data update, contains all normalized game data, 
-        /// raw data are intentionnally "hidden" under a generic object type (A plugin SHOULD NOT USE IT)
+        /// raw data are intentionally "hidden" under a generic object type (A plugin SHOULD NOT USE IT)
         /// 
         /// This method is on the critical path, it must execute as fast as possible and avoid throwing any error
         /// 
@@ -144,7 +143,7 @@ namespace KLPlugins.Leaderboard {
         /// <param name="pluginManager"></param>
         /// <returns></returns>
         public System.Windows.Controls.Control GetWPFSettingsControl(PluginManager pluginManager) {
-            return new SettingsControlDemo(this);
+            return new SettingsControl(this);
         }
 
 
@@ -170,7 +169,7 @@ namespace KLPlugins.Leaderboard {
             PManager = pluginManager;
 
             InitLogginig();
-            PreJit(); // Performance is important while in game, pre jit methods at startup, to avoid doing that mid races
+            PreJit(); // Performance is important while in game, prejit methods at startup, to avoid doing that mid races
 
             LogInfo("Starting plugin");
             

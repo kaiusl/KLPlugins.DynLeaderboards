@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace KLPlugins.Leaderboard.Enums {
+namespace KLPlugins.DynLeaderboards.Enums {
     public enum TrackType {
 		BrandsHatch = 1,
 		Spa = 2,

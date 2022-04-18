@@ -1,15 +1,15 @@
-﻿<UserControl x:Class="KLPlugins.Leaderboard.SettingsControlDemo"
+﻿<UserControl x:Class="KLPlugins.DynLeaderboards.SettingsControl"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:local="clr-namespace:KLPlugins.Leaderboard"
+             xmlns:local="clr-namespace:KLPlugins.DynLeaderboards"
              xmlns:styles="clr-namespace:SimHub.Plugins.Styles;assembly=SimHub.Plugins" 
              mc:Ignorable="d" 
              xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
              xmlns:ui="clr-namespace:SimHub.Plugins.UI;assembly=SimHub.Plugins" 
              xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
-             d:DesignHeight="600" d:DesignWidth="800"
+             d:DesignHeight="1200" d:DesignWidth="800"
              >
 
     <UserControl.Resources>
@@ -82,7 +82,7 @@
                     </TextBlock>
 
                     <TextBlock>
-                    <Span xml:space="preserve"><Run> For detailed description of plugin go to: </Run><Hyperlink RequestNavigate="Hyperlink_RequestNavigate" NavigateUri="https://github.com/kaiusl/KLPlugins.Leaderboard">KLPlugins.Leaderboard</Hyperlink></Span>
+                    <Span xml:space="preserve"><Run> For more information you can also see: </Run><Hyperlink RequestNavigate="Hyperlink_RequestNavigate" NavigateUri="https://github.com/kaiusl/KLPlugins.Leaderboard">KLPlugins.Leaderboard</Hyperlink></Span>
                     </TextBlock>
 
                     <!-- ACC Config location -->
@@ -164,7 +164,7 @@
                 <styles:SHSmallTitle>Team cup category</styles:SHSmallTitle>
                 <StackPanel x:Name="TeamCupColors_StackPanel"/>
 
-                <!-- Driver categoty colors -->
+                <!-- Driver category colors -->
                 <styles:SHSmallTitle>Driver category</styles:SHSmallTitle>
                 <StackPanel x:Name="DriverCategoryColors_StackPanel"/>
 
@@ -204,9 +204,16 @@
 
                     <TextBlock MaxWidth="750" TextWrapping="Wrap">Here you can customize the functionality of your dynamic leaderboard. <Bold>For the changes to take effect you need to restart SimHub</Bold>.
                         <LineBreak/><LineBreak/>
-                        First, you can add multiple dynamic leaderboards and change their names in the dropdown list below. Make sure to assign buttons in "Controls and events" for each dynamic leaderboard's "NextLeaderboard" and "PreviousLeaderboard" events.
+                        First, you can add multiple dynamic leaderboards and change their names in the dropdown list below. 
+                        <LineBreak/><Bold>Make sure to assign buttons in "Controls and events" for each dynamic leaderboard's "NextLeaderboard" and "PreviousLeaderboard" events.</Bold>
+                        For mapping to controller inputs you need to enable "Controllers input" plugin and to keyboard inputs "Keyboard Input" plugin.
+                        Note that if you add multiple dynamic leaderboards, you need to add mappings for each leaderboard. It can be the same button for all of them.
                         </TextBlock>
-                    <TextBlock x:Name="DynLeaderboardPropertyAccess_TextBlock" MaxWidth="750" TextWrapping="Wrap"/>
+
+                    <styles:SHSectionTitle>DYNAMIC LEADERBOARDS</styles:SHSectionTitle>
+                    <Expander Header="More information">
+                        <TextBlock x:Name="DynLeaderboardPropertyAccess_TextBlock" MaxWidth="750" TextWrapping="Wrap"/>
+                    </Expander>
 
                     <StackPanel x:Name="DynLeaderboardsList_StackPanel" Orientation="Horizontal">
                         <ComboBox x:Name="SelectDynLeaderboard_ComboBox" 
@@ -236,10 +243,24 @@
                     <Separator Margin="0,1,0,10"/>
 
                     <styles:SHSectionTitle>LEADERBOARD ROTATION</styles:SHSectionTitle>
-                    <TextBlock MaxWidth="600" TextWrapping="Wrap">You can enable/disable specific leaderboards and choose the order in which they appear.
-                    For more information about what each leaderboard looks like see  <Span xml:space="preserve"><Hyperlink RequestNavigate="Hyperlink_RequestNavigate" NavigateUri="https://github.com/kaiusl/KLPlugins.Leaderboard">KLPlugins.Leaderboard</Hyperlink></Span>
-                    , tooltips on options below or AccDynLeaderboard dash provided with the plugin.</TextBlock>
+                    <Expander Header="More information">
+                        <StackPanel>
 
+                            <TextBlock MaxWidth="750" TextWrapping="Wrap">You can enable/disable specific leaderboards and choose the order in which they appear.</TextBlock>
+                            <TextBlock MaxWidth="750" TextWrapping="Wrap">Available leaderboard types are.</TextBlock>
+                            <TextBlock MaxWidth="750" TextWrapping="Wrap" Padding="10,0,0,0">Overall leaderboards - `N` top positions. There are two types:</TextBlock>
+                            <TextBlock MaxWidth="750" TextWrapping="Wrap" Padding="20,0,0,0">* Overall - In overall order</TextBlock>
+                            <TextBlock MaxWidth="750" TextWrapping="Wrap" Padding="20,0,0,0">* Class - In the order of focused car's class</TextBlock>
+                            <TextBlock MaxWidth="750" TextWrapping="Wrap" Padding="10,0,0,0">Relative leaderboards - `2N + 1` relative positions to the focused car. There are three types:</TextBlock>
+                            <TextBlock MaxWidth="750" TextWrapping="Wrap" Padding="20,0,0,0">* RelativeOverall - In overall order</TextBlock>
+                            <TextBlock MaxWidth="750" TextWrapping="Wrap" Padding="20,0,0,0">* RelativeClass - In the order of focused car's class</TextBlock>
+                            <TextBlock MaxWidth="750" TextWrapping="Wrap" Padding="20,0,0,0">* RelativeOnTrack - In the relative track order</TextBlock>
+                            <TextBlock MaxWidth="750" TextWrapping="Wrap" Padding="10,0,0,0">Partial relative leaderboards - `N` top positions and `2M + 1` relative positions. If the focused car is inside the first `N + M + 1` positions the order will be just as the overall leaderboard. There are two types:</TextBlock>
+                            <TextBlock MaxWidth="750" TextWrapping="Wrap" Padding="20,0,0,0">* PartialRelativeOverall - In overall order</TextBlock>
+                            <TextBlock MaxWidth="750" TextWrapping="Wrap" Padding="20,0,0,0">* PartialRelativeClass - In the order of focused car's class</TextBlock>
+
+                        </StackPanel>
+                    </Expander>
                     <StackPanel Orientation="Horizontal">
                         <styles:SHButtonSecondary Click="DynLeaderboard_ListView_Up" ToolTip="Move currently selected leaderboard one position up.">Up</styles:SHButtonSecondary>
                         <styles:SHButtonSecondary Click="DynLeaderboard_ListView_Down" ToolTip="Move currently selected leaderboard one position down.">Down</styles:SHButtonSecondary>
@@ -250,13 +271,14 @@
                     <Separator Margin="0,15,0,1"/>
                     <Separator Margin="0,1,0,10"/>
                     <styles:SHSectionTitle>NUMBER OF POSITIONS</styles:SHSectionTitle>
-
-                    <TextBlock TextWrapping="Wrap" MaxWidth="750">Couple of notes. <LineBreak/> 
+                    <Expander Header="More information">
+                        <TextBlock TextWrapping="Wrap" MaxWidth="750">Couple of notes. <LineBreak/> 
                         * For relative positions we set the number of positions shown ahead and behind. 
                         That is if set to 5 for example, we show 5 cars ahead and 5 car behind.
-                    <LineBreak/>
+                        <LineBreak/>
                         * The driver indices are set such that current driver is always first. If you set number of drivers to 1 then we only show current driver.
-                    </TextBlock>
+                        </TextBlock>
+                    </Expander>
 
                     <StackPanel x:Name="NumPositions_StackPanel"/>
 
@@ -265,9 +287,32 @@
                     <Separator Margin="0,15,0,1"/>
                     <Separator Margin="0,1,0,10"/>
                     <styles:SHSectionTitle Text="PROPERTIES FOR EACH CAR"/>
-
-                    <TextBlock x:Name="EnablePropertiesDescription_TextBlock" Width="600" TextWrapping="Wrap"/>
-
+                    <Expander Header="More information">
+                        <StackPanel>
+                            <TextBlock x:Name="EnablePropertiesDescription_TextBlock" Width="600" TextWrapping="Wrap"/>
+                            <TextBlock MaxWidth="750" TextWrapping="Wrap" Padding="0,0,0,0">* Default value if property is not available is null. This happens if session is not started yet, there are fewer cars/drivers in session than positions available for leaderboard or no lap time is available.
+                        <LineBreak/>* First driver is always current driver.
+                        <LineBreak/>* All times and gaps are given in seconds.</TextBlock>
+                            <TextBlock MaxWidth="750" TextWrapping="Wrap" Padding="0,0,0,0">
+                        * In relative leaderboards positive gap means the car is ahead of the car that we are comparing to, negative gap means behind. 
+                        In overall leaderboards the gap is always positive as we are comparing to the overall/class leader and no one can be ahead of them.
+                        <LineBreak/><LineBreak/>
+                        * If the gap is larger than 1 lap, only lap part of the gap is shown. To differentiate between gap in seconds and full laps we add 100 000 to the gap if it's larger than 1 lap. In dash you can show the gap then as follows
+                        <LineBreak/>``javascript
+                            </TextBlock>
+                            <TextBlock MaxWidth="750" TextWrapping="Wrap" Padding="20,0,0,0">
+                        var v = $prop('LeaderboardPlugin.Dynamic.' + repeatindex() + '.Gap.Dynamic.ToFocused')
+	                    <LineBreak/>if (v == null) { return '' }
+	                    <LineBreak/>// No gap can realistically be 50000 seconds without being more than a lap
+	                    <LineBreak/>// and you cannot realistically be more than 50000 laps behind to break following
+	                    <LineBreak/>if (v > 50000) { return format(v - 100000, '0', true) + 'L' }
+	                    <LineBreak/>return format(v, '0.0', true)
+                            </TextBlock>
+                            <TextBlock MaxWidth="750" TextWrapping="Wrap" Padding="0,0,0,0">
+                        ```
+                            </TextBlock>
+                        </StackPanel>
+                    </Expander>
                     <styles:SHSmallTitle>Car information</styles:SHSmallTitle>
                     <StackPanel x:Name="OutCarProps_StackPanel"/>
 
@@ -294,7 +339,9 @@
                     <Separator Margin="0,15,0,1"/>
                     <Separator Margin="0,1,0,10"/>
                     <styles:SHSectionTitle Text="PROPERTIES FOR EACH DRIVER"/>
-                    <TextBlock x:Name="ExposedDriverProps_TextBlock" MaxWidth="750" TextWrapping="Wrap"/>
+                    <Expander Header="More information">
+                        <TextBlock x:Name="ExposedDriverProps_TextBlock" MaxWidth="750" TextWrapping="Wrap"/>
+                    </Expander>
                     <StackPanel x:Name="ExposedDriverProperties_StackPanel"/>
 
                 </StackPanel>

@@ -1,4 +1,4 @@
-﻿namespace KLPlugins.Leaderboard {
+﻿namespace KLPlugins.DynLeaderboards {
 
 
     /// <summary>
@@ -33,27 +33,27 @@
             switch (gameName) {
                 case AcName:
                     _isAc = true;
-                    LeaderboardPlugin.LogInfo("Game set to AC");
+                    DynLeaderboardsPlugin.LogInfo("Game set to AC");
                     break;
                 case AccName:
                     _isAcc = true;
-                    LeaderboardPlugin.LogInfo("Game set to ACC");
+                    DynLeaderboardsPlugin.LogInfo("Game set to ACC");
                     break;
                 case Rf2Name:
                     _isRf2 = true;
-                    LeaderboardPlugin.LogInfo("Game set to RF2");
+                    DynLeaderboardsPlugin.LogInfo("Game set to RF2");
                     break;
                 case IracingName:
                     _isIracing = true;
-                    LeaderboardPlugin.LogInfo("Game set to IRacing");
+                    DynLeaderboardsPlugin.LogInfo("Game set to IRacing");
                     break;
                 case R3eName:
                     _isR3e = true;
-                    LeaderboardPlugin.LogInfo("Game set to R3E");
+                    DynLeaderboardsPlugin.LogInfo("Game set to R3E");
                     break;
                 default:
                     _isUnknown = true;
-                    LeaderboardPlugin.LogInfo("Game set to Unknown");
+                    DynLeaderboardsPlugin.LogInfo("Game set to Unknown");
                     break;
             }
         }

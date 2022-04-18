@@ -1,4 +1,4 @@
-﻿using KLPlugins.Leaderboard.Enums;
+﻿using KLPlugins.DynLeaderboards.Enums;
 using MathNet.Numerics.Interpolation;
 using System;
 using System.Collections.Generic;
@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace KLPlugins.Leaderboard.ksBroadcastingNetwork.Structs
+namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork.Structs
 {
     public class LapInterpolator {
         public LinearSpline Interpolator { get; }
@@ -49,9 +49,9 @@ namespace KLPlugins.Leaderboard.ksBroadcastingNetwork.Structs
         }
 
         private static void AddLapInterpolator(CarClass cls) {
-            var fname = $"{LeaderboardPlugin.Settings.PluginDataLocation}\\laps\\{(int)Values.TrackData.TrackId}_{cls}.txt";
+            var fname = $"{DynLeaderboardsPlugin.Settings.PluginDataLocation}\\laps\\{(int)Values.TrackData.TrackId}_{cls}.txt";
             if (!File.Exists(fname)) {
-                LeaderboardPlugin.LogWarn($"Couldn't build lap interpolator for {cls} because no suitable track data exists.");
+                DynLeaderboardsPlugin.LogWarn($"Couldn't build lap interpolator for {cls} because no suitable track data exists.");
                 return;
             }
 
@@ -69,9 +69,9 @@ namespace KLPlugins.Leaderboard.ksBroadcastingNetwork.Structs
                 }
 
                 LapInterpolators[cls] = new LapInterpolator(LinearSpline.InterpolateSorted(pos.ToArray(), time.ToArray()), time.Last());
-                LeaderboardPlugin.LogInfo($"Build lap interpolator for {cls} from file {fname}");
+                DynLeaderboardsPlugin.LogInfo($"Build lap interpolator for {cls} from file {fname}");
             } catch (Exception ex) {
-                LeaderboardPlugin.LogError($"Failed to read {fname} with error: {ex}");
+                DynLeaderboardsPlugin.LogError($"Failed to read {fname} with error: {ex}");
             }
         }
 
@@ -80,11 +80,11 @@ namespace KLPlugins.Leaderboard.ksBroadcastingNetwork.Structs
                 foreach (var r in replacements) {
                     if (LapInterpolators[r] != null) {
                         LapInterpolators[cls] = LapInterpolators[r];
-                        LeaderboardPlugin.LogInfo($"Found replacement lap interpolator for {cls} from {r}");
+                        DynLeaderboardsPlugin.LogInfo($"Found replacement lap interpolator for {cls} from {r}");
                         return;
                     }
                 }
-                LeaderboardPlugin.LogWarn($"Couldn't find replacement lap interpolator for {cls}. Will have to use simple gap calculation.");
+                DynLeaderboardsPlugin.LogWarn($"Couldn't find replacement lap interpolator for {cls}. Will have to use simple gap calculation.");
             }
         }
     }

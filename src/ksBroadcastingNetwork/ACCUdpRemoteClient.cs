@@ -7,10 +7,10 @@ using System.Linq;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
-using KLPlugins.Leaderboard;
+using KLPlugins.DynLeaderboards;
 using Newtonsoft.Json;
 
-namespace KLPlugins.Leaderboard.ksBroadcastingNetwork {
+namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork {
     public class ACCUdpRemoteClient : IDisposable
     {
         public BroadcastingNetworkProtocol MessageHandler { get; }
@@ -41,7 +41,7 @@ namespace KLPlugins.Leaderboard.ksBroadcastingNetwork {
             IsConnected = false;
             MessageHandler.OnConnectionStateChanged += OnBroadcastConnectionStateChanged;
 
-            LeaderboardPlugin.LogInfo("Requested broadcast connection");
+            DynLeaderboardsPlugin.LogInfo("Requested broadcast connection");
             _listenerTask = ConnectAndRun();
         }
 
@@ -57,9 +57,9 @@ namespace KLPlugins.Leaderboard.ksBroadcastingNetwork {
             ShutdownAsync().ContinueWith(t =>
              {
                  if (t.Exception?.InnerExceptions?.Any() == true)
-                     LeaderboardPlugin.LogError($"Client shut down with {t.Exception.InnerExceptions.Count} errors");
+                     DynLeaderboardsPlugin.LogError($"Client shut down with {t.Exception.InnerExceptions.Count} errors");
                  else
-                     LeaderboardPlugin.LogInfo("Client shut down asynchronously");
+                     DynLeaderboardsPlugin.LogInfo("Client shut down asynchronously");
 
              });
         }
@@ -94,13 +94,13 @@ namespace KLPlugins.Leaderboard.ksBroadcastingNetwork {
                 catch (ObjectDisposedException)
                 {
                     // Shutdown happened
-                    LeaderboardPlugin.LogInfo("Broadcast client shut down.");
+                    DynLeaderboardsPlugin.LogInfo("Broadcast client shut down.");
                     break;
                 }
                 catch (Exception ex)
                 {
                     // Other exceptions
-                    LeaderboardPlugin.LogInfo($"Couldn't connect to broadcast client. Err {ex}");
+                    DynLeaderboardsPlugin.LogInfo($"Couldn't connect to broadcast client. Err {ex}");
                 }
             }
             IsConnected = false;
@@ -108,10 +108,10 @@ namespace KLPlugins.Leaderboard.ksBroadcastingNetwork {
 
         private void OnBroadcastConnectionStateChanged(int connectionId, bool connectionSuccess, bool isReadonly, string error) {
             if (connectionSuccess) {
-                LeaderboardPlugin.LogInfo("Connected to broadcast client.");
+                DynLeaderboardsPlugin.LogInfo("Connected to broadcast client.");
                 IsConnected = true;
             } else {
-                LeaderboardPlugin.LogWarn($"Failed to connect to broadcast client. Err: {error}");
+                DynLeaderboardsPlugin.LogWarn($"Failed to connect to broadcast client. Err: {error}");
                 MessageHandler.RequestConnection(DisplayName, ConnectionPassword, MsRealtimeUpdateInterval, CommandPassword);
             }
         }
@@ -127,7 +127,7 @@ namespace KLPlugins.Leaderboard.ksBroadcastingNetwork {
                 {
                     try
                     {
-                        LeaderboardPlugin.LogInfo("Disposed.");
+                        DynLeaderboardsPlugin.LogInfo("Disposed.");
                         if (_client != null)
                         {
 
@@ -192,7 +192,7 @@ namespace KLPlugins.Leaderboard.ksBroadcastingNetwork {
             internal void Validate() {
                 if (udpListenerPort < 1024 || udpListenerPort > 65535) {
                     udpListenerPort = _defUdpListenerPort;
-                    throw new Exception($"Set broadcasting udp port in '{LeaderboardPlugin.Settings.AccDataLocation}\\Config\\broadcasting.json' is invalid. Must be between 1024 and 65535.");
+                    throw new Exception($"Set broadcasting udp port in '{DynLeaderboardsPlugin.Settings.AccDataLocation}\\Config\\broadcasting.json' is invalid. Must be between 1024 and 65535.");
                 }
             }
         }
@@ -211,11 +211,11 @@ namespace KLPlugins.Leaderboard.ksBroadcastingNetwork {
         /// </summary>
         public ACCUdpRemoteClientConfig(string ip, string displayName, int updateTime) {
             try {
-                var configPath = $"{LeaderboardPlugin.Settings.AccDataLocation}\\Config\\broadcasting.json";
+                var configPath = $"{DynLeaderboardsPlugin.Settings.AccDataLocation}\\Config\\broadcasting.json";
                 _config = JsonConvert.DeserializeObject<ACCBroadcastConfig>(File.ReadAllText(configPath, Encoding.Unicode).Replace("\"", "'"));
                 _config.Validate();
             } catch (Exception e) {
-                LeaderboardPlugin.LogWarn($"Couldn't read broadcasting.json because {e}. Using default.");
+                DynLeaderboardsPlugin.LogWarn($"Couldn't read broadcasting.json because {e}. Using default.");
                 _config = new ACCBroadcastConfig();
             }
 

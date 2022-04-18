@@ -8,19 +8,16 @@ using System.Windows.Media;
 using System.Windows.Data;
 using MahApps.Metro.Controls;
 using Xceed.Wpf.Toolkit;
-using KLPlugins.Leaderboard.Enums;
+using KLPlugins.DynLeaderboards.Enums;
 using System.Collections.Generic;
-using KLPlugins.Leaderboard.ksBroadcastingNetwork;
+using KLPlugins.DynLeaderboards.ksBroadcastingNetwork;
 using System.Linq;
 
-namespace KLPlugins.Leaderboard
-{
-    /// <summary>
-    /// Logique d'interaction pour SettingsControlDemo.xaml
-    /// </summary>
-    public partial class SettingsControlDemo : UserControl {
-        public LeaderboardPlugin Plugin { get; }
-        public PluginSettings Settings { get => LeaderboardPlugin.Settings; }
+namespace KLPlugins.DynLeaderboards {
+
+    public partial class SettingsControl : UserControl {
+        public DynLeaderboardsPlugin Plugin { get; }
+        public PluginSettings Settings { get => DynLeaderboardsPlugin.Settings; }
         public PluginSettings.DynLeaderboardConfig CurrentDynLeaderboardSettings { get; private set; }
 
         private Dictionary<CarClass, ColorPicker> _classColorPickers = new Dictionary<CarClass, ColorPicker>(8);
@@ -28,12 +25,12 @@ namespace KLPlugins.Leaderboard
         private Dictionary<TeamCupCategory, ColorPicker> _cupTextColorPickers = new Dictionary<TeamCupCategory, ColorPicker>(5);
         private Dictionary<DriverCategory, ColorPicker> _driverCategoryColorPickers = new Dictionary<DriverCategory, ColorPicker>(4);
 
-        public SettingsControlDemo() {
+        public SettingsControl() {
             InitializeComponent();
             DataContext = this;
         }
 
-        public SettingsControlDemo(LeaderboardPlugin plugin) : this() {
+        public SettingsControl(DynLeaderboardsPlugin plugin) : this() {
             this.Plugin = plugin;
             
             if (Settings.DynLeaderboardConfigs.Count == 0) {
@@ -72,9 +69,9 @@ namespace KLPlugins.Leaderboard
                 var sp = CreatePropertyToggleRow(
                     v.ToString(),
                     v.ToString(),
-                    LeaderboardPlugin.Settings.OutGeneralProps.Includes(v),
-                    (sender, e) => LeaderboardPlugin.Settings.OutGeneralProps.Combine(v),
-                    (sender, e) => LeaderboardPlugin.Settings.OutGeneralProps.Remove(v),
+                    DynLeaderboardsPlugin.Settings.OutGeneralProps.Includes(v),
+                    (sender, e) => DynLeaderboardsPlugin.Settings.OutGeneralProps.Combine(v),
+                    (sender, e) => DynLeaderboardsPlugin.Settings.OutGeneralProps.Remove(v),
                     v.ToolTipText()
                 );
 
@@ -105,8 +102,8 @@ namespace KLPlugins.Leaderboard
                 var cp = new ColorPicker();
                 cp.Width = 100;
                 cp.Height = 25;
-                cp.SelectedColor = (Color)ColorConverter.ConvertFromString(LeaderboardPlugin.Settings.CarClassColors[cls]);
-                cp.SelectedColorChanged += (sender, e) => SelectedColorChanged(sender, e, cls, LeaderboardPlugin.Settings.CarClassColors);
+                cp.SelectedColor = (Color)ColorConverter.ConvertFromString(DynLeaderboardsPlugin.Settings.CarClassColors[cls]);
+                cp.SelectedColorChanged += (sender, e) => SelectedColorChanged(sender, e, cls, DynLeaderboardsPlugin.Settings.CarClassColors);
 
                 _classColorPickers.Add(cls, cp);
 
@@ -153,8 +150,8 @@ namespace KLPlugins.Leaderboard
                 var cp1 = new ColorPicker();
                 cp1.Width = 100;
                 cp1.Height = 25;
-                cp1.SelectedColor = (Color)ColorConverter.ConvertFromString(LeaderboardPlugin.Settings.TeamCupCategoryColors[cup]);
-                cp1.SelectedColorChanged += (sender, e) => SelectedColorChanged(sender, e, cup, LeaderboardPlugin.Settings.TeamCupCategoryColors);
+                cp1.SelectedColor = (Color)ColorConverter.ConvertFromString(DynLeaderboardsPlugin.Settings.TeamCupCategoryColors[cup]);
+                cp1.SelectedColorChanged += (sender, e) => SelectedColorChanged(sender, e, cup, DynLeaderboardsPlugin.Settings.TeamCupCategoryColors);
                 _cupColorPickers.Add(cup, cp1);
 
                 var btn1 = new SHButtonPrimary();
@@ -167,8 +164,8 @@ namespace KLPlugins.Leaderboard
                 cp2.Margin = new Thickness(25, 0, 0, 0);
                 cp2.Width = 100;
                 cp2.Height = 25;
-                cp2.SelectedColor = (Color)ColorConverter.ConvertFromString(LeaderboardPlugin.Settings.TeamCupCategoryTextColors[cup]);
-                cp2.SelectedColorChanged += (sender, e) => SelectedColorChanged(sender, e, cup, LeaderboardPlugin.Settings.TeamCupCategoryTextColors);
+                cp2.SelectedColor = (Color)ColorConverter.ConvertFromString(DynLeaderboardsPlugin.Settings.TeamCupCategoryTextColors[cup]);
+                cp2.SelectedColorChanged += (sender, e) => SelectedColorChanged(sender, e, cup, DynLeaderboardsPlugin.Settings.TeamCupCategoryTextColors);
                 _cupTextColorPickers.Add(cup, cp2);
 
                 var btn2 = new SHButtonPrimary();
@@ -202,8 +199,8 @@ namespace KLPlugins.Leaderboard
                 var cp = new ColorPicker();
                 cp.Width = 100;
                 cp.Height = 25;
-                cp.SelectedColor = (Color)ColorConverter.ConvertFromString(LeaderboardPlugin.Settings.DriverCategoryColors[cls]);
-                cp.SelectedColorChanged += (sender, e) => SelectedColorChanged(sender, e, cls, LeaderboardPlugin.Settings.DriverCategoryColors);
+                cp.SelectedColor = (Color)ColorConverter.ConvertFromString(DynLeaderboardsPlugin.Settings.DriverCategoryColors[cls]);
+                cp.SelectedColorChanged += (sender, e) => SelectedColorChanged(sender, e, cls, DynLeaderboardsPlugin.Settings.DriverCategoryColors);
 
                 _driverCategoryColorPickers.Add(cls, cp);
 
@@ -221,7 +218,7 @@ namespace KLPlugins.Leaderboard
         }
 
         private void AccDataLocation_TextChanged(object sender, TextChangedEventArgs e) {
-            var success = LeaderboardPlugin.Settings.SetAccDataLocation(AccDataLocation_TextBox.Text);
+            var success = DynLeaderboardsPlugin.Settings.SetAccDataLocation(AccDataLocation_TextBox.Text);
             if (success) {
                 AccDataLocation_TextBox.Background = Brushes.LightGreen;
             } else {
@@ -231,7 +228,7 @@ namespace KLPlugins.Leaderboard
         }
 
         private void Logging_ToggleButton_Click(object sender, RoutedEventArgs e) {
-            LeaderboardPlugin.Settings.Log = !LeaderboardPlugin.Settings.Log;
+            DynLeaderboardsPlugin.Settings.Log = !DynLeaderboardsPlugin.Settings.Log;
         }
 
         private void SelectedColorChanged<T>(object sender, RoutedPropertyChangedEventArgs<Color?> e, T c, Dictionary<T, string> settingsColors) {
@@ -243,22 +240,22 @@ namespace KLPlugins.Leaderboard
 
 
         private void ClassColorPickerReset(CarClass cls) {
-            LeaderboardPlugin.Settings.CarClassColors[cls] = cls.GetACCColor();
+            DynLeaderboardsPlugin.Settings.CarClassColors[cls] = cls.GetACCColor();
             _classColorPickers[cls].SelectedColor = (Color)ColorConverter.ConvertFromString(cls.GetACCColor());
         }
 
         private void TeamCupColorPickerReset(TeamCupCategory cup) {
-            LeaderboardPlugin.Settings.TeamCupCategoryColors[cup] = cup.GetACCColor();
+            DynLeaderboardsPlugin.Settings.TeamCupCategoryColors[cup] = cup.GetACCColor();
             _cupColorPickers[cup].SelectedColor = (Color)ColorConverter.ConvertFromString(cup.GetACCColor());
         }
 
         private void TeamCupTextColorPickerReset(TeamCupCategory cup) {
-            LeaderboardPlugin.Settings.TeamCupCategoryTextColors[cup] = cup.GetACCColor();
+            DynLeaderboardsPlugin.Settings.TeamCupCategoryTextColors[cup] = cup.GetACCColor();
             _cupTextColorPickers[cup].SelectedColor = (Color)ColorConverter.ConvertFromString(cup.GetACCTextColor());
         }
 
         private void DriverCategoryColorPickerReset(DriverCategory cls) {
-            LeaderboardPlugin.Settings.DriverCategoryColors[cls] = cls.GetAccColor();
+            DynLeaderboardsPlugin.Settings.DriverCategoryColors[cls] = cls.GetAccColor();
             _driverCategoryColorPickers[cls].SelectedColor = (Color)ColorConverter.ConvertFromString(cls.GetAccColor());
         }
 
@@ -308,7 +305,7 @@ namespace KLPlugins.Leaderboard
         /// This means that everything here should clear old items before adding new items.
         /// </summary>
         private void AddDynLeaderboardSettings() {
-            // Techically we don't need to reset all setting ui items but only bindings and values.
+            // Technically we don't need to reset all setting UI items but only bindings and values.
             // But it's not critical and this is way simpler.
 
             EnablePropertiesDescription_TextBlock.Text = $"Enable/disable properties for currently selected dynamic leaderboard. Each properties car be accessed as \"{CurrentDynLeaderboardSettings.Name}.5.<property name>\"";
@@ -514,7 +511,7 @@ namespace KLPlugins.Leaderboard
                 sp.ToolTip = l.Tooltip();
 
                 var tb = new SHToggleButton();
-                tb.Name = $"{l.ToString()}_toggle_listview";
+                tb.Name = $"{l}_toggle_listview";
                 tb.IsChecked = true;
                 tb.Checked += (a, b) => CreateDynamicLeaderboardList();
                 tb.Unchecked += (a, b) => CreateDynamicLeaderboardList();
@@ -535,7 +532,7 @@ namespace KLPlugins.Leaderboard
                 sp.Orientation = Orientation.Horizontal;
 
                 var tb = new SHToggleButton();
-                tb.Name = $"{l.ToString()}_toggle_listview";
+                tb.Name = $"{l}_toggle_listview";
                 tb.IsChecked = false;
                 tb.Checked += (a, b) => CreateDynamicLeaderboardList();
                 tb.Unchecked += (a, b) => CreateDynamicLeaderboardList();
@@ -552,7 +549,7 @@ namespace KLPlugins.Leaderboard
         }
 
         /// <summary>
-        /// Create list of currently selected leaderboards for currenlty selected dynalic leaderboard
+        /// Create list of currently selected leaderboards for currently selected dynamic leaderboard
         /// </summary>
         private void CreateDynamicLeaderboardList() {
             var selected = SelectDynLeaderboard_ComboBox.SelectedIndex;

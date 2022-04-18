@@ -1,11 +1,11 @@
-﻿using KLPlugins.Leaderboard.Enums;
+﻿using KLPlugins.DynLeaderboards.Enums;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace KLPlugins.Leaderboard {
+namespace KLPlugins.DynLeaderboards {
     public class CarClassArray<T> {
         private const int _numClasses = 9;
         private T[] _data = new T[_numClasses];

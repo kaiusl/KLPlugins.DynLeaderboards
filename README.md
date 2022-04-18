@@ -4,14 +4,14 @@ This is an ACC specific (at least at the moment) leaderboard plugin providing si
 
 The reason for this plugin is that I found myself creating effectively the same dash leaderboard layout several times for overall leaderboard and then again for class leaderboard and so on. With this plugin you need to create only one SimHub dash and assign buttons to swap between different leaderboard types. I provide example dash (named AccDynLeaderboard) which I created for my own use. It's relatively simple one and designed to be used on smartphone.
 
-## Using the plugin
+## Using the plugin for the first time
 
 * Download the latest release from Racedepartment or here
 * Copy all the files to the SimHub root
 * Open SimHub and enable the plugin
-* Check plugin settings for correct "ACC configuration location" under "General settings". This location is used to read information needed to connct to ACC broadcasting client.
+* Check plugin settings for correct "ACC configuration location" under "General settings".  If it's background is green, then we found needed files, if it's red there's something wrong with the location. This location is used to read information needed to connct to ACC broadcasting client.
 * If you needed to change the location, restart SimHub.
-* Go to "Controls and events" from SimHub sidebar and add mappings for "LeaderboardPlugin.&lt;leaderboard name&gt;.NextLeaderboard" and "LeaderboardPlugin.&lt;leaderboard name&gt;.PreviousLeaderboard" actions. 
+* Go to "Controls and events" from SimHub sidebar and add mappings for "LeaderboardPlugin.Dynamic.NextLeaderboard" and "LeaderboardPlugin.Dynamic.PreviousLeaderboard" actions. 
 
 	For mapping to controller inputs you need to enable "Controllers input" plugin and to keyboard inputs "Keyboard Input" plugin.
     
@@ -20,7 +20,7 @@ The reason for this plugin is that I found myself creating effectively the same 
  
 ## Available leaderboard types
 
-We provide several different leaderboard orderings or types. 
+There are several different leaderboard types to use within dynamic leaderboards:
 
 - Overall leaderboards
 
@@ -39,7 +39,7 @@ We provide several different leaderboard orderings or types.
 	- In overall order
 	- In the order of foused car's class
 
-Again see the example dash to see exactly what each dash looks like.
+Again see the AccDynLeaderboard dash to see exactly what each dash looks like.
 
 ## Properties
 
@@ -49,6 +49,17 @@ Couple of things to know about properties:
 
 - Default value if property is not available is null. This happens if session is not started yet, there are fewer cars/drivers in session than positions available for leaderboard or no lap time is available.
 - First driver is always current driver.
+- All times and gaps are given in seconds.
+- In relative leaderboards positive gap means the car is ahead of the car that we are comparing to, negative gap means behind. In overall leaderboards the gap is always positive as we are comparing to the overall/class leader and no one can be ahead of them.
+- If the gap is larger than 1 lap, only lap part of the gap is shown. To differentiate between gap in seconds and full laps we add 100 000 to the gap if it's larger than 1 lap. In dash you can show the gap then as follows
+    ```javascript
+	var v = $prop('LeaderboardPlugin.Dynamic.' + repeatindex() + '.Gap.Dynamic.ToFocused')
+	if (v == null) { return '' }
+	// No gap can realistically be 50000 seconds without being more than a lap
+	// and you cannot realistically be more than 50000 laps behind to break following
+	if (v > 50000) { return format(v - 100000, '0', true) + 'L' }
+	return format(v, '0.0', true)
+	```
 
 ## Configuring the leaderboards
 

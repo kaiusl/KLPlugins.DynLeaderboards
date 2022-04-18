@@ -1,12 +1,12 @@
-﻿using KLPlugins.Leaderboard.ksBroadcastingNetwork;
-using KLPlugins.Leaderboard.ksBroadcastingNetwork.Structs;
+﻿using KLPlugins.DynLeaderboards.ksBroadcastingNetwork;
+using KLPlugins.DynLeaderboards.ksBroadcastingNetwork.Structs;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace KLPlugins.Leaderboard.src.ksBroadcastingNetwork.Structs {
+namespace KLPlugins.DynLeaderboards.src.ksBroadcastingNetwork.Structs {
     public class RealtimeData {
         public RealtimeUpdate NewData { get; private set; }
         public RealtimeUpdate OldData { get; private set; }

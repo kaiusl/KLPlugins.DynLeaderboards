@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace KLPlugins.Leaderboard.ksBroadcastingNetwork.Structs
+namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork.Structs
 {
     public class RealtimeCarUpdate
     {
@@ -20,7 +20,7 @@ namespace KLPlugins.Leaderboard.ksBroadcastingNetwork.Structs
         public int TrackPosition { get; internal set; }
         public float SplinePosition { get; internal set; }
         public int Delta { get; internal set; }
-        public LapInfo BestSessionLap { get; internal set; } // This containt all the bests. Best lap time and best sectors not the sectors of the best lap.
+        public LapInfo BestSessionLap { get; internal set; } // This contains all the bests. Best lap time and best sectors not the sectors of the best lap.
         public LapInfo LastLap { get; internal set; }
         public LapInfo CurrentLap { get; internal set; }
         public int Laps { get; internal set; }

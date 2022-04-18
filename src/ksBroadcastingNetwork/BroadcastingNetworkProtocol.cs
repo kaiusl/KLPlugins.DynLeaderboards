@@ -5,10 +5,10 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using KLPlugins.Leaderboard.Enums;
-using KLPlugins.Leaderboard.ksBroadcastingNetwork.Structs;
+using KLPlugins.DynLeaderboards.Enums;
+using KLPlugins.DynLeaderboards.ksBroadcastingNetwork.Structs;
 
-namespace KLPlugins.Leaderboard.ksBroadcastingNetwork {
+namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork {
     public enum OutboundMessageTypes : byte
     {
         REGISTER_COMMAND_APPLICATION = 1,
@@ -132,7 +132,7 @@ namespace KLPlugins.Leaderboard.ksBroadcastingNetwork {
                     break;
                 case InboundMessageTypes.ENTRY_LIST:
                     {
-                        LeaderboardPlugin.LogInfo("Recieved entry list update");
+                        DynLeaderboardsPlugin.LogInfo("Recieved entry list update");
                         EntryListCars.Clear();
 
                         var connectionId = br.ReadInt32();
@@ -253,7 +253,7 @@ namespace KLPlugins.Leaderboard.ksBroadcastingNetwork {
                             {
                                 lastEntrylistRequest = DateTime.Now;
                                 RequestEntryList();
-                                LeaderboardPlugin.LogInfo($"CarUpdate {carUpdate.CarIndex}|{carUpdate.DriverIndex} not know, will ask for new EntryList");
+                                DynLeaderboardsPlugin.LogInfo($"CarUpdate {carUpdate.CarIndex}|{carUpdate.DriverIndex} not know, will ask for new EntryList");
                             }
                         }
                         else

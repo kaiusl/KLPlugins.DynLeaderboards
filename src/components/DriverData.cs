@@ -1,12 +1,12 @@
-﻿using KLPlugins.Leaderboard.ksBroadcastingNetwork;
-using KLPlugins.Leaderboard.ksBroadcastingNetwork.Structs;
+﻿using KLPlugins.DynLeaderboards.ksBroadcastingNetwork;
+using KLPlugins.DynLeaderboards.ksBroadcastingNetwork.Structs;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace KLPlugins.Leaderboard {
+namespace KLPlugins.DynLeaderboards {
     public class DriverData {
         public string FirstName { get; internal set; }
         public string LastName { get; internal set; }
@@ -15,7 +15,7 @@ namespace KLPlugins.Leaderboard {
         public NationalityEnum Nationality { get; internal set; }
         public int TotalLaps { get; internal set; } = 0;
         public LapInfo BestSessionLap { get; internal set; } = null;
-        public string CategoryColor => LeaderboardPlugin.Settings.DriverCategoryColors[Category];
+        public string CategoryColor => DynLeaderboardsPlugin.Settings.DriverCategoryColors[Category];
 
         private double _totalDrivingTime = 0;
 

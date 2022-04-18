@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace KLPlugins.Leaderboard.ksBroadcastingNetwork {
+namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork {
     public enum DriverCategory
     {
         Platinum = 3,

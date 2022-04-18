@@ -4,16 +4,16 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
-using KLPlugins.Leaderboard.ksBroadcastingNetwork;
-using KLPlugins.Leaderboard.ksBroadcastingNetwork.Structs;
+using KLPlugins.DynLeaderboards.ksBroadcastingNetwork;
+using KLPlugins.DynLeaderboards.ksBroadcastingNetwork.Structs;
 using System.Collections.Generic;
 using System.Linq;
-using KLPlugins.Leaderboard.Enums;
+using KLPlugins.DynLeaderboards.Enums;
 using Newtonsoft.Json;
-using KLPlugins.Leaderboard.src.ksBroadcastingNetwork.Structs;
+using KLPlugins.DynLeaderboards.src.ksBroadcastingNetwork.Structs;
 using System.Threading;
 
-namespace KLPlugins.Leaderboard {
+namespace KLPlugins.DynLeaderboards {
     /// <summary>
     /// Storage and calculation of new properties
     /// </summary>
@@ -117,12 +117,12 @@ namespace KLPlugins.Leaderboard {
 
         public Values() {
             Cars = new List<CarData>();
-            var num = LeaderboardPlugin.Settings.GetMaxNumClassPos();
+            var num = DynLeaderboardsPlugin.Settings.GetMaxNumClassPos();
             if (num > 0) PosInClassCarsIdxs = new int?[100];
       
             ResetPos();
-            _broadcastConfig = new ACCUdpRemoteClientConfig("127.0.0.1", "KLLeaderboardPlugin", LeaderboardPlugin.Settings.BroadcastDataUpdateRateMs);
-            foreach (var l in LeaderboardPlugin.Settings.DynLeaderboardConfigs) {
+            _broadcastConfig = new ACCUdpRemoteClientConfig("127.0.0.1", "KLLeaderboardPlugin", DynLeaderboardsPlugin.Settings.BroadcastDataUpdateRateMs);
+            foreach (var l in DynLeaderboardsPlugin.Settings.DynLeaderboardConfigs) {
                 LeaderboardValues.Add(new DynLeaderboardValues(l));
             }
             SetDynamicCarGetter();
@@ -142,7 +142,10 @@ namespace KLPlugins.Leaderboard {
             _relativeSplinePositions.Clear();
             _startingPositionsSet =  false;
             MaxDriverStintTime = -1;
-            MaxDriverTotalDriveTime = -1;           
+            MaxDriverTotalDriveTime = -1;
+            outdata.Clear();
+            bestLaps.Clear();
+
         }
 
         private void ResetIdxs(int?[] arr) {
@@ -177,7 +180,7 @@ namespace KLPlugins.Leaderboard {
         protected virtual void Dispose(bool disposing) {
             if (!isDisposed) {
                 if (disposing) {
-                    LeaderboardPlugin.LogInfo("Disposed");
+                    DynLeaderboardsPlugin.LogInfo("Disposed");
                     DisposeBroadcastClient();
                 }
 
@@ -194,7 +197,7 @@ namespace KLPlugins.Leaderboard {
         public void OnGameStateChanged(bool running, PluginManager manager) {
             if (running) {
                 if (BroadcastClient != null) {
-                    LeaderboardPlugin.LogWarn("Broadcast client wasn't 'null' at start of new event. Shouldn't be possible, there is a bug in disposing of Broadcast client from previous session.");
+                    DynLeaderboardsPlugin.LogWarn("Broadcast client wasn't 'null' at start of new event. Shouldn't be possible, there is a bug in disposing of Broadcast client from previous session.");
                     DisposeBroadcastClient();
                 }
                 ConnectToBroadcastClient();
@@ -397,9 +400,11 @@ namespace KLPlugins.Leaderboard {
         private void OnNewSession() {
             // Clear all data at the beginning of session
             // Technically we only need clear parts of the data, but this is simpler
-            LeaderboardPlugin.LogInfo("New session.");
+            DynLeaderboardsPlugin.LogInfo("New session.");
             Cars.Clear();
             BroadcastClient.MessageHandler.RequestEntryList();
+            outdata.Clear();
+            bestLaps.Clear();
             ResetPos();
             _lastUpdateCarIds.Clear();
             _relativeSplinePositions.Clear();
@@ -407,8 +412,8 @@ namespace KLPlugins.Leaderboard {
         }
 
         private void SetMaxStintTimes() {
-            MaxDriverStintTime = (int)LeaderboardPlugin.PManager.GetPropertyValue<SimHub.Plugins.DataPlugins.DataCore.DataCorePlugin>("GameRawData.Graphics.DriverStintTimeLeft") / 1000.0;
-            MaxDriverTotalDriveTime = (int)LeaderboardPlugin.PManager.GetPropertyValue<SimHub.Plugins.DataPlugins.DataCore.DataCorePlugin>("GameRawData.Graphics.DriverStintTotalTimeLeft") / 1000.0;
+            MaxDriverStintTime = (int)DynLeaderboardsPlugin.PManager.GetPropertyValue<SimHub.Plugins.DataPlugins.DataCore.DataCorePlugin>("GameRawData.Graphics.DriverStintTimeLeft") / 1000.0;
+            MaxDriverTotalDriveTime = (int)DynLeaderboardsPlugin.PManager.GetPropertyValue<SimHub.Plugins.DataPlugins.DataCore.DataCorePlugin>("GameRawData.Graphics.DriverStintTotalTimeLeft") / 1000.0;
             if (MaxDriverTotalDriveTime == 65535) { // This is max value, which means that the limit doesn't exist
                 MaxDriverTotalDriveTime = -1;
             }
@@ -419,9 +424,9 @@ namespace KLPlugins.Leaderboard {
             // * Realtime update
             // * RealtimeCarUpdate for each car
             // Thus if we keep track of cars seen in the last loop, we can remove cars that have left the session
-            // However as we recieve data as UDP packets, there is a possibility that some packets go missing
+            // However as we receive data as UDP packets, there is a possibility that some packets go missing
             // Then we could possibly remove cars that are actually still in session
-            // Thus we keep track of how many times in order each car hasn't recieved the update
+            // Thus we keep track of how many times in order each car hasn't received the update
             // If it's larger than some number, we remove the car
             if (_lastUpdateCarIds.Count != 0) {
                 foreach (var car in Cars) {
@@ -451,13 +456,14 @@ namespace KLPlugins.Leaderboard {
                 // Also larger TotalSplinePosition means car is in front, so sort in descending order
 
                 int cmp(CarData a, CarData b) {
+                    if (a == b) return 0;
                     if ((a.IsFinished || b.IsFinished) && a.NewData != null && b.NewData != null) {
                         if (a.NewData.Laps != b.NewData.Laps) {
                             return b.NewData.Laps.CompareTo(a.NewData.Laps);
                         } else {
                             // At least one of them must be finished, if both earlier finish time should be ahead.
                             // If one hasn't finished, assign max value so it would be set behind the other one.
-                            var aFTime = a.FinishTime == null ? TimeSpan.MaxValue.TotalSeconds-1 : ((TimeSpan)a.FinishTime).TotalSeconds;
+                            var aFTime = a.FinishTime == null ? TimeSpan.MaxValue.TotalSeconds : ((TimeSpan)a.FinishTime).TotalSeconds;
                             var bFTime = b.FinishTime == null ? TimeSpan.MaxValue.TotalSeconds : ((TimeSpan)b.FinishTime).TotalSeconds;
                             return aFTime.CompareTo(bFTime);
                         }
@@ -472,8 +478,9 @@ namespace KLPlugins.Leaderboard {
                 // In other sessions TotalSplinePosition doesn't make any sense, use RealtimeCarUpdate.Position
 
                 int cmp(CarData a, CarData b) {
-                    var apos = a.NewData?.Position ?? 999;
-                    var bpos = b.NewData?.Position ?? 1000;
+                    if (a == b) return 0;
+                    var apos = a?.NewData?.Position ?? 1000;
+                    var bpos = b?.NewData?.Position ?? 1000;
                     return apos.CompareTo(bpos);
                 }
 
@@ -606,7 +613,7 @@ namespace KLPlugins.Leaderboard {
 
                 if (PosInClassCarsIdxs != null 
                     && thisCarClass == focusedClass 
-                    && thisCarClassPos - 1 < LeaderboardPlugin.Settings.GetMaxNumClassPos()
+                    && thisCarClassPos - 1 < DynLeaderboardsPlugin.Settings.GetMaxNumClassPos()
                 ) {
                     PosInClassCarsIdxs[thisCarClassPos - 1] = i;
                     if (i == FocusedCarIdx) {
@@ -636,7 +643,7 @@ namespace KLPlugins.Leaderboard {
             }
 
             // If somebody left the session, need to reset following class positions
-            for (int i = classPositions[focusedClass]; i < LeaderboardPlugin.Settings.GetMaxNumClassPos(); i++) {
+            for (int i = classPositions[focusedClass]; i < DynLeaderboardsPlugin.Settings.GetMaxNumClassPos(); i++) {
                 if (PosInClassCarsIdxs[i] == null) break; // All following must already be nulls
                 PosInClassCarsIdxs[i] = null;
             }
@@ -682,7 +689,7 @@ namespace KLPlugins.Leaderboard {
                     }
                 }
 
-                // Update reletive spline positions
+                // Update relative spline positions
                 var relSplinePos = thisCar.CalculateRelativeSplinePosition(focusedCar);
                 // Since we cannot remove cars after finish, don't add cars that have left to the relative
                 if (thisCar.MissedRealtimeUpdates < 10) _relativeSplinePositions.Add(new CarSplinePos(i, relSplinePos));
@@ -743,6 +750,10 @@ namespace KLPlugins.Leaderboard {
 
         #region RealtimeCarUpdate
         
+
+        private Dictionary<int, string> outdata = new Dictionary<int, string>();
+        private Dictionary<CarClass, double> bestLaps = new Dictionary<CarClass, double>();
+
         private void OnRealtimeCarUpdate(string sender, RealtimeCarUpdate update) {
             if (RealtimeData == null) {
                 return;
@@ -756,17 +767,70 @@ namespace KLPlugins.Leaderboard {
             };
             var car = Cars[idx];
             car.OnRealtimeCarUpdate(update, RealtimeData);
-            _lastUpdateCarIds.Add(car.CarIndex);            
+            _lastUpdateCarIds.Add(car.CarIndex);
+
+            if (!outdata.ContainsKey(car.CarIndex)) {
+                outdata[car.CarIndex] = "";
+            }
+
+            if (!bestLaps.ContainsKey(car.CarClass)) {
+                var fname = $"{DynLeaderboardsPlugin.Settings.PluginDataLocation}\\laps\\{TrackData.TrackId}_{car.CarClass}.txt";
+                if (File.Exists(fname)) {
+                    try {
+                        var t = 0.0;
+
+                        foreach (var l in File.ReadLines(fname)) {
+                            if (l == "") continue;
+                            // Data order: splinePositions, lap time in ms, speed in kmh
+                            var splits = l.Split(';');
+                            double p = float.Parse(splits[0]);
+                            t = double.Parse(splits[1]);
+                        }
+                        bestLaps[car.CarClass] = t;
+                        DynLeaderboardsPlugin.LogInfo($"Read class {car.CarClass} best lap time {t}");
+
+                    } catch (Exception ex) {
+                        
+                    }
+                }
+
+            }
+
+            if (car.OldData != null && car.NewData.Laps != car.OldData.Laps) {
+                var thisclass = car.CarClass;
+
+                if (!bestLaps.ContainsKey(thisclass) || (car.NewData?.LastLap?.Laptime != null && car.NewData.LastLap.Laptime < bestLaps[thisclass])) {
+                    DynLeaderboardsPlugin.LogInfo($"New best lap for {thisclass}: {car.NewData.LastLap.Laptime}");
+                    
+                    
+                    bestLaps[thisclass] = (double)car.NewData.LastLap.Laptime;
+                    var fname = $"{DynLeaderboardsPlugin.Settings.PluginDataLocation}\\laps\\{TrackData.TrackId}_{thisclass}.txt";
+                    File.WriteAllText(fname, outdata[car.CarIndex]);
+
+                }
+
+                outdata[car.CarIndex] = "";
+            }
+
+            if (outdata[car.CarIndex] != "") {
+                outdata[car.CarIndex] += "\n";
+            }
+            if (update.SplinePosition != 0 && update.SplinePosition != 1) {
+                outdata[car.CarIndex] += $"{update.SplinePosition};{update.CurrentLap.Laptime};{update.Kmh}";
+            }
         }
 
         #endregion
 
         #region TrackUpdate
         private void OnTrackDataUpdate(string sender, TrackData update) {
-           
+
             //LeaderboardPlugin.LogInfo($"TrackData update. ThreadId={Thread.CurrentThread.ManagedThreadId}");
             // Update track data
             //AccBroadcastDataPlugin.LogInfo("New track update.");
+            outdata.Clear();
+            bestLaps.Clear();
+
             TrackData = update;
             TrackData.ReadDefBestLaps();
             //LeaderboardPlugin.LogInfo($"Finished TrackData update. ThreadId={Thread.CurrentThread.ManagedThreadId}");

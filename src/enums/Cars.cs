@@ -1,11 +1,11 @@
-﻿using KLPlugins.Leaderboard.ksBroadcastingNetwork;
+﻿using KLPlugins.DynLeaderboards.ksBroadcastingNetwork;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace KLPlugins.Leaderboard.Enums {
+namespace KLPlugins.DynLeaderboards.Enums {
     public enum CarType {
         Porsche991GT3R = 0,
         MercedesAMGGT3 = 1,

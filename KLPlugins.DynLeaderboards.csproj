@@ -7,8 +7,8 @@
     <ProjectGuid>{833040C9-FE5E-4CCF-B21D-71979E049B6B}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>KLPlugins.Leaderboard</RootNamespace>
-    <AssemblyName>KLPlugins.Leaderboard</AssemblyName>
+    <RootNamespace>KLPlugins.DynLeaderboards</RootNamespace>
+    <AssemblyName>KLPlugins.DynLeaderboards</AssemblyName>
     <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
@@ -119,8 +119,8 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
-    <Compile Include="SettingsControlDemo.xaml.cs">
-      <DependentUpon>SettingsControlDemo.xaml</DependentUpon>
+    <Compile Include="SettingsControl.xaml.cs">
+      <DependentUpon>SettingsControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="src\components\Values.cs" />
   </ItemGroup>
@@ -130,7 +130,7 @@
       <Generator>MSBuild:Compile</Generator>
       <ContainsDesignTimeResources>true</ContainsDesignTimeResources>
     </Page>
-    <Page Include="SettingsControlDemo.xaml">
+    <Page Include="SettingsControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -164,9 +164,7 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="AfterBuild">
-    <Copy SourceFiles="$(ProjectDir)src\JavascriptExtensions\KLPlugins_Leaderboard_Extensions.js" DestinationFolder="C:\Program Files\SimHub\JavascriptExtensions" ContinueOnError="true" />
-    <Copy SourceFiles="$(ProjectDir)README.md" DestinationFolder="C:\Program Files\SimHub\PluginsData\KLPlugins\Leaderboard" ContinueOnError="true" />
-    <Copy SourceFiles="$(OutDir)$(TargetName).dll;$(OutDir)$(TargetName).dll.config;$(OutDir)$(TargetName).pdb" DestinationFolder="C:\Program Files\SimHub" ContinueOnError="true" />
+    <Copy SourceFiles="$(OutDir)$(TargetName).dll;$(OutDir)$(TargetName).pdb" DestinationFolder="C:\Program Files\SimHub" ContinueOnError="true" />
   </Target>
   <PropertyGroup>
     <PostBuildEvent>

@@ -20,6 +20,7 @@ namespace KLPlugins.Leaderboard {
 
         IsFinished = 1 << 9,
         MaxSpeed = 1 << 10,
+        IsFocused = 1 << 11,
     }
 
     static class OutCarPropExtensions {
@@ -34,7 +35,7 @@ namespace KLPlugins.Leaderboard {
                 case OutCarProp.CarModel:
                     return "Car.Model";
                 case OutCarProp.CarManufacturer:
-                    return "Car.Manufacrurer";
+                    return "Car.Manufacturer";
                 case OutCarProp.CarClass:
                     return "Car.Class";
                 case OutCarProp.TeamName:
@@ -51,6 +52,8 @@ namespace KLPlugins.Leaderboard {
                     return "Team.CupCategory.Color";
                 case OutCarProp.TeamCupCategoryTextColor:
                     return "Team.CupCategory.TextColor";
+                case OutCarProp.IsFocused:
+                    return "IsFocused";
                 default:
                     throw new ArgumentOutOfRangeException($"Invalid enum variant {p}");
             }
@@ -65,7 +68,7 @@ namespace KLPlugins.Leaderboard {
                 case OutCarProp.CarModel:
                     return "Car model name.";
                 case OutCarProp.CarManufacturer:
-                    return "Car manufacrurer.";
+                    return "Car manufacturer.";
                 case OutCarProp.CarClass:
                     return "Car class (GT3, GT4, ST15, ST21, CHL, CUP17, CUP21, TCX).";
                 case OutCarProp.TeamName:
@@ -77,11 +80,13 @@ namespace KLPlugins.Leaderboard {
                 case OutCarProp.MaxSpeed:
                     return "Maximum speed in this session.";
                 case OutCarProp.CarClassColor:
-                    return "Car class color. Values can be changed in settings.";
+                    return "Car class color. Values can be changed in \"General settings\" tab.";
                 case OutCarProp.TeamCupCategoryColor:
-                    return "Team cup category background color. Values can be changed in settings.";
+                    return "Team cup category background color. Values can be changed in \"General settings\" tab..";
                 case OutCarProp.TeamCupCategoryTextColor:
-                    return "Team cup category text color. Values can be changed in settings.";
+                    return "Team cup category text color. Values can be changed in \"General settings\" tab..";
+                case OutCarProp.IsFocused:
+                    return "Is this the focused car?";
                 default:
                     throw new ArgumentOutOfRangeException($"Invalid enum variant {p}");
             }
@@ -127,13 +132,13 @@ namespace KLPlugins.Leaderboard {
                 case OutPitProp.IsInPitLane:
                     return "Is the car in pit lane?";
                 case OutPitProp.PitStopCount:
-                    return "Number of pitstops";
+                    return "Number of pitstops.";
                 case OutPitProp.PitTimeTotal:
-                    return "Total time spent in pits in seconds";
+                    return "Total time spent in pits.";
                 case OutPitProp.PitTimeLast:
-                    return "Last pit time in seconds";
+                    return "Last pit time.";
                 case OutPitProp.PitTimeCurrent:
-                    return "Current time in pits in seconds";
+                    return "Current time in pits.";
                 default:
                     throw new ArgumentOutOfRangeException($"Invalid enum variant {p}");
             }
@@ -191,13 +196,13 @@ namespace KLPlugins.Leaderboard {
         public static string ToolTipText(this OutPosProp p) {
             switch (p) {
                 case OutPosProp.ClassPosition:
-                    return "Class position";
+                    return "Current class position";
                 case OutPosProp.OverallPosition:
-                    return "Overall position";
+                    return "Current overall position";
                 case OutPosProp.ClassPositionStart:
-                    return "Class position at the race start";
+                    return "Class position at race start";
                 case OutPosProp.OverallPositionStart:
-                    return "Overall position at the race start";
+                    return "Overall position at race start";
 
                 default:
                     throw new ArgumentOutOfRangeException($"Invalid enum variant {p}");
@@ -253,23 +258,30 @@ namespace KLPlugins.Leaderboard {
         public static string ToolTipText(this OutGapProp p) {
             switch (p) {
                 case OutGapProp.GapToLeader:
-                    return "Total gap to the leader in seconds";
+                    return "Total gap to the leader.";
                 case OutGapProp.GapToClassLeader:
-                    return "Total gap to the class leader in seconds";
+                    return "Total gap to the class leader.";
                 case OutGapProp.GapToFocusedTotal:
-                    return "Total gap to the focused car in seconds";
+                    return "Total gap to the focused car.";
                 case OutGapProp.GapToFocusedOnTrack:
-                    return "On track gap to the focused car in seconds";
+                    return "On track gap to the focused car.";
                 case OutGapProp.GapToAheadOverall:
-                    return "Total gap to the car ahead in overall in seconds";
+                    return "Total gap to the car ahead in overall.";
                 case OutGapProp.GapToAheadInClass:
-                    return "Total gap to the car ahead in class in seconds";
+                    return "Total gap to the car ahead in class.";
                 case OutGapProp.GapToAheadOnTrack:
-                    return "Relative on track gap to car ahead in seconds";
+                    return "Relative on track gap to car ahead.";
                 case OutGapProp.DynamicGapToFocused:
-                    return "Gap that changes based of currently displayed dynamic leaderboard. Overall -> gap to leader, class -> gap to class leader, partial relative, relative overall/class -> gap to focused total, relative on track -> gap to focused on track.";
+                    return @"Gap that changes based of currently displayed dynamic leaderboard. 
+Overall -> gap to leader, 
+Class -> gap to class leader, 
+PartialRelativeOverall/PartialRelativeClass/RelativePverall/RelativeClass -> gap to focused total, 
+RelativeOnTrack -> gap to focused on track.";
                 case OutGapProp.DynamicGapToAhead:
-                    return "Gap to the car ahead that changes based on the currently displayed dynamic leaderboard.";
+                    return @"Gap to the car ahead that changes based on the currently displayed dynamic leaderboard. 
+Overall/RelativeOverall/PartialRelativeOverall -> gap to ahead in overall order, 
+Class/RelativeClass/PartialRelativeClass -> gap to ahead in class order, 
+RelativeOnTrack -> gap to ahead on track.";
                 default:
                     throw new ArgumentOutOfRangeException($"Invalid enum variant {p}");
             }
@@ -309,9 +321,9 @@ namespace KLPlugins.Leaderboard {
         public static string ToolTipText(this OutStintProp p) {
             switch (p) {
                 case OutStintProp.CurrentStintTime:
-                    return "Current stint time in seconds";
+                    return "Current stint time.";
                 case OutStintProp.LastStintTime:
-                    return "Last stint time in seconds";
+                    return "Last stint time.";
                 case OutStintProp.CurrentStintLaps:
                     return "Number of laps completed in current stint";
                 case OutStintProp.LastStintLaps:

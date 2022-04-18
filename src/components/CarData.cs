@@ -96,6 +96,8 @@ namespace KLPlugins.Leaderboard.ksBroadcastingNetwork.Structs {
         public TimeSpan? FinishTime { get; private set; } = null;
         public double?[] BestLapSectors { get; private set; } = new double?[] { null, null, null };
         public double MaxSpeed { get; private set; } = 0.0;
+        public bool IsFocused { get; internal set; } = false;
+
 
         internal int MissedRealtimeUpdates { get; set; } = 0;
 
@@ -138,7 +140,7 @@ namespace KLPlugins.Leaderboard.ksBroadcastingNetwork.Structs {
         }
 
         public double? GetDriverTotalDrivingTime(int i) {
-            return Drivers.ElementAtOrDefault(i)?.GetTotalDrivingTime(i == CurrentDriverIndex, CurrentStintTime);
+            return GetDriver(i)?.GetTotalDrivingTime(i == 0, CurrentStintTime);
         }
 
         #region Entry list update
@@ -204,6 +206,7 @@ namespace KLPlugins.Leaderboard.ksBroadcastingNetwork.Structs {
             StartPos = overall;
             StartPosInClass = inclass;
         }
+
 
         /// <summary>
         /// Updates this cars data. Should be called when RealtimeCarUpdate for this car is recieved.

@@ -29,6 +29,33 @@ namespace KLPlugins.Leaderboard {
         RelativeOnTrack
     }
 
+    static class LeaderboardExtensions {
+
+        public static string Tooltip(this Leaderboard l) {
+            switch (l) {
+                case Leaderboard.Overall:
+                    return "`N` top overall positions. `N` can be set below.";
+                case Leaderboard.Class:
+                    return "`N` top class positions. `N` can be set below.";
+                case Leaderboard.RelativeOverall:
+                    return "`2N + 1` relative positions to the focused car in overall order. `N` can be set below.";
+                case Leaderboard.RelativeClass:
+                    return "`2N + 1` relative positions to the focused car in focused car's class order. `N` can be set below.";
+                case Leaderboard.RelativeOnTrack:
+                    return "`2N + 1` relative positions to the focused car on track. `N` can be set below.";
+                case Leaderboard.PartialRelativeOverall:
+                    return "`N` top positions and `2M + 1` relative positions in overall order. If the focused car is inside the first `N + M + 1` positions the order will be just as the overall leaderboard. `N` and `M` can be set below.";
+                case Leaderboard.PartialRelativeClass:
+                    return "`N` top positions and `2M + 1` relative positions in focused car's class order. If the focused car is inside the first `N + M + 1` positions the order will be just as the class leaderboard. `N` and `M` can be set below.";
+                default:
+                    return "Unknown";
+            }
+        
+        }
+    
+    }
+
+
     [PluginDescription("")]
     [PluginAuthor("Kaius Loos")]
     [PluginName("LeaderboardPlugin")]
@@ -164,6 +191,10 @@ namespace KLPlugins.Leaderboard {
                     AttachDynamicLeaderboard(_values.LeaderboardValues[i]);
                 }
             }
+
+            this.AttachDelegate("IsBroadcastClientConnected", () => _values.BroadcastClient.IsConnected);
+
+            this.AttachDelegate("DBG_RealtimeUpdateTime", () => _values.RealtimeUpdateTime);
             
         }
 
@@ -322,6 +353,9 @@ namespace KLPlugins.Leaderboard {
                 AddProp(OutCarProp.TeamCupCategoryColor, () => l.GetDynCar(i)?.TeamCupCategoryColor);
                 AddProp(OutCarProp.TeamCupCategoryTextColor, () => l.GetDynCar(i)?.TeamCupCategoryTextColor);
 
+                AddProp(OutCarProp.IsFocused, () => (l.GetDynCar(i)?.IsFocused ?? false) ? 1 : 0);
+
+                // Gaps
                 AddGapProp(OutGapProp.GapToLeader, () => l.GetDynCar(i)?.GapToLeader);
                 AddGapProp(OutGapProp.GapToClassLeader, () => l.GetDynCar(i)?.GapToClassLeader);
                 AddGapProp(OutGapProp.GapToFocusedOnTrack, () => l.GetDynCar(i)?.GapToFocusedOnTrack);

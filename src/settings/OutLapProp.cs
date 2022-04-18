@@ -134,63 +134,72 @@ namespace KLPlugins.Leaderboard {
                 case OutLapProp.Laps:
                     return "Number of completed laps";
                 case OutLapProp.LastLapTime:
-                    return "Last lap time in seconds";
+                    return "Last lap time.";
                 case OutLapProp.LastLapSectors:
-                    return "Last lap sector times in seconds";
+                    return "Last lap sector times.";
                 case OutLapProp.BestLapTime:
-                    return "Best lap time in seconds";
+                    return "Best lap time.";
                 case OutLapProp.BestLapSectors:
-                    return "Best lap sector times in seconds";
+                    return "Best lap sector times.";
                 case OutLapProp.BestSectors:
-                    return "Best sector times in seconds";
+                    return "Best sector times.";
                 case OutLapProp.CurrentLapTime:
-                    return "Current lap time in seconds";
+                    return "Current lap time.";
                 case OutLapProp.BestLapDeltaToOverallBest:
-                    return "Best lap delta to the overall best lap in seconds.";
+                    return "Best lap delta to the overall best lap.";
                 case OutLapProp.BestLapDeltaToClassBest:
-                    return "Best lap delta to the class best lap in seconds.";
+                    return "Best lap delta to the class best lap.";
                 case OutLapProp.BestLapDeltaToLeaderBest:
-                    return "Best lap delta to the leader's best lap in seconds.";
+                    return "Best lap delta to the leader's best lap.";
                 case OutLapProp.BestLapDeltaToClassLeaderBest:
-                    return "Best lap delta to the class leader's best lap in seconds.";
+                    return "Best lap delta to the class leader's best lap.";
                 case OutLapProp.BestLapDeltaToFocusedBest:
-                    return "Best lap delta to the focused car's best lap in seconds.";
+                    return "Best lap delta to the focused car's best lap.";
                 case OutLapProp.BestLapDeltaToAheadBest:
-                    return "Best lap delta to the ahead car's best lap in seconds.";
+                    return "Best lap delta to the ahead car's best lap.";
                 case OutLapProp.BestLapDeltaToAheadInClassBest:
-                    return "Best lap delta to the in class ahead car's best lap in seconds.";
+                    return "Best lap delta to the in class ahead car's best lap.";
                 case OutLapProp.LastLapDeltaToOverallBest:
-                    return "Last lap delta to the overall best lap in seconds.";
+                    return "Last lap delta to the overall best lap.";
                 case OutLapProp.LastLapDeltaToClassBest:
-                    return "Last lap delta to the class best lap in seconds.";
+                    return "Last lap delta to the class best lap.";
                 case OutLapProp.LastLapDeltaToLeaderBest:
-                    return "Last lap delta to the leader's best lap in seconds.";
+                    return "Last lap delta to the leader's best lap.";
                 case OutLapProp.LastLapDeltaToClassLeaderBest:
-                    return "Last lap delta to the class leader's best lap in seconds.";
+                    return "Last lap delta to the class leader's best lap.";
                 case OutLapProp.LastLapDeltaToFocusedBest:
-                    return "Last lap delta to the focused car's best lap in seconds.";
+                    return "Last lap delta to the focused car's best lap.";
                 case OutLapProp.LastLapDeltaToAheadBest:
-                    return "Last lap delta to the ahead car's best lap in seconds.";
+                    return "Last lap delta to the ahead car's best lap.";
                 case OutLapProp.LastLapDeltaToAheadInClassBest:
-                    return "Last lap delta to the in class car ahead's best lap in seconds.";
+                    return "Last lap delta to the in class car ahead's best lap.";
                 case OutLapProp.LastLapDeltaToOwnBest:
-                    return "Last lap delta to own best lap in seconds.";
+                    return "Last lap delta to own best lap.";
                 case OutLapProp.LastLapDeltaToLeaderLast:
-                    return "Last lap delta to the leader's last lap in seconds.";
+                    return "Last lap delta to the leader's last lap.";
                 case OutLapProp.LastLapDeltaToClassLeaderLast:
-                    return "Last lap delta to the class leaders last lap in seconds.";
+                    return "Last lap delta to the class leaders last lap.";
                 case OutLapProp.LastLapDeltaToFocusedLast:
-                    return "Last lap delta to the focused car's last lap in seconds.";
+                    return "Last lap delta to the focused car's last lap.";
                 case OutLapProp.LastLapDeltaToAheadLast:
-                    return "Last lap delta to the ahead car's last lap in seconds.";
+                    return "Last lap delta to the ahead car's last lap.";
                 case OutLapProp.LastLapDeltaToAheadInClassLast:
-                    return "Last lap delta to the in class ahead car's last lap in seconds.";
+                    return "Last lap delta to the in class ahead car's last lap.";
                 case OutLapProp.DynamicBestLapDeltaToFocusedBest:
-                    return "Best lap delta to the car's best based on currently displayed dynamic leaderboard. Overall -> to leader's, Class -> to class leader's, Any relative -> to focused car's";
+                    return @"Best lap delta to the car's best based on currently displayed dynamic leaderboard. 
+Overall -> delta to leader's best lap, 
+Class -> delta to class leader's best lap, 
+Any relative -> delta to focused car's best lap";
                 case OutLapProp.DynamicLastLapDeltaToFocusedBest:
-                    return "Last lap delta to the car's best based on currently displayed dynamic leaderboard. Overall -> to leader's, Class -> to class leader's, Any relative -> to focused car's";
+                    return @"Last lap delta to the car's best based on currently displayed dynamic leaderboard. 
+Overall -> delta to leader's best lap,
+Class -> delta to class leader's best lap, 
+Any relative -> delta to focused car's best lap";
                 case OutLapProp.DynamicLastLapDeltaToFocusedLast:
-                    return "Last lap delta to the car's last based on currently displayed dynamic leaderboard. Overall -> to leader's, Class -> to class leader's, Any relative -> to focused car's";
+                    return @"Last lap delta to the car's last based on currently displayed dynamic leaderboard. 
+Overall -> delta to leader's last lap, 
+Class -> delta to class leader's last lap, 
+Any relative -> delta to focused car's last lap";
                 default:
                     throw new ArgumentOutOfRangeException("Invalid enum variant");
             }

@@ -59,14 +59,6 @@
 
     <styles:SHTabControl>
         
-        <styles:SHTabItem  Header="Plugin info">
-            <StackPanel>
-                <TextBlock>
-                <Span xml:space="preserve"><Run> For detailed description of plugin go to: </Run><Hyperlink RequestNavigate="Hyperlink_RequestNavigate" NavigateUri="https://github.com/kaiusl/KLPlugins.Leaderboard">KLPlugins.Leaderboard</Hyperlink></Span>
-                </TextBlock>
-            </StackPanel>
-        </styles:SHTabItem>
-
         <styles:SHTabItem Header="General settings">
             <ScrollViewer>
                 <StackPanel x:Name="GenSettings_StackPanel" Margin="20,0,20,0">
@@ -86,7 +78,14 @@
 
                 </StackPanel.Resources>
 
-                <!-- ACC Config location -->
+                    <TextBlock MaxWidth="750" TextWrapping="Wrap">These settings are global to the whole plugin. <Bold>For the changes to take effect you need to restart SimHub</Bold>.
+                    </TextBlock>
+
+                    <TextBlock>
+                    <Span xml:space="preserve"><Run> For detailed description of plugin go to: </Run><Hyperlink RequestNavigate="Hyperlink_RequestNavigate" NavigateUri="https://github.com/kaiusl/KLPlugins.Leaderboard">KLPlugins.Leaderboard</Hyperlink></Span>
+                    </TextBlock>
+
+                    <!-- ACC Config location -->
 
                 <Grid ToolTip="Location of ACC configuration folder. That is where for example ..\Config\broadcasting.json is located.">
                     <Grid.ColumnDefinitions>
@@ -109,7 +108,7 @@
 
                 <!-- Update interval -->
 
-                <Grid ToolTip="Sets the update interval of data from ACC. As leaderboard data doesn't change that fast something around 1000ms should work very well. But you can go lower to provide smoother visuals.">
+                <Grid ToolTip="Sets the update interval of data from ACC. As leaderboard data doesn't change that fast something around 100-500ms should work very well.">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition MaxWidth="500"/>
                         <ColumnDefinition MinWidth="100"/>
@@ -203,11 +202,11 @@
                         </Style>
                     </StackPanel.Resources>
 
-                    <TextBlock>Here you can customize the functionality of your dynamic leaderboard. For the changes to take effect you need to restart SimHub.
+                    <TextBlock MaxWidth="750" TextWrapping="Wrap">Here you can customize the functionality of your dynamic leaderboard. <Bold>For the changes to take effect you need to restart SimHub</Bold>.
                         <LineBreak/><LineBreak/>
-                        First you can add multiple dynamic leaderboards and change it's name in the dropdown list below.
+                        First, you can add multiple dynamic leaderboards and change their names in the dropdown list below. Make sure to assign buttons in "Controls and events" for each dynamic leaderboard's "NextLeaderboard" and "PreviousLeaderboard" events.
                         </TextBlock>
-                    <TextBlock x:Name="DynLeaderboardPropertyAccess_TextBlock"/>
+                    <TextBlock x:Name="DynLeaderboardPropertyAccess_TextBlock" MaxWidth="750" TextWrapping="Wrap"/>
 
                     <StackPanel x:Name="DynLeaderboardsList_StackPanel" Orientation="Horizontal">
                         <ComboBox x:Name="SelectDynLeaderboard_ComboBox" 
@@ -238,7 +237,8 @@
 
                     <styles:SHSectionTitle>LEADERBOARD ROTATION</styles:SHSectionTitle>
                     <TextBlock MaxWidth="600" TextWrapping="Wrap">You can enable/disable specific leaderboards and choose the order in which they appear.
-                    For more information about what each leaderboard looks like see Plugin info page or the example dash.</TextBlock>
+                    For more information about what each leaderboard looks like see  <Span xml:space="preserve"><Hyperlink RequestNavigate="Hyperlink_RequestNavigate" NavigateUri="https://github.com/kaiusl/KLPlugins.Leaderboard">KLPlugins.Leaderboard</Hyperlink></Span>
+                    , tooltips on options below or AccDynLeaderboard dash provided with the plugin.</TextBlock>
 
                     <StackPanel Orientation="Horizontal">
                         <styles:SHButtonSecondary Click="DynLeaderboard_ListView_Up" ToolTip="Move currently selected leaderboard one position up.">Up</styles:SHButtonSecondary>
@@ -294,6 +294,7 @@
                     <Separator Margin="0,15,0,1"/>
                     <Separator Margin="0,1,0,10"/>
                     <styles:SHSectionTitle Text="PROPERTIES FOR EACH DRIVER"/>
+                    <TextBlock x:Name="ExposedDriverProps_TextBlock" MaxWidth="750" TextWrapping="Wrap"/>
                     <StackPanel x:Name="ExposedDriverProperties_StackPanel"/>
 
                 </StackPanel>

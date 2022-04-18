@@ -358,8 +358,10 @@ namespace KLPlugins.Leaderboard {
 
         #region RealtimeUpdate
 
+
+        public double RealtimeUpdateTime = 0;
         private void OnBroadcastRealtimeUpdate(string sender, RealtimeUpdate update) {
-            //var swatch = Stopwatch.StartNew();
+            var swatch = Stopwatch.StartNew();
             //LeaderboardPlugin.LogInfo($"RealtimeUpdate update. ThreadId={Thread.CurrentThread.ManagedThreadId}");
 
             if (RealtimeData == null) {
@@ -386,8 +388,9 @@ namespace KLPlugins.Leaderboard {
                 UpdateCarData();
             }
 
-            //swatch.Stop();
-            //TimeSpan ts = swatch.Elapsed;
+            swatch.Stop();
+            TimeSpan ts = swatch.Elapsed;
+            RealtimeUpdateTime = ts.TotalMilliseconds;
             //File.AppendAllText($"{LeaderboardPlugin.Settings.PluginDataLocation}\\Logs\\timings\\OnRealtimeUpdate_{LeaderboardPlugin.PluginStartTime}.txt", $"{ts.TotalMilliseconds}\n");
         }
 
@@ -683,6 +686,9 @@ namespace KLPlugins.Leaderboard {
                 var relSplinePos = thisCar.CalculateRelativeSplinePosition(focusedCar);
                 // Since we cannot remove cars after finish, don't add cars that have left to the relative
                 if (thisCar.MissedRealtimeUpdates < 10) _relativeSplinePositions.Add(new CarSplinePos(i, relSplinePos));
+
+                thisCar.IsFocused = thisCar.CarIndex == focusedCar.CarIndex;
+
             }
         }
 

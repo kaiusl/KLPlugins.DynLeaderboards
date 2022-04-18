@@ -284,8 +284,9 @@ namespace KLPlugins.Leaderboard
             binding.Source = l;
             t.SetBinding(TextBox.TextProperty, binding);
             t.TextChanged += (a, b) => {
-                EnablePropertiesDescription_TextBlock.Text = $"Enable/disable properties for currently selected dynamic leaderboard. Each properties car be accessed as \"{t.Text}.5.<property name>\"";
-                DynLeaderboardPropertyAccess_TextBlock.Text = $"Properties for each leaderboard will be accessible as \"{t.Text}.<pos>.<property name>\", for example \"{t.Text}.5.Car.Number\"";
+                EnablePropertiesDescription_TextBlock.Text = $"Enable/disable properties for currently selected dynamic leaderboard. Each property can be accessed as \"{t.Text}.<pos>.<property name>\"";
+                DynLeaderboardPropertyAccess_TextBlock.Text = $"Properties for this dynamic leaderboard are accessible as \"{t.Text}.<pos>.<property name>\", for example \"{t.Text}.5.Car.Number\"";
+                ExposedDriverProps_TextBlock.Text = $"Properties for each driver car be accessed as \"{t.Text}.<pos>.Driver.<driver number>.<property name>\", for example \"{t.Text}.5.Driver.1.FirstName\"";
             };
 
             var t2 = new TextBlock();
@@ -312,6 +313,7 @@ namespace KLPlugins.Leaderboard
 
             EnablePropertiesDescription_TextBlock.Text = $"Enable/disable properties for currently selected dynamic leaderboard. Each properties car be accessed as \"{CurrentDynLeaderboardSettings.Name}.5.<property name>\"";
             DynLeaderboardPropertyAccess_TextBlock.Text = $"Properties for each leaderboard will be accessible as \"{CurrentDynLeaderboardSettings.Name}.<pos>.<property name>\", for example \"{CurrentDynLeaderboardSettings.Name}.5.Car.Number\"";
+            ExposedDriverProps_TextBlock.Text = $"Properties for each driver car be accessed as \"{CurrentDynLeaderboardSettings.Name}.<pos>.Driver.<driver number>.<property name>\", for example \"{CurrentDynLeaderboardSettings.Name}.5.Driver.1.FirstName\"";
 
             AddDynLeaderboardToggles();
             AddNumPositionsSetters();
@@ -509,13 +511,13 @@ namespace KLPlugins.Leaderboard
             foreach (var l in CurrentDynLeaderboardSettings.Order) {
                 var sp = new StackPanel();
                 sp.Orientation = Orientation.Horizontal;
+                sp.ToolTip = l.Tooltip();
 
                 var tb = new SHToggleButton();
                 tb.Name = $"{l.ToString()}_toggle_listview";
                 tb.IsChecked = true;
                 tb.Checked += (a, b) => CreateDynamicLeaderboardList();
                 tb.Unchecked += (a, b) => CreateDynamicLeaderboardList();
-                //tb.ToolTip = tooltip;
 
                 var t = new TextBlock();
                 t.Text = l.ToString();
@@ -776,7 +778,7 @@ namespace KLPlugins.Leaderboard
             t.Width = 250;
             var t2 = new TextBlock();
             t2.Text = "Description";
-            t2.Width = 500;
+            t2.MaxWidth = 750;
             t2.TextWrapping = TextWrapping.Wrap;
 
             sp.Children.Add(t1);
@@ -812,7 +814,7 @@ namespace KLPlugins.Leaderboard
             t.Width = 250;
             var t2 = new TextBlock();
             t2.Text = tooltip;
-            t2.Width = 500;
+            t2.MaxWidth = 750;
             t2.TextWrapping = TextWrapping.Wrap;
 
             sp.Children.Add(tb);

@@ -769,7 +769,7 @@ namespace KLPlugins.DynLeaderboards {
             car.OnRealtimeCarUpdate(update, RealtimeData);
             _lastUpdateCarIds.Add(car.CarIndex);
 
-            CreateLapInterpolatorsData(update, car);
+            //CreateLapInterpolatorsData(update, car);
         }
 
         private void CreateLapInterpolatorsData(RealtimeCarUpdate update, CarData car) {
@@ -807,7 +807,10 @@ namespace KLPlugins.DynLeaderboards {
 
                 var thisclass = car.CarClass;
 
-                if (!bestLaps.ContainsKey(thisclass) || (car.NewData?.LastLap?.Laptime != null && car.NewData.LastLap.Laptime < bestLaps[thisclass])) {
+                if (car.NewData?.LastLap?.Laptime != null 
+                    && car.NewData.LastLap.IsValidForBest 
+                    && (!bestLaps.ContainsKey(thisclass) || (car.NewData.LastLap.Laptime < bestLaps[thisclass]))
+                ) {
                     DynLeaderboardsPlugin.LogInfo($"New best lap for {thisclass}: {TimeSpan.FromSeconds((double)car.NewData.LastLap.Laptime).ToString("mm\\:ss\\.fff")}");
 
                     bestLaps[thisclass] = (double)car.NewData.LastLap.Laptime;

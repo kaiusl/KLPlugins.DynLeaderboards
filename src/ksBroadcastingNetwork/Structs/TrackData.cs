@@ -62,7 +62,7 @@ namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork.Structs
                     // Data order: splinePositions, lap time in ms, speed in kmh
                     var splits = l.Split(';');
                     double p = float.Parse(splits[0]);
-                    var t = double.Parse(splits[1]) / 1000.0;
+                    var t = double.Parse(splits[1]);
                     pos.Add(p);
                     time.Add(t);
                 }

@@ -492,88 +492,14 @@ namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork.Structs {
 
         private void SetGaps(RealtimeData realtimeData, CarData leader, CarData classLeader, CarData focused, CarData carAhead, CarData carAheadInClass, CarData carAheadOnTrack) {
             if (realtimeData.IsRace) {
-                // Use time gaps on track
-                // We update the gap only if CalculateGap returns a proper value because we don't want to update the gap if one of the cars has finished. 
-                // That would result in wrong gaps. We keep the gaps at the last valid value and update once both cars have finished.
-
-                var gapToLeader = CalculateGap(this, leader);
-                if (gapToLeader != null) GapToLeader = gapToLeader;
-
-                if (classLeader.CarIndex == CarIndex) {
-                    GapToClassLeader = 0.0;
-                } else if (classLeader.CarIndex == leader.CarIndex) {
-                    GapToClassLeader = GapToLeader;
-                } else {
-                    var gapToClassLeader = CalculateGap(this, classLeader);
-                    if (gapToClassLeader != null) GapToClassLeader = gapToClassLeader;
-                }
-
-                if (focused.CarIndex == CarIndex) {
-                    GapToFocusedTotal = 0.0;
-                } else if (focused.CarIndex == leader.CarIndex) {
-                    GapToFocusedTotal = GapToLeader;
-                } else if (focused.CarIndex == classLeader.CarIndex) {
-                    GapToFocusedTotal = GapToClassLeader;
-                } else {
-                    var gapToFocusedTotal = CalculateGap(focused, this);
-                    if (gapToFocusedTotal != null) GapToFocusedTotal = gapToFocusedTotal;
-                }
-
-                if (carAhead == null) {
-                    GapToAhead = null;
-                } else if (carAhead.CarIndex == leader.CarIndex) {
-                    GapToAhead = GapToLeader;
-                } else if (carAhead.CarIndex == classLeader.CarIndex) {
-                    GapToAhead = GapToClassLeader;
-                } else if (carAhead.CarIndex == focused.CarIndex) {
-                    GapToAhead = -GapToFocusedTotal;
-                } else {
-                    var gapToAhead = CalculateGap(this, carAhead);
-                    if (gapToAhead != null) GapToAhead = gapToAhead;
-                }
-
-                if (carAheadInClass == null) {
-                    GapToAheadInClass = null;
-                } else if (carAheadInClass.CarIndex == carAhead.CarIndex) {
-                    GapToAheadInClass = GapToAhead;
-                } else if (carAheadInClass.CarIndex == leader.CarIndex) {
-                    GapToAheadInClass = gapToLeader;
-                } else if (carAheadInClass.CarIndex == classLeader.CarIndex) {
-                    GapToAheadInClass = GapToClassLeader;
-                } else if (carAheadInClass.CarIndex == focused.CarIndex) {
-                    GapToAheadInClass = -GapToFocusedTotal;
-                } else {
-                    var gapToAheadInClass = CalculateGap(this, carAheadInClass);
-                    if (gapToAheadInClass != null) GapToAheadInClass = gapToAheadInClass;
-                }
-
+                CalculateRaceGaps(leader, classLeader, focused, carAhead, carAheadInClass);
             } else {
-                // Use best laps to calculate gaps
-                var thisBestLap = NewData?.BestSessionLap?.Laptime;
-                if (thisBestLap == null) {
-                    GapToLeader = null;
-                    GapToAheadInClass = null;
-                    GapToClassLeader = null;
-                    GapToAhead = null;
-                    return;
-                }
-
-                var leaderBestLap = leader?.NewData?.BestSessionLap?.Laptime;
-                GapToLeader = leaderBestLap != null ? ((double)thisBestLap - (double)leaderBestLap) : (double?)null;
-
-                var classLeaderBestLap = classLeader?.NewData?.BestSessionLap?.Laptime;
-                GapToClassLeader = classLeaderBestLap != null ? ((double)thisBestLap - (double)classLeaderBestLap) : (double?)null;
-
-                var focusedBestLap = focused?.NewData?.BestSessionLap?.Laptime;
-                GapToFocusedTotal = focusedBestLap != null ? ((double)thisBestLap - (double)focusedBestLap) : (double?)null;
-
-                var aheadBestLap = carAhead?.NewData?.BestSessionLap?.Laptime;
-                GapToAhead = aheadBestLap != null ? ((double)thisBestLap - (double)aheadBestLap) : (double?)null;
-
-                var aheadInClassBestLap = carAheadInClass?.NewData?.BestSessionLap?.Laptime;
-                GapToAheadInClass = aheadInClassBestLap != null ? ((double)thisBestLap - (double)aheadInClassBestLap) : (double?)null;
+                CalculateNonRaceGaps(leader, classLeader, focused, carAhead, carAheadInClass);
             }
+            CalculateRelativeOnTrackGaps(focused, carAheadOnTrack);
+        }
 
+        private void CalculateRelativeOnTrackGaps(CarData focused, CarData carAheadOnTrack) {
             var gap = CalculateOnTrackGap(this, focused);
             if (gap != null) GapToFocusedOnTrack = gap;
             if (carAheadOnTrack == null) {
@@ -582,7 +508,91 @@ namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork.Structs {
                 var gapToAheadOnTrack = CalculateOnTrackGap(carAheadOnTrack, this);
                 if (gapToAheadOnTrack != null) GapToAheadOnTrack = gapToAheadOnTrack;
             }
+        }
 
+        private void CalculateNonRaceGaps(CarData leader, CarData classLeader, CarData focused, CarData carAhead, CarData carAheadInClass) {
+            // Use best laps to calculate gaps
+            var thisBestLap = NewData?.BestSessionLap?.Laptime;
+            if (thisBestLap == null) {
+                GapToLeader = null;
+                GapToClassLeader = null;
+                GapToFocusedTotal = null;
+                GapToAheadInClass = null;
+                GapToAhead = null;
+                return;
+            }
+
+            var leaderBestLap = leader?.NewData?.BestSessionLap?.Laptime;
+            GapToLeader = leaderBestLap != null ? ((double)thisBestLap - (double)leaderBestLap) : (double?)null;
+
+            var classLeaderBestLap = classLeader?.NewData?.BestSessionLap?.Laptime;
+            GapToClassLeader = classLeaderBestLap != null ? ((double)thisBestLap - (double)classLeaderBestLap) : (double?)null;
+
+            var focusedBestLap = focused?.NewData?.BestSessionLap?.Laptime;
+            GapToFocusedTotal = focusedBestLap != null ? ((double)thisBestLap - (double)focusedBestLap) : (double?)null;
+
+            var aheadBestLap = carAhead?.NewData?.BestSessionLap?.Laptime;
+            GapToAhead = aheadBestLap != null ? ((double)thisBestLap - (double)aheadBestLap) : (double?)null;
+
+            var aheadInClassBestLap = carAheadInClass?.NewData?.BestSessionLap?.Laptime;
+            GapToAheadInClass = aheadInClassBestLap != null ? ((double)thisBestLap - (double)aheadInClassBestLap) : (double?)null;
+        }
+
+        private void CalculateRaceGaps(CarData leader, CarData classLeader, CarData focused, CarData carAhead, CarData carAheadInClass) {
+            // Use time gaps on track
+            // We update the gap only if CalculateGap returns a proper value because we don't want to update the gap if one of the cars has finished. 
+            // That would result in wrong gaps. We keep the gaps at the last valid value and update once both cars have finished.
+
+            var gapToLeader = CalculateGap(this, leader);
+            if (gapToLeader != null) GapToLeader = gapToLeader;
+
+            if (classLeader.CarIndex == CarIndex) {
+                GapToClassLeader = 0.0;
+            } else if (classLeader.CarIndex == leader.CarIndex) {
+                GapToClassLeader = GapToLeader;
+            } else {
+                var gapToClassLeader = CalculateGap(this, classLeader);
+                if (gapToClassLeader != null) GapToClassLeader = gapToClassLeader;
+            }
+
+            if (focused.CarIndex == CarIndex) {
+                GapToFocusedTotal = 0.0;
+            } else if (focused.CarIndex == leader.CarIndex) {
+                GapToFocusedTotal = GapToLeader;
+            } else if (focused.CarIndex == classLeader.CarIndex) {
+                GapToFocusedTotal = GapToClassLeader;
+            } else {
+                var gapToFocusedTotal = CalculateGap(focused, this);
+                if (gapToFocusedTotal != null) GapToFocusedTotal = gapToFocusedTotal;
+            }
+
+            if (carAhead == null) {
+                GapToAhead = null;
+            } else if (carAhead.CarIndex == leader.CarIndex) {
+                GapToAhead = GapToLeader;
+            } else if (carAhead.CarIndex == classLeader.CarIndex) {
+                GapToAhead = GapToClassLeader;
+            } else if (carAhead.CarIndex == focused.CarIndex) {
+                GapToAhead = -GapToFocusedTotal;
+            } else {
+                var gapToAhead = CalculateGap(this, carAhead);
+                if (gapToAhead != null) GapToAhead = gapToAhead;
+            }
+
+            if (carAheadInClass == null) {
+                GapToAheadInClass = null;
+            } else if (carAheadInClass.CarIndex == carAhead.CarIndex) {
+                GapToAheadInClass = GapToAhead;
+            } else if (carAheadInClass.CarIndex == leader.CarIndex) {
+                GapToAheadInClass = gapToLeader;
+            } else if (carAheadInClass.CarIndex == classLeader.CarIndex) {
+                GapToAheadInClass = GapToClassLeader;
+            } else if (carAheadInClass.CarIndex == focused.CarIndex) {
+                GapToAheadInClass = -GapToFocusedTotal;
+            } else {
+                var gapToAheadInClass = CalculateGap(this, carAheadInClass);
+                if (gapToAheadInClass != null) GapToAheadInClass = gapToAheadInClass;
+            }
         }
 
         /// <summary>

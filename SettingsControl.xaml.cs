@@ -281,9 +281,9 @@ namespace KLPlugins.DynLeaderboards {
             binding.Source = l;
             t.SetBinding(TextBox.TextProperty, binding);
             t.TextChanged += (a, b) => {
-                EnablePropertiesDescription_TextBlock.Text = $"Enable/disable properties for currently selected dynamic leaderboard. Each property can be accessed as \"{t.Text}.<pos>.<property name>\"";
-                DynLeaderboardPropertyAccess_TextBlock.Text = $"Properties for this dynamic leaderboard are accessible as \"{t.Text}.<pos>.<property name>\", for example \"{t.Text}.5.Car.Number\"";
-                ExposedDriverProps_TextBlock.Text = $"Properties for each driver car be accessed as \"{t.Text}.<pos>.Driver.<driver number>.<property name>\", for example \"{t.Text}.5.Driver.1.FirstName\"";
+                EnablePropertiesDescription_TextBlock.Text = $"Enable/disable properties for currently selected dynamic leaderboard. Each property can be accessed as \"DynLeaderboardsPlugin.{t.Text}.<pos>.<property name>\"";
+                DynLeaderboardPropertyAccess_TextBlock.Text = $"Properties for this dynamic leaderboard are accessible as \"DynLeaderboardsPlugin.{t.Text}.<pos>.<property name>\", for example \"DynLeaderboardsPlugin.{t.Text}.5.Car.Number\"";
+                ExposedDriverProps_TextBlock.Text = $"Properties for each driver car be accessed as \"DynLeaderboardsPlugin.{t.Text}.<pos>.Driver.<driver number>.<property name>\", for example \"DynLeaderboardsPlugin.{t.Text}.5.Driver.1.FirstName\"";
             };
 
             var t2 = new TextBlock();
@@ -308,9 +308,9 @@ namespace KLPlugins.DynLeaderboards {
             // Technically we don't need to reset all setting UI items but only bindings and values.
             // But it's not critical and this is way simpler.
 
-            EnablePropertiesDescription_TextBlock.Text = $"Enable/disable properties for currently selected dynamic leaderboard. Each properties car be accessed as \"{CurrentDynLeaderboardSettings.Name}.5.<property name>\"";
-            DynLeaderboardPropertyAccess_TextBlock.Text = $"Properties for each leaderboard will be accessible as \"{CurrentDynLeaderboardSettings.Name}.<pos>.<property name>\", for example \"{CurrentDynLeaderboardSettings.Name}.5.Car.Number\"";
-            ExposedDriverProps_TextBlock.Text = $"Properties for each driver car be accessed as \"{CurrentDynLeaderboardSettings.Name}.<pos>.Driver.<driver number>.<property name>\", for example \"{CurrentDynLeaderboardSettings.Name}.5.Driver.1.FirstName\"";
+            EnablePropertiesDescription_TextBlock.Text = $"Enable/disable properties for currently selected dynamic leaderboard. Each properties car be accessed as \"DynLeaderboardsPlugin.{CurrentDynLeaderboardSettings.Name}.5.<property name>\"";
+            DynLeaderboardPropertyAccess_TextBlock.Text = $"Properties for each leaderboard will be accessible as \"DynLeaderboardsPlugin.{CurrentDynLeaderboardSettings.Name}.<pos>.<property name>\", for example \"DynLeaderboardsPlugin.{CurrentDynLeaderboardSettings.Name}.5.Car.Number\"";
+            ExposedDriverProps_TextBlock.Text = $"Properties for each driver car be accessed as \"DynLeaderboardsPlugin.{CurrentDynLeaderboardSettings.Name}.<pos>.Driver.<driver number>.<property name>\", for example \"DynLeaderboardsPlugin.{CurrentDynLeaderboardSettings.Name}.5.Driver.1.FirstName\"";
 
             AddDynLeaderboardToggles();
             AddNumPositionsSetters();

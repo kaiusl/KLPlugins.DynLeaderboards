@@ -769,8 +769,12 @@ namespace KLPlugins.DynLeaderboards {
             car.OnRealtimeCarUpdate(update, RealtimeData);
             _lastUpdateCarIds.Add(car.CarIndex);
 
-            if (!outdata.ContainsKey(car.CarIndex)) {
-                outdata[car.CarIndex] = "";
+            CreateLapInterpolatorsData(update, car);
+        }
+
+        private void CreateLapInterpolatorsData(RealtimeCarUpdate update, CarData car) {
+            if (outdata.ContainsKey(car.CarIndex) && car.NewData.CarLocation != CarLocationEnum.Track) {
+                outdata.Remove(car.CarIndex);
             }
 
             if (!bestLaps.ContainsKey(car.CarClass)) {
@@ -790,33 +794,37 @@ namespace KLPlugins.DynLeaderboards {
                         DynLeaderboardsPlugin.LogInfo($"Read class {car.CarClass} best lap time {t}");
 
                     } catch (Exception ex) {
-                        
+
                     }
                 }
-
             }
 
-            if (car.OldData != null && car.NewData.Laps != car.OldData.Laps) {
+            if (car.OldData != null && car.NewData.Laps != car.OldData.Laps && car.NewData.CarLocation == CarLocationEnum.Track) {
+                if (!outdata.ContainsKey(car.CarIndex)) {
+                    outdata[car.CarIndex] = "";
+                    return;
+                }
+
                 var thisclass = car.CarClass;
 
                 if (!bestLaps.ContainsKey(thisclass) || (car.NewData?.LastLap?.Laptime != null && car.NewData.LastLap.Laptime < bestLaps[thisclass])) {
-                    DynLeaderboardsPlugin.LogInfo($"New best lap for {thisclass}: {car.NewData.LastLap.Laptime}");
-                    
-                    
+                    DynLeaderboardsPlugin.LogInfo($"New best lap for {thisclass}: {TimeSpan.FromSeconds((double)car.NewData.LastLap.Laptime).ToString("mm\\:ss\\.fff")}");
+
                     bestLaps[thisclass] = (double)car.NewData.LastLap.Laptime;
                     var fname = $"{DynLeaderboardsPlugin.Settings.PluginDataLocation}\\laps\\{TrackData.TrackId}_{thisclass}.txt";
                     File.WriteAllText(fname, outdata[car.CarIndex]);
-
                 }
 
                 outdata[car.CarIndex] = "";
             }
 
-            if (outdata[car.CarIndex] != "") {
-                outdata[car.CarIndex] += "\n";
-            }
-            if (update.SplinePosition != 0 && update.SplinePosition != 1) {
-                outdata[car.CarIndex] += $"{update.SplinePosition};{update.CurrentLap.Laptime};{update.Kmh}";
+            if (outdata.ContainsKey(car.CarIndex)) {
+                if (outdata[car.CarIndex] != "") {
+                    outdata[car.CarIndex] += "\n";
+                }
+                if (update.SplinePosition != 0 && update.SplinePosition != 1) {
+                    outdata[car.CarIndex] += $"{update.SplinePosition};{update.CurrentLap.Laptime};{update.Kmh}";
+                }
             }
         }
 

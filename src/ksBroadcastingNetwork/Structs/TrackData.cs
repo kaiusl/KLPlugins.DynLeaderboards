@@ -29,7 +29,6 @@ namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork.Structs
         /// Read default lap data for calculation of gaps.
         /// </summary>
         public static void ReadDefBestLaps() {
-            if (LapInterpolators != null) return; // We have already initialized
             LapInterpolators = new CarClassArray<LapInterpolator>(null);
 
             AddLapInterpolator(CarClass.GT3);
@@ -49,7 +48,7 @@ namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork.Structs
         }
 
         private static void AddLapInterpolator(CarClass cls) {
-            var fname = $"{DynLeaderboardsPlugin.Settings.PluginDataLocation}\\laps\\{(int)Values.TrackData.TrackId}_{cls}.txt";
+            var fname = $"{DynLeaderboardsPlugin.Settings.PluginDataLocation}\\laps\\{Values.TrackData.TrackId}_{cls}.txt";
             if (!File.Exists(fname)) {
                 DynLeaderboardsPlugin.LogWarn($"Couldn't build lap interpolator for {cls} because no suitable track data exists.");
                 return;
@@ -60,7 +59,7 @@ namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork.Structs
             try {
                 foreach (var l in File.ReadLines(fname)) {
                     if (l == "") continue;
-                    // Data order: splinePositions, laptime in ms, speed in kmh
+                    // Data order: splinePositions, lap time in ms, speed in kmh
                     var splits = l.Split(';');
                     double p = float.Parse(splits[0]);
                     var t = double.Parse(splits[1]) / 1000.0;

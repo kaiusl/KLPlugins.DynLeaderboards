@@ -97,6 +97,8 @@ namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork.Structs {
         public double?[] BestLapSectors { get; private set; } = new double?[] { null, null, null };
         public double MaxSpeed { get; private set; } = 0.0;
         public bool IsFocused { get; internal set; } = false;
+        public bool IsOverallBestLapCar { get; private set; } = false;
+        public bool IsClassBestLapCar { get; private set; } = false;
 
 
         internal int MissedRealtimeUpdates { get; set; } = 0;
@@ -407,6 +409,9 @@ namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork.Structs {
             int overallPos, 
             int classPos
         ) {
+            IsOverallBestLapCar = CarIndex == overallBestLapCar?.CarIndex;
+            IsClassBestLapCar = CarIndex == classBestLapCar?.CarIndex;
+
             if (IsFinished && _isRaceFinishPosSet) return;
             InClassPos = classPos;
             _splinePositionTime.Reset();
@@ -490,7 +495,15 @@ namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork.Structs {
 
         #region Gap calculations
 
-        private void SetGaps(RealtimeData realtimeData, CarData leader, CarData classLeader, CarData focused, CarData carAhead, CarData carAheadInClass, CarData carAheadOnTrack) {
+        private void SetGaps(
+            RealtimeData realtimeData, 
+            CarData leader, 
+            CarData classLeader, 
+            CarData focused, 
+            CarData carAhead, 
+            CarData carAheadInClass, 
+            CarData carAheadOnTrack) 
+        {
             if (realtimeData.IsRace) {
                 CalculateRaceGaps(leader, classLeader, focused, carAhead, carAheadInClass);
             } else {

@@ -191,7 +191,7 @@ namespace KLPlugins.DynLeaderboards {
                 }
             }
 
-            this.AttachDelegate("IsBroadcastClientConnected", () => _values.BroadcastClient.IsConnected);
+            this.AttachDelegate("IsBroadcastClientConnected", () => _values.BroadcastClient?.IsConnected);
 
             this.AttachDelegate("DBG_RealtimeUpdateTime", () => _values.RealtimeUpdateTime);
             
@@ -352,8 +352,6 @@ namespace KLPlugins.DynLeaderboards {
                 AddProp(OutCarProp.TeamCupCategoryColor, () => l.GetDynCar(i)?.TeamCupCategoryColor);
                 AddProp(OutCarProp.TeamCupCategoryTextColor, () => l.GetDynCar(i)?.TeamCupCategoryTextColor);
 
-                AddProp(OutCarProp.IsFocused, () => (l.GetDynCar(i)?.IsFocused ?? false) ? 1 : 0);
-
                 // Gaps
                 AddGapProp(OutGapProp.GapToLeader, () => l.GetDynCar(i)?.GapToLeader);
                 AddGapProp(OutGapProp.GapToClassLeader, () => l.GetDynCar(i)?.GapToClassLeader);
@@ -411,9 +409,22 @@ namespace KLPlugins.DynLeaderboards {
                 // Else
                 AddProp(OutCarProp.IsFinished, () => (l.GetDynCar(i)?.IsFinished ?? false) ? 1 : 0);
                 AddProp(OutCarProp.MaxSpeed, () => l.GetDynCar(i)?.MaxSpeed);
+                AddProp(OutCarProp.IsFocused, () => (l.GetDynCar(i)?.IsFocused ?? false) ? 1 : 0);
+                AddProp(OutCarProp.IsOverallBestLapCar, () => (l.GetDynCar(i)?.IsOverallBestLapCar ?? false) ? 1 : 0);
+                AddProp(OutCarProp.IsClassBestLapCar, () => (l.GetDynCar(i)?.IsClassBestLapCar ?? false) ? 1 : 0);
             };
 
-            for (int i = 0; i < l.Settings.NumOverallPos; i++) {
+            var numPos = new int[] {
+                l.Settings.NumOverallPos,
+                l.Settings.NumClassPos,
+                l.Settings.NumOverallRelativePos*2+1,
+                l.Settings.NumClassRelativePos*2+1,
+                l.Settings.NumOnTrackRelativePos*2+1,
+                l.Settings.PartialRelativeClassNumClassPos + l.Settings.PartialRelativeClassNumRelativePos*2+1,
+                l.Settings.PartialRelativeOverallNumOverallPos + l.Settings.PartialRelativeOverallNumRelativePos*2+1
+            };
+
+            for (int i = 0; i < numPos.Max(); i++) {
                 addCar(i);
             }
 

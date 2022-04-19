@@ -173,7 +173,7 @@
             </ScrollViewer>
         </styles:SHTabItem>
 
-        <styles:SHTabItem Header="Dynamic leaderboard">
+        <styles:SHTabItem Header="Dynamic leaderboards">
 
 
             <ScrollViewer>

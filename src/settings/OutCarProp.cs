@@ -21,6 +21,8 @@ namespace KLPlugins.DynLeaderboards {
         IsFinished = 1 << 9,
         MaxSpeed = 1 << 10,
         IsFocused = 1 << 11,
+        IsOverallBestLapCar = 1 << 12,
+        IsClassBestLapCar = 1 << 13,
     }
 
     static class OutCarPropExtensions {
@@ -54,6 +56,10 @@ namespace KLPlugins.DynLeaderboards {
                     return "Team.CupCategory.TextColor";
                 case OutCarProp.IsFocused:
                     return "IsFocused";
+                case OutCarProp.IsOverallBestLapCar:
+                    return "IsOverallBestLapCar";
+                case OutCarProp.IsClassBestLapCar:
+                    return "IsClassBestLapCar";
                 default:
                     throw new ArgumentOutOfRangeException($"Invalid enum variant {p}");
             }
@@ -82,11 +88,15 @@ namespace KLPlugins.DynLeaderboards {
                 case OutCarProp.CarClassColor:
                     return "Car class color. Values can be changed in \"General settings\" tab.";
                 case OutCarProp.TeamCupCategoryColor:
-                    return "Team cup category background color. Values can be changed in \"General settings\" tab..";
+                    return "Team cup category background color. Values can be changed in \"General settings\" tab.";
                 case OutCarProp.TeamCupCategoryTextColor:
-                    return "Team cup category text color. Values can be changed in \"General settings\" tab..";
+                    return "Team cup category text color. Values can be changed in \"General settings\" tab.";
                 case OutCarProp.IsFocused:
                     return "Is this the focused car?";
+                case OutCarProp.IsOverallBestLapCar:
+                    return "Is this the car that has overall best lap.";
+                case OutCarProp.IsClassBestLapCar:
+                    return "Is this the car that has class best lap.";
                 default:
                     throw new ArgumentOutOfRangeException($"Invalid enum variant {p}");
             }

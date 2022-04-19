@@ -229,22 +229,10 @@ namespace KLPlugins.DynLeaderboards {
             return Cars[(int)idx];
         }
 
-        public int? GetBestLapCarIdx(CarClass cls) {
-            return BestLapByClassCarIdxs[cls];
-        }
-
         public CarData GetFocusedClassBestLapCar() {
             var focusedClass = GetFocusedCar()?.CarClass;
             if (focusedClass == null) return null;
-            var idx = BestLapByClassCarIdxs[(CarClass)focusedClass];
-            if (idx == null) return null;
-            return Cars[(int)idx];
-        }
-
-        public int? GetFocusedClassBestLapCarIdx() {
-            var focusedClass = GetFocusedCar()?.CarClass;
-            if (focusedClass == null) return null;
-            return BestLapByClassCarIdxs[(CarClass)focusedClass];
+            return GetBestLapCar((CarClass)focusedClass);
         }
 
         public void SetDynamicCarGetter() {

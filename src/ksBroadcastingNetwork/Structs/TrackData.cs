@@ -48,7 +48,7 @@ namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork.Structs
         }
 
         private static void AddLapInterpolator(CarClass cls) {
-            var fname = $"{DynLeaderboardsPlugin.Settings.PluginDataLocation}\\laps\\{Values.TrackData.TrackId}_{cls}.txt";
+            var fname = $"{DynLeaderboardsPlugin.Settings.PluginDataLocation}\\laps_data\\{Values.TrackData.TrackId}_{cls}.txt";
             if (!File.Exists(fname)) {
                 DynLeaderboardsPlugin.LogWarn($"Couldn't build lap interpolator for {cls} because no suitable track data exists.");
                 return;

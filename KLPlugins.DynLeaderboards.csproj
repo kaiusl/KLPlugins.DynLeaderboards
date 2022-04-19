@@ -149,6 +149,7 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
+    <None Include="CHANGELOG.md" />
     <None Include="DashTemplates\AccDynLeaderboard\AccDynLeaderboard.djson" />
     <None Include="DashTemplates\AccDynLeaderboard\AccDynLeaderboard.djson.metadata" />
     <None Include="DashTemplates\AccDynLeaderboard\_Backups\AccDynLeaderboard_b1.djson" />

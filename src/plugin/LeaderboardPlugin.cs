@@ -193,16 +193,16 @@ namespace KLPlugins.DynLeaderboards {
 
             this.AttachDelegate("IsBroadcastClientConnected", () => _values.BroadcastClient?.IsConnected);
 
-            this.AttachDelegate("DBG_RealtimeUpdateTime", () => _values.RealtimeUpdateTime);
+           // this.AttachDelegate("DBG_RealtimeUpdateTime", () => _values.RealtimeUpdateTime);
             
         }
 
         public void AddNewLeaderboard(PluginSettings.DynLeaderboardConfig s) {
-            _values.AddNewLeaderboard(s);
+            if (_values != null) _values.AddNewLeaderboard(s);
         }
 
         public void RemoveLeaderboardAt(int i) {
-            _values.LeaderboardValues.RemoveAt(i);
+            if (_values != null) _values.LeaderboardValues.RemoveAt(i);
         }
 
         private void SubscribeToSimHubEvents() {

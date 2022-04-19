@@ -53,7 +53,6 @@ namespace KLPlugins.DynLeaderboards {
             AccDataLocation_TextBox.Text = Settings.AccDataLocation;
             AccDataLocation_TextBox.Background = Brushes.LightGreen;
             Logging_ToggleButton.IsChecked = Settings.Log;
-                        
         }
 
 

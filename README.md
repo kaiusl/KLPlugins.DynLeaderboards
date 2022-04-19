@@ -1,4 +1,4 @@
-# SimHub ACC Leaderboard Plugin
+# SimHub ACC Dynamic Leaderboards Plugin
 
 This is an ACC specific (at least at the moment) leaderboard plugin providing simple switching between overall/class/relative leaderboards. 
 
@@ -11,7 +11,7 @@ The reason for this plugin is that I found myself creating effectively the same 
 * Open SimHub and enable the plugin
 * Check plugin settings for correct "ACC configuration location" under "General settings".  If it's background is green, then we found needed files, if it's red there's something wrong with the location. This location is used to read information needed to connct to ACC broadcasting client.
 * If you needed to change the location, restart SimHub.
-* Go to "Controls and events" from SimHub sidebar and add mappings for "DynLeaderboardsPlugin.Dynamic.NextLeaderboard" and "DynLeaderboardsPlugin.Dynamic.PreviousLeaderboard" actions. 
+* Go to "Controls and events" from SimHub sidebar and add mappings for `DynLeaderboardsPlugin.Dynamic.NextLeaderboard` and `DynLeaderboardsPlugin.Dynamic.PreviousLeaderboard` actions. 
 
 	For mapping to controller inputs you need to enable "Controllers input" plugin and to keyboard inputs "Keyboard Input" plugin.
     
@@ -80,7 +80,7 @@ If something is unclear or you have suggestions, let me know.
 ### Troubleshooting
 
 - No data available
-    - Check the property "DynLeaderboardsPlugin.IsBroadcastClientConnected"
+    - Check the property `DynLeaderboardsPlugin.IsBroadcastClientConnected`
 	- If it's `False` then the plugin couldn't connect to ACC and you need to leave and rejoin the session. This can sometimes happen if you close SimHub and reopen it without leaving the session. 
 	- If it's `True` then the plugin haven't just recieved the first update and you need to wait a bit.
 - Wrong leaderboard order

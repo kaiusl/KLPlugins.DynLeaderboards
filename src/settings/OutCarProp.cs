@@ -94,9 +94,9 @@ namespace KLPlugins.DynLeaderboards {
                 case OutCarProp.IsFocused:
                     return "Is this the focused car?";
                 case OutCarProp.IsOverallBestLapCar:
-                    return "Is this the car that has overall best lap.";
+                    return "Is this the car that has overall best lap?";
                 case OutCarProp.IsClassBestLapCar:
-                    return "Is this the car that has class best lap.";
+                    return "Is this the car that has class best lap?";
                 default:
                     throw new ArgumentOutOfRangeException($"Invalid enum variant {p}");
             }

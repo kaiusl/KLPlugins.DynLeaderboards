@@ -202,7 +202,7 @@
                         </Style>
                     </StackPanel.Resources>
 
-                    <TextBlock MaxWidth="750" TextWrapping="Wrap">Here you can customize the functionality of your dynamic leaderboard. <Bold>For the changes to take effect you need to restart SimHub</Bold>.
+                    <TextBlock MaxWidth="750" TextWrapping="Wrap">Here you can customize the functionality of your dynamic leaderboards. <Bold>For the changes to take effect you need to restart SimHub</Bold>.
                         <LineBreak/><LineBreak/>
                         First, you can add multiple dynamic leaderboards and change their names in the dropdown list below. 
                         <LineBreak/><Bold>Make sure to assign buttons in "Controls and events" for each dynamic leaderboard's "NextLeaderboard" and "PreviousLeaderboard" events.</Bold>
@@ -301,7 +301,7 @@
                         <LineBreak/>``javascript
                             </TextBlock>
                             <TextBlock MaxWidth="750" TextWrapping="Wrap" Padding="20,0,0,0">
-                        var v = $prop('LeaderboardPlugin.Dynamic.' + repeatindex() + '.Gap.Dynamic.ToFocused')
+                        var v = $prop('DynLeaderboardsPlugin.Dynamic.' + repeatindex() + '.Gap.Dynamic.ToFocused')
 	                    <LineBreak/>if (v == null) { return '' }
 	                    <LineBreak/>// No gap can realistically be 50000 seconds without being more than a lap
 	                    <LineBreak/>// and you cannot realistically be more than 50000 laps behind to break following

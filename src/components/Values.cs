@@ -1,17 +1,14 @@
 ﻿using GameReaderCommon;
-using SimHub.Plugins;
-using System;
-using System.Diagnostics;
-using System.IO;
-using System.Threading.Tasks;
+using KLPlugins.DynLeaderboards.Enums;
 using KLPlugins.DynLeaderboards.ksBroadcastingNetwork;
 using KLPlugins.DynLeaderboards.ksBroadcastingNetwork.Structs;
-using System.Collections.Generic;
-using System.Linq;
-using KLPlugins.DynLeaderboards.Enums;
-using Newtonsoft.Json;
 using KLPlugins.DynLeaderboards.src.ksBroadcastingNetwork.Structs;
-using System.Threading;
+using SimHub.Plugins;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
+using System.Linq;
 
 namespace KLPlugins.DynLeaderboards {
     /// <summary>
@@ -119,7 +116,7 @@ namespace KLPlugins.DynLeaderboards {
             Cars = new List<CarData>();
             var num = DynLeaderboardsPlugin.Settings.GetMaxNumClassPos();
             if (num > 0) PosInClassCarsIdxs = new int?[100];
-      
+
             ResetPos();
             _broadcastConfig = new ACCUdpRemoteClientConfig("127.0.0.1", "KLLeaderboardPlugin", DynLeaderboardsPlugin.Settings.BroadcastDataUpdateRateMs);
             foreach (var l in DynLeaderboardsPlugin.Settings.DynLeaderboardConfigs) {
@@ -140,7 +137,7 @@ namespace KLPlugins.DynLeaderboards {
             _classLeaderIdxs.Reset();
             BestLapByClassCarIdxs.Reset();
             _relativeSplinePositions.Clear();
-            _startingPositionsSet =  false;
+            _startingPositionsSet = false;
             MaxDriverStintTime = -1;
             MaxDriverTotalDriveTime = -1;
             outdata.Clear();
@@ -207,7 +204,7 @@ namespace KLPlugins.DynLeaderboards {
 
         }
 
-        public void OnDataUpdate(PluginManager pm, GameData data) {}
+        public void OnDataUpdate(PluginManager pm, GameData data) { }
 
         public CarData GetCar(int i) => Cars.ElementAtOrDefault(i);
 
@@ -487,13 +484,13 @@ namespace KLPlugins.DynLeaderboards {
                     case Leaderboard.PartialRelativeOverall:
                         SetPartialRelativeOverallOrder(l);
                         break;
-                    case Leaderboard.RelativeClass: 
+                    case Leaderboard.RelativeClass:
                         SetRelativeClassOrder(l);
                         break;
-                    case Leaderboard.PartialRelativeClass: 
+                    case Leaderboard.PartialRelativeClass:
                         SetPartialRelativeClassOrder(l);
                         break;
-                    default: 
+                    default:
                         break;
                 }
             }
@@ -560,7 +557,7 @@ namespace KLPlugins.DynLeaderboards {
 
         private void SetStartionOrder() {
             Cars.Sort((a, b) => a.NewData.Position.CompareTo(b.NewData.Position)); // Spline position may give wrong results if cars are sitting on the grid
-            
+
             var classPositions = new CarClassArray<int>(0); // Keep track of what class position are we at the moment
             for (int i = 0; i < Cars.Count; i++) {
                 var thisCar = Cars[i];
@@ -568,7 +565,7 @@ namespace KLPlugins.DynLeaderboards {
                 var classPos = ++classPositions[thisClass];
                 thisCar.SetStartingPositions(i + 1, classPos);
             }
-            _startingPositionsSet = true;           
+            _startingPositionsSet = true;
         }
 
 
@@ -599,8 +596,8 @@ namespace KLPlugins.DynLeaderboards {
                     _classLeaderIdxs[thisCarClass] = i;
                 }
 
-                if (PosInClassCarsIdxs != null 
-                    && thisCarClass == focusedClass 
+                if (PosInClassCarsIdxs != null
+                    && thisCarClass == focusedClass
                     && thisCarClassPos - 1 < DynLeaderboardsPlugin.Settings.GetMaxNumClassPos()
                 ) {
                     PosInClassCarsIdxs[thisCarClassPos - 1] = i;
@@ -614,16 +611,16 @@ namespace KLPlugins.DynLeaderboards {
                 var classBestLapCarIdx = BestLapByClassCarIdxs[thisCarClass];
 
                 thisCar.OnRealtimeUpdate(
-                    realtimeData: RealtimeData, 
-                    leaderCar: leaderCar, 
-                    classLeaderCar: Cars[(int)_classLeaderIdxs[thisCarClass]], 
-                    focusedCar: focusedCar, 
-                    carAhead: i != 0 ? Cars[i - 1] : null, 
-                    carAheadInClass: carAheadInClassIdx != null ? Cars[(int)carAheadInClassIdx] : null, 
+                    realtimeData: RealtimeData,
+                    leaderCar: leaderCar,
+                    classLeaderCar: Cars[(int)_classLeaderIdxs[thisCarClass]],
+                    focusedCar: focusedCar,
+                    carAhead: i != 0 ? Cars[i - 1] : null,
+                    carAheadInClass: carAheadInClassIdx != null ? Cars[(int)carAheadInClassIdx] : null,
                     carAheadOnTrack: GetCarAheadOnTrack(thisCar),
                     overallBestLapCar: overallBestLapCarIdx != null ? Cars[(int)overallBestLapCarIdx] : null,
                     classBestLapCar: classBestLapCarIdx != null ? Cars[(int)classBestLapCarIdx] : null,
-                    overallPos: i + 1, 
+                    overallPos: i + 1,
                     classPos: thisCarClassPos
                     );
 
@@ -662,7 +659,7 @@ namespace KLPlugins.DynLeaderboards {
                 if (thisCarBestLap != null) {
                     var classBestLapCarIdx = BestLapByClassCarIdxs[thisCarClass];
                     if (classBestLapCarIdx != null) {
-                        if (Cars[(int)classBestLapCarIdx].NewData.BestSessionLap.Laptime >= thisCarBestLap) 
+                        if (Cars[(int)classBestLapCarIdx].NewData.BestSessionLap.Laptime >= thisCarBestLap)
                             BestLapByClassCarIdxs[thisCarClass] = i;
                     } else {
                         BestLapByClassCarIdxs[thisCarClass] = i;
@@ -670,7 +667,7 @@ namespace KLPlugins.DynLeaderboards {
 
                     var overallBestLapCarIdx = BestLapByClassCarIdxs[CarClass.Overall];
                     if (overallBestLapCarIdx != null) {
-                        if (Cars[(int)overallBestLapCarIdx].NewData.BestSessionLap.Laptime >= thisCarBestLap) 
+                        if (Cars[(int)overallBestLapCarIdx].NewData.BestSessionLap.Laptime >= thisCarBestLap)
                             BestLapByClassCarIdxs[CarClass.Overall] = i;
                     } else {
                         BestLapByClassCarIdxs[CarClass.Overall] = i;
@@ -737,7 +734,7 @@ namespace KLPlugins.DynLeaderboards {
         #endregion
 
         #region RealtimeCarUpdate
-        
+
 
         private Dictionary<int, string> outdata = new Dictionary<int, string>();
         private Dictionary<CarClass, double> bestLaps = new Dictionary<CarClass, double>();
@@ -795,8 +792,8 @@ namespace KLPlugins.DynLeaderboards {
 
                 var thisclass = car.CarClass;
 
-                if (car.NewData?.LastLap?.Laptime != null 
-                    && car.NewData.LastLap.IsValidForBest 
+                if (car.NewData?.LastLap?.Laptime != null
+                    && car.NewData.LastLap.IsValidForBest
                     && (!bestLaps.ContainsKey(thisclass) || (car.NewData.LastLap.Laptime < bestLaps[thisclass]))
                 ) {
                     DynLeaderboardsPlugin.LogInfo($"New best lap for {thisclass}: {TimeSpan.FromSeconds((double)car.NewData.LastLap.Laptime).ToString("mm\\:ss\\.fff")}");

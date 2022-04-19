@@ -1,10 +1,8 @@
 ﻿using KLPlugins.DynLeaderboards.Enums;
 using KLPlugins.DynLeaderboards.ksBroadcastingNetwork;
-using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 
 
 namespace KLPlugins.DynLeaderboards {
@@ -15,19 +13,19 @@ namespace KLPlugins.DynLeaderboards {
         public class DynLeaderboardConfig {
             public string Name { get; set; }
 
-            public OutCarProp OutCarProps = OutCarProp.CarNumber 
-                | OutCarProp.CarClass 
-                | OutCarProp.IsFinished 
-                | OutCarProp.CarClassColor 
-                | OutCarProp.TeamCupCategoryColor 
+            public OutCarProp OutCarProps = OutCarProp.CarNumber
+                | OutCarProp.CarClass
+                | OutCarProp.IsFinished
+                | OutCarProp.CarClassColor
+                | OutCarProp.TeamCupCategoryColor
                 | OutCarProp.TeamCupCategoryTextColor;
             public OutPitProp OutPitProps = OutPitProp.IsInPitLane;
             public OutPosProp OutPosProps = OutPosProp.OverallPosition | OutPosProp.ClassPosition;
             public OutGapProp OutGapProps = OutGapProp.DynamicGapToFocused;
             public OutStintProp OutStintProps = OutStintProp.None;
             public OutDriverProp OutDriverProps = OutDriverProp.InitialPlusLastName;
-            public OutLapProp OutLapProps = OutLapProp.Laps 
-                | OutLapProp.LastLapTime 
+            public OutLapProp OutLapProps = OutLapProp.Laps
+                | OutLapProp.LastLapTime
                 | OutLapProp.BestLapTime
                 | OutLapProp.DynamicBestLapDeltaToFocusedBest
                 | OutLapProp.DynamicLastLapDeltaToFocusedLast;
@@ -43,7 +41,7 @@ namespace KLPlugins.DynLeaderboards {
             public int PartialRelativeClassNumClassPos { get; set; } = 5;
             public int PartialRelativeClassNumRelativePos { get; set; } = 5;
 
-            public List<Leaderboard> Order { get; set; } = new List<Leaderboard>() { 
+            public List<Leaderboard> Order { get; set; } = new List<Leaderboard>() {
                 Leaderboard.Overall,
                 Leaderboard.Class,
                 Leaderboard.PartialRelativeOverall,
@@ -106,7 +104,7 @@ namespace KLPlugins.DynLeaderboards {
             return max;
         }
 
-        private static Dictionary<CarClass, string> CreateDefCarClassColors() { 
+        private static Dictionary<CarClass, string> CreateDefCarClassColors() {
             var carClassColors = new Dictionary<CarClass, string>(8);
             foreach (var c in Enum.GetValues(typeof(CarClass))) {
                 var cls = (CarClass)c;
@@ -134,9 +132,9 @@ namespace KLPlugins.DynLeaderboards {
             return cupTextColors;
         }
 
-        private static Dictionary<DriverCategory, string> CreateDefDriverCategoryColors() { 
+        private static Dictionary<DriverCategory, string> CreateDefDriverCategoryColors() {
             var dict = new Dictionary<DriverCategory, string>(4);
-            foreach (var c in Enum.GetValues(typeof(DriverCategory))) { 
+            foreach (var c in Enum.GetValues(typeof(DriverCategory))) {
                 var cat = (DriverCategory)c;
                 if (cat == DriverCategory.Error) continue;
                 dict.Add(cat, cat.GetAccColor());
@@ -162,6 +160,6 @@ namespace KLPlugins.DynLeaderboards {
         }
     }
 
-   
+
 
 }

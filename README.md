@@ -6,7 +6,7 @@ The reason for this plugin is that I found myself creating effectively the same 
 
 ## Using the plugin for the first time
 
-* Download the latest release from Racedepartment or here
+* Download the latest release from Racedepartment or [here](https://github.com/kaiusl/KLPlugins.Leaderboard/releases)
 * Copy all the files from folder SimHub to the SimHub root
 * Open SimHub and enable the plugin
 * Check plugin settings for correct "ACC configuration location" under "General settings".  If it's background is green, then we found needed files, if it's red there's something wrong with the location. This location is used to read information needed to connct to ACC broadcasting client.

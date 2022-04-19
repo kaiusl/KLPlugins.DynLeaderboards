@@ -1,14 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-using KLPlugins.DynLeaderboards.Enums;
+﻿using KLPlugins.DynLeaderboards.Enums;
 using KLPlugins.DynLeaderboards.src.ksBroadcastingNetwork.Structs;
-using MathNet.Numerics.Interpolation;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork.Structs {
     public class CarData {
@@ -75,7 +69,7 @@ namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork.Structs {
         public double? BestLapDeltaToFocusedBest { get; private set; } = null;
         public double? BestLapDeltaToAheadBest { get; private set; } = null;
         public double? BestLapDeltaToAheadInClassBest { get; private set; } = null;
-                     
+
         public double? LastLapDeltaToOverallBest { get; private set; } = null;
         public double? LastLapDeltaToClassBest { get; private set; } = null;
         public double? LastLapDeltaToLeaderBest { get; private set; } = null;
@@ -84,7 +78,7 @@ namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork.Structs {
         public double? LastLapDeltaToAheadBest { get; private set; } = null;
         public double? LastLapDeltaToAheadInClassBest { get; private set; } = null;
         public double? LastLapDeltaToOwnBest { get; private set; } = null;
-                     
+
         public double? LastLapDeltaToLeaderLast { get; private set; } = null;
         public double? LastLapDeltaToClassLeaderLast { get; private set; } = null;
         public double? LastLapDeltaToFocusedLast { get; private set; } = null;
@@ -133,7 +127,7 @@ namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork.Structs {
         /// <returns></returns>
         public DriverData GetDriver(int i) {
             if (i == 0) { return Drivers.ElementAtOrDefault(CurrentDriverIndex); }
-            if (i <= CurrentDriverIndex) { return Drivers.ElementAtOrDefault(i-1); }
+            if (i <= CurrentDriverIndex) { return Drivers.ElementAtOrDefault(i - 1); }
             return Drivers.ElementAtOrDefault(i);
         }
 
@@ -204,7 +198,7 @@ namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork.Structs {
         /// </summary>
         /// <param name="overall"></param>
         /// <param name="inclass"></param>
-        public void SetStartingPositions(int overall, int inclass) { 
+        public void SetStartingPositions(int overall, int inclass) {
             StartPos = overall;
             StartPosInClass = inclass;
         }
@@ -280,15 +274,15 @@ namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork.Structs {
             // it's LapsBySplinePosition is increased and it would be shown lap ahead of the actual leader
             // Thus we add current laps to the LapsBySplinePosition
             if (_isFirstUpdate && realtimeData.IsSession) {
-                if (Values.TrackData == null 
-                    || NewData.SplinePosition > 0.99 
+                if (Values.TrackData == null
+                    || NewData.SplinePosition > 0.99
                     || NewData.SplinePosition < 0.01
-                    || (Values.TrackData.TrackId == TrackType.Silverstone 
-                        && 0.9789979 < NewData.SplinePosition 
+                    || (Values.TrackData.TrackId == TrackType.Silverstone
+                        && 0.9789979 < NewData.SplinePosition
                         && NewData.SplinePosition < 0.9791052
                         ) // Silverstone
-                    || (Values.TrackData.TrackId == TrackType.Spa 
-                        && 0.9961125 < NewData.SplinePosition 
+                    || (Values.TrackData.TrackId == TrackType.Spa
+                        && 0.9961125 < NewData.SplinePosition
                         && NewData.SplinePosition < 0.9962250
                         ) // Spa
                 ) {
@@ -319,10 +313,10 @@ namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork.Structs {
         }
 
         private void UpdatePitInfo(RealtimeData realtimeData) {
-            if (OldData.CarLocation != CarLocationEnum.Pitlane  && NewData.CarLocation == CarLocationEnum.Pitlane // Entered pitlane
-                || (double.IsNaN(PitEntryTime) 
-                    && NewData.CarLocation == CarLocationEnum.Pitlane 
-                    && (realtimeData.IsSession 
+            if (OldData.CarLocation != CarLocationEnum.Pitlane && NewData.CarLocation == CarLocationEnum.Pitlane // Entered pitlane
+                || (double.IsNaN(PitEntryTime)
+                    && NewData.CarLocation == CarLocationEnum.Pitlane
+                    && (realtimeData.IsSession
                     || realtimeData.IsPostSession)
                     ) // We join/start SimHub mid session
                 ) {
@@ -340,7 +334,7 @@ namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork.Structs {
                 DynLeaderboardsPlugin.LogInfo($"#{RaceNumber} exited pitlane. Time in pits (Total,Last) = ({TotalPitTime:00.0}s,{LastPitTime:00.0}s)");
             }
 
-            if (!double.IsNaN(PitEntryTime)) { 
+            if (!double.IsNaN(PitEntryTime)) {
                 CurrentTimeInPits = realtimeData.SessionTime.TotalSeconds - PitEntryTime;
             }
 
@@ -372,7 +366,7 @@ namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork.Structs {
                 LastStintLaps = CurrentStintLaps;
                 CurrentStintLaps = 0;
 
-                DynLeaderboardsPlugin.LogInfo($"#{RaceNumber} stint ended: {LastStintLaps} laps in {LastStintTime/60.0:00.0}min");
+                DynLeaderboardsPlugin.LogInfo($"#{RaceNumber} stint ended: {LastStintLaps} laps in {LastStintTime / 60.0:00.0}min");
             }
 
             if (_stintStartTime != null) {
@@ -397,16 +391,16 @@ namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork.Structs {
         #region On realtime update
 
         public void OnRealtimeUpdate(
-            RealtimeData realtimeData, 
-            CarData leaderCar, 
-            CarData classLeaderCar, 
-            CarData focusedCar, 
-            CarData carAhead, 
+            RealtimeData realtimeData,
+            CarData leaderCar,
+            CarData classLeaderCar,
+            CarData focusedCar,
+            CarData carAhead,
             CarData carAheadInClass,
             CarData carAheadOnTrack,
             CarData overallBestLapCar,
             CarData classBestLapCar,
-            int overallPos, 
+            int overallPos,
             int classPos
         ) {
             IsOverallBestLapCar = CarIndex == overallBestLapCar?.CarIndex;
@@ -496,14 +490,13 @@ namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork.Structs {
         #region Gap calculations
 
         private void SetGaps(
-            RealtimeData realtimeData, 
-            CarData leader, 
-            CarData classLeader, 
-            CarData focused, 
-            CarData carAhead, 
-            CarData carAheadInClass, 
-            CarData carAheadOnTrack) 
-        {
+            RealtimeData realtimeData,
+            CarData leader,
+            CarData classLeader,
+            CarData focused,
+            CarData carAhead,
+            CarData carAheadInClass,
+            CarData carAheadOnTrack) {
             if (realtimeData.IsRace) {
                 CalculateRaceGaps(leader, classLeader, focused, carAhead, carAheadInClass);
             } else {
@@ -622,7 +615,7 @@ namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork.Structs {
         /// <param name="to"></param>
         /// <returns></returns>
         public static double? CalculateGap(CarData from, CarData to) {
-            if (from.CarIndex == to.CarIndex)  return 0;
+            if (from.CarIndex == to.CarIndex) return 0;
 
             var distBetween = to.TotalSplinePosition - from.TotalSplinePosition; // Negative if 'To' is behind
 
@@ -642,8 +635,8 @@ namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork.Structs {
                 }
 
                 // We don't have lap interpolators available, use naive method to calculate the gap
-                if (Values.TrackData == null 
-                    || (TrackData.LapInterpolators[to.CarClass] == null && TrackData.LapInterpolators[from.CarClass] == null) 
+                if (Values.TrackData == null
+                    || (TrackData.LapInterpolators[to.CarClass] == null && TrackData.LapInterpolators[from.CarClass] == null)
                 ) {
                     //LeaderboardPlugin.LogInfo("Used naive gap calculator");
                     return distBetween * Values.TrackData.TrackMeters / (175.0 / 3.6);
@@ -714,7 +707,7 @@ namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork.Structs {
             var pos = _splinePositionTime[cls];
             if (pos != _splinePositionTime.DefaultValue) {
                 return pos;
-            } 
+            }
 
             var interp = TrackData.LapInterpolators[cls];
             if (NewData != null && interp != null) {

@@ -1,14 +1,8 @@
 ﻿using KLPlugins.DynLeaderboards.Enums;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork.Structs
-{
-    public class CarInfo
-    {
+namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork.Structs {
+    public class CarInfo {
         public ushort CarIndex { get; }
         public CarType CarModelType { get; internal set; }
         public CarClass CarClass { get; internal set; }
@@ -19,18 +13,15 @@ namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork.Structs
         public IList<DriverInfo> Drivers { get; } = new List<DriverInfo>();
         public NationalityEnum Nationality { get; internal set; }
 
-        public CarInfo(ushort carIndex)
-        {
+        public CarInfo(ushort carIndex) {
             CarIndex = carIndex;
         }
 
-        internal void AddDriver(DriverInfo driverInfo)
-        {
+        internal void AddDriver(DriverInfo driverInfo) {
             Drivers.Add(driverInfo);
         }
 
-        public string GetCurrentDriverName()
-        {
+        public string GetCurrentDriverName() {
             if (CurrentDriverIndex < Drivers.Count)
                 return Drivers[CurrentDriverIndex].LastName;
             return "nobody(?)";

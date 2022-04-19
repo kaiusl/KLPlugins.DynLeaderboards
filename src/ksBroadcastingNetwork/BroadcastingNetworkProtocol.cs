@@ -1,16 +1,13 @@
-﻿using System;
+﻿using KLPlugins.DynLeaderboards.Enums;
+using KLPlugins.DynLeaderboards.ksBroadcastingNetwork.Structs;
+using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
-using KLPlugins.DynLeaderboards.Enums;
-using KLPlugins.DynLeaderboards.ksBroadcastingNetwork.Structs;
 
 namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork {
-    public enum OutboundMessageTypes : byte
-    {
+    public enum OutboundMessageTypes : byte {
         REGISTER_COMMAND_APPLICATION = 1,
         UNREGISTER_COMMAND_APPLICATION = 9,
 
@@ -25,8 +22,7 @@ namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork {
         SAVE_MANUAL_REPLAY_HIGHLIGHT = 60  // TODO, but planned: saving manual replays gives distributed clients the possibility to see the play the same replay
     }
 
-    public enum InboundMessageTypes : byte
-    {
+    public enum InboundMessageTypes : byte {
         REGISTRATION_RESULT = 1,
         REALTIME_UPDATE = 2,
         REALTIME_CAR_UPDATE = 3,
@@ -36,8 +32,7 @@ namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork {
         BROADCASTING_EVENT = 7
     }
 
-    public class BroadcastingNetworkProtocol
-    {
+    public class BroadcastingNetworkProtocol {
         public const int BROADCASTING_PROTOCOL_VERSION = 4;
         private string ConnectionIdentifier { get; }
         private SendMessageDelegate Send { get; }
@@ -68,7 +63,7 @@ namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork {
 
         public delegate void BroadcastingEventDelegate(string sender, BroadcastingEvent evt);
         public event BroadcastingEventDelegate OnBroadcastingEvent;
-        
+
 
 
 
@@ -88,8 +83,7 @@ namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork {
 
         #endregion
 
-        internal BroadcastingNetworkProtocol(string connectionIdentifier, SendMessageDelegate sendMessageDelegate)
-        {
+        internal BroadcastingNetworkProtocol(string connectionIdentifier, SendMessageDelegate sendMessageDelegate) {
             if (string.IsNullOrEmpty(connectionIdentifier))
                 throw new ArgumentNullException(nameof(connectionIdentifier), $"No connection identifier set; we use this to distinguish different connections. Using the remote IP:Port is a good idea");
 
@@ -110,209 +104,192 @@ namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork {
             RequestTrackData();
         }
 
-        internal void ProcessMessage(BinaryReader br)
-        {
+        internal void ProcessMessage(BinaryReader br) {
             // Any message starts with an 1-byte command type
             var messageType = (InboundMessageTypes)br.ReadByte();
-            switch (messageType)
-            {
-                case InboundMessageTypes.REGISTRATION_RESULT:
-                    {
-                        ConnectionId = br.ReadInt32();
-                        var connectionSuccess = br.ReadByte() > 0;
-                        var isReadonly = br.ReadByte() == 0;
-                        var errMsg = ReadString(br);
+            switch (messageType) {
+                case InboundMessageTypes.REGISTRATION_RESULT: {
+                    ConnectionId = br.ReadInt32();
+                    var connectionSuccess = br.ReadByte() > 0;
+                    var isReadonly = br.ReadByte() == 0;
+                    var errMsg = ReadString(br);
 
-                        OnConnectionStateChanged?.Invoke(ConnectionId, connectionSuccess, isReadonly, errMsg);
+                    OnConnectionStateChanged?.Invoke(ConnectionId, connectionSuccess, isReadonly, errMsg);
 
-                        // In case this was successful, we will request the initial data
-                        RequestEntryList();
-                        RequestTrackData();
+                    // In case this was successful, we will request the initial data
+                    RequestEntryList();
+                    RequestTrackData();
+                }
+                break;
+                case InboundMessageTypes.ENTRY_LIST: {
+                    DynLeaderboardsPlugin.LogInfo("Recieved entry list update");
+                    EntryListCars.Clear();
+
+                    var connectionId = br.ReadInt32();
+                    var carEntryCount = br.ReadUInt16();
+                    for (int i = 0; i < carEntryCount; i++) {
+                        EntryListCars.Add(new CarInfo(br.ReadUInt16()));
                     }
-                    break;
-                case InboundMessageTypes.ENTRY_LIST:
-                    {
-                        DynLeaderboardsPlugin.LogInfo("Recieved entry list update");
-                        EntryListCars.Clear();
 
-                        var connectionId = br.ReadInt32();
-                        var carEntryCount = br.ReadUInt16();
-                        for (int i = 0; i < carEntryCount; i++)
-                        {
-                            EntryListCars.Add(new CarInfo(br.ReadUInt16()));
+                    OnNewEntrylist?.Invoke(ConnectionIdentifier);
+                }
+                break;
+                case InboundMessageTypes.ENTRY_LIST_CAR: {
+
+                    var carId = br.ReadUInt16();
+
+                    var carInfo = EntryListCars.SingleOrDefault(x => x.CarIndex == carId);
+                    if (carInfo == null) {
+                        System.Diagnostics.Debug.WriteLine($"Entry list update for unknown carIndex {carId}");
+                        break;
+                    }
+
+                    carInfo.CarModelType = (CarType)br.ReadByte(); // Byte sized car model
+                    carInfo.CarClass = carInfo.CarModelType.GetClass();
+                    carInfo.TeamName = ReadString(br);
+                    carInfo.RaceNumber = br.ReadInt32();
+                    carInfo.CupCategory = (TeamCupCategory)br.ReadByte(); // Cup: Overall/Pro = 0, ProAm = 1, Am = 2, Silver = 3, National = 4
+                    carInfo.CurrentDriverIndex = br.ReadByte();
+                    carInfo.Nationality = (NationalityEnum)br.ReadUInt16();
+
+                    // Now the drivers on this car:
+                    var driversOnCarCount = br.ReadByte();
+                    for (int di = 0; di < driversOnCarCount; di++) {
+                        var driverInfo = new DriverInfo();
+
+                        driverInfo.FirstName = ReadString(br);
+                        driverInfo.LastName = ReadString(br);
+                        driverInfo.ShortName = ReadString(br);
+                        driverInfo.Category = (DriverCategory)br.ReadByte(); // Platinum = 3, Gold = 2, Silver = 1, Bronze = 0
+
+                        // new in 1.13.11:
+                        driverInfo.Nationality = (NationalityEnum)br.ReadUInt16();
+
+                        carInfo.AddDriver(driverInfo);
+                    }
+
+                    OnEntrylistUpdate?.Invoke(ConnectionIdentifier, carInfo);
+                }
+                break;
+                case InboundMessageTypes.REALTIME_UPDATE: {
+                    RealtimeUpdate update = new RealtimeUpdate();
+                    update.EventIndex = (int)br.ReadUInt16();
+                    update.SessionIndex = (int)br.ReadUInt16();
+                    update.SessionType = (RaceSessionType)br.ReadByte();
+                    update.Phase = (SessionPhase)br.ReadByte();
+                    var sessionTime = br.ReadSingle();
+                    update.SessionTime = TimeSpan.FromMilliseconds(sessionTime);
+                    var sessionEndTime = br.ReadSingle();
+                    update.SessionEndTime = TimeSpan.FromMilliseconds(sessionEndTime);
+
+                    update.FocusedCarIndex = br.ReadInt32();
+                    update.ActiveCameraSet = ReadString(br);
+                    update.ActiveCamera = ReadString(br);
+                    update.CurrentHudPage = ReadString(br);
+
+                    update.IsReplayPlaying = br.ReadByte() > 0;
+                    if (update.IsReplayPlaying) {
+                        update.ReplaySessionTime = br.ReadSingle();
+                        update.ReplayRemainingTime = br.ReadSingle();
+                    }
+
+                    update.TimeOfDay = TimeSpan.FromMilliseconds(br.ReadSingle());
+                    update.AmbientTemp = br.ReadByte();
+                    update.TrackTemp = br.ReadByte();
+                    update.Clouds = br.ReadByte() / 10.0f;
+                    update.RainLevel = br.ReadByte() / 10.0f;
+                    update.Wetness = br.ReadByte() / 10.0f;
+
+                    update.BestSessionLap = ReadLap(br);
+
+                    OnRealtimeUpdate?.Invoke(ConnectionIdentifier, update);
+                }
+                break;
+                case InboundMessageTypes.REALTIME_CAR_UPDATE: {
+                    RealtimeCarUpdate carUpdate = new RealtimeCarUpdate();
+
+                    carUpdate.CarIndex = br.ReadUInt16();
+                    carUpdate.DriverIndex = br.ReadUInt16(); // Driver swap will make this change
+                    carUpdate.DriverCount = br.ReadByte();
+                    carUpdate.Gear = br.ReadByte() - 2; // -2 makes the R -1, N 0 and the rest as-is
+                    carUpdate.WorldPosX = br.ReadSingle();
+                    carUpdate.WorldPosY = br.ReadSingle();
+                    carUpdate.Yaw = br.ReadSingle();
+                    carUpdate.CarLocation = (CarLocationEnum)br.ReadByte(); // - , Track, Pitlane, PitEntry, PitExit = 4
+                    carUpdate.Kmh = br.ReadUInt16();
+                    carUpdate.Position = br.ReadUInt16(); // official P/Q/R position (1 based)
+                    carUpdate.CupPosition = br.ReadUInt16(); // official P/Q/R position (1 based)
+                    carUpdate.TrackPosition = br.ReadUInt16(); // position on track (1 based)
+                    carUpdate.SplinePosition = br.ReadSingle(); // track position between 0.0 and 1.0
+                    carUpdate.Laps = br.ReadUInt16();
+
+                    carUpdate.Delta = br.ReadInt32(); // Realtime delta to best session lap
+                    carUpdate.BestSessionLap = ReadLap(br);
+                    carUpdate.LastLap = ReadLap(br);
+                    carUpdate.CurrentLap = ReadLap(br);
+
+                    // the concept is: "don't know a car or driver? ask for an entry list update"
+                    var carEntry = EntryListCars.FirstOrDefault(x => x.CarIndex == carUpdate.CarIndex);
+                    if (carEntry == null || carEntry.Drivers.Count != carUpdate.DriverCount) {
+                        if ((DateTime.Now - lastEntrylistRequest).TotalSeconds > 5) {
+                            lastEntrylistRequest = DateTime.Now;
+                            RequestEntryList();
+                            DynLeaderboardsPlugin.LogInfo($"CarUpdate {carUpdate.CarIndex}|{carUpdate.DriverIndex} not know, will ask for new EntryList");
                         }
-
-                        OnNewEntrylist?.Invoke(ConnectionIdentifier);
+                    } else {
+                        OnRealtimeCarUpdate?.Invoke(ConnectionIdentifier, carUpdate);
                     }
-                    break;
-                case InboundMessageTypes.ENTRY_LIST_CAR:
-                    {
-                        
-                        var carId = br.ReadUInt16();
+                }
+                break;
+                case InboundMessageTypes.TRACK_DATA: {
+                    var connectionId = br.ReadInt32();
+                    var trackData = new TrackData();
 
-                        var carInfo = EntryListCars.SingleOrDefault(x => x.CarIndex == carId);
-                        if(carInfo == null)
-                        {
-                            System.Diagnostics.Debug.WriteLine($"Entry list update for unknown carIndex {carId}");
-                            break;
-                        }
+                    trackData.TrackName = ReadString(br);
+                    trackData.TrackId = (TrackType)br.ReadInt32();
+                    trackData.TrackMeters = br.ReadInt32();
+                    TrackMeters = trackData.TrackMeters > 0 ? trackData.TrackMeters : -1;
 
-                        carInfo.CarModelType = (CarType)br.ReadByte(); // Byte sized car model
-                        carInfo.CarClass = carInfo.CarModelType.GetClass();
-                        carInfo.TeamName = ReadString(br);
-                        carInfo.RaceNumber = br.ReadInt32();
-                        carInfo.CupCategory = (TeamCupCategory)br.ReadByte(); // Cup: Overall/Pro = 0, ProAm = 1, Am = 2, Silver = 3, National = 4
-                        carInfo.CurrentDriverIndex = br.ReadByte();
-                        carInfo.Nationality = (NationalityEnum)br.ReadUInt16();
+                    //trackData.CameraSets = new Dictionary<string, List<string>>();
 
-                        // Now the drivers on this car:
-                        var driversOnCarCount = br.ReadByte();
-                        for (int di = 0; di < driversOnCarCount; di++)
-                        {
-                            var driverInfo = new DriverInfo();
+                    //var cameraSetCount = br.ReadByte();
+                    //for (int camSet = 0; camSet < cameraSetCount; camSet++)
+                    //{
+                    //    var camSetName = ReadString(br);
+                    //    trackData.CameraSets.Add(camSetName, new List<string>());
 
-                            driverInfo.FirstName = ReadString(br);
-                            driverInfo.LastName = ReadString(br);
-                            driverInfo.ShortName = ReadString(br);
-                            driverInfo.Category = (DriverCategory)br.ReadByte(); // Platinum = 3, Gold = 2, Silver = 1, Bronze = 0
+                    //    var cameraCount = br.ReadByte();
+                    //    for (int cam = 0; cam < cameraCount; cam++)
+                    //    {
+                    //        var cameraName = ReadString(br);
+                    //        trackData.CameraSets[camSetName].Add(cameraName);
+                    //    }
+                    //}
 
-                            // new in 1.13.11:
-                            driverInfo.Nationality = (NationalityEnum)br.ReadUInt16();
+                    //var hudPages = new List<string>();
+                    //var hudPagesCount = br.ReadByte();
+                    //for (int i = 0; i < hudPagesCount; i++)
+                    //{
+                    //    hudPages.Add(ReadString(br));
+                    //}
+                    //trackData.HUDPages = hudPages;
 
-                            carInfo.AddDriver(driverInfo);
-                        }
+                    OnTrackDataUpdate?.Invoke(ConnectionIdentifier, trackData);
+                }
+                break;
+                case InboundMessageTypes.BROADCASTING_EVENT: {
+                    //BroadcastingEvent evt = new BroadcastingEvent()
+                    //{
+                    //    Type = (BroadcastingCarEventType)br.ReadByte(),
+                    //    Msg = ReadString(br),
+                    //    TimeMs = br.ReadInt32(),
+                    //    CarId = br.ReadInt32(),
+                    //};
 
-                        OnEntrylistUpdate?.Invoke(ConnectionIdentifier, carInfo);
-                    }
-                    break;
-                case InboundMessageTypes.REALTIME_UPDATE:
-                    {
-                        RealtimeUpdate update = new RealtimeUpdate();
-                        update.EventIndex = (int)br.ReadUInt16();
-                        update.SessionIndex = (int)br.ReadUInt16();
-                        update.SessionType = (RaceSessionType)br.ReadByte();
-                        update.Phase = (SessionPhase)br.ReadByte();
-                        var sessionTime = br.ReadSingle();
-                        update.SessionTime = TimeSpan.FromMilliseconds(sessionTime);
-                        var sessionEndTime = br.ReadSingle();
-                        update.SessionEndTime = TimeSpan.FromMilliseconds(sessionEndTime);
-
-                        update.FocusedCarIndex = br.ReadInt32();
-                        update.ActiveCameraSet = ReadString(br);
-                        update.ActiveCamera = ReadString(br);
-                        update.CurrentHudPage = ReadString(br);
-
-                        update.IsReplayPlaying = br.ReadByte() > 0;
-                        if (update.IsReplayPlaying)
-                        {
-                            update.ReplaySessionTime = br.ReadSingle();
-                            update.ReplayRemainingTime = br.ReadSingle();
-                        }
-
-                        update.TimeOfDay = TimeSpan.FromMilliseconds(br.ReadSingle());
-                        update.AmbientTemp = br.ReadByte();
-                        update.TrackTemp = br.ReadByte();
-                        update.Clouds = br.ReadByte() / 10.0f;
-                        update.RainLevel = br.ReadByte() / 10.0f;
-                        update.Wetness = br.ReadByte() / 10.0f;
-
-                        update.BestSessionLap = ReadLap(br);
-
-                        OnRealtimeUpdate?.Invoke(ConnectionIdentifier, update);
-                    }
-                    break;
-                case InboundMessageTypes.REALTIME_CAR_UPDATE:
-                    {
-                        RealtimeCarUpdate carUpdate = new RealtimeCarUpdate();
-
-                        carUpdate.CarIndex = br.ReadUInt16();
-                        carUpdate.DriverIndex = br.ReadUInt16(); // Driver swap will make this change
-                        carUpdate.DriverCount = br.ReadByte();
-                        carUpdate.Gear = br.ReadByte() - 2; // -2 makes the R -1, N 0 and the rest as-is
-                        carUpdate.WorldPosX = br.ReadSingle();
-                        carUpdate.WorldPosY = br.ReadSingle();
-                        carUpdate.Yaw = br.ReadSingle();
-                        carUpdate.CarLocation = (CarLocationEnum)br.ReadByte(); // - , Track, Pitlane, PitEntry, PitExit = 4
-                        carUpdate.Kmh = br.ReadUInt16();
-                        carUpdate.Position = br.ReadUInt16(); // official P/Q/R position (1 based)
-                        carUpdate.CupPosition = br.ReadUInt16(); // official P/Q/R position (1 based)
-                        carUpdate.TrackPosition = br.ReadUInt16(); // position on track (1 based)
-                        carUpdate.SplinePosition = br.ReadSingle(); // track position between 0.0 and 1.0
-                        carUpdate.Laps = br.ReadUInt16();
-
-                        carUpdate.Delta = br.ReadInt32(); // Realtime delta to best session lap
-                        carUpdate.BestSessionLap = ReadLap(br);
-                        carUpdate.LastLap = ReadLap(br);
-                        carUpdate.CurrentLap = ReadLap(br);
-
-                        // the concept is: "don't know a car or driver? ask for an entry list update"
-                        var carEntry = EntryListCars.FirstOrDefault(x => x.CarIndex == carUpdate.CarIndex);
-                        if(carEntry == null || carEntry.Drivers.Count != carUpdate.DriverCount)
-                        {
-                            if ((DateTime.Now - lastEntrylistRequest).TotalSeconds > 5)
-                            {
-                                lastEntrylistRequest = DateTime.Now;
-                                RequestEntryList();
-                                DynLeaderboardsPlugin.LogInfo($"CarUpdate {carUpdate.CarIndex}|{carUpdate.DriverIndex} not know, will ask for new EntryList");
-                            }
-                        }
-                        else
-                        {
-                            OnRealtimeCarUpdate?.Invoke(ConnectionIdentifier, carUpdate);
-                        }
-                    }
-                    break;
-                case InboundMessageTypes.TRACK_DATA:
-                    {
-                        var connectionId = br.ReadInt32();
-                        var trackData = new TrackData();
-
-                        trackData.TrackName = ReadString(br);
-                        trackData.TrackId = (TrackType)br.ReadInt32();
-                        trackData.TrackMeters = br.ReadInt32();
-                        TrackMeters = trackData.TrackMeters > 0 ? trackData.TrackMeters : -1;
-
-                        //trackData.CameraSets = new Dictionary<string, List<string>>();
-
-                        //var cameraSetCount = br.ReadByte();
-                        //for (int camSet = 0; camSet < cameraSetCount; camSet++)
-                        //{
-                        //    var camSetName = ReadString(br);
-                        //    trackData.CameraSets.Add(camSetName, new List<string>());
-
-                        //    var cameraCount = br.ReadByte();
-                        //    for (int cam = 0; cam < cameraCount; cam++)
-                        //    {
-                        //        var cameraName = ReadString(br);
-                        //        trackData.CameraSets[camSetName].Add(cameraName);
-                        //    }
-                        //}
-
-                        //var hudPages = new List<string>();
-                        //var hudPagesCount = br.ReadByte();
-                        //for (int i = 0; i < hudPagesCount; i++)
-                        //{
-                        //    hudPages.Add(ReadString(br));
-                        //}
-                        //trackData.HUDPages = hudPages;
-
-                        OnTrackDataUpdate?.Invoke(ConnectionIdentifier, trackData);
-                    }
-                    break;
-                case InboundMessageTypes.BROADCASTING_EVENT:
-                    {
-                        //BroadcastingEvent evt = new BroadcastingEvent()
-                        //{
-                        //    Type = (BroadcastingCarEventType)br.ReadByte(),
-                        //    Msg = ReadString(br),
-                        //    TimeMs = br.ReadInt32(),
-                        //    CarId = br.ReadInt32(),
-                        //};
-
-                        //evt.CarData = EntryListCars.FirstOrDefault(x => x.CarIndex == evt.CarId);
-                        //OnBroadcastingEvent?.Invoke(ConnectionIdentifier, evt);
-                    }
-                    break;
+                    //evt.CarData = EntryListCars.FirstOrDefault(x => x.CarIndex == evt.CarId);
+                    //OnBroadcastingEvent?.Invoke(ConnectionIdentifier, evt);
+                }
+                break;
                 default:
                     break;
             }
@@ -321,8 +298,7 @@ namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork {
         /// <summary>
         /// Laps are always sent in a common way, it makes sense to have a shared function to parse them
         /// </summary>
-        private static LapInfo ReadLap(BinaryReader br)
-        {
+        private static LapInfo ReadLap(BinaryReader br) {
             var lap = new LapInfo();
             var laptime = br.ReadInt32();
             if (laptime == int.MaxValue) {
@@ -359,23 +335,20 @@ namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork {
 
             // Now it's possible that this is "no" lap that doesn't even include a 
             // first split, we can detect this by comparing with int32.Max
-            while (lap.Splits.Count < 3)
-            {
+            while (lap.Splits.Count < 3) {
                 lap.Splits.Add(null);
             }
 
             return lap;
         }
 
-        public static string ReadString(BinaryReader br)
-        {
+        public static string ReadString(BinaryReader br) {
             var length = br.ReadUInt16();
             var bytes = br.ReadBytes(length);
             return Encoding.UTF8.GetString(bytes);
         }
 
-        private static void WriteString(BinaryWriter bw, string s)
-        {
+        private static void WriteString(BinaryWriter bw, string s) {
             var bytes = Encoding.UTF8.GetBytes(s);
             bw.Write(Convert.ToUInt16(bytes.Length));
             bw.Write(bytes);
@@ -388,11 +361,9 @@ namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork {
         /// <param name="connectionPassword"></param>
         /// <param name="msRealtimeUpdateInterval"></param>
         /// <param name="commandPassword"></param>
-        internal void RequestConnection(string displayName, string connectionPassword, int msRealtimeUpdateInterval, string commandPassword)
-        {
+        internal void RequestConnection(string displayName, string connectionPassword, int msRealtimeUpdateInterval, string commandPassword) {
             using (var ms = new MemoryStream())
-            using (var br = new BinaryWriter(ms))
-            {
+            using (var br = new BinaryWriter(ms)) {
                 br.Write((byte)OutboundMessageTypes.REGISTER_COMMAND_APPLICATION); // First byte is always the command type
                 br.Write((byte)BROADCASTING_PROTOCOL_VERSION);
 
@@ -405,11 +376,9 @@ namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork {
             }
         }
 
-        internal void Disconnect()
-        {
+        internal void Disconnect() {
             using (var ms = new MemoryStream())
-            using (var br = new BinaryWriter(ms))
-            {
+            using (var br = new BinaryWriter(ms)) {
                 br.Write((byte)OutboundMessageTypes.UNREGISTER_COMMAND_APPLICATION); // First byte is always the command type
                 br.Write(ConnectionId);
                 Send(ms.ToArray());
@@ -422,11 +391,9 @@ namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork {
         /// The client will send this automatically when something changes; however if you detect a carIndex or driverIndex, this may cure the 
         /// problem for future updates
         /// </summary>
-        public void RequestEntryList()
-        {
+        public void RequestEntryList() {
             using (var ms = new MemoryStream())
-            using (var br = new BinaryWriter(ms))
-            {
+            using (var br = new BinaryWriter(ms)) {
                 br.Write((byte)OutboundMessageTypes.REQUEST_ENTRY_LIST); // First byte is always the command type
                 br.Write((int)ConnectionId);
 
@@ -434,11 +401,9 @@ namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork {
             }
         }
 
-        private void RequestTrackData()
-        {
+        private void RequestTrackData() {
             using (var ms = new MemoryStream())
-            using (var br = new BinaryWriter(ms))
-            {
+            using (var br = new BinaryWriter(ms)) {
                 br.Write((byte)OutboundMessageTypes.REQUEST_TRACK_DATA); // First byte is always the command type
                 br.Write((int)ConnectionId);
 

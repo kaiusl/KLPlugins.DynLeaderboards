@@ -1,10 +1,5 @@
 ﻿using KLPlugins.DynLeaderboards.ksBroadcastingNetwork;
 using KLPlugins.DynLeaderboards.ksBroadcastingNetwork.Structs;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace KLPlugins.DynLeaderboards {
     public class DriverData {
@@ -19,7 +14,7 @@ namespace KLPlugins.DynLeaderboards {
 
         private double _totalDrivingTime = 0;
 
-        public DriverData(DriverInfo info) { 
+        public DriverData(DriverInfo info) {
             FirstName = info.FirstName;
             LastName = info.LastName;
             ShortName = info.ShortName;
@@ -34,7 +29,7 @@ namespace KLPlugins.DynLeaderboards {
             }
         }
 
-        public void OnStintEnd(double lastStintTime) { 
+        public void OnStintEnd(double lastStintTime) {
             _totalDrivingTime += lastStintTime;
         }
 
@@ -42,7 +37,7 @@ namespace KLPlugins.DynLeaderboards {
             if (isDriving && currentStintTime != null) return _totalDrivingTime + (double)currentStintTime;
             return _totalDrivingTime;
         }
- 
+
 
         public string FullName() {
             return FirstName + " " + LastName;

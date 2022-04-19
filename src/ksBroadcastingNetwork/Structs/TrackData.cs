@@ -4,11 +4,8 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork.Structs
-{
+namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork.Structs {
     public class LapInterpolator {
         public LinearSpline Interpolator { get; }
         public double LapTime { get; }
@@ -16,7 +13,7 @@ namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork.Structs
         public LapInterpolator(LinearSpline interpolator, double lapTime) {
             Interpolator = interpolator;
             LapTime = lapTime;
-        } 
+        }
     }
 
     public class TrackData {
@@ -44,7 +41,7 @@ namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork.Structs
             SetReplacements(CarClass.CUP21, new CarClass[] { CarClass.CUP17, CarClass.ST21, CarClass.ST15, CarClass.CHL, CarClass.GT3 });
             SetReplacements(CarClass.CUP17, new CarClass[] { CarClass.CUP21, CarClass.ST21, CarClass.ST15, CarClass.CHL, CarClass.GT3 });
             SetReplacements(CarClass.ST21, new CarClass[] { CarClass.CUP21, CarClass.CUP17, CarClass.ST15, CarClass.CHL, CarClass.GT3 });
-            SetReplacements(CarClass.ST15, new CarClass[] { CarClass.ST21, CarClass.CUP21, CarClass.CUP17,  CarClass.CHL, CarClass.GT3 });
+            SetReplacements(CarClass.ST15, new CarClass[] { CarClass.ST21, CarClass.CUP21, CarClass.CUP17, CarClass.CHL, CarClass.GT3 });
         }
 
         private static void AddLapInterpolator(CarClass cls) {

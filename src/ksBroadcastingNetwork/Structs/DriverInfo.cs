@@ -1,13 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork.Structs
-{
-    public class DriverInfo
-    {
+﻿
+namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork.Structs {
+    public class DriverInfo {
         public string FirstName { get; internal set; }
         public string LastName { get; internal set; }
         public string ShortName { get; internal set; }

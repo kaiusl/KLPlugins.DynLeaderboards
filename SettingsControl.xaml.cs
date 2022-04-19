@@ -1,17 +1,15 @@
-﻿using System;
+﻿using KLPlugins.DynLeaderboards.Enums;
+using KLPlugins.DynLeaderboards.ksBroadcastingNetwork;
+using MahApps.Metro.Controls;
+using SimHub.Plugins.Styles;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
-using SimHub.Plugins.UI;
-using SimHub.Plugins.Styles;
-using System.IO;
-using System.Windows.Media;
 using System.Windows.Data;
-using MahApps.Metro.Controls;
+using System.Windows.Media;
 using Xceed.Wpf.Toolkit;
-using KLPlugins.DynLeaderboards.Enums;
-using System.Collections.Generic;
-using KLPlugins.DynLeaderboards.ksBroadcastingNetwork;
-using System.Linq;
 
 namespace KLPlugins.DynLeaderboards {
 
@@ -32,7 +30,7 @@ namespace KLPlugins.DynLeaderboards {
 
         public SettingsControl(DynLeaderboardsPlugin plugin) : this() {
             this.Plugin = plugin;
-            
+
             if (Settings.DynLeaderboardConfigs.Count == 0) {
                 Settings.DynLeaderboardConfigs.Add(new PluginSettings.DynLeaderboardConfig($"Dynamic"));
                 Plugin.AddNewLeaderboard(Settings.DynLeaderboardConfigs.Last());
@@ -275,7 +273,7 @@ namespace KLPlugins.DynLeaderboards {
 
             var t = new TextBox();
             t.Width = 200;
-            
+
             var binding = new Binding("Name");
             binding.Source = l;
             t.SetBinding(TextBox.TextProperty, binding);
@@ -288,7 +286,7 @@ namespace KLPlugins.DynLeaderboards {
             var t2 = new TextBlock();
             t2.Text = "Select";
             t2.HorizontalAlignment = HorizontalAlignment.Left;
-            t2.Margin = new Thickness(5,0,0,0);
+            t2.Margin = new Thickness(5, 0, 0, 0);
 
             sp.Children.Add(t);
             sp.Children.Add(t2);
@@ -787,11 +785,11 @@ namespace KLPlugins.DynLeaderboards {
         /// Creates row to toggle property
         /// </summary>
         private StackPanel CreatePropertyToggleRow(
-            string name, 
-            string displayName, 
-            bool isChecked, 
-            RoutedEventHandler checkHandler, 
-            RoutedEventHandler uncheckHandler, 
+            string name,
+            string displayName,
+            bool isChecked,
+            RoutedEventHandler checkHandler,
+            RoutedEventHandler uncheckHandler,
             string tooltip
         ) {
             var sp = new StackPanel();

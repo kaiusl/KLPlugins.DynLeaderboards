@@ -1,21 +1,14 @@
 ﻿using GameReaderCommon;
+using KLPlugins.DynLeaderboards.Enums;
+using KLPlugins.DynLeaderboards.ksBroadcastingNetwork;
 using SimHub.Plugins;
 using System;
-using System.Windows.Media;
-using Newtonsoft.Json;
-using System.IO;
-using System.Threading;
-using System.Collections.Concurrent;
-using System.Runtime.CompilerServices;
 using System.Diagnostics;
-using System.Reflection;
-using GameReaderCommon.Enums;
-using KLPlugins.DynLeaderboards.ksBroadcastingNetwork;
-using KLPlugins.DynLeaderboards.Enums;
-using System.Collections.Generic;
+using System.IO;
 using System.Linq;
-using KLPlugins.DynLeaderboards.ksBroadcastingNetwork.Structs;
-using System.Linq.Expressions;
+using System.Reflection;
+using System.Runtime.CompilerServices;
+using System.Windows.Media;
 
 namespace KLPlugins.DynLeaderboards {
     public enum Leaderboard {
@@ -50,9 +43,9 @@ namespace KLPlugins.DynLeaderboards {
                 default:
                     return "Unknown";
             }
-        
+
         }
-    
+
     }
 
 
@@ -126,12 +119,12 @@ namespace KLPlugins.DynLeaderboards {
                 _logFile = null;
             }
 
-            if (_timingWriter != null) { 
+            if (_timingWriter != null) {
                 _timingWriter.Dispose();
                 _timingWriter = null;
             }
 
-            if (_timingFile != null) { 
+            if (_timingFile != null) {
                 _timingFile.Dispose();
                 _timingFile = null;
             }
@@ -172,7 +165,7 @@ namespace KLPlugins.DynLeaderboards {
             PreJit(); // Performance is important while in game, prejit methods at startup, to avoid doing that mid races
 
             LogInfo("Starting plugin");
-            
+
             GameDataPath = $@"{Settings.PluginDataLocation}\{gameName}";
 
             if (Settings.DynLeaderboardConfigs.Count == 0) {
@@ -193,8 +186,8 @@ namespace KLPlugins.DynLeaderboards {
 
             this.AttachDelegate("IsBroadcastClientConnected", () => _values.BroadcastClient?.IsConnected);
 
-           // this.AttachDelegate("DBG_RealtimeUpdateTime", () => _values.RealtimeUpdateTime);
-            
+            // this.AttachDelegate("DBG_RealtimeUpdateTime", () => _values.RealtimeUpdateTime);
+
         }
 
         public void AddNewLeaderboard(PluginSettings.DynLeaderboardConfig s) {
@@ -218,7 +211,7 @@ namespace KLPlugins.DynLeaderboards {
             };
         }
 
-        private void AttachGeneralDelegates() { 
+        private void AttachGeneralDelegates() {
             // Add everything else 
             if (Settings.OutGeneralProps.Includes(OutGeneralProp.SessionPhase)) this.AttachDelegate("Session.Phase", () => _values.RealtimeData?.Phase);
             if (Settings.OutGeneralProps.Includes(OutGeneralProp.MaxStintTime)) this.AttachDelegate("Session.MaxStintTime", () => _values.MaxDriverStintTime);
@@ -235,7 +228,7 @@ namespace KLPlugins.DynLeaderboards {
                     addClassColor(cls);
                 }
             }
-           
+
 
             void addCupColor(TeamCupCategory cup) {
                 if (Settings.OutGeneralProps.Includes(OutGeneralProp.TeamCupColors)) this.AttachDelegate($"Color.Cup.{cup}", () => Settings.TeamCupCategoryColors[cup]);

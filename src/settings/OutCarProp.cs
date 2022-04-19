@@ -32,7 +32,7 @@ namespace KLPlugins.DynLeaderboards {
 
         public static string ToPropName(this OutCarProp p) {
             switch (p) {
-               case OutCarProp.CarNumber:
+                case OutCarProp.CarNumber:
                     return "Car.Number";
                 case OutCarProp.CarModel:
                     return "Car.Model";
@@ -242,7 +242,7 @@ namespace KLPlugins.DynLeaderboards {
 
         public static string ToPropName(this OutGapProp p) {
             switch (p) {
-                 case OutGapProp.GapToLeader:
+                case OutGapProp.GapToLeader:
                     return "Gap.ToOverallLeader";
                 case OutGapProp.GapToClassLeader:
                     return "Gap.ToClassLeader";

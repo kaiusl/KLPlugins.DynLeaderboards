@@ -1,18 +1,15 @@
 ﻿// Original from ACC Broadcasting SDK example (Assetto Corsa Competizione Dedicated Server\sdk\broadcasting)
 
+using Newtonsoft.Json;
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
-using KLPlugins.DynLeaderboards;
-using Newtonsoft.Json;
 
 namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork {
-    public class ACCUdpRemoteClient : IDisposable
-    {
+    public class ACCUdpRemoteClient : IDisposable {
         public BroadcastingNetworkProtocol MessageHandler { get; }
         public string IpPort { get; }
         public string DisplayName { get; }
@@ -27,8 +24,7 @@ namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork {
         /// <summary>
         /// To get the events delivered inside the UI thread, just create this object from the UI thread/synchronization context.
         /// </summary>
-        public ACCUdpRemoteClient(string ip, int port, string displayName, string connectionPassword, string commandPassword, int msRealtimeUpdateInterval)
-        {
+        public ACCUdpRemoteClient(string ip, int port, string displayName, string connectionPassword, string commandPassword, int msRealtimeUpdateInterval) {
             IpPort = $"{ip}:{port}";
             MessageHandler = new BroadcastingNetworkProtocol(IpPort, Send);
             _client = new UdpClient();
@@ -47,27 +43,22 @@ namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork {
 
         public ACCUdpRemoteClient(ACCUdpRemoteClientConfig cfg) : this(cfg.Ip, cfg.Port, cfg.DisplayName, cfg.ConnectionPassword, cfg.CommandPassword, cfg.UpdateIntervalMs) { }
 
-        private void Send(byte[] payload)
-        {
+        private void Send(byte[] payload) {
             var sent = _client.Send(payload, payload.Length);
         }
 
-        public void Shutdown()
-        {
-            ShutdownAsync().ContinueWith(t =>
-             {
-                 if (t.Exception?.InnerExceptions?.Any() == true)
-                     DynLeaderboardsPlugin.LogError($"Client shut down with {t.Exception.InnerExceptions.Count} errors");
-                 else
-                     DynLeaderboardsPlugin.LogInfo("Client shut down asynchronously");
+        public void Shutdown() {
+            ShutdownAsync().ContinueWith(t => {
+                if (t.Exception?.InnerExceptions?.Any() == true)
+                    DynLeaderboardsPlugin.LogError($"Client shut down with {t.Exception.InnerExceptions.Count} errors");
+                else
+                    DynLeaderboardsPlugin.LogInfo("Client shut down asynchronously");
 
-             });
+            });
         }
 
-        public async Task ShutdownAsync()
-        {
-            if (_listenerTask != null && !_listenerTask.IsCompleted)
-            {
+        public async Task ShutdownAsync() {
+            if (_listenerTask != null && !_listenerTask.IsCompleted) {
                 MessageHandler.Disconnect();
                 _client.Close();
                 _client = null;
@@ -77,28 +68,20 @@ namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork {
         }
 
 
-        private async Task ConnectAndRun()
-        {
+        private async Task ConnectAndRun() {
             MessageHandler.RequestConnection(DisplayName, ConnectionPassword, MsRealtimeUpdateInterval, CommandPassword);
-            while (_client != null)
-            {
-                try
-                {
+            while (_client != null) {
+                try {
                     var udpPacket = await _client.ReceiveAsync();
                     using (var ms = new System.IO.MemoryStream(udpPacket.Buffer))
-                    using (var reader = new System.IO.BinaryReader(ms))
-                    {
+                    using (var reader = new System.IO.BinaryReader(ms)) {
                         MessageHandler.ProcessMessage(reader);
                     }
-                }
-                catch (ObjectDisposedException)
-                {
+                } catch (ObjectDisposedException) {
                     // Shutdown happened
                     DynLeaderboardsPlugin.LogInfo("Broadcast client shut down.");
                     break;
-                }
-                catch (Exception ex)
-                {
+                } catch (Exception ex) {
                     // Other exceptions
                     DynLeaderboardsPlugin.LogInfo($"Couldn't connect to broadcast client. Err {ex}");
                 }
@@ -119,17 +102,12 @@ namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork {
         #region IDisposable Support
         private bool disposedValue = false; // To detect redundant calls
 
-        protected virtual void Dispose(bool disposing)
-        {
-            if (!disposedValue)
-            {
-                if (disposing)
-                {
-                    try
-                    {
+        protected virtual void Dispose(bool disposing) {
+            if (!disposedValue) {
+                if (disposing) {
+                    try {
                         DynLeaderboardsPlugin.LogInfo("Disposed.");
-                        if (_client != null)
-                        {
+                        if (_client != null) {
 
                             MessageHandler.Disconnect();
                             _client.Close();
@@ -138,9 +116,7 @@ namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork {
                             IsConnected = false;
                         }
 
-                    }
-                    catch (Exception ex)
-                    {
+                    } catch (Exception ex) {
                         System.Diagnostics.Debug.WriteLine(ex);
                     }
                 }
@@ -159,8 +135,7 @@ namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork {
         // }
 
         // This code added to correctly implement the disposable pattern.
-        public void Dispose()
-        {
+        public void Dispose() {
             // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
             Dispose(true);
             // TODO: uncomment the following line if the finalizer is overridden above.
@@ -172,7 +147,7 @@ namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork {
     /// <summary>
     /// Configuration of ACCUdpRemoteClient
     /// </summary>
-    public class ACCUdpRemoteClientConfig { 
+    public class ACCUdpRemoteClientConfig {
         class ACCBroadcastConfig {
             // Class to read acc\Config\broadcasting.json
             internal int udpListenerPort { get; set; }
@@ -225,6 +200,6 @@ namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork {
         }
     }
 
-    
+
 
 }

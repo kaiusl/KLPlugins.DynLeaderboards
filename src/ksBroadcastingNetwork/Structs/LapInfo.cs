@@ -1,13 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 
-namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork.Structs
-{
-    public class LapInfo
-    {
+namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork.Structs {
+    public class LapInfo {
         public double? Laptime { get; internal set; }
         public List<double?> Splits { get; } = new List<double?>();
         public ushort CarIndex { get; internal set; }
@@ -16,9 +10,8 @@ namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork.Structs
         public bool IsValidForBest { get; internal set; }
         public LapType Type { get; internal set; }
 
-        public override string ToString()
-        {
-            return $"{Laptime, 5}|{string.Join("|", Splits)}";
+        public override string ToString() {
+            return $"{Laptime,5}|{string.Join("|", Splits)}";
         }
     }
 }

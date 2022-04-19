@@ -1,13 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork.Structs
-{
-    public class RealtimeCarUpdate
-    {
+﻿
+namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork.Structs {
+    public class RealtimeCarUpdate {
         public int CarIndex { get; internal set; }
         public int DriverIndex { get; internal set; } // This changes after the first sector
         public int Gear { get; internal set; }

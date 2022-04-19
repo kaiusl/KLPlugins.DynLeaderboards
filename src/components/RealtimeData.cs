@@ -1,10 +1,6 @@
 ﻿using KLPlugins.DynLeaderboards.ksBroadcastingNetwork;
 using KLPlugins.DynLeaderboards.ksBroadcastingNetwork.Structs;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace KLPlugins.DynLeaderboards.src.ksBroadcastingNetwork.Structs {
     public class RealtimeData {
@@ -51,7 +47,7 @@ namespace KLPlugins.DynLeaderboards.src.ksBroadcastingNetwork.Structs {
             IsSessionStart = OldData.Phase != SessionPhase.Session && IsSession;
             IsFocusedChange = NewData.FocusedCarIndex != OldData.FocusedCarIndex;
             IsNewSession = OldData.SessionType != NewData.SessionType || NewData.SessionIndex != OldData.SessionIndex || OldData.Phase == SessionPhase.Session && IsPreSession;
-             
+
 
         }
 

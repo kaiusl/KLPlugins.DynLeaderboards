@@ -137,8 +137,6 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="DashPerf.png" />
-    <Content Include="DashTemplates\AccDynLeaderboard\AccDynLeaderboard.djson.00.png" />
-    <Content Include="DashTemplates\AccDynLeaderboard\AccDynLeaderboard.djson.png" />
     <Content Include="ExportPerf.png" />
     <Content Include="sdkmenuicon.png" />
   </ItemGroup>
@@ -150,19 +148,10 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="CHANGELOG.md" />
-    <None Include="DashTemplates\AccDynLeaderboard\AccDynLeaderboard.djson" />
-    <None Include="DashTemplates\AccDynLeaderboard\AccDynLeaderboard.djson.metadata" />
-    <None Include="DashTemplates\AccDynLeaderboard\_Backups\AccDynLeaderboard_b1.djson" />
-    <None Include="DashTemplates\AccDynLeaderboard\_Backups\AccDynLeaderboard_b2.djson" />
-    <None Include="DashTemplates\AccDynLeaderboard\_Backups\AccDynLeaderboard_b3.djson" />
-    <None Include="DashTemplates\AccDynLeaderboard\_Backups\AccDynLeaderboard_b4.djson" />
     <None Include="packages.config" />
     <None Include="README.md" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="DashTemplates\AccDynLeaderboard\_SHFonts\" />
-    <Folder Include="src\xaml\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="AfterBuild">
     <Copy SourceFiles="$(OutDir)$(TargetName).dll;$(OutDir)$(TargetName).pdb" DestinationFolder="C:\Program Files\SimHub" ContinueOnError="true" />

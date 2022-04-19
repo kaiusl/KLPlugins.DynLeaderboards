@@ -17,7 +17,7 @@
         public bool IsRf2 { get => _isRf2; }
         public bool IsIracing { get => _isIracing; }
         public bool IsR3e { get => _isR3e; }
-        public bool IsUnknown { get => _isUnknown;  }
+        public bool IsUnknown { get => _isUnknown; }
         public string Name { get => _name; }
 
         private readonly bool _isAc = false;

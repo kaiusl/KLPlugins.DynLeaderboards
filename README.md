@@ -2,11 +2,19 @@
 
 This is an ACC specific (at least at the moment) leaderboard plugin providing simple switching between overall/class/relative leaderboards. 
 
-The reason for this plugin is that I found myself creating effectively the same dash leaderboard layout several times for overall leaderboard and then again for class leaderboard and so on. With this plugin you need to create only one SimHub dash and assign buttons to swap between different leaderboard types. I provide example dash (named AccDynLeaderboard) which I created for my own use. It's relatively simple one and designed to be used on smartphone.
+The reason for this plugin is that I found myself creating effectively the same dash leaderboard layout several times for overall leaderboard and then again for class leaderboard and so on. With this plugin you need to create only one SimHub dash and assign buttons to swap between different leaderboard types. Also there seem to be some issues with SimHub's ACC leaderboard data, which I set on to fix with this plugin. I provide example dash (named AccDynLeaderboard) which I created for my own use. It's relatively simple one and designed to be used on smartphone.
+
+## Features
+- Connect directly to ACC broadcasting server to have most control and try to provide reliable results.
+- Provide a way to switch between leaderboard types on a single dash screen with a single click.
+    - Also provide gaps and lap deltas that change based on currently selected leaderboard
+- Provide more leaderboard types ([see below](#available-leaderboard-types)).
+- Calculate bunch of new properties. (Not going to list them here, but download the plugin and all of them are listed inside the settings menu).
+- More stable calculation of gaps between the cars.
 
 ## Using the plugin for the first time
 
-* Download the latest release from Racedepartment or [here](https://github.com/kaiusl/KLPlugins.Leaderboard/releases)
+* Download the latest release from [Racedepartment](https://www.racedepartment.com/downloads/acc-simhub-dynamic-leaderboards-plugin.50424/) or [here](https://github.com/kaiusl/KLPlugins.Leaderboard/releases)
 * Copy all the files from folder SimHub to the SimHub root
 * Open SimHub and enable the plugin
 * Check plugin settings for correct "ACC configuration location" under "General settings".  If it's background is green, then we found needed files, if it's red there's something wrong with the location. This location is used to read information needed to connct to ACC broadcasting client.
@@ -44,7 +52,7 @@ There are several different leaderboard types to use within dynamic leaderboards
 
 Again see the AccDynLeaderboard dash to see exactly what each dash looks like.
 
-### Properties
+### Notes on available properties
 
 All available properties are listed in SimHub under Leadeboard plugin settings with more detailed description. You can also disable any of the properties that you don't need.
 
@@ -65,17 +73,31 @@ Couple of things to know about properties:
 	```
 - There are dynamic gaps and deltas to laps that change based on the currently selected leaderboard to show meaningful gaps for the current leaderboard. For example in overall leaderboard we show gaps to the overall leader, in class leaderboards to the class leader and so on.
 
-### Configuring the leaderboards
+### Notes on configuring the leaderboards
 
-By default the plugin is configured to run provided AccDynLeaderboard dash but you can add and configure more leaderboards under "Dynamic leaderboards" tab. Further explanation of each option is explained directly in the setting pages and by the tooltips of settings. 
+- By default the plugin is configured to run provided AccDynLeaderboard dash but you can add and configure more leaderboards under "Dynamic leaderboards" tab. Further explanation of each option is explained directly in the setting pages and by the tooltips of settings. 
 
-If you add multiple dynamic leaderboards, you need to add mappings for each leaderboard. It can be the same button for all of them. 
+- If you add multiple dynamic leaderboards, you need to add mappings for each leaderboard. It can be the same button for all of them. 
 
-Settings under "General settings" are common to all leaderboards.
+- Settings under "General settings" are common to all leaderboards.
 
-***IMPORTANT*: For the changes to take effect you need to restart SimHub.**
+- ***IMPORTANT*: For the settings changes to take effect you need to restart SimHub.**
 
 If something is unclear or you have suggestions, let me know.
+
+### Creating your own dynamic leadeboard
+
+First head over to the "Dynamic leaderboards" tab in the settings and add a new dynamic leaderboard or edit the one already present. You can change the name by opening the dropdown menu and writing inside the corresponding box. Then all properties will be available as `DynLeaderboardsPlugin.<chosen name>.<pos>.<property name>`. For example you named your dynamic leaderboard as "MyDynLeaderboard" then you can do `DynLeaderboardsPlugin.MyDynLeaderboard.5.Car.Number` to get the fifth car's number in whatever leaderboard type is currently. If it's overall order you get the fifth car overall, if it's on track relative leaderboard you get the car that is in fifth position in that order.
+
+Next you need to set the leaderboards rotation and which ones you even want to see in your rotation. Check the toggle buttons and move leaderboards up and down. If there are unchecked leaderboards are simply ignored, doesn't matter in which location they are.
+
+Next section provides an option to set number of positions exported as properties. The actual number of car's exported is the maximum positions needed for any leaderboard. For relative leaderboards you set the number of cars shown ahead and behind the focused car. Drivers are ordered such that the current driver is always the first one and if you set number of drivers to 1, we only export current driver. Note that you can set any of the properties to 0 to not export them.
+
+Then scroll through the properties and select all of the ones you want. For dynamic leaderboard I recommend to use `...Gaps.Dynamic...` and `...Delta.Dynamic...` properties which change according to the currently selected leaderboard. This way you don't need to switch between the gaps and lap deltas yourself.
+
+Final configuration step is to go to the "Controls and events" from SimHub sidebar and add mappings for `DynLeaderboardsPlugin.<name>.NextLeaderboard` and `DynLeaderboardsPlugin.<name>.PreviousLeaderboard` actions. As stated above for mapping to controller inputs you need to enable "Controllers input" plugin and to keyboard inputs "Keyboard Input" plugin.
+
+Now restart SimHub and start create your dashboard. You can use the AccDynLeaderboard as an example or modify it directly.
 
 ### Troubleshooting
 

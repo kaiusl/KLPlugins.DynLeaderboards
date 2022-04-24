@@ -273,15 +273,27 @@ namespace KLPlugins.DynLeaderboards {
 
             var t = new TextBox();
             t.Width = 200;
-
-            var binding = new Binding("Name");
-            binding.Source = l;
-            t.SetBinding(TextBox.TextProperty, binding);
+            t.Text = l.Name;
             t.TextChanged += (a, b) => {
-                EnablePropertiesDescription_TextBlock.Text = $"Enable/disable properties for currently selected dynamic leaderboard. Each property can be accessed as \"DynLeaderboardsPlugin.{t.Text}.<pos>.<property name>\"";
-                DynLeaderboardPropertyAccess_TextBlock.Text = $"Properties for this dynamic leaderboard are accessible as \"DynLeaderboardsPlugin.{t.Text}.<pos>.<property name>\", for example \"DynLeaderboardsPlugin.{t.Text}.5.Car.Number\"";
-                ExposedDriverProps_TextBlock.Text = $"Properties for each driver car be accessed as \"DynLeaderboardsPlugin.{t.Text}.<pos>.Driver.<driver number>.<property name>\", for example \"DynLeaderboardsPlugin.{t.Text}.5.Driver.1.FirstName\"";
+                if (Settings.DynLeaderboardConfigs.Any(x => x.Name == t.Text)) {
+                    t.Background = Brushes.LightPink;
+                    t.ToolTip = "Dynamic leaderboard with same name already exists. Please choose another, if you don't last valid name will be used.";
+                } else {
+                    t.Background = Brushes.Transparent;
+                    l.Name = t.Text;
+                    t.ToolTip = null;
+                    EnablePropertiesDescription_TextBlock.Text = $"Enable/disable properties for currently selected dynamic leaderboard. Each property can be accessed as \"DynLeaderboardsPlugin.{t.Text}.<pos>.<property name>\"";
+                    DynLeaderboardPropertyAccess_TextBlock.Text = $"Properties for this dynamic leaderboard are accessible as \"DynLeaderboardsPlugin.{t.Text}.<pos>.<property name>\", for example \"DynLeaderboardsPlugin.{t.Text}.5.Car.Number\"";
+                    ExposedDriverProps_TextBlock.Text = $"Properties for each driver car be accessed as \"DynLeaderboardsPlugin.{t.Text}.<pos>.Driver.<driver number>.<property name>\", for example \"DynLeaderboardsPlugin.{t.Text}.5.Driver.1.FirstName\"";
+                }
             };
+
+            t.LostFocus += (a, b) => {
+                t.Text = l.Name;
+                t.Background = Brushes.Transparent;
+                t.ToolTip = null;
+            };
+            
 
             var t2 = new TextBlock();
             t2.Text = "Select";
@@ -292,9 +304,7 @@ namespace KLPlugins.DynLeaderboards {
             sp.Children.Add(t2);
 
             SelectDynLeaderboard_ComboBox.Items.Add(sp);
-
         }
-
 
         /// <summary>
         /// Add settings for currently selected dynamic leaderboard.

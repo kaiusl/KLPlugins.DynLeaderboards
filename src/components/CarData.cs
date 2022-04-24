@@ -1,21 +1,20 @@
 ﻿using KLPlugins.DynLeaderboards.Enums;
-using KLPlugins.DynLeaderboards.src.ksBroadcastingNetwork.Structs;
+using KLPlugins.DynLeaderboards.ksBroadcastingNetwork;
+using KLPlugins.DynLeaderboards.ksBroadcastingNetwork.Structs;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork.Structs {
+namespace KLPlugins.DynLeaderboards {
     public class CarData {
         // Information from CarInfo
         public ushort CarIndex { get; }
-        public CarType CarModelType { get; internal set; }
-        public CarClass CarClass { get; internal set; }
-        public string TeamName { get; internal set; }
-        public int RaceNumber { get; internal set; }
-        public TeamCupCategory TeamCupCategory { get; internal set; }
-        private int _currentDriverIndex { get; set; }
-        public List<DriverData> Drivers { get; internal set; } = new List<DriverData>();
-        public NationalityEnum TeamNationality { get; internal set; }
+        public CarType CarModelType { get; private set; }
+        public CarClass CarClass { get; private set; }
+        public string TeamName { get; private set; }
+        public int RaceNumber { get; private set; }
+        public TeamCupCategory TeamCupCategory { get; private set; }
+        public NationalityEnum TeamNationality { get; private set; }
         public string CarClassColor => DynLeaderboardsPlugin.Settings.CarClassColors[CarClass];
         public string TeamCupCategoryColor => DynLeaderboardsPlugin.Settings.TeamCupCategoryColors[TeamCupCategory];
         public string TeamCupCategoryTextColor => DynLeaderboardsPlugin.Settings.TeamCupCategoryTextColors[TeamCupCategory];
@@ -24,8 +23,8 @@ namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork.Structs {
         public RealtimeCarUpdate NewData { get; private set; } = null;
         public RealtimeCarUpdate OldData { get; private set; } = null;
 
-        public int CurrentDriverIndex;
-        public DriverData CurrentDriver => Drivers[CurrentDriverIndex];
+        public int CurrentDriverIndex { get; private set; } = 0;
+        public DriverData CurrentDriver => _drivers.ElementAtOrDefault(CurrentDriverIndex);
 
         // ..BySplinePosition
         public float TotalSplinePosition { get; private set; } = 0.0f;
@@ -49,7 +48,7 @@ namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork.Structs {
 
         // Pit info
         public int PitCount { get; private set; } = 0;
-        public double PitEntryTime { get; private set; } = double.NaN;
+        internal double PitEntryTime { get; private set; } = double.NaN;
         public double TotalPitTime { get; private set; } = 0;
         public double? LastPitTime { get; private set; } = null;
         public double? CurrentTimeInPits { get; private set; } = null;
@@ -87,23 +86,26 @@ namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork.Structs {
 
         // Else
         public bool IsFinished { get; private set; } = false;
-        public TimeSpan? FinishTime { get; private set; } = null;
-        public double?[] BestLapSectors { get; private set; } = new double?[] { null, null, null };
+        internal TimeSpan? FinishTime { get; private set; } = null;
+        public IReadOnlyCollection<double?> BestLapSectors => Array.AsReadOnly(_bestLapSectors);
         public double MaxSpeed { get; private set; } = 0.0;
         public bool IsFocused { get; internal set; } = false;
         public bool IsOverallBestLapCar { get; private set; } = false;
         public bool IsClassBestLapCar { get; private set; } = false;
 
-
         internal int MissedRealtimeUpdates { get; set; } = 0;
 
+        private int _currentDriverIndex { get; set; }
+        private List<DriverData> _drivers { get; set; } = new List<DriverData>();
         private double? _stintStartTime = null;
         private CarClassArray<double> _splinePositionTime = new CarClassArray<double>(-1);
         private bool _isRaceFinishPosSet = false;
         private bool _isFirstUpdate = true;
+        private double?[] _bestLapSectors = new double?[] { null, null, null };
+
         ////////////////////////
 
-        public CarData(CarInfo info, RealtimeCarUpdate update) {
+        internal CarData(CarInfo info, RealtimeCarUpdate update) {
             CarIndex = info.CarIndex;
             CarModelType = info.CarModelType;
             CarClass = info.CarClass;
@@ -126,15 +128,20 @@ namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork.Structs {
         /// <param name="i"></param>
         /// <returns></returns>
         public DriverData GetDriver(int i) {
-            if (i == 0) { return Drivers.ElementAtOrDefault(CurrentDriverIndex); }
-            if (i <= CurrentDriverIndex) { return Drivers.ElementAtOrDefault(i - 1); }
-            return Drivers.ElementAtOrDefault(i);
+            if (i == 0) { return _drivers.ElementAtOrDefault(CurrentDriverIndex); }
+            if (i <= CurrentDriverIndex) { return _drivers.ElementAtOrDefault(i - 1); }
+            return _drivers.ElementAtOrDefault(i);
         }
 
         private void AddDriver(DriverInfo driverInfo) {
-            Drivers.Add(new DriverData(driverInfo));
+            _drivers.Add(new DriverData(driverInfo));
         }
 
+        /// <summary>
+        /// Get the total driving time of driver number `i`. Note that `i=0` means the current driver.
+        /// </summary>
+        /// <param name="i"></param>
+        /// <returns></returns>
         public double? GetDriverTotalDrivingTime(int i) {
             return GetDriver(i)?.GetTotalDrivingTime(i == 0, CurrentStintTime);
         }
@@ -145,26 +152,26 @@ namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork.Structs {
         /// Updates this cars static info. Should be called when new entry list update for this car is received.
         /// </summary>
         /// <param name="info"></param>
-        public void UpdateCarInfo(CarInfo info) {
+        internal void UpdateCarInfo(CarInfo info) {
             // Only thing that can change is drivers
             // We need to make sure that the order is as specified by new info
             // But also add new drivers. We keep old drivers but move them to the end of list
             // as they might rejoin and then we need to have the old data. (I'm not sure if ACC keeps those drivers or not, but we make sure to keep the data.)
             CurrentDriverIndex = info.CurrentDriverIndex;
-            if (Drivers.Count == info.Drivers.Count && Drivers.Zip(info.Drivers, (a, b) => a.Equals(b)).All(x => x)) {
+            if (_drivers.Count == info.Drivers.Count && _drivers.Zip(info.Drivers, (a, b) => a.Equals(b)).All(x => x)) {
                 DynLeaderboardsPlugin.LogInfo($"All drivers same.");
                 return;
             } // All drivers are same
 
             var currentDrivers = "";
-            foreach (var d in Drivers) {
+            foreach (var d in _drivers) {
                 currentDrivers += $"{d.FirstName} {d.LastName};";
             }
 
             for (int i = 0; i < info.Drivers.Count; i++) {
                 DynLeaderboardsPlugin.LogInfo($"Current drivers are: {currentDrivers}");
 
-                var currentDriver = Drivers[i];
+                var currentDriver = _drivers[i];
                 var newDriver = info.Drivers[i];
                 DynLeaderboardsPlugin.LogInfo($"Comparing drivers #{i}: current:{currentDriver.FirstName} {currentDriver.LastName}, new:{newDriver.FirstName} {newDriver.LastName}");
 
@@ -173,18 +180,18 @@ namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork.Structs {
                     continue; // this driver is same
                 }
 
-                var oldIdx = Drivers.FindIndex(x => x.Equals(newDriver));
+                var oldIdx = _drivers.FindIndex(x => x.Equals(newDriver));
                 if (oldIdx == -1) {
                     // Must be new driver
                     DynLeaderboardsPlugin.LogInfo($"Found new driver. Inserting.");
-                    Drivers.Insert(i, new DriverData(newDriver));
+                    _drivers.Insert(i, new DriverData(newDriver));
                 } else {
                     // Driver is present but it's order has changed
                     DynLeaderboardsPlugin.LogInfo($"Drivers are reordered.");
 
-                    var old = Drivers[oldIdx];
-                    Drivers.RemoveAt(oldIdx);
-                    Drivers.Insert(i, old);
+                    var old = _drivers[oldIdx];
+                    _drivers.RemoveAt(oldIdx);
+                    _drivers.Insert(i, old);
                 }
             }
         }
@@ -198,7 +205,7 @@ namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork.Structs {
         /// </summary>
         /// <param name="overall"></param>
         /// <param name="inclass"></param>
-        public void SetStartingPositions(int overall, int inclass) {
+        internal void SetStartingPositions(int overall, int inclass) {
             StartPos = overall;
             StartPosInClass = inclass;
         }
@@ -209,7 +216,7 @@ namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork.Structs {
         /// </summary>
         /// <param name="update"></param>
         /// <param name="realtimeData"></param>
-        public void OnRealtimeCarUpdate(RealtimeCarUpdate update, RealtimeData realtimeData) {
+        internal void OnRealtimeCarUpdate(RealtimeCarUpdate update, RealtimeData realtimeData) {
             // If the race is finished we don't care about any of the realtime updates anymore.
             // We have set finished positions in ´OnRealtimeUpdate´ and that's really all that matters
             if (IsFinished) return;
@@ -381,7 +388,7 @@ namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork.Structs {
                 && NewData.LastLap.Laptime == NewData.BestSessionLap.Laptime
             ) {
                 for (int i = 0; i < 3; i++) {
-                    BestLapSectors[i] = NewData.LastLap.Splits[i];
+                    _bestLapSectors[i] = NewData.LastLap.Splits[i];
                 }
             }
         }
@@ -390,7 +397,7 @@ namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork.Structs {
 
         #region On realtime update
 
-        public void OnRealtimeUpdate(
+        internal void OnRealtimeUpdate(
             RealtimeData realtimeData,
             CarData leaderCar,
             CarData classLeaderCar,
@@ -614,7 +621,7 @@ namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork.Structs {
         /// <param name="from"></param>
         /// <param name="to"></param>
         /// <returns></returns>
-        public static double? CalculateGap(CarData from, CarData to) {
+        internal static double? CalculateGap(CarData from, CarData to) {
             if (from.CarIndex == to.CarIndex) return 0;
 
             var distBetween = to.TotalSplinePosition - from.TotalSplinePosition; // Negative if 'To' is behind
@@ -662,7 +669,7 @@ namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork.Structs {
             }
         }
 
-        public static double? CalculateOnTrackGap(CarData from, CarData to) {
+        internal static double? CalculateOnTrackGap(CarData from, CarData to) {
             if (from.CarIndex == to.CarIndex) return 0;
 
             var fromPos = from.NewData?.SplinePosition;
@@ -729,7 +736,7 @@ namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork.Structs {
         /// <param name="aheadPos"></param>
         /// <param name="lapInterp"></param>
         /// <returns></returns>
-        public static double CalculateGapBetweenPos(float behindPos, float aheadPos, double start, double end, double lapTime) {
+        internal static double CalculateGapBetweenPos(float behindPos, float aheadPos, double start, double end, double lapTime) {
             if (aheadPos < behindPos) {
                 // Ahead is on another lap, gap is time for `behindpos` to end lap, and then reach aheadpos
                 return lapTime - start + end;
@@ -750,7 +757,7 @@ namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork.Structs {
         /// </returns>
         /// <param name="otherCar"></param>
         /// <returns></returns>
-        public float CalculateRelativeSplinePosition(CarData otherCar) {
+        internal float CalculateRelativeSplinePosition(CarData otherCar) {
             if (NewData == null || otherCar.NewData == null) return float.NaN;
             return CalculateRelativeSplinePosition(NewData.SplinePosition, otherCar.NewData.SplinePosition);
         }
@@ -764,7 +771,7 @@ namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork.Structs {
         /// <param name="thisPos"></param>
         /// <param name="posRelativeTo"></param>
         /// <returns></returns>
-        public static float CalculateRelativeSplinePosition(float thisPos, float posRelativeTo) {
+        internal static float CalculateRelativeSplinePosition(float thisPos, float posRelativeTo) {
             var relSplinePos = thisPos - posRelativeTo;
             if (relSplinePos > 0.5) { // Pos is more than half a lap ahead, so technically it's closer from behind. Take one lap away to show it behind us.
                 relSplinePos -= 1;

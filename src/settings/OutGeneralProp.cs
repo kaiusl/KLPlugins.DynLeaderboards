@@ -19,7 +19,7 @@ namespace KLPlugins.DynLeaderboards {
         public static void Combine(ref this OutGeneralProp p, OutGeneralProp o) => p |= o;
         public static void Remove(ref this OutGeneralProp p, OutGeneralProp o) => p &= ~o;
 
-        public static string ToolTipText(this OutGeneralProp p) {
+        internal static string ToolTipText(this OutGeneralProp p) {
             switch (p) {
                 case OutGeneralProp.SessionPhase:
                     return "Session phase.";

@@ -11,6 +11,9 @@ using System.Runtime.CompilerServices;
 using System.Windows.Media;
 
 namespace KLPlugins.DynLeaderboards {
+    /// <summary>
+    /// Available leaderboard types
+    /// </summary>
     public enum Leaderboard {
         None,
         Overall,
@@ -43,9 +46,7 @@ namespace KLPlugins.DynLeaderboards {
                 default:
                     return "Unknown";
             }
-
         }
-
     }
 
 
@@ -53,11 +54,16 @@ namespace KLPlugins.DynLeaderboards {
     [PluginAuthor("Kaius Loos")]
     [PluginName("DynLeaderboardsPlugin")]
     public class DynLeaderboardsPlugin : IPlugin, IDataPlugin, IWPFSettingsV2 {
-        public static PluginSettings Settings;
+        public string Version { get; set; } = "1.1.0";
         public PluginManager PluginManager { get; set; }
         public ImageSource PictureIcon => this.ToIcon(Properties.Resources.sdkmenuicon);
         public string LeftMenuTitle => PluginName;
+        /// <summary>
+        /// Contains all the values/properties available from this plugin.
+        /// </summary>
+        public Values Values { get; private set; }
 
+        internal static PluginSettings Settings;
         internal const string PluginName = "DynLeaderboards";
         internal static Game Game; // Const during the lifetime of this plugin, plugin is rebuilt at game change
         internal static string GameDataPath; // Same as above
@@ -67,8 +73,10 @@ namespace KLPlugins.DynLeaderboards {
         private static FileStream _logFile;
         private static StreamWriter _logWriter;
         private static bool _isLogFlushed = false;
-        private string LogFileName;
-        private Values _values;
+        private string _logFileName;
+        private FileStream _timingFile;
+        private StreamWriter _timingWriter;
+
 
         /// <summary>
         /// Called one time per game data update, contains all normalized game data, 
@@ -84,7 +92,7 @@ namespace KLPlugins.DynLeaderboards {
 
             if (data.GameRunning && data.OldData != null && data.NewData != null) {
                 //WriteFrameTimes(pm);
-                _values.OnDataUpdate(pm, data);
+                Values.OnDataUpdate(pm, data);
             }
         }
 
@@ -106,9 +114,10 @@ namespace KLPlugins.DynLeaderboards {
         /// </summary>
         /// <param name="pluginManager"></param>
         public void End(PluginManager pluginManager) {
-            this.SaveCommonSettings("GeneralSettings", Settings);
-            if (_values != null) {
-                _values.Dispose();
+            Settings.Save(this);
+
+            if (Values != null) {
+                Values.Dispose();
             }
             if (_logWriter != null) {
                 _logWriter.Dispose();
@@ -139,18 +148,14 @@ namespace KLPlugins.DynLeaderboards {
             return new SettingsControl(this);
         }
 
-
-        private FileStream _timingFile;
-        private StreamWriter _timingWriter;
-
         /// <summary>
         /// Called once after plugins startup
         /// Plugins are rebuilt at game change
         /// </summary>
         /// <param name="pluginManager"></param>
         public void Init(PluginManager pluginManager) {
-            Settings = this.ReadCommonSettings<PluginSettings>("GeneralSettings", () => new PluginSettings());
-            LogFileName = $"{Settings.PluginDataLocation}\\Logs\\Log_{PluginStartTime}.txt";
+            Settings = PluginSettings.ReadSettings();
+            _logFileName = $"{Settings.PluginDataLocation}\\Logs\\Log_{PluginStartTime}.txt";
             var gameName = (string)pluginManager.GetPropertyValue<SimHub.Plugins.DataPlugins.DataCore.DataCorePlugin>("CurrentGame");
             Game = new Game(gameName);
             if (!Game.IsAcc) return;
@@ -169,37 +174,43 @@ namespace KLPlugins.DynLeaderboards {
             GameDataPath = $@"{Settings.PluginDataLocation}\{gameName}";
 
             if (Settings.DynLeaderboardConfigs.Count == 0) {
-                var s = new PluginSettings.DynLeaderboardConfig("Dynamic");
+                var s = DynLeaderboardConfig.AccDynLeaderboardConfig();
                 Settings.DynLeaderboardConfigs.Add(s);
             }
-            _values = new Values();
+            Values = new Values();
 
             SubscribeToSimHubEvents();
-
             AttachGeneralDelegates();
 
-            if (Settings.DynLeaderboardConfigs.Count > 0) {
-                for (int i = 0; i < Settings.DynLeaderboardConfigs.Count; i++) {
-                    AttachDynamicLeaderboard(_values.LeaderboardValues[i]);
+            if (Values.DynLeaderboardsValues.Count > 0) {
+                foreach (var v in Values.DynLeaderboardsValues) { 
+                    if (v.Settings.IsSetInSimHub) AttachDynamicLeaderboard(v);
                 }
             }
 
-            this.AttachDelegate("IsBroadcastClientConnected", () => _values.BroadcastClient?.IsConnected);
+            this.AttachDelegate("IsBroadcastClientConnected", () => Values.BroadcastClient?.IsConnected);
 
             // this.AttachDelegate("DBG_RealtimeUpdateTime", () => _values.RealtimeUpdateTime);
 
         }
 
-        public void AddNewLeaderboard(PluginSettings.DynLeaderboardConfig s) {
-            if (_values != null) _values.AddNewLeaderboard(s);
+        /// <summary>
+        /// Add new dynamic leaderboard to the list programmatically. 
+        /// The added dynamic leaderboard won't appear in the settings menu and configuration needs to be done programmatically.
+        /// 
+        /// This is useful if you want to use this plugin from your own plugin. 
+        /// </summary>
+        /// <param name="cfg"></param>
+        public void AddNewLeaderboard(DynLeaderboardConfig cfg) {
+            if (Values != null) Values.AddNewLeaderboard(cfg);
         }
 
-        public void RemoveLeaderboardAt(int i) {
-            if (_values != null) _values.LeaderboardValues.RemoveAt(i);
+        internal void RemoveLeaderboard(string name) {
+            if (Values != null) Values.DynLeaderboardsValues.RemoveAll(x => x.Name == name);
         }
 
         private void SubscribeToSimHubEvents() {
-            PManager.GameStateChanged += _values.OnGameStateChanged;
+            PManager.GameStateChanged += Values.OnGameStateChanged;
             PManager.GameStateChanged += (bool running, PluginManager _) => {
                 LogInfo($"GameStateChanged to {running}");
                 if (!running) {
@@ -213,9 +224,9 @@ namespace KLPlugins.DynLeaderboards {
 
         private void AttachGeneralDelegates() {
             // Add everything else 
-            if (Settings.OutGeneralProps.Includes(OutGeneralProp.SessionPhase)) this.AttachDelegate("Session.Phase", () => _values.RealtimeData?.Phase);
-            if (Settings.OutGeneralProps.Includes(OutGeneralProp.MaxStintTime)) this.AttachDelegate("Session.MaxStintTime", () => _values.MaxDriverStintTime);
-            if (Settings.OutGeneralProps.Includes(OutGeneralProp.MaxDriveTime)) this.AttachDelegate("Session.MaxDriveTime", () => _values.MaxDriverTotalDriveTime);
+            if (Settings.OutGeneralProps.Includes(OutGeneralProp.SessionPhase)) this.AttachDelegate("Session.Phase", () => Values.RealtimeData?.Phase);
+            if (Settings.OutGeneralProps.Includes(OutGeneralProp.MaxStintTime)) this.AttachDelegate("Session.MaxStintTime", () => Values.MaxDriverStintTime);
+            if (Settings.OutGeneralProps.Includes(OutGeneralProp.MaxDriveTime)) this.AttachDelegate("Session.MaxDriveTime", () => Values.MaxDriverTotalDriveTime);
 
             if (Settings.OutGeneralProps.Includes(OutGeneralProp.CarClassColors)) {
                 void addClassColor(CarClass cls) {
@@ -256,50 +267,50 @@ namespace KLPlugins.DynLeaderboards {
             void addCar(int i) {
                 var startName = $"{l.Settings.Name}.{i + 1}";
                 void AddProp<T>(OutCarProp prop, Func<T> valueProvider) {
-                    if (l.Settings.OutCarProps.Includes(prop)) this.AttachDelegate($"{startName}.{prop.ToPropName()}", valueProvider);
+                    if (l.Settings.OutProps.Car.Includes(prop)) this.AttachDelegate($"{startName}.{prop.ToPropName()}", valueProvider);
                 }
 
                 void AddDriverProp<T>(OutDriverProp prop, string driverId, Func<T> valueProvider) {
-                    if (l.Settings.OutDriverProps.Includes(prop)) this.AttachDelegate($"{startName}.{driverId}.{prop}", valueProvider);
+                    if (l.Settings.OutProps.Driver.Includes(prop)) this.AttachDelegate($"{startName}.{driverId}.{prop}", valueProvider);
                 }
 
                 void AddLapProp<T>(OutLapProp prop, Func<T> valueProvider) {
-                    if (l.Settings.OutLapProps.Includes(prop)) this.AttachDelegate($"{startName}.{prop.ToPropName()}", valueProvider);
+                    if (l.Settings.OutProps.Lap.Includes(prop)) this.AttachDelegate($"{startName}.{prop.ToPropName()}", valueProvider);
                 }
 
                 void AddStintProp<T>(OutStintProp prop, Func<T> valueProvider) {
-                    if (l.Settings.OutStintProps.Includes(prop)) this.AttachDelegate($"{startName}.{prop.ToPropName()}", valueProvider);
+                    if (l.Settings.OutProps.Stint.Includes(prop)) this.AttachDelegate($"{startName}.{prop.ToPropName()}", valueProvider);
                 }
 
                 void AddGapProp<T>(OutGapProp prop, Func<T> valueProvider) {
-                    if (l.Settings.OutGapProps.Includes(prop)) this.AttachDelegate($"{startName}.{prop.ToPropName()}", valueProvider);
+                    if (l.Settings.OutProps.Gap.Includes(prop)) this.AttachDelegate($"{startName}.{prop.ToPropName()}", valueProvider);
                 }
 
 
                 void AddPosProp<T>(OutPosProp prop, Func<T> valueProvider) {
-                    if (l.Settings.OutPosProps.Includes(prop)) this.AttachDelegate($"{startName}.{prop.ToPropName()}", valueProvider);
+                    if (l.Settings.OutProps.Pos.Includes(prop)) this.AttachDelegate($"{startName}.{prop.ToPropName()}", valueProvider);
                 }
 
                 void AddPitProp<T>(OutPitProp prop, Func<T> valueProvider) {
-                    if (l.Settings.OutPitProps.Includes(prop)) this.AttachDelegate($"{startName}.{prop.ToPropName()}", valueProvider);
+                    if (l.Settings.OutProps.Pit.Includes(prop)) this.AttachDelegate($"{startName}.{prop.ToPropName()}", valueProvider);
                 }
 
                 // Laps and sectors
                 AddLapProp(OutLapProp.Laps, () => l.GetDynCar(i)?.NewData?.Laps);
                 AddLapProp(OutLapProp.LastLapTime, () => l.GetDynCar(i)?.NewData?.LastLap?.Laptime);
-                if (l.Settings.OutLapProps.Includes(OutLapProp.LastLapSectors)) {
+                if (l.Settings.OutProps.Lap.Includes(OutLapProp.LastLapSectors)) {
                     this.AttachDelegate($"{startName}.Laps.Last.S1", () => l.GetDynCar(i)?.NewData?.LastLap?.Splits?[0]);
                     this.AttachDelegate($"{startName}.Laps.Last.S2", () => l.GetDynCar(i)?.NewData?.LastLap?.Splits?[1]);
                     this.AttachDelegate($"{startName}.Laps.Last.S3", () => l.GetDynCar(i)?.NewData?.LastLap?.Splits?[2]);
                 }
 
                 AddLapProp(OutLapProp.BestLapTime, () => l.GetDynCar(i)?.NewData?.BestSessionLap?.Laptime);
-                if (l.Settings.OutLapProps.Includes(OutLapProp.BestLapSectors)) {
-                    this.AttachDelegate($"{startName}.Laps.Best.S1", () => l.GetDynCar(i)?.BestLapSectors?[0]);
-                    this.AttachDelegate($"{startName}.Laps.Best.S2", () => l.GetDynCar(i)?.BestLapSectors?[1]);
-                    this.AttachDelegate($"{startName}.Laps.Best.S3", () => l.GetDynCar(i)?.BestLapSectors?[2]);
+                if (l.Settings.OutProps.Lap.Includes(OutLapProp.BestLapSectors)) {
+                    this.AttachDelegate($"{startName}.Laps.Best.S1", () => l.GetDynCar(i)?.BestLapSectors.ElementAtOrDefault(0));
+                    this.AttachDelegate($"{startName}.Laps.Best.S2", () => l.GetDynCar(i)?.BestLapSectors.ElementAtOrDefault(1));
+                    this.AttachDelegate($"{startName}.Laps.Best.S3", () => l.GetDynCar(i)?.BestLapSectors.ElementAtOrDefault(2));
                 }
-                if (l.Settings.OutLapProps.Includes(OutLapProp.BestSectors)) {
+                if (l.Settings.OutProps.Lap.Includes(OutLapProp.BestSectors)) {
                     this.AttachDelegate($"{startName}.BestS1", () => l.GetDynCar(i)?.NewData?.BestSessionLap?.Splits?[0]);
                     this.AttachDelegate($"{startName}.BestS2", () => l.GetDynCar(i)?.NewData?.BestSessionLap?.Splits?[1]);
                     this.AttachDelegate($"{startName}.BestS3", () => l.GetDynCar(i)?.NewData?.BestSessionLap?.Splits?[2]);
@@ -323,8 +334,8 @@ namespace KLPlugins.DynLeaderboards {
                     AddDriverProp(OutDriverProp.CategoryColor, driverId, () => l.GetDynCar(i)?.GetDriver(j)?.CategoryColor);
                 }
 
-                if (l.Settings.NumDrivers > 0) {
-                    for (int j = 0; j < l.Settings.NumDrivers; j++) {
+                if (l.Settings.NumItems.Drivers > 0) {
+                    for (int j = 0; j < l.Settings.NumItems.Drivers; j++) {
                         AddOneDriverFromList(j);
                     }
                 }
@@ -408,13 +419,13 @@ namespace KLPlugins.DynLeaderboards {
             };
 
             var numPos = new int[] {
-                l.Settings.NumOverallPos,
-                l.Settings.NumClassPos,
-                l.Settings.NumOverallRelativePos*2+1,
-                l.Settings.NumClassRelativePos*2+1,
-                l.Settings.NumOnTrackRelativePos*2+1,
-                l.Settings.PartialRelativeClassNumClassPos + l.Settings.PartialRelativeClassNumRelativePos*2+1,
-                l.Settings.PartialRelativeOverallNumOverallPos + l.Settings.PartialRelativeOverallNumRelativePos*2+1
+                l.Settings.NumItems.OverallPos,
+                l.Settings.NumItems.ClassPos,
+                l.Settings.NumItems.OverallRelativePos*2+1,
+                l.Settings.NumItems.ClassRelativePos*2+1,
+                l.Settings.NumItems.OnTrackRelativePos*2+1,
+                l.Settings.NumItems.PartialRelativeClass_ClassPos + l.Settings.NumItems.PartialRelativeClass_RelativePos*2+1,
+                l.Settings.NumItems.PartialRelativeOverall_OverallPos + l.Settings.NumItems.PartialRelativeOverall_RelativePos*2+1
             };
 
             for (int i = 0; i < numPos.Max(); i++) {
@@ -431,7 +442,7 @@ namespace KLPlugins.DynLeaderboards {
                 } else {
                     l.Settings.CurrentLeaderboardIdx++;
                 }
-                _values.SetDynamicCarGetter();
+                Values.SetAllDynamicGetters();
             });
 
             // Declare an action which can be called
@@ -441,32 +452,32 @@ namespace KLPlugins.DynLeaderboards {
                 } else {
                     l.Settings.CurrentLeaderboardIdx--;
                 }
-                _values.SetDynamicCarGetter();
+                Values.SetAllDynamicGetters();
             });
         }
 
 
         #region Logging
 
-        public void InitLogginig() {
+        internal void InitLogginig() {
             if (Settings.Log) {
-                Directory.CreateDirectory(Path.GetDirectoryName(LogFileName));
-                _logFile = File.Create(LogFileName);
+                Directory.CreateDirectory(Path.GetDirectoryName(_logFileName));
+                _logFile = File.Create(_logFileName);
                 _logWriter = new StreamWriter(_logFile);
             }
         }
 
-        public static void LogInfo(string msg, [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int lineNumber = 0) {
+        internal static void LogInfo(string msg, [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int lineNumber = 0) {
             if (Settings.Log) {
                 Log(msg, memberName, sourceFilePath, lineNumber, "INFO", SimHub.Logging.Current.Info);
             }
         }
 
-        public static void LogWarn(string msg, [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int lineNumber = 0) {
+        internal static void LogWarn(string msg, [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int lineNumber = 0) {
             Log(msg, memberName, sourceFilePath, lineNumber, "WARN", SimHub.Logging.Current.Warn);
         }
 
-        public static void LogError(string msg, [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int lineNumber = 0) {
+        internal static void LogError(string msg, [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int lineNumber = 0) {
             Log(msg, memberName, sourceFilePath, lineNumber, "ERROR", SimHub.Logging.Current.Error);
         }
 
@@ -482,7 +493,7 @@ namespace KLPlugins.DynLeaderboards {
             return $"({source}: {memberName},{lineNumber})\n\t{msg}";
         }
 
-        public static void LogFileSeparator() {
+        internal static void LogFileSeparator() {
             LogToFile("\n----------------------------------------------------------\n");
         }
 

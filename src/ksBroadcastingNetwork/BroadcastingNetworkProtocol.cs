@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text;
 
 namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork {
-    public enum OutboundMessageTypes : byte {
+    internal enum OutboundMessageTypes : byte {
         REGISTER_COMMAND_APPLICATION = 1,
         UNREGISTER_COMMAND_APPLICATION = 9,
 
@@ -22,7 +22,7 @@ namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork {
         SAVE_MANUAL_REPLAY_HIGHLIGHT = 60  // TODO, but planned: saving manual replays gives distributed clients the possibility to see the play the same replay
     }
 
-    public enum InboundMessageTypes : byte {
+    internal enum InboundMessageTypes : byte {
         REGISTRATION_RESULT = 1,
         REALTIME_UPDATE = 2,
         REALTIME_CAR_UPDATE = 3,
@@ -32,7 +32,7 @@ namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork {
         BROADCASTING_EVENT = 7
     }
 
-    public class BroadcastingNetworkProtocol {
+    internal class BroadcastingNetworkProtocol {
         public const int BROADCASTING_PROTOCOL_VERSION = 4;
         private string ConnectionIdentifier { get; }
         private SendMessageDelegate Send { get; }

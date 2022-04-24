@@ -30,7 +30,7 @@ namespace KLPlugins.DynLeaderboards {
         public static void Combine(ref this OutCarProp p, OutCarProp o) => p |= o;
         public static void Remove(ref this OutCarProp p, OutCarProp o) => p &= ~o;
 
-        public static string ToPropName(this OutCarProp p) {
+        internal static string ToPropName(this OutCarProp p) {
             switch (p) {
                 case OutCarProp.CarNumber:
                     return "Car.Number";
@@ -65,7 +65,7 @@ namespace KLPlugins.DynLeaderboards {
             }
         }
 
-        public static string ToolTipText(this OutCarProp p) {
+        internal static string ToolTipText(this OutCarProp p) {
             switch (p) {
                 case OutCarProp.None:
                     return "None";
@@ -120,7 +120,7 @@ namespace KLPlugins.DynLeaderboards {
         public static void Combine(ref this OutPitProp p, OutPitProp o) => p |= o;
         public static void Remove(ref this OutPitProp p, OutPitProp o) => p &= ~o;
 
-        public static string ToPropName(this OutPitProp p) {
+        internal static string ToPropName(this OutPitProp p) {
             switch (p) {
                 case OutPitProp.IsInPitLane:
                     return "Pit.IsIn";
@@ -137,7 +137,7 @@ namespace KLPlugins.DynLeaderboards {
             }
         }
 
-        public static string ToolTipText(this OutPitProp p) {
+        internal static string ToolTipText(this OutPitProp p) {
             switch (p) {
                 case OutPitProp.IsInPitLane:
                     return "Is the car in pit lane?";
@@ -183,12 +183,10 @@ namespace KLPlugins.DynLeaderboards {
             }
             return true;
         }
-
-
         public static void Combine(ref this OutPosProp p, OutPosProp o) => p |= o;
         public static void Remove(ref this OutPosProp p, OutPosProp o) => p &= ~o;
 
-        public static string ToPropName(this OutPosProp p) {
+        internal static string ToPropName(this OutPosProp p) {
             switch (p) {
                 case OutPosProp.ClassPosition:
                     return "Position.Class";
@@ -203,7 +201,7 @@ namespace KLPlugins.DynLeaderboards {
             }
         }
 
-        public static string ToolTipText(this OutPosProp p) {
+        internal static string ToolTipText(this OutPosProp p) {
             switch (p) {
                 case OutPosProp.ClassPosition:
                     return "Current class position";
@@ -240,7 +238,7 @@ namespace KLPlugins.DynLeaderboards {
         public static void Combine(ref this OutGapProp p, OutGapProp o) => p |= o;
         public static void Remove(ref this OutGapProp p, OutGapProp o) => p &= ~o;
 
-        public static string ToPropName(this OutGapProp p) {
+        internal static string ToPropName(this OutGapProp p) {
             switch (p) {
                 case OutGapProp.GapToLeader:
                     return "Gap.ToOverallLeader";
@@ -265,7 +263,7 @@ namespace KLPlugins.DynLeaderboards {
             }
         }
 
-        public static string ToolTipText(this OutGapProp p) {
+        internal static string ToolTipText(this OutGapProp p) {
             switch (p) {
                 case OutGapProp.GapToLeader:
                     return "Total gap to the leader.";
@@ -313,7 +311,7 @@ RelativeOnTrack -> gap to ahead on track.";
         public static void Combine(ref this OutStintProp p, OutStintProp o) => p |= o;
         public static void Remove(ref this OutStintProp p, OutStintProp o) => p &= ~o;
 
-        public static string ToPropName(this OutStintProp p) {
+        internal static string ToPropName(this OutStintProp p) {
             switch (p) {
                 case OutStintProp.CurrentStintTime:
                     return "Stint.Current.Time";
@@ -328,7 +326,7 @@ RelativeOnTrack -> gap to ahead on track.";
             }
         }
 
-        public static string ToolTipText(this OutStintProp p) {
+        internal static string ToolTipText(this OutStintProp p) {
             switch (p) {
                 case OutStintProp.CurrentStintTime:
                     return "Current stint time.";

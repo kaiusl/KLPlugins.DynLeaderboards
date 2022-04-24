@@ -2,7 +2,7 @@
 using KLPlugins.DynLeaderboards.ksBroadcastingNetwork.Structs;
 using System;
 
-namespace KLPlugins.DynLeaderboards.src.ksBroadcastingNetwork.Structs {
+namespace KLPlugins.DynLeaderboards {
     public class RealtimeData {
         public RealtimeUpdate NewData { get; private set; }
         public RealtimeUpdate OldData { get; private set; }
@@ -30,12 +30,12 @@ namespace KLPlugins.DynLeaderboards.src.ksBroadcastingNetwork.Structs {
         public bool IsPostSession { get; private set; }
         public bool IsRace { get; private set; }
 
-        public RealtimeData(RealtimeUpdate update) {
+        internal RealtimeData(RealtimeUpdate update) {
             OldData = update;
             NewData = update;
         }
 
-        public void OnRealtimeUpdate(RealtimeUpdate update) {
+        internal void OnRealtimeUpdate(RealtimeUpdate update) {
             OldData = NewData;
             NewData = update;
 
@@ -47,8 +47,6 @@ namespace KLPlugins.DynLeaderboards.src.ksBroadcastingNetwork.Structs {
             IsSessionStart = OldData.Phase != SessionPhase.Session && IsSession;
             IsFocusedChange = NewData.FocusedCarIndex != OldData.FocusedCarIndex;
             IsNewSession = OldData.SessionType != NewData.SessionType || NewData.SessionIndex != OldData.SessionIndex || OldData.Phase == SessionPhase.Session && IsPreSession;
-
-
         }
 
     }

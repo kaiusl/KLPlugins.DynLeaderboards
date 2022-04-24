@@ -3,41 +3,24 @@ using KLPlugins.DynLeaderboards.ksBroadcastingNetwork.Structs;
 
 namespace KLPlugins.DynLeaderboards {
     public class DriverData {
-        public string FirstName { get; internal set; }
-        public string LastName { get; internal set; }
-        public string ShortName { get; internal set; }
-        public DriverCategory Category { get; internal set; }
-        public NationalityEnum Nationality { get; internal set; }
-        public int TotalLaps { get; internal set; } = 0;
-        public LapInfo BestSessionLap { get; internal set; } = null;
+        public string FirstName { get; private set; }
+        public string LastName { get; private set; }
+        public string ShortName { get; private set; }
+        public DriverCategory Category { get; private set; }
+        public NationalityEnum Nationality { get; private set; }
+        public int TotalLaps { get; private set; } = 0;
+        public LapInfo BestSessionLap { get; private set; } = null;
         public string CategoryColor => DynLeaderboardsPlugin.Settings.DriverCategoryColors[Category];
 
         private double _totalDrivingTime = 0;
 
-        public DriverData(DriverInfo info) {
+        internal DriverData(DriverInfo info) {
             FirstName = info.FirstName;
             LastName = info.LastName;
             ShortName = info.ShortName;
             Category = info.Category;
             Nationality = info.Nationality;
         }
-
-        public void OnLapFinished(LapInfo lastLap) {
-            TotalLaps++;
-            if (BestSessionLap?.Laptime == null || (lastLap.IsValidForBest && BestSessionLap.Laptime > lastLap.Laptime)) {
-                BestSessionLap = lastLap;
-            }
-        }
-
-        public void OnStintEnd(double lastStintTime) {
-            _totalDrivingTime += lastStintTime;
-        }
-
-        public double GetTotalDrivingTime(bool isDriving = false, double? currentStintTime = null) {
-            if (isDriving && currentStintTime != null) return _totalDrivingTime + (double)currentStintTime;
-            return _totalDrivingTime;
-        }
-
 
         public string FullName() {
             return FirstName + " " + LastName;
@@ -62,12 +45,20 @@ namespace KLPlugins.DynLeaderboards {
             }
         }
 
-        public bool Equals(DriverInfo p) {
-            if (p is null) {
-                return false;
+        internal void OnLapFinished(LapInfo lastLap) {
+            TotalLaps++;
+            if (BestSessionLap?.Laptime == null || (lastLap.IsValidForBest && BestSessionLap.Laptime > lastLap.Laptime)) {
+                BestSessionLap = lastLap;
             }
+        }
 
-            return (FirstName == p.FirstName) && (LastName == p.LastName) && (ShortName == p.ShortName) && (Nationality == p.Nationality) && (Category == p.Category);
+        internal void OnStintEnd(double lastStintTime) {
+            _totalDrivingTime += lastStintTime;
+        }
+
+        internal double GetTotalDrivingTime(bool isDriving = false, double? currentStintTime = null) {
+            if (isDriving && currentStintTime != null) return _totalDrivingTime + (double)currentStintTime;
+            return _totalDrivingTime;
         }
 
     }

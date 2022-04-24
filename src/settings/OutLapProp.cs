@@ -62,7 +62,7 @@ namespace KLPlugins.DynLeaderboards {
         public static void Combine(ref this OutLapProp p, OutLapProp o) => p |= o;
         public static void Remove(ref this OutLapProp p, OutLapProp o) => p &= ~o;
 
-        public static string ToPropName(this OutLapProp p) {
+        internal static string ToPropName(this OutLapProp p) {
             switch (p) {
                 case OutLapProp.Laps:
                     return "Laps.Count";
@@ -129,7 +129,7 @@ namespace KLPlugins.DynLeaderboards {
             }
         }
 
-        public static string ToolTipText(this OutLapProp p) {
+        internal static string ToolTipText(this OutLapProp p) {
             switch (p) {
                 case OutLapProp.Laps:
                     return "Number of completed laps";

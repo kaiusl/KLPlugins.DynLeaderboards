@@ -6,7 +6,7 @@ using System.IO;
 using System.Linq;
 
 namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork.Structs {
-    public class LapInterpolator {
+    internal class LapInterpolator {
         public LinearSpline Interpolator { get; }
         public double LapTime { get; }
 
@@ -20,12 +20,12 @@ namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork.Structs {
         public string TrackName { get; internal set; }
         public TrackType TrackId { get; internal set; }
         public float TrackMeters { get; internal set; }
-        public static CarClassArray<LapInterpolator> LapInterpolators = null;
+        internal static CarClassArray<LapInterpolator> LapInterpolators { get; private set; } = null;
 
         /// <summary>
         /// Read default lap data for calculation of gaps.
         /// </summary>
-        public static void ReadDefBestLaps() {
+        internal static void ReadDefBestLaps() {
             LapInterpolators = new CarClassArray<LapInterpolator>(null);
 
             AddLapInterpolator(CarClass.GT3);

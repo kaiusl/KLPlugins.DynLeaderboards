@@ -23,14 +23,12 @@ namespace KLPlugins.DynLeaderboards {
     static class OutDriverPropExtensions {
 
         public static bool Includes(this OutDriverProp p, OutDriverProp o) => (p & o) != 0;
-
         public static void Combine(ref this OutDriverProp p, OutDriverProp o) {
             p |= o;
         }
-
         public static void Remove(ref this OutDriverProp p, OutDriverProp o) => p &= ~o;
 
-        public static string ToolTipText(this OutDriverProp p) {
+        internal static string ToolTipText(this OutDriverProp p) {
             switch (p) {
                 case OutDriverProp.None:
                     return "None";

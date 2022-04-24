@@ -9,7 +9,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork {
-    public class ACCUdpRemoteClient : IDisposable {
+    internal class ACCUdpRemoteClient : IDisposable {
         public BroadcastingNetworkProtocol MessageHandler { get; }
         public string IpPort { get; }
         public string DisplayName { get; }
@@ -147,7 +147,7 @@ namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork {
     /// <summary>
     /// Configuration of ACCUdpRemoteClient
     /// </summary>
-    public class ACCUdpRemoteClientConfig {
+    internal class ACCUdpRemoteClientConfig {
         class ACCBroadcastConfig {
             // Class to read acc\Config\broadcasting.json
             internal int udpListenerPort { get; set; }

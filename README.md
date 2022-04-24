@@ -99,6 +99,69 @@ Final configuration step is to go to the "Controls and events" from SimHub sideb
 
 Now restart SimHub and start create your dashboard. You can use the AccDynLeaderboard as an example or modify it directly.
 
+### Using from other plugin
+
+Version 1.1.0 bring a support for direct data access from other plugins without going through the SimHub's `PluginManager` always. First you need to get the plugin instance and then all of the values are behind the field `Values`. There are several `Get...` methods which provide access to data.
+
+```c#
+using KLPlugins.DynLeaderboards;
+
+//...
+
+DynLeaderboardsPlugin dynLeaderboards = pluginManager.GetPlugin<DynLeaderboardsPlugin>();
+Values values = dynLeaderboards.Values;
+
+// Access cars in overall order
+var leader = values.GetCar(0);
+SimHub.Logging.Current.Info($"{leader.RaceNumber}, {leader.CarClass}");
+
+// Use existing dynamic leaderboard
+var dyn = values.GetDynLeaderboard("Dynamic");
+var dynP1 = dyn.GetDynCar(0);
+if (dynP1 != null) {
+    SimHub.Logging.Current.Info($"{dynP1.RaceNumber}, {dynP1.CarClass}, {dyn.GetDynGapToFocused(0)}");
+}
+```
+You can also add new leaderboard for this specific purpose. These need to be configured programmatically and won't appear inside the graphical settings manager in SimHub. 
+```c#
+// Add new dynamic leaderboard
+// Configure properties you want, 
+// Note that you can always access all properties but they may not be calculated if not selected here
+var outProps = new OutProperties();
+outProps.Car = OutCarProp.CarClass | OutCarProp.CarNumber | OutCarProp.IsFinished;
+outProps.Gap = OutGapProp.DynamicGapToFocused;
+outProps.Lap = OutLapProp.LastLapTime | OutLapProp.BestLapTime;
+
+// Configure number of items you want to see
+var numItems = new NumberOfItems();
+numItems.OverallPos = 20;
+numItems.OnTrackRelativePos = 4;
+
+// Configure leaderboard rotation
+var order = new List<Leaderboard>() {
+    Leaderboard.Overall,
+    Leaderboard.RelativeOnTrack
+};
+
+//Add new leaderboard
+dynLeaderboards.AddNewLeaderboard(new DynLeaderboardConfig(
+    name: "NewLeaderboard",
+    outProps: outProps,
+    numItems: numItems,
+    order: order
+));
+
+// Use that new leaderboard
+var dynNew = values.GetDynLeaderboard("NewLeaderboard");
+var dynP5 = dynNew.GetDynCar(4);
+if (dynP5 != null) {
+    SimHub.Logging.Current.Info($"{dynP5.RaceNumber}, {dynP5.CarClass}, {dynNew.GetDynGapToFocused(4)}");
+}
+
+dynNew.NextLeaderboard(values);
+
+```
+
 ### Troubleshooting
 
 - No data available

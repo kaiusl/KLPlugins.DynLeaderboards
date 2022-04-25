@@ -212,12 +212,12 @@ namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork.Structs {
         public void OnRealtimeCarUpdate(RealtimeCarUpdate update, RealtimeData realtimeData) {
             // If the race is finished we don't care about any of the realtime updates anymore.
             // We have set finished positions in ´OnRealtimeUpdate´ and that's really all that matters
-            if (IsFinished) return;
+            //if (IsFinished) return;
 
             OldData = NewData;
             NewData = update;
             // Wait for one more update at the beginning of session, so we have all relevant data for calculations below
-            if (OldData == null) return;
+            if (IsFinished || OldData == null) return;
 
             if (NewData?.DriverIndex != null) CurrentDriverIndex = NewData.DriverIndex;
 
@@ -246,6 +246,7 @@ namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork.Structs {
                 && OldData.CarLocation == NewData.CarLocation // Removes false laps when using RTG
             ) {
                 LapsBySplinePosition++;
+                DynLeaderboardsPlugin.LogInfo($"#{RaceNumber}: new lap by spline position {LapsBySplinePosition}, {TotalSplinePosition}");
             }
 
             // On certain tracks (Spa) first half of the grid is ahead of the start/finish line,
@@ -406,25 +407,30 @@ namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork.Structs {
             IsOverallBestLapCar = CarIndex == overallBestLapCar?.CarIndex;
             IsClassBestLapCar = CarIndex == classBestLapCar?.CarIndex;
 
-            if (IsFinished && _isRaceFinishPosSet) return;
+            //if (IsFinished && _isRaceFinishPosSet) return;
             InClassPos = classPos;
+            OverallPos = overallPos;
             _splinePositionTime.Reset();
 
-            OverallPos = overallPos;
             if (realtimeData.OldData.Phase == SessionPhase.SessionOver && realtimeData.IsRace) {
-                if (CarIndex == leaderCar.CarIndex || leaderCar.IsFinished) {
-                    if (NewData.Laps != OldData.Laps) {
-                        IsFinished = true;
-                        FinishTime = realtimeData.SessionTime;
-                        DynLeaderboardsPlugin.LogInfo($"Car #{RaceNumber} finished at {FinishTime}");
-                    }
-                }
+                // We also need to check finished here (after positions update) to detect leaders finish
+                CheckIsFinished(realtimeData, leaderCar);
             }
 
             SetGaps(realtimeData, leaderCar, classLeaderCar, focusedCar, carAhead, carAheadInClass, carAheadOnTrack);
             SetLapDeltas(leaderCar, classLeaderCar, focusedCar, carAhead, carAheadInClass, overallBestLapCar, classBestLapCar);
 
             if (IsFinished) _isRaceFinishPosSet = true;
+        }
+
+        public void CheckIsFinished(RealtimeData realtimeData, CarData leaderCar) {
+            if (!IsFinished && (CarIndex == leaderCar.CarIndex || leaderCar.IsFinished)) {
+                if (NewData.Laps != OldData.Laps) {
+                    IsFinished = true;
+                    FinishTime = realtimeData.SessionTime;
+                    DynLeaderboardsPlugin.LogInfo($"Car #{RaceNumber} finished at {FinishTime}");
+                }
+            }
         }
 
         private void SetLapDeltas(
@@ -550,54 +556,64 @@ namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork.Structs {
             // That would result in wrong gaps. We keep the gaps at the last valid value and update once both cars have finished.
 
             var gapToLeader = CalculateGap(this, leader);
-            if (gapToLeader != null) GapToLeader = gapToLeader;
+            //if (gapToLeader != null) {
+            GapToLeader = gapToLeader;
+            //} else if (NewData?.CarLocation != CarLocationEnum.Track) {
+            //    GapToLeader = null;
+            //}
 
-            if (classLeader.CarIndex == CarIndex) {
-                GapToClassLeader = 0.0;
-            } else if (classLeader.CarIndex == leader.CarIndex) {
-                GapToClassLeader = GapToLeader;
-            } else {
-                var gapToClassLeader = CalculateGap(this, classLeader);
-                if (gapToClassLeader != null) GapToClassLeader = gapToClassLeader;
+            if (!IsFinished || (IsFinished && !_isRaceFinishPosSet)) {
+                if (classLeader.CarIndex == CarIndex) {
+                    GapToClassLeader = 0.0;
+                } else if (IsFinished && !classLeader.IsFinished) {
+                    // This car finished but class leader hasn't yet, this means that this car is one more lap down on the leader
+                    // Gap here is always positive
+                    if (GapToClassLeader > 50000) {
+                        GapToClassLeader += 1;
+                    } else {
+                        GapToClassLeader = 100_001;
+                    }
+                } else {
+                    var gapToClassLeader = CalculateGap(this, classLeader);
+                    //if (gapToClassLeader != null) {
+                    GapToClassLeader = gapToClassLeader;
+                    //} else if (NewData?.CarLocation != CarLocationEnum.Track) {
+                    //    GapToClassLeader = null;
+                    //}
+                }
             }
-
+            
             if (focused.CarIndex == CarIndex) {
                 GapToFocusedTotal = 0.0;
-            } else if (focused.CarIndex == leader.CarIndex) {
-                GapToFocusedTotal = GapToLeader;
-            } else if (focused.CarIndex == classLeader.CarIndex) {
-                GapToFocusedTotal = GapToClassLeader;
             } else {
                 var gapToFocusedTotal = CalculateGap(focused, this);
-                if (gapToFocusedTotal != null) GapToFocusedTotal = gapToFocusedTotal;
+                //if (gapToFocusedTotal != null) 
+                GapToFocusedTotal = gapToFocusedTotal;
+                //else if (NewData?.CarLocation != CarLocationEnum.Track) {
+                //    GapToFocusedTotal = null;
+                //}
             }
 
             if (carAhead == null) {
                 GapToAhead = null;
-            } else if (carAhead.CarIndex == leader.CarIndex) {
-                GapToAhead = GapToLeader;
-            } else if (carAhead.CarIndex == classLeader.CarIndex) {
-                GapToAhead = GapToClassLeader;
-            } else if (carAhead.CarIndex == focused.CarIndex) {
-                GapToAhead = -GapToFocusedTotal;
             } else {
                 var gapToAhead = CalculateGap(this, carAhead);
-                if (gapToAhead != null) GapToAhead = gapToAhead;
+                //if (gapToAhead != null)
+                GapToAhead = gapToAhead;
+                //else if (NewData?.CarLocation != CarLocationEnum.Track) {
+                //    GapToAhead = null;
+                //}
             }
 
             if (carAheadInClass == null) {
                 GapToAheadInClass = null;
-            } else if (carAheadInClass.CarIndex == carAhead.CarIndex) {
-                GapToAheadInClass = GapToAhead;
-            } else if (carAheadInClass.CarIndex == leader.CarIndex) {
-                GapToAheadInClass = gapToLeader;
-            } else if (carAheadInClass.CarIndex == classLeader.CarIndex) {
-                GapToAheadInClass = GapToClassLeader;
-            } else if (carAheadInClass.CarIndex == focused.CarIndex) {
-                GapToAheadInClass = -GapToFocusedTotal;
             } else {
                 var gapToAheadInClass = CalculateGap(this, carAheadInClass);
-                if (gapToAheadInClass != null) GapToAheadInClass = gapToAheadInClass;
+                //if (gapToAheadInClass != null) 
+                GapToAheadInClass = gapToAheadInClass;
+                //else if (NewData?.CarLocation != CarLocationEnum.Track) {
+                //    GapToAheadInClass = null;
+                //}
             }
         }
 
@@ -619,18 +635,26 @@ namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork.Structs {
 
             var distBetween = to.TotalSplinePosition - from.TotalSplinePosition; // Negative if 'To' is behind
 
+            if (from.IsFinished && to.IsFinished) {
+                var flaps = from.NewData.Laps;
+                var tlaps = to.NewData.Laps;
+
+                if (flaps == tlaps) {
+                    return ((TimeSpan)from.FinishTime).TotalSeconds - ((TimeSpan)to.FinishTime).TotalSeconds;
+                } else {
+                    return to.NewData.Laps - from.NewData.Laps + 100_000;
+                }
+            }
+
+
             if (distBetween <= -1) {
                 // 'To' is more than a lap behind of 'from'
                 return -Math.Floor(Math.Abs(distBetween)) + 100_000;
-            } else if (Values.TrackData != null && distBetween >= 1) {
+            } else if (distBetween >= 1) {
                 // 'To' is more than a lap ahead of 'from'
                 return Math.Floor(Math.Abs(distBetween)) + 100_000;
             } else {
-                // If both cars are finished their position on track doesn't matter anymore
-                // Gap between then is the gap on the finish line
-                if (from.IsFinished && to.IsFinished) {
-                    return ((TimeSpan)from.FinishTime).TotalSeconds - ((TimeSpan)to.FinishTime).TotalSeconds;
-                } else if (from.IsFinished || to.IsFinished) {
+                if (from.IsFinished || to.IsFinished) {
                     return null;
                 }
 

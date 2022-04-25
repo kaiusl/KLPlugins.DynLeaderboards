@@ -405,6 +405,8 @@ namespace KLPlugins.DynLeaderboards {
                 AddProp(OutCarProp.IsFocused, () => (l.GetDynCar(i)?.IsFocused ?? false) ? 1 : 0);
                 AddProp(OutCarProp.IsOverallBestLapCar, () => (l.GetDynCar(i)?.IsOverallBestLapCar ?? false) ? 1 : 0);
                 AddProp(OutCarProp.IsClassBestLapCar, () => (l.GetDynCar(i)?.IsClassBestLapCar ?? false) ? 1 : 0);
+
+                //this.AttachDelegate($"{startName}.DBG_TotalSplinePosition", () => (l.GetDynCar(i))?.TotalSplinePosition);
             };
 
             var numPos = new int[] {

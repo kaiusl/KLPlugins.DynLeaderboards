@@ -369,13 +369,25 @@ namespace KLPlugins.DynLeaderboards {
 
             if (Cars.Count == 0) { return; };
             ClearMissingCars();
+
+            // We need to check if the car is finished before setting the overall order
+            // If we don't and the car just finished, it would gain a lap before until the next update,
+            // this causes flickering in results at the moment anyone finished
+            if (RealtimeData.IsRace && RealtimeData.IsPostSession) {
+                var winner = Cars.Find(x => x.IsFinished);
+                if (winner != null) {
+                    foreach (var c in Cars) {
+                        c.CheckIsFinished(RealtimeData, winner);
+                    }
+                }
+            }
+
             SetOverallOrder();
             FocusedCarIdx = Cars.FindIndex(x => x.CarIndex == update.FocusedCarIndex);
             if (FocusedCarIdx != null && !RealtimeData.IsNewSession) {
                 SetRelativeOrders();
                 UpdateCarData();
             }
-
             swatch.Stop();
             TimeSpan ts = swatch.Elapsed;
             RealtimeUpdateTime = ts.TotalMilliseconds;
@@ -443,13 +455,23 @@ namespace KLPlugins.DynLeaderboards {
                 int cmp(CarData a, CarData b) {
                     if (a == b) return 0;
                     if ((a.IsFinished || b.IsFinished) && a.NewData != null && b.NewData != null) {
+                        // We cannot use NewData.Position to set results after finish because, if someone finished and leaves the server then the positions of the guys behind him would be wrong by one.
+                        // Hence we first sort by number on laps and then by finishing time
                         if (a.NewData.Laps != b.NewData.Laps) {
                             return b.NewData.Laps.CompareTo(a.NewData.Laps);
+                        } else if (!a.IsFinished || !b.IsFinished) {
+                            // If one hasn't finished and their number of laps is same, that means that the car who has finished must be lap down.
+                            // Thus it should be behind the one who hasn't finished. 
+                            var aFTime = a.FinishTime == null ? TimeSpan.MinValue.TotalSeconds : ((TimeSpan)a.FinishTime).TotalSeconds;
+                            var bFTime = b.FinishTime == null ? TimeSpan.MinValue.TotalSeconds : ((TimeSpan)b.FinishTime).TotalSeconds;
+                            return aFTime.CompareTo(bFTime);
                         } else {
-                            // At least one of them must be finished, if both earlier finish time should be ahead.
-                            // If one hasn't finished, assign max value so it would be set behind the other one.
+                            // Both cars have finished and their lap number is the same. 
                             var aFTime = a.FinishTime == null ? TimeSpan.MaxValue.TotalSeconds : ((TimeSpan)a.FinishTime).TotalSeconds;
                             var bFTime = b.FinishTime == null ? TimeSpan.MaxValue.TotalSeconds : ((TimeSpan)b.FinishTime).TotalSeconds;
+                            if (aFTime == bFTime) {
+                                return a.NewData.Position.CompareTo(b.NewData.Position);
+                            }
                             return aFTime.CompareTo(bFTime);
                         }
                     } else if ((a.TotalSplinePosition == b.TotalSplinePosition) && a.NewData != null && b.NewData != null) {

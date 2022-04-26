@@ -106,7 +106,6 @@ Now restart SimHub and start create your dashboard. You can use the AccDynLeader
 	- If it's `False` then the plugin couldn't connect to ACC and you need to leave and rejoin the session. This can sometimes happen if you close SimHub and reopen it without leaving the session. 
 	- If it's `True` then the plugin haven't just recieved the first update and you need to wait a bit.
 - Wrong leaderboard order
-    - If you opened SimHub mid session or joined the mid race session, restart SimHub or leave and rejoin session. There is slight possibility if the car is in the exact right place at the time you joined, it will gain a lap. At the moment it's a TODO to figure out how to fix it without SimHub restart.
 	- It's an unknown bug, please report it as an issue here or in RaceDepartment forum.
 
 ### SH version

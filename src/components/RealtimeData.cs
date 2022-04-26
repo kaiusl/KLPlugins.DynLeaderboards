@@ -9,15 +9,15 @@ namespace KLPlugins.DynLeaderboards.src.ksBroadcastingNetwork.Structs {
         public int EventIndex => NewData.EventIndex;
         public int SessionIndex => NewData.SessionIndex;
         public SessionPhase Phase => NewData.Phase;
-        public TimeSpan SessionTime => NewData.SessionTime;
+        public TimeSpan SessionRunningTime => NewData.SessionRunningTime;
         public TimeSpan RemainingTime => NewData.RemainingTime;
-        public TimeSpan TimeOfDay => NewData.TimeOfDay;
+        public TimeSpan SystemTime => NewData.SystemTime;
         public LapInfo BestSessionLap => NewData.BestSessionLap;
         public ushort BestLapCarIndex => NewData.BestLapCarIndex;
         public ushort BestLapDriverIndex => NewData.BestLapDriverIndex;
         public int FocusedCarIndex => NewData.FocusedCarIndex;
-        public TimeSpan SessionRemainingTime => NewData.SessionRemainingTime;
         public TimeSpan SessionEndTime => NewData.SessionEndTime;
+        public TimeSpan SessionRemainingTime => NewData.SessionRemainingTime;
         public RaceSessionType SessionType => NewData.SessionType;
         public byte AmbientTemp => NewData.AmbientTemp;
         public byte TrackTemp => NewData.TrackTemp;
@@ -29,6 +29,7 @@ namespace KLPlugins.DynLeaderboards.src.ksBroadcastingNetwork.Structs {
         public bool IsPreSession { get; private set; }
         public bool IsPostSession { get; private set; }
         public bool IsRace { get; private set; }
+        public TimeSpan SessionTotalTime { get; private set; } = TimeSpan.Zero;
 
         public RealtimeData(RealtimeUpdate update) {
             OldData = update;
@@ -48,7 +49,7 @@ namespace KLPlugins.DynLeaderboards.src.ksBroadcastingNetwork.Structs {
             IsFocusedChange = NewData.FocusedCarIndex != OldData.FocusedCarIndex;
             IsNewSession = OldData.SessionType != NewData.SessionType || NewData.SessionIndex != OldData.SessionIndex || OldData.Phase == SessionPhase.Session && IsPreSession;
 
-
+            if (SessionTotalTime == TimeSpan.Zero) SessionTotalTime = SessionRunningTime + SessionRemainingTime;
         }
 
     }

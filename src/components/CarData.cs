@@ -94,13 +94,17 @@ namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork.Structs {
         public bool IsOverallBestLapCar { get; private set; } = false;
         public bool IsClassBestLapCar { get; private set; } = false;
 
+        public bool JumpedToPits { get; private set; } = false;
 
         internal int MissedRealtimeUpdates { get; set; } = 0;
 
         private double? _stintStartTime = null;
         private CarClassArray<double> _splinePositionTime = new CarClassArray<double>(-1);
         private bool _isRaceFinishPosSet = false;
-        private bool _isFirstUpdate = true;
+        public bool IsFirstUpdate = true;
+
+        public bool SetFinishedOnNextUpdate = false;
+        public bool IsFinalRealtimeCarUpdateAdded = false;
         ////////////////////////
 
         public CarData(CarInfo info, RealtimeCarUpdate update) {
@@ -217,7 +221,7 @@ namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork.Structs {
             OldData = NewData;
             NewData = update;
             // Wait for one more update at the beginning of session, so we have all relevant data for calculations below
-            if (IsFinished || OldData == null) return;
+            if (IsFinalRealtimeCarUpdateAdded || OldData == null) return;
 
             if (NewData?.DriverIndex != null) CurrentDriverIndex = NewData.DriverIndex;
 
@@ -226,6 +230,14 @@ namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork.Structs {
                 UpdateLapsBySplinePosition(realtimeData);
                 TotalSplinePosition = NewData.SplinePosition + LapsBySplinePosition;
                 UpdatePitInfo(realtimeData);
+                if (!SetFinishedOnNextUpdate && NewData.CarLocation == CarLocationEnum.Pitlane && OldData.CarLocation == CarLocationEnum.Track) {
+                    // It's okay to jump to the pits after finishing
+                    JumpedToPits = true;
+                }
+            }
+
+            if (JumpedToPits && NewData.CarLocation != CarLocationEnum.Pitlane) {
+                JumpedToPits = false;
             }
 
             if (NewData.Laps != OldData.Laps) {
@@ -236,6 +248,13 @@ namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork.Structs {
             UpdateBestLapSectors();
 
             MaxSpeed = Math.Max(MaxSpeed, NewData.Kmh);
+            if (IsFinished) _isRaceFinishPosSet = true;
+            if (SetFinishedOnNextUpdate) {
+                DynLeaderboardsPlugin.LogInfo($"Car #{RaceNumber} will finish on next update. Step 2");
+
+                IsFinalRealtimeCarUpdateAdded = true;
+            }
+
         }
 
         private void UpdateLapsBySplinePosition(RealtimeData realtimeData) {
@@ -248,6 +267,7 @@ namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork.Structs {
                 LapsBySplinePosition++;
                 DynLeaderboardsPlugin.LogInfo($"#{RaceNumber}: new lap by spline position {LapsBySplinePosition}, {TotalSplinePosition}");
             }
+
 
             // On certain tracks (Spa) first half of the grid is ahead of the start/finish line,
             // need to add the line crossing lap, otherwise they will be shown lap behind
@@ -274,10 +294,10 @@ namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork.Structs {
             // But LapsBySplinePosition is 0 for both, if now P2 crosses the line,
             // it's LapsBySplinePosition is increased and it would be shown lap ahead of the actual leader
             // Thus we add current laps to the LapsBySplinePosition
-            if (_isFirstUpdate && realtimeData.IsSession) {
+            if (IsFirstUpdate && realtimeData.IsSession) {
                 if (Values.TrackData == null
-                    || NewData.SplinePosition > 0.99
-                    || NewData.SplinePosition < 0.01
+                    || NewData.SplinePosition > 0.9
+                    || NewData.SplinePosition < 0.1
                     || (Values.TrackData.TrackId == TrackType.Silverstone
                         && 0.9789979 < NewData.SplinePosition
                         && NewData.SplinePosition < 0.9791052
@@ -292,7 +312,7 @@ namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork.Structs {
                     // Wait for the next update where we know that laps counter has been increased
                     return false;
                 } else {
-                    if (_isFirstUpdate && LapsBySplinePosition == 0) {
+                    if (IsFirstUpdate && LapsBySplinePosition == 0) {
                         LapsBySplinePosition = NewData.Laps;
 
                         if ((Values.TrackData.TrackId == TrackType.Silverstone && NewData.SplinePosition >= 0.9791052)
@@ -306,10 +326,10 @@ namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork.Structs {
 
                         DynLeaderboardsPlugin.LogInfo($"Set initial laps of #{RaceNumber} to {LapsBySplinePosition}");
                     }
-                    _isFirstUpdate = false;
+                    IsFirstUpdate = false;
                 }
             }
-            _isFirstUpdate = false;
+            IsFirstUpdate = false;
             return true;
         }
 
@@ -322,13 +342,13 @@ namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork.Structs {
                     ) // We join/start SimHub mid session
                 ) {
                 PitCount++;
-                PitEntryTime = realtimeData.SessionTime.TotalSeconds;
+                PitEntryTime = realtimeData.SessionRunningTime.TotalSeconds;
                 DynLeaderboardsPlugin.LogInfo($"#{RaceNumber} entered pitlane at {PitEntryTime}.");
             }
 
             if (!double.IsNaN(PitEntryTime) && NewData.CarLocation != CarLocationEnum.Pitlane) {
                 // Left the pitlane
-                LastPitTime = (realtimeData.SessionTime).TotalSeconds - PitEntryTime;
+                LastPitTime = (realtimeData.SessionRunningTime).TotalSeconds - PitEntryTime;
                 TotalPitTime += (double)LastPitTime;
                 PitEntryTime = double.NaN;
                 CurrentTimeInPits = null;
@@ -336,7 +356,7 @@ namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork.Structs {
             }
 
             if (!double.IsNaN(PitEntryTime)) {
-                CurrentTimeInPits = realtimeData.SessionTime.TotalSeconds - PitEntryTime;
+                CurrentTimeInPits = realtimeData.SessionRunningTime.TotalSeconds - PitEntryTime;
             }
 
         }
@@ -352,14 +372,14 @@ namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork.Structs {
                 || (realtimeData.IsRace && realtimeData.IsSessionStart) // Race start
                 || (_stintStartTime == null && NewData.CarLocation == CarLocationEnum.Track && (realtimeData.IsSession || realtimeData.IsPostSession)) // We join/start SimHub mid session
             ) {
-                _stintStartTime = realtimeData.SessionTime.TotalSeconds;
+                _stintStartTime = realtimeData.SessionRunningTime.TotalSeconds;
                 DynLeaderboardsPlugin.LogInfo($"#{RaceNumber} started stint at {_stintStartTime}");
             }
 
             // Stint ended
             if (OldData.CarLocation != CarLocationEnum.Pitlane && NewData.CarLocation == CarLocationEnum.Pitlane) { // Pitlane entry
                 if (_stintStartTime != null) {
-                    LastStintTime = realtimeData.SessionTime.TotalSeconds - (double)_stintStartTime;
+                    LastStintTime = realtimeData.SessionRunningTime.TotalSeconds - (double)_stintStartTime;
                     CurrentDriver.OnStintEnd((double)LastStintTime);
                     _stintStartTime = null;
                     CurrentStintTime = null;
@@ -371,7 +391,7 @@ namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork.Structs {
             }
 
             if (_stintStartTime != null) {
-                CurrentStintTime = realtimeData.SessionTime.TotalSeconds - (double)_stintStartTime;
+                CurrentStintTime = realtimeData.SessionRunningTime.TotalSeconds - (double)_stintStartTime;
             }
         }
 
@@ -414,24 +434,28 @@ namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork.Structs {
 
             if (realtimeData.OldData.Phase == SessionPhase.SessionOver && realtimeData.IsRace) {
                 // We also need to check finished here (after positions update) to detect leaders finish
-                CheckIsFinished(realtimeData, leaderCar);
+                CheckIsFinished();
             }
 
             SetGaps(realtimeData, leaderCar, classLeaderCar, focusedCar, carAhead, carAheadInClass, carAheadOnTrack);
             SetLapDeltas(leaderCar, classLeaderCar, focusedCar, carAhead, carAheadInClass, overallBestLapCar, classBestLapCar);
 
-            if (IsFinished) _isRaceFinishPosSet = true;
+            //if (IsFinished) _isRaceFinishPosSet = true;
         }
 
-        public void CheckIsFinished(RealtimeData realtimeData, CarData leaderCar) {
-            if (!IsFinished && (CarIndex == leaderCar.CarIndex || leaderCar.IsFinished)) {
-                if (NewData.Laps != OldData.Laps) {
-                    IsFinished = true;
-                    FinishTime = realtimeData.SessionTime;
-                    DynLeaderboardsPlugin.LogInfo($"Car #{RaceNumber} finished at {FinishTime}");
-                }
+        public void CheckIsFinished() {
+            if (!IsFinished && IsFinalRealtimeCarUpdateAdded) {
+                IsFinished = true;
+                DynLeaderboardsPlugin.LogInfo($"Car #{RaceNumber} finished at {FinishTime}");
             }
         }
+
+        internal void SetIsFinished(TimeSpan finishTime) {
+            SetFinishedOnNextUpdate = true;
+            FinishTime = finishTime;
+            DynLeaderboardsPlugin.LogInfo($"Car #{RaceNumber} will finish on next update. Step 1");
+        }
+
 
         private void SetLapDeltas(
             CarData leaderCar,
@@ -633,19 +657,29 @@ namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork.Structs {
         public static double? CalculateGap(CarData from, CarData to) {
             if (from.CarIndex == to.CarIndex) return 0;
 
-            var distBetween = to.TotalSplinePosition - from.TotalSplinePosition; // Negative if 'To' is behind
+            if (from.NewData == null || to.NewData == null || from.OldData == null || to.OldData == null) return null;
+            if (from.NewData.Laps == to.NewData.Laps && (from.JumpedToPits || to.JumpedToPits)) return null;
+
+            var flaps = from.NewData.Laps;
+            var tlaps = to.NewData.Laps;
 
             if (from.IsFinished && to.IsFinished) {
-                var flaps = from.NewData.Laps;
-                var tlaps = to.NewData.Laps;
-
                 if (flaps == tlaps) {
                     return ((TimeSpan)from.FinishTime).TotalSeconds - ((TimeSpan)to.FinishTime).TotalSeconds;
                 } else {
-                    return to.NewData.Laps - from.NewData.Laps + 100_000;
+                    return tlaps - flaps + 100_000;
                 }
             }
 
+            if (tlaps != flaps && 
+                ((to.IsFinished && !from.IsFinished && from.NewData.CarLocation == CarLocationEnum.Pitlane)
+                || (from.IsFinished && !to.IsFinished && to.NewData.CarLocation == CarLocationEnum.Pitlane))
+            ) {
+                return tlaps - flaps + 100_000;
+            }
+
+
+            var distBetween = to.TotalSplinePosition - from.TotalSplinePosition; // Negative if 'To' is behind
 
             if (distBetween <= -1) {
                 // 'To' is more than a lap behind of 'from'

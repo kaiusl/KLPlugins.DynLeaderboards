@@ -173,14 +173,16 @@ namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork {
                 break;
                 case InboundMessageTypes.REALTIME_UPDATE: {
                     RealtimeUpdate update = new RealtimeUpdate();
+                    update.RecieveTime = DateTime.Now;
+
                     update.EventIndex = (int)br.ReadUInt16();
                     update.SessionIndex = (int)br.ReadUInt16();
                     update.SessionType = (RaceSessionType)br.ReadByte();
                     update.Phase = (SessionPhase)br.ReadByte();
                     var sessionTime = br.ReadSingle();
-                    update.SessionTime = TimeSpan.FromMilliseconds(sessionTime);
+                    update.SessionRunningTime = TimeSpan.FromMilliseconds(sessionTime);
                     var sessionEndTime = br.ReadSingle();
-                    update.SessionEndTime = TimeSpan.FromMilliseconds(sessionEndTime);
+                    update.SessionRemainingTime = TimeSpan.FromMilliseconds(sessionEndTime);
 
                     update.FocusedCarIndex = br.ReadInt32();
                     update.ActiveCameraSet = ReadString(br);
@@ -193,7 +195,7 @@ namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork {
                         update.ReplayRemainingTime = br.ReadSingle();
                     }
 
-                    update.TimeOfDay = TimeSpan.FromMilliseconds(br.ReadSingle());
+                    update.SystemTime = TimeSpan.FromMilliseconds(br.ReadSingle());
                     update.AmbientTemp = br.ReadByte();
                     update.TrackTemp = br.ReadByte();
                     update.Clouds = br.ReadByte() / 10.0f;
@@ -278,16 +280,15 @@ namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork {
                 }
                 break;
                 case InboundMessageTypes.BROADCASTING_EVENT: {
-                    //BroadcastingEvent evt = new BroadcastingEvent()
-                    //{
-                    //    Type = (BroadcastingCarEventType)br.ReadByte(),
-                    //    Msg = ReadString(br),
-                    //    TimeMs = br.ReadInt32(),
-                    //    CarId = br.ReadInt32(),
-                    //};
+                    BroadcastingEvent evt = new BroadcastingEvent() {
+                        Type = (BroadcastingCarEventType)br.ReadByte(),
+                        Msg = ReadString(br),
+                        TimeMs = br.ReadInt32(),
+                        CarId = br.ReadInt32(),
+                    };
 
-                    //evt.CarData = EntryListCars.FirstOrDefault(x => x.CarIndex == evt.CarId);
-                    //OnBroadcastingEvent?.Invoke(ConnectionIdentifier, evt);
+                    evt.CarData = EntryListCars.FirstOrDefault(x => x.CarIndex == evt.CarId);
+                    OnBroadcastingEvent?.Invoke(ConnectionIdentifier, evt);
                 }
                 break;
                 default:

@@ -120,7 +120,7 @@
                     <mah:NumericUpDown Grid.Column="1"
                                        HasDecimals="False" 
                                        Width="100" 
-                                       Minimum="10" Maximum="5000" Interval="10" 
+                                       Minimum="10" Maximum="1000" Interval="10" 
                                        VerticalAlignment="Center"
                                        HorizontalAlignment="Left"
                                        StringFormat="0ms"

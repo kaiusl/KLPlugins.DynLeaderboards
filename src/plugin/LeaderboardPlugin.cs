@@ -188,6 +188,16 @@ namespace KLPlugins.DynLeaderboards {
 
             // this.AttachDelegate("DBG_RealtimeUpdateTime", () => _values.RealtimeUpdateTime);
 
+            this.AttachDelegate("DBG.Realtime.SessionTime", () => _values?.RealtimeData?.SessionRunningTime);
+            this.AttachDelegate("DBG.Realtime.RemainingTime", () => _values?.RealtimeData?.RemainingTime);
+            this.AttachDelegate("DBG.Realtime.TimeOfDay", () => _values?.RealtimeData?.SystemTime);
+            this.AttachDelegate("DBG.Realtime.SessionRemainingTime", () => _values?.RealtimeData?.SessionEndTime);
+            this.AttachDelegate("DBG.Realtime.SessionEndTime", () => _values.RealtimeData?.SessionRemainingTime);
+            this.AttachDelegate("DBG.Realtime.RecieveTime", () => _values.RealtimeData?.NewData?.RecieveTime);
+            this.AttachDelegate("DBG.Realtime.SessionTotalTime", () => _values.RealtimeData?.SessionTotalTime);
+            this.AttachDelegate("DBG.SessionEndTimeForBroadcastEvents", () => TimeSpan.FromSeconds(_values.SessionEndTimeForBroadcastEventsTime.Avg));
+            this.AttachDelegate("DBG.SessionRemainingTimeForBroadcastEvents", () => _values.SessionRemainingTimeForBroadcastEventsTime);
+
         }
 
         public void AddNewLeaderboard(PluginSettings.DynLeaderboardConfig s) {
@@ -406,7 +416,9 @@ namespace KLPlugins.DynLeaderboards {
                 AddProp(OutCarProp.IsOverallBestLapCar, () => (l.GetDynCar(i)?.IsOverallBestLapCar ?? false) ? 1 : 0);
                 AddProp(OutCarProp.IsClassBestLapCar, () => (l.GetDynCar(i)?.IsClassBestLapCar ?? false) ? 1 : 0);
 
-                //this.AttachDelegate($"{startName}.DBG_TotalSplinePosition", () => (l.GetDynCar(i))?.TotalSplinePosition);
+                this.AttachDelegate($"{startName}.DBG_TotalSplinePosition", () => (l.GetDynCar(i))?.TotalSplinePosition);
+                this.AttachDelegate($"{startName}.DBG_Position", () => (l.GetDynCar(i))?.NewData?.Position);
+                this.AttachDelegate($"{startName}.DBG_TrackPosition", () => (l.GetDynCar(i))?.NewData?.TrackPosition);
             };
 
             var numPos = new int[] {

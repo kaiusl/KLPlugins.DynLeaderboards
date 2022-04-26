@@ -27,6 +27,21 @@ namespace KLPlugins.DynLeaderboards {
             }
         }
 
+        internal class RunningAvg {
+            public double Avg { get; private set; } = 0;
+            private int _n = 0;
+
+            public void Add(double v) {
+                Avg = (Avg * _n + v) / (_n + 1);
+                _n++;
+            }
+
+            public void Reset() {
+                Avg = 0;
+                _n = 0;
+            }
+        }
+
         public class DynLeaderboardValues {
             public int?[] RelativePosOnTrackCarsIdxs { get; internal set; }
 
@@ -101,8 +116,10 @@ namespace KLPlugins.DynLeaderboards {
         public CarClassArray<int?> BestLapByClassCarIdxs { get; private set; } = new CarClassArray<int?>(null);
         public double MaxDriverStintTime { get; private set; } = -1;
         public double MaxDriverTotalDriveTime { get; private set; } = -1;
-
         public List<DynLeaderboardValues> LeaderboardValues { get; private set; } = new List<DynLeaderboardValues>();
+
+        internal RunningAvg SessionEndTimeForBroadcastEventsTime = new RunningAvg();
+        internal TimeSpan SessionRemainingTimeForBroadcastEventsTime = TimeSpan.MaxValue;
 
         // Store relative spline positions for relative leaderboard,
         // need to store separately as we need to sort by spline pos at the end on update loop
@@ -142,6 +159,8 @@ namespace KLPlugins.DynLeaderboards {
             MaxDriverTotalDriveTime = -1;
             outdata.Clear();
             bestLaps.Clear();
+            SessionEndTimeForBroadcastEventsTime.Reset();
+            SessionRemainingTimeForBroadcastEventsTime = TimeSpan.MaxValue;
 
         }
 
@@ -324,6 +343,7 @@ namespace KLPlugins.DynLeaderboards {
             BroadcastClient.MessageHandler.OnRealtimeCarUpdate += OnRealtimeCarUpdate;
             BroadcastClient.MessageHandler.OnRealtimeUpdate += OnBroadcastRealtimeUpdate;
             BroadcastClient.MessageHandler.OnTrackDataUpdate += OnTrackDataUpdate;
+            BroadcastClient.MessageHandler.OnBroadcastingEvent += OnBroadcastingEvent;
         }
 
         public async void DisposeBroadcastClient() {
@@ -343,6 +363,35 @@ namespace KLPlugins.DynLeaderboards {
         //    Realtime update for all the cars
         // ***
         // New entry list if found new car or driver
+
+        public void OnBroadcastingEvent(string sender, BroadcastingEvent evt) {
+            //            public BroadcastingCarEventType Type { get; internal set; }
+            //public string Msg { get; internal set; }
+            //public int TimeMs { get; internal set; }
+            //public int CarId { get; internal set; }
+            //public CarInfo CarData { get; internal set; }
+
+            DynLeaderboardsPlugin.LogInfo($"BROADCAST EVENT: #{evt.CarData?.RaceNumber}: Type = {evt.Type}: Msg = {evt.Msg}: Time = {TimeSpan.FromMilliseconds(evt.TimeMs)}");
+            var msgTime = evt.TimeMs / 1000.0;
+
+            var timeFromLastRealtimeUpdate = (DateTime.Now - RealtimeData.NewData.RecieveTime).TotalSeconds;
+            if (RealtimeData.NewData != null && RealtimeData.SessionRemainingTime != TimeSpan.Zero) {
+                var endTime = msgTime + (RealtimeData.SessionRemainingTime.TotalSeconds - timeFromLastRealtimeUpdate);
+                SessionEndTimeForBroadcastEventsTime.Add(endTime);
+                SessionRemainingTimeForBroadcastEventsTime = TimeSpan.FromSeconds(SessionEndTimeForBroadcastEventsTime.Avg - msgTime);
+            }
+
+            if (evt.Type == BroadcastingCarEventType.LapCompleted
+                && RealtimeData.IsRace 
+                && SessionEndTimeForBroadcastEventsTime.Avg != 0 
+                && SessionEndTimeForBroadcastEventsTime.Avg <= msgTime 
+                && evt.CarData != null
+                && (Cars[0].CarIndex == evt.CarData.CarIndex || Cars[0].SetFinishedOnNextUpdate)
+            ) {
+                Cars.Find(x => x.CarIndex == evt.CarData.CarIndex).SetIsFinished(RealtimeData.SessionRunningTime + TimeSpan.FromSeconds(timeFromLastRealtimeUpdate));
+            }
+        }
+
 
         #region RealtimeUpdate
 
@@ -374,11 +423,8 @@ namespace KLPlugins.DynLeaderboards {
             // If we don't and the car just finished, it would gain a lap before until the next update,
             // this causes flickering in results at the moment anyone finished
             if (RealtimeData.IsRace && RealtimeData.IsPostSession) {
-                var winner = Cars.Find(x => x.IsFinished);
-                if (winner != null) {
-                    foreach (var c in Cars) {
-                        c.CheckIsFinished(RealtimeData, winner);
-                    }
+                foreach (var c in Cars) {
+                    c.CheckIsFinished();
                 }
             }
 
@@ -453,25 +499,45 @@ namespace KLPlugins.DynLeaderboards {
                 // Also larger TotalSplinePosition means car is in front, so sort in descending order
 
                 int cmp(CarData a, CarData b) {
-                    if (a == b) return 0;
-                    if ((a.IsFinished || b.IsFinished) && a.NewData != null && b.NewData != null) {
+                    if (a == b || a.NewData == null || b.NewData == null) return 0;
+
+                    var alaps = Math.Floor(a.TotalSplinePosition);
+                    var blaps = Math.Floor(b.TotalSplinePosition);
+                    // If cars haven't yet received their first updates, TotalSplinePosition is 0.
+                    // If we joined mid session this is false, use ACC laps data until we get accurate first update.
+                    if (a.IsFirstUpdate) alaps = a.NewData.Laps;
+                    if (b.IsFirstUpdate) blaps = b.NewData.Laps;
+
+                    if (alaps != blaps) {
+                        return blaps.CompareTo(alaps);
+                    }
+
+                    // If car jumped to the pits we need to but it behind everyone on that same lap, also it's okay for the finished car to jump to the pits
+                    if (a.JumpedToPits && !b.JumpedToPits && !a.IsFinished) {
+                        DynLeaderboardsPlugin.LogInfo($"#{a.RaceNumber} vs #{b.RaceNumber} compared {a.JumpedToPits} and {b.JumpedToPits} and {a.IsFinished} and {b.IsFinished}. Result = 1.");
+                        return 1;
+                    }
+                    if (b.JumpedToPits && !a.JumpedToPits && !b.IsFinished) {
+                        DynLeaderboardsPlugin.LogInfo($"#{a.RaceNumber} vs #{b.RaceNumber} compared {a.JumpedToPits} and {b.JumpedToPits} and {a.IsFinished} and {b.IsFinished}. Result = -1.");
+                        return -1;
+                    }
+
+                    if (a.IsFinalRealtimeCarUpdateAdded || b.IsFinalRealtimeCarUpdateAdded) {
                         // We cannot use NewData.Position to set results after finish because, if someone finished and leaves the server then the positions of the guys behind him would be wrong by one.
                         // Hence we first sort by number on laps and then by finishing time
-                        if (a.NewData.Laps != b.NewData.Laps) {
-                            return b.NewData.Laps.CompareTo(a.NewData.Laps);
-                        } else if (!a.IsFinished || !b.IsFinished) {
+
+                        if (!a.IsFinalRealtimeCarUpdateAdded || !b.IsFinalRealtimeCarUpdateAdded) {
                             // If one hasn't finished and their number of laps is same, that means that the car who has finished must be lap down.
                             // Thus it should be behind the one who hasn't finished. 
                             var aFTime = a.FinishTime == null ? TimeSpan.MinValue.TotalSeconds : ((TimeSpan)a.FinishTime).TotalSeconds;
                             var bFTime = b.FinishTime == null ? TimeSpan.MinValue.TotalSeconds : ((TimeSpan)b.FinishTime).TotalSeconds;
+                            DynLeaderboardsPlugin.LogInfo($"#{a.RaceNumber} vs #{b.RaceNumber} compared by finish time {aFTime} vs {bFTime}, POS: {a.NewData.Position} vs {b.NewData.Position}. Result = {aFTime.CompareTo(bFTime)}."); 
                             return aFTime.CompareTo(bFTime);
                         } else {
                             // Both cars have finished and their lap number is the same. 
                             var aFTime = a.FinishTime == null ? TimeSpan.MaxValue.TotalSeconds : ((TimeSpan)a.FinishTime).TotalSeconds;
                             var bFTime = b.FinishTime == null ? TimeSpan.MaxValue.TotalSeconds : ((TimeSpan)b.FinishTime).TotalSeconds;
-                            if (aFTime == bFTime) {
-                                return a.NewData.Position.CompareTo(b.NewData.Position);
-                            }
+                            DynLeaderboardsPlugin.LogInfo($"#{a.RaceNumber} vs #{b.RaceNumber} compared by finish time {aFTime} vs {bFTime}, POS: {a.NewData.Position} vs {b.NewData.Position}. Result = {aFTime.CompareTo(bFTime)}");
                             return aFTime.CompareTo(bFTime);
                         }
                     } else if ((a.TotalSplinePosition == b.TotalSplinePosition) && a.NewData != null && b.NewData != null) {
@@ -479,8 +545,10 @@ namespace KLPlugins.DynLeaderboards {
                     }
                     return b.TotalSplinePosition.CompareTo(a.TotalSplinePosition);
                 };
-
+                DynLeaderboardsPlugin.LogFileSeparator();
+                DynLeaderboardsPlugin.LogInfo("Sorting order.");
                 Cars.Sort(cmp);
+                DynLeaderboardsPlugin.LogFileSeparator();
             } else {
                 // In other sessions TotalSplinePosition doesn't make any sense, use RealtimeCarUpdate.Position
 

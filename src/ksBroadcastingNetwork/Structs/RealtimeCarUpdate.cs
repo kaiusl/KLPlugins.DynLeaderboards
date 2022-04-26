@@ -11,7 +11,7 @@ namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork.Structs {
         public int Kmh { get; internal set; }
         public int Position { get; internal set; }
         public int TrackPosition { get; internal set; }
-        public float SplinePosition { get; internal set; }
+        public double SplinePosition { get; internal set; }
         public int Delta { get; internal set; }
         public LapInfo BestSessionLap { get; internal set; } // This contains all the bests. Best lap time and best sectors not the sectors of the best lap.
         public LapInfo LastLap { get; internal set; }

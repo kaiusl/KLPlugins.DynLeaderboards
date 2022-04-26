@@ -23,4 +23,18 @@ namespace KLPlugins.DynLeaderboards.Enums {
 
         Unknown = 255
     }
+
+    static class TrackExtensions {
+
+        public static double SplinePosOffset(this TrackType track) {
+            switch (track) {
+                case TrackType.Silverstone:
+                    return 0.0207;
+                default:
+                    return 0;
+            }
+        }
+
+    }
+
 }

@@ -28,8 +28,7 @@ namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork.Structs {
         public DriverData CurrentDriver => Drivers[CurrentDriverIndex];
 
         // ..BySplinePosition
-        public float TotalSplinePosition { get; private set; } = 0.0f;
-        public int LapsBySplinePosition { get; private set; } = 0;
+        public double TotalSplinePosition { get; private set; } = 0.0;
 
         // Gaps
         public double? GapToLeader { get; private set; } = null;
@@ -105,6 +104,9 @@ namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork.Structs {
 
         public bool SetFinishedOnNextUpdate = false;
         public bool IsFinalRealtimeCarUpdateAdded = false;
+
+        public bool HasCrossedStartLine = true;
+
         ////////////////////////
 
         public CarData(CarInfo info, RealtimeCarUpdate update) {
@@ -207,6 +209,9 @@ namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork.Structs {
             StartPosInClass = inclass;
         }
 
+        public bool OffsetLapUpdate = false;
+        private bool _lapUpdatedAfterOffsetLapUpdate = true;
+        private int _lapAtOffsetLapUpdate = 0;
 
         /// <summary>
         /// Updates this cars data. Should be called when RealtimeCarUpdate for this car is received.
@@ -220,25 +225,18 @@ namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork.Structs {
 
             OldData = NewData;
             NewData = update;
+
             // Wait for one more update at the beginning of session, so we have all relevant data for calculations below
             if (IsFinalRealtimeCarUpdateAdded || OldData == null) return;
-
-            if (NewData?.DriverIndex != null) CurrentDriverIndex = NewData.DriverIndex;
+            CheckForOffsetLapUpdate();
+            SetCurrentDriverIndex();
 
             if (realtimeData.IsRace) {
-                if (!TryAddInitialLaps(realtimeData)) return; // If we didn't succeed, we don't want to continue with calculation but just wait for another update.
-                UpdateLapsBySplinePosition(realtimeData);
-                TotalSplinePosition = NewData.SplinePosition + LapsBySplinePosition;
+                CheckForCrossingStartLine(realtimeData);
+                TotalSplinePosition = NewData.SplinePosition + NewData.Laps;
                 UpdatePitInfo(realtimeData);
-                if (!SetFinishedOnNextUpdate && NewData.CarLocation == CarLocationEnum.Pitlane && OldData.CarLocation == CarLocationEnum.Track) {
-                    // It's okay to jump to the pits after finishing
-                    JumpedToPits = true;
-                }
             }
-
-            if (JumpedToPits && NewData.CarLocation != CarLocationEnum.Pitlane) {
-                JumpedToPits = false;
-            }
+            CheckForRTG(realtimeData);
 
             if (NewData.Laps != OldData.Laps) {
                 CurrentDriver.OnLapFinished(NewData.LastLap);
@@ -248,89 +246,64 @@ namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork.Structs {
             UpdateBestLapSectors();
 
             MaxSpeed = Math.Max(MaxSpeed, NewData.Kmh);
-            if (IsFinished) _isRaceFinishPosSet = true;
             if (SetFinishedOnNextUpdate) {
                 DynLeaderboardsPlugin.LogInfo($"Car #{RaceNumber} will finish on next update. Step 2");
 
                 IsFinalRealtimeCarUpdateAdded = true;
             }
-
         }
 
-        private void UpdateLapsBySplinePosition(RealtimeData realtimeData) {
-            // RealtimeCarUpdate.Laps and SplinePosition updates are not always in sync.
-            // This results in some weirdness on lap finish. Count laps myself based on spline position.
-            if (OldData.SplinePosition > 0.9
-                && NewData.SplinePosition < 0.1
-                && OldData.CarLocation == NewData.CarLocation // Removes false laps when using RTG
-            ) {
-                LapsBySplinePosition++;
-                DynLeaderboardsPlugin.LogInfo($"#{RaceNumber}: new lap by spline position {LapsBySplinePosition}, {TotalSplinePosition}");
-            }
-
-
+        private void CheckForCrossingStartLine(RealtimeData realtimeData) {
             // On certain tracks (Spa) first half of the grid is ahead of the start/finish line,
             // need to add the line crossing lap, otherwise they will be shown lap behind
-            if (realtimeData.Phase == SessionPhase.PreFormation
-                && NewData.SplinePosition < 0.1
-                && LapsBySplinePosition == 0
+            if (HasCrossedStartLine && realtimeData.Phase == SessionPhase.PreFormation
+                && NewData.SplinePosition > 0.5
+                && NewData.Laps == 0
             ) {
-                LapsBySplinePosition++;
+                DynLeaderboardsPlugin.LogInfo($"#{RaceNumber}: set HasCrossedStartLine = false");
+                HasCrossedStartLine = false;
+            }
+
+            if (!HasCrossedStartLine && NewData.SplinePosition < 0.1 && OldData.SplinePosition > 0.9) {
+                HasCrossedStartLine = true;
+                DynLeaderboardsPlugin.LogInfo($"#{RaceNumber}: set HasCrossedStartLine = true");
             }
         }
 
-
-        /// <summary>
-        /// Add initial laps to the car. It's important when starting SimHub mid session.
-        /// </summary>
-        /// <returns>
-        /// <c>true</c> if succeeded in adding the laps, <c>false</c> otherwise.
-        /// </returns>
-        /// <param name="realtimeData"></param>
-        /// <returns></returns>
-        private bool TryAddInitialLaps(RealtimeData realtimeData) {
-            // If we start SimHub in the middle of session and cars are on the different laps, the car behind will gain a lap over
-            // For example: P1 has just crossed the line and has completed 3 laps, P2 has 2 laps
-            // But LapsBySplinePosition is 0 for both, if now P2 crosses the line,
-            // it's LapsBySplinePosition is increased and it would be shown lap ahead of the actual leader
-            // Thus we add current laps to the LapsBySplinePosition
-            if (IsFirstUpdate && realtimeData.IsSession) {
-                if (Values.TrackData == null
-                    || NewData.SplinePosition > 0.9
-                    || NewData.SplinePosition < 0.1
-                    || (Values.TrackData.TrackId == TrackType.Silverstone
-                        && 0.9789979 < NewData.SplinePosition
-                        && NewData.SplinePosition < 0.9791052
-                        ) // Silverstone
-                    || (Values.TrackData.TrackId == TrackType.Spa
-                        && 0.9961125 < NewData.SplinePosition
-                        && NewData.SplinePosition < 0.9962250
-                        ) // Spa
-                ) {
-                    //LeaderboardPlugin.LogInfo($"Ignored car #{RaceNumber} at start up.");
-                    // This is critical point when the lap changes, we don't know yet if it's the old lap or new
-                    // Wait for the next update where we know that laps counter has been increased
-                    return false;
-                } else {
-                    if (IsFirstUpdate && LapsBySplinePosition == 0) {
-                        LapsBySplinePosition = NewData.Laps;
-
-                        if ((Values.TrackData.TrackId == TrackType.Silverstone && NewData.SplinePosition >= 0.9791052)
-                            || (Values.TrackData.TrackId == TrackType.Spa && NewData.SplinePosition >= 0.9962250)
-                        ) {
-                            // This is the position of finish line, position where lap count is increased.
-                            // This means that in above we added one extra lap as by SplinePosition it's not new lap yet.
-                            LapsBySplinePosition -= 1;
-                            DynLeaderboardsPlugin.LogInfo($"Remove lap from #{RaceNumber} at splinePos={NewData.SplinePosition}");
-                        }
-
-                        DynLeaderboardsPlugin.LogInfo($"Set initial laps of #{RaceNumber} to {LapsBySplinePosition}");
-                    }
-                    IsFirstUpdate = false;
-                }
+        private void CheckForRTG(RealtimeData realtimeData) {
+            if (realtimeData.IsRace && !SetFinishedOnNextUpdate && NewData.CarLocation == CarLocationEnum.Pitlane && OldData.CarLocation == CarLocationEnum.Track) {
+                // It's okay to jump to the pits after finishing
+                JumpedToPits = true;
             }
-            IsFirstUpdate = false;
-            return true;
+
+            if (JumpedToPits && NewData.CarLocation != CarLocationEnum.Pitlane) {
+                JumpedToPits = false;
+            }
+        }
+
+        private void SetCurrentDriverIndex() {
+            if (NewData?.DriverIndex != null) CurrentDriverIndex = NewData.DriverIndex;
+        }
+
+        private void CheckForOffsetLapUpdate() {
+            if (!OffsetLapUpdate && NewData.Laps != OldData.Laps && (NewData.SplinePosition > 0.9 || OldData.SplinePosition < 0.1)) {
+                OffsetLapUpdate = true;
+                DynLeaderboardsPlugin.LogError($"#{RaceNumber}: laps updated before spline position was reset. NewData: laps={NewData.Laps}, sp={NewData.SplinePosition}, OldData: laps={OldData.Laps}, sp={OldData.SplinePosition}");
+            } else if (!OffsetLapUpdate && NewData.SplinePosition < 0.1 && OldData.SplinePosition > 0.9 && NewData.Laps == OldData.Laps && NewData.Laps != 0) {
+                OffsetLapUpdate = true;
+                _lapUpdatedAfterOffsetLapUpdate = false;
+                _lapAtOffsetLapUpdate = NewData.Laps;
+                DynLeaderboardsPlugin.LogError($"#{RaceNumber}: spline position was reset before laps were updated. NewData: laps={NewData.Laps}, sp={NewData.SplinePosition}, OldData: laps={OldData.Laps}, sp={OldData.SplinePosition}");
+            }
+
+            if (!_lapUpdatedAfterOffsetLapUpdate && NewData.Laps != _lapAtOffsetLapUpdate) {
+                _lapUpdatedAfterOffsetLapUpdate = true;
+            }
+
+            if (OffsetLapUpdate && NewData.SplinePosition < 0.9 && _lapUpdatedAfterOffsetLapUpdate) {
+                DynLeaderboardsPlugin.LogError($"#{RaceNumber}: offset lap update removed, all ok now again.");
+                OffsetLapUpdate = false;
+            }
         }
 
         private void UpdatePitInfo(RealtimeData realtimeData) {
@@ -437,14 +410,15 @@ namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork.Structs {
                 CheckIsFinished();
             }
 
+            if (OffsetLapUpdate) return; // Gaps could be offset by a lap, wait for the next update
             SetGaps(realtimeData, leaderCar, classLeaderCar, focusedCar, carAhead, carAheadInClass, carAheadOnTrack);
             SetLapDeltas(leaderCar, classLeaderCar, focusedCar, carAhead, carAheadInClass, overallBestLapCar, classBestLapCar);
 
-            //if (IsFinished) _isRaceFinishPosSet = true;
+            if (IsFinished) _isRaceFinishPosSet = true;
         }
 
         public void CheckIsFinished() {
-            if (!IsFinished && IsFinalRealtimeCarUpdateAdded) {
+            if (!IsFinished && IsFinalRealtimeCarUpdateAdded && !OffsetLapUpdate) {
                 IsFinished = true;
                 DynLeaderboardsPlugin.LogInfo($"Car #{RaceNumber} finished at {FinishTime}");
             }
@@ -586,27 +560,17 @@ namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork.Structs {
             //    GapToLeader = null;
             //}
 
-            if (!IsFinished || (IsFinished && !_isRaceFinishPosSet)) {
-                if (classLeader.CarIndex == CarIndex) {
-                    GapToClassLeader = 0.0;
-                } else if (IsFinished && !classLeader.IsFinished) {
-                    // This car finished but class leader hasn't yet, this means that this car is one more lap down on the leader
-                    // Gap here is always positive
-                    if (GapToClassLeader > 50000) {
-                        GapToClassLeader += 1;
-                    } else {
-                        GapToClassLeader = 100_001;
-                    }
-                } else {
-                    var gapToClassLeader = CalculateGap(this, classLeader);
-                    //if (gapToClassLeader != null) {
-                    GapToClassLeader = gapToClassLeader;
-                    //} else if (NewData?.CarLocation != CarLocationEnum.Track) {
-                    //    GapToClassLeader = null;
-                    //}
-                }
+            if (classLeader.CarIndex == CarIndex) {
+                GapToClassLeader = 0.0;
+            } else {
+                var gapToClassLeader = CalculateGap(this, classLeader);
+                //if (gapToClassLeader != null) {
+                GapToClassLeader = gapToClassLeader;
+                //} else if (NewData?.CarLocation != CarLocationEnum.Track) {
+                //    GapToClassLeader = null;
+                //}
             }
-            
+
             if (focused.CarIndex == CarIndex) {
                 GapToFocusedTotal = 0.0;
             } else {
@@ -657,7 +621,7 @@ namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork.Structs {
         public static double? CalculateGap(CarData from, CarData to) {
             if (from.CarIndex == to.CarIndex) return 0;
 
-            if (from.NewData == null || to.NewData == null || from.OldData == null || to.OldData == null) return null;
+            if (from.NewData == null || to.NewData == null || from.OldData == null || to.OldData == null || !to.HasCrossedStartLine || !from.HasCrossedStartLine) return null;
             if (from.NewData.Laps == to.NewData.Laps && (from.JumpedToPits || to.JumpedToPits)) return null;
 
             var flaps = from.NewData.Laps;
@@ -671,13 +635,12 @@ namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork.Structs {
                 }
             }
 
-            if (tlaps != flaps && 
+            if (tlaps != flaps &&
                 ((to.IsFinished && !from.IsFinished && from.NewData.CarLocation == CarLocationEnum.Pitlane)
                 || (from.IsFinished && !to.IsFinished && to.NewData.CarLocation == CarLocationEnum.Pitlane))
             ) {
                 return tlaps - flaps + 100_000;
             }
-
 
             var distBetween = to.TotalSplinePosition - from.TotalSplinePosition; // Negative if 'To' is behind
 
@@ -700,10 +663,8 @@ namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork.Structs {
                     return distBetween * Values.TrackData.TrackMeters / (175.0 / 3.6);
                 }
 
-                var fromPos = from.NewData?.SplinePosition;
-                var toPos = to.NewData?.SplinePosition;
-                if (fromPos == null || toPos == null) return null;
-
+                var fromPos = from.NewData.SplinePosition;
+                var toPos = to.NewData.SplinePosition;
                 double? gap;
                 var cls = TrackData.LapInterpolators[to.CarClass] != null ? to.CarClass : from.CarClass;
                 if (distBetween > 0) {
@@ -808,8 +769,8 @@ namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork.Structs {
         /// </returns>
         /// <param name="otherCar"></param>
         /// <returns></returns>
-        public float CalculateRelativeSplinePosition(CarData otherCar) {
-            if (NewData == null || otherCar.NewData == null) return float.NaN;
+        public double CalculateRelativeSplinePosition(CarData otherCar) {
+            if (NewData == null || otherCar.NewData == null) return double.NaN;
             return CalculateRelativeSplinePosition(NewData.SplinePosition, otherCar.NewData.SplinePosition);
         }
 
@@ -822,7 +783,7 @@ namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork.Structs {
         /// <param name="thisPos"></param>
         /// <param name="posRelativeTo"></param>
         /// <returns></returns>
-        public static float CalculateRelativeSplinePosition(float thisPos, float posRelativeTo) {
+        public static double CalculateRelativeSplinePosition(double thisPos, double posRelativeTo) {
             var relSplinePos = thisPos - posRelativeTo;
             if (relSplinePos > 0.5) { // Pos is more than half a lap ahead, so technically it's closer from behind. Take one lap away to show it behind us.
                 relSplinePos -= 1;

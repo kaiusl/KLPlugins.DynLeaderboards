@@ -38,6 +38,7 @@ namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork {
         private SendMessageDelegate Send { get; }
         public int ConnectionId { get; private set; }
         public float TrackMeters { get; private set; }
+        private TrackType TrackId = TrackType.Unknown;
 
         internal delegate void SendMessageDelegate(byte[] payload);
 
@@ -222,7 +223,12 @@ namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork {
                     carUpdate.Position = br.ReadUInt16(); // official P/Q/R position (1 based)
                     carUpdate.CupPosition = br.ReadUInt16(); // official P/Q/R position (1 based)
                     carUpdate.TrackPosition = br.ReadUInt16(); // position on track (1 based)
-                    carUpdate.SplinePosition = br.ReadSingle(); // track position between 0.0 and 1.0
+
+                    var splinePos = br.ReadSingle() + TrackId.SplinePosOffset();
+                    if (splinePos > 1) {
+                        splinePos -= 1;
+                    }
+                    carUpdate.SplinePosition = splinePos; // track position between 0.0 and 1.0
                     carUpdate.Laps = br.ReadUInt16();
 
                     carUpdate.Delta = br.ReadInt32(); // Realtime delta to best session lap
@@ -251,6 +257,7 @@ namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork {
                     trackData.TrackId = (TrackType)br.ReadInt32();
                     trackData.TrackMeters = br.ReadInt32();
                     TrackMeters = trackData.TrackMeters > 0 ? trackData.TrackMeters : -1;
+                    TrackId = trackData.TrackId;
 
                     //trackData.CameraSets = new Dictionary<string, List<string>>();
 

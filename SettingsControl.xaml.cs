@@ -293,7 +293,7 @@ namespace KLPlugins.DynLeaderboards {
                 t.Background = Brushes.Transparent;
                 t.ToolTip = null;
             };
-            
+
 
             var t2 = new TextBlock();
             t2.Text = "Select";

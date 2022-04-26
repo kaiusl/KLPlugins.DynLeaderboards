@@ -19,9 +19,9 @@ namespace KLPlugins.DynLeaderboards {
             // Index into Cars array
             public int CarIdx = -1;
             // Corresponding splinePosition
-            public float SplinePos = 0;
+            public double SplinePos = 0;
 
-            public CarSplinePos(int idx, float pos) {
+            public CarSplinePos(int idx, double pos) {
                 CarIdx = idx;
                 SplinePos = pos;
             }
@@ -382,9 +382,9 @@ namespace KLPlugins.DynLeaderboards {
             }
 
             if (evt.Type == BroadcastingCarEventType.LapCompleted
-                && RealtimeData.IsRace 
-                && SessionEndTimeForBroadcastEventsTime.Avg != 0 
-                && SessionEndTimeForBroadcastEventsTime.Avg <= msgTime 
+                && RealtimeData.IsRace
+                && SessionEndTimeForBroadcastEventsTime.Avg != 0
+                && SessionEndTimeForBroadcastEventsTime.Avg <= msgTime
                 && evt.CarData != null
                 && (Cars[0].CarIndex == evt.CarData.CarIndex || Cars[0].SetFinishedOnNextUpdate)
             ) {
@@ -428,6 +428,7 @@ namespace KLPlugins.DynLeaderboards {
                 }
             }
 
+            if (Cars.Any(x => x.OffsetLapUpdate)) return;
             SetOverallOrder();
             FocusedCarIdx = Cars.FindIndex(x => x.CarIndex == update.FocusedCarIndex);
             if (FocusedCarIdx != null && !RealtimeData.IsNewSession) {
@@ -501,24 +502,26 @@ namespace KLPlugins.DynLeaderboards {
                 int cmp(CarData a, CarData b) {
                     if (a == b || a.NewData == null || b.NewData == null) return 0;
 
-                    var alaps = Math.Floor(a.TotalSplinePosition);
-                    var blaps = Math.Floor(b.TotalSplinePosition);
-                    // If cars haven't yet received their first updates, TotalSplinePosition is 0.
-                    // If we joined mid session this is false, use ACC laps data until we get accurate first update.
-                    if (a.IsFirstUpdate) alaps = a.NewData.Laps;
-                    if (b.IsFirstUpdate) blaps = b.NewData.Laps;
+                    // Sort cars that have crossed the start line always in front of cars who havent
+                    if (a.HasCrossedStartLine && !b.HasCrossedStartLine) {
+                        return -1;
+                    } else if (b.HasCrossedStartLine && !a.HasCrossedStartLine) {
+                        return 1;
+                    }
 
+                    var alaps = a.NewData.Laps;
+                    var blaps = b.NewData.Laps;
                     if (alaps != blaps) {
                         return blaps.CompareTo(alaps);
                     }
 
                     // If car jumped to the pits we need to but it behind everyone on that same lap, also it's okay for the finished car to jump to the pits
                     if (a.JumpedToPits && !b.JumpedToPits && !a.IsFinished) {
-                        DynLeaderboardsPlugin.LogInfo($"#{a.RaceNumber} vs #{b.RaceNumber} compared {a.JumpedToPits} and {b.JumpedToPits} and {a.IsFinished} and {b.IsFinished}. Result = 1.");
+                        //DynLeaderboardsPlugin.LogInfo($"#{a.RaceNumber} vs #{b.RaceNumber} compared {a.JumpedToPits} and {b.JumpedToPits} and {a.IsFinished} and {b.IsFinished}. Result = 1.");
                         return 1;
                     }
                     if (b.JumpedToPits && !a.JumpedToPits && !b.IsFinished) {
-                        DynLeaderboardsPlugin.LogInfo($"#{a.RaceNumber} vs #{b.RaceNumber} compared {a.JumpedToPits} and {b.JumpedToPits} and {a.IsFinished} and {b.IsFinished}. Result = -1.");
+                        //DynLeaderboardsPlugin.LogInfo($"#{a.RaceNumber} vs #{b.RaceNumber} compared {a.JumpedToPits} and {b.JumpedToPits} and {a.IsFinished} and {b.IsFinished}. Result = -1.");
                         return -1;
                     }
 
@@ -531,13 +534,13 @@ namespace KLPlugins.DynLeaderboards {
                             // Thus it should be behind the one who hasn't finished. 
                             var aFTime = a.FinishTime == null ? TimeSpan.MinValue.TotalSeconds : ((TimeSpan)a.FinishTime).TotalSeconds;
                             var bFTime = b.FinishTime == null ? TimeSpan.MinValue.TotalSeconds : ((TimeSpan)b.FinishTime).TotalSeconds;
-                            DynLeaderboardsPlugin.LogInfo($"#{a.RaceNumber} vs #{b.RaceNumber} compared by finish time {aFTime} vs {bFTime}, POS: {a.NewData.Position} vs {b.NewData.Position}. Result = {aFTime.CompareTo(bFTime)}."); 
+                            //DynLeaderboardsPlugin.LogInfo($"#{a.RaceNumber} vs #{b.RaceNumber} compared by finish time {aFTime} vs {bFTime}, POS: {a.NewData.Position} vs {b.NewData.Position}. Result = {aFTime.CompareTo(bFTime)}."); 
                             return aFTime.CompareTo(bFTime);
                         } else {
                             // Both cars have finished and their lap number is the same. 
                             var aFTime = a.FinishTime == null ? TimeSpan.MaxValue.TotalSeconds : ((TimeSpan)a.FinishTime).TotalSeconds;
                             var bFTime = b.FinishTime == null ? TimeSpan.MaxValue.TotalSeconds : ((TimeSpan)b.FinishTime).TotalSeconds;
-                            DynLeaderboardsPlugin.LogInfo($"#{a.RaceNumber} vs #{b.RaceNumber} compared by finish time {aFTime} vs {bFTime}, POS: {a.NewData.Position} vs {b.NewData.Position}. Result = {aFTime.CompareTo(bFTime)}");
+                            //DynLeaderboardsPlugin.LogInfo($"#{a.RaceNumber} vs #{b.RaceNumber} compared by finish time {aFTime} vs {bFTime}, POS: {a.NewData.Position} vs {b.NewData.Position}. Result = {aFTime.CompareTo(bFTime)}");
                             return aFTime.CompareTo(bFTime);
                         }
                     } else if ((a.TotalSplinePosition == b.TotalSplinePosition) && a.NewData != null && b.NewData != null) {
@@ -545,10 +548,10 @@ namespace KLPlugins.DynLeaderboards {
                     }
                     return b.TotalSplinePosition.CompareTo(a.TotalSplinePosition);
                 };
-                DynLeaderboardsPlugin.LogFileSeparator();
-                DynLeaderboardsPlugin.LogInfo("Sorting order.");
+                //DynLeaderboardsPlugin.LogFileSeparator();
+                // DynLeaderboardsPlugin.LogInfo("Sorting order.");
                 Cars.Sort(cmp);
-                DynLeaderboardsPlugin.LogFileSeparator();
+                //DynLeaderboardsPlugin.LogFileSeparator();
             } else {
                 // In other sessions TotalSplinePosition doesn't make any sense, use RealtimeCarUpdate.Position
 

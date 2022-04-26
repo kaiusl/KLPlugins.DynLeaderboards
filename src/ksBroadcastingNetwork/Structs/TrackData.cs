@@ -21,6 +21,7 @@ namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork.Structs {
         public TrackType TrackId { get; internal set; }
         public float TrackMeters { get; internal set; }
         public static CarClassArray<LapInterpolator> LapInterpolators = null;
+        public double SplinePosOffset => TrackId.SplinePosOffset();
 
         /// <summary>
         /// Read default lap data for calculation of gaps.
@@ -58,13 +59,17 @@ namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork.Structs {
                     if (l == "") continue;
                     // Data order: splinePositions, lap time in ms, speed in kmh
                     var splits = l.Split(';');
-                    double p = float.Parse(splits[0]);
+                    double p = float.Parse(splits[0]) + Values.TrackData.TrackId.SplinePosOffset();
+                    if (p > 1) {
+                        p -= 1;
+                    }
+
                     var t = double.Parse(splits[1]);
                     pos.Add(p);
                     time.Add(t);
                 }
 
-                LapInterpolators[cls] = new LapInterpolator(LinearSpline.InterpolateSorted(pos.ToArray(), time.ToArray()), time.Last());
+                LapInterpolators[cls] = new LapInterpolator(LinearSpline.Interpolate(pos.ToArray(), time.ToArray()), time.Last());
                 DynLeaderboardsPlugin.LogInfo($"Build lap interpolator for {cls} from file {fname}");
             } catch (Exception ex) {
                 DynLeaderboardsPlugin.LogError($"Failed to read {fname} with error: {ex}");

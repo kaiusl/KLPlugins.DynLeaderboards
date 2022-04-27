@@ -2,7 +2,7 @@
 using System;
 
 namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork.Structs {
-    public class RealtimeUpdate {
+    class RealtimeUpdate {
         public int EventIndex { get; internal set; }
         public int SessionIndex { get; internal set; }
         public SessionPhase Phase { get; internal set; }

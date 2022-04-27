@@ -1,8 +1,8 @@
 ﻿using KLPlugins.DynLeaderboards.ksBroadcastingNetwork;
 using KLPlugins.DynLeaderboards.ksBroadcastingNetwork.Structs;
 
-namespace KLPlugins.DynLeaderboards {
-    public class DriverData {
+namespace KLPlugins.DynLeaderboards.Driver {
+    class DriverData {
         public string FirstName { get; internal set; }
         public string LastName { get; internal set; }
         public string ShortName { get; internal set; }
@@ -14,7 +14,7 @@ namespace KLPlugins.DynLeaderboards {
 
         private double _totalDrivingTime = 0;
 
-        public DriverData(DriverInfo info) {
+        internal DriverData(DriverInfo info) {
             FirstName = info.FirstName;
             LastName = info.LastName;
             ShortName = info.ShortName;
@@ -22,22 +22,21 @@ namespace KLPlugins.DynLeaderboards {
             Nationality = info.Nationality;
         }
 
-        public void OnLapFinished(LapInfo lastLap) {
+        internal void OnLapFinished(LapInfo lastLap) {
             TotalLaps++;
-            if (BestSessionLap?.Laptime == null || (lastLap.IsValidForBest && BestSessionLap.Laptime > lastLap.Laptime)) {
+            if (BestSessionLap?.Laptime == null || lastLap.IsValidForBest && BestSessionLap.Laptime > lastLap.Laptime) {
                 BestSessionLap = lastLap;
             }
         }
 
-        public void OnStintEnd(double lastStintTime) {
+        internal void OnStintEnd(double lastStintTime) {
             _totalDrivingTime += lastStintTime;
         }
 
-        public double GetTotalDrivingTime(bool isDriving = false, double? currentStintTime = null) {
+        internal double GetTotalDrivingTime(bool isDriving = false, double? currentStintTime = null) {
             if (isDriving && currentStintTime != null) return _totalDrivingTime + (double)currentStintTime;
             return _totalDrivingTime;
         }
-
 
         public string FullName() {
             return FirstName + " " + LastName;
@@ -67,7 +66,7 @@ namespace KLPlugins.DynLeaderboards {
                 return false;
             }
 
-            return (FirstName == p.FirstName) && (LastName == p.LastName) && (ShortName == p.ShortName) && (Nationality == p.Nationality) && (Category == p.Category);
+            return FirstName == p.FirstName && LastName == p.LastName && ShortName == p.ShortName && Nationality == p.Nationality && Category == p.Category;
         }
 
     }

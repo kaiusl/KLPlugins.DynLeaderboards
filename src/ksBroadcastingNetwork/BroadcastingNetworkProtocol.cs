@@ -1,5 +1,6 @@
-﻿using KLPlugins.DynLeaderboards.Enums;
+﻿using KLPlugins.DynLeaderboards.Car;
 using KLPlugins.DynLeaderboards.ksBroadcastingNetwork.Structs;
+using KLPlugins.DynLeaderboards.Track;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -7,38 +8,38 @@ using System.Linq;
 using System.Text;
 
 namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork {
-    public enum OutboundMessageTypes : byte {
-        REGISTER_COMMAND_APPLICATION = 1,
-        UNREGISTER_COMMAND_APPLICATION = 9,
+    class BroadcastingNetworkProtocol {
+        enum OutboundMessageTypes : byte {
+            REGISTER_COMMAND_APPLICATION = 1,
+            UNREGISTER_COMMAND_APPLICATION = 9,
 
-        REQUEST_ENTRY_LIST = 10,
-        REQUEST_TRACK_DATA = 11,
+            REQUEST_ENTRY_LIST = 10,
+            REQUEST_TRACK_DATA = 11,
 
-        CHANGE_HUD_PAGE = 49,
-        CHANGE_FOCUS = 50,
-        INSTANT_REPLAY_REQUEST = 51,
+            CHANGE_HUD_PAGE = 49,
+            CHANGE_FOCUS = 50,
+            INSTANT_REPLAY_REQUEST = 51,
 
-        PLAY_MANUAL_REPLAY_HIGHLIGHT = 52, // TODO, but planned
-        SAVE_MANUAL_REPLAY_HIGHLIGHT = 60  // TODO, but planned: saving manual replays gives distributed clients the possibility to see the play the same replay
-    }
+            PLAY_MANUAL_REPLAY_HIGHLIGHT = 52, // TODO, but planned
+            SAVE_MANUAL_REPLAY_HIGHLIGHT = 60  // TODO, but planned: saving manual replays gives distributed clients the possibility to see the play the same replay
+        }
 
-    public enum InboundMessageTypes : byte {
-        REGISTRATION_RESULT = 1,
-        REALTIME_UPDATE = 2,
-        REALTIME_CAR_UPDATE = 3,
-        ENTRY_LIST = 4,
-        ENTRY_LIST_CAR = 6,
-        TRACK_DATA = 5,
-        BROADCASTING_EVENT = 7
-    }
+        enum InboundMessageTypes : byte {
+            REGISTRATION_RESULT = 1,
+            REALTIME_UPDATE = 2,
+            REALTIME_CAR_UPDATE = 3,
+            ENTRY_LIST = 4,
+            ENTRY_LIST_CAR = 6,
+            TRACK_DATA = 5,
+            BROADCASTING_EVENT = 7
+        }
 
-    public class BroadcastingNetworkProtocol {
-        public const int BROADCASTING_PROTOCOL_VERSION = 4;
-        private string ConnectionIdentifier { get; }
-        private SendMessageDelegate Send { get; }
+        public const int BroadcastingProtocolVersion = 4;
         public int ConnectionId { get; private set; }
-        public float TrackMeters { get; private set; }
-        private TrackType TrackId = TrackType.Unknown;
+
+        private TrackType _trackId = TrackType.Unknown;
+        private string _connectionIdentifier;
+        private SendMessageDelegate _send;
 
         internal delegate void SendMessageDelegate(byte[] payload);
 
@@ -65,16 +66,13 @@ namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork {
         public delegate void BroadcastingEventDelegate(string sender, BroadcastingEvent evt);
         public event BroadcastingEventDelegate OnBroadcastingEvent;
 
-
-
-
         #endregion
 
         #region EntryList handling
 
         // To avoid huge UDP pakets for longer entry lists, we will first receive the indexes of cars and drivers,
         // cache the entries and wait for the detailled updates
-        public List<CarInfo> EntryListCars = new List<CarInfo>();
+        private List<CarInfo> EntryListCars = new List<CarInfo>();
 
         #endregion
 
@@ -91,13 +89,12 @@ namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork {
             if (sendMessageDelegate == null)
                 throw new ArgumentNullException(nameof(sendMessageDelegate), $"The protocol class doesn't know anything about the network layer; please put a callback we can use to send data via UDP");
 
-            ConnectionIdentifier = connectionIdentifier;
-            Send = sendMessageDelegate;
+            _connectionIdentifier = connectionIdentifier;
+            _send = sendMessageDelegate;
         }
 
-        public void OnConnection(int connectionId, bool connectionSuccess, bool isReadonly, string errMsg) {
+        internal void OnConnection(int connectionId, bool connectionSuccess, bool isReadonly, string errMsg) {
             ConnectionId = connectionId;
-
             OnConnectionStateChanged?.Invoke(ConnectionId, connectionSuccess, isReadonly, errMsg);
 
             // In case this was successful, we will request the initial data
@@ -132,11 +129,10 @@ namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork {
                         EntryListCars.Add(new CarInfo(br.ReadUInt16()));
                     }
 
-                    OnNewEntrylist?.Invoke(ConnectionIdentifier);
+                    OnNewEntrylist?.Invoke(_connectionIdentifier);
                 }
                 break;
                 case InboundMessageTypes.ENTRY_LIST_CAR: {
-
                     var carId = br.ReadUInt16();
 
                     var carInfo = EntryListCars.SingleOrDefault(x => x.CarIndex == carId);
@@ -146,7 +142,7 @@ namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork {
                     }
 
                     carInfo.CarModelType = (CarType)br.ReadByte(); // Byte sized car model
-                    carInfo.CarClass = carInfo.CarModelType.GetClass();
+                    carInfo.CarClass = carInfo.CarModelType.Class();
                     carInfo.TeamName = ReadString(br);
                     carInfo.RaceNumber = br.ReadInt32();
                     carInfo.CupCategory = (TeamCupCategory)br.ReadByte(); // Cup: Overall/Pro = 0, ProAm = 1, Am = 2, Silver = 3, National = 4
@@ -169,7 +165,7 @@ namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork {
                         carInfo.AddDriver(driverInfo);
                     }
 
-                    OnEntrylistUpdate?.Invoke(ConnectionIdentifier, carInfo);
+                    OnEntrylistUpdate?.Invoke(_connectionIdentifier, carInfo);
                 }
                 break;
                 case InboundMessageTypes.REALTIME_UPDATE: {
@@ -205,7 +201,7 @@ namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork {
 
                     update.BestSessionLap = ReadLap(br);
 
-                    OnRealtimeUpdate?.Invoke(ConnectionIdentifier, update);
+                    OnRealtimeUpdate?.Invoke(_connectionIdentifier, update);
                 }
                 break;
                 case InboundMessageTypes.REALTIME_CAR_UPDATE: {
@@ -224,7 +220,7 @@ namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork {
                     carUpdate.CupPosition = br.ReadUInt16(); // official P/Q/R position (1 based)
                     carUpdate.TrackPosition = br.ReadUInt16(); // position on track (1 based)
 
-                    var splinePos = br.ReadSingle() + TrackId.SplinePosOffset();
+                    var splinePos = br.ReadSingle() + _trackId.SplinePosOffset();
                     if (splinePos > 1) {
                         splinePos -= 1;
                     }
@@ -245,7 +241,7 @@ namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork {
                             DynLeaderboardsPlugin.LogInfo($"CarUpdate {carUpdate.CarIndex}|{carUpdate.DriverIndex} not know, will ask for new EntryList");
                         }
                     } else {
-                        OnRealtimeCarUpdate?.Invoke(ConnectionIdentifier, carUpdate);
+                        OnRealtimeCarUpdate?.Invoke(_connectionIdentifier, carUpdate);
                     }
                 }
                 break;
@@ -256,8 +252,7 @@ namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork {
                     trackData.TrackName = ReadString(br);
                     trackData.TrackId = (TrackType)br.ReadInt32();
                     trackData.TrackMeters = br.ReadInt32();
-                    TrackMeters = trackData.TrackMeters > 0 ? trackData.TrackMeters : -1;
-                    TrackId = trackData.TrackId;
+                    _trackId = trackData.TrackId;
 
                     //trackData.CameraSets = new Dictionary<string, List<string>>();
 
@@ -283,7 +278,7 @@ namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork {
                     //}
                     //trackData.HUDPages = hudPages;
 
-                    OnTrackDataUpdate?.Invoke(ConnectionIdentifier, trackData);
+                    OnTrackDataUpdate?.Invoke(_connectionIdentifier, trackData);
                 }
                 break;
                 case InboundMessageTypes.BROADCASTING_EVENT: {
@@ -295,7 +290,7 @@ namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork {
                     };
 
                     evt.CarData = EntryListCars.FirstOrDefault(x => x.CarIndex == evt.CarId);
-                    OnBroadcastingEvent?.Invoke(ConnectionIdentifier, evt);
+                    OnBroadcastingEvent?.Invoke(_connectionIdentifier, evt);
                 }
                 break;
                 default:
@@ -350,7 +345,7 @@ namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork {
             return lap;
         }
 
-        public static string ReadString(BinaryReader br) {
+        private static string ReadString(BinaryReader br) {
             var length = br.ReadUInt16();
             var bytes = br.ReadBytes(length);
             return Encoding.UTF8.GetString(bytes);
@@ -373,14 +368,14 @@ namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork {
             using (var ms = new MemoryStream())
             using (var br = new BinaryWriter(ms)) {
                 br.Write((byte)OutboundMessageTypes.REGISTER_COMMAND_APPLICATION); // First byte is always the command type
-                br.Write((byte)BROADCASTING_PROTOCOL_VERSION);
+                br.Write((byte)BroadcastingProtocolVersion);
 
                 WriteString(br, displayName);
                 WriteString(br, connectionPassword);
                 br.Write(msRealtimeUpdateInterval);
                 WriteString(br, commandPassword);
 
-                Send(ms.ToArray());
+                _send(ms.ToArray());
             }
         }
 
@@ -389,7 +384,7 @@ namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork {
             using (var br = new BinaryWriter(ms)) {
                 br.Write((byte)OutboundMessageTypes.UNREGISTER_COMMAND_APPLICATION); // First byte is always the command type
                 br.Write(ConnectionId);
-                Send(ms.ToArray());
+                _send(ms.ToArray());
             }
         }
 
@@ -399,23 +394,21 @@ namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork {
         /// The client will send this automatically when something changes; however if you detect a carIndex or driverIndex, this may cure the 
         /// problem for future updates
         /// </summary>
-        public void RequestEntryList() {
+        internal void RequestEntryList() {
             using (var ms = new MemoryStream())
             using (var br = new BinaryWriter(ms)) {
                 br.Write((byte)OutboundMessageTypes.REQUEST_ENTRY_LIST); // First byte is always the command type
                 br.Write((int)ConnectionId);
-
-                Send(ms.ToArray());
+                _send(ms.ToArray());
             }
         }
 
-        private void RequestTrackData() {
+        internal void RequestTrackData() {
             using (var ms = new MemoryStream())
             using (var br = new BinaryWriter(ms)) {
                 br.Write((byte)OutboundMessageTypes.REQUEST_TRACK_DATA); // First byte is always the command type
                 br.Write((int)ConnectionId);
-
-                Send(ms.ToArray());
+                _send(ms.ToArray());
             }
         }
 

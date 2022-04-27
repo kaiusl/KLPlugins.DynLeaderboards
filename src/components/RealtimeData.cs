@@ -2,8 +2,8 @@
 using KLPlugins.DynLeaderboards.ksBroadcastingNetwork.Structs;
 using System;
 
-namespace KLPlugins.DynLeaderboards.src.ksBroadcastingNetwork.Structs {
-    public class RealtimeData {
+namespace KLPlugins.DynLeaderboards.Realtime {
+    class RealtimeData {
         public RealtimeUpdate NewData { get; private set; }
         public RealtimeUpdate OldData { get; private set; }
         public int EventIndex => NewData.EventIndex;
@@ -21,6 +21,7 @@ namespace KLPlugins.DynLeaderboards.src.ksBroadcastingNetwork.Structs {
         public RaceSessionType SessionType => NewData.SessionType;
         public byte AmbientTemp => NewData.AmbientTemp;
         public byte TrackTemp => NewData.TrackTemp;
+        public TimeSpan SessionTotalTime { get; private set; } = TimeSpan.Zero;
 
         public bool IsNewSession { get; private set; }
         public bool IsSessionStart { get; private set; }
@@ -29,25 +30,26 @@ namespace KLPlugins.DynLeaderboards.src.ksBroadcastingNetwork.Structs {
         public bool IsPreSession { get; private set; }
         public bool IsPostSession { get; private set; }
         public bool IsRace { get; private set; }
-        public TimeSpan SessionTotalTime { get; private set; } = TimeSpan.Zero;
 
-        public RealtimeData(RealtimeUpdate update) {
+        internal RealtimeData(RealtimeUpdate update) {
             OldData = update;
             NewData = update;
         }
 
-        public void OnRealtimeUpdate(RealtimeUpdate update) {
+        internal void OnRealtimeUpdate(RealtimeUpdate update) {
             OldData = NewData;
             NewData = update;
 
             IsRace = NewData.SessionType == RaceSessionType.Race;
             IsSession = NewData.Phase == SessionPhase.Session;
-            IsPreSession = !IsSession && (NewData.Phase == SessionPhase.Starting || NewData.Phase == SessionPhase.PreFormation || NewData.Phase == SessionPhase.FormationLap || NewData.Phase == SessionPhase.PreSession);
-            IsPostSession = !IsSession && (NewData.Phase == SessionPhase.SessionOver || NewData.Phase == SessionPhase.PostSession || NewData.Phase == SessionPhase.ResultUI);
+            IsPreSession = !IsSession && (NewData.Phase.EqualsAny(SessionPhase.Starting, SessionPhase.PreFormation, SessionPhase.FormationLap, SessionPhase.PreSession));
+            IsPostSession = !IsSession && (NewData.Phase.EqualsAny(SessionPhase.SessionOver, SessionPhase.PostSession, SessionPhase.ResultUI));
 
             IsSessionStart = OldData.Phase != SessionPhase.Session && IsSession;
             IsFocusedChange = NewData.FocusedCarIndex != OldData.FocusedCarIndex;
-            IsNewSession = OldData.SessionType != NewData.SessionType || NewData.SessionIndex != OldData.SessionIndex || OldData.Phase == SessionPhase.Session && IsPreSession;
+            IsNewSession = OldData.SessionType != NewData.SessionType 
+                || NewData.SessionIndex != OldData.SessionIndex 
+                || OldData.Phase.EqualsAny(SessionPhase.Session, SessionPhase.SessionOver, SessionPhase.PostSession, SessionPhase.ResultUI) && IsPreSession;
 
             if (SessionTotalTime == TimeSpan.Zero) SessionTotalTime = SessionRunningTime + SessionRemainingTime;
         }

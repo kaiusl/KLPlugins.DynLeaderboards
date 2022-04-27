@@ -1,6 +1,7 @@
 ﻿using GameReaderCommon;
-using KLPlugins.DynLeaderboards.Enums;
+using KLPlugins.DynLeaderboards.Car;
 using KLPlugins.DynLeaderboards.ksBroadcastingNetwork;
+using KLPlugins.DynLeaderboards.Settings;
 using SimHub.Plugins;
 using System;
 using System.Diagnostics;
@@ -9,56 +10,19 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Windows.Media;
+using Newtonsoft.Json;
 
 namespace KLPlugins.DynLeaderboards {
-    public enum Leaderboard {
-        None,
-        Overall,
-        Class,
-        RelativeOverall,
-        RelativeClass,
-        PartialRelativeOverall,
-        PartialRelativeClass,
-        RelativeOnTrack
-    }
-
-    static class LeaderboardExtensions {
-
-        public static string Tooltip(this Leaderboard l) {
-            switch (l) {
-                case Leaderboard.Overall:
-                    return "`N` top overall positions. `N` can be set below.";
-                case Leaderboard.Class:
-                    return "`N` top class positions. `N` can be set below.";
-                case Leaderboard.RelativeOverall:
-                    return "`2N + 1` relative positions to the focused car in overall order. `N` can be set below.";
-                case Leaderboard.RelativeClass:
-                    return "`2N + 1` relative positions to the focused car in focused car's class order. `N` can be set below.";
-                case Leaderboard.RelativeOnTrack:
-                    return "`2N + 1` relative positions to the focused car on track. `N` can be set below.";
-                case Leaderboard.PartialRelativeOverall:
-                    return "`N` top positions and `2M + 1` relative positions in overall order. If the focused car is inside the first `N + M + 1` positions the order will be just as the overall leaderboard. `N` and `M` can be set below.";
-                case Leaderboard.PartialRelativeClass:
-                    return "`N` top positions and `2M + 1` relative positions in focused car's class order. If the focused car is inside the first `N + M + 1` positions the order will be just as the class leaderboard. `N` and `M` can be set below.";
-                default:
-                    return "Unknown";
-            }
-
-        }
-
-    }
-
-
     [PluginDescription("")]
     [PluginAuthor("Kaius Loos")]
     [PluginName("DynLeaderboardsPlugin")]
     public class DynLeaderboardsPlugin : IPlugin, IDataPlugin, IWPFSettingsV2 {
-        public static PluginSettings Settings;
         public PluginManager PluginManager { get; set; }
         public ImageSource PictureIcon => this.ToIcon(Properties.Resources.sdkmenuicon);
         public string LeftMenuTitle => PluginName;
 
         internal const string PluginName = "DynLeaderboards";
+        internal static PluginSettings Settings;
         internal static Game Game; // Const during the lifetime of this plugin, plugin is rebuilt at game change
         internal static string GameDataPath; // Same as above
         internal static string PluginStartTime = $"{DateTime.Now.ToString("dd-MM-yyyy_HH-mm-ss")}";
@@ -68,6 +32,8 @@ namespace KLPlugins.DynLeaderboards {
         private static StreamWriter _logWriter;
         private static bool _isLogFlushed = false;
         private string LogFileName;
+        private FileStream _timingFile;
+        private StreamWriter _timingWriter;
         private Values _values;
 
         /// <summary>
@@ -84,7 +50,6 @@ namespace KLPlugins.DynLeaderboards {
 
             if (data.GameRunning && data.OldData != null && data.NewData != null) {
                 //WriteFrameTimes(pm);
-                _values.OnDataUpdate(pm, data);
             }
         }
 
@@ -139,10 +104,6 @@ namespace KLPlugins.DynLeaderboards {
             return new SettingsControl(this);
         }
 
-
-        private FileStream _timingFile;
-        private StreamWriter _timingWriter;
-
         /// <summary>
         /// Called once after plugins startup
         /// Plugins are rebuilt at game change
@@ -150,6 +111,13 @@ namespace KLPlugins.DynLeaderboards {
         /// <param name="pluginManager"></param>
         public void Init(PluginManager pluginManager) {
             Settings = this.ReadCommonSettings<PluginSettings>("GeneralSettings", () => new PluginSettings());
+
+            try {
+                var set = JsonConvert.DeserializeObject<PluginSettings>(File.ReadAllText(@"C:\Program Files\SimHub\PluginsData\Common\DynLeaderboardsPlugin.GeneralSettings.json"));
+            } catch (Exception ex) {
+                LogError($"Failed to deserialize settings. Error {ex}");
+            }
+
             LogFileName = $"{Settings.PluginDataLocation}\\Logs\\Log_{PluginStartTime}.txt";
             var gameName = (string)pluginManager.GetPropertyValue<SimHub.Plugins.DataPlugins.DataCore.DataCorePlugin>("CurrentGame");
             Game = new Game(gameName);
@@ -163,19 +131,15 @@ namespace KLPlugins.DynLeaderboards {
 
             InitLogginig();
             PreJit(); // Performance is important while in game, prejit methods at startup, to avoid doing that mid races
-
             LogInfo("Starting plugin");
 
             GameDataPath = $@"{Settings.PluginDataLocation}\{gameName}";
-
             if (Settings.DynLeaderboardConfigs.Count == 0) {
-                var s = new PluginSettings.DynLeaderboardConfig("Dynamic");
+                var s = new DynLeaderboardConfig("Dynamic");
                 Settings.DynLeaderboardConfigs.Add(s);
             }
             _values = new Values();
-
             SubscribeToSimHubEvents();
-
             AttachGeneralDelegates();
 
             if (Settings.DynLeaderboardConfigs.Count > 0) {
@@ -186,8 +150,6 @@ namespace KLPlugins.DynLeaderboards {
 
             this.AttachDelegate("IsBroadcastClientConnected", () => _values.BroadcastClient?.IsConnected);
 
-            // this.AttachDelegate("DBG_RealtimeUpdateTime", () => _values.RealtimeUpdateTime);
-
             this.AttachDelegate("DBG.Realtime.SessionTime", () => _values?.RealtimeData?.SessionRunningTime);
             this.AttachDelegate("DBG.Realtime.RemainingTime", () => _values?.RealtimeData?.RemainingTime);
             this.AttachDelegate("DBG.Realtime.TimeOfDay", () => _values?.RealtimeData?.SystemTime);
@@ -196,15 +158,14 @@ namespace KLPlugins.DynLeaderboards {
             this.AttachDelegate("DBG.Realtime.RecieveTime", () => _values.RealtimeData?.NewData?.RecieveTime);
             this.AttachDelegate("DBG.Realtime.SessionTotalTime", () => _values.RealtimeData?.SessionTotalTime);
             this.AttachDelegate("DBG.SessionEndTimeForBroadcastEvents", () => TimeSpan.FromSeconds(_values.SessionEndTimeForBroadcastEventsTime.Avg));
-            this.AttachDelegate("DBG.SessionRemainingTimeForBroadcastEvents", () => _values.SessionRemainingTimeForBroadcastEventsTime);
 
         }
 
-        public void AddNewLeaderboard(PluginSettings.DynLeaderboardConfig s) {
+        internal void AddNewLeaderboard(DynLeaderboardConfig s) {
             if (_values != null) _values.AddNewLeaderboard(s);
         }
 
-        public void RemoveLeaderboardAt(int i) {
+        internal void RemoveLeaderboardAt(int i) {
             if (_values != null) _values.LeaderboardValues.RemoveAt(i);
         }
 
@@ -262,7 +223,7 @@ namespace KLPlugins.DynLeaderboards {
             }
         }
 
-        private void AttachDynamicLeaderboard(Values.DynLeaderboardValues l) {
+        private void AttachDynamicLeaderboard(DynLeaderboardValues l) {
             void addCar(int i) {
                 var startName = $"{l.Settings.Name}.{i + 1}";
                 void AddProp<T>(OutCarProp prop, Func<T> valueProvider) {
@@ -342,7 +303,7 @@ namespace KLPlugins.DynLeaderboards {
                 // Car and team
                 AddProp(OutCarProp.CarNumber, () => l.GetDynCar(i)?.RaceNumber);
                 AddProp(OutCarProp.CarModel, () => l.GetDynCar(i)?.CarModelType.ToPrettyString());
-                AddProp(OutCarProp.CarManufacturer, () => l.GetDynCar(i)?.CarModelType.GetMark());
+                AddProp(OutCarProp.CarManufacturer, () => l.GetDynCar(i)?.CarModelType.Mark());
                 AddProp(OutCarProp.CarClass, () => l.GetDynCar(i)?.CarClass.ToString());
                 AddProp(OutCarProp.TeamName, () => l.GetDynCar(i)?.TeamName);
                 AddProp(OutCarProp.TeamCupCategory, () => l.GetDynCar(i)?.TeamCupCategory.ToString());
@@ -462,7 +423,7 @@ namespace KLPlugins.DynLeaderboards {
 
         #region Logging
 
-        public void InitLogginig() {
+        internal void InitLogginig() {
             if (Settings.Log) {
                 Directory.CreateDirectory(Path.GetDirectoryName(LogFileName));
                 _logFile = File.Create(LogFileName);
@@ -470,17 +431,17 @@ namespace KLPlugins.DynLeaderboards {
             }
         }
 
-        public static void LogInfo(string msg, [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int lineNumber = 0) {
+        internal static void LogInfo(string msg, [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int lineNumber = 0) {
             if (Settings.Log) {
                 Log(msg, memberName, sourceFilePath, lineNumber, "INFO", SimHub.Logging.Current.Info);
             }
         }
 
-        public static void LogWarn(string msg, [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int lineNumber = 0) {
+        internal static void LogWarn(string msg, [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int lineNumber = 0) {
             Log(msg, memberName, sourceFilePath, lineNumber, "WARN", SimHub.Logging.Current.Warn);
         }
 
-        public static void LogError(string msg, [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int lineNumber = 0) {
+        internal static void LogError(string msg, [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int lineNumber = 0) {
             Log(msg, memberName, sourceFilePath, lineNumber, "ERROR", SimHub.Logging.Current.Error);
         }
 
@@ -496,7 +457,7 @@ namespace KLPlugins.DynLeaderboards {
             return $"({source}: {memberName},{lineNumber})\n\t{msg}";
         }
 
-        public static void LogFileSeparator() {
+        internal static void LogFileSeparator() {
             LogToFile("\n----------------------------------------------------------\n");
         }
 

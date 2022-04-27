@@ -1,12 +1,12 @@
-﻿using KLPlugins.DynLeaderboards.Enums;
+﻿using KLPlugins.DynLeaderboards.Car;
 using MathNet.Numerics.Interpolation;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
-namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork.Structs {
-    public class LapInterpolator {
+namespace KLPlugins.DynLeaderboards.Track {
+    class LapInterpolator {
         public LinearSpline Interpolator { get; }
         public double LapTime { get; }
 
@@ -16,17 +16,17 @@ namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork.Structs {
         }
     }
 
-    public class TrackData {
+    class TrackData {
         public string TrackName { get; internal set; }
         public TrackType TrackId { get; internal set; }
         public float TrackMeters { get; internal set; }
-        public static CarClassArray<LapInterpolator> LapInterpolators = null;
+        internal static CarClassArray<LapInterpolator> LapInterpolators = null;
         public double SplinePosOffset => TrackId.SplinePosOffset();
 
         /// <summary>
         /// Read default lap data for calculation of gaps.
         /// </summary>
-        public static void ReadDefBestLaps() {
+        internal static void ReadDefBestLaps() {
             LapInterpolators = new CarClassArray<LapInterpolator>(null);
 
             AddLapInterpolator(CarClass.GT3);
@@ -52,28 +52,32 @@ namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork.Structs {
                 return;
             }
 
-            var pos = new List<double>();
-            var time = new List<double>();
             try {
-                foreach (var l in File.ReadLines(fname)) {
-                    if (l == "") continue;
-                    // Data order: splinePositions, lap time in ms, speed in kmh
-                    var splits = l.Split(';');
-                    double p = float.Parse(splits[0]) + Values.TrackData.TrackId.SplinePosOffset();
-                    if (p > 1) {
-                        p -= 1;
-                    }
-
-                    var t = double.Parse(splits[1]);
-                    pos.Add(p);
-                    time.Add(t);
-                }
-
-                LapInterpolators[cls] = new LapInterpolator(LinearSpline.Interpolate(pos.ToArray(), time.ToArray()), time.Last());
+                var data = ReadLapInterpolatorData(fname);
+                LapInterpolators[cls] = new LapInterpolator(LinearSpline.Interpolate(data.Item1, data.Item2), data.Item2.Last());
                 DynLeaderboardsPlugin.LogInfo($"Build lap interpolator for {cls} from file {fname}");
             } catch (Exception ex) {
                 DynLeaderboardsPlugin.LogError($"Failed to read {fname} with error: {ex}");
             }
+        }
+
+        private static Tuple<double[], double[]> ReadLapInterpolatorData(string fname) {
+            var pos = new List<double>();
+            var time = new List<double>();
+            foreach (var l in File.ReadLines(fname)) {
+                if (l == "") continue;
+                // Data order: splinePositions, lap time in ms, speed in kmh
+                var splits = l.Split(';');
+                double p = float.Parse(splits[0]) + Values.TrackData.TrackId.SplinePosOffset();
+                if (p > 1) {
+                    p -= 1;
+                }
+
+                var t = double.Parse(splits[1]);
+                pos.Add(p);
+                time.Add(t);
+            }
+            return new Tuple<double[], double[]>(pos.ToArray(), time.ToArray());
         }
 
         private static void SetReplacements(CarClass cls, CarClass[] replacements) {

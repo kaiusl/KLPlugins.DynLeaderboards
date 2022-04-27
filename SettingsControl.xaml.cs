@@ -1,4 +1,4 @@
-﻿using KLPlugins.DynLeaderboards.Enums;
+﻿using KLPlugins.DynLeaderboards.Car;
 using KLPlugins.DynLeaderboards.ksBroadcastingNetwork;
 using MahApps.Metro.Controls;
 using SimHub.Plugins.Styles;
@@ -11,28 +11,28 @@ using System.Windows.Data;
 using System.Windows.Media;
 using Xceed.Wpf.Toolkit;
 
-namespace KLPlugins.DynLeaderboards {
+namespace KLPlugins.DynLeaderboards.Settings {
 
     public partial class SettingsControl : UserControl {
-        public DynLeaderboardsPlugin Plugin { get; }
-        public PluginSettings Settings { get => DynLeaderboardsPlugin.Settings; }
-        public PluginSettings.DynLeaderboardConfig CurrentDynLeaderboardSettings { get; private set; }
+        internal DynLeaderboardsPlugin Plugin { get; }
+        internal PluginSettings Settings { get => DynLeaderboardsPlugin.Settings; }
+        internal DynLeaderboardConfig CurrentDynLeaderboardSettings { get; private set; }
 
         private Dictionary<CarClass, ColorPicker> _classColorPickers = new Dictionary<CarClass, ColorPicker>(8);
         private Dictionary<TeamCupCategory, ColorPicker> _cupColorPickers = new Dictionary<TeamCupCategory, ColorPicker>(5);
         private Dictionary<TeamCupCategory, ColorPicker> _cupTextColorPickers = new Dictionary<TeamCupCategory, ColorPicker>(5);
         private Dictionary<DriverCategory, ColorPicker> _driverCategoryColorPickers = new Dictionary<DriverCategory, ColorPicker>(4);
 
-        public SettingsControl() {
+        internal SettingsControl() {
             InitializeComponent();
             DataContext = this;
         }
 
-        public SettingsControl(DynLeaderboardsPlugin plugin) : this() {
+        internal SettingsControl(DynLeaderboardsPlugin plugin) : this() {
             this.Plugin = plugin;
 
             if (Settings.DynLeaderboardConfigs.Count == 0) {
-                Settings.DynLeaderboardConfigs.Add(new PluginSettings.DynLeaderboardConfig($"Dynamic"));
+                Settings.DynLeaderboardConfigs.Add(new DynLeaderboardConfig($"Dynamic"));
                 Plugin.AddNewLeaderboard(Settings.DynLeaderboardConfigs.Last());
             }
             CurrentDynLeaderboardSettings = Settings.DynLeaderboardConfigs[0];
@@ -49,10 +49,10 @@ namespace KLPlugins.DynLeaderboards {
 
             // Set current values for other settings
             AccDataLocation_TextBox.Text = Settings.AccDataLocation;
+            UpdateInterval_NumericUpDown.Value = Settings.BroadcastDataUpdateRateMs;
             AccDataLocation_TextBox.Background = Brushes.LightGreen;
             Logging_ToggleButton.IsChecked = Settings.Log;
         }
-
 
         #region General settings
 
@@ -235,20 +235,19 @@ namespace KLPlugins.DynLeaderboards {
             }
         }
 
-
         private void ClassColorPickerReset(CarClass cls) {
-            DynLeaderboardsPlugin.Settings.CarClassColors[cls] = cls.GetACCColor();
-            _classColorPickers[cls].SelectedColor = (Color)ColorConverter.ConvertFromString(cls.GetACCColor());
+            DynLeaderboardsPlugin.Settings.CarClassColors[cls] = cls.ACCColor();
+            _classColorPickers[cls].SelectedColor = (Color)ColorConverter.ConvertFromString(cls.ACCColor());
         }
 
         private void TeamCupColorPickerReset(TeamCupCategory cup) {
-            DynLeaderboardsPlugin.Settings.TeamCupCategoryColors[cup] = cup.GetACCColor();
-            _cupColorPickers[cup].SelectedColor = (Color)ColorConverter.ConvertFromString(cup.GetACCColor());
+            DynLeaderboardsPlugin.Settings.TeamCupCategoryColors[cup] = cup.ACCColor();
+            _cupColorPickers[cup].SelectedColor = (Color)ColorConverter.ConvertFromString(cup.ACCColor());
         }
 
         private void TeamCupTextColorPickerReset(TeamCupCategory cup) {
-            DynLeaderboardsPlugin.Settings.TeamCupCategoryTextColors[cup] = cup.GetACCColor();
-            _cupTextColorPickers[cup].SelectedColor = (Color)ColorConverter.ConvertFromString(cup.GetACCTextColor());
+            DynLeaderboardsPlugin.Settings.TeamCupCategoryTextColors[cup] = cup.ACCColor();
+            _cupTextColorPickers[cup].SelectedColor = (Color)ColorConverter.ConvertFromString(cup.ACCTextColor());
         }
 
         private void DriverCategoryColorPickerReset(DriverCategory cls) {
@@ -260,14 +259,11 @@ namespace KLPlugins.DynLeaderboards {
             System.Diagnostics.Process.Start(e.Uri.ToString());
         }
 
-
-
         #endregion
-
 
         #region Dynamic leaderboard
 
-        private void AddSelectDynLeaderboard_ComboBoxItem(PluginSettings.DynLeaderboardConfig l) {
+        private void AddSelectDynLeaderboard_ComboBoxItem(DynLeaderboardConfig l) {
             var sp = new StackPanel();
             sp.Orientation = Orientation.Horizontal;
 
@@ -342,7 +338,7 @@ namespace KLPlugins.DynLeaderboards {
                 CreateNumRow(
                     "Overall: ",
                     "Set number of overall positions exposed as properties.",
-                    nameof(PluginSettings.DynLeaderboardConfig.NumOverallPos),
+                    nameof(DynLeaderboardConfig.NumOverallPos),
                     0,
                     100,
                     1
@@ -353,7 +349,7 @@ namespace KLPlugins.DynLeaderboards {
                CreateNumRow(
                    "Class: ",
                    "Set number of class positions exposed as properties. ",
-                   nameof(PluginSettings.DynLeaderboardConfig.NumClassPos),
+                   nameof(DynLeaderboardConfig.NumClassPos),
                    0,
                    100,
                    1
@@ -367,7 +363,7 @@ namespace KLPlugins.DynLeaderboards {
                     "Overall: ",
                     "Set number of overall relative positions exposed from the focused car in one direction." +
                     " That is if it's set to 5, we show 5 cars ahead and 5 behind.",
-                    nameof(PluginSettings.DynLeaderboardConfig.NumOverallRelativePos),
+                    nameof(DynLeaderboardConfig.NumOverallRelativePos),
                     0,
                     50,
                     1
@@ -379,7 +375,7 @@ namespace KLPlugins.DynLeaderboards {
                     "Class: ",
                     "Set number of class relative positions exposed from the focused car in one direction." +
                     " That is if it's set to 5, we show 5 cars ahead and 5 behind.",
-                    nameof(PluginSettings.DynLeaderboardConfig.NumClassRelativePos),
+                    nameof(DynLeaderboardConfig.NumClassRelativePos),
                     0,
                     50,
                     1
@@ -391,7 +387,7 @@ namespace KLPlugins.DynLeaderboards {
                     "On track: ",
                     "Set number of on track relative positions exposed from the focused car in one direction. " +
                     "That is if it's set to 5, we show 5 cars ahead and 5 behind.",
-                    nameof(PluginSettings.DynLeaderboardConfig.NumOnTrackRelativePos),
+                    nameof(DynLeaderboardConfig.NumOnTrackRelativePos),
                     0,
                     50,
                     1
@@ -403,7 +399,7 @@ namespace KLPlugins.DynLeaderboards {
                CreateNumRow(
                    "Overall - top positions: ",
                    "Set number of overall positions exposed for partial relative overall leaderboard.",
-                   nameof(PluginSettings.DynLeaderboardConfig.PartialRelativeOverallNumOverallPos),
+                   nameof(DynLeaderboardConfig.PartialRelativeOverallNumOverallPos),
                    0,
                    100,
                    1
@@ -416,7 +412,7 @@ namespace KLPlugins.DynLeaderboards {
                    "Set number of relative positions exposed for partial relative overall " +
                    "leaderboard from the focused car in one direction. That is if it's set to 5, " +
                    "we show 5 cars ahead and 5 behind.",
-                   nameof(PluginSettings.DynLeaderboardConfig.PartialRelativeOverallNumRelativePos),
+                   nameof(DynLeaderboardConfig.PartialRelativeOverallNumRelativePos),
                    0,
                    50,
                    1
@@ -427,7 +423,7 @@ namespace KLPlugins.DynLeaderboards {
                CreateNumRow(
                    "Class    - top positions: ",
                    "Set number of class positions exposed for partial relative class leaderboard.",
-                   nameof(PluginSettings.DynLeaderboardConfig.PartialRelativeClassNumClassPos),
+                   nameof(DynLeaderboardConfig.PartialRelativeClassNumClassPos),
                    0,
                    100,
                    1
@@ -440,7 +436,7 @@ namespace KLPlugins.DynLeaderboards {
                    "Set number of relative positions exposed for partial relative class " +
                    "leaderboard from the focused car in one direction. " +
                    "That is if it's set to 5, we show 5 cars ahead and 5 behind.",
-                   nameof(PluginSettings.DynLeaderboardConfig.PartialRelativeOverallNumRelativePos),
+                   nameof(DynLeaderboardConfig.PartialRelativeOverallNumRelativePos),
                    0,
                    50,
                    1
@@ -453,7 +449,7 @@ namespace KLPlugins.DynLeaderboards {
                CreateNumRow(
                    "Number of drivers",
                    "Set number of drivers shown per car. If set to 1 shown only current driver.",
-                   nameof(PluginSettings.DynLeaderboardConfig.NumDrivers),
+                   nameof(DynLeaderboardConfig.NumDrivers),
                    0,
                    10,
                    1
@@ -507,7 +503,6 @@ namespace KLPlugins.DynLeaderboards {
 
             return sp;
         }
-
 
         private void AddDynLeaderboardToggles() {
             DynLeaderboards_ListView.Items.Clear();
@@ -839,8 +834,6 @@ namespace KLPlugins.DynLeaderboards {
             return s;
         }
 
-
-
         // From https://stackoverflow.com/questions/12540457/moving-an-item-up-and-down-in-a-wpf-list-box
         private void DynLeaderboard_ListView_Up(object sender, RoutedEventArgs e) {
             var selectedIndex = DynLeaderboards_ListView.SelectedIndex;
@@ -870,7 +863,7 @@ namespace KLPlugins.DynLeaderboards {
         }
 
         private void AddNewLeaderboard_Button_Click(object sender, RoutedEventArgs e) {
-            Settings.DynLeaderboardConfigs.Add(new PluginSettings.DynLeaderboardConfig($"Dynamic{Settings.DynLeaderboardConfigs.Count + 1}"));
+            Settings.DynLeaderboardConfigs.Add(new DynLeaderboardConfig($"Dynamic{Settings.DynLeaderboardConfigs.Count + 1}"));
             Plugin.AddNewLeaderboard(Settings.DynLeaderboardConfigs.Last());
             AddSelectDynLeaderboard_ComboBoxItem(Settings.DynLeaderboardConfigs.Last());
             SelectDynLeaderboard_ComboBox.SelectedIndex = SelectDynLeaderboard_ComboBox.Items.Count - 1;
@@ -903,7 +896,10 @@ namespace KLPlugins.DynLeaderboards {
 
         #endregion
 
-
-
+        private void NumericUpDown_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double?> e) {
+            if (e.NewValue != null) {
+                Settings.BroadcastDataUpdateRateMs = (int)e.NewValue;
+            }
+        }
     }
 }

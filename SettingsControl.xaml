@@ -1,9 +1,9 @@
-﻿<UserControl x:Class="KLPlugins.DynLeaderboards.SettingsControl"
+﻿<UserControl x:Class="KLPlugins.DynLeaderboards.Settings.SettingsControl"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:local="clr-namespace:KLPlugins.DynLeaderboards"
+             xmlns:local="clr-namespace:KLPlugins.DynLeaderboards.Settings"
              xmlns:styles="clr-namespace:SimHub.Plugins.Styles;assembly=SimHub.Plugins" 
              mc:Ignorable="d" 
              xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
@@ -117,14 +117,14 @@
                         <RowDefinition MinHeight="35"/>
                     </Grid.RowDefinitions>
                     <TextBlock Grid.Column="0" Text="Data update interval: " Style="{StaticResource Description}"/>
-                    <mah:NumericUpDown Grid.Column="1"
+                    <mah:NumericUpDown x:Name="UpdateInterval_NumericUpDown" Grid.Column="1"
                                        HasDecimals="False" 
                                        Width="100" 
                                        Minimum="10" Maximum="1000" Interval="10" 
                                        VerticalAlignment="Center"
                                        HorizontalAlignment="Left"
                                        StringFormat="0ms"
-                                       Value="{Binding Path=Settings.BroadcastDataUpdateRateMs}"
+                                       ValueChanged="NumericUpDown_ValueChanged"
                                        />
 
 

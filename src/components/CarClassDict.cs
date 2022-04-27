@@ -1,14 +1,10 @@
-﻿using KLPlugins.DynLeaderboards.Enums;
-
-namespace KLPlugins.DynLeaderboards {
-    public class CarClassArray<T> {
+﻿namespace KLPlugins.DynLeaderboards.Car {
+    class CarClassArray<T> {
         private const int _numClasses = 9;
         private T[] _data = new T[_numClasses];
-        public T DefaultValue { get; private set; } = default(T);
+        public T DefaultValue { get; private set; }
 
-        public CarClassArray() { }
-
-        public CarClassArray(T defValue) {
+        public CarClassArray(T defValue = default(T)) {
             DefaultValue = defValue;
             Reset();
         }

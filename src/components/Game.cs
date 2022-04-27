@@ -5,7 +5,7 @@
     /// Booleans to tell which game we have. Since different games have different available data then we need to do alot of check like gameName == "...".
     /// The gameName is constant in each plugin reload and thus we can set it once and simplyfy game checks alot.
     /// </summary>
-    public class Game {
+    class Game {
         public const string AcName = "AssettoCorsa";
         public const string AccName = "AssettoCorsaCompetizione";
         public const string Rf2Name = "RFactor2";

@@ -9,31 +9,31 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork {
-    public class ACCUdpRemoteClient : IDisposable {
+    class ACCUdpRemoteClient : IDisposable {
         public BroadcastingNetworkProtocol MessageHandler { get; }
-        public string IpPort { get; }
-        public string DisplayName { get; }
-        public string ConnectionPassword { get; }
-        public string CommandPassword { get; }
-        public int MsRealtimeUpdateInterval { get; }
         public bool IsConnected { get; private set; }
 
+        private string _ipPort { get; }
+        private string _displayName { get; }
+        private string _connectionPassword { get; }
+        private string _commandPassword { get; }
+        private int _msRealtimeUpdateInterval { get; }
         private UdpClient _client;
         private Task _listenerTask;
 
         /// <summary>
         /// To get the events delivered inside the UI thread, just create this object from the UI thread/synchronization context.
         /// </summary>
-        public ACCUdpRemoteClient(string ip, int port, string displayName, string connectionPassword, string commandPassword, int msRealtimeUpdateInterval) {
-            IpPort = $"{ip}:{port}";
-            MessageHandler = new BroadcastingNetworkProtocol(IpPort, Send);
+        internal ACCUdpRemoteClient(string ip, int port, string displayName, string connectionPassword, string commandPassword, int msRealtimeUpdateInterval) {
+            _ipPort = $"{ip}:{port}";
+            MessageHandler = new BroadcastingNetworkProtocol(_ipPort, Send);
             _client = new UdpClient();
             _client.Connect(ip, port);
 
-            DisplayName = displayName;
-            ConnectionPassword = connectionPassword;
-            CommandPassword = commandPassword;
-            MsRealtimeUpdateInterval = msRealtimeUpdateInterval;
+            _displayName = displayName;
+            _connectionPassword = connectionPassword;
+            _commandPassword = commandPassword;
+            _msRealtimeUpdateInterval = msRealtimeUpdateInterval;
             IsConnected = false;
             MessageHandler.OnConnectionStateChanged += OnBroadcastConnectionStateChanged;
 
@@ -41,13 +41,13 @@ namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork {
             _listenerTask = ConnectAndRun();
         }
 
-        public ACCUdpRemoteClient(ACCUdpRemoteClientConfig cfg) : this(cfg.Ip, cfg.Port, cfg.DisplayName, cfg.ConnectionPassword, cfg.CommandPassword, cfg.UpdateIntervalMs) { }
+        internal ACCUdpRemoteClient(ACCUdpRemoteClientConfig cfg) : this(cfg.Ip, cfg.Port, cfg.DisplayName, cfg.ConnectionPassword, cfg.CommandPassword, cfg.UpdateIntervalMs) { }
 
         private void Send(byte[] payload) {
             var sent = _client.Send(payload, payload.Length);
         }
 
-        public void Shutdown() {
+        internal void Shutdown() {
             ShutdownAsync().ContinueWith(t => {
                 if (t.Exception?.InnerExceptions?.Any() == true)
                     DynLeaderboardsPlugin.LogError($"Client shut down with {t.Exception.InnerExceptions.Count} errors");
@@ -57,7 +57,7 @@ namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork {
             });
         }
 
-        public async Task ShutdownAsync() {
+        internal async Task ShutdownAsync() {
             if (_listenerTask != null && !_listenerTask.IsCompleted) {
                 MessageHandler.Disconnect();
                 _client.Close();
@@ -67,9 +67,8 @@ namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork {
             }
         }
 
-
         private async Task ConnectAndRun() {
-            MessageHandler.RequestConnection(DisplayName, ConnectionPassword, MsRealtimeUpdateInterval, CommandPassword);
+            MessageHandler.RequestConnection(_displayName, _connectionPassword, _msRealtimeUpdateInterval, _commandPassword);
             while (_client != null) {
                 try {
                     var udpPacket = await _client.ReceiveAsync();
@@ -95,7 +94,7 @@ namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork {
                 IsConnected = true;
             } else {
                 DynLeaderboardsPlugin.LogWarn($"Failed to connect to broadcast client. Err: {error}");
-                MessageHandler.RequestConnection(DisplayName, ConnectionPassword, MsRealtimeUpdateInterval, CommandPassword);
+                MessageHandler.RequestConnection(_displayName, _connectionPassword, _msRealtimeUpdateInterval, _commandPassword);
             }
         }
 
@@ -147,7 +146,7 @@ namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork {
     /// <summary>
     /// Configuration of ACCUdpRemoteClient
     /// </summary>
-    public class ACCUdpRemoteClientConfig {
+    class ACCUdpRemoteClientConfig {
         class ACCBroadcastConfig {
             // Class to read acc\Config\broadcasting.json
             internal int udpListenerPort { get; set; }
@@ -172,12 +171,12 @@ namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork {
             }
         }
 
-        public string Ip { get; private set; }
+        public string Ip { get; }
         public int Port => _config.udpListenerPort;
-        public string DisplayName { get; private set; }
+        public string DisplayName { get; }
         public string ConnectionPassword => _config.connectionPassword;
         public string CommandPassword => _config.commandPassword;
-        public int UpdateIntervalMs { get; private set; }
+        public int UpdateIntervalMs { get; }
 
         private ACCBroadcastConfig _config;
 

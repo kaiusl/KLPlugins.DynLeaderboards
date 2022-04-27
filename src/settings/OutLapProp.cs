@@ -1,7 +1,7 @@
 ﻿using System;
 
 
-namespace KLPlugins.DynLeaderboards {
+namespace KLPlugins.DynLeaderboards.Settings {
     [Flags]
     public enum OutLapProp : long {
         None = 0,

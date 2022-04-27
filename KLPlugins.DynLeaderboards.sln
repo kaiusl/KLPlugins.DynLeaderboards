@@ -5,6 +5,8 @@ VisualStudioVersion = 17.1.32203.90
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KLPlugins.DynLeaderboards", "KLPlugins.DynLeaderboards.csproj", "{833040C9-FE5E-4CCF-B21D-71979E049B6B}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KLPlugins.DynLeaderboardsTests", "..\KLPlugins.DynLeaderboardsTests\KLPlugins.DynLeaderboardsTests.csproj", "{9EB6D63F-ECED-4067-8E86-2EF0A64D4BDF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{833040C9-FE5E-4CCF-B21D-71979E049B6B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{833040C9-FE5E-4CCF-B21D-71979E049B6B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{833040C9-FE5E-4CCF-B21D-71979E049B6B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9EB6D63F-ECED-4067-8E86-2EF0A64D4BDF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9EB6D63F-ECED-4067-8E86-2EF0A64D4BDF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9EB6D63F-ECED-4067-8E86-2EF0A64D4BDF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9EB6D63F-ECED-4067-8E86-2EF0A64D4BDF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

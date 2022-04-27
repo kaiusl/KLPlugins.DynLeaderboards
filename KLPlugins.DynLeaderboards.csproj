@@ -93,9 +93,12 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="src\components\DynLeaderboardValues.cs" />
     <Compile Include="src\components\Game.cs" />
     <Compile Include="src\components\CarClassDict.cs" />
+    <Compile Include="src\enums\Leaderboard.cs" />
     <Compile Include="src\enums\Tracks.cs" />
+    <Compile Include="src\helpers\Math.cs" />
     <Compile Include="src\ksBroadcastingNetwork\ACCUdpRemoteClient.cs" />
     <Compile Include="src\ksBroadcastingNetwork\BroadcastingEnums.cs" />
     <Compile Include="src\ksBroadcastingNetwork\BroadcastingNetworkProtocol.cs" />
@@ -109,7 +112,7 @@
     <Compile Include="src\ksBroadcastingNetwork\Structs\RealtimeCarUpdate.cs" />
     <Compile Include="src\components\RealtimeData.cs" />
     <Compile Include="src\ksBroadcastingNetwork\Structs\RealtimeUpdate.cs" />
-    <Compile Include="src\ksBroadcastingNetwork\Structs\TrackData.cs" />
+    <Compile Include="src\components\TrackData.cs" />
     <Compile Include="src\plugin\LeaderboardPlugin.cs" />
     <Compile Include="src\settings\OutCarProp.cs" />
     <Compile Include="src\settings\OutDriverProp.cs" />
@@ -150,6 +153,7 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
+    <None Include=".editorconfig" />
     <None Include="CHANGELOG.md" />
     <None Include="packages.config" />
     <None Include="README.md" />

@@ -1,6 +1,6 @@
 ﻿using KLPlugins.DynLeaderboards.ksBroadcastingNetwork;
 
-namespace KLPlugins.DynLeaderboards.Enums {
+namespace KLPlugins.DynLeaderboards.Car {
     public enum CarType {
         Porsche991GT3R = 0,
         MercedesAMGGT3 = 1,
@@ -74,7 +74,7 @@ namespace KLPlugins.DynLeaderboards.Enums {
 
     static class CarsMethods {
 
-        public static CarClass GetClass(this CarType c) {
+        public static CarClass Class(this CarType c) {
             switch (c) {
                 case CarType.Porsche991GT3R:
                 case CarType.MercedesAMGGT3:
@@ -137,8 +137,8 @@ namespace KLPlugins.DynLeaderboards.Enums {
             }
         }
 
-        public static CarGroup GetGroup(this CarType c) {
-            switch (c.GetClass()) {
+        public static CarGroup Group(this CarType c) {
+            switch (c.Class()) {
                 case CarClass.GT3:
                     return CarGroup.GT3;
                 case CarClass.GT4:
@@ -251,7 +251,7 @@ namespace KLPlugins.DynLeaderboards.Enums {
             }
         }
 
-        public static string GetMark(this CarType c) {
+        public static string Mark(this CarType c) {
             switch (c) {
                 case CarType.Porsche991GT3R:
                 case CarType.Porsche991IIGT3R:
@@ -320,7 +320,7 @@ namespace KLPlugins.DynLeaderboards.Enums {
             }
         }
 
-        public static string GetACCColor(this CarClass c) {
+        public static string ACCColor(this CarClass c) {
             switch (c) {
                 case CarClass.GT3:
                     return "#FF000000";
@@ -343,7 +343,7 @@ namespace KLPlugins.DynLeaderboards.Enums {
             }
         }
 
-        public static string GetACCColor(this TeamCupCategory c) {
+        public static string ACCColor(this TeamCupCategory c) {
             switch (c) {
                 case TeamCupCategory.Overall:
                     return "#FFFFFFFF";
@@ -360,7 +360,7 @@ namespace KLPlugins.DynLeaderboards.Enums {
             }
         }
 
-        public static string GetACCTextColor(this TeamCupCategory c) {
+        public static string ACCTextColor(this TeamCupCategory c) {
             switch (c) {
                 case TeamCupCategory.Overall:
                     return "#FF000000";

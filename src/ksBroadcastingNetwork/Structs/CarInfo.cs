@@ -1,8 +1,8 @@
-﻿using KLPlugins.DynLeaderboards.Enums;
+﻿using KLPlugins.DynLeaderboards.Car;
 using System.Collections.Generic;
 
 namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork.Structs {
-    public class CarInfo {
+    class CarInfo {
         public ushort CarIndex { get; }
         public CarType CarModelType { get; internal set; }
         public CarClass CarClass { get; internal set; }

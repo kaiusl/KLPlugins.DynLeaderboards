@@ -1,6 +1,5 @@
-﻿
-namespace KLPlugins.DynLeaderboards.Enums {
-    public enum TrackType {
+﻿namespace KLPlugins.DynLeaderboards.Track {
+    enum TrackType {
         BrandsHatch = 1,
         Spa = 2,
         Monza = 3,

@@ -371,3 +371,4 @@ FodyWeavers.xsd
 /log.txt
 /toc.yml
 /docfx_project
+/.editorconfig

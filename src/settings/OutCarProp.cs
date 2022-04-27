@@ -1,8 +1,6 @@
 ﻿using System;
 
-
-namespace KLPlugins.DynLeaderboards {
-
+namespace KLPlugins.DynLeaderboards.Settings {
 
     [Flags]
     public enum OutCarProp {

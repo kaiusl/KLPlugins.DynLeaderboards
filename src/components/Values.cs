@@ -474,7 +474,6 @@ namespace KLPlugins.DynLeaderboards {
 
                     if (PosInClassCarsIdxs != null
                         && thisCarClass == focusedCar.CarClass
-                        && thisCarClassPos - 1 < DynLeaderboardsPlugin.Settings.GetMaxNumClassPos()
                     ) {
                         PosInClassCarsIdxs[thisCarClassPos - 1] = idxInCars;
                         if (idxInCars == FocusedCarIdx) {

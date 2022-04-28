@@ -262,13 +262,18 @@ namespace KLPlugins.DynLeaderboards {
                 }
             }
 
-            if (Cars.Any(x => x.OffsetLapUpdate)) return;
             if (!_startingPositionsSet && RealtimeData.IsRace && Cars.All(x => x.NewData != null)) {
                 SetStartionOrder();
             }
             SetOverallOrder();
+
+            if (RealtimeData.IsRace) {
+                foreach (var c in Cars) {
+                    c.TryRemoveOffsetLapUpdate();
+                }
+            }
             FocusedCarIdx = Cars.FindIndex(x => x.CarIndex == update.FocusedCarIndex);
-            if (FocusedCarIdx != null && !RealtimeData.IsNewSession) {
+            if (FocusedCarIdx != null && FocusedCarIdx != -1 && !RealtimeData.IsNewSession) {
                 SetRelativeOrders();
                 UpdateCarData();
             }

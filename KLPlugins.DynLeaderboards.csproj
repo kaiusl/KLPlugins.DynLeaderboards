@@ -36,6 +36,9 @@
     <DebugSymbols>true</DebugSymbols>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="ACSharedMemory">
+      <HintPath>C:\Program Files\SimHub\ACSharedMemory.dll</HintPath>
+    </Reference>
     <Reference Include="GameReaderCommon">
       <HintPath>C:\Program Files\SimHub\GameReaderCommon.dll</HintPath>
       <Private>False</Private>

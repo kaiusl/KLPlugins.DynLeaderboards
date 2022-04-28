@@ -1,4 +1,6 @@
-﻿using KLPlugins.DynLeaderboards.Car;
+﻿using ACSharedMemory.ACC.Reader;
+using GameReaderCommon;
+using KLPlugins.DynLeaderboards.Car;
 using KLPlugins.DynLeaderboards.Helpers;
 using KLPlugins.DynLeaderboards.ksBroadcastingNetwork;
 using KLPlugins.DynLeaderboards.ksBroadcastingNetwork.Structs;
@@ -53,6 +55,9 @@ namespace KLPlugins.DynLeaderboards {
         private List<ushort> _lastUpdateCarIds = new List<ushort>();
         private ACCUdpRemoteClientConfig _broadcastConfig;
         private bool _startingPositionsSet = false;
+
+        internal int SessionTimeRemaining = int.MaxValue;
+        internal ACCRawData RawData { get; private set; }
 
         internal Values() {
             Cars = new List<CarData>();
@@ -146,6 +151,10 @@ namespace KLPlugins.DynLeaderboards {
         }
         #endregion
 
+        internal void OnDataUpdate(PluginManager pm, GameData data) {
+            RawData = (ACCRawData)data.NewData.GetRawDataObject();
+        }
+
         internal void OnGameStateChanged(bool running, PluginManager manager) {
             if (running) {
                 if (BroadcastClient != null) {
@@ -216,12 +225,17 @@ namespace KLPlugins.DynLeaderboards {
 
             if (evt.Type == BroadcastingCarEventType.LapCompleted
                 && RealtimeData.IsRace
-                && SessionEndTimeForBroadcastEventsTime.Avg != 0
-                && SessionEndTimeForBroadcastEventsTime.Avg <= msgTime
                 && evt.CarData != null
                 && (Cars[0].CarIndex == evt.CarData.CarIndex || Cars[0].SetFinishedOnNextUpdate)
             ) {
-                Cars.Find(x => x.CarIndex == evt.CarData.CarIndex).SetIsFinished(RealtimeData.SessionRunningTime + TimeSpan.FromSeconds(timeFromLastRealtimeUpdate));
+                if (SessionTimeRemaining == 0
+                    || (SessionTimeRemaining == int.MaxValue
+                        && SessionEndTimeForBroadcastEventsTime.Avg != 0
+                        && SessionEndTimeForBroadcastEventsTime.Avg <= msgTime
+                       )
+                ) {
+                    Cars.Find(x => x.CarIndex == evt.CarData.CarIndex).SetIsFinished(RealtimeData.SessionRunningTime + TimeSpan.FromSeconds(timeFromLastRealtimeUpdate));
+                }
             }
         }
 
@@ -517,7 +531,7 @@ namespace KLPlugins.DynLeaderboards {
                 }
 
                 void SetRelativeOnTrackOrders() {
-                    if (FocusedCarIdx == null) return;
+                    if (FocusedCarIdx == null || _relativeSplinePositions == null || _relativeSplinePositions.Count == 0) return;
                     _relativeSplinePositions.Sort((a, b) => a.SplinePos.CompareTo(b.SplinePos));
 
                     foreach (var l in LeaderboardValues) {

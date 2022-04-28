@@ -50,6 +50,7 @@ namespace KLPlugins.DynLeaderboards {
 
             if (data.GameRunning && data.OldData != null && data.NewData != null) {
                 //WriteFrameTimes(pm);
+                _values.OnDataUpdate(pm, data);
             }
         }
 
@@ -150,11 +151,12 @@ namespace KLPlugins.DynLeaderboards {
 
             this.AttachDelegate("IsBroadcastClientConnected", () => _values.BroadcastClient?.IsConnected);
 
-            this.AttachDelegate("DBG.Realtime.SessionTime", () => _values?.RealtimeData?.SessionRunningTime);
+            this.AttachDelegate("DBG.Realtime.SessionRunningTime", () => _values?.RealtimeData?.SessionRunningTime);
             this.AttachDelegate("DBG.Realtime.RemainingTime", () => _values?.RealtimeData?.RemainingTime);
-            this.AttachDelegate("DBG.Realtime.TimeOfDay", () => _values?.RealtimeData?.SystemTime);
-            this.AttachDelegate("DBG.Realtime.SessionRemainingTime", () => _values?.RealtimeData?.SessionEndTime);
-            this.AttachDelegate("DBG.Realtime.SessionEndTime", () => _values.RealtimeData?.SessionRemainingTime);
+            this.AttachDelegate("DBG.Realtime.SystemTime", () => _values?.RealtimeData?.SystemTime);
+            this.AttachDelegate("DBG.Realtime.SessionEndTime", () => _values?.RealtimeData?.SessionEndTime);
+            this.AttachDelegate("DBG.Graphics.SessionRemainingTime", () => TimeSpan.FromMilliseconds(_values?.RawData?.Graphics.SessionTimeLeft ?? int.MaxValue));
+            this.AttachDelegate("DBG.Realtime.SessionRemainingTime", () => _values.RealtimeData?.SessionRemainingTime);
             this.AttachDelegate("DBG.Realtime.RecieveTime", () => _values.RealtimeData?.NewData?.RecieveTime);
             this.AttachDelegate("DBG.Realtime.SessionTotalTime", () => _values.RealtimeData?.SessionTotalTime);
             this.AttachDelegate("DBG.SessionEndTimeForBroadcastEvents", () => TimeSpan.FromSeconds(_values.SessionEndTimeForBroadcastEventsTime.Avg));

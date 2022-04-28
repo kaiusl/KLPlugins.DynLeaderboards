@@ -145,7 +145,7 @@ namespace KLPlugins.DynLeaderboards.Car {
         /// <param name="i"></param>
         /// <returns></returns>
         public DriverData GetDriver(int i) {
-            if (i < Drivers.Count - 1) return null;
+            if (i > Drivers.Count - 1 && i < 0) return null;
             if (i == 0) return Drivers[CurrentDriverIndex];
             if (i <= CurrentDriverIndex) return Drivers[i - 1]; 
             return Drivers[i];
@@ -406,6 +406,12 @@ namespace KLPlugins.DynLeaderboards.Car {
             #region Local functions
 
             void SetGaps() {
+                // Freeze gaps until all is in order again, fixes gap suddenly jumping to larger values as spline positions could be out of sync
+                if (OffsetLapUpdate == OffsetLapUpdateType.None) {
+                    if (focusedCar?.OffsetLapUpdate == OffsetLapUpdateType.None) GapToFocusedOnTrack = CalculateOnTrackGap(this, focusedCar);
+                    if (carAheadOnTrack?.OffsetLapUpdate == OffsetLapUpdateType.None) GapToAheadOnTrack = CalculateOnTrackGap(carAheadOnTrack, this);
+                }
+
                 if (realtimeData.IsRace) {
                     // Use time gaps on track
                     // We update the gap only if CalculateGap returns a proper value because we don't want to update the gap if one of the cars has finished. 
@@ -441,12 +447,6 @@ namespace KLPlugins.DynLeaderboards.Car {
                         var toBest = to?.NewData?.BestSessionLap?.Laptime;
                         return toBest != null ? (double)thisBestLap - (double)toBest : (double?)null;
                     }
-                }
-
-                // Freeze gaps until all is in order again, fixes gap suddenly jumping to larger values as spline positions could be out of sync
-                if (OffsetLapUpdate == OffsetLapUpdateType.None) {
-                    if (focusedCar?.OffsetLapUpdate == OffsetLapUpdateType.None) GapToFocusedOnTrack = CalculateOnTrackGap(this, focusedCar);
-                    if (carAheadOnTrack?.OffsetLapUpdate == OffsetLapUpdateType.None) GapToAheadOnTrack = CalculateOnTrackGap(carAheadOnTrack, this);
                 }
             }
 

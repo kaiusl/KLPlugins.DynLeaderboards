@@ -113,8 +113,12 @@ namespace KLPlugins.DynLeaderboards.Car {
 
         private double? _stintStartTime = null;
         private CarClassArray<double?> _splinePositionTime = new CarClassArray<double?>(null);
-        private bool _lapUpdatedAfterOffsetLapUpdate = true;
         private int _lapAtOffsetLapUpdate = 0;
+
+        private bool _isSplinePositionReset = false;
+        private bool _isNewLap = false;
+        private bool _enteredPitlane = false;
+        private bool _exitedPitlane = false;
 
         ////////////////////////
 
@@ -141,9 +145,10 @@ namespace KLPlugins.DynLeaderboards.Car {
         /// <param name="i"></param>
         /// <returns></returns>
         public DriverData GetDriver(int i) {
-            if (i == 0) { return Drivers.ElementAtOrDefault(CurrentDriverIndex); }
-            if (i <= CurrentDriverIndex) { return Drivers.ElementAtOrDefault(i - 1); }
-            return Drivers.ElementAtOrDefault(i);
+            if (i < Drivers.Count - 1) return null;
+            if (i == 0) return Drivers[CurrentDriverIndex];
+            if (i <= CurrentDriverIndex) return Drivers[i - 1]; 
+            return Drivers[i];
         }
 
         public double? GetDriverTotalDrivingTime(int i) {
@@ -198,6 +203,11 @@ namespace KLPlugins.DynLeaderboards.Car {
             NewData = update;
             if (OldData == null || IsFinished) return;
 
+            _isNewLap = OldData.Laps != NewData.Laps;
+            _isSplinePositionReset = OldData.SplinePosition > 0.9 && NewData.SplinePosition < 0.1;
+            _enteredPitlane = !OldData.IsInPitlane && NewData.IsInPitlane;
+            _exitedPitlane = OldData.IsInPitlane && !NewData.IsInPitlane;
+
             if (realtimeData.IsRace) HandleOffsetLapUpdates();
             // Wait for one more update at the beginning of session, so we have all relevant data for calculations below
             if (IsFinalRealtimeCarUpdateAdded) return;
@@ -207,13 +217,15 @@ namespace KLPlugins.DynLeaderboards.Car {
             if (realtimeData.IsRace) {
                 CheckForCrossingStartLine();
                 TotalSplinePosition = NewData.SplinePosition + NewData.Laps;
-                if (OffsetLapUpdate == OffsetLapUpdateType.LapBeforeSpline && !_removeOffsetLapUpdate) TotalSplinePosition -= 1;
-                if (OffsetLapUpdate == OffsetLapUpdateType.SplineBeforeLap && !_removeOffsetLapUpdate) TotalSplinePosition += 1;
+                if (OffsetLapUpdate == OffsetLapUpdateType.LapBeforeSpline) 
+                    TotalSplinePosition -= 1;
+                else if (OffsetLapUpdate == OffsetLapUpdateType.SplineBeforeLap) 
+                    TotalSplinePosition += 1;
                 UpdatePitInfo();
             }
-            CheckForRTG();
+            HandleRTG();
 
-            if (NewData.Laps != OldData.Laps) {
+            if (_isNewLap) {
                 CurrentDriver.OnLapFinished(NewData.LastLap);
             }
 
@@ -239,14 +251,13 @@ namespace KLPlugins.DynLeaderboards.Car {
                     HasCrossedStartLine = false;
                 }
 
-                if (!HasCrossedStartLine && NewData.SplinePosition < 0.1 && OldData.SplinePosition > 0.9
-                ) {
+                if (!HasCrossedStartLine && _isSplinePositionReset) {
                     HasCrossedStartLine = true;
                     DynLeaderboardsPlugin.LogInfo($"#{RaceNumber}: set HasCrossedStartLine = true");
                 }
             }
 
-            void CheckForRTG() {
+            void HandleRTG() {
                 if (realtimeData.IsRace
                     && !SetFinishedOnNextUpdate // It's okay to jump to the pits after finishing
                     && NewData.IsInPitlane
@@ -256,7 +267,7 @@ namespace KLPlugins.DynLeaderboards.Car {
                     DynLeaderboardsPlugin.LogInfo($"#{RaceNumber}: Jumped to pits.");
                 }
 
-                if (JumpedToPits && NewData.CarLocation != CarLocationEnum.Pitlane) {
+                if (JumpedToPits && !NewData.IsInPitlane) {
                     JumpedToPits = false;
                     DynLeaderboardsPlugin.LogInfo($"#{RaceNumber}: Removed jumped to pits.");
                 }
@@ -266,47 +277,40 @@ namespace KLPlugins.DynLeaderboards.Car {
             void HandleOffsetLapUpdates() {
                 // Check for offset lap update
                 if (OffsetLapUpdate == OffsetLapUpdateType.None
-                    && NewData.Laps != OldData.Laps
+                    && _isNewLap
                     && NewData.SplinePosition > 0.9
                 ) {
                     OffsetLapUpdate = OffsetLapUpdateType.LapBeforeSpline;
-                    _removeOffsetLapUpdate = false;
                     _lapAtOffsetLapUpdate = NewData.Laps;
                     DynLeaderboardsPlugin.LogError($"#{RaceNumber}: laps updated before spline position was reset (Type 1). NewData: laps={NewData.Laps}, sp={NewData.SplinePosition}, OldData: laps={OldData.Laps}, sp={OldData.SplinePosition}");
                 } else if (OffsetLapUpdate == OffsetLapUpdateType.None
-                    && NewData.SplinePosition < 0.1
-                    && OldData.SplinePosition > 0.9
-                    && NewData.Laps != _lapAtOffsetLapUpdate // Remove double detection with above
-                    && NewData.Laps == OldData.Laps
-                    && HasCrossedStartLine
+                            && _isSplinePositionReset
+                            && NewData.Laps != _lapAtOffsetLapUpdate // Remove double detection with above
+                            && NewData.Laps == OldData.Laps
+                            && HasCrossedStartLine
                 ) {
                     OffsetLapUpdate = OffsetLapUpdateType.SplineBeforeLap;
-                    _removeOffsetLapUpdate = false;
-                    _lapUpdatedAfterOffsetLapUpdate = false;
                     _lapAtOffsetLapUpdate = NewData.Laps;
                     DynLeaderboardsPlugin.LogError($"#{RaceNumber}: spline position was reset before laps were updated (Type 2). NewData: laps={NewData.Laps}, sp={NewData.SplinePosition}, OldData: laps={OldData.Laps}, sp={OldData.SplinePosition}");
                 }
 
                 if (OffsetLapUpdate == OffsetLapUpdateType.LapBeforeSpline) {
                     if (NewData.SplinePosition < 0.9) {
-                        //_removeOffsetLapUpdate = true;
                         OffsetLapUpdate = OffsetLapUpdateType.None;
                         DynLeaderboardsPlugin.LogError($"#{RaceNumber}: offset lap update removed, all ok now again. tsp={TotalSplinePosition}, sp={NewData.SplinePosition}, laps={NewData.Laps}");
                     }
                 } else if (OffsetLapUpdate == OffsetLapUpdateType.SplineBeforeLap) {
                     if (NewData.Laps != _lapAtOffsetLapUpdate || (NewData.SplinePosition > 0.025 && NewData.SplinePosition < 0.9)) {
                         // Second condition is a fallback in case the lap actually shouldn't have been updated (eg at the start line, jumped to pits and then crossed the line in the pits)
-                        //_removeOffsetLapUpdate = true;
                         OffsetLapUpdate = OffsetLapUpdateType.None;
                         DynLeaderboardsPlugin.LogError($"#{RaceNumber}: offset lap update removed, all ok now again. tsp={TotalSplinePosition}, sp={NewData.SplinePosition}, laps={NewData.Laps}");
                     }
                 }
             }
 
-
             void UpdatePitInfo() {
                 // Pit started
-                if ((!OldData.IsInPitlane && NewData.IsInPitlane) // Entered pitlane
+                if (_enteredPitlane
                     || (PitEntryTime == null && NewData.IsInPitlane && !realtimeData.IsPreSession) // We join/start SimHub mid session
                 ) {
                     PitCount++;
@@ -315,8 +319,7 @@ namespace KLPlugins.DynLeaderboards.Car {
                 }
 
                 // Pit ended
-                if (PitEntryTime != null && !NewData.IsInPitlane) {
-                    // Left the pitlane
+                if (PitEntryTime != null && _exitedPitlane) {
                     LastPitTime = realtimeData.SessionRunningTime.TotalSeconds - PitEntryTime;
                     TotalPitTime += (double)LastPitTime;
                     PitEntryTime = null;
@@ -330,12 +333,12 @@ namespace KLPlugins.DynLeaderboards.Car {
             }
 
             void UpdateStintInfo() {
-                if (NewData.Laps != OldData.Laps) {
+                if (_isNewLap) {
                     CurrentStintLaps++;
                 }
 
                 // Stint started
-                if ((OldData.IsInPitlane && !NewData.IsInPitlane) // Pitlane exit
+                if (_exitedPitlane // Pitlane exit
                     || (realtimeData.IsRace && realtimeData.IsSessionStart) // Race start
                     || (_stintStartTime == null && NewData.IsOnTrack && !realtimeData.IsPreSession) // We join/start SimHub mid session
                 ) {
@@ -344,7 +347,7 @@ namespace KLPlugins.DynLeaderboards.Car {
                 }
 
                 // Stint ended
-                if (!OldData.IsInPitlane && NewData.IsInPitlane && _stintStartTime != null) {
+                if (_enteredPitlane && _stintStartTime != null) {
                     LastStintTime = realtimeData.SessionRunningTime.TotalSeconds - (double)_stintStartTime;
                     CurrentDriver.OnStintEnd((double)LastStintTime);
                     _stintStartTime = null;
@@ -361,20 +364,16 @@ namespace KLPlugins.DynLeaderboards.Car {
 
             void UpdateBestLapSectors() {
                 // Note that NewData.BestSessionLap doesn't contain the sectors of that best lap but the best sectors.
-                if (OldData.Laps != NewData.Laps
-                    && NewData.LastLap.IsValidForBest
-                    && NewData.LastLap.Laptime == NewData.BestSessionLap.Laptime
-                ) {
-                    for (int i = 0; i < 3; i++) {
-                        BestLapSectors[i] = NewData.LastLap.Splits[i];
-                    }
+                if (_isNewLap && NewData.LastLap.IsValidForBest) {
+                    NewData.LastLap.Splits.CopyTo(BestLapSectors, 0);
                 }
             }
             #endregion
         }
 
-        internal void OnRealtimeUpdateFirstPass() {
+        internal void OnRealtimeUpdateFirstPass(int focusedCarIndex) {
             _splinePositionTime.Reset();
+            IsFocused = CarIndex == focusedCarIndex;
         }
 
         internal void OnRealtimeUpdateSecondPass(

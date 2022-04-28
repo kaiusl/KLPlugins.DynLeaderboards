@@ -453,8 +453,7 @@ namespace KLPlugins.DynLeaderboards {
                     var thisCar = Cars[idxInCars];
                     UpdateBestLapCarIdxs(thisCar, idxInCars);
                     UpdateRelativeSplinePosition(thisCar, idxInCars);
-                    thisCar.IsFocused = thisCar.CarIndex == focusedCar.CarIndex;
-                    thisCar.OnRealtimeUpdateFirstPass();
+                    thisCar.OnRealtimeUpdateFirstPass(focusedCar.CarIndex);
                 }
 
                 var classPositions = new CarClassArray<int>(0);  // Keep track of what class position are we at the moment
@@ -492,11 +491,11 @@ namespace KLPlugins.DynLeaderboards {
                 void UpdateBestLapCarIdxs(CarData thisCar, int idxInCars) {
                     var thisCarBestLap = thisCar.NewData?.BestSessionLap?.Laptime;
                     if (thisCarBestLap != null) {
-                        UpdateClassBestLap(thisCar.CarClass);
-                        UpdateClassBestLap(CarClass.Overall);
+                        UpdateBestLap(thisCar.CarClass);
+                        UpdateBestLap(CarClass.Overall);
                     }
 
-                    void UpdateClassBestLap(CarClass cls) {
+                    void UpdateBestLap(CarClass cls) {
                         var currentIdx = _bestLapByClassCarIdxs[cls];
                         if (currentIdx == null || Cars[(int)currentIdx].NewData.BestSessionLap.Laptime >= thisCarBestLap) {
                             _bestLapByClassCarIdxs[cls] = idxInCars;
@@ -511,13 +510,11 @@ namespace KLPlugins.DynLeaderboards {
                 }
 
                 void SetPositionInClass(CarClass thisCarClass, int thisCarClassPos, int idxInCars) {
-                    if (thisCarClassPos == classPositions.DefaultValue + 1) {
+                    if (thisCarClassPos == classPositions.DefaultValue + 1) { // First time we see this class, must be the leader
                         _classLeaderIdxs[thisCarClass] = idxInCars;
                     }
 
-                    if (PosInClassCarsIdxs != null
-                        && thisCarClass == focusedCar.CarClass
-                    ) {
+                    if (PosInClassCarsIdxs != null && thisCarClass == focusedCar.CarClass) {
                         PosInClassCarsIdxs[thisCarClassPos - 1] = idxInCars;
                         if (idxInCars == FocusedCarIdx) {
                             FocusedCarPosInClassCarsIdxs = thisCarClassPos - 1;

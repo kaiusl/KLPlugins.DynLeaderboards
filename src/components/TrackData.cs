@@ -54,7 +54,7 @@ namespace KLPlugins.DynLeaderboards.Track {
 
             try {
                 var data = ReadLapInterpolatorData(fname);
-                LapInterpolators[cls] = new LapInterpolator(LinearSpline.Interpolate(data.Item1, data.Item2), data.Item2.Last());
+                LapInterpolators[cls] = new LapInterpolator(LinearSpline.InterpolateSorted(data.Item1, data.Item2), data.Item2.Last());
                 DynLeaderboardsPlugin.LogInfo($"Build lap interpolator for {cls} from file {fname}");
             } catch (Exception ex) {
                 DynLeaderboardsPlugin.LogError($"Failed to read {fname} with error: {ex}");

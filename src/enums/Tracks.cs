@@ -28,7 +28,9 @@
         public static double SplinePosOffset(this TrackType track) {
             switch (track) {
                 case TrackType.Silverstone:
-                    return 0.0207;
+                    return 0.0209485;
+                case TrackType.Spa:
+                    return 0.0038425;
                 default:
                     return 0;
             }

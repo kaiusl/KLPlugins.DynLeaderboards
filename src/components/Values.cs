@@ -75,14 +75,14 @@ namespace KLPlugins.DynLeaderboards {
         public CarData GetCar(int i) => Cars.ElementAtOrDefault(i);
 
         public CarData GetFocusedCar() {
-            if (FocusedCarIdx == null) return null;
+            if (FocusedCarIdx == null || FocusedCarIdx == -1) return null;
             return Cars[(int)FocusedCarIdx];
         }
 
         public CarData GetBestLapCar(CarClass cls) {
             var idx = _bestLapByClassCarIdxs[cls];
             if (idx == null) return null;
-            return Cars[(int)idx];
+            return Cars.ElementAtOrDefault((int)idx);
         }
 
         public CarData GetFocusedClassBestLapCar() {
@@ -168,10 +168,9 @@ namespace KLPlugins.DynLeaderboards {
         }
 
         internal CarData GetCar(int i, int?[] idxs) {
-            if (i > idxs.Length - 1) return null;
-            var idx = idxs[i];
+            var idx = idxs.ElementAtOrDefault(i);
             if (idx == null) return null;
-            return Cars[(int)idx];
+            return Cars.ElementAtOrDefault((int)idx);
         }
 
         internal void SetDynamicCarGetter() {
@@ -226,6 +225,7 @@ namespace KLPlugins.DynLeaderboards {
             if (evt.Type == BroadcastingCarEventType.LapCompleted
                 && RealtimeData.IsRace
                 && evt.CarData != null
+                && Cars.Count != 0
                 && (Cars[0].CarIndex == evt.CarData.CarIndex || Cars[0].SetFinishedOnNextUpdate)
             ) {
                 if (SessionTimeRemaining == 0
@@ -435,6 +435,9 @@ namespace KLPlugins.DynLeaderboards {
             /// Update car related data like positions and gaps
             /// </summary>
             void UpdateCarData() {
+                Debug.Assert(FocusedCarIdx != null);
+                Debug.Assert(Cars.Count != 0);
+
                 // Clear old data
                 _relativeSplinePositions.Clear();
                 _classLeaderIdxs.Reset();
@@ -468,7 +471,7 @@ namespace KLPlugins.DynLeaderboards {
                     thisCar.OnRealtimeUpdateSecondPass(
                         realtimeData: RealtimeData,
                         leaderCar: leaderCar,
-                        classLeaderCar: Cars[(int)_classLeaderIdxs[thisCar.CarClass]],
+                        classLeaderCar: Cars[(int)_classLeaderIdxs[thisCar.CarClass]], // _classLeadeIdxs must contain thisClass, and Cars must contain that car
                         focusedCar: focusedCar,
                         carAhead: idxInCars != 0 ? Cars[idxInCars - 1] : null,
                         carAheadInClass: carAheadInClassIdx != null ? Cars[(int)carAheadInClassIdx] : null,

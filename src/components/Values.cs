@@ -101,9 +101,8 @@ namespace KLPlugins.DynLeaderboards {
             _startingPositionsSet = false;
             MaxDriverStintTime = -1;
             MaxDriverTotalDriveTime = -1;
-            _outdata?.Clear();
-            _bestLaps?.Clear();
             SessionEndTimeForBroadcastEventsTime.Reset();
+            SessionTimeRemaining = int.MaxValue;
         }
 
         private void ResetPos() {
@@ -240,8 +239,6 @@ namespace KLPlugins.DynLeaderboards {
                 DynLeaderboardsPlugin.LogInfo("New session.");
                 Cars.Clear();
                 BroadcastClient.MessageHandler.RequestEntryList();
-                _outdata?.Clear();
-                _bestLaps?.Clear();
                 ResetPos();
                 _lastUpdateCarIds.Clear();
                 _relativeSplinePositions.Clear();
@@ -559,8 +556,6 @@ namespace KLPlugins.DynLeaderboards {
             }
         }
 
-        private Dictionary<int, string> _outdata = new Dictionary<int, string>();
-        private Dictionary<CarClass, double> _bestLaps = new Dictionary<CarClass, double>();
         private void OnRealtimeCarUpdate(string sender, RealtimeCarUpdate update) {
             // Update Realtime data of existing cars
             // If found new car, BroadcastClient itself requests new entry list
@@ -569,76 +564,9 @@ namespace KLPlugins.DynLeaderboards {
             if (car == null) return;
             car.OnRealtimeCarUpdate(update, RealtimeData);
             _lastUpdateCarIds.Add(car.CarIndex);
-
-            //CreateLapInterpolatorsData();
-
-            #region Local functions
-            void CreateLapInterpolatorsData() {
-
-                if (_outdata.ContainsKey(car.CarIndex) && car.NewData.CarLocation != CarLocationEnum.Track) {
-                    _outdata.Remove(car.CarIndex);
-                }
-
-                if (!_bestLaps.ContainsKey(car.CarClass)) {
-                    var fname = $"{DynLeaderboardsPlugin.Settings.PluginDataLocation}\\laps_data\\raw\\{TrackData.TrackId}_{car.CarClass}.txt";
-                    if (File.Exists(fname)) {
-                        try {
-                            var t = 0.0;
-
-                            foreach (var l in File.ReadLines(fname)) {
-                                if (l == "") continue;
-                                // Data order: splinePositions, lap time in ms, speed in kmh
-                                var splits = l.Split(';');
-                                double p = float.Parse(splits[0]);
-                                t = double.Parse(splits[1]);
-                            }
-                            _bestLaps[car.CarClass] = t;
-                            DynLeaderboardsPlugin.LogInfo($"Read class {car.CarClass} best lap time {t}");
-
-                        } catch (Exception ex) {
-
-                        }
-                    }
-                }
-
-                if (car.OldData != null && car.NewData.Laps != car.OldData.Laps && car.NewData.CarLocation == CarLocationEnum.Track) {
-                    if (!_outdata.ContainsKey(car.CarIndex)) {
-                        _outdata[car.CarIndex] = "";
-                        return;
-                    }
-
-                    var thisclass = car.CarClass;
-
-                    if (car.NewData?.LastLap?.Laptime != null
-                        && car.NewData.LastLap.IsValidForBest
-                        && (!_bestLaps.ContainsKey(thisclass) || (car.NewData.LastLap.Laptime < _bestLaps[thisclass]))
-                    ) {
-                        DynLeaderboardsPlugin.LogInfo($"New best lap for {thisclass}: {TimeSpan.FromSeconds((double)car.NewData.LastLap.Laptime).ToString("mm\\:ss\\.fff")}");
-
-                        _bestLaps[thisclass] = (double)car.NewData.LastLap.Laptime;
-                        var fname = $"{DynLeaderboardsPlugin.Settings.PluginDataLocation}\\laps_data\\raw\\{TrackData.TrackId}_{thisclass}.txt";
-                        File.WriteAllText(fname, _outdata[car.CarIndex]);
-                    }
-
-                    _outdata[car.CarIndex] = "";
-                }
-
-                if (_outdata.ContainsKey(car.CarIndex)) {
-                    if (car.OldData.CurrentLap.Laptime < car.NewData.CurrentLap.Laptime && car.OldData.SplinePosition != car.NewData.SplinePosition) {
-                        if (_outdata[car.CarIndex] != "") {
-                            _outdata[car.CarIndex] += "\n";
-                        }
-                        _outdata[car.CarIndex] += $"{update.SplinePosition};{update.CurrentLap.Laptime};{update.Kmh};{update.WorldPosX};{update.WorldPosY};{update.Laps}";
-                    } 
-                }
-            }
-            #endregion
         }
 
         private void OnTrackDataUpdate(string sender, TrackData update) {
-            _outdata?.Clear();
-            _bestLaps?.Clear();
-
             TrackData = update;
             TrackData.ReadDefBestLaps();
         }

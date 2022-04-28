@@ -106,7 +106,7 @@ namespace KLPlugins.DynLeaderboards.Car {
         internal int MissedRealtimeUpdates { get; set; } = 0;
 
         private double? _stintStartTime = null;
-        private CarClassArray<double> _splinePositionTime = new CarClassArray<double>(-1);
+        private CarClassArray<double?> _splinePositionTime = new CarClassArray<double?>(null);
         private bool _lapUpdatedAfterOffsetLapUpdate = true;
         private int _lapAtOffsetLapUpdate = 0;
 
@@ -353,7 +353,11 @@ namespace KLPlugins.DynLeaderboards.Car {
             #endregion
         }
 
-        internal void OnRealtimeUpdate(
+        internal void OnRealtimeUpdateFirstPass() {
+            _splinePositionTime.Reset();
+        }
+
+        internal void OnRealtimeUpdateSecondPass(
             RealtimeData realtimeData,
             CarData leaderCar,
             CarData classLeaderCar,
@@ -371,7 +375,6 @@ namespace KLPlugins.DynLeaderboards.Car {
 
             InClassPos = classPos;
             OverallPos = overallPos;
-            _splinePositionTime.Reset();
 
             if (realtimeData.OldData.Phase == SessionPhase.SessionOver && realtimeData.IsRace) {
                 // We also need to check finished here (after positions update) to detect leaders finish

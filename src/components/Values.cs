@@ -207,7 +207,7 @@ namespace KLPlugins.DynLeaderboards {
         // New entry list if found new car or driver
 
         private void OnBroadcastingEvent(string sender, BroadcastingEvent evt) {
-            DynLeaderboardsPlugin.LogInfo($"BROADCAST EVENT: #{evt.CarData?.RaceNumber}: Type = {evt.Type}: Msg = {evt.Msg}: Time = {TimeSpan.FromMilliseconds(evt.TimeMs)}");
+            //DynLeaderboardsPlugin.LogInfo($"BROADCAST EVENT: #{evt.CarData?.RaceNumber}: Type = {evt.Type}: Msg = {evt.Msg}: Time = {TimeSpan.FromMilliseconds(evt.TimeMs)}");
             var msgTime = evt.TimeMs / 1000.0;
             var timeFromLastRealtimeUpdate = (DateTime.Now - RealtimeData.NewData.RecieveTime).TotalSeconds;
             if (RealtimeData.NewData != null && RealtimeData.SessionRemainingTime != TimeSpan.Zero) {
@@ -240,8 +240,8 @@ namespace KLPlugins.DynLeaderboards {
                 DynLeaderboardsPlugin.LogInfo("New session.");
                 Cars.Clear();
                 BroadcastClient.MessageHandler.RequestEntryList();
-                _outdata.Clear();
-                _bestLaps.Clear();
+                _outdata?.Clear();
+                _bestLaps?.Clear();
                 ResetPos();
                 _lastUpdateCarIds.Clear();
                 _relativeSplinePositions.Clear();
@@ -429,6 +429,7 @@ namespace KLPlugins.DynLeaderboards {
                     UpdateBestLapCarIdxs(thisCar, idxInCars);
                     UpdateRelativeSplinePosition(thisCar, idxInCars);
                     thisCar.IsFocused = thisCar.CarIndex == focusedCar.CarIndex;
+                    thisCar.OnRealtimeUpdateFirstPass();
                 }
 
                 var classPositions = new CarClassArray<int>(0);  // Keep track of what class position are we at the moment
@@ -437,7 +438,24 @@ namespace KLPlugins.DynLeaderboards {
                     var thisCar = Cars[idxInCars];
                     var thisCarClassPos = ++classPositions[thisCar.CarClass];
                     SetPositionInClass(thisCar.CarClass, thisCarClassPos, idxInCars);
-                    UpdateThisCarData(thisCar, thisCarClassPos, idxInCars);
+
+                    var carAheadInClassIdx = lastSeenInClassCarIdxs[thisCar.CarClass];
+                    var overallBestLapCarIdx = _bestLapByClassCarIdxs[CarClass.Overall];
+                    var classBestLapCarIdx = _bestLapByClassCarIdxs[thisCar.CarClass];
+
+                    thisCar.OnRealtimeUpdateSecondPass(
+                        realtimeData: RealtimeData,
+                        leaderCar: leaderCar,
+                        classLeaderCar: Cars[(int)_classLeaderIdxs[thisCar.CarClass]],
+                        focusedCar: focusedCar,
+                        carAhead: idxInCars != 0 ? Cars[idxInCars - 1] : null,
+                        carAheadInClass: carAheadInClassIdx != null ? Cars[(int)carAheadInClassIdx] : null,
+                        carAheadOnTrack: GetCarAheadOnTrack(thisCar),
+                        overallBestLapCar: overallBestLapCarIdx != null ? Cars[(int)overallBestLapCarIdx] : null,
+                        classBestLapCar: classBestLapCarIdx != null ? Cars[(int)classBestLapCarIdx] : null,
+                        overallPos: idxInCars + 1,
+                        classPos: thisCarClassPos
+                    );
                     lastSeenInClassCarIdxs[thisCar.CarClass] = idxInCars;
                 }
                 ClearUnusedClassPositions(classPositions[focusedClass]);
@@ -480,26 +498,6 @@ namespace KLPlugins.DynLeaderboards {
                             FocusedCarPosInClassCarsIdxs = thisCarClassPos - 1;
                         }
                     }
-                }
-
-                void UpdateThisCarData(CarData thisCar, int thisCarClassPos, int idxInCars) {
-                    var carAheadInClassIdx = lastSeenInClassCarIdxs[thisCar.CarClass];
-                    var overallBestLapCarIdx = _bestLapByClassCarIdxs[CarClass.Overall];
-                    var classBestLapCarIdx = _bestLapByClassCarIdxs[thisCar.CarClass];
-
-                    thisCar.OnRealtimeUpdate(
-                        realtimeData: RealtimeData,
-                        leaderCar: leaderCar,
-                        classLeaderCar: Cars[(int)_classLeaderIdxs[thisCar.CarClass]],
-                        focusedCar: focusedCar,
-                        carAhead: idxInCars != 0 ? Cars[idxInCars - 1] : null,
-                        carAheadInClass: carAheadInClassIdx != null ? Cars[(int)carAheadInClassIdx] : null,
-                        carAheadOnTrack: GetCarAheadOnTrack(thisCar),
-                        overallBestLapCar: overallBestLapCarIdx != null ? Cars[(int)overallBestLapCarIdx] : null,
-                        classBestLapCar: classBestLapCarIdx != null ? Cars[(int)classBestLapCarIdx] : null,
-                        overallPos: idxInCars + 1,
-                        classPos: thisCarClassPos
-                    );
                 }
 
                 void ClearUnusedClassPositions(int numCarsInFocusedCarClass) {
@@ -550,8 +548,8 @@ namespace KLPlugins.DynLeaderboards {
             }
         }
 
-        private Dictionary<int, string> _outdata;
-        private Dictionary<CarClass, double> _bestLaps;
+        private Dictionary<int, string> _outdata = new Dictionary<int, string>();
+        private Dictionary<CarClass, double> _bestLaps = new Dictionary<CarClass, double>();
         private void OnRealtimeCarUpdate(string sender, RealtimeCarUpdate update) {
             // Update Realtime data of existing cars
             // If found new car, BroadcastClient itself requests new entry list
@@ -561,17 +559,17 @@ namespace KLPlugins.DynLeaderboards {
             car.OnRealtimeCarUpdate(update, RealtimeData);
             _lastUpdateCarIds.Add(car.CarIndex);
 
+            //CreateLapInterpolatorsData();
+
             #region Local functions
             void CreateLapInterpolatorsData() {
-                _outdata = new Dictionary<int, string>();
-                _bestLaps = new Dictionary<CarClass, double>();
 
                 if (_outdata.ContainsKey(car.CarIndex) && car.NewData.CarLocation != CarLocationEnum.Track) {
                     _outdata.Remove(car.CarIndex);
                 }
 
                 if (!_bestLaps.ContainsKey(car.CarClass)) {
-                    var fname = $"{DynLeaderboardsPlugin.Settings.PluginDataLocation}\\laps\\{TrackData.TrackId}_{car.CarClass}.txt";
+                    var fname = $"{DynLeaderboardsPlugin.Settings.PluginDataLocation}\\laps_data\\raw\\{TrackData.TrackId}_{car.CarClass}.txt";
                     if (File.Exists(fname)) {
                         try {
                             var t = 0.0;
@@ -607,7 +605,7 @@ namespace KLPlugins.DynLeaderboards {
                         DynLeaderboardsPlugin.LogInfo($"New best lap for {thisclass}: {TimeSpan.FromSeconds((double)car.NewData.LastLap.Laptime).ToString("mm\\:ss\\.fff")}");
 
                         _bestLaps[thisclass] = (double)car.NewData.LastLap.Laptime;
-                        var fname = $"{DynLeaderboardsPlugin.Settings.PluginDataLocation}\\laps\\{TrackData.TrackId}_{thisclass}.txt";
+                        var fname = $"{DynLeaderboardsPlugin.Settings.PluginDataLocation}\\laps_data\\raw\\{TrackData.TrackId}_{thisclass}.txt";
                         File.WriteAllText(fname, _outdata[car.CarIndex]);
                     }
 
@@ -615,12 +613,12 @@ namespace KLPlugins.DynLeaderboards {
                 }
 
                 if (_outdata.ContainsKey(car.CarIndex)) {
-                    if (_outdata[car.CarIndex] != "") {
-                        _outdata[car.CarIndex] += "\n";
-                    }
-                    if (update.SplinePosition != 0 && update.SplinePosition != 1) {
-                        _outdata[car.CarIndex] += $"{update.SplinePosition};{update.CurrentLap.Laptime};{update.Kmh}";
-                    }
+                    if (car.OldData.CurrentLap.Laptime < car.NewData.CurrentLap.Laptime && car.OldData.SplinePosition != car.NewData.SplinePosition) {
+                        if (_outdata[car.CarIndex] != "") {
+                            _outdata[car.CarIndex] += "\n";
+                        }
+                        _outdata[car.CarIndex] += $"{update.SplinePosition};{update.CurrentLap.Laptime};{update.Kmh};{update.WorldPosX};{update.WorldPosY};{update.Laps}";
+                    } 
                 }
             }
             #endregion

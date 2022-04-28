@@ -208,6 +208,7 @@ namespace KLPlugins.DynLeaderboards.Car {
                 CheckForCrossingStartLine();
                 TotalSplinePosition = NewData.SplinePosition + NewData.Laps;
                 if (OffsetLapUpdate == OffsetLapUpdateType.LapBeforeSpline && !_removeOffsetLapUpdate) TotalSplinePosition -= 1;
+                if (OffsetLapUpdate == OffsetLapUpdateType.SplineBeforeLap && !_removeOffsetLapUpdate) TotalSplinePosition += 1;
                 UpdatePitInfo();
             }
             CheckForRTG();
@@ -275,9 +276,9 @@ namespace KLPlugins.DynLeaderboards.Car {
                 } else if (OffsetLapUpdate == OffsetLapUpdateType.None
                     && NewData.SplinePosition < 0.1
                     && OldData.SplinePosition > 0.9
+                    && NewData.Laps != _lapAtOffsetLapUpdate // Remove double detection with above
                     && NewData.Laps == OldData.Laps
-                    && NewData.Laps != _lapAtOffsetLapUpdate // Remove double detection with above condition
-                    && NewData.Laps != 0
+                    && HasCrossedStartLine
                 ) {
                     OffsetLapUpdate = OffsetLapUpdateType.SplineBeforeLap;
                     _removeOffsetLapUpdate = false;
@@ -287,14 +288,17 @@ namespace KLPlugins.DynLeaderboards.Car {
                 }
 
                 if (OffsetLapUpdate == OffsetLapUpdateType.LapBeforeSpline) {
-                    if (NewData.SplinePosition < 0.1 || (NewData.SplinePosition > 0.05 && NewData.SplinePosition < 0.9)) {
+                    if (NewData.SplinePosition < 0.9) {
                         //_removeOffsetLapUpdate = true;
                         OffsetLapUpdate = OffsetLapUpdateType.None;
+                        DynLeaderboardsPlugin.LogError($"#{RaceNumber}: offset lap update removed, all ok now again. tsp={TotalSplinePosition}, sp={NewData.SplinePosition}, laps={NewData.Laps}");
                     }
                 } else if (OffsetLapUpdate == OffsetLapUpdateType.SplineBeforeLap) {
-                    if (NewData.Laps != _lapAtOffsetLapUpdate || (NewData.SplinePosition > 0.05 && NewData.SplinePosition < 0.9)) {
+                    if (NewData.Laps != _lapAtOffsetLapUpdate || (NewData.SplinePosition > 0.025 && NewData.SplinePosition < 0.9)) {
+                        // Second condition is a fallback in case the lap actually shouldn't have been updated (eg at the start line, jumped to pits and then crossed the line in the pits)
                         //_removeOffsetLapUpdate = true;
                         OffsetLapUpdate = OffsetLapUpdateType.None;
+                        DynLeaderboardsPlugin.LogError($"#{RaceNumber}: offset lap update removed, all ok now again. tsp={TotalSplinePosition}, sp={NewData.SplinePosition}, laps={NewData.Laps}");
                     }
                 }
             }
@@ -367,14 +371,6 @@ namespace KLPlugins.DynLeaderboards.Car {
                 }
             }
             #endregion
-        }
-
-        internal void TryRemoveOffsetLapUpdate() {
-            if (_removeOffsetLapUpdate && OffsetLapUpdate != OffsetLapUpdateType.None) {
-                DynLeaderboardsPlugin.LogError($"#{RaceNumber}: offset lap update removed, all ok now again. tsp={TotalSplinePosition}, sp={NewData.SplinePosition}, laps={NewData.Laps}");
-                OffsetLapUpdate = OffsetLapUpdateType.None;
-                _removeOffsetLapUpdate = false;
-            }
         }
 
         internal void OnRealtimeUpdateFirstPass() {

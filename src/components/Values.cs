@@ -267,11 +267,6 @@ namespace KLPlugins.DynLeaderboards {
             }
             SetOverallOrder();
 
-            if (RealtimeData.IsRace) {
-                foreach (var c in Cars) {
-                    c.TryRemoveOffsetLapUpdate();
-                }
-            }
             FocusedCarIdx = Cars.FindIndex(x => x.CarIndex == update.FocusedCarIndex);
             if (FocusedCarIdx != null && FocusedCarIdx != -1 && !RealtimeData.IsNewSession) {
                 SetRelativeOrders();

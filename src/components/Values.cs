@@ -337,6 +337,11 @@ namespace KLPlugins.DynLeaderboards {
                             return blaps.CompareTo(alaps);
                         }
 
+                        // Keep order if one of the cars has offset lap update, could cause jumping otherwise
+                        if (a.OffsetLapUpdate != 0 || b.OffsetLapUpdate != 0) {
+                            return a.OverallPos.CompareTo(b.OverallPos);
+                        }
+
                         // If car jumped to the pits we need to but it behind everyone on that same lap, but it's okay for the finished car to jump to the pits
                         if (a.JumpedToPits && !b.JumpedToPits && !a.IsFinished) {
                             return 1;
@@ -360,8 +365,11 @@ namespace KLPlugins.DynLeaderboards {
                                 var bFTime = b.FinishTime == null ? TimeSpan.MaxValue.TotalSeconds : ((TimeSpan)b.FinishTime).TotalSeconds;
                                 return aFTime.CompareTo(bFTime);
                             }
-                        } else if ((a.TotalSplinePosition == b.TotalSplinePosition) && a.NewData != null && b.NewData != null) {
-                            return a.NewData.Position.CompareTo(b.NewData.Position);
+                        }
+
+                        // Keep order, make sort stable, fixes jumping
+                        if (a.TotalSplinePosition == b.TotalSplinePosition) {
+                            return a.OverallPos.CompareTo(b.OverallPos); ;
                         }
                         return b.TotalSplinePosition.CompareTo(a.TotalSplinePosition);
                     };
@@ -373,6 +381,9 @@ namespace KLPlugins.DynLeaderboards {
                         if (a == b) return 0;
                         var apos = a?.NewData?.Position ?? 1000;
                         var bpos = b?.NewData?.Position ?? 1000;
+                        if (apos == bpos) { // Make sort stable, fixes jumping
+                            return a.OverallPos.CompareTo(b.OverallPos);
+                        }
                         return apos.CompareTo(bpos);
                     }
 

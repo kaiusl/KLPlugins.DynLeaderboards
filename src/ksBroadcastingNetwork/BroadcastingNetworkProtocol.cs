@@ -221,7 +221,7 @@ namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork {
                     carUpdate.TrackPosition = br.ReadUInt16(); // position on track (1 based)
 
                     var splinePos = br.ReadSingle() + _trackId.SplinePosOffset();
-                    if (splinePos > 1) {
+                    if (splinePos >= 1) {
                         splinePos -= 1;
                     }
                     carUpdate.SplinePosition = splinePos; // track position between 0.0 and 1.0

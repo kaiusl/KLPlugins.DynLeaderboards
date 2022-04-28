@@ -405,7 +405,6 @@ namespace KLPlugins.DynLeaderboards.Car {
                 CheckIsFinished();
             }
 
-            if (OffsetLapUpdate) return; // Gaps could be offset by a lap, wait for the next update
             SetGaps();
             SetLapDeltas();
 
@@ -416,12 +415,15 @@ namespace KLPlugins.DynLeaderboards.Car {
                     // Use time gaps on track
                     // We update the gap only if CalculateGap returns a proper value because we don't want to update the gap if one of the cars has finished. 
                     // That would result in wrong gaps. We keep the gaps at the last valid value and update once both cars have finished.
-
-                    GapToLeader = CalculateGap(this, leaderCar);
-                    GapToClassLeader = CalculateGap(this, classLeaderCar);
-                    GapToFocusedTotal = CalculateGap(focusedCar, this);
-                    GapToAhead = CalculateGap(this, carAhead);
-                    GapToAheadInClass = CalculateGap(this, carAheadInClass);
+                    
+                    // Freeze gaps until all is in order again, fixes gap suddenly jumping to larger values as spline positions could be out of sync
+                    if (OffsetLapUpdate == OffsetLapUpdateType.None) {
+                        if (leaderCar?.OffsetLapUpdate == OffsetLapUpdateType.None) GapToLeader = CalculateGap(this, leaderCar);
+                        if (classLeaderCar?.OffsetLapUpdate == OffsetLapUpdateType.None) GapToClassLeader = CalculateGap(this, classLeaderCar);
+                        if (focusedCar?.OffsetLapUpdate == OffsetLapUpdateType.None) GapToFocusedTotal = CalculateGap(focusedCar, this);
+                        if (carAhead?.OffsetLapUpdate == OffsetLapUpdateType.None) GapToAhead = CalculateGap(this, carAhead);
+                        if (carAheadInClass?.OffsetLapUpdate == OffsetLapUpdateType.None) GapToAheadInClass = CalculateGap(this, carAheadInClass);
+                    }
                 } else {
                     // Use best laps to calculate gaps
                     var thisBestLap = NewData?.BestSessionLap?.Laptime;
@@ -446,8 +448,11 @@ namespace KLPlugins.DynLeaderboards.Car {
                     }
                 }
 
-                GapToFocusedOnTrack = CalculateOnTrackGap(this, focusedCar);
-                GapToAheadOnTrack = CalculateOnTrackGap(carAheadOnTrack, this);
+                // Freeze gaps until all is in order again, fixes gap suddenly jumping to larger values as spline positions could be out of sync
+                if (OffsetLapUpdate == OffsetLapUpdateType.None) {
+                    if (focusedCar?.OffsetLapUpdate == OffsetLapUpdateType.None) GapToFocusedOnTrack = CalculateOnTrackGap(this, focusedCar);
+                    if (carAheadOnTrack?.OffsetLapUpdate == OffsetLapUpdateType.None) GapToAheadOnTrack = CalculateOnTrackGap(carAheadOnTrack, this);
+                }
             }
 
             void SetLapDeltas() {
@@ -551,6 +556,8 @@ namespace KLPlugins.DynLeaderboards.Car {
                 || from.CarIndex == to.CarIndex
                 || !to.HasCrossedStartLine
                 || !from.HasCrossedStartLine
+                || from.OffsetLapUpdate != OffsetLapUpdateType.None
+                || to.OffsetLapUpdate != OffsetLapUpdateType.None
             ) return null;
 
             var flaps = from.NewData.Laps;
@@ -607,6 +614,8 @@ namespace KLPlugins.DynLeaderboards.Car {
                  || from.OldData == null
                  || to.OldData == null
                  || from.CarIndex == to.CarIndex
+                 || from.OffsetLapUpdate != OffsetLapUpdateType.None
+                 || to.OffsetLapUpdate != OffsetLapUpdateType.None
              ) return null;
 
             var fromPos = from.NewData.SplinePosition;

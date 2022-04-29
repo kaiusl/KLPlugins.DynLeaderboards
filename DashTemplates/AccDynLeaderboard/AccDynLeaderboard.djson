@@ -1,7 +1,7 @@
 {
   "$id": "1",
   "Version": 2,
-  "Id": "f9ef7088-23f6-43b8-9c91-eb6d874a24a9",
+  "Id": "63f6a9cb-35b4-408d-974e-fa4ad52c00e2",
   "BaseHeight": 1120,
   "BaseWidth": 1920,
   "BackgroundColor": "#FF000000",
@@ -120,7 +120,7 @@
               "BorderRight": 0,
               "BorderTop": 0,
               "Id": "cbadfa5b-9cac-4515-8ada-e15d33d392d3",
-              "IsSelected": true,
+              "IsSelected": false,
               "Name": "Layer1",
               "Sid": 0,
               "Bindings": {
@@ -167,7 +167,7 @@
               "BorderTop": 0,
               "Id": "aa6ed556-6a4a-4f5a-a67a-92c019a6d2c2",
               "IsFreezed": false,
-              "IsSelected": true,
+              "IsSelected": false,
               "Name": "RectangleItem1",
               "RenderingSkip": 0,
               "Sid": 0,
@@ -178,7 +178,7 @@
                   "Formula": {
                     "$id": "20",
                     "Interpreter": 1,
-                    "Expression": "//var fidx = $prop('LeaderboardPlugin.Focused.OverallPosition')\r\n\r\n//if (fidx > 5 + 5) {\r\n//\treturn 64 + 10*62\r\n//}\r\nvar idx = $prop('LeaderboardPlugin.Dynamic.FocusedPosInCurrentLeaderboard')\r\nif (idx < 0 || idx == null) {\r\n\treturn 2000;\r\n}\r\nreturn 67 + idx*62"
+                    "Expression": "//var fidx = $prop('DynLeaderboardsPlugin.Focused.OverallPosition')\r\n\r\n//if (fidx > 5 + 5) {\r\n//\treturn 64 + 10*62\r\n//}\r\nvar idx = $prop('DynLeaderboardsPlugin.Dynamic.FocusedPosInCurrentLeaderboard')\r\nif (idx < 0 || idx == null) {\r\n\treturn 2000;\r\n}\r\nreturn 67 + idx*62"
                   },
                   "Mode": 2,
                   "TargetPropertyName": "Top"
@@ -287,7 +287,7 @@
                         "FormatString": "",
                         "Formula": {
                           "$id": "30",
-                          "Expression": "prop('LeaderboardPlugin.Dynamic.' + repeatindex() + '.Position.Overall')"
+                          "Expression": "prop('DynLeaderboardsPlugin.Dynamic.' + repeatindex() + '.Position.Overall')"
                         },
                         "Mode": 2,
                         "TargetPropertyName": "Text"
@@ -296,7 +296,7 @@
                         "$id": "31",
                         "Formula": {
                           "$id": "32",
-                          "Expression": "isnull(prop('LeaderboardPlugin.Dynamic.' + repeatindex() + '.Car.Class.Color'), '#FFFFFFFF')\r\n"
+                          "Expression": "isnull(prop('DynLeaderboardsPlugin.Dynamic.' + repeatindex() + '.Car.Class.Color'), '#FFFFFFFF')\r\n"
                         },
                         "Mode": 2,
                         "TargetPropertyName": "BackgroundColor"
@@ -305,7 +305,7 @@
                         "$id": "33",
                         "Formula": {
                           "$id": "34",
-                          "Expression": "if (\r\n\tisnull(prop('LeaderboardPlugin.Dynamic.' + repeatindex() + '.Car.Number')),\r\n\t0,\r\n\t1\r\n)\r\n\r\n"
+                          "Expression": "if (\r\n\tisnull(prop('DynLeaderboardsPlugin.Dynamic.' + repeatindex() + '.Car.Number')),\r\n\t0,\r\n\t1\r\n)\r\n\r\n"
                         },
                         "Mode": 2,
                         "TargetPropertyName": "Visible"
@@ -382,7 +382,7 @@
                         "FormatString": "\\#0",
                         "Formula": {
                           "$id": "40",
-                          "Expression": "prop('LeaderboardPlugin.Dynamic.' + repeatindex() + '.Car.Number')\r\n\r\n"
+                          "Expression": "prop('DynLeaderboardsPlugin.Dynamic.' + repeatindex() + '.Car.Number')\r\n\r\n"
                         },
                         "Mode": 2,
                         "TargetPropertyName": "Text"
@@ -391,7 +391,7 @@
                         "$id": "41",
                         "Formula": {
                           "$id": "42",
-                          "Expression": "isnull(prop('LeaderboardPlugin.Dynamic.' + repeatindex() + '.Team.CupCategory.Color'), '#00000000')\r\n\r\n\r\n"
+                          "Expression": "isnull(prop('DynLeaderboardsPlugin.Dynamic.' + repeatindex() + '.Team.CupCategory.Color'), '#00000000')\r\n\r\n\r\n"
                         },
                         "Mode": 2,
                         "TargetPropertyName": "BackgroundColor"
@@ -400,7 +400,7 @@
                         "$id": "43",
                         "Formula": {
                           "$id": "44",
-                          "Expression": "isnull(prop('LeaderboardPlugin.Dynamic.' + repeatindex() + '.Team.CupCategory.TextColor'), '#00000000')\r\n\r\n\r\n"
+                          "Expression": "isnull(prop('DynLeaderboardsPlugin.Dynamic.' + repeatindex() + '.Team.CupCategory.TextColor'), '#00000000')\r\n\r\n\r\n"
                         },
                         "Mode": 2,
                         "TargetPropertyName": "TextColor"
@@ -477,7 +477,7 @@
                         "FormatString": "",
                         "Formula": {
                           "$id": "50",
-                          "Expression": "prop('LeaderboardPlugin.Dynamic.' + repeatindex() + '.Driver.1.InitialPlusLastName')\r\n\r\n\r\n"
+                          "Expression": "prop('DynLeaderboardsPlugin.Dynamic.' + repeatindex() + '.Driver.1.InitialPlusLastName')\r\n\r\n\r\n"
                         },
                         "Mode": 2,
                         "TargetPropertyName": "Text"
@@ -555,7 +555,7 @@
                         "Formula": {
                           "$id": "56",
                           "Interpreter": 1,
-                          "Expression": "var v = $prop('LeaderboardPlugin.Dynamic.' + repeatindex() + '.Gap.Dynamic.ToFocused')\r\nif (v == null) {\r\n\treturn ''\r\n}\r\n\r\nif (v > 10000) {\r\n\treturn format(v - 100000, '0', true) + 'L'\r\n}\r\n\r\nreturn format(v, '0.00', true)"
+                          "Expression": "var v = $prop('DynLeaderboardsPlugin.Dynamic.' + repeatindex() + '.Gap.Dynamic.ToFocused')\r\nif (v == null) {\r\n\treturn ''\r\n}\r\n\r\nif (v > 10000) {\r\n\treturn format(v - 100000, '0', true) + 'L'\r\n}\r\n\r\nreturn format(v, '0.00', true)"
                         },
                         "Mode": 2,
                         "TargetPropertyName": "Text"
@@ -632,7 +632,7 @@
                         "FormatString": "m\\:ss\\.fff",
                         "Formula": {
                           "$id": "62",
-                          "Expression": "secondstotimespan(prop('LeaderboardPlugin.Dynamic.' + repeatindex() + '.Laps.Best.Time'))"
+                          "Expression": "secondstotimespan(prop('DynLeaderboardsPlugin.Dynamic.' + repeatindex() + '.Laps.Best.Time'))"
                         },
                         "Mode": 2,
                         "TargetPropertyName": "Text"
@@ -641,7 +641,7 @@
                         "$id": "63",
                         "Formula": {
                           "$id": "64",
-                          "Expression": "if (\r\n\tisnull(prop('LeaderboardPlugin.Dynamic.' + repeatindex() + '.Car.Number')),\r\n\t0,\r\n\t1\r\n)\r\n\r\n"
+                          "Expression": "if (\r\n\tisnull(prop('DynLeaderboardsPlugin.Dynamic.' + repeatindex() + '.Car.Number')),\r\n\t0,\r\n\t1\r\n)\r\n\r\n"
                         },
                         "Mode": 2,
                         "TargetPropertyName": "Visible"
@@ -718,7 +718,7 @@
                         "FormatString": "",
                         "Formula": {
                           "$id": "70",
-                          "Expression": "format(prop('LeaderboardPlugin.Dynamic.' + repeatindex() + '.Laps.Best.Delta.Dynamic.ToFocusedBest'), '0.0', true)"
+                          "Expression": "format(prop('DynLeaderboardsPlugin.Dynamic.' + repeatindex() + '.Laps.Best.Delta.Dynamic.ToFocusedBest'), '0.0', true)"
                         },
                         "Mode": 2,
                         "TargetPropertyName": "Text"
@@ -727,7 +727,7 @@
                         "$id": "71",
                         "Formula": {
                           "$id": "72",
-                          "Expression": "isnull(prop('LeaderboardPlugin.Dynamic.' + repeatindex() + '.Laps.Best.Delta.Dynamic.ToFocusedBest'), 0)\r\n"
+                          "Expression": "isnull(prop('DynLeaderboardsPlugin.Dynamic.' + repeatindex() + '.Laps.Best.Delta.Dynamic.ToFocusedBest'), 0)\r\n"
                         },
                         "StartColor": "#FFFF0000",
                         "EnableMiddleColor": true,
@@ -811,7 +811,7 @@
                         "FormatString": "m\\:ss\\.fff",
                         "Formula": {
                           "$id": "78",
-                          "Expression": "secondstotimespan(prop('LeaderboardPlugin.Dynamic.' + repeatindex() + '.Laps.Last.Time'))"
+                          "Expression": "secondstotimespan(prop('DynLeaderboardsPlugin.Dynamic.' + repeatindex() + '.Laps.Last.Time'))"
                         },
                         "Mode": 2,
                         "TargetPropertyName": "Text"
@@ -820,7 +820,7 @@
                         "$id": "79",
                         "Formula": {
                           "$id": "80",
-                          "Expression": "if (\r\n\tisnull(prop('LeaderboardPlugin.Dynamic.' + repeatindex() + '.Car.Number')),\r\n\t0,\r\n\t1\r\n)\r\n\r\n"
+                          "Expression": "if (\r\n\tisnull(prop('DynLeaderboardsPlugin.Dynamic.' + repeatindex() + '.Car.Number')),\r\n\t0,\r\n\t1\r\n)\r\n\r\n"
                         },
                         "Mode": 2,
                         "TargetPropertyName": "Visible"
@@ -897,7 +897,7 @@
                         "FormatString": "",
                         "Formula": {
                           "$id": "86",
-                          "Expression": "format(prop('LeaderboardPlugin.Dynamic.' + repeatindex() + '.Laps.Last.Delta.Dynamic.ToFocusedLast'), '0.0', true)\r\n"
+                          "Expression": "format(prop('DynLeaderboardsPlugin.Dynamic.' + repeatindex() + '.Laps.Last.Delta.Dynamic.ToFocusedLast'), '0.0', true)\r\n"
                         },
                         "Mode": 2,
                         "TargetPropertyName": "Text"
@@ -906,7 +906,7 @@
                         "$id": "87",
                         "Formula": {
                           "$id": "88",
-                          "Expression": "isnull(prop('LeaderboardPlugin.Dynamic.' + repeatindex() + '.Laps.Last.Delta.Dynamic.ToFocusedLast'), 0)\r\n"
+                          "Expression": "isnull(prop('DynLeaderboardsPlugin.Dynamic.' + repeatindex() + '.Laps.Last.Delta.Dynamic.ToFocusedLast'), 0)\r\n"
                         },
                         "StartColor": "#FFFF0000",
                         "EnableMiddleColor": true,
@@ -989,7 +989,7 @@
                         "$id": "93",
                         "Formula": {
                           "$id": "94",
-                          "Expression": "isnull(prop('LeaderboardPlugin.Dynamic.' + repeatindex() + '.Pit.IsIn'), 0)"
+                          "Expression": "isnull(prop('DynLeaderboardsPlugin.Dynamic.' + repeatindex() + '.Pit.IsIn'), 0)"
                         },
                         "Mode": 2,
                         "TargetPropertyName": "Visible"
@@ -1013,7 +1013,7 @@
               "BorderRight": 0,
               "BorderTop": 0,
               "Id": "51329d76-cf11-4d45-ae12-79fff8ad47ef",
-              "IsSelected": true,
+              "IsSelected": false,
               "Name": "Layer",
               "Sid": 0,
               "Bindings": {
@@ -1090,7 +1090,7 @@
                   "FormatString": "",
                   "Formula": {
                     "$id": "101",
-                    "Expression": "'DYNAMIC: ' + [LeaderboardPlugin.Dynamic.CurrentLeaderboard]"
+                    "Expression": "'DYNAMIC: ' + [DynLeaderboardsPlugin.Dynamic.CurrentLeaderboard]"
                   },
                   "Mode": 2,
                   "TargetPropertyName": "Text"
@@ -1137,7 +1137,7 @@
               "BorderTop": 0,
               "Id": "aa6ed556-6a4a-4f5a-a67a-92c019a6d2c2",
               "IsFreezed": false,
-              "IsSelected": true,
+              "IsSelected": false,
               "Name": "RectangleItem2",
               "RenderingSkip": 0,
               "Sid": 0,
@@ -1148,7 +1148,7 @@
                   "Formula": {
                     "$id": "107",
                     "Interpreter": 1,
-                    "Expression": "//var fidx = $prop('LeaderboardPlugin.Focused.OverallPosition')\r\n\r\n//if (fidx > 5 + 5) {\r\n//\treturn 64 + 10*62\r\n//}\r\nvar idx = $prop('LeaderboardPlugin.Dynamic.FocusedPosInCurrentLeaderboard')\r\nif (idx < 0 || idx == null) {\r\n\treturn 2000;\r\n}\r\nreturn 64 + 5*62"
+                    "Expression": "//var fidx = $prop('DynLeaderboardsPlugin.Focused.OverallPosition')\r\n\r\n//if (fidx > 5 + 5) {\r\n//\treturn 64 + 10*62\r\n//}\r\nvar idx = $prop('DynLeaderboardsPlugin.Dynamic.FocusedPosInCurrentLeaderboard')\r\nif (idx < 0 || idx == null) {\r\n\treturn 2000;\r\n}\r\nreturn 64 + 5*62"
                   },
                   "Mode": 2,
                   "TargetPropertyName": "Top"

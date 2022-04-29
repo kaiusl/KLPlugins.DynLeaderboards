@@ -217,9 +217,10 @@ namespace KLPlugins.DynLeaderboards {
             //DynLeaderboardsPlugin.LogInfo($"BROADCAST EVENT: #{evt.CarData?.RaceNumber}: Type = {evt.Type}: Msg = {evt.Msg}: Time = {TimeSpan.FromMilliseconds(evt.TimeMs)}");
             var msgTime = evt.TimeMs / 1000.0;
             var timeFromLastRealtimeUpdate = (DateTime.Now - RealtimeData.NewData.RecieveTime).TotalSeconds;
-            if (RealtimeData.NewData != null && RealtimeData.SessionRemainingTime != TimeSpan.Zero) {
+            if (RealtimeData.OldData != null && RealtimeData.SessionRemainingTime != TimeSpan.Zero) {
                 var endTime = msgTime + (RealtimeData.SessionRemainingTime.TotalSeconds - timeFromLastRealtimeUpdate);
                 SessionEndTimeForBroadcastEventsTime.Add(endTime);
+                DynLeaderboardsPlugin.LogInfo($"#{evt.CarData.RaceNumber} BroadcastEvent. SessionTimeRamaining={TimeSpan.FromMilliseconds(SessionTimeRemaining)}, SessionEndTimeForBroadcastEventsTime={TimeSpan.FromSeconds(SessionEndTimeForBroadcastEventsTime.Avg)}, msgTime={TimeSpan.FromSeconds(msgTime)}");
             }
 
             if (evt.Type == BroadcastingCarEventType.LapCompleted
@@ -235,7 +236,7 @@ namespace KLPlugins.DynLeaderboards {
                        )
                 ) {
                     var car = Cars.Find(x => x.CarIndex == evt.CarData.CarIndex);
-                    DynLeaderboardsPlugin.LogInfo($"#{car.RaceNumber} finished. SessionTimeRamaining={SessionTimeRemaining}, SessionEndTimeForBroadcastEventsTime={SessionEndTimeForBroadcastEventsTime.Avg}, msgTime={msgTime}");
+                    DynLeaderboardsPlugin.LogInfo($"#{car.RaceNumber} finished. SessionTimeRamaining={TimeSpan.FromMilliseconds(SessionTimeRemaining)}, SessionEndTimeForBroadcastEventsTime={TimeSpan.FromSeconds(SessionEndTimeForBroadcastEventsTime.Avg)}, msgTime={TimeSpan.FromSeconds(msgTime)}");
 
                     car.SetIsFinished(RealtimeData.SessionRunningTime + TimeSpan.FromSeconds(timeFromLastRealtimeUpdate));
                 }
@@ -257,6 +258,7 @@ namespace KLPlugins.DynLeaderboards {
                 Cars.Clear();
                 BroadcastClient.MessageHandler.RequestEntryList();
                 ResetPos();
+                SessionEndTimeForBroadcastEventsTime.Reset();
                 _lastUpdateCarIds.Clear();
                 _relativeSplinePositions.Clear();
                 _startingPositionsSet = false;

@@ -1,16 +1,27 @@
-﻿namespace KLPlugins.DynLeaderboards.Helpers {
-    class RunningAvg {
-        public double Avg { get; private set; } = 0;
-        private int _n = 0;
+﻿using MathNet.Numerics.Statistics;
+using System.Collections.Generic;
+
+namespace KLPlugins.DynLeaderboards.Helpers {
+    class Statistics {
+        public DescriptiveStatistics Stats;
+        public List<double> data = new List<double>();
+        public double Median { get; private set; } = 0.0;
 
         public void Add(double v) {
-            Avg = (Avg * _n + v) / (_n + 1);
-            _n++;
+            data.Add(v);
+            Stats = new DescriptiveStatistics(data);
+            Median = MathNet.Numerics.Statistics.Statistics.Median(data);
+            if (double.IsNaN(Median)) Median = 0.0;
         }
 
         public void Reset() {
-            Avg = 0;
-            _n = 0;
+            Stats = null;
+            data.Clear();
+            Median = 0.0;
         }
     }
+
+
+
+
 }

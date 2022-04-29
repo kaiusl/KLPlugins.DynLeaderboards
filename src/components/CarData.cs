@@ -188,7 +188,6 @@ namespace KLPlugins.DynLeaderboards.Car {
             }
         }
 
-        private bool _removeOffsetLapUpdate = false;
         /// <summary>
         /// Updates this cars data. Should be called when RealtimeCarUpdate for this car is received.
         /// </summary>
@@ -386,7 +385,8 @@ namespace KLPlugins.DynLeaderboards.Car {
             CarData overallBestLapCar,
             CarData classBestLapCar,
             int overallPos,
-            int classPos
+            int classPos,
+            float sessionTimeLeft
         ) {
             IsOverallBestLapCar = CarIndex == overallBestLapCar?.CarIndex;
             IsClassBestLapCar = CarIndex == classBestLapCar?.CarIndex;
@@ -394,9 +394,25 @@ namespace KLPlugins.DynLeaderboards.Car {
             InClassPos = classPos;
             OverallPos = overallPos;
 
-            if (realtimeData.OldData.Phase == SessionPhase.SessionOver && realtimeData.IsRace) {
+            if (realtimeData.SessionRemainingTime == TimeSpan.Zero && realtimeData.IsRace) {
                 // We also need to check finished here (after positions update) to detect leaders finish
                 CheckIsFinished();
+
+                // If broadcast event was missed we can double check here. Note that we must assume that the session is ended for more than BroadcastDataUpdateRate,
+                // otherwise we could falsely detect finish. 
+                // 
+                // Say our refresh rate is 5s.Then if you crossed the line inside that 5s then on the next update
+                // a) clock has run out and b) you just crossed the line(eg finished lap), this means that you will
+                // be falsely counted as finished.
+                if (!IsFinished 
+                    && (realtimeData.SessionRunningTime - realtimeData.SessionTotalTime).TotalMilliseconds > DynLeaderboardsPlugin.Settings.BroadcastDataUpdateRateMs
+                    && _isNewLap 
+                    && (leaderCar.CarIndex == CarIndex || leaderCar.SetFinishedOnNextUpdate)
+                ) {
+                    SetFinishedOnNextUpdate = true;
+                    var timeFromLastRealtimeUpdate = (DateTime.Now - realtimeData.NewData.RecieveTime).TotalSeconds;
+                    FinishTime = realtimeData.SessionRunningTime + TimeSpan.FromSeconds(timeFromLastRealtimeUpdate);
+                }
             }
 
             SetGaps();

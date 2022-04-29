@@ -285,7 +285,7 @@ namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork {
                     BroadcastingEvent evt = new BroadcastingEvent() {
                         Type = (BroadcastingCarEventType)br.ReadByte(),
                         Msg = ReadString(br),
-                        TimeMs = br.ReadInt32(),
+                        Time = br.ReadInt32() / 1000.0,
                         CarId = br.ReadInt32(),
                     };
 

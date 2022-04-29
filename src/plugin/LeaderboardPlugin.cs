@@ -152,7 +152,11 @@ namespace KLPlugins.DynLeaderboards {
             this.AttachDelegate("DBG.Realtime.SessionRemainingTime", () => _values.RealtimeData?.SessionRemainingTime);
             this.AttachDelegate("DBG.Realtime.RecieveTime", () => _values.RealtimeData?.NewData?.RecieveTime);
             this.AttachDelegate("DBG.Realtime.SessionTotalTime", () => _values.RealtimeData?.SessionTotalTime);
-            this.AttachDelegate("DBG.SessionEndTimeForBroadcastEvents", () => TimeSpan.FromSeconds(_values.SessionEndTimeForBroadcastEventsTime.Avg));
+            this.AttachDelegate("DBG.SessionEndTimeForBroadcastEvents", () => TimeSpan.FromSeconds(_values.SessionEndTimeForBroadcastEventsTime.Median));
+            //this.AttachDelegate("DBG.BEvsRD.SessionTimeDiff.Median", () => _values._broadcastEvt_realtimeData_sessiontime_diff?.Median);
+            //this.AttachDelegate("DBG.BEvsRD.SessionTimeDiff.Min", () => _values._broadcastEvt_realtimeData_sessiontime_diff?.Stats.Minimum);
+            //this.AttachDelegate("DBG.BEvsRD.SessionTimeDiff.Max", () => _values._broadcastEvt_realtimeData_sessiontime_diff?.Stats.Maximum);
+            //this.AttachDelegate("DBG.BEvsRD.SessionTimeDiff.Avg", () => _values._broadcastEvt_realtimeData_sessiontime_diff?.Stats.Mean);
 
         }
 

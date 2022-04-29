@@ -43,7 +43,7 @@ namespace KLPlugins.DynLeaderboards {
         internal int?[] PosInClassCarsIdxs { get; private set; }
         internal int? FocusedCarPosInClassCarsIdxs { get; private set; }
         internal int? FocusedCarIdx { get; private set; } = null;
-        internal RunningAvg SessionEndTimeForBroadcastEventsTime = new RunningAvg();
+        internal Statistics SessionEndTimeForBroadcastEventsTime = new Statistics();
         internal List<DynLeaderboardValues> LeaderboardValues { get; private set; } = new List<DynLeaderboardValues>();
 
         // Store relative spline positions for relative leaderboard,
@@ -54,6 +54,7 @@ namespace KLPlugins.DynLeaderboards {
         private List<ushort> _lastUpdateCarIds = new List<ushort>();
         private ACCUdpRemoteClientConfig _broadcastConfig;
         private bool _startingPositionsSet = false;
+        private Statistics _broadcastEvt_realtimeData_sessiontime_diff = new Statistics();
 
         internal float SessionTimeRemaining = float.NaN;
         internal ACCRawData RawData { get; private set; }
@@ -106,6 +107,7 @@ namespace KLPlugins.DynLeaderboards {
             MaxDriverStintTime = -1;
             MaxDriverTotalDriveTime = -1;
             SessionEndTimeForBroadcastEventsTime.Reset();
+            _broadcastEvt_realtimeData_sessiontime_diff.Reset();
             SessionTimeRemaining = int.MaxValue;
         }
 
@@ -214,34 +216,80 @@ namespace KLPlugins.DynLeaderboards {
         // New entry list if found new car or driver
 
         private void OnBroadcastingEvent(string sender, BroadcastingEvent evt) {
-            //DynLeaderboardsPlugin.LogInfo($"BROADCAST EVENT: #{evt.CarData?.RaceNumber}: Type = {evt.Type}: Msg = {evt.Msg}: Time = {TimeSpan.FromMilliseconds(evt.TimeMs)}");
-            var msgTime = evt.TimeMs / 1000.0;
+            Debug.Assert(evt != null);
+            Debug.Assert(RealtimeData != null);
+            if (RealtimeData.SessionRunningTime == TimeSpan.Zero) return;
+
+            // Its possible for this message to be late, I have seen something like 5s. I think Acc also sends multiple ones as I also have seen double messages.
+            // Anyways this would mess up finish detection and order as the finish times would be wrong
+            // Thus we need to check for it.
+            // Broadcast event gives us message time, which tells us how long the broadcast client has been connected (if I'm not mistaken)
+            // Then we can calculate to time difference between RealtimeData.SessionRunningTime and broadcast event times.
+            // Then if this difference is unusually large we know this must be a late broadcast event.
+            // Using this difference we can also calculate the real RealtimeData.SessionRunningTime that would correspond to this message.
+            //
+            // Finally we need to take this into account when detecting finished. If we get an late event after the session time had run out,
+            // we need to check that it had really run out at the moment the message was meant to be sent.
+
+            var msgTime = evt.Time;
             var timeFromLastRealtimeUpdate = (DateTime.Now - RealtimeData.NewData.RecieveTime).TotalSeconds;
-            if (RealtimeData.OldData != null && RealtimeData.SessionRemainingTime != TimeSpan.Zero) {
-                var endTime = msgTime + (RealtimeData.SessionRemainingTime.TotalSeconds - timeFromLastRealtimeUpdate);
-                // Broadcast event can sometimes be late, check that the end time would be reasonable
-                if (SessionTimeRemaining != float.NaN && Math.Abs(SessionTimeRemaining - (endTime - msgTime)) < 0.5) {
-                    SessionEndTimeForBroadcastEventsTime.Add(endTime);
-                    DynLeaderboardsPlugin.LogInfo($"#{evt.CarData.RaceNumber} BroadcastEvent. SessionTimeRamaining={TimeSpan.FromSeconds(SessionTimeRemaining)}, SessionEndTimeForBroadcastEventsTime={TimeSpan.FromSeconds(SessionEndTimeForBroadcastEventsTime.Avg)}, msgTime={TimeSpan.FromSeconds(msgTime)}, diff={TimeSpan.FromSeconds(SessionEndTimeForBroadcastEventsTime.Avg - msgTime)}");
+            var currentSessionRunningTime = RealtimeData.SessionRunningTime.TotalSeconds + timeFromLastRealtimeUpdate;
+
+            // Store RealtimeData.SessionRunningTime and BroadcastEvent.MsgTime difference
+            var sessiontime_diff = msgTime - currentSessionRunningTime;
+            if (RealtimeData.SessionRemainingTime != TimeSpan.Zero && (_broadcastEvt_realtimeData_sessiontime_diff.Stats == null || _broadcastEvt_realtimeData_sessiontime_diff.Stats.Count < 100)) {
+                _broadcastEvt_realtimeData_sessiontime_diff.Add(sessiontime_diff);
+            }
+
+            // Check if this event was late
+            var isLateEvent = false;
+            var msgTimeDiffFromExpected = 0.0;
+            if (_broadcastEvt_realtimeData_sessiontime_diff.Stats != null && _broadcastEvt_realtimeData_sessiontime_diff.Stats.Count > 5) {
+                msgTimeDiffFromExpected = Math.Abs(sessiontime_diff - _broadcastEvt_realtimeData_sessiontime_diff.Median);
+                if (msgTimeDiffFromExpected > 0.1) {
+                    isLateEvent = true;
+                } else {
+                    msgTimeDiffFromExpected = 0.0;
                 }
             }
 
+            // Store session end times for BroadcastEvents
+            if (RealtimeData.OldData != null && RealtimeData.SessionRemainingTime != TimeSpan.Zero) {
+                var endTime = msgTime + RealtimeData.SessionRemainingTime.TotalSeconds - timeFromLastRealtimeUpdate;
+                SessionEndTimeForBroadcastEventsTime.Add(endTime);
+
+                var sesstimeremainings = float.IsNaN(SessionTimeRemaining) ? float.MaxValue : SessionTimeRemaining;
+                if (isLateEvent) DynLeaderboardsPlugin.LogInfo($"#{evt.CarData?.RaceNumber} BroadcastEvent. IsLate={isLateEvent} by {msgTimeDiffFromExpected:0.000s}. SessionTimeRamaining={TimeSpan.FromSeconds(sesstimeremainings)}, SessionEndTimeForBroadcastEventsTime={TimeSpan.FromSeconds(SessionEndTimeForBroadcastEventsTime.Median)}, msgTime={TimeSpan.FromSeconds(msgTime)}, diff={TimeSpan.FromSeconds(SessionEndTimeForBroadcastEventsTime.Median - msgTime)}");
+            }
+
+            // Check if is finished
+            if (evt.CarData == null) return;
+            var car = Cars.Find(x => x.CarIndex == evt.CarData.CarIndex);
             if (evt.Type == BroadcastingCarEventType.LapCompleted
                 && RealtimeData.IsRace
-                && evt.CarData != null
-                && Cars.Count != 0
-                && (Cars[0].CarIndex == evt.CarData.CarIndex || Cars[0].SetFinishedOnNextUpdate)
+                && car != null
+                && !car.SetFinishedOnNextUpdate // If broadcast event is late, we could have already set this
+                && (Cars[0].CarIndex == car.CarIndex || Cars[0].SetFinishedOnNextUpdate)
             ) {
                 if (SessionTimeRemaining == 0
                     || (SessionTimeRemaining == float.NaN
-                        && SessionEndTimeForBroadcastEventsTime.Avg != 0
-                        && SessionEndTimeForBroadcastEventsTime.Avg <= msgTime
-                       )
+                        && !double.IsNaN(SessionEndTimeForBroadcastEventsTime.Median)
+                        && SessionEndTimeForBroadcastEventsTime.Median <= msgTime
+                        )
                 ) {
-                    var car = Cars.Find(x => x.CarIndex == evt.CarData.CarIndex);
-                    DynLeaderboardsPlugin.LogInfo($"#{car.RaceNumber} finished. SessionTimeRamaining={TimeSpan.FromSeconds(SessionTimeRemaining)}, SessionEndTimeForBroadcastEventsTime={TimeSpan.FromSeconds(SessionEndTimeForBroadcastEventsTime.Avg)}, msgTime={TimeSpan.FromSeconds(msgTime)}, diff={TimeSpan.FromSeconds(SessionEndTimeForBroadcastEventsTime.Avg - msgTime)}");
+                    // Check if the session was really over
+                    var wasSessionReallyFinished = true;
+                    var currentSessionRunningTimeAtMsgSent = currentSessionRunningTime - msgTimeDiffFromExpected;
+                    var sessionFinishedTime = currentSessionRunningTimeAtMsgSent - RealtimeData.SessionTotalTime.TotalSeconds;
+                    if (Cars[0].CarIndex == car.CarIndex && isLateEvent && sessionFinishedTime < 0) {
+                        wasSessionReallyFinished = false;
+                    }
 
-                    car.SetIsFinished(RealtimeData.SessionRunningTime + TimeSpan.FromSeconds(timeFromLastRealtimeUpdate));
+                    if (wasSessionReallyFinished) {
+                        var sesstimeremainings = float.IsNaN(SessionTimeRemaining) ? float.MaxValue : SessionTimeRemaining;
+                        DynLeaderboardsPlugin.LogInfo($"#{car.RaceNumber} finished. IsLate={isLateEvent} by {msgTimeDiffFromExpected:0.000s}. SessionTimeRamaining={TimeSpan.FromSeconds(sesstimeremainings)}, SessionEndTimeForBroadcastEventsTime={TimeSpan.FromSeconds(SessionEndTimeForBroadcastEventsTime.Median)}, msgTime={TimeSpan.FromSeconds(msgTime)}, diff={TimeSpan.FromSeconds(SessionEndTimeForBroadcastEventsTime.Median - msgTime)}");
+                        car.SetIsFinished(TimeSpan.FromSeconds(currentSessionRunningTimeAtMsgSent));
+                    }
                 }
             }
         }
@@ -262,9 +310,11 @@ namespace KLPlugins.DynLeaderboards {
                 BroadcastClient.MessageHandler.RequestEntryList();
                 ResetPos();
                 SessionEndTimeForBroadcastEventsTime.Reset();
+                _broadcastEvt_realtimeData_sessiontime_diff.Reset();
                 _lastUpdateCarIds.Clear();
                 _relativeSplinePositions.Clear();
                 _startingPositionsSet = false;
+                SessionTimeRemaining = int.MaxValue;
             }
 
             SetMaxStintTimes();
@@ -486,7 +536,8 @@ namespace KLPlugins.DynLeaderboards {
                         overallBestLapCar: overallBestLapCarIdx != null ? Cars[(int)overallBestLapCarIdx] : null,
                         classBestLapCar: classBestLapCarIdx != null ? Cars[(int)classBestLapCarIdx] : null,
                         overallPos: idxInCars + 1,
-                        classPos: thisCarClassPos
+                        classPos: thisCarClassPos,
+                        sessionTimeLeft: SessionTimeRemaining
                     );
                     lastSeenInClassCarIdxs[thisCar.CarClass] = idxInCars;
                 }

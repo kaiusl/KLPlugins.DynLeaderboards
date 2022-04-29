@@ -113,7 +113,7 @@ namespace KLPlugins.DynLeaderboards.Car {
 
         private double? _stintStartTime = null;
         private CarClassArray<double?> _splinePositionTime = new CarClassArray<double?>(null);
-        private int _lapAtOffsetLapUpdate = 0;
+        private int _lapAtOffsetLapUpdate = -1;
 
         private bool _isSplinePositionReset = false;
         private bool _isNewLap = false;

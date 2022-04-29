@@ -145,10 +145,9 @@ namespace KLPlugins.DynLeaderboards.Car {
         /// <param name="i"></param>
         /// <returns></returns>
         public DriverData GetDriver(int i) {
-            if (i > Drivers.Count - 1 && i < 0) return null;
-            if (i == 0) return Drivers[CurrentDriverIndex];
-            if (i <= CurrentDriverIndex) return Drivers[i - 1];
-            return Drivers[i];
+            if (i == 0) return Drivers.ElementAtOrDefault(CurrentDriverIndex);
+            if (i <= CurrentDriverIndex) return Drivers.ElementAtOrDefault(i - 1);
+            return Drivers.ElementAtOrDefault(i);
         }
 
         public double? GetDriverTotalDrivingTime(int i) {

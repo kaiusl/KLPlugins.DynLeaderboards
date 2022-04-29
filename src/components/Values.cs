@@ -55,7 +55,7 @@ namespace KLPlugins.DynLeaderboards {
         private ACCUdpRemoteClientConfig _broadcastConfig;
         private bool _startingPositionsSet = false;
 
-        internal int SessionTimeRemaining = int.MaxValue;
+        internal float SessionTimeRemaining = float.NaN;
         internal ACCRawData RawData { get; private set; }
 
         internal Values() {
@@ -152,6 +152,7 @@ namespace KLPlugins.DynLeaderboards {
 
         internal void OnDataUpdate(PluginManager pm, GameData data) {
             RawData = (ACCRawData)data.NewData.GetRawDataObject();
+            SessionTimeRemaining = RawData.Graphics.SessionTimeLeft;
         }
 
         internal void OnGameStateChanged(bool running, PluginManager manager) {
@@ -228,12 +229,15 @@ namespace KLPlugins.DynLeaderboards {
                 && (Cars[0].CarIndex == evt.CarData.CarIndex || Cars[0].SetFinishedOnNextUpdate)
             ) {
                 if (SessionTimeRemaining == 0
-                    || (SessionTimeRemaining == int.MaxValue
+                    || (SessionTimeRemaining == float.NaN
                         && SessionEndTimeForBroadcastEventsTime.Avg != 0
                         && SessionEndTimeForBroadcastEventsTime.Avg <= msgTime
                        )
                 ) {
-                    Cars.Find(x => x.CarIndex == evt.CarData.CarIndex).SetIsFinished(RealtimeData.SessionRunningTime + TimeSpan.FromSeconds(timeFromLastRealtimeUpdate));
+                    var car = Cars.Find(x => x.CarIndex == evt.CarData.CarIndex);
+                    DynLeaderboardsPlugin.LogInfo($"#{car.RaceNumber} finished. SessionTimeRamaining={SessionTimeRemaining}, SessionEndTimeForBroadcastEventsTime={SessionEndTimeForBroadcastEventsTime.Avg}, msgTime={msgTime}");
+
+                    car.SetIsFinished(RealtimeData.SessionRunningTime + TimeSpan.FromSeconds(timeFromLastRealtimeUpdate));
                 }
             }
         }

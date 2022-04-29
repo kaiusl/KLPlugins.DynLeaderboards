@@ -152,7 +152,7 @@ namespace KLPlugins.DynLeaderboards {
 
         internal void OnDataUpdate(PluginManager pm, GameData data) {
             RawData = (ACCRawData)data.NewData.GetRawDataObject();
-            SessionTimeRemaining = RawData.Graphics.SessionTimeLeft;
+            SessionTimeRemaining = RawData.Graphics.SessionTimeLeft / 1000.0f;
         }
 
         internal void OnGameStateChanged(bool running, PluginManager manager) {
@@ -219,8 +219,11 @@ namespace KLPlugins.DynLeaderboards {
             var timeFromLastRealtimeUpdate = (DateTime.Now - RealtimeData.NewData.RecieveTime).TotalSeconds;
             if (RealtimeData.OldData != null && RealtimeData.SessionRemainingTime != TimeSpan.Zero) {
                 var endTime = msgTime + (RealtimeData.SessionRemainingTime.TotalSeconds - timeFromLastRealtimeUpdate);
-                SessionEndTimeForBroadcastEventsTime.Add(endTime);
-                DynLeaderboardsPlugin.LogInfo($"#{evt.CarData.RaceNumber} BroadcastEvent. SessionTimeRamaining={TimeSpan.FromMilliseconds(SessionTimeRemaining)}, SessionEndTimeForBroadcastEventsTime={TimeSpan.FromSeconds(SessionEndTimeForBroadcastEventsTime.Avg)}, msgTime={TimeSpan.FromSeconds(msgTime)}");
+                // Broadcast event can sometimes be late, check that the end time would be reasonable
+                if (SessionTimeRemaining != float.NaN && Math.Abs(SessionTimeRemaining - (endTime - msgTime)) < 0.5) {
+                    SessionEndTimeForBroadcastEventsTime.Add(endTime);
+                    DynLeaderboardsPlugin.LogInfo($"#{evt.CarData.RaceNumber} BroadcastEvent. SessionTimeRamaining={TimeSpan.FromSeconds(SessionTimeRemaining)}, SessionEndTimeForBroadcastEventsTime={TimeSpan.FromSeconds(SessionEndTimeForBroadcastEventsTime.Avg)}, msgTime={TimeSpan.FromSeconds(msgTime)}, diff={TimeSpan.FromSeconds(SessionEndTimeForBroadcastEventsTime.Avg - msgTime)}");
+                }
             }
 
             if (evt.Type == BroadcastingCarEventType.LapCompleted
@@ -236,7 +239,7 @@ namespace KLPlugins.DynLeaderboards {
                        )
                 ) {
                     var car = Cars.Find(x => x.CarIndex == evt.CarData.CarIndex);
-                    DynLeaderboardsPlugin.LogInfo($"#{car.RaceNumber} finished. SessionTimeRamaining={TimeSpan.FromMilliseconds(SessionTimeRemaining)}, SessionEndTimeForBroadcastEventsTime={TimeSpan.FromSeconds(SessionEndTimeForBroadcastEventsTime.Avg)}, msgTime={TimeSpan.FromSeconds(msgTime)}");
+                    DynLeaderboardsPlugin.LogInfo($"#{car.RaceNumber} finished. SessionTimeRamaining={TimeSpan.FromSeconds(SessionTimeRemaining)}, SessionEndTimeForBroadcastEventsTime={TimeSpan.FromSeconds(SessionEndTimeForBroadcastEventsTime.Avg)}, msgTime={TimeSpan.FromSeconds(msgTime)}, diff={TimeSpan.FromSeconds(SessionEndTimeForBroadcastEventsTime.Avg - msgTime)}");
 
                     car.SetIsFinished(RealtimeData.SessionRunningTime + TimeSpan.FromSeconds(timeFromLastRealtimeUpdate));
                 }

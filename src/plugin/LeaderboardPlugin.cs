@@ -2,6 +2,7 @@
 using KLPlugins.DynLeaderboards.Car;
 using KLPlugins.DynLeaderboards.ksBroadcastingNetwork;
 using KLPlugins.DynLeaderboards.Settings;
+using Newtonsoft.Json;
 using SimHub.Plugins;
 using System;
 using System.Diagnostics;
@@ -10,7 +11,6 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Windows.Media;
-using Newtonsoft.Json;
 
 namespace KLPlugins.DynLeaderboards {
     [PluginDescription("")]
@@ -112,13 +112,6 @@ namespace KLPlugins.DynLeaderboards {
         /// <param name="pluginManager"></param>
         public void Init(PluginManager pluginManager) {
             Settings = this.ReadCommonSettings<PluginSettings>("GeneralSettings", () => new PluginSettings());
-
-            try {
-                var set = JsonConvert.DeserializeObject<PluginSettings>(File.ReadAllText(@"C:\Program Files\SimHub\PluginsData\Common\DynLeaderboardsPlugin.GeneralSettings.json"));
-            } catch (Exception ex) {
-                LogError($"Failed to deserialize settings. Error {ex}");
-            }
-
             LogFileName = $"{Settings.PluginDataLocation}\\Logs\\Log_{PluginStartTime}.txt";
             var gameName = (string)pluginManager.GetPropertyValue<SimHub.Plugins.DataPlugins.DataCore.DataCorePlugin>("CurrentGame");
             Game = new Game(gameName);

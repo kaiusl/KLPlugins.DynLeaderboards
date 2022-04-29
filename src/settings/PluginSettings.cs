@@ -18,7 +18,7 @@ namespace KLPlugins.DynLeaderboards.Settings {
         public Dictionary<CarClass, string> CarClassColors { get; set; }
         public Dictionary<TeamCupCategory, string> TeamCupCategoryColors { get; set; }
         public Dictionary<TeamCupCategory, string> TeamCupCategoryTextColors { get; set; }
-        public Dictionary<DriverCategory, string> DriverCategoryColors { get;set; }
+        public Dictionary<DriverCategory, string> DriverCategoryColors { get; set; }
 
         private const string _defPluginsDataLocation = "PluginsData\\KLPlugins\\DynLeaderboards";
         private static readonly string _defAccDataLocation = "C:\\Users\\" + Environment.UserName + "\\Documents\\Assetto Corsa Competizione";
@@ -92,7 +92,7 @@ namespace KLPlugins.DynLeaderboards.Settings {
                     DynLeaderboardsPlugin.LogWarn($"Set ACC data location doesn't exist. Using default location '{_defAccDataLocation}'");
                     return false;
                 } else {
-                    DynLeaderboardsPlugin.LogWarn("Set ACC data location doesn't exist. Please check your configuration file.");
+                    DynLeaderboardsPlugin.LogWarn("Set ACC data location doesn't exist. Please check your settings.");
                     return false;
                 }
             } else {

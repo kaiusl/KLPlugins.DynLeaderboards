@@ -102,6 +102,7 @@
     <Compile Include="src\enums\Leaderboard.cs" />
     <Compile Include="src\enums\Tracks.cs" />
     <Compile Include="src\helpers\Math.cs" />
+    <Compile Include="src\helpers\Misc.cs" />
     <Compile Include="src\ksBroadcastingNetwork\ACCUdpRemoteClient.cs" />
     <Compile Include="src\ksBroadcastingNetwork\BroadcastingEnums.cs" />
     <Compile Include="src\ksBroadcastingNetwork\BroadcastingNetworkProtocol.cs" />

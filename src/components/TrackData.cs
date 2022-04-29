@@ -48,7 +48,7 @@ namespace KLPlugins.DynLeaderboards.Track {
         private static void AddLapInterpolator(CarClass cls) {
             var fname = $"{DynLeaderboardsPlugin.Settings.PluginDataLocation}\\laps_data\\{Values.TrackData.TrackId}_{cls}.txt";
             if (!File.Exists(fname)) {
-                DynLeaderboardsPlugin.LogWarn($"Couldn't build lap interpolator for {cls} because no suitable track data exists.");
+                DynLeaderboardsPlugin.LogInfo($"Couldn't build lap interpolator for {cls} because no suitable track data exists.");
                 return;
             }
 
@@ -89,7 +89,7 @@ namespace KLPlugins.DynLeaderboards.Track {
                         return;
                     }
                 }
-                DynLeaderboardsPlugin.LogWarn($"Couldn't find replacement lap interpolator for {cls}. Will have to use simple gap calculation.");
+                DynLeaderboardsPlugin.LogError($"Couldn't find replacement lap interpolator for {cls}. Gaps cannot be calculated for this class.");
             }
         }
     }

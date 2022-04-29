@@ -11,7 +11,6 @@ using SimHub.Plugins;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
 using System.Linq;
 
 namespace KLPlugins.DynLeaderboards {
@@ -65,7 +64,7 @@ namespace KLPlugins.DynLeaderboards {
             if (num > 0) PosInClassCarsIdxs = new int?[100];
 
             ResetPos();
-            _broadcastConfig = new ACCUdpRemoteClientConfig("127.0.0.1", "KLLeaderboardPlugin", DynLeaderboardsPlugin.Settings.BroadcastDataUpdateRateMs);
+            _broadcastConfig = new ACCUdpRemoteClientConfig("127.0.0.1", "KLDynLeaderboardsPlugin", DynLeaderboardsPlugin.Settings.BroadcastDataUpdateRateMs);
             foreach (var l in DynLeaderboardsPlugin.Settings.DynLeaderboardConfigs) {
                 LeaderboardValues.Add(new DynLeaderboardValues(l));
             }
@@ -487,7 +486,7 @@ namespace KLPlugins.DynLeaderboards {
                 SetRelativeOnTrackOrders();
 
                 #region Local functions
-                
+
                 void UpdateBestLapCarIdxs(CarData thisCar, int idxInCars) {
                     var thisCarBestLap = thisCar.NewData?.BestSessionLap?.Laptime;
                     if (thisCarBestLap != null) {

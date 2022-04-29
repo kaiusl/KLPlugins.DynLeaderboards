@@ -93,7 +93,7 @@ namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork {
                 DynLeaderboardsPlugin.LogInfo("Connected to broadcast client.");
                 IsConnected = true;
             } else {
-                DynLeaderboardsPlugin.LogWarn($"Failed to connect to broadcast client. Err: {error}");
+                DynLeaderboardsPlugin.LogError($"Failed to connect to broadcast client. Err: {error}");
                 MessageHandler.RequestConnection(_displayName, _connectionPassword, _msRealtimeUpdateInterval, _commandPassword);
             }
         }

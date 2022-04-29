@@ -1,7 +1,4 @@
-﻿
-using System.Collections.Generic;
-
-namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork {
+﻿namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork {
     public enum DriverCategory {
         Platinum = 3,
         Gold = 2,
@@ -155,16 +152,6 @@ namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork {
     };
 
     public static class BroadcastingEnumHelpers {
-        public static bool EqualsAny<T>(this T lhs, params T[] rhs) {
-            foreach (var v in rhs) {
-                if (lhs.Equals(v)) {
-                    return true;
-                }
-            }
-            return false;
-        }
-
-
 
         public static RaceSessionType RaceSessionTypeFromString(string s) {
             switch (s.ToLower()) {

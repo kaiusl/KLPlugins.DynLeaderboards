@@ -1,4 +1,5 @@
-﻿using KLPlugins.DynLeaderboards.ksBroadcastingNetwork;
+﻿using KLPlugins.DynLeaderboards.Helpers;
+using KLPlugins.DynLeaderboards.ksBroadcastingNetwork;
 using KLPlugins.DynLeaderboards.ksBroadcastingNetwork.Structs;
 using System;
 
@@ -47,8 +48,8 @@ namespace KLPlugins.DynLeaderboards.Realtime {
 
             IsSessionStart = OldData.Phase != SessionPhase.Session && IsSession;
             IsFocusedChange = NewData.FocusedCarIndex != OldData.FocusedCarIndex;
-            IsNewSession = OldData.SessionType != NewData.SessionType 
-                || NewData.SessionIndex != OldData.SessionIndex 
+            IsNewSession = OldData.SessionType != NewData.SessionType
+                || NewData.SessionIndex != OldData.SessionIndex
                 || OldData.Phase.EqualsAny(SessionPhase.Session, SessionPhase.SessionOver, SessionPhase.PostSession, SessionPhase.ResultUI) && IsPreSession;
 
             if (SessionTotalTime == TimeSpan.Zero) SessionTotalTime = SessionRunningTime + SessionRemainingTime;

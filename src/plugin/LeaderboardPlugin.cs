@@ -144,20 +144,19 @@ namespace KLPlugins.DynLeaderboards {
 
             this.AttachDelegate("IsBroadcastClientConnected", () => _values.BroadcastClient?.IsConnected);
 
-            this.AttachDelegate("DBG.Realtime.SessionRunningTime", () => _values?.RealtimeData?.SessionRunningTime);
-            this.AttachDelegate("DBG.Realtime.RemainingTime", () => _values?.RealtimeData?.RemainingTime);
-            this.AttachDelegate("DBG.Realtime.SystemTime", () => _values?.RealtimeData?.SystemTime);
-            this.AttachDelegate("DBG.Realtime.SessionEndTime", () => _values?.RealtimeData?.SessionEndTime);
-            this.AttachDelegate("DBG.Graphics.SessionRemainingTime", () => TimeSpan.FromMilliseconds(_values?.RawData?.Graphics.SessionTimeLeft ?? int.MaxValue));
-            this.AttachDelegate("DBG.Realtime.SessionRemainingTime", () => _values.RealtimeData?.SessionRemainingTime);
-            this.AttachDelegate("DBG.Realtime.RecieveTime", () => _values.RealtimeData?.NewData?.RecieveTime);
-            this.AttachDelegate("DBG.Realtime.SessionTotalTime", () => _values.RealtimeData?.SessionTotalTime);
-            this.AttachDelegate("DBG.SessionEndTimeForBroadcastEvents", () => TimeSpan.FromSeconds(_values.SessionEndTimeForBroadcastEventsTime.Median));
+            //this.AttachDelegate("DBG.Realtime.SessionRunningTime", () => _values?.RealtimeData?.SessionRunningTime);
+            //this.AttachDelegate("DBG.Realtime.RemainingTime", () => _values?.RealtimeData?.RemainingTime);
+            //this.AttachDelegate("DBG.Realtime.SystemTime", () => _values?.RealtimeData?.SystemTime);
+            //this.AttachDelegate("DBG.Realtime.SessionEndTime", () => _values?.RealtimeData?.SessionEndTime);
+            //this.AttachDelegate("DBG.Graphics.SessionRemainingTime", () => TimeSpan.FromMilliseconds(_values?.RawData?.Graphics.SessionTimeLeft ?? int.MaxValue));
+            //this.AttachDelegate("DBG.Realtime.SessionRemainingTime", () => _values.RealtimeData?.SessionRemainingTime);
+            //this.AttachDelegate("DBG.Realtime.RecieveTime", () => _values.RealtimeData?.NewData?.RecieveTime);
+            //this.AttachDelegate("DBG.Realtime.SessionTotalTime", () => _values.RealtimeData?.SessionTotalTime);
+            //this.AttachDelegate("DBG.SessionEndTimeForBroadcastEvents", () => TimeSpan.FromSeconds(_values.SessionEndTimeForBroadcastEventsTime.Median));
             //this.AttachDelegate("DBG.BEvsRD.SessionTimeDiff.Median", () => _values._broadcastEvt_realtimeData_sessiontime_diff?.Median);
             //this.AttachDelegate("DBG.BEvsRD.SessionTimeDiff.Min", () => _values._broadcastEvt_realtimeData_sessiontime_diff?.Stats.Minimum);
             //this.AttachDelegate("DBG.BEvsRD.SessionTimeDiff.Max", () => _values._broadcastEvt_realtimeData_sessiontime_diff?.Stats.Maximum);
             //this.AttachDelegate("DBG.BEvsRD.SessionTimeDiff.Avg", () => _values._broadcastEvt_realtimeData_sessiontime_diff?.Stats.Mean);
-
         }
 
         internal void AddNewLeaderboard(DynLeaderboardConfig s) {
@@ -198,7 +197,6 @@ namespace KLPlugins.DynLeaderboards {
                     addClassColor(cls);
                 }
             }
-
 
             void addCupColor(TeamCupCategory cup) {
                 if (Settings.OutGeneralProps.Includes(OutGeneralProp.TeamCupColors)) this.AttachDelegate($"Color.Cup.{cup}", () => Settings.TeamCupCategoryColors[cup]);
@@ -276,7 +274,6 @@ namespace KLPlugins.DynLeaderboards {
                 }
 
                 AddLapProp(OutLapProp.CurrentLapTime, () => l.GetDynCar(i)?.NewData?.CurrentLap?.Laptime);
-
 
                 void AddOneDriverFromList(int j) {
                     var driverId = $"Driver.{j + 1}";
@@ -377,10 +374,10 @@ namespace KLPlugins.DynLeaderboards {
                 AddProp(OutCarProp.IsClassBestLapCar, () => (l.GetDynCar(i)?.IsClassBestLapCar ?? false) ? 1 : 0);
                 AddProp(OutCarProp.RelativeOnTrackLapDiff, () => l.GetDynCar(i)?.RelativeOnTrackLapDiff ?? 0);
 
-                this.AttachDelegate($"{startName}.DBG_TotalSplinePosition", () => (l.GetDynCar(i))?.TotalSplinePosition);
-                this.AttachDelegate($"{startName}.DBG_Position", () => (l.GetDynCar(i))?.NewData?.Position);
-                this.AttachDelegate($"{startName}.DBG_TrackPosition", () => (l.GetDynCar(i))?.NewData?.TrackPosition);
-                this.AttachDelegate($"{startName}.DBG_OffsetLapUpdate", () => (l.GetDynCar(i))?.OffsetLapUpdate);
+                //this.AttachDelegate($"{startName}.DBG_TotalSplinePosition", () => (l.GetDynCar(i))?.TotalSplinePosition);
+                //this.AttachDelegate($"{startName}.DBG_Position", () => (l.GetDynCar(i))?.NewData?.Position);
+                //this.AttachDelegate($"{startName}.DBG_TrackPosition", () => (l.GetDynCar(i))?.NewData?.TrackPosition);
+                //this.AttachDelegate($"{startName}.DBG_OffsetLapUpdate", () => (l.GetDynCar(i))?.OffsetLapUpdate);
             };
 
             var numPos = new int[] {

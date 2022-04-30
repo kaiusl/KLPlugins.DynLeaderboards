@@ -2,7 +2,7 @@
 
 This is an ACC specific (at least at the moment) leaderboard plugin providing simple switching between overall/class/relative leaderboards. 
 
-The reason for this plugin is that I found myself creating effectively the same dash leaderboard layout several times for overall leaderboard and then again for class leaderboard and so on. With this plugin you need to create only one SimHub dash and assign buttons to swap between different leaderboard types. Also there seem to be some issues with SimHub's ACC leaderboard data, which I set on to fix with this plugin. I provide example dash (named AccDynLeaderboard) which I created for my own use. It's relatively simple one and designed to be used on smartphone.
+The reason for this plugin is that I found myself creating effectively the same dash leaderboard layout several times for overall leaderboard and then again for class leaderboard and so on. And then again when I decided to change something. With this plugin you need to create only one SimHub dash and assign buttons to swap between different leaderboard types. Also there seem to be some issues with SimHub's ACC leaderboard data, which I set on to fix with this plugin. I provide example dash (named AccDynLeaderboard) which I created for my own use. It's relatively simple one and designed to be used on smartphone.
 
 ## Features
 - Connect directly to ACC broadcasting server to have most control and try to provide reliable results.
@@ -108,6 +108,6 @@ Now restart SimHub and start create your dashboard. You can use the AccDynLeader
 - Wrong leaderboard order
 	- It's an unknown bug, please report it as an issue here or in RaceDepartment forum.
 
-### SH version
+### SimHub and ACC version
 
-Last SimHub version this plugin was tested is 7.4.23.
+Last tested on ACC 1.8.14 and SimHub 7.4.23.

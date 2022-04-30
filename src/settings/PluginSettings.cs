@@ -27,7 +27,7 @@ namespace KLPlugins.DynLeaderboards.Settings {
             PluginDataLocation = _defPluginsDataLocation;
             AccDataLocation = _defAccDataLocation;
             Log = false;
-            BroadcastDataUpdateRateMs = 200;
+            BroadcastDataUpdateRateMs = 500;
             DynLeaderboardConfigs = new List<DynLeaderboardConfig>();
             CarClassColors = CreateDefCarClassColors();
             TeamCupCategoryColors = CreateDefCupColors();
@@ -110,7 +110,8 @@ namespace KLPlugins.DynLeaderboards.Settings {
             | OutCarProp.IsFinished
             | OutCarProp.CarClassColor
             | OutCarProp.TeamCupCategoryColor
-            | OutCarProp.TeamCupCategoryTextColor;
+            | OutCarProp.TeamCupCategoryTextColor
+            | OutCarProp.RelativeOnTrackLapDiff;
         public OutPitProp OutPitProps = OutPitProp.IsInPitLane;
         public OutPosProp OutPosProps = OutPosProp.OverallPosition | OutPosProp.ClassPosition;
         public OutGapProp OutGapProps = OutGapProp.DynamicGapToFocused;

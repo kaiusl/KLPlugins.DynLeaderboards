@@ -21,6 +21,7 @@ namespace KLPlugins.DynLeaderboards.Settings {
         IsFocused = 1 << 11,
         IsOverallBestLapCar = 1 << 12,
         IsClassBestLapCar = 1 << 13,
+        RelativeOnTrackLapDiff = 1 << 14
     }
 
     static class OutCarPropExtensions {
@@ -58,6 +59,8 @@ namespace KLPlugins.DynLeaderboards.Settings {
                     return "IsOverallBestLapCar";
                 case OutCarProp.IsClassBestLapCar:
                     return "IsClassBestLapCar";
+                case OutCarProp.RelativeOnTrackLapDiff:
+                    return "RelativeOnTrackLapDiff";
                 default:
                     throw new ArgumentOutOfRangeException($"Invalid enum variant {p}");
             }
@@ -95,6 +98,8 @@ namespace KLPlugins.DynLeaderboards.Settings {
                     return "Is this the car that has overall best lap?";
                 case OutCarProp.IsClassBestLapCar:
                     return "Is this the car that has class best lap?";
+                case OutCarProp.RelativeOnTrackLapDiff:
+                    return "Show if this car is ahead or behind by the lap on the relative on track. 1: this car is ahead by a lap, 0: same lap, -1: this car is behind by a lap.";
                 default:
                     throw new ArgumentOutOfRangeException($"Invalid enum variant {p}");
             }

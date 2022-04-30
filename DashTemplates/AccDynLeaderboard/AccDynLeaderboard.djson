@@ -1,7 +1,7 @@
 {
   "$id": "1",
   "Version": 2,
-  "Id": "63f6a9cb-35b4-408d-974e-fa4ad52c00e2",
+  "Id": "74162869-ae1d-4398-ba34-bd32b9d7e395",
   "BaseHeight": 1120,
   "BaseWidth": 1920,
   "BackgroundColor": "#FF000000",
@@ -212,7 +212,7 @@
                 }
               },
               "RenderingSkip": 0,
-              "ShowSelection": true,
+              "ShowSelection": false,
               "CanResize": false,
               "Childrens": {
                 "$id": "24",
@@ -458,7 +458,7 @@
                     "Visible": true,
                     "BlinkDelay": 250.0,
                     "BlinkEnabled": false,
-                    "Width": 568.0,
+                    "Width": 535.0,
                     "BorderBottom": 0,
                     "BorderColor": "#FFFFFFFF",
                     "BorderLeft": 0,
@@ -466,7 +466,7 @@
                     "BorderTop": 0,
                     "Id": "3c38da4e-dc80-451a-a014-8aadb9db088f",
                     "IsFreezed": false,
-                    "IsSelected": false,
+                    "IsSelected": true,
                     "Name": "Name",
                     "RenderingSkip": 0,
                     "Sid": 0,
@@ -481,11 +481,21 @@
                         },
                         "Mode": 2,
                         "TargetPropertyName": "Text"
+                      },
+                      "TextColor": {
+                        "$id": "51",
+                        "Formula": {
+                          "$id": "52",
+                          "Interpreter": 1,
+                          "Expression": "var isRelative = $prop('DynLeaderboardsPlugin.Dynamic.CurrentLeaderboard') == 'RelativeOnTrack'\r\n\r\nif (isRelative) {\r\n\tvar lapdiff = $prop('DynLeaderboardsPlugin.Dynamic.' + repeatindex() + '.RelativeOnTrackLapDiff')\r\n\tif (lapdiff == 1) {\r\n\t\treturn \"#FFFF8C00\"\r\n\t} else if (lapdiff == -1) {\r\n\t\treturn \"#FF00BFFF\"\r\n\t}\r\n}\r\nreturn \"#FFFFFFFF\"\r\n"
+                        },
+                        "Mode": 2,
+                        "TargetPropertyName": "TextColor"
                       }
                     }
                   },
                   {
-                    "$id": "51",
+                    "$id": "53",
                     "$type": "SimHub.Plugins.OutputPlugins.GraphicalDash.Models.TextItem, SimHub.Plugins",
                     "IsTextItem": true,
                     "ShadowDepth": 0,
@@ -514,7 +524,7 @@
                     "BlurRadius": 0.0,
                     "EnableBlur": false,
                     "BorderStyle": {
-                      "$id": "52",
+                      "$id": "54",
                       "BorderColor": "#FFFFFFFF",
                       "BorderTop": 0,
                       "BorderBottom": 0,
@@ -525,11 +535,11 @@
                       "RadiusBottomLeft": 0,
                       "RadiusBottomRight": 0,
                       "Bindings": {
-                        "$id": "53"
+                        "$id": "55"
                       }
                     },
                     "Height": 55.0,
-                    "Left": 791.0,
+                    "Left": 930.0,
                     "Opacity": 100.0,
                     "Top": 70.0,
                     "Visible": true,
@@ -548,12 +558,12 @@
                     "RenderingSkip": 0,
                     "Sid": 0,
                     "Bindings": {
-                      "$id": "54",
+                      "$id": "56",
                       "Text": {
-                        "$id": "55",
+                        "$id": "57",
                         "FormatString": "",
                         "Formula": {
-                          "$id": "56",
+                          "$id": "58",
                           "Interpreter": 1,
                           "Expression": "var v = $prop('DynLeaderboardsPlugin.Dynamic.' + repeatindex() + '.Gap.Dynamic.ToFocused')\r\nif (v == null) {\r\n\treturn ''\r\n}\r\n\r\nif (v > 10000) {\r\n\treturn format(v - 100000, '0', true) + 'L'\r\n}\r\n\r\nreturn format(v, '0.00', true)"
                         },
@@ -563,7 +573,7 @@
                     }
                   },
                   {
-                    "$id": "57",
+                    "$id": "59",
                     "$type": "SimHub.Plugins.OutputPlugins.GraphicalDash.Models.TextItem, SimHub.Plugins",
                     "IsTextItem": true,
                     "ShadowDepth": 0,
@@ -592,7 +602,7 @@
                     "BlurRadius": 0.0,
                     "EnableBlur": false,
                     "BorderStyle": {
-                      "$id": "58",
+                      "$id": "60",
                       "BorderColor": "#FFFFFFFF",
                       "BorderTop": 0,
                       "BorderBottom": 0,
@@ -603,7 +613,7 @@
                       "RadiusBottomLeft": 0,
                       "RadiusBottomRight": 0,
                       "Bindings": {
-                        "$id": "59"
+                        "$id": "61"
                       }
                     },
                     "Height": 55.0,
@@ -626,21 +636,21 @@
                     "RenderingSkip": 0,
                     "Sid": 0,
                     "Bindings": {
-                      "$id": "60",
+                      "$id": "62",
                       "Text": {
-                        "$id": "61",
+                        "$id": "63",
                         "FormatString": "m\\:ss\\.fff",
                         "Formula": {
-                          "$id": "62",
+                          "$id": "64",
                           "Expression": "secondstotimespan(prop('DynLeaderboardsPlugin.Dynamic.' + repeatindex() + '.Laps.Best.Time'))"
                         },
                         "Mode": 2,
                         "TargetPropertyName": "Text"
                       },
                       "Visible": {
-                        "$id": "63",
+                        "$id": "65",
                         "Formula": {
-                          "$id": "64",
+                          "$id": "66",
                           "Expression": "if (\r\n\tisnull(prop('DynLeaderboardsPlugin.Dynamic.' + repeatindex() + '.Car.Number')),\r\n\t0,\r\n\t1\r\n)\r\n\r\n"
                         },
                         "Mode": 2,
@@ -649,7 +659,7 @@
                     }
                   },
                   {
-                    "$id": "65",
+                    "$id": "67",
                     "$type": "SimHub.Plugins.OutputPlugins.GraphicalDash.Models.TextItem, SimHub.Plugins",
                     "IsTextItem": true,
                     "ShadowDepth": 0,
@@ -678,7 +688,7 @@
                     "BlurRadius": 0.0,
                     "EnableBlur": false,
                     "BorderStyle": {
-                      "$id": "66",
+                      "$id": "68",
                       "BorderColor": "#FFFFFFFF",
                       "BorderTop": 0,
                       "BorderBottom": 0,
@@ -689,7 +699,7 @@
                       "RadiusBottomLeft": 0,
                       "RadiusBottomRight": 0,
                       "Bindings": {
-                        "$id": "67"
+                        "$id": "69"
                       }
                     },
                     "Height": 55.0,
@@ -712,21 +722,21 @@
                     "RenderingSkip": 0,
                     "Sid": 0,
                     "Bindings": {
-                      "$id": "68",
+                      "$id": "70",
                       "Text": {
-                        "$id": "69",
+                        "$id": "71",
                         "FormatString": "",
                         "Formula": {
-                          "$id": "70",
+                          "$id": "72",
                           "Expression": "format(prop('DynLeaderboardsPlugin.Dynamic.' + repeatindex() + '.Laps.Best.Delta.Dynamic.ToFocusedBest'), '0.0', true)"
                         },
                         "Mode": 2,
                         "TargetPropertyName": "Text"
                       },
                       "TextColor": {
-                        "$id": "71",
+                        "$id": "73",
                         "Formula": {
-                          "$id": "72",
+                          "$id": "74",
                           "Expression": "isnull(prop('DynLeaderboardsPlugin.Dynamic.' + repeatindex() + '.Laps.Best.Delta.Dynamic.ToFocusedBest'), 0)\r\n"
                         },
                         "StartColor": "#FFFF0000",
@@ -742,7 +752,7 @@
                     }
                   },
                   {
-                    "$id": "73",
+                    "$id": "75",
                     "$type": "SimHub.Plugins.OutputPlugins.GraphicalDash.Models.TextItem, SimHub.Plugins",
                     "IsTextItem": true,
                     "ShadowDepth": 0,
@@ -771,7 +781,7 @@
                     "BlurRadius": 0.0,
                     "EnableBlur": false,
                     "BorderStyle": {
-                      "$id": "74",
+                      "$id": "76",
                       "BorderColor": "#FFFFFFFF",
                       "BorderTop": 0,
                       "BorderBottom": 0,
@@ -782,7 +792,7 @@
                       "RadiusBottomLeft": 0,
                       "RadiusBottomRight": 0,
                       "Bindings": {
-                        "$id": "75"
+                        "$id": "77"
                       }
                     },
                     "Height": 55.0,
@@ -805,21 +815,21 @@
                     "RenderingSkip": 0,
                     "Sid": 0,
                     "Bindings": {
-                      "$id": "76",
+                      "$id": "78",
                       "Text": {
-                        "$id": "77",
+                        "$id": "79",
                         "FormatString": "m\\:ss\\.fff",
                         "Formula": {
-                          "$id": "78",
+                          "$id": "80",
                           "Expression": "secondstotimespan(prop('DynLeaderboardsPlugin.Dynamic.' + repeatindex() + '.Laps.Last.Time'))"
                         },
                         "Mode": 2,
                         "TargetPropertyName": "Text"
                       },
                       "Visible": {
-                        "$id": "79",
+                        "$id": "81",
                         "Formula": {
-                          "$id": "80",
+                          "$id": "82",
                           "Expression": "if (\r\n\tisnull(prop('DynLeaderboardsPlugin.Dynamic.' + repeatindex() + '.Car.Number')),\r\n\t0,\r\n\t1\r\n)\r\n\r\n"
                         },
                         "Mode": 2,
@@ -828,7 +838,7 @@
                     }
                   },
                   {
-                    "$id": "81",
+                    "$id": "83",
                     "$type": "SimHub.Plugins.OutputPlugins.GraphicalDash.Models.TextItem, SimHub.Plugins",
                     "IsTextItem": true,
                     "ShadowDepth": 0,
@@ -857,7 +867,7 @@
                     "BlurRadius": 0.0,
                     "EnableBlur": false,
                     "BorderStyle": {
-                      "$id": "82",
+                      "$id": "84",
                       "BorderColor": "#FFFFFFFF",
                       "BorderTop": 0,
                       "BorderBottom": 0,
@@ -868,7 +878,7 @@
                       "RadiusBottomLeft": 0,
                       "RadiusBottomRight": 0,
                       "Bindings": {
-                        "$id": "83"
+                        "$id": "85"
                       }
                     },
                     "Height": 55.0,
@@ -891,21 +901,21 @@
                     "RenderingSkip": 0,
                     "Sid": 0,
                     "Bindings": {
-                      "$id": "84",
+                      "$id": "86",
                       "Text": {
-                        "$id": "85",
+                        "$id": "87",
                         "FormatString": "",
                         "Formula": {
-                          "$id": "86",
+                          "$id": "88",
                           "Expression": "format(prop('DynLeaderboardsPlugin.Dynamic.' + repeatindex() + '.Laps.Last.Delta.Dynamic.ToFocusedLast'), '0.0', true)\r\n"
                         },
                         "Mode": 2,
                         "TargetPropertyName": "Text"
                       },
                       "TextColor": {
-                        "$id": "87",
+                        "$id": "89",
                         "Formula": {
-                          "$id": "88",
+                          "$id": "90",
                           "Expression": "isnull(prop('DynLeaderboardsPlugin.Dynamic.' + repeatindex() + '.Laps.Last.Delta.Dynamic.ToFocusedLast'), 0)\r\n"
                         },
                         "StartColor": "#FFFF0000",
@@ -921,7 +931,7 @@
                     }
                   },
                   {
-                    "$id": "89",
+                    "$id": "91",
                     "$type": "SimHub.Plugins.OutputPlugins.GraphicalDash.Models.TextItem, SimHub.Plugins",
                     "IsTextItem": true,
                     "ShadowDepth": 0,
@@ -950,7 +960,7 @@
                     "BlurRadius": 0.0,
                     "EnableBlur": false,
                     "BorderStyle": {
-                      "$id": "90",
+                      "$id": "92",
                       "BorderColor": "#FFFFFFFF",
                       "BorderTop": 0,
                       "BorderBottom": 0,
@@ -961,7 +971,7 @@
                       "RadiusBottomLeft": 0,
                       "RadiusBottomRight": 0,
                       "Bindings": {
-                        "$id": "91"
+                        "$id": "93"
                       }
                     },
                     "Height": 55.0,
@@ -984,15 +994,119 @@
                     "RenderingSkip": 0,
                     "Sid": 0,
                     "Bindings": {
-                      "$id": "92",
+                      "$id": "94",
                       "Visible": {
-                        "$id": "93",
+                        "$id": "95",
                         "Formula": {
-                          "$id": "94",
-                          "Expression": "isnull(prop('DynLeaderboardsPlugin.Dynamic.' + repeatindex() + '.Pit.IsIn'), 0)"
+                          "$id": "96",
+                          "Expression": "prop('DynLeaderboardsPlugin.Dynamic.' + repeatindex() + '.Pit.IsIn') || prop('DynLeaderboardsPlugin.Dynamic.' + repeatindex() + '.IsFinished')"
                         },
                         "Mode": 2,
                         "TargetPropertyName": "Visible"
+                      },
+                      "BackgroundColor": {
+                        "$id": "97",
+                        "Formula": {
+                          "$id": "98",
+                          "Expression": "if (\r\n\tprop('DynLeaderboardsPlugin.Dynamic.' + repeatindex() + '.IsFinished'),\r\n\t'#FF000000',\r\n\t'#FFFFFFFF'\r\n)"
+                        },
+                        "Mode": 2,
+                        "TargetPropertyName": "BackgroundColor"
+                      },
+                      "Text": {
+                        "$id": "99",
+                        "Formula": {
+                          "$id": "100",
+                          "Expression": "if (\r\n\tprop('DynLeaderboardsPlugin.Dynamic.' + repeatindex() + '.IsFinished'),\r\n\t'F',\r\n\t'P'\r\n)"
+                        },
+                        "Mode": 2,
+                        "TargetPropertyName": "Text"
+                      },
+                      "TextColor": {
+                        "$id": "101",
+                        "Formula": {
+                          "$id": "102",
+                          "Expression": "if (\r\n\tprop('DynLeaderboardsPlugin.Dynamic.' + repeatindex() + '.IsFinished'),\r\n\t'#FFFFFFFF',\r\n\t'#FF000000'\r\n)"
+                        },
+                        "Mode": 2,
+                        "TargetPropertyName": "TextColor"
+                      }
+                    }
+                  },
+                  {
+                    "$id": "103",
+                    "$type": "SimHub.Plugins.OutputPlugins.GraphicalDash.Models.TextItem, SimHub.Plugins",
+                    "IsTextItem": true,
+                    "ShadowDepth": 0,
+                    "ShadowBlur": 0,
+                    "ShadowDirection": 315,
+                    "ShadowColor": "#FF808080",
+                    "Font": "Segoe UI",
+                    "FontWeight": "Normal",
+                    "TextWrapping": 1,
+                    "FontStyle": "Normal",
+                    "FontSize": 55.0,
+                    "Text": "L100",
+                    "TextColor": "#FFFFFFFF",
+                    "HorizontalAlignment": 0,
+                    "VerticalAlignment": 1,
+                    "UseMonospacedText": false,
+                    "CharWidth": 40.0,
+                    "SpecialCharsWidth": 20.0,
+                    "SpecialChars": ".,:;",
+                    "TextMask": "",
+                    "TextMaskColor": "#FF808080",
+                    "Rotation": 0.0,
+                    "UseRotation": false,
+                    "CanResize": true,
+                    "BackgroundColor": "#00FFFFFF",
+                    "BlurRadius": 0.0,
+                    "EnableBlur": false,
+                    "BorderStyle": {
+                      "$id": "104",
+                      "BorderColor": "#FFFFFFFF",
+                      "BorderTop": 0,
+                      "BorderBottom": 0,
+                      "BorderLeft": 0,
+                      "BorderRight": 0,
+                      "RadiusTopLeft": 0,
+                      "RadiusTopRight": 0,
+                      "RadiusBottomLeft": 0,
+                      "RadiusBottomRight": 0,
+                      "Bindings": {
+                        "$id": "105"
+                      }
+                    },
+                    "Height": 55.0,
+                    "Left": 796.0,
+                    "Opacity": 100.0,
+                    "Top": 70.0,
+                    "Visible": true,
+                    "BlinkDelay": 250.0,
+                    "BlinkEnabled": false,
+                    "Width": 123.0,
+                    "BorderBottom": 0,
+                    "BorderColor": "#FFFFFFFF",
+                    "BorderLeft": 0,
+                    "BorderRight": 0,
+                    "BorderTop": 0,
+                    "Id": "3c38da4e-dc80-451a-a014-8aadb9db088f",
+                    "IsFreezed": false,
+                    "IsSelected": false,
+                    "Name": "Delta",
+                    "RenderingSkip": 0,
+                    "Sid": 0,
+                    "Bindings": {
+                      "$id": "106",
+                      "Text": {
+                        "$id": "107",
+                        "FormatString": "\\L0",
+                        "Formula": {
+                          "$id": "108",
+                          "Expression": "prop('DynLeaderboardsPlugin.Dynamic.' + repeatindex() + '.Laps.Count')"
+                        },
+                        "Mode": 2,
+                        "TargetPropertyName": "Text"
                       }
                     }
                   }
@@ -1017,11 +1131,11 @@
               "Name": "Layer",
               "Sid": 0,
               "Bindings": {
-                "$id": "95"
+                "$id": "109"
               }
             },
             {
-              "$id": "96",
+              "$id": "110",
               "$type": "SimHub.Plugins.OutputPlugins.GraphicalDash.Models.TextItem, SimHub.Plugins",
               "IsTextItem": true,
               "ShadowDepth": 0,
@@ -1050,7 +1164,7 @@
               "BlurRadius": 0.0,
               "EnableBlur": false,
               "BorderStyle": {
-                "$id": "97",
+                "$id": "111",
                 "BorderColor": "#FFFFFFFF",
                 "BorderTop": 0,
                 "BorderBottom": 0,
@@ -1061,7 +1175,7 @@
                 "RadiusBottomLeft": 0,
                 "RadiusBottomRight": 0,
                 "Bindings": {
-                  "$id": "98"
+                  "$id": "112"
                 }
               },
               "Height": 100.0,
@@ -1079,17 +1193,17 @@
               "BorderTop": 0,
               "Id": "dfda1152-9e76-4489-bf9a-21af90f40134",
               "IsFreezed": false,
-              "IsSelected": true,
+              "IsSelected": false,
               "Name": "TextItem0",
               "RenderingSkip": 0,
               "Sid": 0,
               "Bindings": {
-                "$id": "99",
+                "$id": "113",
                 "Text": {
-                  "$id": "100",
+                  "$id": "114",
                   "FormatString": "",
                   "Formula": {
-                    "$id": "101",
+                    "$id": "115",
                     "Expression": "'DYNAMIC: ' + [DynLeaderboardsPlugin.Dynamic.CurrentLeaderboard]"
                   },
                   "Mode": 2,
@@ -1098,7 +1212,7 @@
               }
             },
             {
-              "$id": "102",
+              "$id": "116",
               "$type": "SimHub.Plugins.OutputPlugins.GraphicalDash.Models.RectangleItem, SimHub.Plugins",
               "IsRectangleItem": true,
               "Rotation": 0.0,
@@ -1108,7 +1222,7 @@
               "BlurRadius": 0.0,
               "EnableBlur": false,
               "BorderStyle": {
-                "$id": "103",
+                "$id": "117",
                 "BorderColor": "#FFFFFFFF",
                 "BorderTop": 0,
                 "BorderBottom": 0,
@@ -1119,7 +1233,7 @@
                 "RadiusBottomLeft": 0,
                 "RadiusBottomRight": 0,
                 "Bindings": {
-                  "$id": "104"
+                  "$id": "118"
                 }
               },
               "Height": 3.0,
@@ -1142,11 +1256,11 @@
               "RenderingSkip": 0,
               "Sid": 0,
               "Bindings": {
-                "$id": "105",
+                "$id": "119",
                 "Top": {
-                  "$id": "106",
+                  "$id": "120",
                   "Formula": {
-                    "$id": "107",
+                    "$id": "121",
                     "Interpreter": 1,
                     "Expression": "//var fidx = $prop('DynLeaderboardsPlugin.Focused.OverallPosition')\r\n\r\n//if (fidx > 5 + 5) {\r\n//\treturn 64 + 10*62\r\n//}\r\nvar idx = $prop('DynLeaderboardsPlugin.Dynamic.FocusedPosInCurrentLeaderboard')\r\nif (idx < 0 || idx == null) {\r\n\treturn 2000;\r\n}\r\nreturn 64 + 5*62"
                   },
@@ -1161,35 +1275,35 @@
         "Name": "Screen1",
         "Sid": 0,
         "Bindings": {
-          "$id": "108"
+          "$id": "122"
         }
       }
     ]
   },
   "SnapToGrid": false,
   "HideLabels": false,
-  "ShowBoundingRectangles": false,
+  "ShowBoundingRectangles": true,
   "GridSize": 10,
   "SelectedScreen": {
     "$ref": "3"
   },
   "Images": {
-    "$id": "109",
+    "$id": "123",
     "$values": []
   },
   "Metadata": {
-    "$id": "110",
+    "$id": "124",
     "Title": "AccDynLeaderboard",
     "Author": "Kaius Loos",
     "ScreenCount": 1.0,
     "InGameScreensIndexs": {
-      "$id": "111",
+      "$id": "125",
       "$values": [
         0
       ]
     },
     "IdleScreensIndexs": {
-      "$id": "112",
+      "$id": "126",
       "$values": [
         0
       ]
@@ -1203,7 +1317,7 @@
     "MetadataVersion": 2.0,
     "EnableOnDashboardMessaging": true,
     "PitScreensIndexs": {
-      "$id": "113",
+      "$id": "127",
       "$values": [
         0
       ]

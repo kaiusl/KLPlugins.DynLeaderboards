@@ -101,6 +101,7 @@ namespace KLPlugins.DynLeaderboards.Car {
         public bool IsFocused { get; internal set; } = false;
         public bool IsOverallBestLapCar { get; private set; } = false;
         public bool IsClassBestLapCar { get; private set; } = false;
+        public int RelativeOnTrackLapDiff { get; private set; } = 0;
 
         public bool JumpedToPits { get; private set; } = false;
         public bool HasCrossedStartLine { get; private set; } = true;
@@ -446,6 +447,35 @@ namespace KLPlugins.DynLeaderboards.Car {
                                 setGap(CalculateGap(from, to));
                             }
                         }
+
+                        if (focusedCar.OffsetLapUpdate == OffsetLapUpdateType.None) {
+                            if (GapToFocusedTotal == null) {
+                                RelativeOnTrackLapDiff = 0;
+                            } else if (GapToFocusedTotal > 100_000) {
+                                RelativeOnTrackLapDiff = 1;
+                            } else if (GapToFocusedTotal < 50_000) {
+                                RelativeOnTrackLapDiff = 0;
+                                if (GapToFocusedOnTrack > 0) {
+                                    if (OverallPos > focusedCar.OverallPos) {
+                                        RelativeOnTrackLapDiff = -1;
+                                    } else {
+                                        RelativeOnTrackLapDiff = 0;
+                                    }
+                                } else {
+                                    if (OverallPos < focusedCar.OverallPos) {
+                                        RelativeOnTrackLapDiff = 1;
+                                    } else {
+                                        RelativeOnTrackLapDiff = 0;
+                                    }
+                                }
+                            } else {
+                                RelativeOnTrackLapDiff = -1;
+                            }
+                        
+                        
+                        }
+
+
                     }
                 } else {
                     // Use best laps to calculate gaps

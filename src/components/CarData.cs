@@ -232,7 +232,7 @@ namespace KLPlugins.DynLeaderboards.Car {
 
             MaxSpeed = Math.Max(MaxSpeed, NewData.Kmh);
             if (SetFinishedOnNextUpdate && OffsetLapUpdate == OffsetLapUpdateType.None) {
-                DynLeaderboardsPlugin.LogInfo($"Car #{RaceNumber} will finish on next update. Step 2");
+                //DynLeaderboardsPlugin.LogInfo($"Car #{RaceNumber} will finish on next update. Step 2");
                 IsFinalRealtimeCarUpdateAdded = true;
             }
 
@@ -251,7 +251,7 @@ namespace KLPlugins.DynLeaderboards.Car {
 
                 if (!HasCrossedStartLine && _isSplinePositionReset) {
                     HasCrossedStartLine = true;
-                    DynLeaderboardsPlugin.LogInfo($"#{RaceNumber}: set HasCrossedStartLine = true");
+                    //DynLeaderboardsPlugin.LogInfo($"#{RaceNumber}: set HasCrossedStartLine = true");
                 }
             }
 
@@ -267,7 +267,7 @@ namespace KLPlugins.DynLeaderboards.Car {
 
                 if (JumpedToPits && !NewData.IsInPitlane) {
                     JumpedToPits = false;
-                    DynLeaderboardsPlugin.LogInfo($"#{RaceNumber}: Removed jumped to pits.");
+                    //DynLeaderboardsPlugin.LogInfo($"#{RaceNumber}: Removed jumped to pits.");
                 }
             }
 
@@ -279,7 +279,7 @@ namespace KLPlugins.DynLeaderboards.Car {
                 ) {
                     OffsetLapUpdate = OffsetLapUpdateType.LapBeforeSpline;
                     _lapAtOffsetLapUpdate = NewData.Laps;
-                    DynLeaderboardsPlugin.LogInfo($"#{RaceNumber}: laps updated before spline position was reset (Type 1). NewData: laps={NewData.Laps}, sp={NewData.SplinePosition}, OldData: laps={OldData.Laps}, sp={OldData.SplinePosition}");
+                    //DynLeaderboardsPlugin.LogInfo($"#{RaceNumber}: laps updated before spline position was reset (Type 1). NewData: laps={NewData.Laps}, sp={NewData.SplinePosition}, OldData: laps={OldData.Laps}, sp={OldData.SplinePosition}");
                 } else if (OffsetLapUpdate == OffsetLapUpdateType.None
                             && _isSplinePositionReset
                             && NewData.Laps != _lapAtOffsetLapUpdate // Remove double detection with above
@@ -288,19 +288,19 @@ namespace KLPlugins.DynLeaderboards.Car {
                 ) {
                     OffsetLapUpdate = OffsetLapUpdateType.SplineBeforeLap;
                     _lapAtOffsetLapUpdate = NewData.Laps;
-                    DynLeaderboardsPlugin.LogInfo($"#{RaceNumber}: spline position was reset before laps were updated (Type 2). NewData: laps={NewData.Laps}, sp={NewData.SplinePosition}, OldData: laps={OldData.Laps}, sp={OldData.SplinePosition}");
+                    //DynLeaderboardsPlugin.LogInfo($"#{RaceNumber}: spline position was reset before laps were updated (Type 2). NewData: laps={NewData.Laps}, sp={NewData.SplinePosition}, OldData: laps={OldData.Laps}, sp={OldData.SplinePosition}");
                 }
 
                 if (OffsetLapUpdate == OffsetLapUpdateType.LapBeforeSpline) {
                     if (NewData.SplinePosition < 0.9) {
                         OffsetLapUpdate = OffsetLapUpdateType.None;
-                        DynLeaderboardsPlugin.LogInfo($"#{RaceNumber}: offset lap update removed, all ok now again. tsp={TotalSplinePosition}, sp={NewData.SplinePosition}, laps={NewData.Laps}");
+                        //DynLeaderboardsPlugin.LogInfo($"#{RaceNumber}: offset lap update removed, all ok now again. tsp={TotalSplinePosition}, sp={NewData.SplinePosition}, laps={NewData.Laps}");
                     }
                 } else if (OffsetLapUpdate == OffsetLapUpdateType.SplineBeforeLap) {
                     if (NewData.Laps != _lapAtOffsetLapUpdate || (NewData.SplinePosition > 0.025 && NewData.SplinePosition < 0.9)) {
                         // Second condition is a fallback in case the lap actually shouldn't have been updated (eg at the start line, jumped to pits and then crossed the line in the pits)
                         OffsetLapUpdate = OffsetLapUpdateType.None;
-                        DynLeaderboardsPlugin.LogInfo($"#{RaceNumber}: offset lap update removed, all ok now again. tsp={TotalSplinePosition}, sp={NewData.SplinePosition}, laps={NewData.Laps}");
+                        //DynLeaderboardsPlugin.LogInfo($"#{RaceNumber}: offset lap update removed, all ok now again. tsp={TotalSplinePosition}, sp={NewData.SplinePosition}, laps={NewData.Laps}");
                     }
                 }
             }
@@ -433,11 +433,19 @@ namespace KLPlugins.DynLeaderboards.Car {
 
                     // Freeze gaps until all is in order again, fixes gap suddenly jumping to larger values as spline positions could be out of sync
                     if (OffsetLapUpdate == OffsetLapUpdateType.None) {
-                        if (leaderCar?.OffsetLapUpdate == OffsetLapUpdateType.None) GapToLeader = CalculateGap(this, leaderCar);
-                        if (classLeaderCar?.OffsetLapUpdate == OffsetLapUpdateType.None) GapToClassLeader = CalculateGap(this, classLeaderCar);
-                        if (focusedCar?.OffsetLapUpdate == OffsetLapUpdateType.None) GapToFocusedTotal = CalculateGap(focusedCar, this);
-                        if (carAhead?.OffsetLapUpdate == OffsetLapUpdateType.None) GapToAhead = CalculateGap(this, carAhead);
-                        if (carAheadInClass?.OffsetLapUpdate == OffsetLapUpdateType.None) GapToAheadInClass = CalculateGap(this, carAheadInClass);
+                        SetGap(this, leaderCar, leaderCar, GapToLeader, x => GapToLeader = x);
+                        SetGap(this, classLeaderCar, classLeaderCar, GapToClassLeader, x => GapToClassLeader = x);
+                        SetGap(focusedCar, this, focusedCar, GapToFocusedTotal, x => GapToFocusedTotal = x);
+                        SetGap(this, carAhead, carAhead, GapToAhead, x => GapToAhead = x);
+                        SetGap(this, carAheadInClass, carAheadInClass, GapToAheadInClass, x => GapToAheadInClass = x);
+
+                        void SetGap(CarData from, CarData to, CarData other, double? currentGap, Action<double?> setGap) {
+                            if (from == null || to == null)
+                                setGap(null);
+                            else if (other.OffsetLapUpdate == OffsetLapUpdateType.None) {
+                                setGap(CalculateGap(from, to));
+                            }
+                        }
                     }
                 } else {
                     // Use best laps to calculate gaps
@@ -527,7 +535,7 @@ namespace KLPlugins.DynLeaderboards.Car {
         internal void SetIsFinished(TimeSpan finishTime) {
             SetFinishedOnNextUpdate = true;
             FinishTime = finishTime;
-            DynLeaderboardsPlugin.LogInfo($"Car #{RaceNumber} will finish on next update. Step 1");
+            //DynLeaderboardsPlugin.LogInfo($"Car #{RaceNumber} will finish on next update. Step 1");
         }
 
         /// <summary>

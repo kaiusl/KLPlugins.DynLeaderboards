@@ -30,7 +30,7 @@
                 case TrackType.Silverstone:
                     return 0.0209485;
                 case TrackType.Spa:
-                    return 0.0038425;
+                    return 0.0036425;
                 default:
                     return 0;
             }

@@ -436,7 +436,7 @@ namespace KLPlugins.DynLeaderboards.Settings {
                    "Set number of relative positions exposed for partial relative class " +
                    "leaderboard from the focused car in one direction. " +
                    "That is if it's set to 5, we show 5 cars ahead and 5 behind.",
-                   nameof(DynLeaderboardConfig.PartialRelativeOverallNumRelativePos),
+                   nameof(DynLeaderboardConfig.PartialRelativeClassNumRelativePos),
                    0,
                    50,
                    1

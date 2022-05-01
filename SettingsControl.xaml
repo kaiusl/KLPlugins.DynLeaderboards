@@ -246,7 +246,7 @@
                     <Expander Header="More information">
                         <StackPanel>
 
-                            <TextBlock MaxWidth="750" TextWrapping="Wrap">You can enable/disable specific leaderboards and choose the order in which they appear.</TextBlock>
+                            <TextBlock MaxWidth="750" TextWrapping="Wrap">You can enable/disable specific leaderboards and choose the order in which they appear. You don't need to restart SimHub after you change the rotation.</TextBlock>
                             <TextBlock MaxWidth="750" TextWrapping="Wrap">Available leaderboard types are.</TextBlock>
                             <TextBlock MaxWidth="750" TextWrapping="Wrap" Padding="10,0,0,0">Overall leaderboards - `N` top positions. There are two types:</TextBlock>
                             <TextBlock MaxWidth="750" TextWrapping="Wrap" Padding="20,0,0,0">* Overall - In overall order</TextBlock>
@@ -258,7 +258,6 @@
                             <TextBlock MaxWidth="750" TextWrapping="Wrap" Padding="10,0,0,0">Partial relative leaderboards - `N` top positions and `2M + 1` relative positions. If the focused car is inside the first `N + M + 1` positions the order will be just as the overall leaderboard. There are two types:</TextBlock>
                             <TextBlock MaxWidth="750" TextWrapping="Wrap" Padding="20,0,0,0">* PartialRelativeOverall - In overall order</TextBlock>
                             <TextBlock MaxWidth="750" TextWrapping="Wrap" Padding="20,0,0,0">* PartialRelativeClass - In the order of focused car's class</TextBlock>
-
                         </StackPanel>
                     </Expander>
                     <StackPanel Orientation="Horizontal">

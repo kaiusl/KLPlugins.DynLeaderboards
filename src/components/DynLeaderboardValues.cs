@@ -89,6 +89,10 @@ namespace KLPlugins.DynLeaderboards {
                     break;
 
                 case Leaderboard.RelativeOverall:
+                    if (_relativeOverallCarsIdxs == null) {
+                        _relativeOverallCarsIdxs = new int?[Settings.NumOverallRelativePos * 2 + 1];
+                    }
+
                     GetDynCar = (i) => v.GetCar(i, _relativeOverallCarsIdxs);
                     GetFocusedCarIdxInDynLeaderboard = () => Settings.NumOverallRelativePos;
                     GetDynGapToFocused = (i) => GetDynCar(i)?.GapToFocusedTotal;
@@ -99,6 +103,10 @@ namespace KLPlugins.DynLeaderboards {
                     break;
 
                 case Leaderboard.RelativeClass:
+                    if (_relativeClassCarsIdxs == null) {
+                        _relativeClassCarsIdxs = new int?[Settings.NumClassRelativePos * 2 + 1];
+                    }
+
                     GetDynCar = (i) => v.GetCar(i, _relativeClassCarsIdxs);
                     GetFocusedCarIdxInDynLeaderboard = () => Settings.NumClassRelativePos;
                     GetDynGapToFocused = (i) => GetDynCar(i)?.GapToFocusedTotal;
@@ -109,6 +117,10 @@ namespace KLPlugins.DynLeaderboards {
                     break;
 
                 case Leaderboard.PartialRelativeOverall:
+                    if (_partialRelativeOverallCarsIdxs == null) {
+                        _partialRelativeOverallCarsIdxs = new int?[Settings.PartialRelativeOverallNumOverallPos + Settings.PartialRelativeOverallNumRelativePos * 2 + 1];
+                    }
+
                     GetDynCar = (i) => v.GetCar(i, _partialRelativeOverallCarsIdxs);
                     GetFocusedCarIdxInDynLeaderboard = () => _focusedCarPosInPartialRelativeOverallCarsIdxs;
                     GetDynGapToFocused = (i) => GetDynCar(i)?.GapToFocusedTotal;
@@ -119,6 +131,10 @@ namespace KLPlugins.DynLeaderboards {
                     break;
 
                 case Leaderboard.PartialRelativeClass:
+                    if (_partialRelativeClassCarsIdxs == null) {
+                        _partialRelativeClassCarsIdxs = new int?[Settings.PartialRelativeClassNumClassPos + Settings.PartialRelativeClassNumRelativePos * 2 + 1];
+                    }
+
                     GetDynCar = (i) => v.GetCar(i, _partialRelativeClassCarsIdxs);
                     GetFocusedCarIdxInDynLeaderboard = () => _focusedCarPosInPartialRelativeClassCarsIdxs;
                     GetDynGapToFocused = (i) => GetDynCar(i)?.GapToFocusedTotal;
@@ -129,6 +145,9 @@ namespace KLPlugins.DynLeaderboards {
                     break;
 
                 case Leaderboard.RelativeOnTrack:
+                    if (_relativePosOnTrackCarsIdxs == null) {
+                        _relativePosOnTrackCarsIdxs = new int?[Settings.NumOnTrackRelativePos * 2 + 1];
+                    }
                     GetDynCar = (i) => v.GetCar(i, _relativePosOnTrackCarsIdxs);
                     GetFocusedCarIdxInDynLeaderboard = () => Settings.NumOnTrackRelativePos;
                     GetDynGapToFocused = (i) => GetDynCar(i)?.GapToFocusedOnTrack;
@@ -139,15 +158,20 @@ namespace KLPlugins.DynLeaderboards {
                     break;
 
                 default:
-                    GetDynCar = (i) => null;
-                    GetFocusedCarIdxInDynLeaderboard = () => null;
-                    GetDynGapToFocused = (i) => double.NaN;
-                    GetDynGapToAhead = (i) => double.NaN;
-                    GetDynBestLapDeltaToFocusedBest = (i) => double.NaN;
-                    GetDynLastLapDeltaToFocusedBest = (i) => double.NaN;
-                    GetDynLastLapDeltaToFocusedLast = (i) => double.NaN;
+                    SetDefault();
                     break;
             }
+
+            void SetDefault() {
+                GetDynCar = (i) => null;
+                GetFocusedCarIdxInDynLeaderboard = () => null;
+                GetDynGapToFocused = (i) => double.NaN;
+                GetDynGapToAhead = (i) => double.NaN;
+                GetDynBestLapDeltaToFocusedBest = (i) => double.NaN;
+                GetDynLastLapDeltaToFocusedBest = (i) => double.NaN;
+                GetDynLastLapDeltaToFocusedLast = (i) => double.NaN;
+            }
+
         }
 
         internal void SetRelativeOnTrackOrder(List<CarSplinePos> _relativeSplinePositions, int focusedCarIdx) {

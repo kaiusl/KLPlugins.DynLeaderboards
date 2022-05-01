@@ -419,6 +419,11 @@ namespace KLPlugins.DynLeaderboards {
         }
 
 
+        internal void SetDynamicCarGetter(DynLeaderboardConfig l) {
+            _values.LeaderboardValues.Find(x => x.Settings.Name == l.Name)?.SetDynGetters(_values);
+        }
+
+
         #region Logging
 
         internal void InitLogginig() {

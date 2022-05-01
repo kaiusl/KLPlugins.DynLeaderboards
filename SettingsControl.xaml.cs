@@ -555,7 +555,10 @@ namespace KLPlugins.DynLeaderboards.Settings {
         /// </summary>
         private void CreateDynamicLeaderboardList() {
             var selected = SelectDynLeaderboard_ComboBox.SelectedIndex;
+            var currentSelectedLeaderboard = Settings.DynLeaderboardConfigs[selected].CurrentLeaderboard();
+            Settings.DynLeaderboardConfigs[selected].CurrentLeaderboardIdx = 0;
             Settings.DynLeaderboardConfigs[selected].Order.Clear();
+            int i = 0;
             foreach (var v in DynLeaderboards_ListView.Items) {
                 var sp = (StackPanel)v;
                 var tb = (SHToggleButton)sp.Children[0];
@@ -564,8 +567,14 @@ namespace KLPlugins.DynLeaderboards.Settings {
 
                 if (Enum.TryParse(txt.Text, out Leaderboard variant)) {
                     Settings.DynLeaderboardConfigs[selected].Order.Add(variant);
+                    if (variant == currentSelectedLeaderboard) { // Keep selected leaderboard as was, if that one was removed, set to first
+                        Settings.DynLeaderboardConfigs[selected].CurrentLeaderboardIdx = i;
+                    }
+
+                    i++;
                 }
             }
+            Plugin.SetDynamicCarGetter(Settings.DynLeaderboardConfigs[selected]);
         }
 
         private void AddPropertyToggles() {
@@ -813,7 +822,7 @@ namespace KLPlugins.DynLeaderboards.Settings {
             t.Width = 250;
             var t2 = new TextBlock();
             t2.Text = tooltip;
-            t2.MaxWidth = 750;
+            t2.MaxWidth = 500;
             t2.TextWrapping = TextWrapping.Wrap;
 
             sp.Children.Add(tb);

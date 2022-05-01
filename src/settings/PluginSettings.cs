@@ -3,7 +3,7 @@ using KLPlugins.DynLeaderboards.ksBroadcastingNetwork;
 using System;
 using System.Collections.Generic;
 using System.IO;
-
+using System.Linq;
 
 namespace KLPlugins.DynLeaderboards.Settings {
     class PluginSettings {
@@ -134,29 +134,28 @@ namespace KLPlugins.DynLeaderboards.Settings {
         public int PartialRelativeClassNumClassPos { get; set; } = 5;
         public int PartialRelativeClassNumRelativePos { get; set; } = 5;
 
-        internal List<Leaderboard> Order { get; set; } = new List<Leaderboard>() {
-            Leaderboard.Overall,
-            Leaderboard.Class,
-            Leaderboard.PartialRelativeOverall,
-            Leaderboard.PartialRelativeClass,
-            Leaderboard.RelativeOverall,
-            Leaderboard.RelativeClass,
-            Leaderboard.RelativeOnTrack
-        };
+        public List<Leaderboard> Order { get; set; } = new List<Leaderboard>();
 
-        public int CurrentLeaderboardIdx { get; set; } = 0;
+        public int CurrentLeaderboardIdx { get => _currentLeaderboardIdx; set { _currentLeaderboardIdx = value > -1 && value < Order.Count  ? value : 0; } }
+        private int _currentLeaderboardIdx = 0;
+
         public Leaderboard CurrentLeaderboard() {
-            if (Order.Count > 0) {
-                return Order[CurrentLeaderboardIdx];
-            } else {
-                return Leaderboard.None;
-            }
+            return Order.ElementAtOrDefault(CurrentLeaderboardIdx);
         }
 
         public DynLeaderboardConfig() { }
 
         internal DynLeaderboardConfig(string name) {
             Name = name;
+            Order = new List<Leaderboard>() {
+                Leaderboard.Overall,
+                Leaderboard.Class,
+                Leaderboard.PartialRelativeOverall,
+                Leaderboard.PartialRelativeClass,
+                Leaderboard.RelativeOverall,
+                Leaderboard.RelativeClass,
+                Leaderboard.RelativeOnTrack
+            };
         }
     }
 

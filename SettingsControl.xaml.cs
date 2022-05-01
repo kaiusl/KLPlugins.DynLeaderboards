@@ -246,7 +246,7 @@ namespace KLPlugins.DynLeaderboards.Settings {
         }
 
         private void TeamCupTextColorPickerReset(TeamCupCategory cup) {
-            DynLeaderboardsPlugin.Settings.TeamCupCategoryTextColors[cup] = cup.ACCColor();
+            DynLeaderboardsPlugin.Settings.TeamCupCategoryTextColors[cup] = cup.ACCTextColor();
             _cupTextColorPickers[cup].SelectedColor = (Color)ColorConverter.ConvertFromString(cup.ACCTextColor());
         }
 

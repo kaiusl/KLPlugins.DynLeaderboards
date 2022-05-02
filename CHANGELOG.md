@@ -6,6 +6,17 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+## [1.1.1] - 2022-05-03
+
+### Improvements
+- Don't need to restart SimHub if you only change leaderboard rotation.
+
+### Fixed
+- Leaderboard rotation was not saved and thus on SimHub start the rotation was always default.
+- Team cup category text color reset button set the color to background color.
+- Number of partial relative *class* leaderboard relative positions actually changed number of partial relative *overall* leaderboard relative positions.
+- Plugin and SimHub crashed if you added new leaderboard to the rotation and selected it without restarting SimHub. With this fix you actually don't have to restart SimHub if you change leaderboard rotation.
+
 ## [1.1.0] - 2022-04-30
 
 ### Added
@@ -44,6 +55,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [1.0.0] - 2022-04-19
 - Initial public release
 
-[Unreleased]: https://github.com/kaiusl/KLPlugins.Leaderboard/compare/v1.0.0...HEAD
+[Unreleased]: https://github.com/kaiusl/KLPlugins.Leaderboard/compare/v1.1.1...HEAD
+[1.1.1]: https://github.com/kaiusl/KLPlugins.Leaderboard/releases/tag/v1.1.1
 [1.1.0]: https://github.com/kaiusl/KLPlugins.Leaderboard/releases/tag/v1.1.0
 [1.0.0]: https://github.com/kaiusl/KLPlugins.Leaderboard/releases/tag/v1.0.0

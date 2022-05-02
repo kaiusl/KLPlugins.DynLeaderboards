@@ -82,7 +82,7 @@
                     </TextBlock>
 
                     <TextBlock>
-                    <Span xml:space="preserve"><Run> For more information you can also see: </Run><Hyperlink RequestNavigate="Hyperlink_RequestNavigate" NavigateUri="https://github.com/kaiusl/KLPlugins.Leaderboard">KLPlugins.Leaderboard</Hyperlink></Span>
+                    <Span xml:space="preserve"><Run> For more information you can also see: </Run><Hyperlink RequestNavigate="Hyperlink_RequestNavigate" NavigateUri="https://github.com/kaiusl/KLPlugins.DynLeaderboards">KLPlugins.DynLeaderboards</Hyperlink></Span>
                     </TextBlock>
 
                     <!-- ACC Config location -->

@@ -1,4 +1,5 @@
 ﻿namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork {
+
     public enum DriverCategory {
         Platinum = 3,
         Gold = 2,
@@ -33,6 +34,7 @@
         PostSession = 7,
         ResultUI = 8
     };
+
     public enum RaceSessionType {
         Practice = 0,
         Qualifying = 4,
@@ -157,21 +159,26 @@
             switch (s.ToLower()) {
                 case "practice":
                     return RaceSessionType.Practice;
+
                 case "qualify":
                     return RaceSessionType.Qualifying;
+
                 case "race":
                     return RaceSessionType.Race;
+
                 case "hotlap":
                     return RaceSessionType.Hotlap;
+
                 case "7":
                 case "hotstint":
                     return RaceSessionType.Hotstint;
+
                 case "8":
                 case "hotlapsuperpole":
                     return RaceSessionType.HotlapSuperpole;
+
                 default:
                     return RaceSessionType.Practice;
-
             }
         }
 
@@ -179,17 +186,19 @@
             switch (c) {
                 case DriverCategory.Platinum:
                     return "#FFFFFFFF";
+
                 case DriverCategory.Gold:
                     return "#FFFFD700";
+
                 case DriverCategory.Silver:
                     return "#FFA5A5A5";
+
                 case DriverCategory.Bronze:
                     return "#FFCD7F32";
+
                 default:
                     return "#FFFFFFFF";
             }
         }
     }
-
-
 }

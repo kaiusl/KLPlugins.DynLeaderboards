@@ -1,6 +1,6 @@
-﻿
-namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork.Structs {
-    class BroadcastingEvent {
+﻿namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork.Structs {
+
+    internal class BroadcastingEvent {
         public BroadcastingCarEventType Type { get; internal set; }
         public string Msg { get; internal set; }
         public double Time { get; internal set; }

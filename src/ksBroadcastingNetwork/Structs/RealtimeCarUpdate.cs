@@ -1,6 +1,6 @@
-﻿
-namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork.Structs {
-    class RealtimeCarUpdate {
+﻿namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork.Structs {
+
+    internal class RealtimeCarUpdate {
         public int CarIndex { get; internal set; }
         public int DriverIndex { get; internal set; } // This changes after the first sector
         public int Gear { get; internal set; }
@@ -22,6 +22,5 @@ namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork.Structs {
 
         public bool IsInPitlane => CarLocation == CarLocationEnum.Pitlane;
         public bool IsOnTrack => CarLocation == CarLocationEnum.Track;
-
     }
 }

@@ -2,7 +2,8 @@
 using KLPlugins.DynLeaderboards.ksBroadcastingNetwork.Structs;
 
 namespace KLPlugins.DynLeaderboards.Driver {
-    class DriverData {
+
+    internal class DriverData {
         public string FirstName { get; internal set; }
         public string LastName { get; internal set; }
         public string ShortName { get; internal set; }
@@ -34,7 +35,8 @@ namespace KLPlugins.DynLeaderboards.Driver {
         }
 
         internal double GetTotalDrivingTime(bool isDriving = false, double? currentStintTime = null) {
-            if (isDriving && currentStintTime != null) return _totalDrivingTime + (double)currentStintTime;
+            if (isDriving && currentStintTime != null)
+                return _totalDrivingTime + (double)currentStintTime;
             return _totalDrivingTime;
         }
 
@@ -68,6 +70,5 @@ namespace KLPlugins.DynLeaderboards.Driver {
 
             return FirstName == p.FirstName && LastName == p.LastName && ShortName == p.ShortName && Nationality == p.Nationality && Category == p.Category;
         }
-
     }
 }

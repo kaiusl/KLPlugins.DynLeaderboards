@@ -1,6 +1,6 @@
-﻿
-namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork.Structs {
-    class DriverInfo {
+﻿namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork.Structs {
+
+    internal class DriverInfo {
         public string FirstName { get; internal set; }
         public string LastName { get; internal set; }
         public string ShortName { get; internal set; }

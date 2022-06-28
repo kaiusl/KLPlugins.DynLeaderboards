@@ -1,5 +1,6 @@
 ﻿namespace KLPlugins.DynLeaderboards.Track {
-    enum TrackType {
+
+    internal enum TrackType {
         BrandsHatch = 1,
         Spa = 2,
         Monza = 3,
@@ -23,19 +24,19 @@
         Unknown = 255
     }
 
-    static class TrackExtensions {
+    internal static class TrackExtensions {
 
         public static double SplinePosOffset(this TrackType track) {
             switch (track) {
                 case TrackType.Silverstone:
                     return 0.0209485;
+
                 case TrackType.Spa:
                     return 0.0036425;
+
                 default:
                     return 0;
             }
         }
-
     }
-
 }

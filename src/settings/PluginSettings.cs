@@ -6,7 +6,8 @@ using System.IO;
 using System.Linq;
 
 namespace KLPlugins.DynLeaderboards.Settings {
-    class PluginSettings {
+
+    internal class PluginSettings {
         internal string PluginDataLocation { get; set; }
 
         public string AccDataLocation { get; set; }
@@ -33,7 +34,6 @@ namespace KLPlugins.DynLeaderboards.Settings {
             TeamCupCategoryColors = CreateDefCupColors();
             TeamCupCategoryTextColors = CreateDefCupTextColors();
             DriverCategoryColors = CreateDefDriverCategoryColors();
-
         }
 
         public int GetMaxNumClassPos() {
@@ -50,7 +50,8 @@ namespace KLPlugins.DynLeaderboards.Settings {
             var carClassColors = new Dictionary<CarClass, string>(8);
             foreach (var c in Enum.GetValues(typeof(CarClass))) {
                 var cls = (CarClass)c;
-                if (cls == CarClass.Unknown || cls == CarClass.Overall) continue;
+                if (cls == CarClass.Unknown || cls == CarClass.Overall)
+                    continue;
                 carClassColors.Add(cls, cls.ACCColor());
             }
             return carClassColors;
@@ -78,12 +79,12 @@ namespace KLPlugins.DynLeaderboards.Settings {
             var dict = new Dictionary<DriverCategory, string>(4);
             foreach (var c in Enum.GetValues(typeof(DriverCategory))) {
                 var cat = (DriverCategory)c;
-                if (cat == DriverCategory.Error) continue;
+                if (cat == DriverCategory.Error)
+                    continue;
                 dict.Add(cat, cat.GetAccColor());
             }
             return dict;
         }
-
 
         internal bool SetAccDataLocation(string newLoc) {
             if (!Directory.Exists($"{newLoc}\\Config")) {
@@ -112,11 +113,13 @@ namespace KLPlugins.DynLeaderboards.Settings {
             | OutCarProp.TeamCupCategoryColor
             | OutCarProp.TeamCupCategoryTextColor
             | OutCarProp.RelativeOnTrackLapDiff;
+
         public OutPitProp OutPitProps = OutPitProp.IsInPitLane;
         public OutPosProp OutPosProps = OutPosProp.OverallPosition | OutPosProp.ClassPosition;
         public OutGapProp OutGapProps = OutGapProp.DynamicGapToFocused;
         public OutStintProp OutStintProps = OutStintProp.None;
         public OutDriverProp OutDriverProps = OutDriverProp.InitialPlusLastName;
+
         public OutLapProp OutLapProps = OutLapProp.Laps
             | OutLapProp.LastLapTime
             | OutLapProp.BestLapTime
@@ -136,14 +139,15 @@ namespace KLPlugins.DynLeaderboards.Settings {
 
         public List<Leaderboard> Order { get; set; } = new List<Leaderboard>();
 
-        public int CurrentLeaderboardIdx { get => _currentLeaderboardIdx; set { _currentLeaderboardIdx = value > -1 && value < Order.Count  ? value : 0; } }
+        public int CurrentLeaderboardIdx { get => _currentLeaderboardIdx; set { _currentLeaderboardIdx = value > -1 && value < Order.Count ? value : 0; } }
         private int _currentLeaderboardIdx = 0;
 
         public Leaderboard CurrentLeaderboard() {
             return Order.ElementAtOrDefault(CurrentLeaderboardIdx);
         }
 
-        public DynLeaderboardConfig() { }
+        public DynLeaderboardConfig() {
+        }
 
         internal DynLeaderboardConfig(string name) {
             Name = name;
@@ -158,5 +162,4 @@ namespace KLPlugins.DynLeaderboards.Settings {
             };
         }
     }
-
 }

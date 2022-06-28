@@ -5,13 +5,21 @@ using System.Diagnostics;
 using System.Linq;
 
 namespace KLPlugins.DynLeaderboards {
-    class DynLeaderboardValues {
+
+    internal class DynLeaderboardValues {
+
         public delegate CarData GetDynCarDelegate(int i);
+
         public delegate int? GetFocusedCarIdxInLDynLeaderboardDelegate();
+
         public delegate double? DynGapToFocusedDelegate(int i);
+
         public delegate double? DynGapToAheadDelegate(int i);
+
         public delegate double? DynBestLapDeltaToFocusedBestDelegate(int i);
+
         public delegate double? DynLastLapDeltaToFocusedBestDelegate(int i);
+
         public delegate double? DynLastLapDeltaToFocusedLastDelegate(int i);
 
         public GetDynCarDelegate GetDynCar { get; private set; }
@@ -59,7 +67,8 @@ namespace KLPlugins.DynLeaderboards {
             ResetIdxs(_partialRelativeOverallCarsIdxs);
 
             void ResetIdxs(int?[] arr) {
-                if (arr == null) return;
+                if (arr == null)
+                    return;
                 for (int i = 0; i < arr.Length; i++) {
                     arr[i] = null;
                 }
@@ -171,7 +180,6 @@ namespace KLPlugins.DynLeaderboards {
                 GetDynLastLapDeltaToFocusedBest = (i) => double.NaN;
                 GetDynLastLapDeltaToFocusedLast = (i) => double.NaN;
             }
-
         }
 
         internal void SetRelativeOnTrackOrder(List<CarSplinePos> _relativeSplinePositions, int focusedCarIdx) {
@@ -190,7 +198,6 @@ namespace KLPlugins.DynLeaderboards {
                 .Take(relPos)
                 .ToList()
                 .ConvertAll(x => (int?)x.CarIdx);
-
 
             ahead.CopyTo(_relativePosOnTrackCarsIdxs, relPos - ahead.Count);
             _relativePosOnTrackCarsIdxs[relPos] = focusedCarIdx;
@@ -275,6 +282,5 @@ namespace KLPlugins.DynLeaderboards {
             }
             return false;
         }
-
     }
 }

@@ -1,8 +1,8 @@
-﻿
-using System;
+﻿using System;
 
 namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork.Structs {
-    class RealtimeUpdate {
+
+    internal class RealtimeUpdate {
         public int EventIndex { get; internal set; }
         public int SessionIndex { get; internal set; }
         public SessionPhase Phase { get; internal set; }
@@ -28,6 +28,5 @@ namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork.Structs {
         public byte TrackTemp { get; internal set; }
         public string CurrentHudPage { get; internal set; }
         public DateTime RecieveTime { get; internal set; }
-
     }
 }

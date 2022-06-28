@@ -1,16 +1,15 @@
 ﻿<UserControl x:Class="KLPlugins.DynLeaderboards.Settings.SettingsControl"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
-             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:local="clr-namespace:KLPlugins.DynLeaderboards.Settings"
-             xmlns:styles="clr-namespace:SimHub.Plugins.Styles;assembly=SimHub.Plugins" 
-             mc:Ignorable="d" 
+             xmlns:styles="clr-namespace:SimHub.Plugins.Styles;assembly=SimHub.Plugins"
+             mc:Ignorable="d"
              xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
-             xmlns:ui="clr-namespace:SimHub.Plugins.UI;assembly=SimHub.Plugins" 
+             xmlns:ui="clr-namespace:SimHub.Plugins.UI;assembly=SimHub.Plugins"
              xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
-             d:DesignHeight="1200" d:DesignWidth="800"
-             >
+             d:DesignHeight="1200" d:DesignWidth="800">
 
     <UserControl.Resources>
         <!-- Limit tooltip width. -->
@@ -37,45 +36,42 @@
         <Style TargetType="TextBlock">
             <Setter Property="FontSize" Value="13" />
             <Setter Property="Margin" Value="5,5,0,5" />
-            <Setter Property="VerticalAlignment" Value="Center"/>
-            <Setter Property="HorizontalAlignment" Value="Left"/>
-            <Setter Property="TextWrapping" Value="Wrap"/>
+            <Setter Property="VerticalAlignment" Value="Center" />
+            <Setter Property="HorizontalAlignment" Value="Left" />
+            <Setter Property="TextWrapping" Value="Wrap" />
         </Style>
 
         <!-- Default section style -->
         <Style TargetType="styles:SHSectionTitle">
-            <Setter Property="FontSize" Value="20"/>
+            <Setter Property="FontSize" Value="20" />
         </Style>
 
         <!-- Row separator -->
         <Style x:Key="RowSep" TargetType="Separator">
-            <Setter Property="Background" Value="LightGray"/>
-            <Setter Property="Height" Value="1"/>
-            <Setter Property="Margin" Value="0,0,20,0"/>
+            <Setter Property="Background" Value="LightGray" />
+            <Setter Property="Height" Value="1" />
+            <Setter Property="Margin" Value="0,0,20,0" />
         </Style>
-
-
     </UserControl.Resources>
 
     <styles:SHTabControl>
-        
+
         <styles:SHTabItem Header="General settings">
             <ScrollViewer>
                 <StackPanel x:Name="GenSettings_StackPanel" Margin="20,0,20,0">
                 <StackPanel.Resources>
 
                     <Style x:Key="Description" TargetType="TextBlock">
-                        <Setter Property="HorizontalAlignment" Value="Left"/>
-                        <Setter Property="VerticalAlignment" Value="Center"/>
-                        <Setter Property="TextWrapping" Value="Wrap"/>
+                        <Setter Property="HorizontalAlignment" Value="Left" />
+                        <Setter Property="VerticalAlignment" Value="Center" />
+                        <Setter Property="TextWrapping" Value="Wrap" />
                     </Style>
 
                     <Style TargetType="Separator">
-                        <Setter Property="Background" Value="LightGray"/>
-                        <Setter Property="Height" Value="1"/>
-                        <Setter Property="Margin" Value="0,0,20,0"/>
+                        <Setter Property="Background" Value="LightGray" />
+                        <Setter Property="Height" Value="1" />
+                        <Setter Property="Margin" Value="0,0,20,0" />
                     </Style>
-
                 </StackPanel.Resources>
 
                     <TextBlock MaxWidth="750" TextWrapping="Wrap">These settings are global to the whole plugin. <Bold>For the changes to take effect you need to restart SimHub</Bold>.
@@ -89,158 +85,147 @@
 
                 <Grid ToolTip="Location of ACC configuration folder. That is where for example ..\Config\broadcasting.json is located.">
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition MaxWidth="500"/>
-                        <ColumnDefinition MinWidth="300"/>
+                        <ColumnDefinition MaxWidth="500" />
+                        <ColumnDefinition MinWidth="300" />
                     </Grid.ColumnDefinitions>
                     <Grid.RowDefinitions>
-                        <RowDefinition MinHeight="35"/>
+                        <RowDefinition MinHeight="35" />
                     </Grid.RowDefinitions>
 
                     <TextBlock Grid.Column="0" Style="{StaticResource Description}">ACC configuration location:</TextBlock>
                     <TextBox Grid.Column="1" x:Name="AccDataLocation_TextBox"
                              Height="25"
-                             HorizontalAlignment="Left" 
+                             HorizontalAlignment="Left"
                              VerticalAlignment="Center"
-                             TextChanged="AccDataLocation_TextChanged"
-                             />
+                             TextChanged="AccDataLocation_TextChanged" />
                 </Grid>
-                <Separator/>
+                <Separator />
 
                 <!-- Update interval -->
 
                 <Grid ToolTip="Sets the update interval of data from ACC. As leaderboard data doesn't change that fast something around 100-500ms should work very well.">
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition MaxWidth="500"/>
-                        <ColumnDefinition MinWidth="100"/>
+                        <ColumnDefinition MaxWidth="500" />
+                        <ColumnDefinition MinWidth="100" />
                     </Grid.ColumnDefinitions>
                     <Grid.RowDefinitions>
-                        <RowDefinition MinHeight="35"/>
+                        <RowDefinition MinHeight="35" />
                     </Grid.RowDefinitions>
-                    <TextBlock Grid.Column="0" Text="Data update interval: " Style="{StaticResource Description}"/>
+                    <TextBlock Grid.Column="0" Text="Data update interval: " Style="{StaticResource Description}" />
                     <mah:NumericUpDown x:Name="UpdateInterval_NumericUpDown" Grid.Column="1"
-                                       HasDecimals="False" 
-                                       Width="100" 
-                                       Minimum="10" Maximum="1000" Interval="10" 
+                                       HasDecimals="False"
+                                       Width="100"
+                                       Minimum="10" Maximum="1000" Interval="10"
                                        VerticalAlignment="Center"
                                        HorizontalAlignment="Left"
                                        StringFormat="0ms"
-                                       ValueChanged="NumericUpDown_ValueChanged"
-                                       />
-
-
+                                       ValueChanged="NumericUpDown_ValueChanged" />
                 </Grid>
-                <Separator/>
+                <Separator />
 
                 <!-- Enable logging -->
 
                 <Grid ToolTip="Enable or disable information logging. Errors will still be logged.">
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition MaxWidth="500"/>
-                        <ColumnDefinition MinWidth="100"/>
+                        <ColumnDefinition MaxWidth="500" />
+                        <ColumnDefinition MinWidth="100" />
                     </Grid.ColumnDefinitions>
                     <Grid.RowDefinitions>
-                        <RowDefinition MinHeight="35"/>
+                        <RowDefinition MinHeight="35" />
                     </Grid.RowDefinitions>
 
-                    <TextBlock Grid.Column="0" Text="Log info: " Style="{StaticResource Description}"/>
-                    <styles:SHToggleButton Grid.Column="1" x:Name="Logging_ToggleButton" 
+                    <TextBlock Grid.Column="0" Text="Log info: " Style="{StaticResource Description}" />
+                    <styles:SHToggleButton Grid.Column="1" x:Name="Logging_ToggleButton"
                                            HorizontalAlignment="Left"
                                            VerticalAlignment="Center"
-                                           Click="Logging_ToggleButton_Click"
-                                           />
+                                           Click="Logging_ToggleButton_Click" />
                 </Grid>
-                <Separator/>
+                <Separator />
 
-                <styles:SHSectionTitle Text="EXPOSED PROPERTIES"/>
+                <styles:SHSectionTitle Text="EXPOSED PROPERTIES" />
                 <StackPanel x:Name="OtherProperties_StackPanel">
                 </StackPanel>
 
-                <styles:SHSectionTitle Text="COLORS"/>
+                <styles:SHSectionTitle Text="COLORS" />
                     <!-- Class colors -->
                 <styles:SHSmallTitle>Car class</styles:SHSmallTitle>
-                <StackPanel x:Name="ClassColors_StackPanel"/>
+                <StackPanel x:Name="ClassColors_StackPanel" />
 
                 <!-- Team cup colors -->
                 <styles:SHSmallTitle>Team cup category</styles:SHSmallTitle>
-                <StackPanel x:Name="TeamCupColors_StackPanel"/>
+                <StackPanel x:Name="TeamCupColors_StackPanel" />
 
                 <!-- Driver category colors -->
                 <styles:SHSmallTitle>Driver category</styles:SHSmallTitle>
-                <StackPanel x:Name="DriverCategoryColors_StackPanel"/>
-
-
+                <StackPanel x:Name="DriverCategoryColors_StackPanel" />
             </StackPanel>
             </ScrollViewer>
         </styles:SHTabItem>
 
         <styles:SHTabItem Header="Dynamic leaderboards">
 
-
             <ScrollViewer>
-                
+
                 <StackPanel>
                     <StackPanel.Resources>
 
                         <Style x:Key="Description" TargetType="TextBlock">
-                            <Setter Property="HorizontalAlignment" Value="Left"/>
-                            <Setter Property="VerticalAlignment" Value="Center"/>
-                            <Setter Property="TextWrapping" Value="Wrap"/>
-                            <Setter Property="Width" Value="200"/>
-                            <Setter Property="Margin" Value="3,3,3,3"/>
+                            <Setter Property="HorizontalAlignment" Value="Left" />
+                            <Setter Property="VerticalAlignment" Value="Center" />
+                            <Setter Property="TextWrapping" Value="Wrap" />
+                            <Setter Property="Width" Value="200" />
+                            <Setter Property="Margin" Value="3,3,3,3" />
                         </Style>
 
                         <Style x:Key="NumPos" TargetType="mah:NumericUpDown">
-                            <Setter Property="HorizontalAlignment" Value="Left"/>
-                            <Setter Property="VerticalAlignment" Value="Center"/>
-                            <Setter Property="Height" Value="25"/>
-                            <Setter Property="Width" Value="100"/>
-                            <Setter Property="HasDecimals" Value="False"/>
-                            <Setter Property="Minimum" Value="0"/>
-                            <Setter Property="Maximum" Value="100"/>
-                            <Setter Property="Interval" Value="1"/>
-                            <Setter Property="Margin" Value="3,3,3,3"/>
+                            <Setter Property="HorizontalAlignment" Value="Left" />
+                            <Setter Property="VerticalAlignment" Value="Center" />
+                            <Setter Property="Height" Value="25" />
+                            <Setter Property="Width" Value="100" />
+                            <Setter Property="HasDecimals" Value="False" />
+                            <Setter Property="Minimum" Value="0" />
+                            <Setter Property="Maximum" Value="100" />
+                            <Setter Property="Interval" Value="1" />
+                            <Setter Property="Margin" Value="3,3,3,3" />
                         </Style>
                     </StackPanel.Resources>
 
                     <TextBlock MaxWidth="750" TextWrapping="Wrap">Here you can customize the functionality of your dynamic leaderboards. <Bold>For the changes to take effect you need to restart SimHub</Bold>.
-                        <LineBreak/><LineBreak/>
-                        First, you can add multiple dynamic leaderboards and change their names in the dropdown list below. 
-                        <LineBreak/><Bold>Make sure to assign buttons in "Controls and events" for each dynamic leaderboard's "NextLeaderboard" and "PreviousLeaderboard" events.</Bold>
+                        <LineBreak /><LineBreak />
+                        First, you can add multiple dynamic leaderboards and change their names in the dropdown list below.
+                        <LineBreak /><Bold>Make sure to assign buttons in "Controls and events" for each dynamic leaderboard's "NextLeaderboard" and "PreviousLeaderboard" events.</Bold>
                         For mapping to controller inputs you need to enable "Controllers input" plugin and to keyboard inputs "Keyboard Input" plugin.
                         Note that if you add multiple dynamic leaderboards, you need to add mappings for each leaderboard. It can be the same button for all of them.
                         </TextBlock>
 
                     <styles:SHSectionTitle>DYNAMIC LEADERBOARDS</styles:SHSectionTitle>
                     <Expander Header="More information">
-                        <TextBlock x:Name="DynLeaderboardPropertyAccess_TextBlock" MaxWidth="750" TextWrapping="Wrap"/>
+                        <TextBlock x:Name="DynLeaderboardPropertyAccess_TextBlock" MaxWidth="750" TextWrapping="Wrap" />
                     </Expander>
 
                     <StackPanel x:Name="DynLeaderboardsList_StackPanel" Orientation="Horizontal">
-                        <ComboBox x:Name="SelectDynLeaderboard_ComboBox" 
-                                  Margin="5,5,5,5" 
-                                  HorizontalAlignment="Left" 
-                                  VerticalAlignment="Top" 
-                                  SelectionChanged="SelectDynLeaderboard_ComboBox_SelectionChanged"
-                                  />
-                        
-                        <styles:SHButtonPrimary HorizontalAlignment="Left" 
-                                                Margin="5,5,5,5" 
+                        <ComboBox x:Name="SelectDynLeaderboard_ComboBox"
+                                  Margin="5,5,5,5"
+                                  HorizontalAlignment="Left"
+                                  VerticalAlignment="Top"
+                                  SelectionChanged="SelectDynLeaderboard_ComboBox_SelectionChanged" />
+
+                        <styles:SHButtonPrimary HorizontalAlignment="Left"
+                                                Margin="5,5,5,5"
                                                 Click="RemoveLeaderboard_ButtonClick"
-                                                ToolTip="Removes currently selected dynamic leaderboard."
-                                                >
+                                                ToolTip="Removes currently selected dynamic leaderboard.">
                             Remove
                         </styles:SHButtonPrimary>
                     </StackPanel>
-                    
-                    <styles:SHButtonPrimary HorizontalAlignment="Left" 
-                                            Margin="5,5,5,5" 
-                                            Click="AddNewLeaderboard_Button_Click"
-                                            >
+
+                    <styles:SHButtonPrimary HorizontalAlignment="Left"
+                                            Margin="5,5,5,5"
+                                            Click="AddNewLeaderboard_Button_Click">
                         Add new leaderboard
                     </styles:SHButtonPrimary>
-                    
-                    <Separator Margin="0,15,0,1"/>
-                    <Separator Margin="0,1,0,10"/>
+
+                    <Separator Margin="0,15,0,1" />
+                    <Separator Margin="0,1,0,10" />
 
                     <styles:SHSectionTitle>LEADERBOARD ROTATION</styles:SHSectionTitle>
                     <Expander Header="More information">
@@ -267,45 +252,45 @@
 
                     <ListView x:Name="DynLeaderboards_ListView" Margin="10,10,0,13" HorizontalAlignment="Left" VerticalAlignment="Top" />
 
-                    <Separator Margin="0,15,0,1"/>
-                    <Separator Margin="0,1,0,10"/>
+                    <Separator Margin="0,15,0,1" />
+                    <Separator Margin="0,1,0,10" />
                     <styles:SHSectionTitle>NUMBER OF POSITIONS</styles:SHSectionTitle>
                     <Expander Header="More information">
-                        <TextBlock TextWrapping="Wrap" MaxWidth="750">Couple of notes. <LineBreak/> 
-                        * For relative positions we set the number of positions shown ahead and behind. 
+                        <TextBlock TextWrapping="Wrap" MaxWidth="750">Couple of notes. <LineBreak />
+                        * For relative positions we set the number of positions shown ahead and behind.
                         That is if set to 5 for example, we show 5 cars ahead and 5 car behind.
-                        <LineBreak/>
+                        <LineBreak />
                         * The driver indices are set such that current driver is always first. If you set number of drivers to 1 then we only show current driver.
                         </TextBlock>
                     </Expander>
 
-                    <StackPanel x:Name="NumPositions_StackPanel"/>
+                    <StackPanel x:Name="NumPositions_StackPanel" />
 
                     <!-- Properties for each car -->
 
-                    <Separator Margin="0,15,0,1"/>
-                    <Separator Margin="0,1,0,10"/>
-                    <styles:SHSectionTitle Text="PROPERTIES FOR EACH CAR"/>
+                    <Separator Margin="0,15,0,1" />
+                    <Separator Margin="0,1,0,10" />
+                    <styles:SHSectionTitle Text="PROPERTIES FOR EACH CAR" />
                     <Expander Header="More information">
                         <StackPanel>
-                            <TextBlock x:Name="EnablePropertiesDescription_TextBlock" Width="600" TextWrapping="Wrap"/>
+                            <TextBlock x:Name="EnablePropertiesDescription_TextBlock" Width="600" TextWrapping="Wrap" />
                             <TextBlock MaxWidth="750" TextWrapping="Wrap" Padding="0,0,0,0">* Default value if property is not available is null. This happens if session is not started yet, there are fewer cars/drivers in session than positions available for leaderboard or no lap time is available.
-                        <LineBreak/>* First driver is always current driver.
-                        <LineBreak/>* All times and gaps are given in seconds.</TextBlock>
+                        <LineBreak />* First driver is always current driver.
+                        <LineBreak />* All times and gaps are given in seconds.</TextBlock>
                             <TextBlock MaxWidth="750" TextWrapping="Wrap" Padding="0,0,0,0">
-                        * In relative leaderboards positive gap means the car is ahead of the car that we are comparing to, negative gap means behind. 
+                        * In relative leaderboards positive gap means the car is ahead of the car that we are comparing to, negative gap means behind.
                         In overall leaderboards the gap is always positive as we are comparing to the overall/class leader and no one can be ahead of them.
-                        <LineBreak/><LineBreak/>
+                        <LineBreak /><LineBreak />
                         * If the gap is larger than 1 lap, only lap part of the gap is shown. To differentiate between gap in seconds and full laps we add 100 000 to the gap if it's larger than 1 lap. In dash you can show the gap then as follows
-                        <LineBreak/>``javascript
+                        <LineBreak />``javascript
                             </TextBlock>
                             <TextBlock MaxWidth="750" TextWrapping="Wrap" Padding="20,0,0,0">
                         var v = $prop('DynLeaderboardsPlugin.Dynamic.' + repeatindex() + '.Gap.Dynamic.ToFocused')
-	                    <LineBreak/>if (v == null) { return '' }
-	                    <LineBreak/>// No gap can realistically be 50000 seconds without being more than a lap
-	                    <LineBreak/>// and you cannot realistically be more than 50000 laps behind to break following
-	                    <LineBreak/>if (v > 50000) { return format(v - 100000, '0', true) + 'L' }
-	                    <LineBreak/>return format(v, '0.0', true)
+	                    <LineBreak />if (v == null) { return '' }
+	                    <LineBreak />// No gap can realistically be 50000 seconds without being more than a lap
+	                    <LineBreak />// and you cannot realistically be more than 50000 laps behind to break following
+	                    <LineBreak />if (v > 50000) { return format(v - 100000, '0', true) + 'L' }
+	                    <LineBreak />return format(v, '0.0', true)
                             </TextBlock>
                             <TextBlock MaxWidth="750" TextWrapping="Wrap" Padding="0,0,0,0">
                         ```
@@ -313,42 +298,37 @@
                         </StackPanel>
                     </Expander>
                     <styles:SHSmallTitle>Car information</styles:SHSmallTitle>
-                    <StackPanel x:Name="OutCarProps_StackPanel"/>
+                    <StackPanel x:Name="OutCarProps_StackPanel" />
 
                     <styles:SHSmallTitle>Lap information</styles:SHSmallTitle>
-                    <StackPanel x:Name="OutLapProps_StackPanel"/>
+                    <StackPanel x:Name="OutLapProps_StackPanel" />
 
                     <styles:SHSmallTitle>Stint information</styles:SHSmallTitle>
-                    <StackPanel x:Name="OutStintProps_StackPanel"/>
+                    <StackPanel x:Name="OutStintProps_StackPanel" />
 
                     <styles:SHSmallTitle>Gaps</styles:SHSmallTitle>
-                    <StackPanel x:Name="OutGapsProps_StackPanel"/>
+                    <StackPanel x:Name="OutGapsProps_StackPanel" />
 
                     <styles:SHSmallTitle>Positions</styles:SHSmallTitle>
-                    <StackPanel x:Name="OutPosProps_StackPanel"/>
+                    <StackPanel x:Name="OutPosProps_StackPanel" />
 
                     <styles:SHSmallTitle>Pit information</styles:SHSmallTitle>
-                    <StackPanel x:Name="OutPitProps_StackPanel"/>
+                    <StackPanel x:Name="OutPitProps_StackPanel" />
 
                     <styles:SHSmallTitle>Other</styles:SHSmallTitle>
-                    <StackPanel x:Name="OutOtherProps_StackPanel"/>
+                    <StackPanel x:Name="OutOtherProps_StackPanel" />
 
                     <!-- Properties for each car -->
 
-                    <Separator Margin="0,15,0,1"/>
-                    <Separator Margin="0,1,0,10"/>
-                    <styles:SHSectionTitle Text="PROPERTIES FOR EACH DRIVER"/>
+                    <Separator Margin="0,15,0,1" />
+                    <Separator Margin="0,1,0,10" />
+                    <styles:SHSectionTitle Text="PROPERTIES FOR EACH DRIVER" />
                     <Expander Header="More information">
-                        <TextBlock x:Name="ExposedDriverProps_TextBlock" MaxWidth="750" TextWrapping="Wrap"/>
+                        <TextBlock x:Name="ExposedDriverProps_TextBlock" MaxWidth="750" TextWrapping="Wrap" />
                     </Expander>
-                    <StackPanel x:Name="ExposedDriverProperties_StackPanel"/>
-
+                    <StackPanel x:Name="ExposedDriverProperties_StackPanel" />
                 </StackPanel>
             </ScrollViewer>
-
         </styles:SHTabItem>
-        
-
     </styles:SHTabControl>
-
 </UserControl>

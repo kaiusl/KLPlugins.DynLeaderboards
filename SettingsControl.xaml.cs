@@ -37,7 +37,6 @@ namespace KLPlugins.DynLeaderboards.Settings {
             }
             CurrentDynLeaderboardSettings = Settings.DynLeaderboardConfigs[0];
 
-
             foreach (var l in Settings.DynLeaderboardConfigs) {
                 AddSelectDynLeaderboard_ComboBoxItem(l);
             }
@@ -61,7 +60,8 @@ namespace KLPlugins.DynLeaderboards.Settings {
             OtherProperties_StackPanel.Children.Add(CreatePropertyTogglesDescriptionRow());
             OtherProperties_StackPanel.Children.Add(CreateToggleSeparator());
             foreach (var v in (OutGeneralProp[])Enum.GetValues(typeof(OutGeneralProp))) {
-                if (v == OutGeneralProp.None) continue;
+                if (v == OutGeneralProp.None)
+                    continue;
 
                 var sp = CreatePropertyToggleRow(
                     v.ToString(),
@@ -84,10 +84,10 @@ namespace KLPlugins.DynLeaderboards.Settings {
         }
 
         private void AddClassColors() {
-
             foreach (var c in Enum.GetValues(typeof(CarClass))) {
                 var cls = (CarClass)c;
-                if (cls == CarClass.Unknown || cls == CarClass.Overall) continue;
+                if (cls == CarClass.Unknown || cls == CarClass.Overall)
+                    continue;
 
                 var sp = new StackPanel();
                 sp.Orientation = Orientation.Horizontal;
@@ -133,7 +133,6 @@ namespace KLPlugins.DynLeaderboards.Settings {
             sp.Children.Add(t2);
             TeamCupColors_StackPanel.Children.Add(sp);
 
-
             foreach (var c in Enum.GetValues(typeof(TeamCupCategory))) {
                 var cup = (TeamCupCategory)c;
 
@@ -155,7 +154,6 @@ namespace KLPlugins.DynLeaderboards.Settings {
                 btn1.Content = "Reset";
                 btn1.Click += (sender, e) => TeamCupColorPickerReset(cup);
                 btn1.Height = 25;
-
 
                 var cp2 = new ColorPicker();
                 cp2.Margin = new Thickness(25, 0, 0, 0);
@@ -181,10 +179,10 @@ namespace KLPlugins.DynLeaderboards.Settings {
         }
 
         private void AddDriverCategoryColors() {
-
             foreach (var c in Enum.GetValues(typeof(DriverCategory))) {
                 var cls = (DriverCategory)c;
-                if (cls == DriverCategory.Error) continue;
+                if (cls == DriverCategory.Error)
+                    continue;
 
                 var sp = new StackPanel();
                 sp.Orientation = Orientation.Horizontal;
@@ -221,7 +219,6 @@ namespace KLPlugins.DynLeaderboards.Settings {
             } else {
                 AccDataLocation_TextBox.Background = Brushes.LightPink;
             }
-
         }
 
         private void Logging_ToggleButton_Click(object sender, RoutedEventArgs e) {
@@ -259,7 +256,7 @@ namespace KLPlugins.DynLeaderboards.Settings {
             System.Diagnostics.Process.Start(e.Uri.ToString());
         }
 
-        #endregion
+        #endregion General settings
 
         #region Dynamic leaderboard
 
@@ -289,7 +286,6 @@ namespace KLPlugins.DynLeaderboards.Settings {
                 t.Background = Brushes.Transparent;
                 t.ToolTip = null;
             };
-
 
             var t2 = new TextBlock();
             t2.Text = "Select";
@@ -455,9 +451,6 @@ namespace KLPlugins.DynLeaderboards.Settings {
                    1
                 )
             );
-
-
-
         }
 
         /// <summary>
@@ -529,7 +522,8 @@ namespace KLPlugins.DynLeaderboards.Settings {
 
             // Add all others to the end
             foreach (var l in (Leaderboard[])Enum.GetValues(typeof(Leaderboard))) {
-                if (l == Leaderboard.None || CurrentDynLeaderboardSettings.Order.Contains(l)) continue;
+                if (l == Leaderboard.None || CurrentDynLeaderboardSettings.Order.Contains(l))
+                    continue;
                 var sp = new StackPanel();
                 sp.Orientation = Orientation.Horizontal;
 
@@ -563,7 +557,8 @@ namespace KLPlugins.DynLeaderboards.Settings {
                 var sp = (StackPanel)v;
                 var tb = (SHToggleButton)sp.Children[0];
                 var txt = (TextBlock)sp.Children[1];
-                if (tb.IsChecked == null || tb.IsChecked == false) continue;
+                if (tb.IsChecked == null || tb.IsChecked == false)
+                    continue;
 
                 if (Enum.TryParse(txt.Text, out Leaderboard variant)) {
                     Settings.DynLeaderboardConfigs[selected].Order.Add(variant);
@@ -595,9 +590,11 @@ namespace KLPlugins.DynLeaderboards.Settings {
 
             StackPanel panel = OutCarProps_StackPanel;
             foreach (var v in (OutCarProp[])Enum.GetValues(typeof(OutCarProp))) {
-                if (v == OutCarProp.None) continue;
+                if (v == OutCarProp.None)
+                    continue;
 
-                if (v == OutCarProp.IsFinished) panel = OutOtherProps_StackPanel;
+                if (v == OutCarProp.IsFinished)
+                    panel = OutOtherProps_StackPanel;
 
                 StackPanel sp = CreatePropertyToggleRow(
                        v.ToString(),
@@ -625,18 +622,22 @@ namespace KLPlugins.DynLeaderboards.Settings {
             }
 
             foreach (var v in (OutLapProp[])Enum.GetValues(typeof(OutLapProp))) {
-                if (v == OutLapProp.None) continue;
+                if (v == OutLapProp.None)
+                    continue;
                 // Group by similarity
                 switch (v) {
                     case OutLapProp.BestLapDeltaToOverallBest:
                         AddSmallTitle("Best to best", Brushes.White);
                         break;
+
                     case OutLapProp.LastLapDeltaToOverallBest:
                         AddSmallTitle("Last to best", Brushes.White);
                         break;
+
                     case OutLapProp.LastLapDeltaToLeaderLast:
                         AddSmallTitle("Last to last", Brushes.White);
                         break;
+
                     default:
                         break;
                 }
@@ -659,7 +660,8 @@ namespace KLPlugins.DynLeaderboards.Settings {
             OutStintProps_StackPanel.Children.Clear();
             // Add Stint Properties
             foreach (var v in (OutStintProp[])Enum.GetValues(typeof(OutStintProp))) {
-                if (v == OutStintProp.None) continue;
+                if (v == OutStintProp.None)
+                    continue;
 
                 StackPanel sp = CreatePropertyToggleRow(
                        v.ToString(),
@@ -686,9 +688,11 @@ namespace KLPlugins.DynLeaderboards.Settings {
             }
 
             foreach (var v in (OutGapProp[])Enum.GetValues(typeof(OutGapProp))) {
-                if (v == OutGapProp.None) continue;
+                if (v == OutGapProp.None)
+                    continue;
 
-                if (v == OutGapProp.DynamicGapToFocused) AddSmallTitle("Dynamic gaps");
+                if (v == OutGapProp.DynamicGapToFocused)
+                    AddSmallTitle("Dynamic gaps");
 
                 StackPanel sp = CreatePropertyToggleRow(
                        v.ToString(),
@@ -708,7 +712,8 @@ namespace KLPlugins.DynLeaderboards.Settings {
             OutPosProps_StackPanel.Children.Clear();
             // Add Pos Properties
             foreach (var v in (OutPosProp[])Enum.GetValues(typeof(OutPosProp))) {
-                if (v == OutPosProp.None) continue;
+                if (v == OutPosProp.None)
+                    continue;
 
                 StackPanel sp = CreatePropertyToggleRow(
                        v.ToString(),
@@ -728,7 +733,8 @@ namespace KLPlugins.DynLeaderboards.Settings {
             OutPitProps_StackPanel.Children.Clear();
             // Add Pit Properties
             foreach (var v in (OutPitProp[])Enum.GetValues(typeof(OutPitProp))) {
-                if (v == OutPitProp.None) continue;
+                if (v == OutPitProp.None)
+                    continue;
 
                 StackPanel sp = CreatePropertyToggleRow(
                        v.ToString(),
@@ -748,7 +754,8 @@ namespace KLPlugins.DynLeaderboards.Settings {
             ExposedDriverProperties_StackPanel.Children.Clear();
             ExposedDriverProperties_StackPanel.Children.Add(CreatePropertyTogglesDescriptionRow());
             foreach (var v in (OutDriverProp[])Enum.GetValues(typeof(OutDriverProp))) {
-                if (v == OutDriverProp.None) continue;
+                if (v == OutDriverProp.None)
+                    continue;
 
                 if (v == OutDriverProp.FirstName) {
                     var stitle = new SHSmallTitle();
@@ -759,7 +766,6 @@ namespace KLPlugins.DynLeaderboards.Settings {
                     stitle.Content = "Other";
                     ExposedDriverProperties_StackPanel.Children.Add(stitle);
                 }
-
 
                 var sp = CreatePropertyToggleRow(
                     v.ToString(),
@@ -879,7 +885,8 @@ namespace KLPlugins.DynLeaderboards.Settings {
         }
 
         private void RemoveLeaderboard_ButtonClick(object sender, RoutedEventArgs e) {
-            if (SelectDynLeaderboard_ComboBox.Items.Count == 1) return;
+            if (SelectDynLeaderboard_ComboBox.Items.Count == 1)
+                return;
 
             int selected = SelectDynLeaderboard_ComboBox.SelectedIndex;
             if (selected == 0) {
@@ -887,8 +894,6 @@ namespace KLPlugins.DynLeaderboards.Settings {
             } else {
                 SelectDynLeaderboard_ComboBox.SelectedIndex--;
             }
-
-
 
             SelectDynLeaderboard_ComboBox.Items.RemoveAt(selected);
             Plugin.RemoveLeaderboardAt(selected);
@@ -903,7 +908,7 @@ namespace KLPlugins.DynLeaderboards.Settings {
             AddDynLeaderboardSettings();
         }
 
-        #endregion
+        #endregion Dynamic leaderboard
 
         private void NumericUpDown_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double?> e) {
             if (e.NewValue != null) {

@@ -2,7 +2,8 @@
 using System.Collections.Generic;
 
 namespace KLPlugins.DynLeaderboards.Helpers {
-    class Statistics {
+
+    internal class Statistics {
         public DescriptiveStatistics Stats;
         public List<double> data = new List<double>();
         public double Median { get; private set; } = 0.0;
@@ -11,7 +12,8 @@ namespace KLPlugins.DynLeaderboards.Helpers {
             data.Add(v);
             Stats = new DescriptiveStatistics(data);
             Median = MathNet.Numerics.Statistics.Statistics.Median(data);
-            if (double.IsNaN(Median)) Median = 0.0;
+            if (double.IsNaN(Median))
+                Median = 0.0;
         }
 
         public void Reset() {
@@ -20,8 +22,4 @@ namespace KLPlugins.DynLeaderboards.Helpers {
             Median = 0.0;
         }
     }
-
-
-
-
 }

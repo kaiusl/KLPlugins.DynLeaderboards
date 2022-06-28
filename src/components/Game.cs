@@ -1,11 +1,10 @@
 ﻿namespace KLPlugins.DynLeaderboards {
 
-
     /// <summary>
     /// Booleans to tell which game we have. Since different games have different available data then we need to do alot of check like gameName == "...".
     /// The gameName is constant in each plugin reload and thus we can set it once and simplyfy game checks alot.
     /// </summary>
-    class Game {
+    internal class Game {
         public const string AcName = "AssettoCorsa";
         public const string AccName = "AssettoCorsaCompetizione";
         public const string Rf2Name = "RFactor2";
@@ -35,22 +34,27 @@
                     _isAc = true;
                     DynLeaderboardsPlugin.LogInfo("Game set to AC");
                     break;
+
                 case AccName:
                     _isAcc = true;
                     DynLeaderboardsPlugin.LogInfo("Game set to ACC");
                     break;
+
                 case Rf2Name:
                     _isRf2 = true;
                     DynLeaderboardsPlugin.LogInfo("Game set to RF2");
                     break;
+
                 case IracingName:
                     _isIracing = true;
                     DynLeaderboardsPlugin.LogInfo("Game set to IRacing");
                     break;
+
                 case R3eName:
                     _isR3e = true;
                     DynLeaderboardsPlugin.LogInfo("Game set to R3E");
                     break;
+
                 default:
                     _isUnknown = true;
                     DynLeaderboardsPlugin.LogInfo("Game set to Unknown");

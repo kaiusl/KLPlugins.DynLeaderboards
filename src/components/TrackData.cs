@@ -6,7 +6,8 @@ using System.IO;
 using System.Linq;
 
 namespace KLPlugins.DynLeaderboards.Track {
-    class LapInterpolator {
+
+    internal class LapInterpolator {
         public LinearSpline Interpolator { get; }
         public double LapTime { get; }
 
@@ -16,7 +17,7 @@ namespace KLPlugins.DynLeaderboards.Track {
         }
     }
 
-    class TrackData {
+    internal class TrackData {
         public string TrackName { get; internal set; }
         public TrackType TrackId { get; internal set; }
         public float TrackMeters { get; internal set; }
@@ -65,7 +66,8 @@ namespace KLPlugins.DynLeaderboards.Track {
             var pos = new List<double>();
             var time = new List<double>();
             foreach (var l in File.ReadLines(fname)) {
-                if (l == "") continue;
+                if (l == "")
+                    continue;
                 // Data order: splinePositions, lap time in ms, speed in kmh
                 var splits = l.Split(';');
                 double p = float.Parse(splits[0]) + Values.TrackData.TrackId.SplinePosOffset();

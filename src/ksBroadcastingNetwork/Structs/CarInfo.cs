@@ -2,7 +2,8 @@
 using System.Collections.Generic;
 
 namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork.Structs {
-    class CarInfo {
+
+    internal class CarInfo {
         public ushort CarIndex { get; }
         public CarType CarModelType { get; internal set; }
         public CarClass CarClass { get; internal set; }

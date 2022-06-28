@@ -9,7 +9,8 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork {
-    class ACCUdpRemoteClient : IDisposable {
+
+    internal class ACCUdpRemoteClient : IDisposable {
         public BroadcastingNetworkProtocol MessageHandler { get; }
         public bool IsConnected { get; private set; }
 
@@ -41,7 +42,8 @@ namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork {
             _listenerTask = ConnectAndRun();
         }
 
-        internal ACCUdpRemoteClient(ACCUdpRemoteClientConfig cfg) : this(cfg.Ip, cfg.Port, cfg.DisplayName, cfg.ConnectionPassword, cfg.CommandPassword, cfg.UpdateIntervalMs) { }
+        internal ACCUdpRemoteClient(ACCUdpRemoteClientConfig cfg) : this(cfg.Ip, cfg.Port, cfg.DisplayName, cfg.ConnectionPassword, cfg.CommandPassword, cfg.UpdateIntervalMs) {
+        }
 
         private void Send(byte[] payload) {
             var sent = _client.Send(payload, payload.Length);
@@ -53,7 +55,6 @@ namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork {
                     DynLeaderboardsPlugin.LogError($"Client shut down with {t.Exception.InnerExceptions.Count} errors");
                 else
                     DynLeaderboardsPlugin.LogInfo("Client shut down asynchronously");
-
             });
         }
 
@@ -99,6 +100,7 @@ namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork {
         }
 
         #region IDisposable Support
+
         private bool disposedValue = false; // To detect redundant calls
 
         protected virtual void Dispose(bool disposing) {
@@ -107,14 +109,12 @@ namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork {
                     try {
                         DynLeaderboardsPlugin.LogInfo("Disposed.");
                         if (_client != null) {
-
                             MessageHandler.Disconnect();
                             _client.Close();
                             _client.Dispose();
                             _client = null;
                             IsConnected = false;
                         }
-
                     } catch (Exception ex) {
                         System.Diagnostics.Debug.WriteLine(ex);
                     }
@@ -140,16 +140,20 @@ namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork {
             // TODO: uncomment the following line if the finalizer is overridden above.
             // GC.SuppressFinalize(this);
         }
-        #endregion
+
+        #endregion IDisposable Support
     }
 
     /// <summary>
     /// Configuration of ACCUdpRemoteClient
     /// </summary>
-    class ACCUdpRemoteClientConfig {
-        class ACCBroadcastConfig {
+    internal class ACCUdpRemoteClientConfig {
+
+        private class ACCBroadcastConfig {
+
             // Class to read acc\Config\broadcasting.json
             internal int udpListenerPort { get; set; }
+
             internal string connectionPassword { get; set; }
             internal string commandPassword { get; set; }
 
@@ -181,7 +185,7 @@ namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork {
         private ACCBroadcastConfig _config;
 
         /// <summary>
-        /// Port, connectionPassword, commandPassword are read from the ..\\Assetto Corsa Competizione\\Config\\broadcasting.json. 
+        /// Port, connectionPassword, commandPassword are read from the ..\\Assetto Corsa Competizione\\Config\\broadcasting.json.
         /// </summary>
         public ACCUdpRemoteClientConfig(string ip, string displayName, int updateTime) {
             try {
@@ -198,7 +202,4 @@ namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork {
             UpdateIntervalMs = updateTime;
         }
     }
-
-
-
 }

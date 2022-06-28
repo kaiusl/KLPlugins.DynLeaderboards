@@ -4,7 +4,8 @@ using KLPlugins.DynLeaderboards.ksBroadcastingNetwork.Structs;
 using System;
 
 namespace KLPlugins.DynLeaderboards.Realtime {
-    class RealtimeData {
+
+    internal class RealtimeData {
         public RealtimeUpdate NewData { get; private set; }
         public RealtimeUpdate OldData { get; private set; }
         public int EventIndex => NewData.EventIndex;
@@ -52,8 +53,8 @@ namespace KLPlugins.DynLeaderboards.Realtime {
                 || NewData.SessionIndex != OldData.SessionIndex
                 || OldData.Phase.EqualsAny(SessionPhase.Session, SessionPhase.SessionOver, SessionPhase.PostSession, SessionPhase.ResultUI) && IsPreSession;
 
-            if (SessionTotalTime == TimeSpan.Zero) SessionTotalTime = SessionRunningTime + SessionRemainingTime;
+            if (SessionTotalTime == TimeSpan.Zero)
+                SessionTotalTime = SessionRunningTime + SessionRemainingTime;
         }
-
     }
 }

@@ -1,7 +1,8 @@
 ﻿using System.Collections.Generic;
 
 namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork.Structs {
-    class LapInfo {
+
+    internal class LapInfo {
         public double? Laptime { get; internal set; }
         public List<double?> Splits { get; } = new List<double?>();
         public ushort CarIndex { get; internal set; }

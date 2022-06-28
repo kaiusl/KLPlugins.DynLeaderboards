@@ -1,5 +1,6 @@
 ﻿namespace KLPlugins.DynLeaderboards.Car {
-    class CarClassArray<T> {
+
+    internal class CarClassArray<T> {
         private const int _numClasses = 9;
         private T[] _data = new T[_numClasses];
         public T DefaultValue { get; private set; }
@@ -20,5 +21,4 @@
             }
         }
     }
-
 }

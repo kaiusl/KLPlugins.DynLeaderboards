@@ -255,7 +255,7 @@ namespace KLPlugins.DynLeaderboards {
             // TODO: Try to clean this mess up
             for (int i = 0; i < overallPos + relPos * 2 + 1; i++) {
                 int? idx = i;
-                var focusedClassPos = Cars[(int)FocusedCarIdx].InClassPos;
+                var focusedClassPos = Cars[(int)FocusedCarIdx].InClassPos - 1;
                 if (i > overallPos - 1 && focusedClassPos > overallPos + relPos) {
                     idx += focusedClassPos - overallPos - relPos;
                 }

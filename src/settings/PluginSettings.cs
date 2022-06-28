@@ -52,6 +52,15 @@ namespace KLPlugins.DynLeaderboards.Settings {
                     JsonSerializer serializer = new JsonSerializer();
                     var cfg = (DynLeaderboardConfig)serializer.Deserialize(file, typeof(DynLeaderboardConfig));
 
+                    // Check for conflicting leaderboard names. Add CONFLICT to the end of the name.
+                    if (DynLeaderboardConfigs.Any(x => x.Name == cfg.Name)) {
+                        var num = 1;
+                        while (DynLeaderboardConfigs.Any(x => x.Name == $"{cfg.Name}_CONFLICT{num}")) {
+                            num++;
+                        }
+                        cfg.Name = $"{cfg.Name}_CONFLICT{num}";
+                    }
+
                     DynLeaderboardConfigs.Add(cfg);
                 }
             }

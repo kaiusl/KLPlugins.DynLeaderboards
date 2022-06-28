@@ -1,5 +1,7 @@
 ﻿using KLPlugins.DynLeaderboards.Car;
 using KLPlugins.DynLeaderboards.ksBroadcastingNetwork;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -8,21 +10,25 @@ using System.Linq;
 namespace KLPlugins.DynLeaderboards.Settings {
 
     internal class PluginSettings {
-        internal string PluginDataLocation { get; set; }
-
+        public int Version { get; set; } = 0;
         public string AccDataLocation { get; set; }
         public bool Log { get; set; }
         public int BroadcastDataUpdateRateMs { get; set; }
-        public List<DynLeaderboardConfig> DynLeaderboardConfigs { get; set; }
         public OutGeneralProp OutGeneralProps = OutGeneralProp.None;
-
         public Dictionary<CarClass, string> CarClassColors { get; set; }
         public Dictionary<TeamCupCategory, string> TeamCupCategoryColors { get; set; }
         public Dictionary<TeamCupCategory, string> TeamCupCategoryTextColors { get; set; }
         public Dictionary<DriverCategory, string> DriverCategoryColors { get; set; }
 
+        internal const int currentSettingsVersion = 1;
+        internal List<DynLeaderboardConfig> DynLeaderboardConfigs { get; set; } = new List<DynLeaderboardConfig>();
+        internal string PluginDataLocation { get; set; }
+
         private const string _defPluginsDataLocation = "PluginsData\\KLPlugins\\DynLeaderboards";
         private static readonly string _defAccDataLocation = "C:\\Users\\" + Environment.UserName + "\\Documents\\Assetto Corsa Competizione";
+
+        private delegate JObject Migration(JObject o);
+        private static Dictionary<string, Migration> _migrations = CreateMigrationsDict();
 
         internal PluginSettings() {
             PluginDataLocation = _defPluginsDataLocation;
@@ -35,6 +41,45 @@ namespace KLPlugins.DynLeaderboards.Settings {
             TeamCupCategoryTextColors = CreateDefCupTextColors();
             DriverCategoryColors = CreateDefDriverCategoryColors();
         }
+
+        internal void ReadDynLeaderboardConfigs() {
+            foreach (var fileName in Directory.GetFiles(_defPluginsDataLocation + "\\leaderboardConfigs")) {
+                SimHub.Logging.Current.Info($"Read leaderboard config file {fileName}.");
+                if (!File.Exists(fileName) || !fileName.EndsWith(".json"))
+                    continue;
+
+                using (StreamReader file = File.OpenText(fileName)) {
+                    JsonSerializer serializer = new JsonSerializer();
+                    var cfg = (DynLeaderboardConfig)serializer.Deserialize(file, typeof(DynLeaderboardConfig));
+
+                    DynLeaderboardConfigs.Add(cfg);
+                }
+            }
+        }
+
+        internal void SaveDynLeaderboardConfigs() {
+            // TODO: Add backups. New backup should be creates if something has changed.
+            foreach (var fileName in Directory.GetFiles(_defPluginsDataLocation + "\\leaderboardConfigs")) {
+                File.Delete(fileName);
+            }
+
+            foreach (var cfg in DynLeaderboardConfigs) {
+                using (StreamWriter file = File.CreateText($"{_defPluginsDataLocation}\\leaderboardConfigs\\{cfg.Name}.json")) {
+                    JsonSerializer serializer = new JsonSerializer();
+                    serializer.Formatting = Formatting.Indented;
+                    serializer.Serialize(file, cfg);
+                }
+            }
+        }
+
+        internal void RemoveLeaderboardAt(int i) {
+            var fname = $"{_defPluginsDataLocation}\\leaderboardConfigs\\{DynLeaderboardConfigs[i].Name}.json";
+            if (File.Exists(fname)) { 
+                File.Delete(fname);
+            }
+            DynLeaderboardConfigs.RemoveAt(i);
+        }
+
 
         public int GetMaxNumClassPos() {
             int max = 0;
@@ -101,9 +146,64 @@ namespace KLPlugins.DynLeaderboards.Settings {
                 return true;
             }
         }
+
+        internal static void Migrate() {
+            string settingsFname = "PluginsData\\Common\\DynLeaderboardsPlugin.GeneralSettings.json";
+            if (!File.Exists(settingsFname))
+                return;
+
+            var json = File.ReadAllText(settingsFname);
+
+            JObject o = JObject.Parse(json);
+
+            int version = 0;
+            if (o.ContainsKey("Version")) {
+                version = (int)o["Version"];
+            }
+
+            while (version != currentSettingsVersion) {
+                o = _migrations[$"{version}_{version + 1}"](o);
+                version += 1;
+            }
+
+            using (StreamWriter file = File.CreateText(settingsFname)) {
+                JsonSerializer serializer = new JsonSerializer();
+                serializer.Formatting = Formatting.Indented;
+                serializer.Serialize(file, o);
+            }
+
+        }
+
+        private static Dictionary<string, Migration> CreateMigrationsDict() {
+            var res = new Dictionary<string, Migration>();
+            res["0_1"] = Mig0To1;
+
+            return res;
+        }
+
+        private static JObject Mig0To1(JObject o) {
+            o["Version"] = 1;
+
+            foreach (var cfg in o["DynLeaderboardConfigs"]) {
+                using (StreamWriter file = File.CreateText($"{_defPluginsDataLocation}\\leaderboardConfigs\\{cfg["Name"]}.json")) {
+                    JsonSerializer serializer = new JsonSerializer();
+                    serializer.Formatting = Formatting.Indented;
+                    serializer.Serialize(file, cfg);
+                }
+            }
+
+            SimHub.Logging.Current.Info($"Migrated settings from 0 to 1.");
+            o.Remove("DynLeaderboardConfigs");
+
+            return o;
+        }
     }
 
     public class DynLeaderboardConfig {
+        internal const int currentConfigVersion = 1;
+
+        public int Version { get; set; } = 0;
+
         public string Name { get; set; }
 
         public OutCarProp OutCarProps = OutCarProp.CarNumber

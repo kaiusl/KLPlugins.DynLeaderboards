@@ -73,6 +73,7 @@ namespace KLPlugins.DynLeaderboards {
         /// <param name="pluginManager"></param>
         public void End(PluginManager pluginManager) {
             this.SaveCommonSettings("GeneralSettings", Settings);
+            Settings.SaveDynLeaderboardConfigs();
             if (_values != null) {
                 _values.Dispose();
             }
@@ -111,7 +112,9 @@ namespace KLPlugins.DynLeaderboards {
         /// </summary>
         /// <param name="pluginManager"></param>
         public void Init(PluginManager pluginManager) {
+            PluginSettings.Migrate();
             Settings = this.ReadCommonSettings<PluginSettings>("GeneralSettings", () => new PluginSettings());
+            Settings.ReadDynLeaderboardConfigs();
             LogFileName = $"{Settings.PluginDataLocation}\\Logs\\Log_{PluginStartTime}.txt";
             var gameName = (string)pluginManager.GetPropertyValue<SimHub.Plugins.DataPlugins.DataCore.DataCorePlugin>("CurrentGame");
             Game = new Game(gameName);

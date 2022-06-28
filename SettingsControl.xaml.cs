@@ -878,7 +878,13 @@ namespace KLPlugins.DynLeaderboards.Settings {
         }
 
         private void AddNewLeaderboard_Button_Click(object sender, RoutedEventArgs e) {
-            Settings.DynLeaderboardConfigs.Add(new DynLeaderboardConfig($"Dynamic{Settings.DynLeaderboardConfigs.Count + 1}"));
+            var nameNum = Settings.DynLeaderboardConfigs.Count + 1;
+
+            while (Settings.DynLeaderboardConfigs.Any(x => x.Name == $"Dynamic{nameNum}")) {
+                nameNum++;
+            }
+
+            Settings.DynLeaderboardConfigs.Add(new DynLeaderboardConfig($"Dynamic{nameNum}"));
             Plugin.AddNewLeaderboard(Settings.DynLeaderboardConfigs.Last());
             AddSelectDynLeaderboard_ComboBoxItem(Settings.DynLeaderboardConfigs.Last());
             SelectDynLeaderboard_ComboBox.SelectedIndex = SelectDynLeaderboard_ComboBox.Items.Count - 1;
@@ -897,8 +903,10 @@ namespace KLPlugins.DynLeaderboards.Settings {
 
             SelectDynLeaderboard_ComboBox.Items.RemoveAt(selected);
             Plugin.RemoveLeaderboardAt(selected);
-            Settings.DynLeaderboardConfigs.RemoveAt(selected);
-            SelectDynLeaderboard_ComboBox.SelectedIndex = 0;
+            Settings.RemoveLeaderboardAt(selected);
+
+
+            //SelectDynLeaderboard_ComboBox.SelectedIndex = 0;
         }
 
         private void SelectDynLeaderboard_ComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e) {

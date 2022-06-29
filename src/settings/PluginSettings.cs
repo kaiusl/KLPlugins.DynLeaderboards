@@ -24,14 +24,16 @@ namespace KLPlugins.DynLeaderboards.Settings {
         internal List<DynLeaderboardConfig> DynLeaderboardConfigs { get; set; } = new List<DynLeaderboardConfig>();
         internal string PluginDataLocation { get; set; }
 
-        private const string _defPluginsDataLocation = "PluginsData\\KLPlugins\\DynLeaderboards";
+        private const string _pluginsDataDirName = "PluginsData\\KLPlugins\\DynLeaderboards";
+        private const string _leaderboardConfigsDataDirName = "PluginsData\\KLPlugins\\DynLeaderboards\\leaderboardConfigs";
+        private const string _leaderboardConfigsDataBackupDirName = "PluginsData\\KLPlugins\\DynLeaderboards\\leaderboardConfigs\\b";
         private static readonly string _defAccDataLocation = "C:\\Users\\" + Environment.UserName + "\\Documents\\Assetto Corsa Competizione";
 
         private delegate JObject Migration(JObject o);
         private static Dictionary<string, Migration> _migrations = CreateMigrationsDict();
 
         internal PluginSettings() {
-            PluginDataLocation = _defPluginsDataLocation;
+            PluginDataLocation = _pluginsDataDirName;
             AccDataLocation = _defAccDataLocation;
             Log = false;
             BroadcastDataUpdateRateMs = 500;
@@ -43,7 +45,7 @@ namespace KLPlugins.DynLeaderboards.Settings {
         }
 
         internal void ReadDynLeaderboardConfigs() {
-            foreach (var fileName in Directory.GetFiles(_defPluginsDataLocation + "\\leaderboardConfigs")) {
+            foreach (var fileName in Directory.GetFiles(_leaderboardConfigsDataDirName)) {
                 SimHub.Logging.Current.Info($"Read leaderboard config file {fileName}.");
                 if (!File.Exists(fileName) || !fileName.EndsWith(".json"))
                     continue;
@@ -67,22 +69,39 @@ namespace KLPlugins.DynLeaderboards.Settings {
         }
 
         internal void SaveDynLeaderboardConfigs() {
-            // TODO: Add backups. New backup should be creates if something has changed.
-            foreach (var fileName in Directory.GetFiles(_defPluginsDataLocation + "\\leaderboardConfigs")) {
-                File.Delete(fileName);
-            }
+            // Keep 5 latest backups of each config.
+            // New config is only saved and backups are made if the config has changed.
+
+            Directory.CreateDirectory(_leaderboardConfigsDataBackupDirName);
 
             foreach (var cfg in DynLeaderboardConfigs) {
-                using (StreamWriter file = File.CreateText($"{_defPluginsDataLocation}\\leaderboardConfigs\\{cfg.Name}.json")) {
-                    JsonSerializer serializer = new JsonSerializer();
-                    serializer.Formatting = Formatting.Indented;
-                    serializer.Serialize(file, cfg);
+                var cfgFileName = $"{_leaderboardConfigsDataDirName}\\{cfg.Name}.json";
+                var serializedCfg = JsonConvert.SerializeObject(cfg, Formatting.Indented);
+                var isSame = File.Exists(cfgFileName) && serializedCfg == File.ReadAllText(cfgFileName);
+
+                if (!isSame) {
+                    RenameOrDeleteOldBackups(cfg);
+                    File.Move(cfgFileName, $"{_leaderboardConfigsDataBackupDirName}\\{cfg.Name}_b{1}.json");
+                    File.WriteAllText(cfgFileName, serializedCfg);
+                }
+            }
+
+            void RenameOrDeleteOldBackups(DynLeaderboardConfig cfg) {
+                for (int i = 5; i > -1; i--) {
+                    var currentBackupName = $"{_leaderboardConfigsDataBackupDirName}\\{cfg.Name}_b{i + 1}.json";
+                    if (File.Exists(currentBackupName)) {
+                        if (i != 4) {
+                            File.Move(currentBackupName, $"{_leaderboardConfigsDataBackupDirName}\\{cfg.Name}_b{i + 2}.json");
+                        } else {
+                            File.Delete(currentBackupName);
+                        }
+                    }
                 }
             }
         }
 
         internal void RemoveLeaderboardAt(int i) {
-            var fname = $"{_defPluginsDataLocation}\\leaderboardConfigs\\{DynLeaderboardConfigs[i].Name}.json";
+            var fname = $"{_leaderboardConfigsDataDirName}\\{DynLeaderboardConfigs[i].Name}.json";
             if (File.Exists(fname)) { 
                 File.Delete(fname);
             }
@@ -194,7 +213,7 @@ namespace KLPlugins.DynLeaderboards.Settings {
             o["Version"] = 1;
 
             foreach (var cfg in o["DynLeaderboardConfigs"]) {
-                using (StreamWriter file = File.CreateText($"{_defPluginsDataLocation}\\leaderboardConfigs\\{cfg["Name"]}.json")) {
+                using (StreamWriter file = File.CreateText($"{_leaderboardConfigsDataDirName}\\{cfg["Name"]}.json")) {
                     JsonSerializer serializer = new JsonSerializer();
                     serializer.Formatting = Formatting.Indented;
                     serializer.Serialize(file, cfg);

@@ -6,6 +6,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Added
+- Automatic migration between setting versions
+
+### Improvements
+- Leaderboard configurations are now saved separately (see (issue #7)[https://github.com/kaiusl/KLPlugins.DynLeaderboards/issues/7])
+
+### Fixed
+- Removed non letter or digit characters from leaderboard names to fix possible issues.
+
+
 ## [1.1.1] - 2022-05-03
 
 ### Improvements

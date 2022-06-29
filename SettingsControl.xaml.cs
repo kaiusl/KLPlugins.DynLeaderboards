@@ -33,8 +33,8 @@ namespace KLPlugins.DynLeaderboards.Settings {
             this.Plugin = plugin;
 
             if (Settings.DynLeaderboardConfigs.Count == 0) {
-                Settings.DynLeaderboardConfigs.Add(new DynLeaderboardConfig($"Dynamic"));
-                Plugin.AddNewLeaderboard(Settings.DynLeaderboardConfigs.Last());
+
+                Plugin.AddNewLeaderboard(new DynLeaderboardConfig("Dynamic"));
             }
             CurrentDynLeaderboardSettings = Settings.DynLeaderboardConfigs[0];
 

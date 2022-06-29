@@ -42,17 +42,25 @@ namespace KLPlugins.DynLeaderboards.Settings {
             TeamCupCategoryColors = CreateDefCupColors();
             TeamCupCategoryTextColors = CreateDefCupTextColors();
             DriverCategoryColors = CreateDefDriverCategoryColors();
+            SaveDynLeaderboardConfigs();
         }
 
         internal void ReadDynLeaderboardConfigs() {
+            Directory.CreateDirectory(leaderboardConfigsDataDirName);
+
             foreach (var fileName in Directory.GetFiles(leaderboardConfigsDataDirName)) {
-                SimHub.Logging.Current.Info($"Read leaderboard config file {fileName}.");
                 if (!File.Exists(fileName) || !fileName.EndsWith(".json"))
                     continue;
 
                 using (StreamReader file = File.OpenText(fileName)) {
                     JsonSerializer serializer = new JsonSerializer();
-                    var cfg = (DynLeaderboardConfig)serializer.Deserialize(file, typeof(DynLeaderboardConfig));
+                    DynLeaderboardConfig cfg;
+                    try {
+                        cfg = (DynLeaderboardConfig)serializer.Deserialize(file, typeof(DynLeaderboardConfig));
+                    } catch (Exception e) {
+                        SimHub.Logging.Current.Error($"Failed to deserialize leaderboard \"{fileName}\" configuration. Error {e}.");
+                        continue;
+                    }
 
                     // Check for conflicting leaderboard names. Add CONFLICT to the end of the name.
                     if (DynLeaderboardConfigs.Any(x => x.Name == cfg.Name)) {
@@ -81,12 +89,11 @@ namespace KLPlugins.DynLeaderboards.Settings {
 
                 if (!isSame) {
                     RenameOrDeleteOldBackups(cfg);
-                    File.Move(cfgFileName, $"{leaderboardConfigsDataBackupDirName}\\{cfg.Name}_b{1}.json");
+                    if (File.Exists(cfgFileName))
+                        File.Move(cfgFileName, $"{leaderboardConfigsDataBackupDirName}\\{cfg.Name}_b{1}.json");
                     File.WriteAllText(cfgFileName, serializedCfg);
                 }
             }
-
-            DeleteUnusedFiles();
 
             void RenameOrDeleteOldBackups(DynLeaderboardConfig cfg) {
                 for (int i = 5; i > -1; i--) {
@@ -101,14 +108,6 @@ namespace KLPlugins.DynLeaderboards.Settings {
                 }
             }
 
-            void DeleteUnusedFiles() {
-                foreach (var fname in Directory.GetFiles(leaderboardConfigsDataDirName)) {
-                    var leaderboardName = fname.Replace(".json", "").Split('\\').Last();
-                    if (!DynLeaderboardConfigs.Any(x => x.Name == leaderboardName)) {
-                        File.Delete(fname);
-                    }
-                }
-            }
         }
 
         internal void RemoveLeaderboardAt(int i) {
@@ -252,15 +251,18 @@ namespace KLPlugins.DynLeaderboards.Settings {
 
             o["Version"] = 1;
 
+            Directory.CreateDirectory(leaderboardConfigsDataDirName);
+            Directory.CreateDirectory(leaderboardConfigsDataBackupDirName);
             foreach (var cfg in o["DynLeaderboardConfigs"]) {
-                using (StreamWriter file = File.CreateText($"{leaderboardConfigsDataDirName}\\{cfg["Name"]}.json")) {
+                var fname = $"{leaderboardConfigsDataDirName}\\{cfg["Name"]}.json";
+                using (StreamWriter file = File.CreateText(fname)) {
                     JsonSerializer serializer = new JsonSerializer();
                     serializer.Formatting = Formatting.Indented;
                     serializer.Serialize(file, cfg);
                 }
             }
 
-            SimHub.Logging.Current.Info($"Migrated settings from 0 to 1.");
+            SimHub.Logging.Current.Info($"Migrated settings from v0 to v1.");
             o.Remove("DynLeaderboardConfigs");
 
             return o;

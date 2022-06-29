@@ -74,6 +74,15 @@ namespace KLPlugins.DynLeaderboards {
         public void End(PluginManager pluginManager) {
             this.SaveCommonSettings("GeneralSettings", Settings);
             Settings.SaveDynLeaderboardConfigs();
+            // Delete unused files
+            // Say something was acidentally copied there or file and leaderboard names were different which would render original file useless
+            foreach (var fname in Directory.GetFiles(PluginSettings.leaderboardConfigsDataDirName)) {
+                var leaderboardName = fname.Replace(".json", "").Split('\\').Last();
+                if (!Settings.DynLeaderboardConfigs.Any(x => x.Name == leaderboardName)) {
+                    File.Delete(fname);
+                }
+            }
+
             if (_values != null) {
                 _values.Dispose();
             }
@@ -133,8 +142,7 @@ namespace KLPlugins.DynLeaderboards {
 
             GameDataPath = $@"{Settings.PluginDataLocation}\{gameName}";
             if (Settings.DynLeaderboardConfigs.Count == 0) {
-                var s = new DynLeaderboardConfig("Dynamic");
-                Settings.DynLeaderboardConfigs.Add(s);
+                AddNewLeaderboard(new DynLeaderboardConfig("Dynamic"));
             }
             _values = new Values();
             SubscribeToSimHubEvents();
@@ -164,8 +172,11 @@ namespace KLPlugins.DynLeaderboards {
         }
 
         internal void AddNewLeaderboard(DynLeaderboardConfig s) {
-            if (_values != null)
+            if (_values != null) {
+                Settings.DynLeaderboardConfigs.Add(s);
                 _values.AddNewLeaderboard(s);
+                Settings.SaveDynLeaderboardConfigs();
+            }
         }
 
         internal void RemoveLeaderboardAt(int i) {

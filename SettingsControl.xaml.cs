@@ -4,6 +4,7 @@ using MahApps.Metro.Controls;
 using SimHub.Plugins.Styles;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
@@ -267,13 +268,26 @@ namespace KLPlugins.DynLeaderboards.Settings {
             var t = new TextBox();
             t.Width = 200;
             t.Text = l.Name;
-            t.TextChanged += (a, b) => {
-                if (Settings.DynLeaderboardConfigs.Any(x => x.Name == t.Text)) {
+            if (l.Name.Contains("CONFLICT")) {
+                t.Background = Brushes.LightPink;
+            }
+
+            t.TextChanged += (sender, b) => {
+                var caretIndex = t.CaretIndex;
+
+                // Remove any nonletter or digit characters
+                char[] arr = t.Text.ToCharArray();
+                var arr2 = Array.FindAll(arr, (c => (char.IsLetterOrDigit(c))));
+                if (arr.Length != arr2.Length) {
+                    t.Text = new string(arr2);
+                    t.CaretIndex = caretIndex - 1;
+                }
+
+                if (Settings.DynLeaderboardConfigs.Count(x => x.Name == t.Text) > 1 || t.Text.Contains("CONFLICT")) {
                     t.Background = Brushes.LightPink;
                     t.ToolTip = "Dynamic leaderboard with same name already exists. Please choose another, if you don't last valid name will be used.";
                 } else {
                     t.Background = Brushes.Transparent;
-                    l.Name = t.Text;
                     t.ToolTip = null;
                     EnablePropertiesDescription_TextBlock.Text = $"Enable/disable properties for currently selected dynamic leaderboard. Each property can be accessed as \"DynLeaderboardsPlugin.{t.Text}.<pos>.<property name>\"";
                     DynLeaderboardPropertyAccess_TextBlock.Text = $"Properties for this dynamic leaderboard are accessible as \"DynLeaderboardsPlugin.{t.Text}.<pos>.<property name>\", for example \"DynLeaderboardsPlugin.{t.Text}.5.Car.Number\"";
@@ -282,6 +296,11 @@ namespace KLPlugins.DynLeaderboards.Settings {
             };
 
             t.LostFocus += (a, b) => {
+                if (t.Background == Brushes.Transparent) {
+                    l.Rename(t.Text);
+                } else {
+                    t.Text = l.Name;
+                }
                 t.Text = l.Name;
                 t.Background = Brushes.Transparent;
                 t.ToolTip = null;

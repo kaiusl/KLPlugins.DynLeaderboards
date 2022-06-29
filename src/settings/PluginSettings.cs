@@ -25,15 +25,15 @@ namespace KLPlugins.DynLeaderboards.Settings {
         internal List<DynLeaderboardConfig> DynLeaderboardConfigs { get; set; } = new List<DynLeaderboardConfig>();
         internal string PluginDataLocation { get; set; }
 
-        private const string _pluginsDataDirName = "PluginsData\\KLPlugins\\DynLeaderboards";
-        private const string _leaderboardConfigsDataDirName = "PluginsData\\KLPlugins\\DynLeaderboards\\leaderboardConfigs";
-        private const string _leaderboardConfigsDataBackupDirName = "PluginsData\\KLPlugins\\DynLeaderboards\\leaderboardConfigs\\b";
+        internal const string pluginsDataDirName = "PluginsData\\KLPlugins\\DynLeaderboards";
+        internal const string leaderboardConfigsDataDirName = "PluginsData\\KLPlugins\\DynLeaderboards\\leaderboardConfigs";
+        internal const string leaderboardConfigsDataBackupDirName = "PluginsData\\KLPlugins\\DynLeaderboards\\leaderboardConfigs\\b";
         private static readonly string _defAccDataLocation = "C:\\Users\\" + Environment.UserName + "\\Documents\\Assetto Corsa Competizione";
 
         private delegate JObject Migration(JObject o);
 
         internal PluginSettings() {
-            PluginDataLocation = _pluginsDataDirName;
+            PluginDataLocation = pluginsDataDirName;
             AccDataLocation = _defAccDataLocation;
             Log = false;
             BroadcastDataUpdateRateMs = 500;
@@ -45,7 +45,7 @@ namespace KLPlugins.DynLeaderboards.Settings {
         }
 
         internal void ReadDynLeaderboardConfigs() {
-            foreach (var fileName in Directory.GetFiles(_leaderboardConfigsDataDirName)) {
+            foreach (var fileName in Directory.GetFiles(leaderboardConfigsDataDirName)) {
                 SimHub.Logging.Current.Info($"Read leaderboard config file {fileName}.");
                 if (!File.Exists(fileName) || !fileName.EndsWith(".json"))
                     continue;
@@ -72,26 +72,26 @@ namespace KLPlugins.DynLeaderboards.Settings {
             // Keep 5 latest backups of each config.
             // New config is only saved and backups are made if the config has changed.
 
-            Directory.CreateDirectory(_leaderboardConfigsDataBackupDirName);
+            Directory.CreateDirectory(leaderboardConfigsDataBackupDirName);
 
             foreach (var cfg in DynLeaderboardConfigs) {
-                var cfgFileName = $"{_leaderboardConfigsDataDirName}\\{cfg.Name}.json";
+                var cfgFileName = $"{leaderboardConfigsDataDirName}\\{cfg.Name}.json";
                 var serializedCfg = JsonConvert.SerializeObject(cfg, Formatting.Indented);
                 var isSame = File.Exists(cfgFileName) && serializedCfg == File.ReadAllText(cfgFileName);
 
                 if (!isSame) {
                     RenameOrDeleteOldBackups(cfg);
-                    File.Move(cfgFileName, $"{_leaderboardConfigsDataBackupDirName}\\{cfg.Name}_b{1}.json");
+                    File.Move(cfgFileName, $"{leaderboardConfigsDataBackupDirName}\\{cfg.Name}_b{1}.json");
                     File.WriteAllText(cfgFileName, serializedCfg);
                 }
             }
 
             void RenameOrDeleteOldBackups(DynLeaderboardConfig cfg) {
                 for (int i = 5; i > -1; i--) {
-                    var currentBackupName = $"{_leaderboardConfigsDataBackupDirName}\\{cfg.Name}_b{i + 1}.json";
+                    var currentBackupName = $"{leaderboardConfigsDataBackupDirName}\\{cfg.Name}_b{i + 1}.json";
                     if (File.Exists(currentBackupName)) {
                         if (i != 4) {
-                            File.Move(currentBackupName, $"{_leaderboardConfigsDataBackupDirName}\\{cfg.Name}_b{i + 2}.json");
+                            File.Move(currentBackupName, $"{leaderboardConfigsDataBackupDirName}\\{cfg.Name}_b{i + 2}.json");
                         } else {
                             File.Delete(currentBackupName);
                         }
@@ -101,7 +101,7 @@ namespace KLPlugins.DynLeaderboards.Settings {
         }
 
         internal void RemoveLeaderboardAt(int i) {
-            var fname = $"{_leaderboardConfigsDataDirName}\\{DynLeaderboardConfigs[i].Name}.json";
+            var fname = $"{leaderboardConfigsDataDirName}\\{DynLeaderboardConfigs[i].Name}.json";
             if (File.Exists(fname)) { 
                 File.Delete(fname);
             }
@@ -242,7 +242,7 @@ namespace KLPlugins.DynLeaderboards.Settings {
             o["Version"] = 1;
 
             foreach (var cfg in o["DynLeaderboardConfigs"]) {
-                using (StreamWriter file = File.CreateText($"{_leaderboardConfigsDataDirName}\\{cfg["Name"]}.json")) {
+                using (StreamWriter file = File.CreateText($"{leaderboardConfigsDataDirName}\\{cfg["Name"]}.json")) {
                     JsonSerializer serializer = new JsonSerializer();
                     serializer.Formatting = Formatting.Indented;
                     serializer.Serialize(file, cfg);
@@ -261,7 +261,15 @@ namespace KLPlugins.DynLeaderboards.Settings {
 
         public int Version { get; set; } = 0;
 
-        public string Name { get; set; }
+        private string _name;
+        public string Name { 
+            get { return _name; }
+            set {
+                char[] arr = value.ToCharArray();
+                arr = Array.FindAll<char>(arr, (c => (char.IsLetterOrDigit(c))));
+                _name = new string(arr);
+            } 
+        }
 
         public OutCarProp OutCarProps = OutCarProp.CarNumber
             | OutCarProp.CarClass
@@ -318,5 +326,22 @@ namespace KLPlugins.DynLeaderboards.Settings {
                 Leaderboard.RelativeOnTrack
             };
         }
+
+        internal void Rename(string newName) {
+            var configFileName = $"{PluginSettings.leaderboardConfigsDataDirName}\\{Name}.json";
+            if (File.Exists(configFileName)) {
+                File.Move(configFileName, $"{PluginSettings.leaderboardConfigsDataDirName}\\{newName}.json");
+            }
+
+            for (int i = 5; i > -1; i--) {
+                var currentBackupName = $"{PluginSettings.leaderboardConfigsDataBackupDirName}\\{Name}_b{i + 1}.json";
+                if (File.Exists(currentBackupName)) {
+                    File.Move(currentBackupName, $"{PluginSettings.leaderboardConfigsDataBackupDirName}\\{newName}_b{i + 1}.json");
+                }
+            }
+
+            Name = newName;
+        }
+
     }
 }

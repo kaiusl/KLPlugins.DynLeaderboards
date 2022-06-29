@@ -86,6 +86,8 @@ namespace KLPlugins.DynLeaderboards.Settings {
                 }
             }
 
+            DeleteUnusedFiles();
+
             void RenameOrDeleteOldBackups(DynLeaderboardConfig cfg) {
                 for (int i = 5; i > -1; i--) {
                     var currentBackupName = $"{leaderboardConfigsDataBackupDirName}\\{cfg.Name}_b{i + 1}.json";
@@ -95,6 +97,15 @@ namespace KLPlugins.DynLeaderboards.Settings {
                         } else {
                             File.Delete(currentBackupName);
                         }
+                    }
+                }
+            }
+
+            void DeleteUnusedFiles() {
+                foreach (var fname in Directory.GetFiles(leaderboardConfigsDataDirName)) {
+                    var leaderboardName = fname.Replace(".json", "").Split('\\').Last();
+                    if (!DynLeaderboardConfigs.Any(x => x.Name == leaderboardName)) {
+                        File.Delete(fname);
                     }
                 }
             }

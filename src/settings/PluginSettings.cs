@@ -4,6 +4,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 
@@ -30,7 +31,6 @@ namespace KLPlugins.DynLeaderboards.Settings {
         private static readonly string _defAccDataLocation = "C:\\Users\\" + Environment.UserName + "\\Documents\\Assetto Corsa Competizione";
 
         private delegate JObject Migration(JObject o);
-        private static Dictionary<string, Migration> _migrations = CreateMigrationsDict();
 
         internal PluginSettings() {
             PluginDataLocation = _pluginsDataDirName;
@@ -108,7 +108,6 @@ namespace KLPlugins.DynLeaderboards.Settings {
             DynLeaderboardConfigs.RemoveAt(i);
         }
 
-
         public int GetMaxNumClassPos() {
             int max = 0;
             if (DynLeaderboardConfigs.Count > 0) {
@@ -175,41 +174,71 @@ namespace KLPlugins.DynLeaderboards.Settings {
             }
         }
 
+        /// <summary>
+        /// Checks if settings version is changed since last save and migrates to current version if needed.
+        /// Old settings file is rewritten by the new one.
+        /// Should be called before reading the settings from file.
+        /// </summary>
         internal static void Migrate() {
+            Dictionary<string, Migration> _migrations = CreateMigrationsDict();
+            
             string settingsFname = "PluginsData\\Common\\DynLeaderboardsPlugin.GeneralSettings.json";
             if (!File.Exists(settingsFname))
                 return;
 
-            var json = File.ReadAllText(settingsFname);
+            JObject savedSettings = JObject.Parse(File.ReadAllText(settingsFname));
 
-            JObject o = JObject.Parse(json);
-
-            int version = 0;
-            if (o.ContainsKey("Version")) {
-                version = (int)o["Version"];
+            int version = 0; // If settings doesn't contain version key, it's 0
+            if (savedSettings.ContainsKey("Version")) {
+                version = (int)savedSettings["Version"];
             }
 
+            if (version == currentSettingsVersion)
+                return;
+                
+            // Migrate step by step to current version.
             while (version != currentSettingsVersion) {
-                o = _migrations[$"{version}_{version + 1}"](o);
+                savedSettings = _migrations[$"{version}_{version + 1}"](savedSettings);
                 version += 1;
             }
 
+            // Save up to date setting back to the disk
             using (StreamWriter file = File.CreateText(settingsFname)) {
                 JsonSerializer serializer = new JsonSerializer();
                 serializer.Formatting = Formatting.Indented;
-                serializer.Serialize(file, o);
+                serializer.Serialize(file, savedSettings);
             }
 
         }
 
+        /// <summary>
+        ///  Creates dictionary of migrations to be called. Key is "oldversion_newversion".
+        /// </summary>
+        /// <returns></returns>
         private static Dictionary<string, Migration> CreateMigrationsDict() {
-            var res = new Dictionary<string, Migration>();
-            res["0_1"] = Mig0To1;
+            var migrations = new Dictionary<string, Migration>();
+            migrations["0_1"] = Mig0To1;
 
-            return res;
+            #if DEBUG
+                for (int i = 0; i < currentSettingsVersion; i++) {
+                    Debug.Assert(migrations.ContainsKey($"{i}_{i + 1}"), $"Migration from v{i} to v{i + 1} is not set.");
+                }
+            #endif
+
+            return migrations;
         }
 
+        /// <summary>
+        /// Migration of setting from version 0 to version 1
+        /// </summary>
+        /// <param name="o"></param>
+        /// <returns></returns>
         private static JObject Mig0To1(JObject o) {
+            // v0 to v1 changes:
+            // - Added version number to PluginSetting and DynLeaderboardConfig
+            // - DynLeaderboardConfigs are saved separately in PluginsData\KLPlugins\DynLeaderboards\leaderboardConfigs
+            //   and not saved in PluginsData\Common\DynLeaderboardsPlugin.GeneralSettings.json
+
             o["Version"] = 1;
 
             foreach (var cfg in o["DynLeaderboardConfigs"]) {

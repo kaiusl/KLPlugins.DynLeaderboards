@@ -33,7 +33,6 @@ namespace KLPlugins.DynLeaderboards.Settings {
             this.Plugin = plugin;
 
             if (Settings.DynLeaderboardConfigs.Count == 0) {
-
                 Plugin.AddNewLeaderboard(new DynLeaderboardConfig("Dynamic"));
             }
             CurrentDynLeaderboardSettings = Settings.DynLeaderboardConfigs[0];
@@ -897,21 +896,23 @@ namespace KLPlugins.DynLeaderboards.Settings {
         }
 
         private void AddNewLeaderboard_Button_Click(object sender, RoutedEventArgs e) {
-            var nameNum = Settings.DynLeaderboardConfigs.Count + 1;
-
+            var nameNum = 1;
             while (Settings.DynLeaderboardConfigs.Any(x => x.Name == $"Dynamic{nameNum}")) {
                 nameNum++;
             }
 
-            Settings.DynLeaderboardConfigs.Add(new DynLeaderboardConfig($"Dynamic{nameNum}"));
-            Plugin.AddNewLeaderboard(Settings.DynLeaderboardConfigs.Last());
-            AddSelectDynLeaderboard_ComboBoxItem(Settings.DynLeaderboardConfigs.Last());
+            var cfg = new DynLeaderboardConfig($"Dynamic{nameNum}");
+            AddSelectDynLeaderboard_ComboBoxItem(cfg);
+            Settings.DynLeaderboardConfigs.Add(cfg);
+            Plugin.AddNewLeaderboard(cfg);
             SelectDynLeaderboard_ComboBox.SelectedIndex = SelectDynLeaderboard_ComboBox.Items.Count - 1;
+
         }
 
         private void RemoveLeaderboard_ButtonClick(object sender, RoutedEventArgs e) {
-            if (SelectDynLeaderboard_ComboBox.Items.Count == 1)
+            if (SelectDynLeaderboard_ComboBox.Items.Count == 1) {
                 return;
+            }
 
             int selected = SelectDynLeaderboard_ComboBox.SelectedIndex;
             if (selected == 0) {
@@ -922,10 +923,6 @@ namespace KLPlugins.DynLeaderboards.Settings {
 
             SelectDynLeaderboard_ComboBox.Items.RemoveAt(selected);
             Plugin.RemoveLeaderboardAt(selected);
-            Settings.RemoveLeaderboardAt(selected);
-
-
-            //SelectDynLeaderboard_ComboBox.SelectedIndex = 0;
         }
 
         private void SelectDynLeaderboard_ComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e) {

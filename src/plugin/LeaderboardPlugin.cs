@@ -180,6 +180,7 @@ namespace KLPlugins.DynLeaderboards {
         }
 
         internal void RemoveLeaderboardAt(int i) {
+            Settings.RemoveLeaderboardAt(i);
             if (_values != null)
                 _values.LeaderboardValues.RemoveAt(i);
         }

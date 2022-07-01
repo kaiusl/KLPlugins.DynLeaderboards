@@ -11,7 +11,7 @@ using System.Linq;
 namespace KLPlugins.DynLeaderboards.Settings {
 
     internal class PluginSettings {
-        public int Version { get; set; } = 0;
+        public int Version { get; set; } = 1;
         public string AccDataLocation { get; set; }
         public bool Log { get; set; }
         public int BroadcastDataUpdateRateMs { get; set; }
@@ -253,12 +253,16 @@ namespace KLPlugins.DynLeaderboards.Settings {
 
             Directory.CreateDirectory(leaderboardConfigsDataDirName);
             Directory.CreateDirectory(leaderboardConfigsDataBackupDirName);
-            foreach (var cfg in o["DynLeaderboardConfigs"]) {
-                var fname = $"{leaderboardConfigsDataDirName}\\{cfg["Name"]}.json";
-                using (StreamWriter file = File.CreateText(fname)) {
-                    JsonSerializer serializer = new JsonSerializer();
-                    serializer.Formatting = Formatting.Indented;
-                    serializer.Serialize(file, cfg);
+            if (o.ContainsKey("DynLeaderboardConfigs")) {
+                foreach (var cfg in o["DynLeaderboardConfigs"]) {
+                    var fname = $"{leaderboardConfigsDataDirName}\\{cfg["Name"]}.json";
+                    if (File.Exists(fname)) // Don't overwrite existing configs
+                        continue;
+                    using (StreamWriter file = File.CreateText(fname)) {
+                        JsonSerializer serializer = new JsonSerializer();
+                        serializer.Formatting = Formatting.Indented;
+                        serializer.Serialize(file, cfg);
+                    }
                 }
             }
 
@@ -272,7 +276,7 @@ namespace KLPlugins.DynLeaderboards.Settings {
     public class DynLeaderboardConfig {
         internal const int currentConfigVersion = 1;
 
-        public int Version { get; set; } = 0;
+        public int Version { get; set; } = 1;
 
         private string _name;
         public string Name { 

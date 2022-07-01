@@ -20,6 +20,9 @@
         OultonPark = 17,
         DoningtonPark = 18,
         Imola = 19,
+        COTA = 21,
+        Indianapolis = 22,
+        WatkinsGlen = 23,
 
         Unknown = 255
     }

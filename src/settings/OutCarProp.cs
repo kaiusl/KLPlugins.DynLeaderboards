@@ -210,6 +210,8 @@ namespace KLPlugins.DynLeaderboards.Settings {
         OverallPositionStart = 1 << 1,
         ClassPosition = 1 << 2,
         ClassPositionStart = 1 << 3,
+        DynamicPosition = 1 << 4,
+        DynamicPositionStart = 1 << 5,
     }
 
     internal static class OutPosPropExtensions {
@@ -252,6 +254,12 @@ namespace KLPlugins.DynLeaderboards.Settings {
                 case OutPosProp.OverallPositionStart:
                     return "Position.Overall.Start";
 
+                case OutPosProp.DynamicPosition:
+                    return "Position.Dynamic";
+
+                case OutPosProp.DynamicPositionStart:
+                    return "Position.Dynamic.Start";
+
                 default:
                     throw new ArgumentOutOfRangeException($"Invalid enum variant {p}");
             }
@@ -270,6 +278,18 @@ namespace KLPlugins.DynLeaderboards.Settings {
 
                 case OutPosProp.OverallPositionStart:
                     return "Overall position at race start";
+
+                case OutPosProp.DynamicPosition:
+                    return @"Position that changes based of currently displayed dynamic leaderboard.
+Any overall -> ovarall position,
+Any class -> class position,
+RelativeOnTrack -> overall position";
+
+                case OutPosProp.DynamicPositionStart:
+                    return @"Position at the race start that changes based of currently displayed dynamic leaderboard.
+Any overall -> ovarall position,
+Any class -> class position,
+RelativeOnTrack -> overall position";
 
                 default:
                     throw new ArgumentOutOfRangeException($"Invalid enum variant {p}");

@@ -360,6 +360,8 @@ namespace KLPlugins.DynLeaderboards {
                 AddPosProp(OutPosProp.OverallPosition, () => l.GetDynCar(i)?.OverallPos);
                 AddPosProp(OutPosProp.ClassPositionStart, () => l.GetDynCar(i)?.StartPosInClass);
                 AddPosProp(OutPosProp.OverallPositionStart, () => l.GetDynCar(i)?.StartPos);
+                AddPosProp(OutPosProp.DynamicPosition, () => l.GetDynPosition(i));
+                AddPosProp(OutPosProp.DynamicPositionStart, () => l.GetDynPositionStart(i));
 
                 // Pit
                 AddPitProp(OutPitProp.IsInPitLane, () => (l.GetDynCar(i)?.NewData?.CarLocation ?? CarLocationEnum.NONE) == CarLocationEnum.Pitlane ? 1 : 0);

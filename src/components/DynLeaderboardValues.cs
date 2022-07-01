@@ -12,23 +12,23 @@ namespace KLPlugins.DynLeaderboards {
 
         public delegate int? GetFocusedCarIdxInLDynLeaderboardDelegate();
 
-        public delegate double? DynGapToFocusedDelegate(int i);
+        public delegate double? DynGapDelegate(int i);
 
-        public delegate double? DynGapToAheadDelegate(int i);
+        public delegate double? DynLapDeltaDelegate(int i);
 
-        public delegate double? DynBestLapDeltaToFocusedBestDelegate(int i);
-
-        public delegate double? DynLastLapDeltaToFocusedBestDelegate(int i);
-
-        public delegate double? DynLastLapDeltaToFocusedLastDelegate(int i);
+        public delegate int? DynPositionDelegate(int i);
 
         public GetDynCarDelegate GetDynCar { get; private set; }
         public GetFocusedCarIdxInLDynLeaderboardDelegate GetFocusedCarIdxInDynLeaderboard { get; private set; }
-        public DynGapToFocusedDelegate GetDynGapToFocused { get; private set; }
-        public DynGapToAheadDelegate GetDynGapToAhead { get; private set; }
-        public DynBestLapDeltaToFocusedBestDelegate GetDynBestLapDeltaToFocusedBest { get; private set; }
-        public DynLastLapDeltaToFocusedBestDelegate GetDynLastLapDeltaToFocusedBest { get; private set; }
-        public DynLastLapDeltaToFocusedLastDelegate GetDynLastLapDeltaToFocusedLast { get; private set; }
+        public DynGapDelegate GetDynGapToFocused { get; private set; }
+        public DynGapDelegate GetDynGapToAhead { get; private set; }
+        public DynLapDeltaDelegate GetDynBestLapDeltaToFocusedBest { get; private set; }
+        public DynLapDeltaDelegate GetDynLastLapDeltaToFocusedBest { get; private set; }
+        public DynLapDeltaDelegate GetDynLastLapDeltaToFocusedLast { get; private set; }
+
+        public DynPositionDelegate GetDynPosition { get; private set; }
+        public DynPositionDelegate GetDynPositionStart { get; private set; }
+
 
         public DynLeaderboardConfig Settings { get; private set; }
 
@@ -85,6 +85,8 @@ namespace KLPlugins.DynLeaderboards {
                     GetDynBestLapDeltaToFocusedBest = (i) => v.GetCar(i)?.BestLapDeltaToLeaderBest;
                     GetDynLastLapDeltaToFocusedBest = (i) => v.GetCar(i)?.LastLapDeltaToLeaderBest;
                     GetDynLastLapDeltaToFocusedLast = (i) => v.GetCar(i)?.LastLapDeltaToLeaderLast;
+                    GetDynPosition = (i) => v.GetCar(i)?.OverallPos;
+                    GetDynPositionStart = (i) => v.GetCar(i)?.StartPos;
                     break;
 
                 case Leaderboard.Class:
@@ -95,6 +97,8 @@ namespace KLPlugins.DynLeaderboards {
                     GetDynBestLapDeltaToFocusedBest = (i) => GetDynCar(i)?.BestLapDeltaToClassLeaderBest;
                     GetDynLastLapDeltaToFocusedBest = (i) => GetDynCar(i)?.LastLapDeltaToClassLeaderBest;
                     GetDynLastLapDeltaToFocusedLast = (i) => GetDynCar(i)?.LastLapDeltaToClassLeaderLast;
+                    GetDynPosition = (i) => GetDynCar(i)?.InClassPos;
+                    GetDynPositionStart = (i) => GetDynCar(i)?.StartPosInClass;
                     break;
 
                 case Leaderboard.RelativeOverall:
@@ -109,6 +113,8 @@ namespace KLPlugins.DynLeaderboards {
                     GetDynBestLapDeltaToFocusedBest = (i) => GetDynCar(i)?.BestLapDeltaToFocusedBest;
                     GetDynLastLapDeltaToFocusedBest = (i) => GetDynCar(i)?.LastLapDeltaToFocusedBest;
                     GetDynLastLapDeltaToFocusedLast = (i) => GetDynCar(i)?.LastLapDeltaToFocusedLast;
+                    GetDynPosition = (i) => GetDynCar(i)?.OverallPos;
+                    GetDynPositionStart = (i) => GetDynCar(i)?.StartPos;
                     break;
 
                 case Leaderboard.RelativeClass:
@@ -123,6 +129,8 @@ namespace KLPlugins.DynLeaderboards {
                     GetDynBestLapDeltaToFocusedBest = (i) => GetDynCar(i)?.BestLapDeltaToFocusedBest;
                     GetDynLastLapDeltaToFocusedBest = (i) => GetDynCar(i)?.LastLapDeltaToFocusedBest;
                     GetDynLastLapDeltaToFocusedLast = (i) => GetDynCar(i)?.LastLapDeltaToFocusedLast;
+                    GetDynPosition = (i) => GetDynCar(i)?.InClassPos;
+                    GetDynPositionStart = (i) => GetDynCar(i)?.StartPosInClass;
                     break;
 
                 case Leaderboard.PartialRelativeOverall:
@@ -137,6 +145,8 @@ namespace KLPlugins.DynLeaderboards {
                     GetDynBestLapDeltaToFocusedBest = (i) => GetDynCar(i)?.BestLapDeltaToFocusedBest;
                     GetDynLastLapDeltaToFocusedBest = (i) => GetDynCar(i)?.LastLapDeltaToFocusedBest;
                     GetDynLastLapDeltaToFocusedLast = (i) => GetDynCar(i)?.LastLapDeltaToFocusedLast;
+                    GetDynPosition = (i) => GetDynCar(i)?.OverallPos;
+                    GetDynPositionStart = (i) => GetDynCar(i)?.StartPos;
                     break;
 
                 case Leaderboard.PartialRelativeClass:
@@ -151,6 +161,8 @@ namespace KLPlugins.DynLeaderboards {
                     GetDynBestLapDeltaToFocusedBest = (i) => GetDynCar(i)?.BestLapDeltaToFocusedBest;
                     GetDynLastLapDeltaToFocusedBest = (i) => GetDynCar(i)?.LastLapDeltaToFocusedBest;
                     GetDynLastLapDeltaToFocusedLast = (i) => GetDynCar(i)?.LastLapDeltaToFocusedLast;
+                    GetDynPosition = (i) => GetDynCar(i)?.InClassPos;
+                    GetDynPositionStart = (i) => GetDynCar(i)?.StartPosInClass;
                     break;
 
                 case Leaderboard.RelativeOnTrack:
@@ -164,6 +176,8 @@ namespace KLPlugins.DynLeaderboards {
                     GetDynBestLapDeltaToFocusedBest = (i) => GetDynCar(i)?.BestLapDeltaToFocusedBest;
                     GetDynLastLapDeltaToFocusedBest = (i) => GetDynCar(i)?.LastLapDeltaToFocusedBest;
                     GetDynLastLapDeltaToFocusedLast = (i) => GetDynCar(i)?.LastLapDeltaToFocusedLast;
+                    GetDynPosition = (i) => GetDynCar(i)?.OverallPos;
+                    GetDynPositionStart = (i) => GetDynCar(i)?.StartPos;
                     break;
 
                 default:
@@ -179,6 +193,7 @@ namespace KLPlugins.DynLeaderboards {
                 GetDynBestLapDeltaToFocusedBest = (i) => double.NaN;
                 GetDynLastLapDeltaToFocusedBest = (i) => double.NaN;
                 GetDynLastLapDeltaToFocusedLast = (i) => double.NaN;
+                GetDynPosition = (i) => null;
             }
         }
 

@@ -15,7 +15,9 @@ The reason for this plugin is that I found myself creating effectively the same 
 ## Getting started
 
 * Download the latest release from [Racedepartment](https://www.racedepartment.com/downloads/acc-simhub-dynamic-leaderboards-plugin.50424/) or [here](https://github.com/kaiusl/KLPlugins.Leaderboard/releases)
-* Copy all the files from folder SimHub to the SimHub root
+* To install provided dashboard run "AccDynLeaderboard_v7.simhubdash" if you are using SimHub v7.x
+  or "AccDynLeaderboard_v8.simhubdash" if you are using SimHub v8.x
+* Copy all the files from folder "SimHub" to the SimHub root
 * Open SimHub and enable the plugin
 * Check plugin settings for correct "ACC configuration location" under "General settings".  If it's background is green, then we found needed files, if it's red there's something wrong with the location. We need to find the file "...\Documents\Assetto Corsa Competizione\Config\broadcasting.json". It is used to read information needed to connct to ACC broadcasting client.
 * If you needed to change the location, restart SimHub.
@@ -32,4 +34,4 @@ Head over to the [wiki](https://github.com/kaiusl/KLPlugins.DynLeaderboards/wiki
 
 ### SimHub and ACC version
 
-Last tested on ACC 1.8.14 and SimHub 7.4.23.
+Last tested on ACC v1.8.15 and SimHub v8.0.2.

@@ -6,15 +6,23 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+## [1.2.0] - 2022-07-01
+
 ### Added
-- Automatic migration between setting versions
+- Automatic migration between setting versions.
+- American DLC tracks and necessary data for gap calculation.
+- Properties `Position.Dynamic` and `Position.Dynamic.Start` that show overall positions in overall leaderboards and class position in class position.
 
 ### Improvements
-- Leaderboard configurations are now saved separately ([issue #7](https://github.com/kaiusl/KLPlugins.DynLeaderboards/issues/7)).
+- Leaderboard configurations are now saved separately to allow simpler configuration ([issue #7](https://github.com/kaiusl/KLPlugins.DynLeaderboards/issues/7)).
 
 ### Fixed
-- Removed non letter or digit characters from leaderboard names to fix possible issues.
+- Disallowed non letter or digit characters from leaderboard names to fix possible issues where weird characters would essentially become variables inside SimHub.
 - PartialRelativeClass showed N-1 position ahead instead of N position as set in settings ([issue #6](https://github.com/kaiusl/KLPlugins.DynLeaderboards/issues/6)).
+
+### Dash changes
+- Add dash for SimHub v7.x and v8.x versions.
+- Dash uses new dynamic position properties. 
 
 ## [1.1.1] - 2022-05-03
 
@@ -65,7 +73,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [1.0.0] - 2022-04-19
 - Initial public release
 
-[Unreleased]: https://github.com/kaiusl/KLPlugins.Leaderboard/compare/v1.1.1...HEAD
+[Unreleased]: https://github.com/kaiusl/KLPlugins.Leaderboard/compare/v1.2.0...HEAD
+[1.2.0]: https://github.com/kaiusl/KLPlugins.Leaderboard/releases/tag/v1.2.0
 [1.1.1]: https://github.com/kaiusl/KLPlugins.Leaderboard/releases/tag/v1.1.1
 [1.1.0]: https://github.com/kaiusl/KLPlugins.Leaderboard/releases/tag/v1.1.0
 [1.0.0]: https://github.com/kaiusl/KLPlugins.Leaderboard/releases/tag/v1.0.0

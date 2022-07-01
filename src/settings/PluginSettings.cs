@@ -297,7 +297,7 @@ namespace KLPlugins.DynLeaderboards.Settings {
             | OutCarProp.RelativeOnTrackLapDiff;
 
         public OutPitProp OutPitProps = OutPitProp.IsInPitLane;
-        public OutPosProp OutPosProps = OutPosProp.OverallPosition | OutPosProp.ClassPosition;
+        public OutPosProp OutPosProps = OutPosProp.DynamicPosition;
         public OutGapProp OutGapProps = OutGapProp.DynamicGapToFocused;
         public OutStintProp OutStintProps = OutStintProp.None;
         public OutDriverProp OutDriverProps = OutDriverProp.InitialPlusLastName;

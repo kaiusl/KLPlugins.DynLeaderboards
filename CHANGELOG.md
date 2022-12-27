@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
+- 6 new properties for every car:
+    - `Laps.Current.IsValid`
+    - `Laps.Current.IsOutLap`
+    - `Laps.Current.IsInLap`
+    - `Laps.Last.IsValid`
+    - `Laps.Last.IsOutLap`
+    - `Laps.Last.IsInLap`
 
 ## [1.2.0] - 2022-07-01
 

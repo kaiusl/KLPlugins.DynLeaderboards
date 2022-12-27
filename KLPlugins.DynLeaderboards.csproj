@@ -36,40 +36,41 @@
     <DebugSymbols>true</DebugSymbols>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="ACSharedMemory">
-      <HintPath>C:\Program Files\SimHub\ACSharedMemory.dll</HintPath>
+    <Reference Include="ACSharedMemory, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>C:\Program Files (x86)\SimHub\ACSharedMemory.dll</HintPath>
     </Reference>
     <Reference Include="GameReaderCommon">
-      <HintPath>C:\Program Files\SimHub\GameReaderCommon.dll</HintPath>
-      <Private>False</Private>
+      <HintPath>C:\Program Files (x86)\SimHub\GameReaderCommon.dll</HintPath>
     </Reference>
     <Reference Include="InputManagerCS, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>C:\Program Files\SimHub\InputManagerCS.dll</HintPath>
+      <HintPath>C:\Program Files (x86)\SimHub\InputManagerCS.dll</HintPath>
     </Reference>
-    <Reference Include="log4net, Version=2.0.8.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
+    <Reference Include="log4net">
+      <HintPath>C:\Program Files (x86)\SimHub\log4net.dll</HintPath>
+    </Reference>
+    <Reference Include="MahApps.Metro, Version=1.5.0.23, Culture=neutral, PublicKeyToken=f4fb5a3c4d1e5b4f, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>C:\Program Files\SimHub\log4net.dll</HintPath>
-      <Private>False</Private>
+      <HintPath>C:\Program Files (x86)\SimHub\MahApps.Metro.dll</HintPath>
     </Reference>
-    <Reference Include="MahApps.Metro">
-      <HintPath>C:\Program Files\SimHub\MahApps.Metro.dll</HintPath>
-    </Reference>
-    <Reference Include="MathNet.Numerics">
-      <HintPath>C:\Program Files\SimHub\MathNet.Numerics.dll</HintPath>
+    <Reference Include="MathNet.Numerics, Version=4.7.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>C:\Program Files (x86)\SimHub\MathNet.Numerics.dll</HintPath>
     </Reference>
     <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>C:\Program Files\SimHub\Newtonsoft.Json.dll</HintPath>
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>C:\Program Files (x86)\SimHub\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
     <Reference Include="SimHub.Logging, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>C:\Program Files\SimHub\SimHub.Logging.dll</HintPath>
+      <HintPath>C:\Program Files (x86)\SimHub\SimHub.Logging.dll</HintPath>
     </Reference>
-    <Reference Include="SimHub.Plugins, Version=1.0.8090.41698, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="SimHub.Plugins, Version=1.0.8385.29176, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>C:\Program Files\SimHub\SimHub.Plugins.dll</HintPath>
+      <HintPath>C:\Program Files (x86)\SimHub\SimHub.Plugins.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Buffers, Version=4.0.3.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL" />
@@ -87,12 +88,13 @@
     <Reference Include="System.Net.Http" />
     <Reference Include="System.Xml" />
     <Reference Include="WindowsBase" />
-    <Reference Include="WoteverCommon">
-      <HintPath>C:\Program Files\SimHub\WoteverCommon.dll</HintPath>
+    <Reference Include="WoteverCommon, Version=1.1.0.0, Culture=neutral, PublicKeyToken=35893a067a282a97, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>C:\Program Files (x86)\SimHub\WoteverCommon.dll</HintPath>
     </Reference>
     <Reference Include="Xceed.Wpf.Toolkit, Version=3.4.0.0, Culture=neutral, PublicKeyToken=3e4669d2f30244f4, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>C:\Program Files\SimHub\Xceed.Wpf.Toolkit.dll</HintPath>
+      <HintPath>C:\Program Files (x86)\SimHub\Xceed.Wpf.Toolkit.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>

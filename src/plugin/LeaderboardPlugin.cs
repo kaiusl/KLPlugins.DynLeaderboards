@@ -306,6 +306,22 @@ namespace KLPlugins.DynLeaderboards {
 
                 AddLapProp(OutLapProp.CurrentLapTime, () => l.GetDynCar(i)?.NewData?.CurrentLap?.Laptime);
 
+                AddLapProp(OutLapProp.CurrentLapIsValid, () => maybe_bool_to_int(l.GetDynCar(i)?.NewData?.CurrentLap?.IsValidForBest));
+                AddLapProp(OutLapProp.LastLapIsValid, () => {
+                    // IsValidForBest is true even if there is no actual lap, make it consistent with other properties
+                    var last_lap = l.GetDynCar(i)?.NewData?.LastLap;
+                    if (last_lap != null && last_lap.Laptime != null) {
+                        return maybe_bool_to_int(last_lap?.IsValidForBest);
+                    } else {
+                        return null;
+                    }
+                });
+
+                AddLapProp(OutLapProp.CurrentLapIsOutLap, () => maybe_bool_to_int(l.GetDynCar(i)?.IsCurrentLapOutLap));
+                AddLapProp(OutLapProp.LastLapIsOutLap, () => maybe_bool_to_int(l.GetDynCar(i)?.IsLastLapOutLap));
+                AddLapProp(OutLapProp.CurrentLapIsInLap, () => maybe_bool_to_int(l.GetDynCar(i)?.IsCurrentLapInLap));
+                AddLapProp(OutLapProp.LastLapIsInLap, () => maybe_bool_to_int(l.GetDynCar(i)?.IsLastLapInLap));
+
                 void AddOneDriverFromList(int j) {
                     var driverId = $"Driver.{j + 1}";
                     AddDriverProp(OutDriverProp.FirstName, driverId, () => l.GetDynCar(i)?.GetDriver(j)?.FirstName);
@@ -450,7 +466,13 @@ namespace KLPlugins.DynLeaderboards {
                 _values.SetDynamicCarGetter();
             });
         }
+        int? maybe_bool_to_int(bool? v) {
+            if (v == null) {
+                return null;
+            }
 
+            return (bool)v ? 1 : 0;
+        }
         internal void SetDynamicCarGetter(DynLeaderboardConfig l) {
             _values.LeaderboardValues.Find(x => x.Settings.Name == l.Name)?.SetDynGetters(_values);
         }

@@ -68,6 +68,10 @@ namespace KLPlugins.DynLeaderboards.Car {
         public double TotalPitTime { get; private set; } = 0;
         public double? LastPitTime { get; private set; } = null;
         public double? CurrentTimeInPits { get; private set; } = null;
+        public bool IsCurrentLapOutLap { get; private set; } = false;
+        public bool? IsLastLapOutLap { get; private set; } = null;
+        public bool IsCurrentLapInLap { get; private set; } = false;
+        public bool? IsLastLapInLap { get; private set; } = null;
 
         // Stint info
         public double? LastStintTime { get; private set; } = null;
@@ -244,6 +248,17 @@ namespace KLPlugins.DynLeaderboards.Car {
 
             if (_isNewLap) {
                 CurrentDriver.OnLapFinished(NewData.LastLap);
+                IsLastLapOutLap = IsCurrentLapOutLap;
+                IsCurrentLapOutLap = false;
+                IsLastLapInLap = IsCurrentLapInLap;
+                IsCurrentLapInLap = false;
+            }
+
+            if (_exitedPitlane) {
+                IsCurrentLapOutLap = true;
+            }
+            if (_enteredPitlane) {
+                IsCurrentLapInLap = true;
             }
 
             UpdateStintInfo();
@@ -336,6 +351,7 @@ namespace KLPlugins.DynLeaderboards.Car {
 
                 // Pit ended
                 if (PitEntryTime != null && _exitedPitlane) {
+                    IsCurrentLapOutLap = true;
                     LastPitTime = realtimeData.SessionRunningTime.TotalSeconds - PitEntryTime;
                     TotalPitTime += (double)LastPitTime;
                     PitEntryTime = null;

@@ -639,7 +639,7 @@ namespace KLPlugins.DynLeaderboards.Settings {
                 OutLapProps_StackPanel.Children.Add(t);
             }
 
-            foreach (var v in (OutLapProp[])Enum.GetValues(typeof(OutLapProp))) {
+            foreach (var v in OutLapPropExtensions.Order()) {
                 if (v == OutLapProp.None)
                     continue;
                 // Group by similarity

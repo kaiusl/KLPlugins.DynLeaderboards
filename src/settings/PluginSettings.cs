@@ -7,9 +7,10 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Xml.Linq;
+using System.Xml;
 
 namespace KLPlugins.DynLeaderboards.Settings {
-
     internal class PluginSettings {
         public int Version { get; set; } = 1;
         public string AccDataLocation { get; set; }
@@ -29,7 +30,6 @@ namespace KLPlugins.DynLeaderboards.Settings {
         internal const string leaderboardConfigsDataDirName = "PluginsData\\KLPlugins\\DynLeaderboards\\leaderboardConfigs";
         internal const string leaderboardConfigsDataBackupDirName = "PluginsData\\KLPlugins\\DynLeaderboards\\leaderboardConfigs\\b";
         private static readonly string _defAccDataLocation = "C:\\Users\\" + Environment.UserName + "\\Documents\\Assetto Corsa Competizione";
-
         private delegate JObject Migration(JObject o);
 
         internal PluginSettings() {
@@ -84,7 +84,7 @@ namespace KLPlugins.DynLeaderboards.Settings {
 
             foreach (var cfg in DynLeaderboardConfigs) {
                 var cfgFileName = $"{leaderboardConfigsDataDirName}\\{cfg.Name}.json";
-                var serializedCfg = JsonConvert.SerializeObject(cfg, Formatting.Indented);
+                var serializedCfg = JsonConvert.SerializeObject(cfg, Newtonsoft.Json.Formatting.Indented);
                 var isSame = File.Exists(cfgFileName) && serializedCfg == File.ReadAllText(cfgFileName);
 
                 if (!isSame) {
@@ -112,7 +112,7 @@ namespace KLPlugins.DynLeaderboards.Settings {
 
         internal void RemoveLeaderboardAt(int i) {
             var fname = $"{leaderboardConfigsDataDirName}\\{DynLeaderboardConfigs[i].Name}.json";
-            if (File.Exists(fname)) { 
+            if (File.Exists(fname)) {
                 File.Delete(fname);
             }
             DynLeaderboardConfigs.RemoveAt(i);
@@ -191,11 +191,10 @@ namespace KLPlugins.DynLeaderboards.Settings {
         /// </summary>
         internal static void Migrate() {
             Dictionary<string, Migration> _migrations = CreateMigrationsDict();
-            
+
             string settingsFname = "PluginsData\\Common\\DynLeaderboardsPlugin.GeneralSettings.json";
             if (!File.Exists(settingsFname))
                 return;
-
             JObject savedSettings = JObject.Parse(File.ReadAllText(settingsFname));
 
             int version = 0; // If settings doesn't contain version key, it's 0
@@ -205,7 +204,7 @@ namespace KLPlugins.DynLeaderboards.Settings {
 
             if (version == currentSettingsVersion)
                 return;
-                
+
             // Migrate step by step to current version.
             while (version != currentSettingsVersion) {
                 savedSettings = _migrations[$"{version}_{version + 1}"](savedSettings);
@@ -215,7 +214,7 @@ namespace KLPlugins.DynLeaderboards.Settings {
             // Save up to date setting back to the disk
             using (StreamWriter file = File.CreateText(settingsFname)) {
                 JsonSerializer serializer = new JsonSerializer();
-                serializer.Formatting = Formatting.Indented;
+                serializer.Formatting = Newtonsoft.Json.Formatting.Indented;
                 serializer.Serialize(file, savedSettings);
             }
 
@@ -229,11 +228,11 @@ namespace KLPlugins.DynLeaderboards.Settings {
             var migrations = new Dictionary<string, Migration>();
             migrations["0_1"] = Mig0To1;
 
-            #if DEBUG
+#if DEBUG
                 for (int i = 0; i < currentSettingsVersion; i++) {
                     Debug.Assert(migrations.ContainsKey($"{i}_{i + 1}"), $"Migration from v{i} to v{i + 1} is not set.");
                 }
-            #endif
+#endif
 
             return migrations;
         }
@@ -260,7 +259,7 @@ namespace KLPlugins.DynLeaderboards.Settings {
                         continue;
                     using (StreamWriter file = File.CreateText(fname)) {
                         JsonSerializer serializer = new JsonSerializer();
-                        serializer.Formatting = Formatting.Indented;
+                        serializer.Formatting = Newtonsoft.Json.Formatting.Indented;
                         serializer.Serialize(file, cfg);
                     }
                 }
@@ -279,13 +278,13 @@ namespace KLPlugins.DynLeaderboards.Settings {
         public int Version { get; set; } = 1;
 
         private string _name;
-        public string Name { 
+        public string Name {
             get { return _name; }
             set {
                 char[] arr = value.ToCharArray();
                 arr = Array.FindAll<char>(arr, (c => (char.IsLetterOrDigit(c))));
                 _name = new string(arr);
-            } 
+            }
         }
 
         public OutCarProp OutCarProps = OutCarProp.CarNumber

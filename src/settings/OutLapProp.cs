@@ -38,6 +38,13 @@ namespace KLPlugins.DynLeaderboards.Settings {
         LastLapDeltaToAheadLast = 1L << 30,
         LastLapDeltaToAheadInClassLast = 1L << 31,
         DynamicLastLapDeltaToFocusedLast = 1L << 32,
+
+        CurrentLapIsValid = 1L << 33,
+        LastLapIsValid = 1L << 34,
+        CurrentLapIsOutLap = 1L << 35,
+        LastLapIsOutLap = 1L << 36,
+        CurrentLapIsInLap = 1L << 37,
+        LastLapIsInLap = 1L << 38,
     }
 
     internal static class OutLapPropExtensions {
@@ -65,6 +72,47 @@ namespace KLPlugins.DynLeaderboards.Settings {
         public static void Combine(ref this OutLapProp p, OutLapProp o) => p |= o;
 
         public static void Remove(ref this OutLapProp p, OutLapProp o) => p &= ~o;
+
+        public static OutLapProp[] Order() {
+            return new OutLapProp[] {
+                OutLapProp.Laps,
+                OutLapProp.LastLapTime,
+                OutLapProp.LastLapSectors,
+                OutLapProp.LastLapIsValid,
+                OutLapProp.LastLapIsOutLap,
+                OutLapProp.LastLapIsInLap,
+                OutLapProp.BestLapTime,
+                OutLapProp.BestLapSectors,
+                OutLapProp.BestSectors,
+                OutLapProp.CurrentLapTime,
+                OutLapProp.CurrentLapIsValid,
+                OutLapProp.CurrentLapIsOutLap,
+                OutLapProp.CurrentLapIsInLap,
+                OutLapProp.BestLapDeltaToOverallBest,
+                OutLapProp.BestLapDeltaToClassBest,
+                OutLapProp.BestLapDeltaToLeaderBest,
+                OutLapProp.BestLapDeltaToClassLeaderBest,
+                OutLapProp.BestLapDeltaToFocusedBest,
+                OutLapProp.BestLapDeltaToAheadBest,
+                OutLapProp.BestLapDeltaToAheadInClassBest,
+                OutLapProp.LastLapDeltaToOverallBest,
+                OutLapProp.LastLapDeltaToClassBest,
+                OutLapProp.LastLapDeltaToLeaderBest,
+                OutLapProp.LastLapDeltaToClassLeaderBest,
+                OutLapProp.LastLapDeltaToFocusedBest,
+                OutLapProp.LastLapDeltaToAheadBest,
+                OutLapProp.LastLapDeltaToAheadInClassBest,
+                OutLapProp.LastLapDeltaToOwnBest,
+                OutLapProp.LastLapDeltaToLeaderLast,
+                OutLapProp.LastLapDeltaToClassLeaderLast,
+                OutLapProp.LastLapDeltaToFocusedLast,
+                OutLapProp.LastLapDeltaToAheadLast,
+                OutLapProp.LastLapDeltaToAheadInClassLast,
+                OutLapProp.DynamicBestLapDeltaToFocusedBest,
+                OutLapProp.DynamicLastLapDeltaToFocusedBest,
+                OutLapProp.DynamicLastLapDeltaToFocusedLast,
+            };
+        }
 
         public static string ToPropName(this OutLapProp p) {
             switch (p) {
@@ -157,6 +205,24 @@ namespace KLPlugins.DynLeaderboards.Settings {
 
                 case OutLapProp.DynamicLastLapDeltaToFocusedLast:
                     return "Laps.Last.Delta.Dynamic.ToFocusedLast";
+
+                case OutLapProp.CurrentLapIsValid:
+                    return "Laps.Current.IsValid";
+
+                case OutLapProp.LastLapIsValid:
+                    return "Laps.Last.IsValid";
+
+                case OutLapProp.CurrentLapIsOutLap:
+                    return "Laps.Current.IsOutLap";
+
+                case OutLapProp.LastLapIsOutLap:
+                    return "Laps.Last.IsOutLap";
+
+                case OutLapProp.CurrentLapIsInLap:
+                    return "Laps.Current.IsInLap";
+
+                case OutLapProp.LastLapIsInLap:
+                    return "Laps.Last.IsInLap";
 
                 default:
                     throw new ArgumentOutOfRangeException("Invalid enum variant");
@@ -263,6 +329,24 @@ Any relative -> delta to focused car's best lap";
 Overall -> delta to leader's last lap,
 Class -> delta to class leader's last lap,
 Any relative -> delta to focused car's last lap";
+
+                case OutLapProp.CurrentLapIsValid:
+                    return "Is current lap valid?";
+
+                case OutLapProp.LastLapIsValid:
+                    return "Was last lap valid?";
+
+                case OutLapProp.CurrentLapIsOutLap:
+                    return "Is current lap an out lap?";
+
+                case OutLapProp.LastLapIsOutLap:
+                    return "Was last lap an out lap?";
+
+                case OutLapProp.CurrentLapIsInLap:
+                    return "Is current lap an in lap?";
+
+                case OutLapProp.LastLapIsInLap:
+                    return "Was last lap an in lap?";
 
                 default:
                     throw new ArgumentOutOfRangeException("Invalid enum variant");

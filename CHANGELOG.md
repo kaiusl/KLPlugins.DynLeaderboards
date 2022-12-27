@@ -5,7 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
-- 6 new properties for every car:
+
+## [1.2.1] - 2022-12-27
+
+### Added
+- 6 new properties for every car: ([#9](https://github.com/kaiusl/KLPlugins.DynLeaderboards/issues/9))
     - `Laps.Current.IsValid`
     - `Laps.Current.IsOutLap`
     - `Laps.Current.IsInLap`
@@ -80,7 +84,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [1.0.0] - 2022-04-19
 - Initial public release
 
-[Unreleased]: https://github.com/kaiusl/KLPlugins.Leaderboard/compare/v1.2.0...HEAD
+[Unreleased]: https://github.com/kaiusl/KLPlugins.Leaderboard/compare/v1.2.1...HEAD
+[1.2.1]: https://github.com/kaiusl/KLPlugins.Leaderboard/releases/tag/v1.2.1
 [1.2.0]: https://github.com/kaiusl/KLPlugins.Leaderboard/releases/tag/v1.2.0
 [1.1.1]: https://github.com/kaiusl/KLPlugins.Leaderboard/releases/tag/v1.1.1
 [1.1.0]: https://github.com/kaiusl/KLPlugins.Leaderboard/releases/tag/v1.1.0

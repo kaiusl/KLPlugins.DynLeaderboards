@@ -34,4 +34,4 @@ Head over to the [wiki](https://github.com/kaiusl/KLPlugins.DynLeaderboards/wiki
 
 ### SimHub and ACC version
 
-Last tested on ACC v1.8.15 and SimHub v8.0.2.
+Last tested on ACC v1.8.20 and SimHub v8.2.0.

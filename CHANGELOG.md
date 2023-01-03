@@ -13,6 +13,8 @@ excludes all the cars in the pitlane which are not on the same lap as the focuse
 ### Fixes
 - Jump to pits after forgetting to press "DRIVE" disabled total gap and `RelativeOnTrackLapDiff` calculations until the car finished it's the first lap on some tracks. 
 
+### Dash changes
+- Enabled new `RelativeOnTrackWoPit` leaderboard by default (only on SimHub v8 version, v7 will remain as is). 
 
 ## [1.2.1] - 2022-12-27
 

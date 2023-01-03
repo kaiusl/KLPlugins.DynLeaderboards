@@ -240,6 +240,7 @@
                             <TextBlock MaxWidth="750" TextWrapping="Wrap" Padding="20,0,0,0">* RelativeOverall - In overall order</TextBlock>
                             <TextBlock MaxWidth="750" TextWrapping="Wrap" Padding="20,0,0,0">* RelativeClass - In the order of focused car's class</TextBlock>
                             <TextBlock MaxWidth="750" TextWrapping="Wrap" Padding="20,0,0,0">* RelativeOnTrack - In the relative track order</TextBlock>
+                            <TextBlock MaxWidth="750" TextWrapping="Wrap" Padding="20,0,0,0">* RelativeOnTrackWoPit - Same as RelativeOnTrack but without the cars in the pitlane which are not on the same lap as the focused car</TextBlock>
                             <TextBlock MaxWidth="750" TextWrapping="Wrap" Padding="10,0,0,0">Partial relative leaderboards - `N` top positions and `2M + 1` relative positions. If the focused car is inside the first `N + M + 1` positions the order will be just as the overall leaderboard. There are two types:</TextBlock>
                             <TextBlock MaxWidth="750" TextWrapping="Wrap" Padding="20,0,0,0">* PartialRelativeOverall - In overall order</TextBlock>
                             <TextBlock MaxWidth="750" TextWrapping="Wrap" Padding="20,0,0,0">* PartialRelativeClass - In the order of focused car's class</TextBlock>

@@ -624,6 +624,8 @@ namespace KLPlugins.DynLeaderboards {
                     foreach (var l in LeaderboardValues) {
                         if (l.Settings.CurrentLeaderboard() == Leaderboard.RelativeOnTrack)
                             l.SetRelativeOnTrackOrder(_relativeSplinePositions, (int)FocusedCarIdx);
+                        if (l.Settings.CurrentLeaderboard() == Leaderboard.RelativeOnTrackWoPit)
+                            l.SetRelativeOnTrackWoPitOrder(_relativeSplinePositions, (int)FocusedCarIdx, Cars, RealtimeData.IsRace);
                     }
                 }
 

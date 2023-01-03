@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Added
+- New leaderboard type `RelativeOnTrackWoPit` which is the same as `RelativeOnTrack` but 
+excludes all the cars in the pitlane which are not on the same lap as the focused car.
+
 ### Fixes
 - Jump to pits after forgetting to press "DRIVE" disabled total gap and `RelativeOnTrackLapDiff` calculations until the car finished it's the first lap on some tracks. 
 

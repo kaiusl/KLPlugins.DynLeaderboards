@@ -283,7 +283,7 @@ namespace KLPlugins.DynLeaderboards.Car {
                     HasCrossedStartLine = false;
                 }
 
-                if (!HasCrossedStartLine && _isSplinePositionReset) {
+                if (!HasCrossedStartLine && (_isSplinePositionReset || _exitedPitlane)) {
                     HasCrossedStartLine = true;
                     //DynLeaderboardsPlugin.LogInfo($"#{RaceNumber}: set HasCrossedStartLine = true");
                 }
@@ -486,28 +486,7 @@ namespace KLPlugins.DynLeaderboards.Car {
                         }
 
                         if (focusedCar.OffsetLapUpdate == OffsetLapUpdateType.None) {
-                            if (GapToFocusedTotal == null) {
-                                RelativeOnTrackLapDiff = 0;
-                            } else if (GapToFocusedTotal > 100_000) {
-                                RelativeOnTrackLapDiff = 1;
-                            } else if (GapToFocusedTotal < 50_000) {
-                                RelativeOnTrackLapDiff = 0;
-                                if (GapToFocusedOnTrack > 0) {
-                                    if (OverallPos > focusedCar.OverallPos) {
-                                        RelativeOnTrackLapDiff = -1;
-                                    } else {
-                                        RelativeOnTrackLapDiff = 0;
-                                    }
-                                } else {
-                                    if (OverallPos < focusedCar.OverallPos) {
-                                        RelativeOnTrackLapDiff = 1;
-                                    } else {
-                                        RelativeOnTrackLapDiff = 0;
-                                    }
-                                }
-                            } else {
-                                RelativeOnTrackLapDiff = -1;
-                            }
+                            SetRelLapDiff();
                         }
                     }
                 } else {
@@ -532,6 +511,49 @@ namespace KLPlugins.DynLeaderboards.Car {
                         var toBest = to?.NewData?.BestSessionLap?.Laptime;
                         return toBest != null ? (double)thisBestLap - (double)toBest : (double?)null;
                     }
+                }
+            }
+
+            void SetRelLapDiff() {
+                if (GapToFocusedTotal == null) {
+                    if (NewData.Laps < focusedCar.NewData.Laps) {
+                        RelativeOnTrackLapDiff = -1;
+                    } else if (NewData.Laps > focusedCar.NewData.Laps) {
+                        RelativeOnTrackLapDiff = 1;
+                    } else {
+                        if (GapToFocusedOnTrack > 0) {
+                            if (OverallPos > focusedCar.OverallPos) {
+                                RelativeOnTrackLapDiff = -1;
+                            } else {
+                                RelativeOnTrackLapDiff = 0;
+                            }
+                        } else {
+                            if (OverallPos < focusedCar.OverallPos) {
+                                RelativeOnTrackLapDiff = 1;
+                            } else {
+                                RelativeOnTrackLapDiff = 0;
+                            }
+                        }
+                    }
+                } else if (GapToFocusedTotal > 100_000) {
+                    RelativeOnTrackLapDiff = 1;
+                } else if (GapToFocusedTotal < 50_000) {
+                    RelativeOnTrackLapDiff = 0;
+                    if (GapToFocusedOnTrack > 0) {
+                        if (OverallPos > focusedCar.OverallPos) {
+                            RelativeOnTrackLapDiff = -1;
+                        } else {
+                            RelativeOnTrackLapDiff = 0;
+                        }
+                    } else {
+                        if (OverallPos < focusedCar.OverallPos) {
+                            RelativeOnTrackLapDiff = 1;
+                        } else {
+                            RelativeOnTrackLapDiff = 0;
+                        }
+                    }
+                } else {
+                    RelativeOnTrackLapDiff = -1;
                 }
             }
 

@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Fixes
+- Jump to pits after forgetting to press "DRIVE" disabled total gap and `RelativeOnTrackLapDiff` calculations until the car finished it's the first lap on some tracks. 
+
+
 ## [1.2.1] - 2022-12-27
 
 ### Added
@@ -25,11 +29,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Properties `Position.Dynamic` and `Position.Dynamic.Start` that show overall positions in overall leaderboards and class position in class position.
 
 ### Improvements
-- Leaderboard configurations are now saved separately to allow simpler configuration ([issue #7](https://github.com/kaiusl/KLPlugins.DynLeaderboards/issues/7)).
+- Leaderboard configurations are now saved separately to allow simpler configuration ([#7](https://github.com/kaiusl/KLPlugins.DynLeaderboards/issues/7)).
 
 ### Fixed
 - Disallowed non letter or digit characters from leaderboard names to fix possible issues where weird characters would essentially become variables inside SimHub.
-- PartialRelativeClass showed N-1 position ahead instead of N position as set in settings ([issue #6](https://github.com/kaiusl/KLPlugins.DynLeaderboards/issues/6)).
+- PartialRelativeClass showed N-1 position ahead instead of N position as set in settings ([#6](https://github.com/kaiusl/KLPlugins.DynLeaderboards/issues/6)).
 
 ### Dash changes
 - Add dash for SimHub v7.x and v8.x versions.

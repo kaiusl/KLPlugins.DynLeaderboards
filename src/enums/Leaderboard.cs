@@ -8,7 +8,8 @@
         RelativeClass,
         PartialRelativeOverall,
         PartialRelativeClass,
-        RelativeOnTrack
+        RelativeOnTrack,
+        RelativeOnTrackWoPit,
     }
 
     internal static class LeaderboardExtensions {
@@ -29,6 +30,9 @@
 
                 case Leaderboard.RelativeOnTrack:
                     return "`2N + 1` relative positions to the focused car on track. `N` can be set below.";
+
+                case Leaderboard.RelativeOnTrackWoPit:
+                    return "`2N + 1` relative positions to the focused car on track excluding the cars in the pitlane which are not on the same lap as the focused car. `N` can be set below.";
 
                 case Leaderboard.PartialRelativeOverall:
                     return "`N` top positions and `2M + 1` relative positions in overall order. If the focused car is inside the first `N + M + 1` positions the order will be just as the overall leaderboard. `N` and `M` can be set below.";

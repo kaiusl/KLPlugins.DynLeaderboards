@@ -1,4 +1,5 @@
 ﻿using KLPlugins.DynLeaderboards.Car;
+using KLPlugins.DynLeaderboards.ksBroadcastingNetwork;
 using KLPlugins.DynLeaderboards.Settings;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -33,6 +34,7 @@ namespace KLPlugins.DynLeaderboards {
         public DynLeaderboardConfig Settings { get; private set; }
 
         private int?[] _relativePosOnTrackCarsIdxs { get; set; }
+        private int?[] _relativePosOnTrackWoPitCarsIdxs { get; set; }
         private int?[] _relativeOverallCarsIdxs { get; set; }
         private int?[] _relativeClassCarsIdxs { get; set; }
         private int?[] _partialRelativeOverallCarsIdxs { get; set; }
@@ -43,8 +45,10 @@ namespace KLPlugins.DynLeaderboards {
         internal DynLeaderboardValues(DynLeaderboardConfig settings) {
             Settings = settings;
 
-            if (DynLeaderboardContainsAny(Leaderboard.RelativeOnTrack))
+            if (DynLeaderboardContainsAny(Leaderboard.RelativeOnTrack)) {
                 _relativePosOnTrackCarsIdxs = new int?[Settings.NumOnTrackRelativePos * 2 + 1];
+                _relativePosOnTrackWoPitCarsIdxs = new int?[Settings.NumOnTrackRelativePos * 2 + 1];
+            }
 
             if (DynLeaderboardContainsAny(Leaderboard.RelativeOverall))
                 _relativeOverallCarsIdxs = new int?[Settings.NumOverallRelativePos * 2 + 1];
@@ -63,6 +67,7 @@ namespace KLPlugins.DynLeaderboards {
             ResetIdxs(_relativeClassCarsIdxs);
             ResetIdxs(_relativeOverallCarsIdxs);
             ResetIdxs(_relativePosOnTrackCarsIdxs);
+            ResetIdxs(_relativePosOnTrackWoPitCarsIdxs);
             ResetIdxs(_partialRelativeClassCarsIdxs);
             ResetIdxs(_partialRelativeOverallCarsIdxs);
 
@@ -180,6 +185,21 @@ namespace KLPlugins.DynLeaderboards {
                     GetDynPositionStart = (i) => GetDynCar(i)?.StartPos;
                     break;
 
+                case Leaderboard.RelativeOnTrackWoPit:
+                    if (_relativePosOnTrackWoPitCarsIdxs == null) {
+                        _relativePosOnTrackWoPitCarsIdxs = new int?[Settings.NumOnTrackRelativePos * 2 + 1];
+                    }
+                    GetDynCar = (i) => v.GetCar(i, _relativePosOnTrackWoPitCarsIdxs);
+                    GetFocusedCarIdxInDynLeaderboard = () => Settings.NumOnTrackRelativePos;
+                    GetDynGapToFocused = (i) => GetDynCar(i)?.GapToFocusedOnTrack;
+                    GetDynGapToAhead = (i) => GetDynCar(i)?.GapToAheadOnTrack;
+                    GetDynBestLapDeltaToFocusedBest = (i) => GetDynCar(i)?.BestLapDeltaToFocusedBest;
+                    GetDynLastLapDeltaToFocusedBest = (i) => GetDynCar(i)?.LastLapDeltaToFocusedBest;
+                    GetDynLastLapDeltaToFocusedLast = (i) => GetDynCar(i)?.LastLapDeltaToFocusedLast;
+                    GetDynPosition = (i) => GetDynCar(i)?.OverallPos;
+                    GetDynPositionStart = (i) => GetDynCar(i)?.StartPos;
+                    break;
+
                 default:
                     SetDefault();
                     break;
@@ -224,6 +244,47 @@ namespace KLPlugins.DynLeaderboards {
             for (int i = 0; i < relPos * 2 + 1; i++) {
                 if (i < startidx || i >= endidx) {
                     _relativePosOnTrackCarsIdxs[i] = null;
+                }
+            }
+        }
+
+        internal void SetRelativeOnTrackWoPitOrder(List<CarSplinePos> _relativeSplinePositions, int focusedCarIdx, List<CarData> cars, bool isRace) {
+            Debug.Assert(_relativePosOnTrackWoPitCarsIdxs != null);
+
+            var relPos = Settings.NumOnTrackRelativePos;
+            var ahead = _relativeSplinePositions
+                .Where(x => {
+                    var car = cars[x.CarIdx];
+                    var isInPit = car.NewData?.IsInPitlane ?? true;
+                    var showInPits = isRace && car.RelativeOnTrackLapDiff == 0;
+                    return x.SplinePos > 0 && (!isInPit || showInPits);
+                })
+                .Take(relPos)
+                .Reverse()
+                .ToList()
+                .ConvertAll(x => (int?)x.CarIdx);
+            var behind = _relativeSplinePositions
+                .Where(x => {
+                    var car = cars[x.CarIdx];
+                    var isInPit = car.NewData?.IsInPitlane ?? true;
+                    var showInPits = isRace && car.RelativeOnTrackLapDiff == 0;
+                    return x.SplinePos < 0 && (!isInPit || showInPits);
+                })
+                .Reverse()
+                .Take(relPos)
+                .ToList()
+                .ConvertAll(x => (int?)x.CarIdx);
+
+            ahead.CopyTo(_relativePosOnTrackWoPitCarsIdxs, relPos - ahead.Count);
+            _relativePosOnTrackWoPitCarsIdxs[relPos] = focusedCarIdx;
+            behind.CopyTo(_relativePosOnTrackWoPitCarsIdxs, relPos + 1);
+
+            // Set missing positions to -1
+            var startidx = relPos - ahead.Count;
+            var endidx = relPos + behind.Count + 1;
+            for (int i = 0; i < relPos * 2 + 1; i++) {
+                if (i < startidx || i >= endidx) {
+                    _relativePosOnTrackWoPitCarsIdxs[i] = null;
                 }
             }
         }

@@ -339,7 +339,8 @@ namespace KLPlugins.DynLeaderboards.Settings {
                 Leaderboard.PartialRelativeClass,
                 Leaderboard.RelativeOverall,
                 Leaderboard.RelativeClass,
-                Leaderboard.RelativeOnTrack
+                Leaderboard.RelativeOnTrack,
+                Leaderboard.RelativeOnTrackWoPit
             };
         }
 

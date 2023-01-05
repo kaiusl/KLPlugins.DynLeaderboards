@@ -380,7 +380,9 @@ namespace KLPlugins.DynLeaderboards {
                 AddPosProp(OutPosProp.DynamicPositionStart, () => l.GetDynPositionStart(i));
 
                 // Pit
-                AddPitProp(OutPitProp.IsInPitLane, () => (l.GetDynCar(i)?.NewData?.CarLocation ?? CarLocationEnum.NONE) == CarLocationEnum.Pitlane ? 1 : 0);
+                // OldData as to be in sync with RelativeOnTrackNoPit leaderboard
+                // Don't use OldData.IsInPitLane as that also shows in pitlane if car if CarLocation == PitEntry and PitExit, 
+                AddPitProp(OutPitProp.IsInPitLane, () => (l.GetDynCar(i)?.OldData?.CarLocation ?? CarLocationEnum.NONE) == CarLocationEnum.Pitlane ? 1 : 0);
                 AddPitProp(OutPitProp.PitStopCount, () => l.GetDynCar(i)?.PitCount);
                 AddPitProp(OutPitProp.PitTimeTotal, () => l.GetDynCar(i)?.TotalPitTime);
                 AddPitProp(OutPitProp.PitTimeLast, () => l.GetDynCar(i)?.LastPitTime);

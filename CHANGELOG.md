@@ -6,9 +6,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+
+## [1.2.2] - 2023-01-05
+
 ### Added
 - New leaderboard type `RelativeOnTrackWoPit` which is the same as `RelativeOnTrack` but 
-excludes all the cars in the pitlane which are not on the same lap as the focused car. ([#10](https://github.com/kaiusl/KLPlugins.DynLeaderboards/issues/10))
+excludes all the cars in the pitlane which are not on the same lap as the focused car. ([#10](https://github.com/kaiusl/KLPlugins.DynLeaderboards/issues/10), [#12](https://github.com/kaiusl/KLPlugins.DynLeaderboards/pull/12))
 
 ### Fixes
 - Jump to pits after forgetting to press "DRIVE" disabled total gap and `RelativeOnTrackLapDiff` calculations until the car finished it's the first lap on some tracks. 
@@ -94,7 +97,8 @@ excludes all the cars in the pitlane which are not on the same lap as the focuse
 ## [1.0.0] - 2022-04-19
 - Initial public release
 
-[Unreleased]: https://github.com/kaiusl/KLPlugins.Leaderboard/compare/v1.2.1...HEAD
+[Unreleased]: https://github.com/kaiusl/KLPlugins.Leaderboard/compare/v1.2.2...HEAD
+[1.2.2]: https://github.com/kaiusl/KLPlugins.Leaderboard/releases/tag/v1.2.2
 [1.2.1]: https://github.com/kaiusl/KLPlugins.Leaderboard/releases/tag/v1.2.1
 [1.2.0]: https://github.com/kaiusl/KLPlugins.Leaderboard/releases/tag/v1.2.0
 [1.1.1]: https://github.com/kaiusl/KLPlugins.Leaderboard/releases/tag/v1.1.1

@@ -8,13 +8,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Added
 - New leaderboard type `RelativeOnTrackWoPit` which is the same as `RelativeOnTrack` but 
-excludes all the cars in the pitlane which are not on the same lap as the focused car.
+excludes all the cars in the pitlane which are not on the same lap as the focused car. ([#10](https://github.com/kaiusl/KLPlugins.DynLeaderboards/issues/10))
 
 ### Fixes
 - Jump to pits after forgetting to press "DRIVE" disabled total gap and `RelativeOnTrackLapDiff` calculations until the car finished it's the first lap on some tracks. 
 
 ### Dash changes
-- Enabled new `RelativeOnTrackWoPit` leaderboard by default (only on SimHub v8 version, v7 will remain as is). 
+- Enabled new `RelativeOnTrackWoPit` leaderboard by default. 
 
 ## [1.2.1] - 2022-12-27
 

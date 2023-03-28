@@ -6,7 +6,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
-### Dash changed
+## [1.2.3] - 2023-03-28
+
+### Dash changes
 
 * Moved leaderboard into an widget to fix a repetition bug after changing SimHub dashboard with `GraphicalDashPlugin.Cycle(Next/Previous)Dash`.
   See [here](https://github.com/SHWotever/SimHub/issues/1262) for more details on the issue.
@@ -102,7 +104,8 @@ excludes all the cars in the pitlane which are not on the same lap as the focuse
 ## [1.0.0] - 2022-04-19
 - Initial public release
 
-[Unreleased]: https://github.com/kaiusl/KLPlugins.Leaderboard/compare/v1.2.2...HEAD
+[Unreleased]: https://github.com/kaiusl/KLPlugins.Leaderboard/compare/v1.2.3...HEAD
+[1.2.3]: https://github.com/kaiusl/KLPlugins.Leaderboard/releases/tag/v1.2.3
 [1.2.2]: https://github.com/kaiusl/KLPlugins.Leaderboard/releases/tag/v1.2.2
 [1.2.1]: https://github.com/kaiusl/KLPlugins.Leaderboard/releases/tag/v1.2.1
 [1.2.0]: https://github.com/kaiusl/KLPlugins.Leaderboard/releases/tag/v1.2.0

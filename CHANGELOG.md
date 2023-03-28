@@ -6,6 +6,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Dash changed
+
+* Moved leaderboard into an widget to fix a repetition bug after changing SimHub dashboard with `GraphicalDashPlugin.Cycle(Next/Previous)Dash`.
+  See [here](https://github.com/SHWotever/SimHub/issues/1262) for more details on the issue.
+
 
 ## [1.2.2] - 2023-01-05
 

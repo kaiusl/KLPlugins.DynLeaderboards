@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Fixes
+
+- Fixes an error if the plugin is first launched while ACC is not the selected game ([#15](https://github.com/kaiusl/KLPlugins.DynLeaderboards/issues/15)).
+
 ## [1.2.3] - 2023-03-28
 
 ### Dash changes

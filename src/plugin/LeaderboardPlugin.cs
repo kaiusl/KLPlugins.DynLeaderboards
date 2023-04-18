@@ -127,8 +127,7 @@ namespace KLPlugins.DynLeaderboards {
             LogFileName = $"{Settings.PluginDataLocation}\\Logs\\Log_{PluginStartTime}.txt";
             var gameName = (string)pluginManager.GetPropertyValue<SimHub.Plugins.DataPlugins.DataCore.DataCorePlugin>("CurrentGame");
             Game = new Game(gameName);
-            if (!Game.IsAcc)
-                return;
+
             //var timingFName = $"{Settings.PluginDataLocation}\\Logs\\timings\\frametime\\{PluginStartTime}.txt";
             //Directory.CreateDirectory(Path.GetDirectoryName(timingFName));
             //_timingFile = File.Create(timingFName);
@@ -144,7 +143,10 @@ namespace KLPlugins.DynLeaderboards {
             if (Settings.DynLeaderboardConfigs.Count == 0) {
                 AddNewLeaderboard(new DynLeaderboardConfig("Dynamic"));
             }
+            // _values is needed by SettingsControl on first time initialization, even if the game is not ACC
             _values = new Values();
+            if (!Game.IsAcc)
+                return;
             SubscribeToSimHubEvents();
             AttachGeneralDelegates();
 

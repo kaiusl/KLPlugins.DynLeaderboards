@@ -8,7 +8,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Fixes
 
-- Fixes an error if the plugin is first launched while ACC is not the selected game ([#15](https://github.com/kaiusl/KLPlugins.DynLeaderboards/issues/15)).
+- Fix an error if the plugin is first launched while ACC is not the selected game ([#15](https://github.com/kaiusl/KLPlugins.DynLeaderboards/issues/15)).
+- Fix an NullReferenceException if broadcasting server sends a RealtimeUpdate before EntryList.
 
 ## [1.2.3] - 2023-03-28
 

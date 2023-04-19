@@ -35,6 +35,9 @@ namespace KLPlugins.DynLeaderboards.Car {
         LamborghiniHuracanSTEvo2 = 29,
         BMWM4GT3 = 30,
         AudiR8LMSGT3Evo2 = 31,
+        Ferrari296GT3 = 32,
+        LamborghiniHuracanEvo2 = 33,
+        Porsche992GT3R = 34,
 
         AlpineA110GT4 = 50,
         AMRV8VantageGT4 = 51,
@@ -103,6 +106,9 @@ namespace KLPlugins.DynLeaderboards.Car {
                 case CarType.MercedesAMGGT3Evo:
                 case CarType.BMWM4GT3:
                 case CarType.AudiR8LMSGT3Evo2:
+                case CarType.Ferrari296GT3:
+                case CarType.LamborghiniHuracanEvo2:
+                case CarType.Porsche992GT3R:
                     return CarClass.GT3;
 
                 case CarType.Ferrari488ChallengeEvo:
@@ -167,7 +173,7 @@ namespace KLPlugins.DynLeaderboards.Car {
         public static string ToPrettyString(this CarType c) {
             switch (c) {
                 case CarType.Porsche991GT3R:
-                    return "Porsche 991 GT3R";
+                    return "Porsche 991 GT3 R";
 
                 case CarType.MercedesAMGGT3:
                     return "Mercedes AMG-GT3";
@@ -212,13 +218,13 @@ namespace KLPlugins.DynLeaderboards.Car {
                     return "Lexus RC-F GT3";
 
                 case CarType.LamborghiniHuracanGT3Evo:
-                    return "Lamborghini Huracan GT3 Evo";
+                    return "Lamborghini Huracan GT3 EVO";
 
                 case CarType.HondaNSXGT3:
                     return "Honda NSX GT3";
 
                 case CarType.AudiR8LMSGT3Evo:
-                    return "Audi R8 LMS GT3 Evo";
+                    return "Audi R8 LMS GT3 evo";
 
                 case CarType.AMRV8VantageGT3:
                     return "Aston Martin V8 Vantage GT3";
@@ -230,10 +236,10 @@ namespace KLPlugins.DynLeaderboards.Car {
                     return "McLaren 720S GT3";
 
                 case CarType.Porsche991IIGT3R:
-                    return "Porsche 991II GT3R";
+                    return "Porsche 991II GT3 R";
 
                 case CarType.Ferrari488GT3Evo:
-                    return "Ferrari 488 GT3 Evo";
+                    return "Ferrari 488 GT3 EVO 2020";
 
                 case CarType.MercedesAMGGT3Evo:
                     return "Mercedes AMG-GT3 20";
@@ -242,7 +248,16 @@ namespace KLPlugins.DynLeaderboards.Car {
                     return "BMW M4 GT3";
 
                 case CarType.AudiR8LMSGT3Evo2:
-                    return "Audi R8 LMS GT3 Evo II";
+                    return "Audi R8 LMS GT3 evo II";
+
+                case CarType.Ferrari296GT3:
+                    return "Ferrari 296 GT3";
+
+                case CarType.LamborghiniHuracanEvo2:
+                    return "Lamborghini Huracan GT3 EVO2";
+
+                case CarType.Porsche992GT3R:
+                    return "Porsche 992 GT3 R";
 
                 case CarType.Ferrari488ChallengeEvo:
                     return "Ferrari 488 Challenge Evo";
@@ -260,7 +275,7 @@ namespace KLPlugins.DynLeaderboards.Car {
                     return "Lamborghini Huracan ST";
 
                 case CarType.LamborghiniHuracanSTEvo2:
-                    return "Lamborghini Huracan ST Evo II";
+                    return "Lamborghini Huracan ST EVO2";
 
                 case CarType.AlpineA110GT4:
                     return "Alpine A110 GT4";
@@ -307,6 +322,7 @@ namespace KLPlugins.DynLeaderboards.Car {
                 case CarType.Porsche991IIGT3Cup:
                 case CarType.Porsche992GT3Cup:
                 case CarType.Porsche718CaymanGT4:
+                case CarType.Porsche992GT3R:
                     return "Porsche";
 
                 case CarType.MercedesAMGGT3:
@@ -317,6 +333,7 @@ namespace KLPlugins.DynLeaderboards.Car {
                 case CarType.Ferrari488GT3:
                 case CarType.Ferrari488GT3Evo:
                 case CarType.Ferrari488ChallengeEvo:
+                case CarType.Ferrari296GT3:
                     return "Ferrari";
 
                 case CarType.AudiR8LMSGT3:
@@ -330,12 +347,13 @@ namespace KLPlugins.DynLeaderboards.Car {
                 case CarType.LamborghiniHuracanGT3Evo:
                 case CarType.LamborghiniHuracanST2015:
                 case CarType.LamborghiniHuracanSTEvo2:
+                case CarType.LamborghiniHuracanEvo2:
                     return "Lamborghini";
 
                 case CarType.McLaren720SGT3:
                 case CarType.McLaren650SGT3:
                 case CarType.McLaren570SGT4:
-                    return "McLaren3";
+                    return "McLaren";
 
                 case CarType.NissanGTRGT32018:
                 case CarType.NissanGTRGT32017:

@@ -23,6 +23,7 @@
         COTA = 21,
         Indianapolis = 22,
         WatkinsGlen = 23,
+        Valencia = 24,
 
         Unknown = 255
     }

@@ -229,8 +229,11 @@ namespace KLPlugins.DynLeaderboards {
         // New entry list if found new car or driver
 
         private void OnBroadcastingEvent(string sender, BroadcastingEvent evt) {
-            Debug.Assert(evt != null);
-            Debug.Assert(RealtimeData != null);
+            if (RealtimeData == null) {
+                return;
+            }
+            //Debug.Assert(evt != null);
+            //Debug.Assert(RealtimeData != null);
             if (RealtimeData.SessionRunningTime == TimeSpan.Zero)
                 return;
 

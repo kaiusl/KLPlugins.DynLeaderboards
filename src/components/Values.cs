@@ -339,8 +339,6 @@ namespace KLPlugins.DynLeaderboards {
             }
 
             SetMaxStintTimes();
-            if (Cars.Count == 0)
-                return;
             ClearMissingCars();
 
             // TODO: Do we still need this?
@@ -534,6 +532,11 @@ namespace KLPlugins.DynLeaderboards {
                 var leaderCar = Cars[0];
                 var focusedCar = Cars[(int)FocusedCarIdx];
                 var focusedClass = focusedCar.CarClass;
+
+                if (leaderCar.NewData == null) {
+                    // First RealtimeUpdate, cars do not yet have their RealtimeCarUpdates, wait until next message
+                    return;
+                }
 
                 // We need to do 2 passes on Cars list, because we need to know best lap cars at the
                 // moment we update CarData and only way we can do that is to go thorough all the cars

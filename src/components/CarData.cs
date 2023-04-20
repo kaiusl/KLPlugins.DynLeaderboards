@@ -515,6 +515,10 @@ namespace KLPlugins.DynLeaderboards.Car {
             }
 
             void SetRelLapDiff() {
+                if (NewData == null || focusedCar.NewData == null) {
+                    return;
+                }
+
                 if (GapToFocusedTotal == null) {
                     if (NewData.Laps < focusedCar.NewData.Laps) {
                         RelativeOnTrackLapDiff = -1;

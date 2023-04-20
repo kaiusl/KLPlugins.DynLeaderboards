@@ -64,7 +64,7 @@ namespace KLPlugins.DynLeaderboards.Car {
         CUP17 = 6,
         CUP21 = 7,
         TCX = 8,
-        Unknown = 255
+        Unknown = 9
     }
 
     public enum CarGroup {

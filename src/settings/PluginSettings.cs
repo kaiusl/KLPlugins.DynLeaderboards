@@ -132,8 +132,6 @@ namespace KLPlugins.DynLeaderboards.Settings {
             var carClassColors = new Dictionary<CarClass, string>(8);
             foreach (var c in Enum.GetValues(typeof(CarClass))) {
                 var cls = (CarClass)c;
-                if (cls == CarClass.Unknown || cls == CarClass.Overall)
-                    continue;
                 carClassColors.Add(cls, cls.ACCColor());
             }
             return carClassColors;

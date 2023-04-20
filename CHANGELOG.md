@@ -6,41 +6,68 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
-### Fixes
+## [1.3.0] - 2023-04-20
 
-- Fix an error if the plugin is first launched while ACC is not the selected game ([#15](https://github.com/kaiusl/KLPlugins.DynLeaderboards/issues/15)).
-- Fix an NullReferenceException if broadcasting server sends a RealtimeUpdate before EntryList.
+### Added
+
+- Support for new cars and track from 2023 GT World Challenge Pack ([#19]).
+- Lap data for gap calculation for Valencia. Thank you [Mtrade] for running the laps and generating the needed data ([#16]).
+
+### Fixed
+
+- An error if the plugin is first launched while ACC is not the selected game ([#15]).
+- A `NullReferenceException` if broadcasting server sends a `RealtimeUpdate` before entry list.
+- If a new car is added to ACC but not yet to our enums, it's class is Unknown, which causes 
+  a `IndexOutofBoundsException` in `CarClassArray` if we try to access class positions or lap data.
+  Should avoid [#19] in the future until we get an update out.
+- Use a naive distance and speed based gap calculation in case precise lap data is not available.
+  (Should only happen if ACC get's a new track and we haven't pushed an update yet.) ([#20]).
+- An exception if an BroadcastingEvent is sent before anything else. Can happen if one joins midrace and someone just had a crash or finished a lap.
+- An exception in gap calcualtion if some cars do not have received their `RealtimeCarUpdate`. 
+  Can happen on the first `RealtimeUpdate` where none of the car have received their `RealtimeCarUpdate` or if someone joins midrace.
+
+[Mtrade]: https://github.com/Mtrade
+[#16]: https://github.com/kaiusl/KLPlugins.DynLeaderboards/issues/16
+[#15]: https://github.com/kaiusl/KLPlugins.DynLeaderboards/issues/15
+[#19]: https://github.com/kaiusl/KLPlugins.DynLeaderboards/issues/19
+[#20]: https://github.com/kaiusl/KLPlugins.DynLeaderboards/issues/20
 
 ## [1.2.3] - 2023-03-28
 
 ### Dash changes
 
-* Moved leaderboard into an widget to fix a repetition bug after changing SimHub dashboard with `GraphicalDashPlugin.Cycle(Next/Previous)Dash`.
-  See [here](https://github.com/SHWotever/SimHub/issues/1262) for more details on the issue.
+- Moved leaderboard into an widget to fix a repetition bug after changing SimHub dashboard with `GraphicalDashPlugin.Cycle(Next/Previous)Dash`.
+  See [SHWotever/SimHub#1262] for more details on the issue.
 
+[SHWotever/SimHub#1262]: https://github.com/SHWotever/SimHub/issues/1262
 
 ## [1.2.2] - 2023-01-05
 
 ### Added
 - New leaderboard type `RelativeOnTrackWoPit` which is the same as `RelativeOnTrack` but 
-excludes all the cars in the pitlane which are not on the same lap as the focused car. ([#10](https://github.com/kaiusl/KLPlugins.DynLeaderboards/issues/10), [#12](https://github.com/kaiusl/KLPlugins.DynLeaderboards/pull/12))
+excludes all the cars in the pitlane which are not on the same lap as the focused car. ([#10], [#12])
 
-### Fixes
+### Fixed
 - Jump to pits after forgetting to press "DRIVE" disabled total gap and `RelativeOnTrackLapDiff` calculations until the car finished it's the first lap on some tracks. 
 
 ### Dash changes
 - Enabled new `RelativeOnTrackWoPit` leaderboard by default. 
 
+[#10]: https://github.com/kaiusl/KLPlugins.DynLeaderboards/issues/10
+[#12]: https://github.com/kaiusl/KLPlugins.DynLeaderboards/pull/12
+
 ## [1.2.1] - 2022-12-27
 
 ### Added
-- 6 new properties for every car: ([#9](https://github.com/kaiusl/KLPlugins.DynLeaderboards/issues/9))
+- 6 new properties for every car: ([#9])
     - `Laps.Current.IsValid`
     - `Laps.Current.IsOutLap`
     - `Laps.Current.IsInLap`
     - `Laps.Last.IsValid`
     - `Laps.Last.IsOutLap`
     - `Laps.Last.IsInLap`
+
+[#9]: https://github.com/kaiusl/KLPlugins.DynLeaderboards/issues/9
 
 ## [1.2.0] - 2022-07-01
 
@@ -50,15 +77,18 @@ excludes all the cars in the pitlane which are not on the same lap as the focuse
 - Properties `Position.Dynamic` and `Position.Dynamic.Start` that show overall positions in overall leaderboards and class position in class position.
 
 ### Improvements
-- Leaderboard configurations are now saved separately to allow simpler configuration ([#7](https://github.com/kaiusl/KLPlugins.DynLeaderboards/issues/7)).
+- Leaderboard configurations are now saved separately to allow simpler configuration ([#7]).
 
 ### Fixed
 - Disallowed non letter or digit characters from leaderboard names to fix possible issues where weird characters would essentially become variables inside SimHub.
-- PartialRelativeClass showed N-1 position ahead instead of N position as set in settings ([#6](https://github.com/kaiusl/KLPlugins.DynLeaderboards/issues/6)).
+- PartialRelativeClass showed N-1 position ahead instead of N position as set in settings ([#6]).
 
 ### Dash changes
 - Add dash for SimHub v7.x and v8.x versions.
 - Dash uses new dynamic position properties. 
+
+[#6]: https://github.com/kaiusl/KLPlugins.DynLeaderboards/issues/6
+[#7]: https://github.com/kaiusl/KLPlugins.DynLeaderboards/issues/7
 
 ## [1.1.1] - 2022-05-03
 
@@ -109,7 +139,8 @@ excludes all the cars in the pitlane which are not on the same lap as the focuse
 ## [1.0.0] - 2022-04-19
 - Initial public release
 
-[Unreleased]: https://github.com/kaiusl/KLPlugins.Leaderboard/compare/v1.2.3...HEAD
+[Unreleased]: https://github.com/kaiusl/KLPlugins.Leaderboard/compare/v1.3.0...HEAD
+[1.3.0]: https://github.com/kaiusl/KLPlugins.Leaderboard/releases/tag/v1.3.0
 [1.2.3]: https://github.com/kaiusl/KLPlugins.Leaderboard/releases/tag/v1.2.3
 [1.2.2]: https://github.com/kaiusl/KLPlugins.Leaderboard/releases/tag/v1.2.2
 [1.2.1]: https://github.com/kaiusl/KLPlugins.Leaderboard/releases/tag/v1.2.1

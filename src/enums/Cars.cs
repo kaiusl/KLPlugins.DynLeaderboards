@@ -446,7 +446,7 @@ namespace KLPlugins.DynLeaderboards.Car {
             }
         }
 
-        private static readonly CarClassArray<string> ACCClassColors = new CarClassArray<string>(ACCClassColorGenerator);
+        private static readonly EnumMap<CarClass, string> ACCClassColors = new EnumMap<CarClass, string>(ACCClassColorGenerator);
         public static string ACCColor(this CarClass c) {
             return ACCClassColors[c];
         }
@@ -481,6 +481,17 @@ namespace KLPlugins.DynLeaderboards.Car {
                     return "#FF000000";
             }
         }
+
+        private static readonly EnumMap<CarClass, string> CarClassStrings = new EnumMap<CarClass, string>((e) => e.ToString());
+        public static string PrettyName(this CarClass c) {
+            return CarClassStrings[c];
+        }
+
+        private static readonly EnumMap<TeamCupCategory, string> TeamCupCategoryStrings = new EnumMap<TeamCupCategory, string>((e) => e.ToString());
+        public static string PrettyName(this TeamCupCategory c) {
+            return TeamCupCategoryStrings[c];
+        }
+
 
         private static readonly EnumMap<TeamCupCategory, string> ACCCupCategoryColors = new EnumMap<TeamCupCategory, string>(ACCCupCategoryColorsGenerator);
         public static string ACCColor(this TeamCupCategory c) {

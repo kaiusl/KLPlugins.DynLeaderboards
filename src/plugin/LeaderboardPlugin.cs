@@ -49,7 +49,7 @@ namespace KLPlugins.DynLeaderboards {
             if (!Game.IsAcc) { return; } // Atm only ACC is supported
 
             if (data.GameRunning && data.OldData != null && data.NewData != null) {
-                WriteFrameTimes(pm);
+                //WriteFrameTimes(pm);
                 _values.OnDataUpdate(pm, data);
             }
         }
@@ -349,9 +349,9 @@ namespace KLPlugins.DynLeaderboards {
                 AddProp(OutCarProp.CarNumber, () => l.GetDynCar(i)?.RaceNumber);
                 AddProp(OutCarProp.CarModel, () => l.GetDynCar(i)?.CarModelType.PrettyName());
                 AddProp(OutCarProp.CarManufacturer, () => l.GetDynCar(i)?.CarModelType.Mark());
-                AddProp(OutCarProp.CarClass, () => l.GetDynCar(i)?.CarClass.ToString());
+                AddProp(OutCarProp.CarClass, () => l.GetDynCar(i)?.CarClass.PrettyName());
                 AddProp(OutCarProp.TeamName, () => l.GetDynCar(i)?.TeamName);
-                AddProp(OutCarProp.TeamCupCategory, () => l.GetDynCar(i)?.TeamCupCategory.ToString());
+                AddProp(OutCarProp.TeamCupCategory, () => l.GetDynCar(i)?.TeamCupCategory.PrettyName());
                 AddStintProp(OutStintProp.CurrentStintTime, () => l.GetDynCar(i)?.CurrentStintTime);
                 AddStintProp(OutStintProp.LastStintTime, () => l.GetDynCar(i)?.LastStintTime);
                 AddStintProp(OutStintProp.CurrentStintLaps, () => l.GetDynCar(i)?.CurrentStintLaps);
@@ -447,7 +447,7 @@ namespace KLPlugins.DynLeaderboards {
                 addCar(i);
             }
 
-            this.AttachDelegate($"{l.Settings.Name}.CurrentLeaderboard", () => l.Settings.CurrentLeaderboard().ToString());
+            this.AttachDelegate($"{l.Settings.Name}.CurrentLeaderboard", () => l.Settings.CurrentLeaderboardName);
             this.AttachDelegate($"{l.Settings.Name}.FocusedPosInCurrentLeaderboard", () => l.GetFocusedCarIdxInDynLeaderboard());
 
             // Declare an action which can be called

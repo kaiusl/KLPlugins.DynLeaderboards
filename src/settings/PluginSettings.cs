@@ -318,15 +318,21 @@ namespace KLPlugins.DynLeaderboards.Settings {
 
         public List<Leaderboard> Order { get; set; } = new List<Leaderboard>();
 
-        public int CurrentLeaderboardIdx { get => _currentLeaderboardIdx; set { _currentLeaderboardIdx = value > -1 && value < Order.Count ? value : 0; } }
+        public int CurrentLeaderboardIdx { 
+            get => _currentLeaderboardIdx; 
+            set { 
+                _currentLeaderboardIdx = value > -1 && value < Order.Count ? value : 0; 
+                CurrentLeaderboardName = CurrentLeaderboard().ToString(); 
+            } 
+        }
         private int _currentLeaderboardIdx = 0;
+        internal string CurrentLeaderboardName;
 
         public Leaderboard CurrentLeaderboard() {
             return Order.ElementAtOrDefault(CurrentLeaderboardIdx);
         }
 
-        public DynLeaderboardConfig() {
-        }
+        public DynLeaderboardConfig() { }
 
         internal DynLeaderboardConfig(string name) {
             Name = name;
@@ -340,6 +346,7 @@ namespace KLPlugins.DynLeaderboards.Settings {
                 Leaderboard.RelativeOnTrack,
                 Leaderboard.RelativeOnTrackWoPit
             };
+            CurrentLeaderboardName = Order[_currentLeaderboardIdx].ToString();
         }
 
         internal void Rename(string newName) {

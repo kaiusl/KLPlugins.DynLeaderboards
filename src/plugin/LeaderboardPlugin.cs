@@ -49,7 +49,7 @@ namespace KLPlugins.DynLeaderboards {
             if (!Game.IsAcc) { return; } // Atm only ACC is supported
 
             if (data.GameRunning && data.OldData != null && data.NewData != null) {
-                //WriteFrameTimes(pm);
+                WriteFrameTimes(pm);
                 _values.OnDataUpdate(pm, data);
             }
         }
@@ -128,10 +128,10 @@ namespace KLPlugins.DynLeaderboards {
             var gameName = (string)pluginManager.GetPropertyValue<SimHub.Plugins.DataPlugins.DataCore.DataCorePlugin>("CurrentGame");
             Game = new Game(gameName);
 
-            //var timingFName = $"{Settings.PluginDataLocation}\\Logs\\timings\\frametime\\{PluginStartTime}.txt";
-            //Directory.CreateDirectory(Path.GetDirectoryName(timingFName));
-            //_timingFile = File.Create(timingFName);
-            //_timingWriter = new StreamWriter(_timingFile);
+            var timingFName = $"{Settings.PluginDataLocation}\\Logs\\timings\\frametime\\{PluginStartTime}.txt";
+            Directory.CreateDirectory(Path.GetDirectoryName(timingFName));
+            _timingFile = File.Create(timingFName);
+            _timingWriter = new StreamWriter(_timingFile);
 
             PManager = pluginManager;
 
@@ -347,7 +347,7 @@ namespace KLPlugins.DynLeaderboards {
 
                 // Car and team
                 AddProp(OutCarProp.CarNumber, () => l.GetDynCar(i)?.RaceNumber);
-                AddProp(OutCarProp.CarModel, () => l.GetDynCar(i)?.CarModelType.ToPrettyString());
+                AddProp(OutCarProp.CarModel, () => l.GetDynCar(i)?.CarModelType.PrettyName());
                 AddProp(OutCarProp.CarManufacturer, () => l.GetDynCar(i)?.CarModelType.Mark());
                 AddProp(OutCarProp.CarClass, () => l.GetDynCar(i)?.CarClass.ToString());
                 AddProp(OutCarProp.TeamName, () => l.GetDynCar(i)?.TeamName);

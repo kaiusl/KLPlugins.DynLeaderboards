@@ -1,4 +1,6 @@
-﻿namespace KLPlugins.DynLeaderboards.Car {
+﻿using System;
+
+namespace KLPlugins.DynLeaderboards.Car {
 
     internal class CarClassArray<T> {
         private const int _numClasses = 10;
@@ -8,6 +10,13 @@
         public CarClassArray(T defValue = default(T)) {
             DefaultValue = defValue;
             Reset();
+        }
+
+        public CarClassArray(Func<CarClass, T> generator, T defValue = default(T)) {
+            DefaultValue = defValue;
+            foreach (var v in (CarClass[])Enum.GetValues(typeof(CarClass))) {
+                _data[(int)v] = generator(v);
+            }
         }
 
         public T this[CarClass key] {

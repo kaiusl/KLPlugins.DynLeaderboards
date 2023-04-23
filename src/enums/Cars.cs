@@ -1,4 +1,7 @@
-﻿using KLPlugins.DynLeaderboards.ksBroadcastingNetwork;
+﻿using System;
+using System.Linq;
+using KLPlugins.DynLeaderboards.ksBroadcastingNetwork;
+using KLPlugins.DynLeaderboards.Settings;
 
 namespace KLPlugins.DynLeaderboards.Car {
 
@@ -51,7 +54,7 @@ namespace KLPlugins.DynLeaderboards.Car {
         MercedesAMGGT4 = 60,
         Porsche718CaymanGT4 = 61,
 
-        Unknown = 255
+        Unknown = 62
     }
 
     public enum CarClass {
@@ -73,12 +76,34 @@ namespace KLPlugins.DynLeaderboards.Car {
         GT4 = 2,
         GTC = 3,
         TCX = 4,
-        Unknown = 255
+        Unknown = 5
+    }
+
+    internal class EnumMap<E, T> where E : System.Enum {
+        private T[] _data;
+
+        public EnumMap(Func<E, T> generator) {
+            int count = Convert.ToInt32(Enum.GetValues(typeof(E)).Cast<E>().Max());
+            _data = new T[count + 1];
+
+            foreach (var v in Enum.GetValues(typeof(E)).Cast<E>()) {
+                int index = Convert.ToInt32(v);
+                _data[index] = generator(v);
+            }
+        }
+
+        public T this[E key] {
+            get => _data[Convert.ToInt32(key)];
+        }
     }
 
     internal static class CarsMethods {
-
+        internal static readonly EnumMap<CarType, CarClass> Classes = new EnumMap<CarType, CarClass>(ClassGenerator);
         public static CarClass Class(this CarType c) {
+            return Classes[c];
+        }
+
+        private static CarClass ClassGenerator(CarType c) {
             switch (c) {
                 case CarType.Porsche991GT3R:
                 case CarType.MercedesAMGGT3:
@@ -147,7 +172,12 @@ namespace KLPlugins.DynLeaderboards.Car {
             }
         }
 
+        internal static readonly EnumMap<CarType, CarGroup> Groups = new EnumMap<CarType, CarGroup>(GroupGenerator);
         public static CarGroup Group(this CarType c) {
+            return Groups[c];
+        }
+
+        private static CarGroup GroupGenerator(CarType c) {
             switch (c.Class()) {
                 case CarClass.GT3:
                     return CarGroup.GT3;
@@ -170,7 +200,13 @@ namespace KLPlugins.DynLeaderboards.Car {
             }
         }
 
-        public static string ToPrettyString(this CarType c) {
+
+        internal static readonly EnumMap<CarType, string> PrettyNames = new EnumMap<CarType, string>(PrettyNameGenerator);
+        public static string PrettyName(this CarType c) {
+            return PrettyNames[c];
+        }
+
+        private static string PrettyNameGenerator(CarType c) {
             switch (c) {
                 case CarType.Porsche991GT3R:
                     return "Porsche 991 GT3 R";
@@ -315,7 +351,13 @@ namespace KLPlugins.DynLeaderboards.Car {
             }
         }
 
+
+        internal static readonly EnumMap<CarType, string> Marks = new EnumMap<CarType, string>(MarkGenerator);
         public static string Mark(this CarType c) {
+            return Marks[c];
+        }
+
+        private static string MarkGenerator(CarType c) {
             switch (c) {
                 case CarType.Porsche991GT3R:
                 case CarType.Porsche991IIGT3R:
@@ -404,10 +446,15 @@ namespace KLPlugins.DynLeaderboards.Car {
             }
         }
 
+        private static readonly CarClassArray<string> ACCClassColors = new CarClassArray<string>(ACCClassColorGenerator);
         public static string ACCColor(this CarClass c) {
+            return ACCClassColors[c];
+        }
+
+        private static string ACCClassColorGenerator(CarClass c) {
             switch (c) {
                 case CarClass.GT3:
-                    return "#FF000000";
+                    return $"#FF000000";
 
                 case CarClass.GT4:
                     return "#FF262660";
@@ -435,7 +482,12 @@ namespace KLPlugins.DynLeaderboards.Car {
             }
         }
 
+        private static readonly EnumMap<TeamCupCategory, string> ACCCupCategoryColors = new EnumMap<TeamCupCategory, string>(ACCCupCategoryColorsGenerator);
         public static string ACCColor(this TeamCupCategory c) {
+           return ACCCupCategoryColors[c];
+        }
+
+        public static string ACCCupCategoryColorsGenerator(this TeamCupCategory c) {
             switch (c) {
                 case TeamCupCategory.Overall:
                     return "#FFFFFFFF";
@@ -457,7 +509,12 @@ namespace KLPlugins.DynLeaderboards.Car {
             }
         }
 
+        private static readonly EnumMap<TeamCupCategory, string> ACCCupCategoryTextColors = new EnumMap<TeamCupCategory, string>(ACCCupCategoryTextColorsGenerator);
         public static string ACCTextColor(this TeamCupCategory c) {
+            return ACCCupCategoryTextColors[c];
+        }
+
+        public static string ACCCupCategoryTextColorsGenerator(this TeamCupCategory c) {
             switch (c) {
                 case TeamCupCategory.Overall:
                     return "#FF000000";

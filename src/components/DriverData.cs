@@ -7,6 +7,10 @@ namespace KLPlugins.DynLeaderboards.Driver {
         public string FirstName { get; internal set; }
         public string LastName { get; internal set; }
         public string ShortName { get; internal set; }
+        public string FullName { get; internal set; }
+        public string InitialPlusLastName { get; internal set; }
+        public string Initials { get; internal set; }
+
         public DriverCategory Category { get; internal set; }
         public NationalityEnum Nationality { get; internal set; }
         public int TotalLaps { get; internal set; } = 0;
@@ -21,6 +25,10 @@ namespace KLPlugins.DynLeaderboards.Driver {
             ShortName = info.ShortName;
             Category = info.Category;
             Nationality = info.Nationality;
+
+            FullName = FirstName + " " + LastName;
+            InitialPlusLastName = CreateInitialPlusLastName();
+            Initials = CreateInitials();
         }
 
         internal void OnLapFinished(LapInfo lastLap) {
@@ -40,18 +48,14 @@ namespace KLPlugins.DynLeaderboards.Driver {
             return _totalDrivingTime;
         }
 
-        public string FullName() {
-            return FirstName + " " + LastName;
-        }
-
-        public string InitialPlusLastName() {
+        private string CreateInitialPlusLastName() {
             if (FirstName == "") {
                 return $"{LastName}";
             }
             return $"{FirstName[0]}. {LastName}";
         }
 
-        public string Initials() {
+        private string CreateInitials() {
             if (FirstName != "" && LastName != "") {
                 return $"{FirstName[0]}{LastName[0]}";
             } else if (FirstName == "" && LastName != "") {

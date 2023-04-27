@@ -73,7 +73,9 @@ namespace KLPlugins.DynLeaderboards {
             ResetPos();
             _broadcastConfig = new ACCUdpRemoteClientConfig("127.0.0.1", "KLDynLeaderboardsPlugin", DynLeaderboardsPlugin.Settings.BroadcastDataUpdateRateMs);
             foreach (var l in DynLeaderboardsPlugin.Settings.DynLeaderboardConfigs) {
-                LeaderboardValues.Add(new DynLeaderboardValues(l));
+                if (l.IsEnabled) {
+                    LeaderboardValues.Add(new DynLeaderboardValues(l));
+                }
             }
             SetDynamicCarGetter();
         }

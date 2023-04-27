@@ -151,8 +151,11 @@ namespace KLPlugins.DynLeaderboards {
             AttachGeneralDelegates();
 
             if (Settings.DynLeaderboardConfigs.Count > 0) {
-                for (int i = 0; i < Settings.DynLeaderboardConfigs.Count; i++) {
-                    AttachDynamicLeaderboard(_values.LeaderboardValues[i]);
+                foreach (var l in _values.LeaderboardValues) {
+                    if (!l.Settings.IsEnabled) {
+                        continue;
+                    }
+                    AttachDynamicLeaderboard(l);
                 }
             }
 

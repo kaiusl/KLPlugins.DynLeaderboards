@@ -261,59 +261,68 @@ namespace KLPlugins.DynLeaderboards.Settings {
         #region Dynamic leaderboard
 
         private void AddSelectDynLeaderboard_ComboBoxItem(DynLeaderboardConfig l) {
-            var sp = new StackPanel();
-            sp.Orientation = Orientation.Horizontal;
+            var row = new StackPanel();
+            row.Orientation = Orientation.Horizontal;
 
-            var t = new TextBox();
-            t.Width = 200;
-            t.Text = l.Name;
+            var nameBox = new TextBox {
+                Width = 200,
+                Text = l.Name
+            };
             if (l.Name.Contains("CONFLICT")) {
-                t.Background = Brushes.LightPink;
+                nameBox.Background = Brushes.LightPink;
             }
 
-            t.TextChanged += (sender, b) => {
-                var caretIndex = t.CaretIndex;
+            nameBox.TextChanged += (sender, b) => {
+                var caretIndex = nameBox.CaretIndex;
 
                 // Remove any nonletter or digit characters
-                char[] arr = t.Text.ToCharArray();
+                char[] arr = nameBox.Text.ToCharArray();
                 var arr2 = Array.FindAll(arr, (c => (char.IsLetterOrDigit(c))));
                 if (arr.Length != arr2.Length) {
-                    t.Text = new string(arr2);
-                    t.CaretIndex = caretIndex - 1;
+                    nameBox.Text = new string(arr2);
+                    nameBox.CaretIndex = caretIndex - 1;
                 }
 
-                if (Settings.DynLeaderboardConfigs.Count(x => x.Name == t.Text) > 1 || t.Text.Contains("CONFLICT")) {
-                    t.Background = Brushes.LightPink;
-                    t.ToolTip = "Dynamic leaderboard with same name already exists. Please choose another, if you don't last valid name will be used.";
+                if (Settings.DynLeaderboardConfigs.Count(x => x.Name == nameBox.Text) > 1 || nameBox.Text.Contains("CONFLICT")) {
+                    nameBox.Background = Brushes.LightPink;
+                    nameBox.ToolTip = "Dynamic leaderboard with same name already exists. Please choose another, if you don't last valid name will be used.";
                 } else {
-                    t.Background = Brushes.Transparent;
-                    t.ToolTip = null;
-                    EnablePropertiesDescription_TextBlock.Text = $"Enable/disable properties for currently selected dynamic leaderboard. Each property can be accessed as \"DynLeaderboardsPlugin.{t.Text}.<pos>.<property name>\"";
-                    DynLeaderboardPropertyAccess_TextBlock.Text = $"Properties for this dynamic leaderboard are accessible as \"DynLeaderboardsPlugin.{t.Text}.<pos>.<property name>\", for example \"DynLeaderboardsPlugin.{t.Text}.5.Car.Number\"";
-                    ExposedDriverProps_TextBlock.Text = $"Properties for each driver car be accessed as \"DynLeaderboardsPlugin.{t.Text}.<pos>.Driver.<driver number>.<property name>\", for example \"DynLeaderboardsPlugin.{t.Text}.5.Driver.1.FirstName\"";
+                    nameBox.Background = Brushes.Transparent;
+                    nameBox.ToolTip = null;
+                    EnablePropertiesDescription_TextBlock.Text = $"Enable/disable properties for currently selected dynamic leaderboard. Each property can be accessed as \"DynLeaderboardsPlugin.{nameBox.Text}.<pos>.<property name>\"";
+                    DynLeaderboardPropertyAccess_TextBlock.Text = $"Properties for this dynamic leaderboard are accessible as \"DynLeaderboardsPlugin.{nameBox.Text}.<pos>.<property name>\", for example \"DynLeaderboardsPlugin.{nameBox.Text}.5.Car.Number\"";
+                    ExposedDriverProps_TextBlock.Text = $"Properties for each driver car be accessed as \"DynLeaderboardsPlugin.{nameBox.Text}.<pos>.Driver.<driver number>.<property name>\", for example \"DynLeaderboardsPlugin.{nameBox.Text}.5.Driver.1.FirstName\"";
                 }
             };
 
-            t.LostFocus += (a, b) => {
-                if (t.Background == Brushes.Transparent) {
-                    l.Rename(t.Text);
+            nameBox.LostFocus += (a, b) => {
+                if (nameBox.Background == Brushes.Transparent) {
+                    l.Rename(nameBox.Text);
                 } else {
-                    t.Text = l.Name;
+                    nameBox.Text = l.Name;
                 }
-                t.Text = l.Name;
-                t.Background = Brushes.Transparent;
-                t.ToolTip = null;
+                nameBox.Text = l.Name;
+                nameBox.Background = Brushes.Transparent;
+                nameBox.ToolTip = null;
             };
 
-            var t2 = new TextBlock();
-            t2.Text = "Select";
-            t2.HorizontalAlignment = HorizontalAlignment.Left;
-            t2.Margin = new Thickness(5, 0, 0, 0);
+            var selectText = new TextBlock {
+                Text = "Select",
+                HorizontalAlignment = HorizontalAlignment.Left,
+                Margin = new Thickness(5, 0, 0, 0)
+            };
 
-            sp.Children.Add(t);
-            sp.Children.Add(t2);
+            var isEnabled = new SHToggleButton();
+            isEnabled.Name = $"{l.Name}_is_disabled_toggle";
+            isEnabled.IsChecked = l.IsEnabled;
+            isEnabled.Checked += (a, b) => l.IsEnabled = true;
+            isEnabled.Unchecked += (a, b) => l.IsEnabled = false;
 
-            SelectDynLeaderboard_ComboBox.Items.Add(sp);
+            row.Children.Add(isEnabled);
+            row.Children.Add(nameBox);
+            row.Children.Add(selectText);
+
+            SelectDynLeaderboard_ComboBox.Items.Add(row);
         }
 
         /// <summary>
@@ -326,7 +335,11 @@ namespace KLPlugins.DynLeaderboards.Settings {
             // But it's not critical and this is way simpler.
 
             EnablePropertiesDescription_TextBlock.Text = $"Enable/disable properties for currently selected dynamic leaderboard. Each properties car be accessed as \"DynLeaderboardsPlugin.{CurrentDynLeaderboardSettings.Name}.5.<property name>\"";
-            DynLeaderboardPropertyAccess_TextBlock.Text = $"Properties for each leaderboard will be accessible as \"DynLeaderboardsPlugin.{CurrentDynLeaderboardSettings.Name}.<pos>.<property name>\", for example \"DynLeaderboardsPlugin.{CurrentDynLeaderboardSettings.Name}.5.Car.Number\"";
+            DynLeaderboardPropertyAccess_TextBlock.Text = "The toggle button in front of each leaderboard allows to disable calculations of given leaderboard. " + 
+                "This can be useful if you have many leaderboards but only use some of them at a time. " +
+                "You can disable the ones not used at the moment in order to not waste resources. " +
+                $"\n\nProperties for each leaderboard will be accessible as \"DynLeaderboardsPlugin.{CurrentDynLeaderboardSettings.Name}.<pos>.<property name>\"" + 
+                $"for example \"DynLeaderboardsPlugin.{CurrentDynLeaderboardSettings.Name}.5.Car.Number";
             ExposedDriverProps_TextBlock.Text = $"Properties for each driver car be accessed as \"DynLeaderboardsPlugin.{CurrentDynLeaderboardSettings.Name}.<pos>.Driver.<driver number>.<property name>\", for example \"DynLeaderboardsPlugin.{CurrentDynLeaderboardSettings.Name}.5.Driver.1.FirstName\"";
 
             AddDynLeaderboardToggles();

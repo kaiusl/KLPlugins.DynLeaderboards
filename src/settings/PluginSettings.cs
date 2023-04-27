@@ -122,6 +122,7 @@ namespace KLPlugins.DynLeaderboards.Settings {
             int max = 0;
             if (DynLeaderboardConfigs.Count > 0) {
                 foreach (var v in DynLeaderboardConfigs) {
+                    if (!v.IsEnabled) continue;
                     max = Math.Max(max, v.NumClassPos);
                 }
             }
@@ -327,6 +328,7 @@ namespace KLPlugins.DynLeaderboards.Settings {
         }
         private int _currentLeaderboardIdx = 0;
         internal string CurrentLeaderboardName;
+        public bool IsEnabled { get; set; } = true;
 
         public Leaderboard CurrentLeaderboard() {
             return Order.ElementAtOrDefault(CurrentLeaderboardIdx);

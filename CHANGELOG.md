@@ -13,6 +13,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Improvements
 
 - Cache more properties instead of calculating them from scratch on each update.
+- Remove bunch of unnecessary logging.
 
 ## [1.3.0] - 2023-04-20
 

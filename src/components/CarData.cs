@@ -266,7 +266,6 @@ namespace KLPlugins.DynLeaderboards.Car {
 
             MaxSpeed = Math.Max(MaxSpeed, NewData.Kmh);
             if (SetFinishedOnNextUpdate && OffsetLapUpdate == OffsetLapUpdateType.None) {
-                //DynLeaderboardsPlugin.LogInfo($"Car #{RaceNumber} will finish on next update. Step 2");
                 IsFinalRealtimeCarUpdateAdded = true;
             }
 
@@ -279,13 +278,11 @@ namespace KLPlugins.DynLeaderboards.Car {
                     && NewData.SplinePosition > 0.5
                     && NewData.Laps == 0
                 ) {
-                    DynLeaderboardsPlugin.LogInfo($"#{RaceNumber}: set HasCrossedStartLine = false");
                     HasCrossedStartLine = false;
                 }
 
                 if (!HasCrossedStartLine && (_isSplinePositionReset || _exitedPitlane)) {
                     HasCrossedStartLine = true;
-                    //DynLeaderboardsPlugin.LogInfo($"#{RaceNumber}: set HasCrossedStartLine = true");
                 }
             }
 
@@ -296,12 +293,10 @@ namespace KLPlugins.DynLeaderboards.Car {
                     && OldData.IsOnTrack
                 ) {
                     JumpedToPits = true;
-                    DynLeaderboardsPlugin.LogInfo($"#{RaceNumber}: Jumped to pits.");
                 }
 
                 if (JumpedToPits && !NewData.IsInPitlane) {
                     JumpedToPits = false;
-                    //DynLeaderboardsPlugin.LogInfo($"#{RaceNumber}: Removed jumped to pits.");
                 }
             }
 
@@ -313,7 +308,6 @@ namespace KLPlugins.DynLeaderboards.Car {
                 ) {
                     OffsetLapUpdate = OffsetLapUpdateType.LapBeforeSpline;
                     _lapAtOffsetLapUpdate = NewData.Laps;
-                    DynLeaderboardsPlugin.LogInfo($"#{RaceNumber}: laps updated before spline position was reset (Type 1). NewData: laps={NewData.Laps}, sp={NewData.SplinePosition}, OldData: laps={OldData.Laps}, sp={OldData.SplinePosition}");
                 } else if (OffsetLapUpdate == OffsetLapUpdateType.None
                                 && _isSplinePositionReset
                                 && NewData.Laps != _lapAtOffsetLapUpdate // Remove double detection with above
@@ -322,19 +316,16 @@ namespace KLPlugins.DynLeaderboards.Car {
                     ) {
                     OffsetLapUpdate = OffsetLapUpdateType.SplineBeforeLap;
                     _lapAtOffsetLapUpdate = NewData.Laps;
-                    DynLeaderboardsPlugin.LogInfo($"#{RaceNumber}: spline position was reset before laps were updated (Type 2). NewData: laps={NewData.Laps}, sp={NewData.SplinePosition}, OldData: laps={OldData.Laps}, sp={OldData.SplinePosition}");
                 }
 
                 if (OffsetLapUpdate == OffsetLapUpdateType.LapBeforeSpline) {
                     if (NewData.SplinePosition < 0.9) {
                         OffsetLapUpdate = OffsetLapUpdateType.None;
-                        DynLeaderboardsPlugin.LogInfo($"#{RaceNumber}: offset lap update removed, all ok now again. tsp={TotalSplinePosition}, sp={NewData.SplinePosition}, laps={NewData.Laps}");
                     }
                 } else if (OffsetLapUpdate == OffsetLapUpdateType.SplineBeforeLap) {
                     if (NewData.Laps != _lapAtOffsetLapUpdate || (NewData.SplinePosition > 0.025 && NewData.SplinePosition < 0.9)) {
                         // Second condition is a fallback in case the lap actually shouldn't have been updated (eg at the start line, jumped to pits and then crossed the line in the pits)
                         OffsetLapUpdate = OffsetLapUpdateType.None;
-                        DynLeaderboardsPlugin.LogInfo($"#{RaceNumber}: offset lap update removed, all ok now again. tsp={TotalSplinePosition}, sp={NewData.SplinePosition}, laps={NewData.Laps}");
                     }
                 }
             }
@@ -346,7 +337,6 @@ namespace KLPlugins.DynLeaderboards.Car {
                 ) {
                     PitCount++;
                     PitEntryTime = realtimeData.SessionRunningTime.TotalSeconds;
-                    DynLeaderboardsPlugin.LogInfo($"#{RaceNumber} entered pitlane at {PitEntryTime}.");
                 }
 
                 // Pit ended
@@ -356,7 +346,6 @@ namespace KLPlugins.DynLeaderboards.Car {
                     TotalPitTime += (double)LastPitTime;
                     PitEntryTime = null;
                     CurrentTimeInPits = null;
-                    DynLeaderboardsPlugin.LogInfo($"#{RaceNumber} exited pitlane. Time in pits (Total,Last) = ({TotalPitTime:00.0}s,{LastPitTime:00.0}s)");
                 }
 
                 if (PitEntryTime != null) {
@@ -375,7 +364,6 @@ namespace KLPlugins.DynLeaderboards.Car {
                     || (_stintStartTime == null && NewData.IsOnTrack && !realtimeData.IsPreSession) // We join/start SimHub mid session
                 ) {
                     _stintStartTime = realtimeData.SessionRunningTime.TotalSeconds;
-                    DynLeaderboardsPlugin.LogInfo($"#{RaceNumber} started stint at {_stintStartTime}");
                 }
 
                 // Stint ended
@@ -386,7 +374,6 @@ namespace KLPlugins.DynLeaderboards.Car {
                     CurrentStintTime = null;
                     LastStintLaps = CurrentStintLaps;
                     CurrentStintLaps = 0;
-                    DynLeaderboardsPlugin.LogInfo($"#{RaceNumber} stint ended: {LastStintLaps} laps in {LastStintTime / 60.0:00.0}min");
                 }
 
                 if (_stintStartTime != null) {
@@ -627,14 +614,12 @@ namespace KLPlugins.DynLeaderboards.Car {
         internal void CheckIsFinished() {
             if (!IsFinished && IsFinalRealtimeCarUpdateAdded && OffsetLapUpdate == OffsetLapUpdateType.None) {
                 IsFinished = true;
-                DynLeaderboardsPlugin.LogInfo($"Car #{RaceNumber} finished at {FinishTime}");
             }
         }
 
         internal void SetIsFinished(TimeSpan finishTime) {
             SetFinishedOnNextUpdate = true;
             FinishTime = finishTime;
-            //DynLeaderboardsPlugin.LogInfo($"Car #{RaceNumber} will finish on next update. Step 1");
         }
 
         /// <summary>

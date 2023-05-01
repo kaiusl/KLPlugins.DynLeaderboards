@@ -278,8 +278,6 @@ namespace KLPlugins.DynLeaderboards {
                 SessionEndTimeForBroadcastEventsTime.Add(endTime);
 
                 var sesstimeremainings = float.IsNaN(SessionTimeRemaining) ? float.MaxValue : SessionTimeRemaining;
-                if (isLateEvent)
-                    DynLeaderboardsPlugin.LogInfo($"#{evt.CarData?.RaceNumber} BroadcastEvent. IsLate={isLateEvent} by {msgTimeDiffFromExpected:0.000s}. SessionTimeRamaining={TimeSpan.FromSeconds(sesstimeremainings)}, SessionEndTimeForBroadcastEventsTime={TimeSpan.FromSeconds(SessionEndTimeForBroadcastEventsTime.Median)}, msgTime={TimeSpan.FromSeconds(msgTime)}, diff={TimeSpan.FromSeconds(SessionEndTimeForBroadcastEventsTime.Median - msgTime)}");
             }
 
             // Check if is finished
@@ -308,7 +306,6 @@ namespace KLPlugins.DynLeaderboards {
 
                     if (wasSessionReallyFinished) {
                         var sesstimeremainings = float.IsNaN(SessionTimeRemaining) ? float.MaxValue : SessionTimeRemaining;
-                        DynLeaderboardsPlugin.LogInfo($"#{car.RaceNumber} finished. IsLate={isLateEvent} by {msgTimeDiffFromExpected:0.000s}. SessionTimeRamaining={TimeSpan.FromSeconds(sesstimeremainings)}, SessionEndTimeForBroadcastEventsTime={TimeSpan.FromSeconds(SessionEndTimeForBroadcastEventsTime.Median)}, msgTime={TimeSpan.FromSeconds(msgTime)}, diff={TimeSpan.FromSeconds(SessionEndTimeForBroadcastEventsTime.Median - msgTime)}");
                         car.SetIsFinished(TimeSpan.FromSeconds(currentSessionRunningTimeAtMsgSent));
                     }
                 }

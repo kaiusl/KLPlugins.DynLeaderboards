@@ -32,8 +32,8 @@ namespace KLPlugins.DynLeaderboards {
         private static StreamWriter _logWriter;
         private static bool _isLogFlushed = false;
         private string LogFileName;
-        private FileStream _timingFile;
-        private StreamWriter _timingWriter;
+        //private FileStream _timingFile;
+        //private StreamWriter _timingWriter;
         private Values _values;
 
         /// <summary>
@@ -54,17 +54,17 @@ namespace KLPlugins.DynLeaderboards {
             }
         }
 
-        private void WriteFrameTimes(PluginManager pm) {
-            var ftime = (double)pm.GetPropertyValue<SimHub.Plugins.DataPlugins.DataCore.DataCorePlugin>("Performance_FrameDuration");
-            var cached = (double)pm.GetPropertyValue<SimHub.Plugins.DataPlugins.DataCore.DataCorePlugin>("Performance_CachedFormulasPerSecond");
-            var jsFormulas = (double)pm.GetPropertyValue<SimHub.Plugins.DataPlugins.DataCore.DataCorePlugin>("Performance_JSFormulasPerSecond");
-            var NALCFormulas = (double)pm.GetPropertyValue<SimHub.Plugins.DataPlugins.DataCore.DataCorePlugin>("Performance_NALCFormulasPerSecond");
-            var NALCOptFormulas = (double)pm.GetPropertyValue<SimHub.Plugins.DataPlugins.DataCore.DataCorePlugin>("Performance_NALCOptimizedFormulasPerSecond");
+        //private void WriteFrameTimes(PluginManager pm) {
+        //    var ftime = (double)pm.GetPropertyValue<SimHub.Plugins.DataPlugins.DataCore.DataCorePlugin>("Performance_FrameDuration");
+        //    var cached = (double)pm.GetPropertyValue<SimHub.Plugins.DataPlugins.DataCore.DataCorePlugin>("Performance_CachedFormulasPerSecond");
+        //    var jsFormulas = (double)pm.GetPropertyValue<SimHub.Plugins.DataPlugins.DataCore.DataCorePlugin>("Performance_JSFormulasPerSecond");
+        //    var NALCFormulas = (double)pm.GetPropertyValue<SimHub.Plugins.DataPlugins.DataCore.DataCorePlugin>("Performance_NALCFormulasPerSecond");
+        //    var NALCOptFormulas = (double)pm.GetPropertyValue<SimHub.Plugins.DataPlugins.DataCore.DataCorePlugin>("Performance_NALCOptimizedFormulasPerSecond");
 
-            if (_timingWriter != null) {
-                _timingWriter.WriteLine($"{ftime};{cached};{jsFormulas};{NALCFormulas};{NALCOptFormulas}");
-            }
-        }
+        //    if (_timingWriter != null) {
+        //        _timingWriter.WriteLine($"{ftime};{cached};{jsFormulas};{NALCFormulas};{NALCOptFormulas}");
+        //    }
+        //}
 
         /// <summary>
         /// Called at plugin manager stop, close/dispose anything needed here !
@@ -95,15 +95,15 @@ namespace KLPlugins.DynLeaderboards {
                 _logFile = null;
             }
 
-            if (_timingWriter != null) {
-                _timingWriter.Dispose();
-                _timingWriter = null;
-            }
+            //if (_timingWriter != null) {
+            //    _timingWriter.Dispose();
+            //    _timingWriter = null;
+            //}
 
-            if (_timingFile != null) {
-                _timingFile.Dispose();
-                _timingFile = null;
-            }
+            //if (_timingFile != null) {
+            //    _timingFile.Dispose();
+            //    _timingFile = null;
+            //}
         }
 
         /// <summary>
@@ -128,10 +128,10 @@ namespace KLPlugins.DynLeaderboards {
             var gameName = (string)pluginManager.GetPropertyValue<SimHub.Plugins.DataPlugins.DataCore.DataCorePlugin>("CurrentGame");
             Game = new Game(gameName);
 
-            var timingFName = $"{Settings.PluginDataLocation}\\Logs\\timings\\frametime\\{PluginStartTime}.txt";
-            Directory.CreateDirectory(Path.GetDirectoryName(timingFName));
-            _timingFile = File.Create(timingFName);
-            _timingWriter = new StreamWriter(_timingFile);
+            //var timingFName = $"{Settings.PluginDataLocation}\\Logs\\timings\\frametime\\{PluginStartTime}.txt";
+            //Directory.CreateDirectory(Path.GetDirectoryName(timingFName));
+            //_timingFile = File.Create(timingFName);
+            //_timingWriter = new StreamWriter(_timingFile);
 
             PManager = pluginManager;
 
@@ -550,7 +550,6 @@ namespace KLPlugins.DynLeaderboards {
             }
 
             var t = sw.Elapsed;
-            LogInfo($"Prejit finished in {t.TotalMilliseconds}ms");
         }
     }
 }

@@ -132,7 +132,6 @@ namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork {
                     break;
 
                 case InboundMessageTypes.ENTRY_LIST: {
-                        DynLeaderboardsPlugin.LogInfo("Recieved entry list update");
                         EntryListCars.Clear();
 
                         var connectionId = br.ReadInt32();
@@ -253,7 +252,6 @@ namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork {
                             if ((DateTime.Now - lastEntrylistRequest).TotalSeconds > 5) {
                                 lastEntrylistRequest = DateTime.Now;
                                 RequestEntryList();
-                                DynLeaderboardsPlugin.LogInfo($"CarUpdate {carUpdate.CarIndex}|{carUpdate.DriverIndex} not know, will ask for new EntryList");
                             }
                         } else {
                             OnRealtimeCarUpdate?.Invoke(_connectionIdentifier, carUpdate);

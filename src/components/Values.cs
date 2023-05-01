@@ -313,7 +313,7 @@ namespace KLPlugins.DynLeaderboards {
         }
 
         private void OnBroadcastRealtimeUpdate(string sender, RealtimeUpdate update) {
-            if (Cars.Count == 0) return;    
+            if (Cars.Count == 0) return;
 
             if (RealtimeData == null) {
                 RealtimeData = new RealtimeData(update);

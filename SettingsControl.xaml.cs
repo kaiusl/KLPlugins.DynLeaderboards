@@ -335,10 +335,10 @@ namespace KLPlugins.DynLeaderboards.Settings {
             // But it's not critical and this is way simpler.
 
             EnablePropertiesDescription_TextBlock.Text = $"Enable/disable properties for currently selected dynamic leaderboard. Each properties car be accessed as \"DynLeaderboardsPlugin.{CurrentDynLeaderboardSettings.Name}.5.<property name>\"";
-            DynLeaderboardPropertyAccess_TextBlock.Text = "The toggle button in front of each leaderboard allows to disable calculations of given leaderboard. " + 
+            DynLeaderboardPropertyAccess_TextBlock.Text = "The toggle button in front of each leaderboard allows to disable calculations of given leaderboard. " +
                 "This can be useful if you have many leaderboards but only use some of them at a time. " +
                 "You can disable the ones not used at the moment in order to not waste resources. " +
-                $"\n\nProperties for each leaderboard will be accessible as \"DynLeaderboardsPlugin.{CurrentDynLeaderboardSettings.Name}.<pos>.<property name>\"" + 
+                $"\n\nProperties for each leaderboard will be accessible as \"DynLeaderboardsPlugin.{CurrentDynLeaderboardSettings.Name}.<pos>.<property name>\"" +
                 $"for example \"DynLeaderboardsPlugin.{CurrentDynLeaderboardSettings.Name}.5.Car.Number";
             ExposedDriverProps_TextBlock.Text = $"Properties for each driver car be accessed as \"DynLeaderboardsPlugin.{CurrentDynLeaderboardSettings.Name}.<pos>.Driver.<driver number>.<property name>\", for example \"DynLeaderboardsPlugin.{CurrentDynLeaderboardSettings.Name}.5.Driver.1.FirstName\"";
 

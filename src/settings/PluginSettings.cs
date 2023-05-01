@@ -228,9 +228,9 @@ namespace KLPlugins.DynLeaderboards.Settings {
             migrations["0_1"] = Mig0To1;
 
 #if DEBUG
-                for (int i = 0; i < currentSettingsVersion; i++) {
-                    Debug.Assert(migrations.ContainsKey($"{i}_{i + 1}"), $"Migration from v{i} to v{i + 1} is not set.");
-                }
+            for (int i = 0; i < currentSettingsVersion; i++) {
+                Debug.Assert(migrations.ContainsKey($"{i}_{i + 1}"), $"Migration from v{i} to v{i + 1} is not set.");
+            }
 #endif
 
             return migrations;
@@ -319,12 +319,12 @@ namespace KLPlugins.DynLeaderboards.Settings {
 
         public List<Leaderboard> Order { get; set; } = new List<Leaderboard>();
 
-        public int CurrentLeaderboardIdx { 
-            get => _currentLeaderboardIdx; 
-            set { 
-                _currentLeaderboardIdx = value > -1 && value < Order.Count ? value : 0; 
-                CurrentLeaderboardName = CurrentLeaderboard().ToString(); 
-            } 
+        public int CurrentLeaderboardIdx {
+            get => _currentLeaderboardIdx;
+            set {
+                _currentLeaderboardIdx = value > -1 && value < Order.Count ? value : 0;
+                CurrentLeaderboardName = CurrentLeaderboard().ToString();
+            }
         }
         private int _currentLeaderboardIdx = 0;
         internal string CurrentLeaderboardName;

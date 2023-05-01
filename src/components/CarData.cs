@@ -756,7 +756,7 @@ namespace KLPlugins.DynLeaderboards.Car {
             // This also avoid the question of which speed to use (faster, slower, average)
             // and what happens if either car is standing (eg speed is 0 and we would divide by 0).
             // It's an just in case backup anyway, so most of the times it should never even be reached.7654
-            return dist / 50; 
+            return dist / 50;
         }
 
         /// <summary>

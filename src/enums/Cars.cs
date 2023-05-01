@@ -495,7 +495,7 @@ namespace KLPlugins.DynLeaderboards.Car {
 
         private static readonly EnumMap<TeamCupCategory, string> ACCCupCategoryColors = new EnumMap<TeamCupCategory, string>(ACCCupCategoryColorsGenerator);
         public static string ACCColor(this TeamCupCategory c) {
-           return ACCCupCategoryColors[c];
+            return ACCCupCategoryColors[c];
         }
 
         public static string ACCCupCategoryColorsGenerator(this TeamCupCategory c) {

@@ -32,8 +32,6 @@ namespace KLPlugins.DynLeaderboards {
         private static StreamWriter _logWriter;
         private static bool _isLogFlushed = false;
         private string LogFileName;
-        //private FileStream _timingFile;
-        //private StreamWriter _timingWriter;
         private Values _values;
 
         /// <summary>
@@ -53,18 +51,6 @@ namespace KLPlugins.DynLeaderboards {
                 _values.OnDataUpdate(pm, data);
             }
         }
-
-        //private void WriteFrameTimes(PluginManager pm) {
-        //    var ftime = (double)pm.GetPropertyValue<SimHub.Plugins.DataPlugins.DataCore.DataCorePlugin>("Performance_FrameDuration");
-        //    var cached = (double)pm.GetPropertyValue<SimHub.Plugins.DataPlugins.DataCore.DataCorePlugin>("Performance_CachedFormulasPerSecond");
-        //    var jsFormulas = (double)pm.GetPropertyValue<SimHub.Plugins.DataPlugins.DataCore.DataCorePlugin>("Performance_JSFormulasPerSecond");
-        //    var NALCFormulas = (double)pm.GetPropertyValue<SimHub.Plugins.DataPlugins.DataCore.DataCorePlugin>("Performance_NALCFormulasPerSecond");
-        //    var NALCOptFormulas = (double)pm.GetPropertyValue<SimHub.Plugins.DataPlugins.DataCore.DataCorePlugin>("Performance_NALCOptimizedFormulasPerSecond");
-
-        //    if (_timingWriter != null) {
-        //        _timingWriter.WriteLine($"{ftime};{cached};{jsFormulas};{NALCFormulas};{NALCOptFormulas}");
-        //    }
-        //}
 
         /// <summary>
         /// Called at plugin manager stop, close/dispose anything needed here !
@@ -94,16 +80,6 @@ namespace KLPlugins.DynLeaderboards {
                 _logFile.Dispose();
                 _logFile = null;
             }
-
-            //if (_timingWriter != null) {
-            //    _timingWriter.Dispose();
-            //    _timingWriter = null;
-            //}
-
-            //if (_timingFile != null) {
-            //    _timingFile.Dispose();
-            //    _timingFile = null;
-            //}
         }
 
         /// <summary>
@@ -127,11 +103,6 @@ namespace KLPlugins.DynLeaderboards {
             LogFileName = $"{Settings.PluginDataLocation}\\Logs\\Log_{PluginStartTime}.txt";
             var gameName = (string)pluginManager.GetPropertyValue<SimHub.Plugins.DataPlugins.DataCore.DataCorePlugin>("CurrentGame");
             Game = new Game(gameName);
-
-            //var timingFName = $"{Settings.PluginDataLocation}\\Logs\\timings\\frametime\\{PluginStartTime}.txt";
-            //Directory.CreateDirectory(Path.GetDirectoryName(timingFName));
-            //_timingFile = File.Create(timingFName);
-            //_timingWriter = new StreamWriter(_timingFile);
 
             PManager = pluginManager;
 
@@ -160,20 +131,6 @@ namespace KLPlugins.DynLeaderboards {
             }
 
             this.AttachDelegate("IsBroadcastClientConnected", () => _values.BroadcastClient?.IsConnected);
-
-            //this.AttachDelegate("DBG.Realtime.SessionRunningTime", () => _values?.RealtimeData?.SessionRunningTime);
-            //this.AttachDelegate("DBG.Realtime.RemainingTime", () => _values?.RealtimeData?.RemainingTime);
-            //this.AttachDelegate("DBG.Realtime.SystemTime", () => _values?.RealtimeData?.SystemTime);
-            //this.AttachDelegate("DBG.Realtime.SessionEndTime", () => _values?.RealtimeData?.SessionEndTime);
-            //this.AttachDelegate("DBG.Graphics.SessionRemainingTime", () => TimeSpan.FromMilliseconds(_values?.RawData?.Graphics.SessionTimeLeft ?? int.MaxValue));
-            //this.AttachDelegate("DBG.Realtime.SessionRemainingTime", () => _values.RealtimeData?.SessionRemainingTime);
-            //this.AttachDelegate("DBG.Realtime.RecieveTime", () => _values.RealtimeData?.NewData?.RecieveTime);
-            //this.AttachDelegate("DBG.Realtime.SessionTotalTime", () => _values.RealtimeData?.SessionTotalTime);
-            //this.AttachDelegate("DBG.SessionEndTimeForBroadcastEvents", () => TimeSpan.FromSeconds(_values.SessionEndTimeForBroadcastEventsTime.Median));
-            //this.AttachDelegate("DBG.BEvsRD.SessionTimeDiff.Median", () => _values._broadcastEvt_realtimeData_sessiontime_diff?.Median);
-            //this.AttachDelegate("DBG.BEvsRD.SessionTimeDiff.Min", () => _values._broadcastEvt_realtimeData_sessiontime_diff?.Stats.Minimum);
-            //this.AttachDelegate("DBG.BEvsRD.SessionTimeDiff.Max", () => _values._broadcastEvt_realtimeData_sessiontime_diff?.Stats.Maximum);
-            //this.AttachDelegate("DBG.BEvsRD.SessionTimeDiff.Avg", () => _values._broadcastEvt_realtimeData_sessiontime_diff?.Stats.Mean);
         }
 
         internal void AddNewLeaderboard(DynLeaderboardConfig s) {

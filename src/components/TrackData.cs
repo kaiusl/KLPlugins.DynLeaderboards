@@ -6,28 +6,38 @@ using System.IO;
 using System.Linq;
 
 namespace KLPlugins.DynLeaderboards.Track {
-
     internal class LapInterpolator {
-        public LinearSpline Interpolator { get; }
-        public double LapTime { get; }
+        private LinearSpline Interpolator { get; }
+        internal double LapTime { get; }
 
-        public LapInterpolator(LinearSpline interpolator, double lapTime) {
+        internal LapInterpolator(LinearSpline interpolator, double lapTime) {
             Interpolator = interpolator;
             LapTime = lapTime;
+        }
+
+        internal double Interpolate(double splinePos) {
+            return Interpolator.Interpolate(splinePos);
         }
     }
 
     internal class TrackData {
-        public string TrackName { get; internal set; }
-        public TrackType TrackId { get; internal set; }
-        public float TrackMeters { get; internal set; }
-        internal static CarClassArray<LapInterpolator> LapInterpolators = null;
-        public double SplinePosOffset => TrackId.SplinePosOffset();
+        public string TrackName { get; }
+        public TrackType TrackId { get; }
+        public float TrackMeters { get; }
+        public double SplinePosOffset { get; }
+        internal CarClassArray<LapInterpolator> LapInterpolators = null;
+
+        internal TrackData(string name, TrackType id, float meters) {
+            TrackName = name;
+            TrackId = id;
+            TrackMeters = meters;
+            SplinePosOffset = id.SplinePosOffset();
+        }
 
         /// <summary>
         /// Read default lap data for calculation of gaps.
         /// </summary>
-        internal static void ReadDefBestLaps() {
+        internal void ReadDefBestLaps() {
             LapInterpolators = new CarClassArray<LapInterpolator>(null);
 
             AddLapInterpolator(CarClass.GT3);
@@ -46,8 +56,8 @@ namespace KLPlugins.DynLeaderboards.Track {
             SetReplacements(CarClass.ST15, new CarClass[] { CarClass.ST21, CarClass.CUP21, CarClass.CUP17, CarClass.CHL, CarClass.GT3 });
         }
 
-        private static void AddLapInterpolator(CarClass cls) {
-            var fname = $"{DynLeaderboardsPlugin.Settings.PluginDataLocation}\\laps_data\\{Values.TrackData.TrackId}_{cls}.txt";
+        private void AddLapInterpolator(CarClass cls) {
+            var fname = $"{DynLeaderboardsPlugin.Settings.PluginDataLocation}\\laps_data\\{TrackId}_{cls}.txt";
             if (!File.Exists(fname)) {
                 DynLeaderboardsPlugin.LogInfo($"Couldn't build lap interpolator for {cls} because no suitable track data exists.");
                 return;
@@ -55,44 +65,43 @@ namespace KLPlugins.DynLeaderboards.Track {
 
             try {
                 var data = ReadLapInterpolatorData(fname);
-                LapInterpolators[cls] = new LapInterpolator(LinearSpline.InterpolateSorted(data.Item1, data.Item2), data.Item2.Last());
+                LapInterpolators[cls] = new LapInterpolator(LinearSpline.InterpolateSorted(data.Item1.ToArray(), data.Item2.ToArray()), data.Item2.Last());
                 DynLeaderboardsPlugin.LogInfo($"Build lap interpolator for {cls} from file {fname}");
             } catch (Exception ex) {
                 DynLeaderboardsPlugin.LogError($"Failed to read {fname} with error: {ex}");
             }
         }
 
-        private static Tuple<double[], double[]> ReadLapInterpolatorData(string fname) {
-            var pos = new List<double>();
-            var time = new List<double>();
+        private Tuple<List<double>, List<double>> ReadLapInterpolatorData(string fname) {
+            // Default lap_data files have 200 data points
+            var pos = new List<double>(200);
+            var time = new List<double>(200);
             foreach (var l in File.ReadLines(fname)) {
                 if (l == "")
                     continue;
                 // Data order: splinePositions, lap time in ms, speed in kmh
                 var splits = l.Split(';');
-                double p = float.Parse(splits[0]) + Values.TrackData.TrackId.SplinePosOffset();
-                if (p > 1) {
-                    p -= 1;
-                }
-
+                double p = float.Parse(splits[0]) + SplinePosOffset;
                 var t = double.Parse(splits[1]);
                 pos.Add(p);
                 time.Add(t);
             }
-            return new Tuple<double[], double[]>(pos.ToArray(), time.ToArray());
+            return new Tuple<List<double>, List<double>>(pos, time);
         }
 
-        private static void SetReplacements(CarClass cls, CarClass[] replacements) {
-            if (LapInterpolators[cls] == null) {
-                foreach (var r in replacements) {
-                    if (LapInterpolators[r] != null) {
-                        LapInterpolators[cls] = LapInterpolators[r];
-                        DynLeaderboardsPlugin.LogInfo($"Found replacement lap interpolator for {cls} from {r}");
-                        return;
-                    }
-                }
-                DynLeaderboardsPlugin.LogError($"Couldn't find replacement lap interpolator for {cls}. Gaps cannot be calculated for this class.");
+        private void SetReplacements(CarClass cls, CarClass[] replacements) {
+            if (LapInterpolators[cls] != null) {
+                return;
             }
+
+            foreach (var r in replacements) {
+                if (LapInterpolators[r] != null) {
+                    LapInterpolators[cls] = LapInterpolators[r];
+                    DynLeaderboardsPlugin.LogInfo($"Found replacement lap interpolator for {cls} from {r}");
+                    return;
+                }
+            }
+            DynLeaderboardsPlugin.LogError($"Couldn't find replacement lap interpolator for {cls}. Gaps cannot be calculated for this class.");
         }
     }
 }

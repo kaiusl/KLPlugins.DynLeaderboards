@@ -34,7 +34,7 @@ namespace KLPlugins.DynLeaderboards {
     /// </summary>
     internal class Values : IDisposable {
         public RealtimeData RealtimeData { get; private set; }
-        public static TrackData TrackData { get; private set; }
+        public TrackData TrackData { get; private set; }
         public double MaxDriverStintTime { get; private set; } = -1;
         public double MaxDriverTotalDriveTime { get; private set; } = -1;
 
@@ -558,6 +558,7 @@ namespace KLPlugins.DynLeaderboards {
                     var classBestLapCarIdx = _bestLapByClassCarIdxs[thisCar.CarClass];
 
                     thisCar.OnRealtimeUpdateSecondPass(
+                        trackData: TrackData,
                         realtimeData: RealtimeData,
                         leaderCar: leaderCar,
                         classLeaderCar: Cars[(int)_classLeaderIdxs[thisCar.CarClass]], // _classLeadeIdxs must contain thisClass, and Cars must contain that car
@@ -679,8 +680,10 @@ namespace KLPlugins.DynLeaderboards {
         }
 
         private void OnTrackDataUpdate(string sender, TrackData update) {
-            TrackData = update;
-            TrackData.ReadDefBestLaps();
+            if (TrackData == null || TrackData.TrackId != update.TrackId) {
+                TrackData = update;
+                TrackData.ReadDefBestLaps();
+            }
         }
 
         #endregion Broadcast client connection

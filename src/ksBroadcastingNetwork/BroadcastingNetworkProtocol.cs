@@ -39,7 +39,7 @@ namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork {
         public const int BroadcastingProtocolVersion = 4;
         public int ConnectionId { get; private set; }
 
-        private TrackType _trackId = TrackType.Unknown;
+        private double _trackSplinePosOffset = 0.0;
         private string _connectionIdentifier;
         private SendMessageDelegate _send;
 
@@ -105,8 +105,6 @@ namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork {
         internal void OnConnection(int connectionId, bool connectionSuccess, bool isReadonly, string errMsg) {
             ConnectionId = connectionId;
             OnConnectionStateChanged?.Invoke(ConnectionId, connectionSuccess, isReadonly, errMsg);
-
-            var Sst = 3;
 
             // In case this was successful, we will request the initial data
             RequestEntryList();
@@ -234,7 +232,7 @@ namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork {
                     carUpdate.CupPosition = br.ReadUInt16(); // official P/Q/R position (1 based)
                     carUpdate.TrackPosition = br.ReadUInt16(); // position on track (1 based)
 
-                    var splinePos = br.ReadSingle() + _trackId.SplinePosOffset();
+                    var splinePos = br.ReadSingle() + _trackSplinePosOffset;
                     if (splinePos >= 1) {
                         splinePos -= 1;
                     }
@@ -261,12 +259,13 @@ namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork {
 
                 case InboundMessageTypes.TRACK_DATA: {
                     var connectionId = br.ReadInt32();
-                    var trackData = new TrackData();
 
-                    trackData.TrackName = ReadString(br);
-                    trackData.TrackId = (TrackType)br.ReadInt32();
-                    trackData.TrackMeters = br.ReadInt32();
-                    _trackId = trackData.TrackId;
+                    var name = ReadString(br);
+                    var id = (TrackType)br.ReadInt32();
+                    var lengthMeters = br.ReadInt32();
+                    
+                    var trackData = new TrackData(name, id, lengthMeters);
+                    _trackSplinePosOffset = id.SplinePosOffset();
 
                     //trackData.CameraSets = new Dictionary<string, List<string>>();
 

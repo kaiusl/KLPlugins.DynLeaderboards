@@ -1,9 +1,10 @@
-﻿using KLPlugins.DynLeaderboards.Car;
-using KLPlugins.DynLeaderboards.Track;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+
+using KLPlugins.DynLeaderboards.Car;
+using KLPlugins.DynLeaderboards.Track;
 
 namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork {
     internal class BroadcastingNetworkProtocol {
@@ -113,61 +114,73 @@ namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork {
             var messageType = (InboundMessageTypes)br.ReadByte();
             switch (messageType) {
                 case InboundMessageTypes.REGISTRATION_RESULT: {
-                    ConnectionId = br.ReadInt32();
-                    var connectionSuccess = br.ReadByte() > 0;
-                    var isReadonly = br.ReadByte() == 0;
-                    var errMsg = ReadString(br);
+                        ConnectionId = br.ReadInt32();
+                        var connectionSuccess = br.ReadByte() > 0;
+                        var isReadonly = br.ReadByte() == 0;
+                        var errMsg = ReadString(br);
 
-                    OnConnectionStateChanged?.Invoke(ConnectionId, connectionSuccess, isReadonly, errMsg);
+                        OnConnectionStateChanged?.Invoke(ConnectionId, connectionSuccess, isReadonly, errMsg);
 
-                    // In case this was successful, we will request the initial data
-                    RequestEntryList();
-                    RequestTrackData();
-                    break;
-                }
-                case InboundMessageTypes.ENTRY_LIST: {
-                    EntryListCars.Clear();
-                    OnNewEntrylist?.Invoke(_connectionIdentifier);
-                    break;
-                }
-                case InboundMessageTypes.ENTRY_LIST_CAR: {
-                    var carInfo = new CarInfo(br);
-                    EntryListCars.Add(new CarInfoMinimal(carInfo.Id, (ushort)carInfo.Drivers.Length));
-                    OnEntrylistUpdate?.Invoke(_connectionIdentifier, carInfo);
-                    break;
-                }
-                case InboundMessageTypes.REALTIME_UPDATE: {
-                    var update = new RealtimeUpdate(br);
-                    OnRealtimeUpdate?.Invoke(_connectionIdentifier, update);
-                    break;
-                }
-                case InboundMessageTypes.REALTIME_CAR_UPDATE: {
-                    var carUpdate = new RealtimeCarUpdate(br, _trackSplinePosOffset);
-                    // the concept is: "don't know a car or driver? ask for an entry list update"
-                    var carEntryIndex = EntryListCars.FindIndex(x => x.Id == carUpdate.CarId);
-                    if (carEntryIndex == -1 || EntryListCars[carEntryIndex].DriverCount != carUpdate.DriverCount) {
-                        // Add small wait before a new request so we don't spam ACC with multiple requests
-                        // The new entry list update may take some time to be sent
-                        if ((DateTime.Now - lastEntrylistRequest).TotalSeconds > 5) {
-                            lastEntrylistRequest = DateTime.Now;
-                            RequestEntryList();
-                        }
-                    } else {
-                        OnRealtimeCarUpdate?.Invoke(_connectionIdentifier, carUpdate);
+                        // In case this was successful, we will request the initial data
+                        RequestEntryList();
+                        RequestTrackData();
+                        break;
                     }
-                    break;
-                }
+                case InboundMessageTypes.ENTRY_LIST: {
+                        EntryListCars.Clear();
+                        OnNewEntrylist?.Invoke(_connectionIdentifier);
+                        break;
+                    }
+                case InboundMessageTypes.ENTRY_LIST_CAR: {
+                        var carInfo = new CarInfo(br);
+                        EntryListCars.Add(new CarInfoMinimal(carInfo.Id, (ushort)carInfo.Drivers.Length));
+                        OnEntrylistUpdate?.Invoke(_connectionIdentifier, carInfo);
+                        break;
+                    }
+                case InboundMessageTypes.REALTIME_UPDATE: {
+#if TIMINGS
+                        var timer = DynLeaderboardsPlugin._timers.AddAndRestart("RealtimeUpdate");
+#endif
+                        var update = new RealtimeUpdate(br);
+                        OnRealtimeUpdate?.Invoke(_connectionIdentifier, update);
+#if TIMINGS
+                        timer.StopAndWriteMicros();
+#endif
+                        break;
+                    }
+                case InboundMessageTypes.REALTIME_CAR_UPDATE: {
+#if TIMINGS
+                        var timer = DynLeaderboardsPlugin._timers.AddAndRestart("RealtimeCarUpdate");
+#endif
+                        var carUpdate = new RealtimeCarUpdate(br, _trackSplinePosOffset);
+                        // the concept is: "don't know a car or driver? ask for an entry list update"
+                        var carEntryIndex = EntryListCars.FindIndex(x => x.Id == carUpdate.CarId);
+                        if (carEntryIndex == -1 || EntryListCars[carEntryIndex].DriverCount != carUpdate.DriverCount) {
+                            // Add small wait before a new request so we don't spam ACC with multiple requests
+                            // The new entry list update may take some time to be sent
+                            if ((DateTime.Now - lastEntrylistRequest).TotalSeconds > 5) {
+                                lastEntrylistRequest = DateTime.Now;
+                                RequestEntryList();
+                            }
+                        } else {
+                            OnRealtimeCarUpdate?.Invoke(_connectionIdentifier, carUpdate);
+#if TIMINGS
+                            timer.StopAndWriteMicros();
+# endif
+                        }
+                        break;
+                    }
                 case InboundMessageTypes.TRACK_DATA: {
-                    var trackData = new TrackData(br);
-                    _trackSplinePosOffset = trackData.SplinePosOffset;
-                    OnTrackDataUpdate?.Invoke(_connectionIdentifier, trackData);
-                    break;
-                }
+                        var trackData = new TrackData(br);
+                        _trackSplinePosOffset = trackData.SplinePosOffset;
+                        OnTrackDataUpdate?.Invoke(_connectionIdentifier, trackData);
+                        break;
+                    }
                 case InboundMessageTypes.BROADCASTING_EVENT: {
-                    BroadcastingEvent evt = new BroadcastingEvent(br);
-                    OnBroadcastingEvent?.Invoke(_connectionIdentifier, evt);
-                    break;
-                }
+                        BroadcastingEvent evt = new BroadcastingEvent(br);
+                        OnBroadcastingEvent?.Invoke(_connectionIdentifier, evt);
+                        break;
+                    }
                 default:
                     break;
             }

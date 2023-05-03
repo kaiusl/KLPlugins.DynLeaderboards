@@ -1,16 +1,19 @@
-﻿using GameReaderCommon;
-using KLPlugins.DynLeaderboards.Car;
-using KLPlugins.DynLeaderboards.Helpers;
-using KLPlugins.DynLeaderboards.ksBroadcastingNetwork;
-using KLPlugins.DynLeaderboards.Settings;
-using SimHub.Plugins;
-using System;
+﻿using System;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Windows.Media;
+
+using GameReaderCommon;
+
+using KLPlugins.DynLeaderboards.Car;
+using KLPlugins.DynLeaderboards.Helpers;
+using KLPlugins.DynLeaderboards.ksBroadcastingNetwork;
+using KLPlugins.DynLeaderboards.Settings;
+
+using SimHub.Plugins;
 
 namespace KLPlugins.DynLeaderboards {
 
@@ -46,11 +49,19 @@ namespace KLPlugins.DynLeaderboards {
         /// <param name="data"></param>
         public void DataUpdate(PluginManager pm, ref GameData data) {
             if (!Game.IsAcc) { return; } // Atm only ACC is supported
+#if TIMINGS
+            var timer = _timers?.AddAndRestart("DataUpdate");
+#endif
 
             if (data.GameRunning && data.OldData != null && data.NewData != null) {
-                //WriteFrameTimes(pm);
                 _values.OnDataUpdate(pm, data);
             }
+#if TIMINGS
+            timer?.StopAndWriteMicros();
+            if (data.GameRunning && data.OldData != null && data.NewData != null) {
+                WriteFrameTimes(pm);
+            }
+#endif
         }
 
         /// <summary>
@@ -81,6 +92,18 @@ namespace KLPlugins.DynLeaderboards {
                 _logFile.Dispose();
                 _logFile = null;
             }
+#if TIMINGS
+            _timers?.Dispose();
+            _timers = null;
+            if (_timingWriter != null) {
+                _timingWriter.Dispose();
+                _timingWriter = null;
+            }
+            if (_timingFile != null) {
+                _timingFile.Dispose();
+                _timingFile = null;
+            }
+#endif
         }
 
         /// <summary>
@@ -103,6 +126,10 @@ namespace KLPlugins.DynLeaderboards {
             Settings.ReadDynLeaderboardConfigs();
             LogFileName = $"{Settings.PluginDataLocation}\\Logs\\Log_{PluginStartTime}.txt";
             var gameName = (string)pluginManager.GetPropertyValue<SimHub.Plugins.DataPlugins.DataCore.DataCorePlugin>("CurrentGame");
+
+#if TIMINGS
+            InitTimings();
+#endif
             Game = new Game(gameName);
 
             PManager = pluginManager;
@@ -441,6 +468,34 @@ namespace KLPlugins.DynLeaderboards {
         internal void SetDynamicCarGetter(DynLeaderboardConfig l) {
             _values.LeaderboardValues.Find(x => x.Settings.Name == l.Name)?.SetDynGetters(_values);
         }
+
+#if TIMINGS
+        internal static Timers? _timers;
+        private FileStream? _timingFile;
+        private StreamWriter? _timingWriter;
+
+        private void InitTimings() {
+            var timingsRoot = $"{Settings.PluginDataLocation}\\Logs\\timings";
+            _timers = new Timers(timingsRoot);
+            var path = $"{timingsRoot}\\SH\\{PluginStartTime}.txt";
+            Directory.CreateDirectory(Path.GetDirectoryName(path));
+            _timingFile = File.Create(path);
+            _timingWriter = new StreamWriter(_timingFile);
+        }
+
+
+        private void WriteFrameTimes(PluginManager pm) {
+            if (_timingWriter == null) return;
+
+            var ftime = (double)pm.GetPropertyValue<SimHub.Plugins.DataPlugins.DataCore.DataCorePlugin>("Performance_FrameDuration");
+            var cached = (double)pm.GetPropertyValue<SimHub.Plugins.DataPlugins.DataCore.DataCorePlugin>("Performance_CachedFormulasPerSecond");
+            var jsFormulas = (double)pm.GetPropertyValue<SimHub.Plugins.DataPlugins.DataCore.DataCorePlugin>("Performance_JSFormulasPerSecond");
+            var NALCFormulas = (double)pm.GetPropertyValue<SimHub.Plugins.DataPlugins.DataCore.DataCorePlugin>("Performance_NALCFormulasPerSecond");
+            var NALCOptFormulas = (double)pm.GetPropertyValue<SimHub.Plugins.DataPlugins.DataCore.DataCorePlugin>("Performance_NALCOptimizedFormulasPerSecond");
+
+            _timingWriter.WriteLine($"{ftime};{cached};{jsFormulas};{NALCFormulas};{NALCOptFormulas}");
+        }
+#endif
 
         #region Logging
 

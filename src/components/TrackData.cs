@@ -2,43 +2,45 @@
 using MathNet.Numerics.Interpolation;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 
 namespace KLPlugins.DynLeaderboards.Track {
     internal class LapInterpolator {
-        private LinearSpline Interpolator { get; }
         internal double LapTime { get; }
+        private LinearSpline _interpolator { get; }
 
         internal LapInterpolator(LinearSpline interpolator, double lapTime) {
-            Interpolator = interpolator;
+            _interpolator = interpolator;
             LapTime = lapTime;
         }
 
         internal double Interpolate(double splinePos) {
-            return Interpolator.Interpolate(splinePos);
+            return _interpolator.Interpolate(splinePos);
         }
     }
 
     internal class TrackData {
-        public string TrackName { get; }
-        public TrackType TrackId { get; }
-        public float TrackMeters { get; }
+        public string Name { get; }
+        public TrackType Id { get; }
+        public float LengthMeters { get; }
         public double SplinePosOffset { get; }
-        internal CarClassArray<LapInterpolator> LapInterpolators = null;
+        internal CarClassArray<LapInterpolator?>? LapInterpolators = null;
 
-        internal TrackData(string name, TrackType id, float meters) {
-            TrackName = name;
-            TrackId = id;
-            TrackMeters = meters;
-            SplinePosOffset = id.SplinePosOffset();
+        internal TrackData(BinaryReader br) {
+            var connectionId = br.ReadInt32();
+            Name = ksBroadcastingNetwork.BroadcastingNetworkProtocol.ReadString(br);
+            Id = (TrackType)br.ReadInt32();
+            LengthMeters = br.ReadInt32();
+            SplinePosOffset = Id.SplinePosOffset();
         }
 
         /// <summary>
         /// Read default lap data for calculation of gaps.
         /// </summary>
         internal void ReadDefBestLaps() {
-            LapInterpolators = new CarClassArray<LapInterpolator>(null);
+            LapInterpolators = new CarClassArray<LapInterpolator?>(null);
 
             AddLapInterpolator(CarClass.GT3);
             AddLapInterpolator(CarClass.GT4);
@@ -56,8 +58,10 @@ namespace KLPlugins.DynLeaderboards.Track {
             SetReplacements(CarClass.ST15, new CarClass[] { CarClass.ST21, CarClass.CUP21, CarClass.CUP17, CarClass.CHL, CarClass.GT3 });
         }
 
+        /// Assumes that `this.LapInterpolators != null`
         private void AddLapInterpolator(CarClass cls) {
-            var fname = $"{DynLeaderboardsPlugin.Settings.PluginDataLocation}\\laps_data\\{TrackId}_{cls}.txt";
+            Debug.Assert(LapInterpolators != null);
+            var fname = $"{DynLeaderboardsPlugin.Settings.PluginDataLocation}\\laps_data\\{Id}_{cls}.txt";
             if (!File.Exists(fname)) {
                 DynLeaderboardsPlugin.LogInfo($"Couldn't build lap interpolator for {cls} because no suitable track data exists.");
                 return;
@@ -65,7 +69,7 @@ namespace KLPlugins.DynLeaderboards.Track {
 
             try {
                 var data = ReadLapInterpolatorData(fname);
-                LapInterpolators[cls] = new LapInterpolator(LinearSpline.InterpolateSorted(data.Item1.ToArray(), data.Item2.ToArray()), data.Item2.Last());
+                LapInterpolators![cls] = new LapInterpolator(LinearSpline.InterpolateSorted(data.Item1.ToArray(), data.Item2.ToArray()), data.Item2.Last());
                 DynLeaderboardsPlugin.LogInfo($"Build lap interpolator for {cls} from file {fname}");
             } catch (Exception ex) {
                 DynLeaderboardsPlugin.LogError($"Failed to read {fname} with error: {ex}");
@@ -89,8 +93,10 @@ namespace KLPlugins.DynLeaderboards.Track {
             return new Tuple<List<double>, List<double>>(pos, time);
         }
 
+        /// Assumes that `this.LapInterpolators != null`
         private void SetReplacements(CarClass cls, CarClass[] replacements) {
-            if (LapInterpolators[cls] != null) {
+            Debug.Assert(LapInterpolators != null);
+            if (LapInterpolators![cls] != null) {
                 return;
             }
 

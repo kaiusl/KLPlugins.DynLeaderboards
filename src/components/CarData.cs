@@ -1,6 +1,5 @@
 ﻿using KLPlugins.DynLeaderboards.Driver;
 using KLPlugins.DynLeaderboards.ksBroadcastingNetwork;
-using KLPlugins.DynLeaderboards.ksBroadcastingNetwork.Structs;
 using KLPlugins.DynLeaderboards.Realtime;
 using KLPlugins.DynLeaderboards.Track;
 using System;
@@ -33,9 +32,9 @@ namespace KLPlugins.DynLeaderboards.Car {
         public string TeamCupCategoryTextColor => DynLeaderboardsPlugin.Settings.TeamCupCategoryTextColors[TeamCupCategory];
 
         // RealtimeCarUpdates
-        public RealtimeCarUpdate NewData { get; private set; } = null;
+        public RealtimeCarUpdate? NewData { get; private set; } = null;
 
-        public RealtimeCarUpdate OldData { get; private set; } = null;
+        public RealtimeCarUpdate? OldData { get; private set; } = null;
 
         public int CurrentDriverIndex;
         public DriverData CurrentDriver => Drivers[CurrentDriverIndex];
@@ -137,10 +136,10 @@ namespace KLPlugins.DynLeaderboards.Car {
 
         ////////////////////////
 
-        internal CarData(CarInfo info, RealtimeCarUpdate update) {
-            CarIndex = info.CarIndex;
-            CarModelType = info.CarModelType;
-            CarClass = info.CarClass;
+        internal CarData(in CarInfo info, RealtimeCarUpdate update) {
+            CarIndex = info.Id;
+            CarModelType = info.ModelType;
+            CarClass = info.Class;
             TeamName = info.TeamName;
             RaceNumber = info.RaceNumber;
             TeamCupCategory = info.CupCategory;
@@ -149,7 +148,7 @@ namespace KLPlugins.DynLeaderboards.Car {
             foreach (var d in info.Drivers) {
                 AddDriver(d);
             }
-            TeamNationality = info.Nationality;
+            TeamNationality = info.TeamNationality;
 
             NewData = update;
         }
@@ -175,19 +174,19 @@ namespace KLPlugins.DynLeaderboards.Car {
         /// Updates this cars static info. Should be called when new entry list update for this car is received.
         /// </summary>
         /// <param name="info"></param>
-        internal void OnEntryListUpdate(CarInfo info) {
+        internal void OnEntryListUpdate(in CarInfo info) {
             // Only thing that can change is drivers
             // We need to make sure that the order is as specified by new info
             // But also add new drivers. We keep old drivers but move them to the end of list
             // as they might rejoin and then we need to have the old data. (I'm not sure if ACC keeps those drivers or not, but we make sure to keep the data.)
             CurrentDriverIndex = info.CurrentDriverIndex;
-            if (Drivers.Count == info.Drivers.Count
+            if (Drivers.Count == info.Drivers.Length
                 && Drivers.Zip(info.Drivers, (a, b) => a.Equals(b)).All(x => x)
             )
                 return; // All drivers are same
 
             // Fix drivers list
-            for (int i = 0; i < info.Drivers.Count; i++) {
+            for (int i = 0; i < info.Drivers.Length; i++) {
                 var currentDriver = Drivers[i];
                 var newDriver = info.Drivers[i];
                 if (currentDriver.Equals(newDriver))
@@ -336,20 +335,20 @@ namespace KLPlugins.DynLeaderboards.Car {
                     || (PitEntryTime == null && NewData.IsInPitlane && !realtimeData.IsPreSession) // We join/start SimHub mid session
                 ) {
                     PitCount++;
-                    PitEntryTime = realtimeData.SessionRunningTime.TotalSeconds;
+                    PitEntryTime = realtimeData.NewData.SessionRunningTime.TotalSeconds;
                 }
 
                 // Pit ended
                 if (PitEntryTime != null && _exitedPitlane) {
                     IsCurrentLapOutLap = true;
-                    LastPitTime = realtimeData.SessionRunningTime.TotalSeconds - PitEntryTime;
+                    LastPitTime = realtimeData.NewData.SessionRunningTime.TotalSeconds - PitEntryTime;
                     TotalPitTime += (double)LastPitTime;
                     PitEntryTime = null;
                     CurrentTimeInPits = null;
                 }
 
                 if (PitEntryTime != null) {
-                    CurrentTimeInPits = realtimeData.SessionRunningTime.TotalSeconds - PitEntryTime;
+                    CurrentTimeInPits = realtimeData.NewData.SessionRunningTime.TotalSeconds - PitEntryTime;
                 }
             }
 
@@ -363,12 +362,12 @@ namespace KLPlugins.DynLeaderboards.Car {
                     || (realtimeData.IsRace && realtimeData.IsSessionStart) // Race start
                     || (_stintStartTime == null && NewData.IsOnTrack && !realtimeData.IsPreSession) // We join/start SimHub mid session
                 ) {
-                    _stintStartTime = realtimeData.SessionRunningTime.TotalSeconds;
+                    _stintStartTime = realtimeData.NewData.SessionRunningTime.TotalSeconds;
                 }
 
                 // Stint ended
                 if (_enteredPitlane && _stintStartTime != null) {
-                    LastStintTime = realtimeData.SessionRunningTime.TotalSeconds - (double)_stintStartTime;
+                    LastStintTime = realtimeData.NewData.SessionRunningTime.TotalSeconds - (double)_stintStartTime;
                     CurrentDriver.OnStintEnd((double)LastStintTime);
                     _stintStartTime = null;
                     CurrentStintTime = null;
@@ -377,7 +376,7 @@ namespace KLPlugins.DynLeaderboards.Car {
                 }
 
                 if (_stintStartTime != null) {
-                    CurrentStintTime = realtimeData.SessionRunningTime.TotalSeconds - (double)_stintStartTime;
+                    CurrentStintTime = realtimeData.NewData.SessionRunningTime.TotalSeconds - (double)_stintStartTime;
                 }
             }
 
@@ -417,7 +416,7 @@ namespace KLPlugins.DynLeaderboards.Car {
             InClassPos = classPos;
             OverallPos = overallPos;
 
-            if (realtimeData.SessionRemainingTime == TimeSpan.Zero && realtimeData.IsRace) {
+            if (realtimeData.NewData.SessionRemainingTime == TimeSpan.Zero && realtimeData.IsRace) {
                 // We also need to check finished here (after positions update) to detect leaders finish
                 CheckIsFinished();
 
@@ -428,13 +427,13 @@ namespace KLPlugins.DynLeaderboards.Car {
                 // a) clock has run out and b) you just crossed the line(eg finished lap), this means that you will
                 // be falsely counted as finished.
                 if (!IsFinished
-                    && (realtimeData.SessionRunningTime - realtimeData.SessionTotalTime).TotalMilliseconds > DynLeaderboardsPlugin.Settings.BroadcastDataUpdateRateMs
+                    && (realtimeData.NewData.SessionRunningTime - realtimeData.SessionTotalTime).TotalMilliseconds > DynLeaderboardsPlugin.Settings.BroadcastDataUpdateRateMs
                     && _isNewLap
                     && (leaderCar.CarIndex == CarIndex || leaderCar.SetFinishedOnNextUpdate)
                 ) {
                     SetFinishedOnNextUpdate = true;
                     var timeFromLastRealtimeUpdate = (DateTime.Now - realtimeData.NewData.RecieveTime).TotalSeconds;
-                    FinishTime = realtimeData.SessionRunningTime + TimeSpan.FromSeconds(timeFromLastRealtimeUpdate);
+                    FinishTime = realtimeData.NewData.SessionRunningTime + TimeSpan.FromSeconds(timeFromLastRealtimeUpdate);
                 }
             }
 
@@ -479,7 +478,7 @@ namespace KLPlugins.DynLeaderboards.Car {
                     }
                 } else {
                     // Use best laps to calculate gaps
-                    var thisBestLap = NewData?.BestSessionLap?.Laptime;
+                    var thisBestLap = NewData?.BestSessionLap.Laptime;
                     if (thisBestLap == null) {
                         GapToLeader = null;
                         GapToClassLeader = null;
@@ -496,7 +495,7 @@ namespace KLPlugins.DynLeaderboards.Car {
                     GapToAheadInClass = CalculateBestLapDelta(carAheadInClass);
 
                     double? CalculateBestLapDelta(CarData to) {
-                        var toBest = to?.NewData?.BestSessionLap?.Laptime;
+                        var toBest = to?.NewData?.BestSessionLap.Laptime;
                         return toBest != null ? (double)thisBestLap - (double)toBest : (double?)null;
                     }
                 }
@@ -550,18 +549,18 @@ namespace KLPlugins.DynLeaderboards.Car {
             }
 
             void SetLapDeltas() {
-                var thisBest = NewData?.BestSessionLap?.Laptime;
-                var thisLast = NewData?.LastLap?.Laptime;
+                var thisBest = NewData?.BestSessionLap.Laptime;
+                var thisLast = NewData?.LastLap.Laptime;
                 if (thisBest == null && thisLast == null)
                     return;
 
-                var overallBest = overallBestLapCar?.NewData?.BestSessionLap?.Laptime;
-                var classBest = classBestLapCar?.NewData?.BestSessionLap?.Laptime;
-                var leaderBest = leaderCar?.NewData?.BestSessionLap?.Laptime;
-                var classLeaderBest = classLeaderCar?.NewData?.BestSessionLap?.Laptime;
-                var focusedBest = focusedCar?.NewData?.BestSessionLap?.Laptime;
-                var aheadBest = carAhead?.NewData?.BestSessionLap?.Laptime;
-                var aheadInClassBest = carAheadInClass?.NewData?.BestSessionLap?.Laptime;
+                var overallBest = overallBestLapCar?.NewData?.BestSessionLap.Laptime;
+                var classBest = classBestLapCar?.NewData?.BestSessionLap.Laptime;
+                var leaderBest = leaderCar?.NewData?.BestSessionLap.Laptime;
+                var classLeaderBest = classLeaderCar?.NewData?.BestSessionLap.Laptime;
+                var focusedBest = focusedCar?.NewData?.BestSessionLap.Laptime;
+                var aheadBest = carAhead?.NewData?.BestSessionLap.Laptime;
+                var aheadInClassBest = carAheadInClass?.NewData?.BestSessionLap.Laptime;
 
                 if (thisBest != null) {
                     if (overallBest != null)
@@ -593,11 +592,11 @@ namespace KLPlugins.DynLeaderboards.Car {
                     if (thisBest != null)
                         LastLapDeltaToOwnBest = (double)thisLast - (double)thisBest;
 
-                    var leaderLast = leaderCar?.NewData?.LastLap?.Laptime;
-                    var classLeaderLast = classLeaderCar?.NewData?.LastLap?.Laptime;
-                    var focusedLast = focusedCar?.NewData?.LastLap?.Laptime;
-                    var aheadLast = carAhead?.NewData?.LastLap?.Laptime;
-                    var aheadInClassLast = carAheadInClass?.NewData?.LastLap?.Laptime;
+                    var leaderLast = leaderCar?.NewData?.LastLap.Laptime;
+                    var classLeaderLast = classLeaderCar?.NewData?.LastLap.Laptime;
+                    var focusedLast = focusedCar?.NewData?.LastLap.Laptime;
+                    var aheadLast = carAhead?.NewData?.LastLap.Laptime;
+                    var aheadInClassLast = carAheadInClass?.NewData?.LastLap.Laptime;
 
                     if (leaderLast != null)
                         LastLapDeltaToLeaderLast = (double)thisLast - (double)leaderLast;
@@ -618,7 +617,7 @@ namespace KLPlugins.DynLeaderboards.Car {
             }
         }
 
-        internal void SetIsFinished(TimeSpan finishTime) {
+        internal void SetIsFinished(in TimeSpan finishTime) {
             SetFinishedOnNextUpdate = true;
             FinishTime = finishTime;
         }
@@ -633,7 +632,7 @@ namespace KLPlugins.DynLeaderboards.Car {
             StartPosInClass = inclass;
         }
 
-        private void AddDriver(DriverInfo driverInfo) {
+        private void AddDriver(in DriverInfo driverInfo) {
             Drivers.Add(new DriverData(driverInfo));
         }
 
@@ -754,7 +753,7 @@ namespace KLPlugins.DynLeaderboards.Car {
         }
 
         private static double CalculateNaiveGap(double splineDist, TrackData trackData) {
-            var dist = splineDist * trackData.TrackMeters;
+            var dist = splineDist * trackData.LengthMeters;
             // use avg speed of 50m/s (180km/h)
             // we could use actual speeds of the cars
             // but the gap will fluctuate either way so I don't think it makes things better.

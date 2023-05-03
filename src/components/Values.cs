@@ -3,7 +3,6 @@ using GameReaderCommon;
 using KLPlugins.DynLeaderboards.Car;
 using KLPlugins.DynLeaderboards.Helpers;
 using KLPlugins.DynLeaderboards.ksBroadcastingNetwork;
-using KLPlugins.DynLeaderboards.ksBroadcastingNetwork.Structs;
 using KLPlugins.DynLeaderboards.Realtime;
 using KLPlugins.DynLeaderboards.Settings;
 using KLPlugins.DynLeaderboards.Track;
@@ -16,10 +15,8 @@ using System.Linq;
 namespace KLPlugins.DynLeaderboards {
 
     internal class CarSplinePos {
-
         // Index into Cars array
         public int CarIdx = -1;
-
         // Corresponding splinePosition
         public double SplinePos = 0;
 
@@ -230,13 +227,13 @@ namespace KLPlugins.DynLeaderboards {
         // ***
         // New entry list if found new car or driver
 
-        private void OnBroadcastingEvent(string sender, BroadcastingEvent evt) {
+        private void OnBroadcastingEvent(string sender, in BroadcastingEvent evt) {
             if (RealtimeData == null) {
                 return;
             }
             //Debug.Assert(evt != null);
             //Debug.Assert(RealtimeData != null);
-            if (RealtimeData.SessionRunningTime == TimeSpan.Zero)
+            if (RealtimeData.NewData.SessionRunningTime == TimeSpan.Zero)
                 return;
 
             // Its possible for this message to be late, I have seen something like 5s. I think Acc also sends multiple ones as I also have seen double messages.
@@ -252,11 +249,11 @@ namespace KLPlugins.DynLeaderboards {
 
             var msgTime = evt.Time;
             var timeFromLastRealtimeUpdate = (DateTime.Now - RealtimeData.NewData.RecieveTime).TotalSeconds;
-            var currentSessionRunningTime = RealtimeData.SessionRunningTime.TotalSeconds + timeFromLastRealtimeUpdate;
+            var currentSessionRunningTime = RealtimeData.NewData.SessionRunningTime.TotalSeconds + timeFromLastRealtimeUpdate;
 
             // Store RealtimeData.SessionRunningTime and BroadcastEvent.MsgTime difference
             var sessiontime_diff = msgTime - currentSessionRunningTime;
-            if (RealtimeData.SessionRemainingTime != TimeSpan.Zero && (_broadcastEvt_realtimeData_sessiontime_diff.Stats == null || _broadcastEvt_realtimeData_sessiontime_diff.Stats.Count < 100)) {
+            if (RealtimeData.NewData.SessionRemainingTime != TimeSpan.Zero && (_broadcastEvt_realtimeData_sessiontime_diff.Stats == null || _broadcastEvt_realtimeData_sessiontime_diff.Stats.Count < 100)) {
                 _broadcastEvt_realtimeData_sessiontime_diff.Add(sessiontime_diff);
             }
 
@@ -273,17 +270,15 @@ namespace KLPlugins.DynLeaderboards {
             }
 
             // Store session end times for BroadcastEvents
-            if (RealtimeData.OldData != null && RealtimeData.SessionRemainingTime != TimeSpan.Zero) {
-                var endTime = msgTime + RealtimeData.SessionRemainingTime.TotalSeconds - timeFromLastRealtimeUpdate;
+            if (RealtimeData.OldData != null && RealtimeData.NewData.SessionRemainingTime != TimeSpan.Zero) {
+                var endTime = msgTime + RealtimeData.NewData.SessionRemainingTime.TotalSeconds - timeFromLastRealtimeUpdate;
                 SessionEndTimeForBroadcastEventsTime.Add(endTime);
 
                 var sesstimeremainings = float.IsNaN(SessionTimeRemaining) ? float.MaxValue : SessionTimeRemaining;
             }
 
-            // Check if is finished
-            if (evt.CarData == null)
-                return;
-            var car = Cars.Find(x => x.CarIndex == evt.CarData.CarIndex);
+            var id = evt.CarId;
+            var car = Cars.Find(x => x.CarIndex == id);
             if (evt.Type == BroadcastingCarEventType.LapCompleted
                 && RealtimeData.IsRace
                 && car != null
@@ -581,7 +576,7 @@ namespace KLPlugins.DynLeaderboards {
                 #region Local functions
 
                 void UpdateBestLapCarIdxs(CarData thisCar, int idxInCars) {
-                    var thisCarBestLap = thisCar.NewData?.BestSessionLap?.Laptime;
+                    var thisCarBestLap = thisCar.NewData?.BestSessionLap.Laptime;
                     if (thisCarBestLap != null) {
                         UpdateBestLap(thisCar.CarClass);
                         UpdateBestLap(CarClass.Overall);
@@ -657,13 +652,14 @@ namespace KLPlugins.DynLeaderboards {
             return closestCar;
         }
 
-        private void OnEntryListUpdate(string sender, CarInfo carInfo) {
+        private void OnEntryListUpdate(string sender, in CarInfo carInfo) {
             // Add new cars if not already added, update car info of all the cars (adds new drivers if some were missing)
-            var car = Cars.Find(x => x.CarIndex == carInfo.CarIndex);
+            var id = carInfo.Id;
+            var car = Cars.Find(x => x.CarIndex == id);
             if (car == null) {
-                Cars.Add(new CarData(carInfo, null));
+                Cars.Add(new CarData(in carInfo, null));
             } else {
-                car.OnEntryListUpdate(carInfo);
+                car.OnEntryListUpdate(in carInfo);
             }
         }
 
@@ -672,7 +668,7 @@ namespace KLPlugins.DynLeaderboards {
             // If found new car, BroadcastClient itself requests new entry list
             if (RealtimeData == null)
                 return;
-            var car = Cars.Find(x => x.CarIndex == update.CarIndex);
+            var car = Cars.Find(x => x.CarIndex == update.CarId);
             if (car == null)
                 return;
             car.OnRealtimeCarUpdate(update, RealtimeData);
@@ -680,7 +676,7 @@ namespace KLPlugins.DynLeaderboards {
         }
 
         private void OnTrackDataUpdate(string sender, TrackData update) {
-            if (TrackData == null || TrackData.TrackId != update.TrackId) {
+            if (TrackData == null || TrackData.Id != update.Id) {
                 TrackData = update;
                 TrackData.ReadDefBestLaps();
             }

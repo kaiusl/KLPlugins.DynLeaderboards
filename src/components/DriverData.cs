@@ -1,5 +1,4 @@
 ﻿using KLPlugins.DynLeaderboards.ksBroadcastingNetwork;
-using KLPlugins.DynLeaderboards.ksBroadcastingNetwork.Structs;
 
 namespace KLPlugins.DynLeaderboards.Driver {
 
@@ -14,12 +13,12 @@ namespace KLPlugins.DynLeaderboards.Driver {
         public DriverCategory Category { get; internal set; }
         public NationalityEnum Nationality { get; internal set; }
         public int TotalLaps { get; internal set; } = 0;
-        public LapInfo BestSessionLap { get; internal set; } = null;
+        public LapInfo? BestSessionLap { get; internal set; } = null;
         public string CategoryColor => DynLeaderboardsPlugin.Settings.DriverCategoryColors[Category];
 
         private double _totalDrivingTime = 0;
 
-        internal DriverData(DriverInfo info) {
+        internal DriverData(in DriverInfo info) {
             FirstName = info.FirstName;
             LastName = info.LastName;
             ShortName = info.ShortName;
@@ -31,9 +30,10 @@ namespace KLPlugins.DynLeaderboards.Driver {
             Initials = CreateInitials();
         }
 
-        internal void OnLapFinished(LapInfo lastLap) {
+        internal void OnLapFinished(in LapInfo lastLap) {
             TotalLaps++;
-            if (BestSessionLap?.Laptime == null || lastLap.IsValidForBest && BestSessionLap.Laptime > lastLap.Laptime) {
+            var laptime = BestSessionLap?.Laptime;
+            if (laptime == null || lastLap.IsValidForBest && laptime > lastLap.Laptime) {
                 BestSessionLap = lastLap;
             }
         }
@@ -67,12 +67,12 @@ namespace KLPlugins.DynLeaderboards.Driver {
             }
         }
 
-        public bool Equals(DriverInfo p) {
-            if (p is null) {
-                return false;
-            }
-
-            return FirstName == p.FirstName && LastName == p.LastName && ShortName == p.ShortName && Nationality == p.Nationality && Category == p.Category;
+        public bool Equals(in DriverInfo p) {
+            return FirstName == p.FirstName 
+                    && LastName == p.LastName 
+                    && ShortName == p.ShortName 
+                    && Nationality == p.Nationality 
+                    && Category == p.Category;
         }
     }
 }

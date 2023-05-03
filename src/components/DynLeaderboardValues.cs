@@ -10,13 +10,9 @@ namespace KLPlugins.DynLeaderboards {
     internal class DynLeaderboardValues {
 
         public delegate CarData GetDynCarDelegate(int i);
-
         public delegate int? GetFocusedCarIdxInLDynLeaderboardDelegate();
-
         public delegate double? DynGapDelegate(int i);
-
         public delegate double? DynLapDeltaDelegate(int i);
-
         public delegate int? DynPositionDelegate(int i);
 
         public GetDynCarDelegate GetDynCar { get; private set; }

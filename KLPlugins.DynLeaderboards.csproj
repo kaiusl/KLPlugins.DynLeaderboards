@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
@@ -109,15 +109,9 @@
     <Compile Include="src\ksBroadcastingNetwork\BroadcastingEnums.cs" />
     <Compile Include="src\ksBroadcastingNetwork\BroadcastingNetworkProtocol.cs" />
     <Compile Include="src\enums\Cars.cs" />
-    <Compile Include="src\ksBroadcastingNetwork\Structs\BroadcastingEvent.cs" />
     <Compile Include="src\components\CarData.cs" />
-    <Compile Include="src\ksBroadcastingNetwork\Structs\CarInfo.cs" />
     <Compile Include="src\components\DriverData.cs" />
-    <Compile Include="src\ksBroadcastingNetwork\Structs\DriverInfo.cs" />
-    <Compile Include="src\ksBroadcastingNetwork\Structs\LapInfo.cs" />
-    <Compile Include="src\ksBroadcastingNetwork\Structs\RealtimeCarUpdate.cs" />
     <Compile Include="src\components\RealtimeData.cs" />
-    <Compile Include="src\ksBroadcastingNetwork\Structs\RealtimeUpdate.cs" />
     <Compile Include="src\components\TrackData.cs" />
     <Compile Include="src\plugin\LeaderboardPlugin.cs" />
     <Compile Include="src\settings\OutCarProp.cs" />

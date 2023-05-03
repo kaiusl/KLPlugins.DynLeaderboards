@@ -1,10 +1,10 @@
 ﻿namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork {
 
     public enum DriverCategory {
-        Platinum = 3,
-        Gold = 2,
-        Silver = 1,
         Bronze = 0,
+        Silver = 1,
+        Gold = 2,
+        Platinum = 3,
         Error = 255
     }
 

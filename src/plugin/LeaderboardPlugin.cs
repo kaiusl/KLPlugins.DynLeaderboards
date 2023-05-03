@@ -1,5 +1,6 @@
 ﻿using GameReaderCommon;
 using KLPlugins.DynLeaderboards.Car;
+using KLPlugins.DynLeaderboards.Helpers;
 using KLPlugins.DynLeaderboards.ksBroadcastingNetwork;
 using KLPlugins.DynLeaderboards.Settings;
 using SimHub.Plugins;
@@ -163,7 +164,7 @@ namespace KLPlugins.DynLeaderboards {
         private void AttachGeneralDelegates() {
             // Add everything else
             if (Settings.OutGeneralProps.Includes(OutGeneralProp.SessionPhase))
-                this.AttachDelegate("Session.Phase", () => _values.RealtimeData?.Phase);
+                this.AttachDelegate("Session.Phase", () => _values.RealtimeData?.NewData?.Phase);
             if (Settings.OutGeneralProps.Includes(OutGeneralProp.MaxStintTime))
                 this.AttachDelegate("Session.MaxStintTime", () => _values.MaxDriverStintTime);
             if (Settings.OutGeneralProps.Includes(OutGeneralProp.MaxDriveTime))
@@ -247,32 +248,32 @@ namespace KLPlugins.DynLeaderboards {
 
                 // Laps and sectors
                 AddLapProp(OutLapProp.Laps, () => l.GetDynCar(i)?.NewData?.Laps);
-                AddLapProp(OutLapProp.LastLapTime, () => l.GetDynCar(i)?.NewData?.LastLap?.Laptime);
+                AddLapProp(OutLapProp.LastLapTime, () => l.GetDynCar(i)?.NewData?.LastLap.Laptime);
                 if (l.Settings.OutLapProps.Includes(OutLapProp.LastLapSectors)) {
-                    this.AttachDelegate($"{startName}.Laps.Last.S1", () => l.GetDynCar(i)?.NewData?.LastLap?.Splits?[0]);
-                    this.AttachDelegate($"{startName}.Laps.Last.S2", () => l.GetDynCar(i)?.NewData?.LastLap?.Splits?[1]);
-                    this.AttachDelegate($"{startName}.Laps.Last.S3", () => l.GetDynCar(i)?.NewData?.LastLap?.Splits?[2]);
+                    this.AttachDelegate($"{startName}.Laps.Last.S1", () => l.GetDynCar(i)?.NewData?.LastLap.Splits?[0]);
+                    this.AttachDelegate($"{startName}.Laps.Last.S2", () => l.GetDynCar(i)?.NewData?.LastLap.Splits?[1]);
+                    this.AttachDelegate($"{startName}.Laps.Last.S3", () => l.GetDynCar(i)?.NewData?.LastLap.Splits?[2]);
                 }
 
-                AddLapProp(OutLapProp.BestLapTime, () => l.GetDynCar(i)?.NewData?.BestSessionLap?.Laptime);
+                AddLapProp(OutLapProp.BestLapTime, () => l.GetDynCar(i)?.NewData?.BestSessionLap.Laptime);
                 if (l.Settings.OutLapProps.Includes(OutLapProp.BestLapSectors)) {
                     this.AttachDelegate($"{startName}.Laps.Best.S1", () => l.GetDynCar(i)?.BestLapSectors?[0]);
                     this.AttachDelegate($"{startName}.Laps.Best.S2", () => l.GetDynCar(i)?.BestLapSectors?[1]);
                     this.AttachDelegate($"{startName}.Laps.Best.S3", () => l.GetDynCar(i)?.BestLapSectors?[2]);
                 }
                 if (l.Settings.OutLapProps.Includes(OutLapProp.BestSectors)) {
-                    this.AttachDelegate($"{startName}.BestS1", () => l.GetDynCar(i)?.NewData?.BestSessionLap?.Splits?[0]);
-                    this.AttachDelegate($"{startName}.BestS2", () => l.GetDynCar(i)?.NewData?.BestSessionLap?.Splits?[1]);
-                    this.AttachDelegate($"{startName}.BestS3", () => l.GetDynCar(i)?.NewData?.BestSessionLap?.Splits?[2]);
+                    this.AttachDelegate($"{startName}.BestS1", () => l.GetDynCar(i)?.NewData?.BestSessionLap.Splits?[0]);
+                    this.AttachDelegate($"{startName}.BestS2", () => l.GetDynCar(i)?.NewData?.BestSessionLap.Splits?[1]);
+                    this.AttachDelegate($"{startName}.BestS3", () => l.GetDynCar(i)?.NewData?.BestSessionLap.Splits?[2]);
                 }
 
-                AddLapProp(OutLapProp.CurrentLapTime, () => l.GetDynCar(i)?.NewData?.CurrentLap?.Laptime);
+                AddLapProp(OutLapProp.CurrentLapTime, () => l.GetDynCar(i)?.NewData?.CurrentLap.Laptime);
 
-                AddLapProp(OutLapProp.CurrentLapIsValid, () => maybe_bool_to_int(l.GetDynCar(i)?.NewData?.CurrentLap?.IsValidForBest));
+                AddLapProp(OutLapProp.CurrentLapIsValid, () => maybe_bool_to_int(l.GetDynCar(i)?.NewData?.CurrentLap.IsValidForBest));
                 AddLapProp(OutLapProp.LastLapIsValid, () => {
                     // IsValidForBest is true even if there is no actual lap, make it consistent with other properties
                     var last_lap = l.GetDynCar(i)?.NewData?.LastLap;
-                    if (last_lap != null && last_lap.Laptime != null) {
+                    if (last_lap?.Laptime != null) {
                         return maybe_bool_to_int(last_lap?.IsValidForBest);
                     } else {
                         return null;

@@ -11,15 +11,15 @@ using System.Threading.Tasks;
 namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork {
 
     internal class ACCUdpRemoteClient : IDisposable {
-        public BroadcastingNetworkProtocol MessageHandler { get; }
-        public bool IsConnected { get; private set; }
+        internal BroadcastingNetworkProtocol MessageHandler { get; }
+        internal bool IsConnected { get; private set; }
 
         private string _ipPort { get; }
         private string _displayName { get; }
         private string _connectionPassword { get; }
         private string _commandPassword { get; }
         private int _msRealtimeUpdateInterval { get; }
-        private UdpClient _client;
+        private UdpClient? _client;
         private Task _listenerTask;
 
         /// <summary>
@@ -46,22 +46,27 @@ namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork {
         }
 
         private void Send(byte[] payload) {
+            if (_client == null) {
+                DynLeaderboardsPlugin.LogWarn($"Tried to send a message to ACC but our client has already been shut down.");
+                return;
+            }
             var sent = _client.Send(payload, payload.Length);
         }
 
         internal void Shutdown() {
             ShutdownAsync().ContinueWith(t => {
-                if (t.Exception?.InnerExceptions?.Any() == true)
+                if (t.Exception?.InnerExceptions?.Any() == true) {
                     DynLeaderboardsPlugin.LogError($"Client shut down with {t.Exception.InnerExceptions.Count} errors");
-                else
+                } else {
                     DynLeaderboardsPlugin.LogInfo("Client shut down asynchronously");
+                }
             });
         }
 
         internal async Task ShutdownAsync() {
             if (_listenerTask != null && !_listenerTask.IsCompleted) {
                 MessageHandler.Disconnect();
-                _client.Close();
+                _client?.Close();
                 _client = null;
                 IsConnected = false;
                 await _listenerTask;
@@ -69,7 +74,7 @@ namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork {
         }
 
         private async Task ConnectAndRun() {
-            MessageHandler.RequestConnection(_displayName, _connectionPassword, _msRealtimeUpdateInterval, _commandPassword);
+            RequestConnection();
             while (_client != null) {
                 try {
                     var udpPacket = await _client.ReceiveAsync();
@@ -81,12 +86,24 @@ namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork {
                     // Shutdown happened
                     DynLeaderboardsPlugin.LogInfo("Broadcast client shut down.");
                     break;
+                } catch (SocketException ex) {
+                    // Other exceptions
+                    DynLeaderboardsPlugin.LogInfo($"Failed to receive ACC message. Err {ex}.");
                 } catch (Exception ex) {
                     // Other exceptions
-                    DynLeaderboardsPlugin.LogInfo($"Couldn't connect to broadcast client. Err {ex}");
+                    DynLeaderboardsPlugin.LogInfo($"Failed to process ACC message. Err {ex}.");
                 }
             }
             IsConnected = false;
+        }
+
+        private void RequestConnection() {
+            MessageHandler.RequestConnection(
+                    displayName: _displayName,
+                    connectionPassword: _connectionPassword,
+                    msRealtimeUpdateInterval: _msRealtimeUpdateInterval,
+                    commandPassword: _commandPassword
+                );
         }
 
         private void OnBroadcastConnectionStateChanged(int connectionId, bool connectionSuccess, bool isReadonly, string error) {
@@ -94,15 +111,14 @@ namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork {
                 DynLeaderboardsPlugin.LogInfo("Connected to broadcast client.");
                 IsConnected = true;
             } else {
-                DynLeaderboardsPlugin.LogError($"Failed to connect to broadcast client. Err: {error}");
-                MessageHandler.RequestConnection(_displayName, _connectionPassword, _msRealtimeUpdateInterval, _commandPassword);
+                DynLeaderboardsPlugin.LogError($"Failed to connect to broadcast client. Err: {error}. Trying again..");
+                RequestConnection();
             }
         }
 
         #region IDisposable Support
 
         private bool disposedValue = false; // To detect redundant calls
-
         protected virtual void Dispose(bool disposing) {
             if (!disposedValue) {
                 if (disposing) {
@@ -148,53 +164,59 @@ namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork {
     /// Configuration of ACCUdpRemoteClient
     /// </summary>
     internal class ACCUdpRemoteClientConfig {
+        /// Class to read acc\Config\broadcasting.json
+        private struct ACCBroadcastConfig {
+            private int _udpListenerPort;
+            public int updListenerPort {
+                get => _udpListenerPort;
+                set {
+                    ValidatePort(value);
+                    _udpListenerPort = value;
+                }
+            }
+            public string connectionPassword { get; set; }
+            public string commandPassword { get; set; }
 
-        private class ACCBroadcastConfig {
+            internal static ACCBroadcastConfig ACCDefault() {
+                return new ACCBroadcastConfig {
+                    updListenerPort = 9000,
+                    connectionPassword = "asd",
+                    commandPassword = ""
+                };
+            }
 
-            // Class to read acc\Config\broadcasting.json
-            internal int udpListenerPort { get; set; }
-
-            internal string connectionPassword { get; set; }
-            internal string commandPassword { get; set; }
-
-            private const int _defUdpListenerPort = 9000;
-            private const string _defConnectionPassword = "asd";
-            private const string _defCommandPassowrd = "";
-
-            internal ACCBroadcastConfig() {
-                udpListenerPort = _defUdpListenerPort;
-                connectionPassword = _defConnectionPassword;
-                commandPassword = _defCommandPassowrd;
+            internal static void ValidatePort(int port) {
+                if (port < 1024 || port > 65535) {
+                    throw new InvalidDataException($"The port set in '{DynLeaderboardsPlugin.Settings.AccDataLocation}\\Config\\broadcasting.json' is invalid. It must be between 1024 and 65535.");
+                }
             }
 
             internal void Validate() {
-                if (udpListenerPort < 1024 || udpListenerPort > 65535) {
-                    udpListenerPort = _defUdpListenerPort;
-                    throw new Exception($"Set broadcasting udp port in '{DynLeaderboardsPlugin.Settings.AccDataLocation}\\Config\\broadcasting.json' is invalid. Must be between 1024 and 65535.");
-                }
+                ValidatePort(updListenerPort);
             }
         }
 
-        public string Ip { get; }
-        public int Port => _config.udpListenerPort;
-        public string DisplayName { get; }
-        public string ConnectionPassword => _config.connectionPassword;
-        public string CommandPassword => _config.commandPassword;
-        public int UpdateIntervalMs { get; }
+        internal string Ip { get; }
+        internal int Port => _config.updListenerPort;
+        internal string DisplayName { get; }
+        internal string ConnectionPassword => _config.connectionPassword;
+        internal string CommandPassword => _config.commandPassword;
+        internal int UpdateIntervalMs { get; }
 
         private ACCBroadcastConfig _config;
 
         /// <summary>
         /// Port, connectionPassword, commandPassword are read from the ..\\Assetto Corsa Competizione\\Config\\broadcasting.json.
         /// </summary>
-        public ACCUdpRemoteClientConfig(string ip, string displayName, int updateTime) {
+        internal ACCUdpRemoteClientConfig(string ip, string displayName, int updateTime) {
             try {
                 var configPath = $"{DynLeaderboardsPlugin.Settings.AccDataLocation}\\Config\\broadcasting.json";
-                _config = JsonConvert.DeserializeObject<ACCBroadcastConfig>(File.ReadAllText(configPath, Encoding.Unicode).Replace("\"", "'"));
+                var rawJson = File.ReadAllText(configPath, Encoding.Unicode).Replace("\"", "'");
+                _config = JsonConvert.DeserializeObject<ACCBroadcastConfig>(rawJson);
                 _config.Validate();
             } catch (Exception e) {
-                DynLeaderboardsPlugin.LogWarn($"Couldn't read broadcasting.json because {e}. Using default.");
-                _config = new ACCBroadcastConfig();
+                DynLeaderboardsPlugin.LogWarn($"Couldn't read broadcasting.json. Using default, it may or may not work. Underlying error: {e}.");
+                _config = ACCBroadcastConfig.ACCDefault();
             }
 
             Ip = ip;

@@ -1,10 +1,11 @@
-﻿using MathNet.Numerics.Statistics;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+
+using MathNet.Numerics.Statistics;
 
 namespace KLPlugins.DynLeaderboards.Helpers {
 
     internal class Statistics {
-        public DescriptiveStatistics Stats;
+        public DescriptiveStatistics? Stats;
         public List<double> data = new List<double>();
         public double Median { get; private set; } = 0.0;
 

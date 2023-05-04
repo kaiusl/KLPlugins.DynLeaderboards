@@ -4,15 +4,15 @@ namespace KLPlugins.DynLeaderboards.Car {
 
     internal class CarClassArray<T> {
         private const int _numClasses = 10;
-        private T[] _data = new T[_numClasses];
+        private readonly T[] _data = new T[_numClasses];
         public T DefaultValue { get; private set; }
 
-        public CarClassArray(T defValue = default(T)) {
+        public CarClassArray(T defValue = default!) {
             DefaultValue = defValue;
             Reset();
         }
 
-        public CarClassArray(Func<CarClass, T> generator, T defValue = default(T)) {
+        public CarClassArray(Func<CarClass, T> generator, T defValue = default!) {
             DefaultValue = defValue;
             foreach (var v in (CarClass[])Enum.GetValues(typeof(CarClass))) {
                 _data[(int)v] = generator(v);

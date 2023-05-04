@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -21,6 +22,9 @@ namespace KLPlugins.DynLeaderboards {
     [PluginAuthor("Kaius Loos")]
     [PluginName("DynLeaderboardsPlugin")]
     public class DynLeaderboardsPlugin : IPlugin, IDataPlugin, IWPFSettingsV2 {
+        // The properties that compiler yells at that can be null are set in Init method.
+        // For the purposes of this plugin, they are never null
+#pragma warning disable CS8618
         public PluginManager PluginManager { get; set; }
         public ImageSource PictureIcon => this.ToIcon(Properties.Resources.sdkmenuicon);
         public string LeftMenuTitle => PluginName;
@@ -32,11 +36,12 @@ namespace KLPlugins.DynLeaderboards {
         internal static string PluginStartTime = $"{DateTime.Now.ToString("dd-MM-yyyy_HH-mm-ss")}";
         internal static PluginManager PManager;
 
-        private static FileStream _logFile;
-        private static StreamWriter _logWriter;
+        private static FileStream? _logFile;
+        private static StreamWriter? _logWriter;
         private static bool _isLogFlushed = false;
-        private string LogFileName;
+        private string? LogFileName;
         private Values _values;
+#pragma warning restore CS8618
 
         /// <summary>
         /// Called one time per game data update, contains all normalized game data,
@@ -81,9 +86,8 @@ namespace KLPlugins.DynLeaderboards {
                 }
             }
 
-            if (_values != null) {
-                _values.Dispose();
-            }
+
+            _values.Dispose();
             if (_logWriter != null) {
                 _logWriter.Dispose();
                 _logWriter = null;

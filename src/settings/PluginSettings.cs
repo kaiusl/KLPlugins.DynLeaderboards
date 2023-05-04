@@ -1,14 +1,16 @@
-﻿using KLPlugins.DynLeaderboards.Car;
-using KLPlugins.DynLeaderboards.ksBroadcastingNetwork;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Xml.Linq;
 using System.Xml;
+using System.Xml.Linq;
+
+using KLPlugins.DynLeaderboards.Car;
+using KLPlugins.DynLeaderboards.ksBroadcastingNetwork;
+
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace KLPlugins.DynLeaderboards.Settings {
     internal class PluginSettings {
@@ -56,7 +58,11 @@ namespace KLPlugins.DynLeaderboards.Settings {
                     JsonSerializer serializer = new JsonSerializer();
                     DynLeaderboardConfig cfg;
                     try {
-                        cfg = (DynLeaderboardConfig)serializer.Deserialize(file, typeof(DynLeaderboardConfig));
+                        var result = (DynLeaderboardConfig?)serializer.Deserialize(file, typeof(DynLeaderboardConfig));
+                        if (result == null) {
+                            continue;
+                        }
+                        cfg = result;
                     } catch (Exception e) {
                         SimHub.Logging.Current.Error($"Failed to deserialize leaderboard \"{fileName}\" configuration. Error {e}.");
                         continue;
@@ -198,7 +204,7 @@ namespace KLPlugins.DynLeaderboards.Settings {
 
             int version = 0; // If settings doesn't contain version key, it's 0
             if (savedSettings.ContainsKey("Version")) {
-                version = (int)savedSettings["Version"];
+                version = (int)savedSettings["Version"]!;
             }
 
             if (version == currentSettingsVersion)
@@ -212,8 +218,9 @@ namespace KLPlugins.DynLeaderboards.Settings {
 
             // Save up to date setting back to the disk
             using (StreamWriter file = File.CreateText(settingsFname)) {
-                JsonSerializer serializer = new JsonSerializer();
-                serializer.Formatting = Newtonsoft.Json.Formatting.Indented;
+                JsonSerializer serializer = new JsonSerializer {
+                    Formatting = Newtonsoft.Json.Formatting.Indented
+                };
                 serializer.Serialize(file, savedSettings);
             }
 
@@ -251,8 +258,9 @@ namespace KLPlugins.DynLeaderboards.Settings {
 
             Directory.CreateDirectory(leaderboardConfigsDataDirName);
             Directory.CreateDirectory(leaderboardConfigsDataBackupDirName);
-            if (o.ContainsKey("DynLeaderboardConfigs")) {
-                foreach (var cfg in o["DynLeaderboardConfigs"]) {
+            const string key = "DynLeaderboardConfigs";
+            if (o.ContainsKey(key)) {
+                foreach (var cfg in o[key]!) {
                     var fname = $"{leaderboardConfigsDataDirName}\\{cfg["Name"]}.json";
                     if (File.Exists(fname)) // Don't overwrite existing configs
                         continue;
@@ -276,12 +284,12 @@ namespace KLPlugins.DynLeaderboards.Settings {
 
         public int Version { get; set; } = 1;
 
-        private string _name;
+        private string _name = "";
         public string Name {
             get { return _name; }
             set {
                 char[] arr = value.ToCharArray();
-                arr = Array.FindAll<char>(arr, (c => (char.IsLetterOrDigit(c))));
+                arr = Array.FindAll(arr, c => char.IsLetterOrDigit(c));
                 _name = new string(arr);
             }
         }
@@ -327,7 +335,7 @@ namespace KLPlugins.DynLeaderboards.Settings {
             }
         }
         private int _currentLeaderboardIdx = 0;
-        internal string CurrentLeaderboardName;
+        internal string CurrentLeaderboardName = "";
         public bool IsEnabled { get; set; } = true;
 
         public Leaderboard CurrentLeaderboard() {

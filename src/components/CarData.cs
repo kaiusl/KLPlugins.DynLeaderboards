@@ -1,10 +1,11 @@
-﻿using KLPlugins.DynLeaderboards.Driver;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+
+using KLPlugins.DynLeaderboards.Driver;
 using KLPlugins.DynLeaderboards.ksBroadcastingNetwork;
 using KLPlugins.DynLeaderboards.Realtime;
 using KLPlugins.DynLeaderboards.Track;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace KLPlugins.DynLeaderboards.Car {
 
@@ -126,7 +127,7 @@ namespace KLPlugins.DynLeaderboards.Car {
         internal int MissedRealtimeUpdates { get; set; } = 0;
 
         private double? _stintStartTime = null;
-        private CarClassArray<double?> _splinePositionTime = new CarClassArray<double?>(null);
+        private readonly CarClassArray<double?> _splinePositionTime = new CarClassArray<double?>(null);
         private int _lapAtOffsetLapUpdate = -1;
 
         private bool _isSplinePositionReset = false;
@@ -136,7 +137,7 @@ namespace KLPlugins.DynLeaderboards.Car {
 
         ////////////////////////
 
-        internal CarData(in CarInfo info, RealtimeCarUpdate update) {
+        internal CarData(in CarInfo info, RealtimeCarUpdate? update) {
             CarIndex = info.Id;
             CarModelType = info.ModelType;
             CarClass = info.Class;
@@ -231,8 +232,7 @@ namespace KLPlugins.DynLeaderboards.Car {
             if (IsFinalRealtimeCarUpdateAdded)
                 return;
 
-            if (NewData?.DriverIndex != null)
-                CurrentDriverIndex = NewData.DriverIndex;
+            CurrentDriverIndex = NewData.DriverIndex;
 
             if (realtimeData.IsRace) {
                 CheckForCrossingStartLine();
@@ -401,11 +401,11 @@ namespace KLPlugins.DynLeaderboards.Car {
             CarData leaderCar,
             CarData classLeaderCar,
             CarData focusedCar,
-            CarData carAhead,
-            CarData carAheadInClass,
-            CarData carAheadOnTrack,
-            CarData overallBestLapCar,
-            CarData classBestLapCar,
+            CarData? carAhead,
+            CarData? carAheadInClass,
+            CarData? carAheadOnTrack,
+            CarData? overallBestLapCar,
+            CarData? classBestLapCar,
             int overallPos,
             int classPos,
             float sessionTimeLeft
@@ -445,7 +445,7 @@ namespace KLPlugins.DynLeaderboards.Car {
             void SetGaps() {
                 // Freeze gaps until all is in order again, fixes gap suddenly jumping to larger values as spline positions could be out of sync
                 if (OffsetLapUpdate == OffsetLapUpdateType.None) {
-                    if (focusedCar?.OffsetLapUpdate == OffsetLapUpdateType.None)
+                    if (focusedCar.OffsetLapUpdate == OffsetLapUpdateType.None)
                         GapToFocusedOnTrack = CalculateOnTrackGap(this, focusedCar, trackData);
                     if (carAheadOnTrack?.OffsetLapUpdate == OffsetLapUpdateType.None)
                         GapToAheadOnTrack = CalculateOnTrackGap(carAheadOnTrack, this, trackData);
@@ -464,10 +464,10 @@ namespace KLPlugins.DynLeaderboards.Car {
                         SetGap(this, carAhead, carAhead, GapToAhead, x => GapToAhead = x);
                         SetGap(this, carAheadInClass, carAheadInClass, GapToAheadInClass, x => GapToAheadInClass = x);
 
-                        void SetGap(CarData from, CarData to, CarData other, double? currentGap, Action<double?> setGap) {
+                        void SetGap(CarData? from, CarData? to, CarData? other, double? currentGap, Action<double?> setGap) {
                             if (from == null || to == null)
                                 setGap(null);
-                            else if (other.OffsetLapUpdate == OffsetLapUpdateType.None) {
+                            else if (other?.OffsetLapUpdate == OffsetLapUpdateType.None) {
                                 setGap(CalculateGap(from, to, trackData));
                             }
                         }
@@ -494,7 +494,7 @@ namespace KLPlugins.DynLeaderboards.Car {
                     GapToAhead = CalculateBestLapDelta(carAhead);
                     GapToAheadInClass = CalculateBestLapDelta(carAheadInClass);
 
-                    double? CalculateBestLapDelta(CarData to) {
+                    double? CalculateBestLapDelta(CarData? to) {
                         var toBest = to?.NewData?.BestSessionLap.Laptime;
                         return toBest != null ? (double)thisBestLap - (double)toBest : (double?)null;
                     }
@@ -671,7 +671,8 @@ namespace KLPlugins.DynLeaderboards.Car {
 
             if (from.IsFinished && to.IsFinished) {
                 if (flaps == tlaps) {
-                    return ((TimeSpan)from.FinishTime).TotalSeconds - ((TimeSpan)to.FinishTime).TotalSeconds;
+                    // If there IsFinished is set, FinishTime must also be set
+                    return ((TimeSpan)from.FinishTime!).TotalSeconds - ((TimeSpan)to.FinishTime!).TotalSeconds;
                 } else {
                     return tlaps - flaps + 100_000;
                 }
@@ -701,15 +702,17 @@ namespace KLPlugins.DynLeaderboards.Car {
                     return null;
                 }
 
-                var toInterp = trackData.LapInterpolators[to.CarClass];
-                var fromInterp = trackData.LapInterpolators[from.CarClass];
+                // TrackData is passed from Values, Values never stores TrackData without LapInterpolators
+                var toInterp = trackData.LapInterpolators![to.CarClass];
+                var fromInterp = trackData.LapInterpolators![from.CarClass];
                 if (toInterp == null && fromInterp == null) {
                     // lap data is not available, use naive distance based calculation
                     return CalculateNaiveGap(distBetween, trackData);
                 }
 
                 double? gap;
-                (var interp, var cls) = fromInterp != null ? (toInterp, to.CarClass) : (fromInterp, from.CarClass);
+                // At least one toInterp or fromInterp must be not null, because of the above check
+                (LapInterpolator interp, var cls) = fromInterp != null ? (toInterp!, to.CarClass) : (fromInterp!, from.CarClass);
                 if (distBetween > 0) { // `to` is ahead of `from`
                     gap = CalculateGapBetweenPos(from.GetSplinePosTime(cls, trackData), to.GetSplinePosTime(cls, trackData), interp.LapTime);
                 } else { // `to` is behind of `from`
@@ -735,15 +738,17 @@ namespace KLPlugins.DynLeaderboards.Car {
             var toPos = to.NewData.SplinePosition;
             var relativeSplinePos = CalculateRelativeSplinePosition(fromPos, toPos);
 
-            var toInterp = trackData.LapInterpolators[to.CarClass];
-            var fromInterp = trackData.LapInterpolators[from.CarClass];
+            // TrackData is passed from Values, Values never stores TrackData without LapInterpolators
+            var toInterp = trackData.LapInterpolators![to.CarClass];
+            var fromInterp = trackData.LapInterpolators![from.CarClass];
             if (toInterp == null && fromInterp == null) {
                 // lap data is not available, use naive distance based calculation
                 return CalculateNaiveGap(relativeSplinePos, trackData);
             }
 
             double? gap;
-            (var interp, var cls) = toInterp != null ? (toInterp, to.CarClass) : (fromInterp, from.CarClass);
+            // At least one toInterp or fromInterp must be not null, because of the above check
+            (LapInterpolator interp, var cls) = toInterp != null ? (toInterp!, to.CarClass) : (fromInterp!, from.CarClass);
             if (relativeSplinePos < 0) {
                 gap = -CalculateGapBetweenPos(from.GetSplinePosTime(cls, trackData), to.GetSplinePosTime(cls, trackData), interp.LapTime);
             } else {
@@ -828,11 +833,12 @@ namespace KLPlugins.DynLeaderboards.Car {
         private double GetSplinePosTime(CarClass cls, TrackData trackData) {
             // Same interpolated value is needed multiple times in one update, thus cache results.
             var pos = _splinePositionTime[cls];
-            if (pos != _splinePositionTime.DefaultValue) {
+            if (pos != _splinePositionTime.DefaultValue && pos != null) {
                 return (double)pos;
             }
 
-            var interp = trackData.LapInterpolators[cls];
+            // TrackData is passed from Values, Values never stores TrackData without LapInterpolators
+            var interp = trackData.LapInterpolators![cls];
             if (NewData != null && interp != null) {
                 var result = interp.Interpolate(NewData.SplinePosition);
                 _splinePositionTime[cls] = result;

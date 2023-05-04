@@ -6,6 +6,8 @@ using System.Text;
 using KLPlugins.DynLeaderboards.Car;
 using KLPlugins.DynLeaderboards.Track;
 
+#nullable enable
+
 namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork {
     internal class BroadcastingNetworkProtocol {
 
@@ -139,18 +141,18 @@ namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork {
                     }
                 case InboundMessageTypes.REALTIME_UPDATE: {
 #if TIMINGS
-                        var timer = DynLeaderboardsPlugin._timers.AddAndRestart("RealtimeUpdate");
+                        var timer = DynLeaderboardsPlugin._timers?.AddAndRestart("RealtimeUpdate");
 #endif
                         var update = new RealtimeUpdate(br);
                         OnRealtimeUpdate?.Invoke(_connectionIdentifier, update);
 #if TIMINGS
-                        timer.StopAndWriteMicros();
+                        timer?.StopAndWriteMicros();
 #endif
                         break;
                     }
                 case InboundMessageTypes.REALTIME_CAR_UPDATE: {
 #if TIMINGS
-                        var timer = DynLeaderboardsPlugin._timers.AddAndRestart("RealtimeCarUpdate");
+                        var timer = DynLeaderboardsPlugin._timers?.AddAndRestart("RealtimeCarUpdate");
 #endif
                         var carUpdate = new RealtimeCarUpdate(br, _trackSplinePosOffset);
                         // the concept is: "don't know a car or driver? ask for an entry list update"
@@ -165,7 +167,7 @@ namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork {
                         } else {
                             OnRealtimeCarUpdate?.Invoke(_connectionIdentifier, carUpdate);
 #if TIMINGS
-                            timer.StopAndWriteMicros();
+                            timer?.StopAndWriteMicros();
 # endif
                         }
                         break;

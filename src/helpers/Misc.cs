@@ -9,6 +9,9 @@ namespace KLPlugins.DynLeaderboards.Helpers {
 
         public static bool EqualsAny<T>(this T lhs, params T[] rhs) {
             foreach (var v in rhs) {
+                if (lhs == null || rhs == null) {
+                    continue;
+                }
                 if (lhs.Equals(v)) {
                     return true;
                 }

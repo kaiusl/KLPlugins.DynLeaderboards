@@ -1,16 +1,20 @@
-﻿using ACSharedMemory.ACC.Reader;
+﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
+
+using ACSharedMemory.ACC.Reader;
+
 using GameReaderCommon;
+
 using KLPlugins.DynLeaderboards.Car;
 using KLPlugins.DynLeaderboards.Helpers;
 using KLPlugins.DynLeaderboards.ksBroadcastingNetwork;
 using KLPlugins.DynLeaderboards.Realtime;
 using KLPlugins.DynLeaderboards.Settings;
 using KLPlugins.DynLeaderboards.Track;
+
 using SimHub.Plugins;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
 
 namespace KLPlugins.DynLeaderboards {
 
@@ -30,8 +34,8 @@ namespace KLPlugins.DynLeaderboards {
     /// Storage and calculation of new properties
     /// </summary>
     internal class Values : IDisposable {
-        public RealtimeData RealtimeData { get; private set; }
-        public TrackData TrackData { get; private set; }
+        public RealtimeData? RealtimeData { get; private set; }
+        public TrackData? TrackData { get; private set; }
         public double MaxDriverStintTime { get; private set; } = -1;
         public double MaxDriverTotalDriveTime { get; private set; } = -1;
 
@@ -40,8 +44,8 @@ namespace KLPlugins.DynLeaderboards {
         // Other orderings are stored in different array containing indices into Cars list
         internal List<CarData> Cars { get; private set; }
 
-        internal ACCUdpRemoteClient BroadcastClient { get; private set; }
-        internal int?[] PosInClassCarsIdxs { get; private set; }
+        internal ACCUdpRemoteClient? BroadcastClient { get; private set; }
+        internal int?[]? PosInClassCarsIdxs { get; private set; }
         internal int? FocusedCarPosInClassCarsIdxs { get; private set; }
         internal int? FocusedCarIdx { get; private set; } = null;
         internal Statistics SessionEndTimeForBroadcastEventsTime = new Statistics();
@@ -59,7 +63,7 @@ namespace KLPlugins.DynLeaderboards {
         private Statistics _broadcastEvt_realtimeData_sessiontime_diff = new Statistics();
 
         internal float SessionTimeRemaining = float.NaN;
-        internal ACCRawData RawData { get; private set; }
+        internal ACCRawData? RawData { get; private set; }
 
         internal Values() {
             Cars = new List<CarData>();
@@ -77,22 +81,22 @@ namespace KLPlugins.DynLeaderboards {
             SetDynamicCarGetter();
         }
 
-        public CarData GetCar(int i) => Cars.ElementAtOrDefault(i);
+        public CarData? GetCar(int i) => Cars.ElementAtOrDefault(i);
 
-        public CarData GetFocusedCar() {
+        public CarData? GetFocusedCar() {
             if (FocusedCarIdx == null || FocusedCarIdx == -1)
                 return null;
             return Cars[(int)FocusedCarIdx];
         }
 
-        public CarData GetBestLapCar(CarClass cls) {
+        public CarData? GetBestLapCar(CarClass cls) {
             var idx = _bestLapByClassCarIdxs[cls];
             if (idx == null)
                 return null;
             return Cars.ElementAtOrDefault((int)idx);
         }
 
-        public CarData GetFocusedClassBestLapCar() {
+        public CarData? GetFocusedClassBestLapCar() {
             var focusedClass = GetFocusedCar()?.CarClass;
             if (focusedClass == null)
                 return null;
@@ -128,7 +132,7 @@ namespace KLPlugins.DynLeaderboards {
             _relativeSplinePositions.Clear();
             FocusedCarIdx = null;
 
-            void ResetIdxs(int?[] arr) {
+            static void ResetIdxs(int?[]? arr) {
                 if (arr != null) {
                     for (int i = 0; i < arr.Length; i++) {
                         arr[i] = null;
@@ -180,7 +184,7 @@ namespace KLPlugins.DynLeaderboards {
             }
         }
 
-        internal CarData GetCar(int i, int?[] idxs) {
+        internal CarData? GetCar(int i, int?[] idxs) {
             var idx = idxs.ElementAtOrDefault(i);
             if (idx == null)
                 return null;
@@ -322,7 +326,10 @@ namespace KLPlugins.DynLeaderboards {
                 // Technically we only need clear parts of the data, but this is simpler
                 DynLeaderboardsPlugin.LogInfo("New session.");
                 Cars.Clear();
-                BroadcastClient.MessageHandler.RequestEntryList();
+                // BroadcastClient cannot be null at this point, otherwise we wouldn't have gotten here. 
+                // This is a callback method called from BroadcastClient.
+                Debug.Assert(BroadcastClient != null);
+                BroadcastClient!.MessageHandler.RequestEntryList();
                 ResetPos();
                 SessionEndTimeForBroadcastEventsTime.Reset();
                 _broadcastEvt_realtimeData_sessiontime_diff.Reset();
@@ -346,14 +353,14 @@ namespace KLPlugins.DynLeaderboards {
             }
 
             if (!_startingPositionsSet && RealtimeData.IsRace && Cars.All(x => x.NewData != null)) {
-                SetStartionOrder();
+                SetStartingOrder();
             }
             SetOverallOrder();
 
             FocusedCarIdx = Cars.FindIndex(x => x.CarIndex == update.FocusedCarIndex);
-            if (FocusedCarIdx != null && FocusedCarIdx != -1 && !RealtimeData.IsNewSession) {
+            if (FocusedCarIdx != null && FocusedCarIdx != -1 && !RealtimeData.IsNewSession && TrackData != null) {
                 SetRelativeOrders();
-                UpdateCarData();
+                UpdateCarData((int)FocusedCarIdx, TrackData);
             }
 
             #region Local functions
@@ -461,8 +468,8 @@ namespace KLPlugins.DynLeaderboards {
                     int cmp(CarData a, CarData b) {
                         if (a == b)
                             return 0;
-                        var apos = a?.NewData?.Position ?? 1000;
-                        var bpos = b?.NewData?.Position ?? 1000;
+                        var apos = a.NewData?.Position ?? 1000;
+                        var bpos = b.NewData?.Position ?? 1000;
                         if (apos == bpos) { // Make sort stable, fixes jumping
                             return a.OverallPos.CompareTo(b.OverallPos);
                         }
@@ -473,8 +480,9 @@ namespace KLPlugins.DynLeaderboards {
                 }
             }
 
-            void SetStartionOrder() {
-                Cars.Sort((a, b) => a.NewData.Position.CompareTo(b.NewData.Position)); // Spline position may give wrong results if cars are sitting on the grid, thus NewData.Position
+            void SetStartingOrder() {
+                // This method is called after we have checked that all cars have NewData
+                Cars.Sort((a, b) => a.NewData!.Position.CompareTo(b.NewData!.Position)); // Spline position may give wrong results if cars are sitting on the grid, thus NewData.Position
 
                 var classPositions = new CarClassArray<int>(0); // Keep track of what class position are we at the moment
                 for (int i = 0; i < Cars.Count; i++) {
@@ -498,11 +506,15 @@ namespace KLPlugins.DynLeaderboards {
                             break;
 
                         case Leaderboard.RelativeClass:
-                            l.SetRelativeClassOrder((int)FocusedCarIdx, Cars, PosInClassCarsIdxs);
+                            if (PosInClassCarsIdxs != null) {
+                                l.SetRelativeClassOrder((int)FocusedCarIdx, Cars, PosInClassCarsIdxs);
+                            }
                             break;
 
                         case Leaderboard.PartialRelativeClass:
-                            l.SetPartialRelativeClassOrder((int)FocusedCarIdx, Cars, PosInClassCarsIdxs);
+                            if (PosInClassCarsIdxs != null) {
+                                l.SetPartialRelativeClassOrder((int)FocusedCarIdx, Cars, PosInClassCarsIdxs);
+                            }
                             break;
 
                         default:
@@ -514,8 +526,7 @@ namespace KLPlugins.DynLeaderboards {
             /// <summary>
             /// Update car related data like positions and gaps
             /// </summary>
-            void UpdateCarData() {
-                Debug.Assert(FocusedCarIdx != null);
+            void UpdateCarData(int FocusedCarIdx, TrackData trackData) {
                 Debug.Assert(Cars.Count != 0);
 
                 // Clear old data
@@ -524,7 +535,8 @@ namespace KLPlugins.DynLeaderboards {
                 _bestLapByClassCarIdxs.Reset();
 
                 var leaderCar = Cars[0];
-                var focusedCar = Cars[(int)FocusedCarIdx];
+                // FocusedCarIdx is checked to be not null before
+                var focusedCar = Cars[FocusedCarIdx];
                 var focusedClass = focusedCar.CarClass;
 
                 if (leaderCar.NewData == null) {
@@ -553,10 +565,11 @@ namespace KLPlugins.DynLeaderboards {
                     var classBestLapCarIdx = _bestLapByClassCarIdxs[thisCar.CarClass];
 
                     thisCar.OnRealtimeUpdateSecondPass(
-                        trackData: TrackData,
+                        trackData: trackData,
                         realtimeData: RealtimeData,
                         leaderCar: leaderCar,
-                        classLeaderCar: Cars[(int)_classLeaderIdxs[thisCar.CarClass]], // _classLeadeIdxs must contain thisClass, and Cars must contain that car
+                        // _classLeadeIdxs must contain thisClass, and Cars must contain that car. SetPositionInClass must set it.
+                        classLeaderCar: Cars[(int)_classLeaderIdxs[thisCar.CarClass]!],
                         focusedCar: focusedCar,
                         carAhead: idxInCars != 0 ? Cars[idxInCars - 1] : null,
                         carAheadInClass: carAheadInClassIdx != null ? Cars[(int)carAheadInClassIdx] : null,
@@ -569,7 +582,9 @@ namespace KLPlugins.DynLeaderboards {
                     );
                     lastSeenInClassCarIdxs[thisCar.CarClass] = idxInCars;
                 }
-                ClearUnusedClassPositions(classPositions[focusedClass]);
+                if (PosInClassCarsIdxs != null) {
+                    ClearUnusedClassPositions(classPositions[focusedClass], PosInClassCarsIdxs);
+                }
 
                 SetRelativeOnTrackOrders();
 
@@ -584,7 +599,7 @@ namespace KLPlugins.DynLeaderboards {
 
                     void UpdateBestLap(CarClass cls) {
                         var currentIdx = _bestLapByClassCarIdxs[cls];
-                        if (currentIdx == null || Cars[(int)currentIdx].NewData.BestSessionLap.Laptime >= thisCarBestLap) {
+                        if (currentIdx == null || Cars[(int)currentIdx].NewData?.BestSessionLap.Laptime >= thisCarBestLap) {
                             _bestLapByClassCarIdxs[cls] = idxInCars;
                         }
                     }
@@ -610,7 +625,7 @@ namespace KLPlugins.DynLeaderboards {
                     }
                 }
 
-                void ClearUnusedClassPositions(int numCarsInFocusedCarClass) {
+                void ClearUnusedClassPositions(int numCarsInFocusedCarClass, int?[] PosInClassCarsIdxs) {
                     // If somebody left the session, need to reset following class positions
                     for (int i = numCarsInFocusedCarClass; i < DynLeaderboardsPlugin.Settings.GetMaxNumClassPos(); i++) {
                         if (PosInClassCarsIdxs[i] == null)
@@ -620,15 +635,15 @@ namespace KLPlugins.DynLeaderboards {
                 }
 
                 void SetRelativeOnTrackOrders() {
-                    if (FocusedCarIdx == null || _relativeSplinePositions == null || _relativeSplinePositions.Count == 0)
+                    if (_relativeSplinePositions == null || _relativeSplinePositions.Count == 0)
                         return;
                     _relativeSplinePositions.Sort((a, b) => a.SplinePos.CompareTo(b.SplinePos));
 
                     foreach (var l in LeaderboardValues) {
                         if (l.Settings.CurrentLeaderboard() == Leaderboard.RelativeOnTrack)
-                            l.SetRelativeOnTrackOrder(_relativeSplinePositions, (int)FocusedCarIdx);
+                            l.SetRelativeOnTrackOrder(_relativeSplinePositions, FocusedCarIdx);
                         if (l.Settings.CurrentLeaderboard() == Leaderboard.RelativeOnTrackWoPit)
-                            l.SetRelativeOnTrackWoPitOrder(_relativeSplinePositions, (int)FocusedCarIdx, Cars, RealtimeData.IsRace);
+                            l.SetRelativeOnTrackWoPitOrder(_relativeSplinePositions, FocusedCarIdx, Cars, RealtimeData.IsRace);
                     }
                 }
 
@@ -638,9 +653,9 @@ namespace KLPlugins.DynLeaderboards {
             #endregion Local functions
         }
 
-        private CarData GetCarAheadOnTrack(CarData c) {
+        private CarData? GetCarAheadOnTrack(CarData c) {
             // Closest car ahead is the one with smallest positive relative spline position.
-            CarData closestCar = null;
+            CarData? closestCar = null;
             double relsplinepos = double.MaxValue;
             foreach (var car in Cars) {
                 var pos = car.CalculateRelativeSplinePosition(c);

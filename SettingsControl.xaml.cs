@@ -24,12 +24,15 @@ namespace KLPlugins.DynLeaderboards.Settings {
         private Dictionary<TeamCupCategory, ColorPicker> _cupTextColorPickers = new Dictionary<TeamCupCategory, ColorPicker>(5);
         private Dictionary<DriverCategory, ColorPicker> _driverCategoryColorPickers = new Dictionary<DriverCategory, ColorPicker>(4);
 
-        internal SettingsControl() {
+        //internal SettingsControl() {
+        //    InitializeComponent();
+        //    DataContext = this;
+        //}
+
+        internal SettingsControl(DynLeaderboardsPlugin plugin) {
             InitializeComponent();
             DataContext = this;
-        }
 
-        internal SettingsControl(DynLeaderboardsPlugin plugin) : this() {
             this.Plugin = plugin;
 
             if (Settings.DynLeaderboardConfigs.Count == 0) {
@@ -645,7 +648,7 @@ namespace KLPlugins.DynLeaderboards.Settings {
             // Add Lap Properties
             OutLapProps_StackPanel.Children.Clear();
 
-            void AddSmallTitle(string name, Brush bgColor = null) {
+            void AddSmallTitle(string name) {
                 var t = new SHSmallTitle();
                 t.Content = name;
                 t.Margin = new Thickness(25, 0, 0, 0);
@@ -658,15 +661,15 @@ namespace KLPlugins.DynLeaderboards.Settings {
                 // Group by similarity
                 switch (v) {
                     case OutLapProp.BestLapDeltaToOverallBest:
-                        AddSmallTitle("Best to best", Brushes.White);
+                        AddSmallTitle("Best to best");
                         break;
 
                     case OutLapProp.LastLapDeltaToOverallBest:
-                        AddSmallTitle("Last to best", Brushes.White);
+                        AddSmallTitle("Last to best");
                         break;
 
                     case OutLapProp.LastLapDeltaToLeaderLast:
-                        AddSmallTitle("Last to last", Brushes.White);
+                        AddSmallTitle("Last to last");
                         break;
 
                     default:
@@ -711,7 +714,7 @@ namespace KLPlugins.DynLeaderboards.Settings {
         private void AddGapToggles() {
             OutGapsProps_StackPanel.Children.Clear();
             // Add Gap Properties
-            void AddSmallTitle(string name, Brush bgColor = null) {
+            void AddSmallTitle(string name) {
                 var t = new SHSmallTitle();
                 t.Content = name;
                 t.Margin = new Thickness(25, 0, 0, 0);

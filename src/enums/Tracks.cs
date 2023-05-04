@@ -31,16 +31,11 @@
     internal static class TrackExtensions {
 
         public static double SplinePosOffset(this TrackType track) {
-            switch (track) {
-                case TrackType.Silverstone:
-                    return 0.0209485;
-
-                case TrackType.Spa:
-                    return 0.0036425;
-
-                default:
-                    return 0;
-            }
+            return track switch {
+                TrackType.Silverstone => 0.0209485,
+                TrackType.Spa => 0.0036425,
+                _ => 0,
+            };
         }
     }
 }

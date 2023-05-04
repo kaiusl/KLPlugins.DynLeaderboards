@@ -55,7 +55,7 @@ namespace KLPlugins.DynLeaderboards.Settings {
                     continue;
 
                 using (StreamReader file = File.OpenText(fileName)) {
-                    JsonSerializer serializer = new JsonSerializer();
+                    var serializer = new JsonSerializer();
                     DynLeaderboardConfig cfg;
                     try {
                         var result = (DynLeaderboardConfig?)serializer.Deserialize(file, typeof(DynLeaderboardConfig));
@@ -101,7 +101,7 @@ namespace KLPlugins.DynLeaderboards.Settings {
                 }
             }
 
-            void RenameOrDeleteOldBackups(DynLeaderboardConfig cfg) {
+            static void RenameOrDeleteOldBackups(DynLeaderboardConfig cfg) {
                 for (int i = 5; i > -1; i--) {
                     var currentBackupName = $"{leaderboardConfigsDataBackupDirName}\\{cfg.Name}_b{i + 1}.json";
                     if (File.Exists(currentBackupName)) {
@@ -218,7 +218,7 @@ namespace KLPlugins.DynLeaderboards.Settings {
 
             // Save up to date setting back to the disk
             using (StreamWriter file = File.CreateText(settingsFname)) {
-                JsonSerializer serializer = new JsonSerializer {
+                var serializer = new JsonSerializer {
                     Formatting = Newtonsoft.Json.Formatting.Indented
                 };
                 serializer.Serialize(file, savedSettings);
@@ -231,8 +231,9 @@ namespace KLPlugins.DynLeaderboards.Settings {
         /// </summary>
         /// <returns></returns>
         private static Dictionary<string, Migration> CreateMigrationsDict() {
-            var migrations = new Dictionary<string, Migration>();
-            migrations["0_1"] = Mig0To1;
+            var migrations = new Dictionary<string, Migration> {
+                ["0_1"] = Mig0To1
+            };
 
 #if DEBUG
             for (int i = 0; i < currentSettingsVersion; i++) {
@@ -265,8 +266,9 @@ namespace KLPlugins.DynLeaderboards.Settings {
                     if (File.Exists(fname)) // Don't overwrite existing configs
                         continue;
                     using (StreamWriter file = File.CreateText(fname)) {
-                        JsonSerializer serializer = new JsonSerializer();
-                        serializer.Formatting = Newtonsoft.Json.Formatting.Indented;
+                        var serializer = new JsonSerializer {
+                            Formatting = Newtonsoft.Json.Formatting.Indented
+                        };
                         serializer.Serialize(file, cfg);
                     }
                 }

@@ -127,7 +127,7 @@ namespace KLPlugins.DynLeaderboards.Car {
         internal int MissedRealtimeUpdates { get; set; } = 0;
 
         private double? _stintStartTime = null;
-        private readonly CarClassArray<double?> _splinePositionTime = new CarClassArray<double?>(null);
+        private readonly CarClassArray<double?> _splinePositionTime = new(null);
         private int _lapAtOffsetLapUpdate = -1;
 
         private bool _isSplinePositionReset = false;
@@ -407,8 +407,7 @@ namespace KLPlugins.DynLeaderboards.Car {
             CarData? overallBestLapCar,
             CarData? classBestLapCar,
             int overallPos,
-            int classPos,
-            float sessionTimeLeft
+            int classPos
         ) {
             IsOverallBestLapCar = CarIndex == overallBestLapCar?.CarIndex;
             IsClassBestLapCar = CarIndex == classBestLapCar?.CarIndex;

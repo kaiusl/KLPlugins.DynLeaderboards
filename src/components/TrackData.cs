@@ -1,10 +1,10 @@
-﻿using KLPlugins.DynLeaderboards.Car;
-using MathNet.Numerics.Interpolation;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using KLPlugins.DynLeaderboards.Car;
+using MathNet.Numerics.Interpolation;
 
 namespace KLPlugins.DynLeaderboards.Track {
     internal class LapInterpolator {
@@ -29,7 +29,7 @@ namespace KLPlugins.DynLeaderboards.Track {
         internal CarClassArray<LapInterpolator?>? LapInterpolators = null;
 
         internal TrackData(BinaryReader br) {
-            var connectionId = br.ReadInt32();
+            _ = br.ReadInt32(); // connectionId
             Name = ksBroadcastingNetwork.BroadcastingNetworkProtocol.ReadString(br);
             Id = (TrackType)br.ReadInt32();
             LengthMeters = br.ReadInt32();

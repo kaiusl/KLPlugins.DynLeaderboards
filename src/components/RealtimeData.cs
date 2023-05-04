@@ -1,6 +1,6 @@
-﻿using KLPlugins.DynLeaderboards.Helpers;
+﻿using System;
+using KLPlugins.DynLeaderboards.Helpers;
 using KLPlugins.DynLeaderboards.ksBroadcastingNetwork;
-using System;
 
 namespace KLPlugins.DynLeaderboards.Realtime {
 
@@ -28,8 +28,8 @@ namespace KLPlugins.DynLeaderboards.Realtime {
 
             IsRace = NewData.SessionType == RaceSessionType.Race;
             IsSession = NewData.Phase == SessionPhase.Session;
-            IsPreSession = !IsSession && (NewData.Phase.EqualsAny(SessionPhase.Starting, SessionPhase.PreFormation, SessionPhase.FormationLap, SessionPhase.PreSession));
-            IsPostSession = !IsSession && (NewData.Phase.EqualsAny(SessionPhase.SessionOver, SessionPhase.PostSession, SessionPhase.ResultUI));
+            IsPreSession = !IsSession && NewData.Phase.EqualsAny(SessionPhase.Starting, SessionPhase.PreFormation, SessionPhase.FormationLap, SessionPhase.PreSession);
+            IsPostSession = !IsSession && NewData.Phase.EqualsAny(SessionPhase.SessionOver, SessionPhase.PostSession, SessionPhase.ResultUI);
 
             IsSessionStart = OldData.Phase != SessionPhase.Session && IsSession;
             IsFocusedChange = NewData.FocusedCarIndex != OldData.FocusedCarIndex;

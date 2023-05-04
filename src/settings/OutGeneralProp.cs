@@ -23,34 +23,17 @@ namespace KLPlugins.DynLeaderboards.Settings {
         public static void Remove(ref this OutGeneralProp p, OutGeneralProp o) => p &= ~o;
 
         public static string ToolTipText(this OutGeneralProp p) {
-            switch (p) {
-                case OutGeneralProp.SessionPhase:
-                    return "Session phase.";
-
-                case OutGeneralProp.MaxStintTime:
-                    return "Maximum driver stint time.";
-
-                case OutGeneralProp.MaxDriveTime:
-                    return "Maximum total driving time for driver for player car. This can be different for other teams if they have different number of drivers.";
-
-                case OutGeneralProp.CarClassColors:
-                    return "Color for every car class.";
-
-                case OutGeneralProp.TeamCupColors:
-                    return "Background colors for every team cup category.";
-
-                case OutGeneralProp.TeamCupTextColors:
-                    return "Text colors for every team cup category";
-
-                case OutGeneralProp.DriverCategoryColors:
-                    return "Color for every driver category";
-
-                case OutGeneralProp.None:
-                    return "None";
-
-                default:
-                    throw new ArgumentOutOfRangeException($"Invalid enum variant {p}");
-            }
+            return p switch {
+                OutGeneralProp.SessionPhase => "Session phase.",
+                OutGeneralProp.MaxStintTime => "Maximum driver stint time.",
+                OutGeneralProp.MaxDriveTime => "Maximum total driving time for driver for player car. This can be different for other teams if they have different number of drivers.",
+                OutGeneralProp.CarClassColors => "Color for every car class.",
+                OutGeneralProp.TeamCupColors => "Background colors for every team cup category.",
+                OutGeneralProp.TeamCupTextColors => "Text colors for every team cup category",
+                OutGeneralProp.DriverCategoryColors => "Color for every driver category",
+                OutGeneralProp.None => "None",
+                _ => throw new ArgumentOutOfRangeException($"Invalid enum variant {p}"),
+            };
         }
     }
 }

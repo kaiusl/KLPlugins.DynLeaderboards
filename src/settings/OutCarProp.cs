@@ -33,110 +33,46 @@ namespace KLPlugins.DynLeaderboards.Settings {
         public static void Remove(ref this OutCarProp p, OutCarProp o) => p &= ~o;
 
         public static string ToPropName(this OutCarProp p) {
-            switch (p) {
-                case OutCarProp.CarNumber:
-                    return "Car.Number";
-
-                case OutCarProp.CarModel:
-                    return "Car.Model";
-
-                case OutCarProp.CarManufacturer:
-                    return "Car.Manufacturer";
-
-                case OutCarProp.CarClass:
-                    return "Car.Class";
-
-                case OutCarProp.TeamName:
-                    return "Team.Name";
-
-                case OutCarProp.TeamCupCategory:
-                    return "Team.CupCategory";
-
-                case OutCarProp.IsFinished:
-                    return "IsFinished";
-
-                case OutCarProp.MaxSpeed:
-                    return "MaxSpeed";
-
-                case OutCarProp.CarClassColor:
-                    return "Car.Class.Color";
-
-                case OutCarProp.TeamCupCategoryColor:
-                    return "Team.CupCategory.Color";
-
-                case OutCarProp.TeamCupCategoryTextColor:
-                    return "Team.CupCategory.TextColor";
-
-                case OutCarProp.IsFocused:
-                    return "IsFocused";
-
-                case OutCarProp.IsOverallBestLapCar:
-                    return "IsOverallBestLapCar";
-
-                case OutCarProp.IsClassBestLapCar:
-                    return "IsClassBestLapCar";
-
-                case OutCarProp.RelativeOnTrackLapDiff:
-                    return "RelativeOnTrackLapDiff";
-
-                default:
-                    throw new ArgumentOutOfRangeException($"Invalid enum variant {p}");
-            }
+            return p switch {
+                OutCarProp.CarNumber => "Car.Number",
+                OutCarProp.CarModel => "Car.Model",
+                OutCarProp.CarManufacturer => "Car.Manufacturer",
+                OutCarProp.CarClass => "Car.Class",
+                OutCarProp.TeamName => "Team.Name",
+                OutCarProp.TeamCupCategory => "Team.CupCategory",
+                OutCarProp.IsFinished => "IsFinished",
+                OutCarProp.MaxSpeed => "MaxSpeed",
+                OutCarProp.CarClassColor => "Car.Class.Color",
+                OutCarProp.TeamCupCategoryColor => "Team.CupCategory.Color",
+                OutCarProp.TeamCupCategoryTextColor => "Team.CupCategory.TextColor",
+                OutCarProp.IsFocused => "IsFocused",
+                OutCarProp.IsOverallBestLapCar => "IsOverallBestLapCar",
+                OutCarProp.IsClassBestLapCar => "IsClassBestLapCar",
+                OutCarProp.RelativeOnTrackLapDiff => "RelativeOnTrackLapDiff",
+                _ => throw new ArgumentOutOfRangeException($"Invalid enum variant {p}"),
+            };
         }
 
         public static string ToolTipText(this OutCarProp p) {
-            switch (p) {
-                case OutCarProp.None:
-                    return "None";
-
-                case OutCarProp.CarNumber:
-                    return "Car number.";
-
-                case OutCarProp.CarModel:
-                    return "Car model name.";
-
-                case OutCarProp.CarManufacturer:
-                    return "Car manufacturer.";
-
-                case OutCarProp.CarClass:
-                    return "Car class (GT3, GT4, ST15, ST21, CHL, CUP17, CUP21, TCX).";
-
-                case OutCarProp.TeamName:
-                    return "Team name.";
-
-                case OutCarProp.TeamCupCategory:
-                    return "Team cup category (Overall/Pro, ProAm, Am, Silver, National).";
-
-                case OutCarProp.IsFinished:
-                    return "Is the car finished?";
-
-                case OutCarProp.MaxSpeed:
-                    return "Maximum speed in this session.";
-
-                case OutCarProp.CarClassColor:
-                    return "Car class color. Values can be changed in \"General settings\" tab.";
-
-                case OutCarProp.TeamCupCategoryColor:
-                    return "Team cup category background color. Values can be changed in \"General settings\" tab.";
-
-                case OutCarProp.TeamCupCategoryTextColor:
-                    return "Team cup category text color. Values can be changed in \"General settings\" tab.";
-
-                case OutCarProp.IsFocused:
-                    return "Is this the focused car?";
-
-                case OutCarProp.IsOverallBestLapCar:
-                    return "Is this the car that has overall best lap?";
-
-                case OutCarProp.IsClassBestLapCar:
-                    return "Is this the car that has class best lap?";
-
-                case OutCarProp.RelativeOnTrackLapDiff:
-                    return "Show if this car is ahead or behind by the lap on the relative on track. 1: this car is ahead by a lap, 0: same lap, -1: this car is behind by a lap.";
-
-                default:
-                    throw new ArgumentOutOfRangeException($"Invalid enum variant {p}");
-            }
+            return p switch {
+                OutCarProp.None => "None",
+                OutCarProp.CarNumber => "Car number.",
+                OutCarProp.CarModel => "Car model name.",
+                OutCarProp.CarManufacturer => "Car manufacturer.",
+                OutCarProp.CarClass => "Car class (GT3, GT4, ST15, ST21, CHL, CUP17, CUP21, TCX).",
+                OutCarProp.TeamName => "Team name.",
+                OutCarProp.TeamCupCategory => "Team cup category (Overall/Pro, ProAm, Am, Silver, National).",
+                OutCarProp.IsFinished => "Is the car finished?",
+                OutCarProp.MaxSpeed => "Maximum speed in this session.",
+                OutCarProp.CarClassColor => "Car class color. Values can be changed in \"General settings\" tab.",
+                OutCarProp.TeamCupCategoryColor => "Team cup category background color. Values can be changed in \"General settings\" tab.",
+                OutCarProp.TeamCupCategoryTextColor => "Team cup category text color. Values can be changed in \"General settings\" tab.",
+                OutCarProp.IsFocused => "Is this the focused car?",
+                OutCarProp.IsOverallBestLapCar => "Is this the car that has overall best lap?",
+                OutCarProp.IsClassBestLapCar => "Is this the car that has class best lap?",
+                OutCarProp.RelativeOnTrackLapDiff => "Show if this car is ahead or behind by the lap on the relative on track. 1: this car is ahead by a lap, 0: same lap, -1: this car is behind by a lap.",
+                _ => throw new ArgumentOutOfRangeException($"Invalid enum variant {p}"),
+            };
         }
     }
 
@@ -159,47 +95,25 @@ namespace KLPlugins.DynLeaderboards.Settings {
         public static void Remove(ref this OutPitProp p, OutPitProp o) => p &= ~o;
 
         public static string ToPropName(this OutPitProp p) {
-            switch (p) {
-                case OutPitProp.IsInPitLane:
-                    return "Pit.IsIn";
-
-                case OutPitProp.PitStopCount:
-                    return "Pit.Count";
-
-                case OutPitProp.PitTimeTotal:
-                    return "Pit.Time.Total";
-
-                case OutPitProp.PitTimeLast:
-                    return "Pit.Time.Last";
-
-                case OutPitProp.PitTimeCurrent:
-                    return "Pit.Time.Current";
-
-                default:
-                    throw new ArgumentOutOfRangeException($"Invalid enum variant {p}");
-            }
+            return p switch {
+                OutPitProp.IsInPitLane => "Pit.IsIn",
+                OutPitProp.PitStopCount => "Pit.Count",
+                OutPitProp.PitTimeTotal => "Pit.Time.Total",
+                OutPitProp.PitTimeLast => "Pit.Time.Last",
+                OutPitProp.PitTimeCurrent => "Pit.Time.Current",
+                _ => throw new ArgumentOutOfRangeException($"Invalid enum variant {p}"),
+            };
         }
 
         public static string ToolTipText(this OutPitProp p) {
-            switch (p) {
-                case OutPitProp.IsInPitLane:
-                    return "Is the car in pit lane?";
-
-                case OutPitProp.PitStopCount:
-                    return "Number of pitstops.";
-
-                case OutPitProp.PitTimeTotal:
-                    return "Total time spent in pits.";
-
-                case OutPitProp.PitTimeLast:
-                    return "Last pit time.";
-
-                case OutPitProp.PitTimeCurrent:
-                    return "Current time in pits.";
-
-                default:
-                    throw new ArgumentOutOfRangeException($"Invalid enum variant {p}");
-            }
+            return p switch {
+                OutPitProp.IsInPitLane => "Is the car in pit lane?",
+                OutPitProp.PitStopCount => "Number of pitstops.",
+                OutPitProp.PitTimeTotal => "Total time spent in pits.",
+                OutPitProp.PitTimeLast => "Last pit time.",
+                OutPitProp.PitTimeCurrent => "Current time in pits.",
+                _ => throw new ArgumentOutOfRangeException($"Invalid enum variant {p}"),
+            };
         }
     }
 
@@ -241,59 +155,33 @@ namespace KLPlugins.DynLeaderboards.Settings {
         public static void Remove(ref this OutPosProp p, OutPosProp o) => p &= ~o;
 
         public static string ToPropName(this OutPosProp p) {
-            switch (p) {
-                case OutPosProp.ClassPosition:
-                    return "Position.Class";
-
-                case OutPosProp.ClassPositionStart:
-                    return "Position.Class.Start";
-
-                case OutPosProp.OverallPosition:
-                    return "Position.Overall";
-
-                case OutPosProp.OverallPositionStart:
-                    return "Position.Overall.Start";
-
-                case OutPosProp.DynamicPosition:
-                    return "Position.Dynamic";
-
-                case OutPosProp.DynamicPositionStart:
-                    return "Position.Dynamic.Start";
-
-                default:
-                    throw new ArgumentOutOfRangeException($"Invalid enum variant {p}");
-            }
+            return p switch {
+                OutPosProp.ClassPosition => "Position.Class",
+                OutPosProp.ClassPositionStart => "Position.Class.Start",
+                OutPosProp.OverallPosition => "Position.Overall",
+                OutPosProp.OverallPositionStart => "Position.Overall.Start",
+                OutPosProp.DynamicPosition => "Position.Dynamic",
+                OutPosProp.DynamicPositionStart => "Position.Dynamic.Start",
+                _ => throw new ArgumentOutOfRangeException($"Invalid enum variant {p}"),
+            };
         }
 
         public static string ToolTipText(this OutPosProp p) {
-            switch (p) {
-                case OutPosProp.ClassPosition:
-                    return "Current class position";
-
-                case OutPosProp.OverallPosition:
-                    return "Current overall position";
-
-                case OutPosProp.ClassPositionStart:
-                    return "Class position at race start";
-
-                case OutPosProp.OverallPositionStart:
-                    return "Overall position at race start";
-
-                case OutPosProp.DynamicPosition:
-                    return @"Position that changes based of currently displayed dynamic leaderboard.
+            return p switch {
+                OutPosProp.ClassPosition => "Current class position",
+                OutPosProp.OverallPosition => "Current overall position",
+                OutPosProp.ClassPositionStart => "Class position at race start",
+                OutPosProp.OverallPositionStart => "Overall position at race start",
+                OutPosProp.DynamicPosition => @"Position that changes based of currently displayed dynamic leaderboard.
 Any overall -> ovarall position,
 Any class -> class position,
-RelativeOnTrack -> overall position";
-
-                case OutPosProp.DynamicPositionStart:
-                    return @"Position at the race start that changes based of currently displayed dynamic leaderboard.
+RelativeOnTrack -> overall position",
+                OutPosProp.DynamicPositionStart => @"Position at the race start that changes based of currently displayed dynamic leaderboard.
 Any overall -> ovarall position,
 Any class -> class position,
-RelativeOnTrack -> overall position";
-
-                default:
-                    throw new ArgumentOutOfRangeException($"Invalid enum variant {p}");
-            }
+RelativeOnTrack -> overall position",
+                _ => throw new ArgumentOutOfRangeException($"Invalid enum variant {p}"),
+            };
         }
     }
 
@@ -320,78 +208,40 @@ RelativeOnTrack -> overall position";
         public static void Remove(ref this OutGapProp p, OutGapProp o) => p &= ~o;
 
         public static string ToPropName(this OutGapProp p) {
-            switch (p) {
-                case OutGapProp.GapToLeader:
-                    return "Gap.ToOverallLeader";
-
-                case OutGapProp.GapToClassLeader:
-                    return "Gap.ToClassLeader";
-
-                case OutGapProp.GapToFocusedTotal:
-                    return "Gap.ToFocused.Total";
-
-                case OutGapProp.GapToFocusedOnTrack:
-                    return "Gap.ToFocused.OnTrack";
-
-                case OutGapProp.GapToAheadOverall:
-                    return "Gap.ToAhead.Overall";
-
-                case OutGapProp.GapToAheadInClass:
-                    return "Gap.ToAhead.Class";
-
-                case OutGapProp.GapToAheadOnTrack:
-                    return "Gap.ToAhead.OnTrack";
-
-                case OutGapProp.DynamicGapToFocused:
-                    return "Gap.Dynamic.ToFocused";
-
-                case OutGapProp.DynamicGapToAhead:
-                    return "Gap.Dynamic.ToAhead";
-
-                default:
-                    throw new ArgumentOutOfRangeException($"Invalid enum variant {p}");
-            }
+            return p switch {
+                OutGapProp.GapToLeader => "Gap.ToOverallLeader",
+                OutGapProp.GapToClassLeader => "Gap.ToClassLeader",
+                OutGapProp.GapToFocusedTotal => "Gap.ToFocused.Total",
+                OutGapProp.GapToFocusedOnTrack => "Gap.ToFocused.OnTrack",
+                OutGapProp.GapToAheadOverall => "Gap.ToAhead.Overall",
+                OutGapProp.GapToAheadInClass => "Gap.ToAhead.Class",
+                OutGapProp.GapToAheadOnTrack => "Gap.ToAhead.OnTrack",
+                OutGapProp.DynamicGapToFocused => "Gap.Dynamic.ToFocused",
+                OutGapProp.DynamicGapToAhead => "Gap.Dynamic.ToAhead",
+                _ => throw new ArgumentOutOfRangeException($"Invalid enum variant {p}"),
+            };
         }
 
         public static string ToolTipText(this OutGapProp p) {
-            switch (p) {
-                case OutGapProp.GapToLeader:
-                    return "Total gap to the leader.";
-
-                case OutGapProp.GapToClassLeader:
-                    return "Total gap to the class leader.";
-
-                case OutGapProp.GapToFocusedTotal:
-                    return "Total gap to the focused car.";
-
-                case OutGapProp.GapToFocusedOnTrack:
-                    return "On track gap to the focused car.";
-
-                case OutGapProp.GapToAheadOverall:
-                    return "Total gap to the car ahead in overall.";
-
-                case OutGapProp.GapToAheadInClass:
-                    return "Total gap to the car ahead in class.";
-
-                case OutGapProp.GapToAheadOnTrack:
-                    return "Relative on track gap to car ahead.";
-
-                case OutGapProp.DynamicGapToFocused:
-                    return @"Gap that changes based of currently displayed dynamic leaderboard.
+            return p switch {
+                OutGapProp.GapToLeader => "Total gap to the leader.",
+                OutGapProp.GapToClassLeader => "Total gap to the class leader.",
+                OutGapProp.GapToFocusedTotal => "Total gap to the focused car.",
+                OutGapProp.GapToFocusedOnTrack => "On track gap to the focused car.",
+                OutGapProp.GapToAheadOverall => "Total gap to the car ahead in overall.",
+                OutGapProp.GapToAheadInClass => "Total gap to the car ahead in class.",
+                OutGapProp.GapToAheadOnTrack => "Relative on track gap to car ahead.",
+                OutGapProp.DynamicGapToFocused => @"Gap that changes based of currently displayed dynamic leaderboard.
 Overall -> gap to leader,
 Class -> gap to class leader,
 PartialRelativeOverall/PartialRelativeClass/RelativePverall/RelativeClass -> gap to focused total,
-RelativeOnTrack -> gap to focused on track.";
-
-                case OutGapProp.DynamicGapToAhead:
-                    return @"Gap to the car ahead that changes based on the currently displayed dynamic leaderboard.
+RelativeOnTrack -> gap to focused on track.",
+                OutGapProp.DynamicGapToAhead => @"Gap to the car ahead that changes based on the currently displayed dynamic leaderboard.
 Overall/RelativeOverall/PartialRelativeOverall -> gap to ahead in overall order,
 Class/RelativeClass/PartialRelativeClass -> gap to ahead in class order,
-RelativeOnTrack -> gap to ahead on track.";
-
-                default:
-                    throw new ArgumentOutOfRangeException($"Invalid enum variant {p}");
-            }
+RelativeOnTrack -> gap to ahead on track.",
+                _ => throw new ArgumentOutOfRangeException($"Invalid enum variant {p}"),
+            };
         }
     }
 
@@ -413,41 +263,23 @@ RelativeOnTrack -> gap to ahead on track.";
         public static void Remove(ref this OutStintProp p, OutStintProp o) => p &= ~o;
 
         public static string ToPropName(this OutStintProp p) {
-            switch (p) {
-                case OutStintProp.CurrentStintTime:
-                    return "Stint.Current.Time";
-
-                case OutStintProp.CurrentStintLaps:
-                    return "Stint.Current.Laps";
-
-                case OutStintProp.LastStintTime:
-                    return "Stint.Last.Time";
-
-                case OutStintProp.LastStintLaps:
-                    return "Stint.Last.Laps";
-
-                default:
-                    throw new ArgumentOutOfRangeException($"Invalid enum variant {p}");
-            }
+            return p switch {
+                OutStintProp.CurrentStintTime => "Stint.Current.Time",
+                OutStintProp.CurrentStintLaps => "Stint.Current.Laps",
+                OutStintProp.LastStintTime => "Stint.Last.Time",
+                OutStintProp.LastStintLaps => "Stint.Last.Laps",
+                _ => throw new ArgumentOutOfRangeException($"Invalid enum variant {p}"),
+            };
         }
 
         public static string ToolTipText(this OutStintProp p) {
-            switch (p) {
-                case OutStintProp.CurrentStintTime:
-                    return "Current stint time.";
-
-                case OutStintProp.LastStintTime:
-                    return "Last stint time.";
-
-                case OutStintProp.CurrentStintLaps:
-                    return "Number of laps completed in current stint";
-
-                case OutStintProp.LastStintLaps:
-                    return "Number of laps completed in last stint";
-
-                default:
-                    throw new ArgumentOutOfRangeException($"Invalid enum variant {p}");
-            }
+            return p switch {
+                OutStintProp.CurrentStintTime => "Current stint time.",
+                OutStintProp.LastStintTime => "Last stint time.",
+                OutStintProp.CurrentStintLaps => "Number of laps completed in current stint",
+                OutStintProp.LastStintLaps => "Number of laps completed in last stint",
+                _ => throw new ArgumentOutOfRangeException($"Invalid enum variant {p}"),
+            };
         }
     }
 }

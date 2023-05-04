@@ -1,12 +1,13 @@
 ﻿// Original from ACC Broadcasting SDK example (Assetto Corsa Competizione Dedicated Server\sdk\broadcasting)
 
-using Newtonsoft.Json;
 using System;
 using System.IO;
 using System.Linq;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
+
+using Newtonsoft.Json;
 
 namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork {
 
@@ -20,7 +21,7 @@ namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork {
         private string _commandPassword { get; }
         private int _msRealtimeUpdateInterval { get; }
         private UdpClient? _client;
-        private Task _listenerTask;
+        private readonly Task _listenerTask;
 
         /// <summary>
         /// To get the events delivered inside the UI thread, just create this object from the UI thread/synchronization context.
@@ -50,7 +51,7 @@ namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork {
                 DynLeaderboardsPlugin.LogWarn($"Tried to send a message to ACC but our client has already been shut down.");
                 return;
             }
-            var sent = _client.Send(payload, payload.Length);
+            _ = _client.Send(payload, payload.Length);
         }
 
         internal void Shutdown() {
@@ -118,9 +119,9 @@ namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork {
 
         #region IDisposable Support
 
-        private bool disposedValue = false; // To detect redundant calls
+        private bool _disposedValue = false; // To detect redundant calls
         protected virtual void Dispose(bool disposing) {
-            if (!disposedValue) {
+            if (!_disposedValue) {
                 if (disposing) {
                     try {
                         DynLeaderboardsPlugin.LogInfo("Disposed.");
@@ -139,7 +140,7 @@ namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork {
                 // TODO: free unmanaged resources (unmanaged objects) and override a finalizer below.
                 // TODO: set large fields to null.
 
-                disposedValue = true;
+                _disposedValue = true;
             }
         }
 
@@ -166,9 +167,11 @@ namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork {
     internal class ACCUdpRemoteClientConfig {
         /// Class to read acc\Config\broadcasting.json
         private struct ACCBroadcastConfig {
+#pragma warning disable IDE1006
+            // Property names must match with the ones in json
             private int _udpListenerPort;
             public int updListenerPort {
-                get => _udpListenerPort;
+                readonly get => _udpListenerPort;
                 set {
                     ValidatePort(value);
                     _udpListenerPort = value;
@@ -191,7 +194,7 @@ namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork {
                 }
             }
 
-            internal void Validate() {
+            internal readonly void Validate() {
                 ValidatePort(updListenerPort);
             }
         }

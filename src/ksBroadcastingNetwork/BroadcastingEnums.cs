@@ -156,49 +156,25 @@
     public static class BroadcastingEnumHelpers {
 
         public static RaceSessionType RaceSessionTypeFromString(string s) {
-            switch (s.ToLower()) {
-                case "practice":
-                    return RaceSessionType.Practice;
-
-                case "qualify":
-                    return RaceSessionType.Qualifying;
-
-                case "race":
-                    return RaceSessionType.Race;
-
-                case "hotlap":
-                    return RaceSessionType.Hotlap;
-
-                case "7":
-                case "hotstint":
-                    return RaceSessionType.Hotstint;
-
-                case "8":
-                case "hotlapsuperpole":
-                    return RaceSessionType.HotlapSuperpole;
-
-                default:
-                    return RaceSessionType.Practice;
-            }
+            return s.ToLower() switch {
+                "practice" => RaceSessionType.Practice,
+                "qualify" => RaceSessionType.Qualifying,
+                "race" => RaceSessionType.Race,
+                "hotlap" => RaceSessionType.Hotlap,
+                "7" or "hotstint" => RaceSessionType.Hotstint,
+                "8" or "hotlapsuperpole" => RaceSessionType.HotlapSuperpole,
+                _ => RaceSessionType.Practice,
+            };
         }
 
         public static string GetAccColor(this DriverCategory c) {
-            switch (c) {
-                case DriverCategory.Platinum:
-                    return "#FFFFFFFF";
-
-                case DriverCategory.Gold:
-                    return "#FFFFD700";
-
-                case DriverCategory.Silver:
-                    return "#FFA5A5A5";
-
-                case DriverCategory.Bronze:
-                    return "#FFCD7F32";
-
-                default:
-                    return "#FFFFFFFF";
-            }
+            return c switch {
+                DriverCategory.Platinum => "#FFFFFFFF",
+                DriverCategory.Gold => "#FFFFD700",
+                DriverCategory.Silver => "#FFA5A5A5",
+                DriverCategory.Bronze => "#FFCD7F32",
+                _ => "#FFFFFFFF",
+            };
         }
     }
 }

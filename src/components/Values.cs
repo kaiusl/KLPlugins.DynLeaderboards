@@ -48,19 +48,19 @@ namespace KLPlugins.DynLeaderboards {
         internal int?[]? PosInClassCarsIdxs { get; private set; }
         internal int? FocusedCarPosInClassCarsIdxs { get; private set; }
         internal int? FocusedCarIdx { get; private set; } = null;
-        internal Statistics SessionEndTimeForBroadcastEventsTime = new Statistics();
+        internal Statistics SessionEndTimeForBroadcastEventsTime = new();
         internal List<DynLeaderboardValues> LeaderboardValues { get; private set; } = new List<DynLeaderboardValues>();
 
         // Store relative spline positions for relative leaderboard,
         // need to store separately as we need to sort by spline pos at the end on update loop
-        private CarClassArray<int?> _bestLapByClassCarIdxs = new CarClassArray<int?>(null);
+        private readonly CarClassArray<int?> _bestLapByClassCarIdxs = new(null);
 
-        private List<CarSplinePos> _relativeSplinePositions = new List<CarSplinePos>();
-        private CarClassArray<int?> _classLeaderIdxs = new CarClassArray<int?>(null); // Indexes of class leaders in Cars list
-        private List<ushort> _lastUpdateCarIds = new List<ushort>();
-        private ACCUdpRemoteClientConfig _broadcastConfig;
+        private readonly List<CarSplinePos> _relativeSplinePositions = new();
+        private readonly CarClassArray<int?> _classLeaderIdxs = new(null); // Indexes of class leaders in Cars list
+        private readonly List<ushort> _lastUpdateCarIds = new();
+        private readonly ACCUdpRemoteClientConfig _broadcastConfig;
         private bool _startingPositionsSet = false;
-        private Statistics _broadcastEvt_realtimeData_sessiontime_diff = new Statistics();
+        private readonly Statistics _broadcastEvt_realtimeData_sessiontime_diff = new();
 
         internal float SessionTimeRemaining = float.NaN;
         internal ACCRawData? RawData { get; private set; }
@@ -148,16 +148,16 @@ namespace KLPlugins.DynLeaderboards {
             GC.SuppressFinalize(this);
         }
 
-        private bool isDisposed = false;
+        private bool _isDisposed = false;
 
         protected virtual void Dispose(bool disposing) {
-            if (!isDisposed) {
+            if (!_isDisposed) {
                 if (disposing) {
                     DynLeaderboardsPlugin.LogInfo("Disposed");
                     DisposeBroadcastClient();
                 }
 
-                isDisposed = true;
+                _isDisposed = true;
             }
         }
 
@@ -167,12 +167,12 @@ namespace KLPlugins.DynLeaderboards {
 
         #endregion IDisposable Support
 
-        internal void OnDataUpdate(PluginManager pm, GameData data) {
+        internal void OnDataUpdate(PluginManager _, GameData data) {
             RawData = (ACCRawData)data.NewData.GetRawDataObject();
             SessionTimeRemaining = RawData.Graphics.SessionTimeLeft / 1000.0f;
         }
 
-        internal void OnGameStateChanged(bool running, PluginManager manager) {
+        internal void OnGameStateChanged(bool running, PluginManager _) {
             if (running) {
                 if (BroadcastClient != null) {
                     DynLeaderboardsPlugin.LogWarn("Broadcast client wasn't 'null' at start of new event. Shouldn't be possible, there is a bug in disposing of Broadcast client from previous session.");
@@ -577,8 +577,7 @@ namespace KLPlugins.DynLeaderboards {
                         overallBestLapCar: overallBestLapCarIdx != null ? Cars[(int)overallBestLapCarIdx] : null,
                         classBestLapCar: classBestLapCarIdx != null ? Cars[(int)classBestLapCarIdx] : null,
                         overallPos: idxInCars + 1,
-                        classPos: thisCarClassPos,
-                        sessionTimeLeft: SessionTimeRemaining
+                        classPos: thisCarClassPos
                     );
                     lastSeenInClassCarIdxs[thisCar.CarClass] = idxInCars;
                 }

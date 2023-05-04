@@ -33,13 +33,13 @@ namespace KLPlugins.DynLeaderboards {
         internal static PluginSettings Settings;
         internal static Game Game; // Const during the lifetime of this plugin, plugin is rebuilt at game change
         internal static string GameDataPath; // Same as above
-        internal static string PluginStartTime = $"{DateTime.Now.ToString("dd-MM-yyyy_HH-mm-ss")}";
+        internal static string PluginStartTime = $"{DateTime.Now:dd-MM-yyyy_HH-mm-ss}";
         internal static PluginManager PManager;
 
         private static FileStream? _logFile;
         private static StreamWriter? _logWriter;
         private static bool _isLogFlushed = false;
-        private string? LogFileName;
+        private string? _logFileName;
         private Values _values;
 #pragma warning restore CS8618
 
@@ -128,7 +128,7 @@ namespace KLPlugins.DynLeaderboards {
             PluginSettings.Migrate();
             Settings = this.ReadCommonSettings<PluginSettings>("GeneralSettings", () => new PluginSettings());
             Settings.ReadDynLeaderboardConfigs();
-            LogFileName = $"{Settings.PluginDataLocation}\\Logs\\Log_{PluginStartTime}.txt";
+            _logFileName = $"{Settings.PluginDataLocation}\\Logs\\Log_{PluginStartTime}.txt";
             var gameName = (string)pluginManager.GetPropertyValue<SimHub.Plugins.DataPlugins.DataCore.DataCorePlugin>("CurrentGame");
 
 #if TIMINGS
@@ -175,8 +175,7 @@ namespace KLPlugins.DynLeaderboards {
 
         internal void RemoveLeaderboardAt(int i) {
             Settings.RemoveLeaderboardAt(i);
-            if (_values != null)
-                _values.LeaderboardValues.RemoveAt(i);
+            _values?.LeaderboardValues.RemoveAt(i);
         }
 
         private void SubscribeToSimHubEvents() {
@@ -300,21 +299,21 @@ namespace KLPlugins.DynLeaderboards {
 
                 AddLapProp(OutLapProp.CurrentLapTime, () => l.GetDynCar(i)?.NewData?.CurrentLap.Laptime);
 
-                AddLapProp(OutLapProp.CurrentLapIsValid, () => maybe_bool_to_int(l.GetDynCar(i)?.NewData?.CurrentLap.IsValidForBest));
+                AddLapProp(OutLapProp.CurrentLapIsValid, () => MaybeBoolToInt(l.GetDynCar(i)?.NewData?.CurrentLap.IsValidForBest));
                 AddLapProp(OutLapProp.LastLapIsValid, () => {
                     // IsValidForBest is true even if there is no actual lap, make it consistent with other properties
                     var last_lap = l.GetDynCar(i)?.NewData?.LastLap;
                     if (last_lap?.Laptime != null) {
-                        return maybe_bool_to_int(last_lap?.IsValidForBest);
+                        return MaybeBoolToInt(last_lap?.IsValidForBest);
                     } else {
                         return null;
                     }
                 });
 
-                AddLapProp(OutLapProp.CurrentLapIsOutLap, () => maybe_bool_to_int(l.GetDynCar(i)?.IsCurrentLapOutLap));
-                AddLapProp(OutLapProp.LastLapIsOutLap, () => maybe_bool_to_int(l.GetDynCar(i)?.IsLastLapOutLap));
-                AddLapProp(OutLapProp.CurrentLapIsInLap, () => maybe_bool_to_int(l.GetDynCar(i)?.IsCurrentLapInLap));
-                AddLapProp(OutLapProp.LastLapIsInLap, () => maybe_bool_to_int(l.GetDynCar(i)?.IsLastLapInLap));
+                AddLapProp(OutLapProp.CurrentLapIsOutLap, () => MaybeBoolToInt(l.GetDynCar(i)?.IsCurrentLapOutLap));
+                AddLapProp(OutLapProp.LastLapIsOutLap, () => MaybeBoolToInt(l.GetDynCar(i)?.IsLastLapOutLap));
+                AddLapProp(OutLapProp.CurrentLapIsInLap, () => MaybeBoolToInt(l.GetDynCar(i)?.IsCurrentLapInLap));
+                AddLapProp(OutLapProp.LastLapIsInLap, () => MaybeBoolToInt(l.GetDynCar(i)?.IsLastLapInLap));
 
                 void AddOneDriverFromList(int j) {
                     var driverId = $"Driver.{j + 1}";
@@ -462,13 +461,14 @@ namespace KLPlugins.DynLeaderboards {
                 _values.SetDynamicCarGetter();
             });
         }
-        int? maybe_bool_to_int(bool? v) {
+        int? MaybeBoolToInt(bool? v) {
             if (v == null) {
                 return null;
             }
 
             return (bool)v ? 1 : 0;
         }
+
         internal void SetDynamicCarGetter(DynLeaderboardConfig l) {
             _values.LeaderboardValues.Find(x => x.Settings.Name == l.Name)?.SetDynGetters(_values);
         }
@@ -505,8 +505,8 @@ namespace KLPlugins.DynLeaderboards {
 
         internal void InitLogginig() {
             if (Settings.Log) {
-                Directory.CreateDirectory(Path.GetDirectoryName(LogFileName));
-                _logFile = File.Create(LogFileName);
+                Directory.CreateDirectory(Path.GetDirectoryName(_logFileName));
+                _logFile = File.Create(_logFileName);
                 _logWriter = new StreamWriter(_logFile);
             }
         }
@@ -529,7 +529,7 @@ namespace KLPlugins.DynLeaderboards {
             var pathParts = sourceFilePath.Split('\\');
             var m = CreateMessage(msg, pathParts[pathParts.Length - 1], memberName, lineNumber);
             simHubLog($"{PluginName} {m}");
-            LogToFile($"{DateTime.Now.ToString("dd.MM.yyyy HH:mm.ss")} {lvl.ToUpper()} {m}\n");
+            LogToFile($"{DateTime.Now:dd.MM.yyyy HH:mm.ss} {lvl.ToUpper()} {m}\n");
         }
 
         private static string CreateMessage(string msg, string source, string memberName, int lineNumber) {
@@ -550,7 +550,7 @@ namespace KLPlugins.DynLeaderboards {
         #endregion Logging
 
         private static void PreJit() {
-            Stopwatch sw = new Stopwatch();
+            Stopwatch sw = new();
             sw.Start();
 
             var types = Assembly.GetExecutingAssembly().GetTypes();
@@ -566,7 +566,7 @@ namespace KLPlugins.DynLeaderboards {
                 }
             }
 
-            var t = sw.Elapsed;
+            _ = sw.Elapsed;
         }
     }
 }

@@ -30,46 +30,21 @@ namespace KLPlugins.DynLeaderboards.Settings {
         public static void Remove(ref this OutDriverProp p, OutDriverProp o) => p &= ~o;
 
         public static string ToolTipText(this OutDriverProp p) {
-            switch (p) {
-                case OutDriverProp.None:
-                    return "None";
-
-                case OutDriverProp.FirstName:
-                    return "First name (Abcde)";
-
-                case OutDriverProp.LastName:
-                    return "Last name (Fghij)";
-
-                case OutDriverProp.ShortName:
-                    return "Short name (AFG)";
-
-                case OutDriverProp.FullName:
-                    return "Full name (Abcde Fghij)";
-
-                case OutDriverProp.InitialPlusLastName:
-                    return "Initial + first name (A. Fghij)";
-
-                case OutDriverProp.Nationality:
-                    return "Nationality";
-
-                case OutDriverProp.Category:
-                    return "Driver category (Platinum, Gold, Silver, Bronze)";
-
-                case OutDriverProp.TotalLaps:
-                    return "Total number of completed laps";
-
-                case OutDriverProp.TotalDrivingTime:
-                    return "Total driving time in seconds";
-
-                case OutDriverProp.BestLapTime:
-                    return "Best lap time in seconds";
-
-                case OutDriverProp.CategoryColor:
-                    return "Color for driver category";
-
-                default:
-                    throw new ArgumentOutOfRangeException($"Invalid enum variant {p}");
-            }
+            return p switch {
+                OutDriverProp.None => "None",
+                OutDriverProp.FirstName => "First name (Abcde)",
+                OutDriverProp.LastName => "Last name (Fghij)",
+                OutDriverProp.ShortName => "Short name (AFG)",
+                OutDriverProp.FullName => "Full name (Abcde Fghij)",
+                OutDriverProp.InitialPlusLastName => "Initial + first name (A. Fghij)",
+                OutDriverProp.Nationality => "Nationality",
+                OutDriverProp.Category => "Driver category (Platinum, Gold, Silver, Bronze)",
+                OutDriverProp.TotalLaps => "Total number of completed laps",
+                OutDriverProp.TotalDrivingTime => "Total driving time in seconds",
+                OutDriverProp.BestLapTime => "Best lap time in seconds",
+                OutDriverProp.CategoryColor => "Color for driver category",
+                _ => throw new ArgumentOutOfRangeException($"Invalid enum variant {p}"),
+            };
         }
     }
 }

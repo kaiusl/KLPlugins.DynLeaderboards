@@ -80,7 +80,7 @@ namespace KLPlugins.DynLeaderboards.Car {
     }
 
     internal class EnumMap<E, T> where E : System.Enum {
-        private T[] _data;
+        private readonly T[] _data;
 
         public EnumMap(Func<E, T> generator) {
             int count = Convert.ToInt32(Enum.GetValues(typeof(E)).Cast<E>().Max());
@@ -98,453 +98,273 @@ namespace KLPlugins.DynLeaderboards.Car {
     }
 
     internal static class CarsMethods {
-        internal static readonly EnumMap<CarType, CarClass> Classes = new EnumMap<CarType, CarClass>(ClassGenerator);
+        internal static readonly EnumMap<CarType, CarClass> Classes = new(ClassGenerator);
         public static CarClass Class(this CarType c) {
             return Classes[c];
         }
 
         private static CarClass ClassGenerator(CarType c) {
-            switch (c) {
-                case CarType.Porsche991GT3R:
-                case CarType.MercedesAMGGT3:
-                case CarType.Ferrari488GT3:
-                case CarType.AudiR8LMSGT3:
-                case CarType.LamborghiniHuracanGT3:
-                case CarType.McLaren650SGT3:
-                case CarType.NissanGTRGT32018:
-                case CarType.BMWM6GT3:
-                case CarType.BentleyContinentalGT32018:
-                case CarType.NissanGTRGT32017:
-                case CarType.BentleyContinentalGT32016:
-                case CarType.AMRV12VantageGT3:
-                case CarType.LamborghiniGallardoREX:
-                case CarType.JaguarG3:
-                case CarType.LexusRCFGT3:
-                case CarType.LamborghiniHuracanGT3Evo:
-                case CarType.HondaNSXGT3:
-                case CarType.AudiR8LMSGT3Evo:
-                case CarType.AMRV8VantageGT3:
-                case CarType.HondaNSXGT3Evo:
-                case CarType.McLaren720SGT3:
-                case CarType.Porsche991IIGT3R:
-                case CarType.Ferrari488GT3Evo:
-                case CarType.MercedesAMGGT3Evo:
-                case CarType.BMWM4GT3:
-                case CarType.AudiR8LMSGT3Evo2:
-                case CarType.Ferrari296GT3:
-                case CarType.LamborghiniHuracanEvo2:
-                case CarType.Porsche992GT3R:
-                    return CarClass.GT3;
+            return c switch {
+                CarType.Porsche991GT3R
+                or CarType.MercedesAMGGT3
+                or CarType.Ferrari488GT3
+                or CarType.AudiR8LMSGT3
+                or CarType.LamborghiniHuracanGT3
+                or CarType.McLaren650SGT3
+                or CarType.NissanGTRGT32018
+                or CarType.BMWM6GT3
+                or CarType.BentleyContinentalGT32018
+                or CarType.NissanGTRGT32017
+                or CarType.BentleyContinentalGT32016
+                or CarType.AMRV12VantageGT3
+                or CarType.LamborghiniGallardoREX
+                or CarType.JaguarG3
+                or CarType.LexusRCFGT3
+                or CarType.LamborghiniHuracanGT3Evo
+                or CarType.HondaNSXGT3
+                or CarType.AudiR8LMSGT3Evo
+                or CarType.AMRV8VantageGT3
+                or CarType.HondaNSXGT3Evo
+                or CarType.McLaren720SGT3
+                or CarType.Porsche991IIGT3R
+                or CarType.Ferrari488GT3Evo
+                or CarType.MercedesAMGGT3Evo
+                or CarType.BMWM4GT3
+                or CarType.AudiR8LMSGT3Evo2
+                or CarType.Ferrari296GT3
+                or CarType.LamborghiniHuracanEvo2
+                or CarType.Porsche992GT3R => CarClass.GT3,
 
-                case CarType.Ferrari488ChallengeEvo:
-                    return CarClass.CHL;
+                CarType.Ferrari488ChallengeEvo => CarClass.CHL,
+                CarType.BMWM2CSRacing => CarClass.TCX,
+                CarType.Porsche991IIGT3Cup => CarClass.CUP17,
+                CarType.Porsche992GT3Cup => CarClass.CUP21,
+                CarType.LamborghiniHuracanST2015 => CarClass.ST15,
+                CarType.LamborghiniHuracanSTEvo2 => CarClass.ST21,
 
-                case CarType.BMWM2CSRacing:
-                    return CarClass.TCX;
+                CarType.AlpineA110GT4
+                or CarType.AMRV8VantageGT4
+                or CarType.AudiR8LMSGT4
+                or CarType.BMWM4GT4
+                or CarType.ChevroletCamaroGT4
+                or CarType.GinettaG55GT4
+                or CarType.KTMXbowGT4
+                or CarType.MaseratiMCGT4
+                or CarType.McLaren570SGT4
+                or CarType.MercedesAMGGT4
+                or CarType.Porsche718CaymanGT4 => CarClass.GT4,
 
-                case CarType.Porsche991IIGT3Cup:
-                    return CarClass.CUP17;
-
-                case CarType.Porsche992GT3Cup:
-                    return CarClass.CUP21;
-
-                case CarType.LamborghiniHuracanST2015:
-                    return CarClass.ST15;
-
-                case CarType.LamborghiniHuracanSTEvo2:
-                    return CarClass.ST21;
-
-                case CarType.AlpineA110GT4:
-                case CarType.AMRV8VantageGT4:
-                case CarType.AudiR8LMSGT4:
-                case CarType.BMWM4GT4:
-                case CarType.ChevroletCamaroGT4:
-                case CarType.GinettaG55GT4:
-                case CarType.KTMXbowGT4:
-                case CarType.MaseratiMCGT4:
-                case CarType.McLaren570SGT4:
-                case CarType.MercedesAMGGT4:
-                case CarType.Porsche718CaymanGT4:
-                    return CarClass.GT4;
-
-                default:
-                    return CarClass.Unknown;
-            }
+                _ => CarClass.Unknown
+            };
         }
 
-        internal static readonly EnumMap<CarType, CarGroup> Groups = new EnumMap<CarType, CarGroup>(GroupGenerator);
+        internal static readonly EnumMap<CarType, CarGroup> Groups = new(GroupGenerator);
         public static CarGroup Group(this CarType c) {
             return Groups[c];
         }
 
         private static CarGroup GroupGenerator(CarType c) {
-            switch (c.Class()) {
-                case CarClass.GT3:
-                    return CarGroup.GT3;
-
-                case CarClass.GT4:
-                    return CarGroup.GT4;
-
-                case CarClass.ST15:
-                case CarClass.ST21:
-                case CarClass.CUP17:
-                case CarClass.CUP21:
-                case CarClass.CHL:
-                    return CarGroup.GTC;
-
-                case CarClass.TCX:
-                    return CarGroup.TCX;
-
-                default:
-                    return CarGroup.Unknown;
-            }
+            return c.Class() switch {
+                CarClass.GT3 => CarGroup.GT3,
+                CarClass.GT4 => CarGroup.GT4,
+                CarClass.ST15
+                or CarClass.ST21
+                or CarClass.CUP17
+                or CarClass.CUP21
+                or CarClass.CHL => CarGroup.GTC,
+                CarClass.TCX => CarGroup.TCX,
+                _ => CarGroup.Unknown
+            };
         }
 
 
-        internal static readonly EnumMap<CarType, string> PrettyNames = new EnumMap<CarType, string>(PrettyNameGenerator);
+        internal static readonly EnumMap<CarType, string> PrettyNames = new(PrettyNameGenerator);
         public static string PrettyName(this CarType c) {
             return PrettyNames[c];
         }
 
         private static string PrettyNameGenerator(CarType c) {
-            switch (c) {
-                case CarType.Porsche991GT3R:
-                    return "Porsche 991 GT3 R";
-
-                case CarType.MercedesAMGGT3:
-                    return "Mercedes AMG-GT3";
-
-                case CarType.Ferrari488GT3:
-                    return "Ferrari 488 GT3";
-
-                case CarType.AudiR8LMSGT3:
-                    return "Audi R8 LMS GT3";
-
-                case CarType.LamborghiniHuracanGT3:
-                    return "Lamborghini Huracan GT3";
-
-                case CarType.McLaren650SGT3:
-                    return "McLaren 650S GT3";
-
-                case CarType.NissanGTRGT32018:
-                    return "Nissan GT-R GT3 18";
-
-                case CarType.BMWM6GT3:
-                    return "BMW M6 GT3";
-
-                case CarType.BentleyContinentalGT32018:
-                    return "Bentley Continental GT3 18";
-
-                case CarType.NissanGTRGT32017:
-                    return "Nissan GT-R GT3 17";
-
-                case CarType.BentleyContinentalGT32016:
-                    return "Bentley Continental GT3 16";
-
-                case CarType.AMRV12VantageGT3:
-                    return "Aston Martin V12 Vantage GT3";
-
-                case CarType.LamborghiniGallardoREX:
-                    return "Lamborghini Gallardo REX";
-
-                case CarType.JaguarG3:
-                    return "Emil Frey Jaguar G3";
-
-                case CarType.LexusRCFGT3:
-                    return "Lexus RC-F GT3";
-
-                case CarType.LamborghiniHuracanGT3Evo:
-                    return "Lamborghini Huracan GT3 EVO";
-
-                case CarType.HondaNSXGT3:
-                    return "Honda NSX GT3";
-
-                case CarType.AudiR8LMSGT3Evo:
-                    return "Audi R8 LMS GT3 evo";
-
-                case CarType.AMRV8VantageGT3:
-                    return "Aston Martin V8 Vantage GT3";
-
-                case CarType.HondaNSXGT3Evo:
-                    return "Honda NSX GT3 Evo";
-
-                case CarType.McLaren720SGT3:
-                    return "McLaren 720S GT3";
-
-                case CarType.Porsche991IIGT3R:
-                    return "Porsche 991II GT3 R";
-
-                case CarType.Ferrari488GT3Evo:
-                    return "Ferrari 488 GT3 EVO 2020";
-
-                case CarType.MercedesAMGGT3Evo:
-                    return "Mercedes AMG-GT3 20";
-
-                case CarType.BMWM4GT3:
-                    return "BMW M4 GT3";
-
-                case CarType.AudiR8LMSGT3Evo2:
-                    return "Audi R8 LMS GT3 evo II";
-
-                case CarType.Ferrari296GT3:
-                    return "Ferrari 296 GT3";
-
-                case CarType.LamborghiniHuracanEvo2:
-                    return "Lamborghini Huracan GT3 EVO2";
-
-                case CarType.Porsche992GT3R:
-                    return "Porsche 992 GT3 R";
-
-                case CarType.Ferrari488ChallengeEvo:
-                    return "Ferrari 488 Challenge Evo";
-
-                case CarType.BMWM2CSRacing:
-                    return "BMW M2 CS Racing";
-
-                case CarType.Porsche991IIGT3Cup:
-                    return "Porsche 991II GT3 Cup";
-
-                case CarType.Porsche992GT3Cup:
-                    return "Porsche 992 GT3 Cup";
-
-                case CarType.LamborghiniHuracanST2015:
-                    return "Lamborghini Huracan ST";
-
-                case CarType.LamborghiniHuracanSTEvo2:
-                    return "Lamborghini Huracan ST EVO2";
-
-                case CarType.AlpineA110GT4:
-                    return "Alpine A110 GT4";
-
-                case CarType.AMRV8VantageGT4:
-                    return "Aston Martin V8 Vantage GT4";
-
-                case CarType.AudiR8LMSGT4:
-                    return "Audi R8 LMS GT4";
-
-                case CarType.BMWM4GT4:
-                    return "BMW M4 GT4";
-
-                case CarType.ChevroletCamaroGT4:
-                    return "Chevrolet Camaro GT4";
-
-                case CarType.GinettaG55GT4:
-                    return "Ginetta G55 GT4";
-
-                case CarType.KTMXbowGT4:
-                    return "KTM X-Bow GT4";
-
-                case CarType.MaseratiMCGT4:
-                    return "Maserati MC GT4";
-
-                case CarType.McLaren570SGT4:
-                    return "McLaren 570S GT4";
-
-                case CarType.MercedesAMGGT4:
-                    return "Mercedes AMG-GT4";
-
-                case CarType.Porsche718CaymanGT4:
-                    return "Porsche 718 Cayman GT4";
-
-                default:
-                    return "Unknown";
-            }
+            return c switch {
+                CarType.Porsche991GT3R => "Porsche 991 GT3 R",
+                CarType.MercedesAMGGT3 => "Mercedes AMG-GT3",
+                CarType.Ferrari488GT3 => "Ferrari 488 GT3",
+                CarType.AudiR8LMSGT3 => "Audi R8 LMS GT3",
+                CarType.LamborghiniHuracanGT3 => "Lamborghini Huracan GT3",
+                CarType.McLaren650SGT3 => "McLaren 650S GT3",
+                CarType.NissanGTRGT32018 => "Nissan GT-R GT3 18",
+                CarType.BMWM6GT3 => "BMW M6 GT3",
+                CarType.BentleyContinentalGT32018 => "Bentley Continental GT3 18",
+                CarType.NissanGTRGT32017 => "Nissan GT-R GT3 17",
+                CarType.BentleyContinentalGT32016 => "Bentley Continental GT3 16",
+                CarType.AMRV12VantageGT3 => "Aston Martin V12 Vantage GT3",
+                CarType.LamborghiniGallardoREX => "Lamborghini Gallardo REX",
+                CarType.JaguarG3 => "Emil Frey Jaguar G3",
+                CarType.LexusRCFGT3 => "Lexus RC-F GT3",
+                CarType.LamborghiniHuracanGT3Evo => "Lamborghini Huracan GT3 EVO",
+                CarType.HondaNSXGT3 => "Honda NSX GT3",
+                CarType.AudiR8LMSGT3Evo => "Audi R8 LMS GT3 evo",
+                CarType.AMRV8VantageGT3 => "Aston Martin V8 Vantage GT3",
+                CarType.HondaNSXGT3Evo => "Honda NSX GT3 Evo",
+                CarType.McLaren720SGT3 => "McLaren 720S GT3",
+                CarType.Porsche991IIGT3R => "Porsche 991II GT3 R",
+                CarType.Ferrari488GT3Evo => "Ferrari 488 GT3 EVO 2020",
+                CarType.MercedesAMGGT3Evo => "Mercedes AMG-GT3 20",
+                CarType.BMWM4GT3 => "BMW M4 GT3",
+                CarType.AudiR8LMSGT3Evo2 => "Audi R8 LMS GT3 evo II",
+                CarType.Ferrari296GT3 => "Ferrari 296 GT3",
+                CarType.LamborghiniHuracanEvo2 => "Lamborghini Huracan GT3 EVO2",
+                CarType.Porsche992GT3R => "Porsche 992 GT3 R",
+                CarType.Ferrari488ChallengeEvo => "Ferrari 488 Challenge Evo",
+                CarType.BMWM2CSRacing => "BMW M2 CS Racing",
+                CarType.Porsche991IIGT3Cup => "Porsche 991II GT3 Cup",
+                CarType.Porsche992GT3Cup => "Porsche 992 GT3 Cup",
+                CarType.LamborghiniHuracanST2015 => "Lamborghini Huracan ST",
+                CarType.LamborghiniHuracanSTEvo2 => "Lamborghini Huracan ST EVO2",
+                CarType.AlpineA110GT4 => "Alpine A110 GT4",
+                CarType.AMRV8VantageGT4 => "Aston Martin V8 Vantage GT4",
+                CarType.AudiR8LMSGT4 => "Audi R8 LMS GT4",
+                CarType.BMWM4GT4 => "BMW M4 GT4",
+                CarType.ChevroletCamaroGT4 => "Chevrolet Camaro GT4",
+                CarType.GinettaG55GT4 => "Ginetta G55 GT4",
+                CarType.KTMXbowGT4 => "KTM X-Bow GT4",
+                CarType.MaseratiMCGT4 => "Maserati MC GT4",
+                CarType.McLaren570SGT4 => "McLaren 570S GT4",
+                CarType.MercedesAMGGT4 => "Mercedes AMG-GT4",
+                CarType.Porsche718CaymanGT4 => "Porsche 718 Cayman GT4",
+                _ => "Unknown",
+            };
         }
 
 
-        internal static readonly EnumMap<CarType, string> Marks = new EnumMap<CarType, string>(MarkGenerator);
+        internal static readonly EnumMap<CarType, string> Marks = new(MarkGenerator);
         public static string Mark(this CarType c) {
             return Marks[c];
         }
 
         private static string MarkGenerator(CarType c) {
-            switch (c) {
-                case CarType.Porsche991GT3R:
-                case CarType.Porsche991IIGT3R:
-                case CarType.Porsche991IIGT3Cup:
-                case CarType.Porsche992GT3Cup:
-                case CarType.Porsche718CaymanGT4:
-                case CarType.Porsche992GT3R:
-                    return "Porsche";
+            return c switch {
+                CarType.Porsche991GT3R
+                or CarType.Porsche991IIGT3R
+                or CarType.Porsche991IIGT3Cup
+                or CarType.Porsche992GT3Cup
+                or CarType.Porsche718CaymanGT4
+                or CarType.Porsche992GT3R => "Porsche",
 
-                case CarType.MercedesAMGGT3:
-                case CarType.MercedesAMGGT3Evo:
-                case CarType.MercedesAMGGT4:
-                    return "Mercedes";
+                CarType.MercedesAMGGT3
+                or CarType.MercedesAMGGT3Evo
+                or CarType.MercedesAMGGT4 => "Mercedes",
 
-                case CarType.Ferrari488GT3:
-                case CarType.Ferrari488GT3Evo:
-                case CarType.Ferrari488ChallengeEvo:
-                case CarType.Ferrari296GT3:
-                    return "Ferrari";
+                CarType.Ferrari488GT3
+                or CarType.Ferrari488GT3Evo
+                or CarType.Ferrari488ChallengeEvo
+                or CarType.Ferrari296GT3 => "Ferrari",
 
-                case CarType.AudiR8LMSGT3:
-                case CarType.AudiR8LMSGT3Evo:
-                case CarType.AudiR8LMSGT3Evo2:
-                case CarType.AudiR8LMSGT4:
-                    return "Audi";
+                CarType.AudiR8LMSGT3
+                or CarType.AudiR8LMSGT3Evo
+                or CarType.AudiR8LMSGT3Evo2
+                or CarType.AudiR8LMSGT4 => "Audi",
 
-                case CarType.LamborghiniHuracanGT3:
-                case CarType.LamborghiniGallardoREX:
-                case CarType.LamborghiniHuracanGT3Evo:
-                case CarType.LamborghiniHuracanST2015:
-                case CarType.LamborghiniHuracanSTEvo2:
-                case CarType.LamborghiniHuracanEvo2:
-                    return "Lamborghini";
+                CarType.LamborghiniHuracanGT3
+                or CarType.LamborghiniGallardoREX
+                or CarType.LamborghiniHuracanGT3Evo
+                or CarType.LamborghiniHuracanST2015
+                or CarType.LamborghiniHuracanSTEvo2
+                or CarType.LamborghiniHuracanEvo2 => "Lamborghini",
 
-                case CarType.McLaren720SGT3:
-                case CarType.McLaren650SGT3:
-                case CarType.McLaren570SGT4:
-                    return "McLaren";
+                CarType.McLaren720SGT3
+                or CarType.McLaren650SGT3
+                or CarType.McLaren570SGT4 => "McLaren",
 
-                case CarType.NissanGTRGT32018:
-                case CarType.NissanGTRGT32017:
-                    return "Nissan";
+                CarType.NissanGTRGT32018
+                or CarType.NissanGTRGT32017 => "Nissan",
 
-                case CarType.BMWM6GT3:
-                case CarType.BMWM4GT3:
-                case CarType.BMWM2CSRacing:
-                case CarType.BMWM4GT4:
-                    return "BMW";
+                CarType.BMWM6GT3
+                or CarType.BMWM4GT3
+                or CarType.BMWM2CSRacing
+                or CarType.BMWM4GT4 => "BMW",
 
-                case CarType.BentleyContinentalGT32018:
-                case CarType.BentleyContinentalGT32016:
-                    return "Bentley";
+                CarType.BentleyContinentalGT32018
+                or CarType.BentleyContinentalGT32016 => "Bentley",
 
-                case CarType.AMRV12VantageGT3:
-                case CarType.AMRV8VantageGT3:
-                case CarType.AMRV8VantageGT4:
-                    return "Aston Martin";
+                CarType.AMRV12VantageGT3
+                or CarType.AMRV8VantageGT3
+                or CarType.AMRV8VantageGT4 => "Aston Martin",
 
-                case CarType.JaguarG3:
-                    return "Jaguar";
+                CarType.JaguarG3 => "Jaguar",
+                CarType.LexusRCFGT3 => "Lexus",
 
-                case CarType.LexusRCFGT3:
-                    return "Lexus";
+                CarType.HondaNSXGT3
+                or CarType.HondaNSXGT3Evo => "Honda",
 
-                case CarType.HondaNSXGT3:
-                case CarType.HondaNSXGT3Evo:
-                    return "Honda";
-
-                case CarType.AlpineA110GT4:
-                    return "Alpine";
-
-                case CarType.ChevroletCamaroGT4:
-                    return "Chevrolet";
-
-                case CarType.GinettaG55GT4:
-                    return "Ginetta";
-
-                case CarType.KTMXbowGT4:
-                    return "KTM";
-
-                case CarType.MaseratiMCGT4:
-                    return "Maserati";
-
-                default:
-                    return "Unknown";
-            }
+                CarType.AlpineA110GT4 => "Alpine",
+                CarType.ChevroletCamaroGT4 => "Chevrolet",
+                CarType.GinettaG55GT4 => "Ginetta",
+                CarType.KTMXbowGT4 => "KTM",
+                CarType.MaseratiMCGT4 => "Maserati",
+                _ => "Unknown",
+            };
         }
 
-        private static readonly EnumMap<CarClass, string> ACCClassColors = new EnumMap<CarClass, string>(ACCClassColorGenerator);
+        private static readonly EnumMap<CarClass, string> _accClassColors = new(ACCClassColorGenerator);
         public static string ACCColor(this CarClass c) {
-            return ACCClassColors[c];
+            return _accClassColors[c];
         }
 
         private static string ACCClassColorGenerator(CarClass c) {
-            switch (c) {
-                case CarClass.GT3:
-                    return $"#FF000000";
-
-                case CarClass.GT4:
-                    return "#FF262660";
-
-                case CarClass.CUP17:
-                    return "#FF457C45";
-
-                case CarClass.CUP21:
-                    return "#FF284C28";
-
-                case CarClass.ST15:
-                    return "#FFCCBA00";
-
-                case CarClass.ST21:
-                    return "#FF988A00";
-
-                case CarClass.CHL:
-                    return "#FFB90000";
-
-                case CarClass.TCX:
-                    return "#FF007CA7";
-
-                default:
-                    return "#FF000000";
-            }
+            return c switch {
+                CarClass.GT3 => $"#FF000000",
+                CarClass.GT4 => "#FF262660",
+                CarClass.CUP17 => "#FF457C45",
+                CarClass.CUP21 => "#FF284C28",
+                CarClass.ST15 => "#FFCCBA00",
+                CarClass.ST21 => "#FF988A00",
+                CarClass.CHL => "#FFB90000",
+                CarClass.TCX => "#FF007CA7",
+                _ => "#FF000000",
+            };
         }
 
-        private static readonly EnumMap<CarClass, string> CarClassStrings = new EnumMap<CarClass, string>((e) => e.ToString());
+        private static readonly EnumMap<CarClass, string> _carClassStrings = new((e) => e.ToString());
         public static string PrettyName(this CarClass c) {
-            return CarClassStrings[c];
+            return _carClassStrings[c];
         }
 
-        private static readonly EnumMap<TeamCupCategory, string> TeamCupCategoryStrings = new EnumMap<TeamCupCategory, string>((e) => e.ToString());
+        private static readonly EnumMap<TeamCupCategory, string> _teamCupCategoryStrings = new((e) => e.ToString());
         public static string PrettyName(this TeamCupCategory c) {
-            return TeamCupCategoryStrings[c];
+            return _teamCupCategoryStrings[c];
         }
 
 
-        private static readonly EnumMap<TeamCupCategory, string> ACCCupCategoryColors = new EnumMap<TeamCupCategory, string>(ACCCupCategoryColorsGenerator);
+        private static readonly EnumMap<TeamCupCategory, string> _accCupCategoryColors = new(ACCCupCategoryColorsGenerator);
         public static string ACCColor(this TeamCupCategory c) {
-            return ACCCupCategoryColors[c];
+            return _accCupCategoryColors[c];
         }
 
         public static string ACCCupCategoryColorsGenerator(this TeamCupCategory c) {
-            switch (c) {
-                case TeamCupCategory.Overall:
-                    return "#FFFFFFFF";
-
-                case TeamCupCategory.ProAm:
-                    return "#FF000000";
-
-                case TeamCupCategory.Am:
-                    return "#FFE80000";
-
-                case TeamCupCategory.Silver:
-                    return "#FF666666";
-
-                case TeamCupCategory.National:
-                    return "#FF008F4B";
-
-                default:
-                    return "#FF000000";
-            }
+            return c switch {
+                TeamCupCategory.Overall => "#FFFFFFFF",
+                TeamCupCategory.ProAm => "#FF000000",
+                TeamCupCategory.Am => "#FFE80000",
+                TeamCupCategory.Silver => "#FF666666",
+                TeamCupCategory.National => "#FF008F4B",
+                _ => "#FF000000",
+            };
         }
 
-        private static readonly EnumMap<TeamCupCategory, string> ACCCupCategoryTextColors = new EnumMap<TeamCupCategory, string>(ACCCupCategoryTextColorsGenerator);
+        private static readonly EnumMap<TeamCupCategory, string> _accCupCategoryTextColors = new(ACCCupCategoryTextColorsGenerator);
         public static string ACCTextColor(this TeamCupCategory c) {
-            return ACCCupCategoryTextColors[c];
+            return _accCupCategoryTextColors[c];
         }
 
         public static string ACCCupCategoryTextColorsGenerator(this TeamCupCategory c) {
-            switch (c) {
-                case TeamCupCategory.Overall:
-                    return "#FF000000";
-
-                case TeamCupCategory.ProAm:
-                    return "#FFFFFFFF";
-
-                case TeamCupCategory.Am:
-                    return "#FF000000";
-
-                case TeamCupCategory.Silver:
-                    return "#FFFFFFFF";
-
-                case TeamCupCategory.National:
-                    return "#FFFFFFFF";
-
-                default:
-                    return "#FF000000";
-            }
+            return c switch {
+                TeamCupCategory.Overall => "#FF000000",
+                TeamCupCategory.ProAm => "#FFFFFFFF",
+                TeamCupCategory.Am => "#FF000000",
+                TeamCupCategory.Silver => "#FFFFFFFF",
+                TeamCupCategory.National => "#FFFFFFFF",
+                _ => "#FF000000",
+            };
         }
     }
 }

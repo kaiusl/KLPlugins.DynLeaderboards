@@ -1,8 +1,4 @@
-﻿using KLPlugins.DynLeaderboards.Car;
-using KLPlugins.DynLeaderboards.ksBroadcastingNetwork;
-using MahApps.Metro.Controls;
-using SimHub.Plugins.Styles;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -10,6 +6,14 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Media;
+
+using KLPlugins.DynLeaderboards.Car;
+using KLPlugins.DynLeaderboards.ksBroadcastingNetwork;
+
+using MahApps.Metro.Controls;
+
+using SimHub.Plugins.Styles;
+
 using Xceed.Wpf.Toolkit;
 
 namespace KLPlugins.DynLeaderboards.Settings {
@@ -19,10 +23,10 @@ namespace KLPlugins.DynLeaderboards.Settings {
         internal PluginSettings Settings { get => DynLeaderboardsPlugin.Settings; }
         internal DynLeaderboardConfig CurrentDynLeaderboardSettings { get; private set; }
 
-        private Dictionary<CarClass, ColorPicker> _classColorPickers = new Dictionary<CarClass, ColorPicker>(8);
-        private Dictionary<TeamCupCategory, ColorPicker> _cupColorPickers = new Dictionary<TeamCupCategory, ColorPicker>(5);
-        private Dictionary<TeamCupCategory, ColorPicker> _cupTextColorPickers = new Dictionary<TeamCupCategory, ColorPicker>(5);
-        private Dictionary<DriverCategory, ColorPicker> _driverCategoryColorPickers = new Dictionary<DriverCategory, ColorPicker>(4);
+        private readonly Dictionary<CarClass, ColorPicker> _classColorPickers = new(8);
+        private readonly Dictionary<TeamCupCategory, ColorPicker> _cupColorPickers = new(5);
+        private readonly Dictionary<TeamCupCategory, ColorPicker> _cupTextColorPickers = new(5);
+        private readonly Dictionary<DriverCategory, ColorPicker> _driverCategoryColorPickers = new(4);
 
         //internal SettingsControl() {
         //    InitializeComponent();
@@ -92,25 +96,29 @@ namespace KLPlugins.DynLeaderboards.Settings {
                 if (cls == CarClass.Unknown || cls == CarClass.Overall)
                     continue;
 
-                var sp = new StackPanel();
-                sp.Orientation = Orientation.Horizontal;
+                var sp = new StackPanel {
+                    Orientation = Orientation.Horizontal
+                };
 
-                var t = new TextBlock();
-                t.Text = cls.ToString() + ": ";
-                t.Width = 60;
+                var t = new TextBlock {
+                    Text = cls.ToString() + ": ",
+                    Width = 60
+                };
 
-                var cp = new ColorPicker();
-                cp.Width = 100;
-                cp.Height = 25;
-                cp.SelectedColor = (Color)ColorConverter.ConvertFromString(DynLeaderboardsPlugin.Settings.CarClassColors[cls]);
+                var cp = new ColorPicker {
+                    Width = 100,
+                    Height = 25,
+                    SelectedColor = (Color)ColorConverter.ConvertFromString(DynLeaderboardsPlugin.Settings.CarClassColors[cls])
+                };
                 cp.SelectedColorChanged += (sender, e) => SelectedColorChanged(sender, e, cls, DynLeaderboardsPlugin.Settings.CarClassColors);
 
                 _classColorPickers.Add(cls, cp);
 
-                var btn = new SHButtonPrimary();
-                btn.Content = "Reset";
+                var btn = new SHButtonPrimary {
+                    Content = "Reset",
+                    Height = 25
+                };
                 btn.Click += (sender, e) => ClassColorPickerReset(cls);
-                btn.Height = 25;
 
                 sp.Children.Add(t);
                 sp.Children.Add(cp);
@@ -121,16 +129,19 @@ namespace KLPlugins.DynLeaderboards.Settings {
         }
 
         private void AddTeamCupColors() {
-            var sp = new StackPanel();
-            sp.Orientation = Orientation.Horizontal;
+            var sp = new StackPanel {
+                Orientation = Orientation.Horizontal
+            };
 
-            var t = new TextBlock();
-            t.Text = "Background";
-            t.Width = 190;
-            t.Margin = new Thickness(65, 0, 0, 0);
-            var t2 = new TextBlock();
-            t2.Text = "Text";
-            t2.Width = 100;
+            var t = new TextBlock {
+                Text = "Background",
+                Width = 190,
+                Margin = new Thickness(65, 0, 0, 0)
+            };
+            var t2 = new TextBlock {
+                Text = "Text",
+                Width = 100
+            };
 
             sp.Children.Add(t);
             sp.Children.Add(t2);
@@ -139,35 +150,41 @@ namespace KLPlugins.DynLeaderboards.Settings {
             foreach (var c in Enum.GetValues(typeof(TeamCupCategory))) {
                 var cup = (TeamCupCategory)c;
 
-                sp = new StackPanel();
-                sp.Orientation = Orientation.Horizontal;
+                sp = new StackPanel {
+                    Orientation = Orientation.Horizontal
+                };
 
-                t = new TextBlock();
-                t.Text = cup.ToString() + ": ";
-                t.Width = 60;
+                t = new TextBlock {
+                    Text = cup.ToString() + ": ",
+                    Width = 60
+                };
 
-                var cp1 = new ColorPicker();
-                cp1.Width = 100;
-                cp1.Height = 25;
-                cp1.SelectedColor = (Color)ColorConverter.ConvertFromString(DynLeaderboardsPlugin.Settings.TeamCupCategoryColors[cup]);
+                var cp1 = new ColorPicker {
+                    Width = 100,
+                    Height = 25,
+                    SelectedColor = (Color)ColorConverter.ConvertFromString(DynLeaderboardsPlugin.Settings.TeamCupCategoryColors[cup])
+                };
                 cp1.SelectedColorChanged += (sender, e) => SelectedColorChanged(sender, e, cup, DynLeaderboardsPlugin.Settings.TeamCupCategoryColors);
                 _cupColorPickers.Add(cup, cp1);
 
-                var btn1 = new SHButtonPrimary();
-                btn1.Content = "Reset";
+                var btn1 = new SHButtonPrimary {
+                    Content = "Reset"
+                };
                 btn1.Click += (sender, e) => TeamCupColorPickerReset(cup);
                 btn1.Height = 25;
 
-                var cp2 = new ColorPicker();
-                cp2.Margin = new Thickness(25, 0, 0, 0);
-                cp2.Width = 100;
-                cp2.Height = 25;
-                cp2.SelectedColor = (Color)ColorConverter.ConvertFromString(DynLeaderboardsPlugin.Settings.TeamCupCategoryTextColors[cup]);
+                var cp2 = new ColorPicker {
+                    Margin = new Thickness(25, 0, 0, 0),
+                    Width = 100,
+                    Height = 25,
+                    SelectedColor = (Color)ColorConverter.ConvertFromString(DynLeaderboardsPlugin.Settings.TeamCupCategoryTextColors[cup])
+                };
                 cp2.SelectedColorChanged += (sender, e) => SelectedColorChanged(sender, e, cup, DynLeaderboardsPlugin.Settings.TeamCupCategoryTextColors);
                 _cupTextColorPickers.Add(cup, cp2);
 
-                var btn2 = new SHButtonPrimary();
-                btn2.Content = "Reset";
+                var btn2 = new SHButtonPrimary {
+                    Content = "Reset"
+                };
                 btn2.Click += (sender, e) => TeamCupTextColorPickerReset(cup);
                 btn2.Height = 25;
 
@@ -187,23 +204,27 @@ namespace KLPlugins.DynLeaderboards.Settings {
                 if (cls == DriverCategory.Error)
                     continue;
 
-                var sp = new StackPanel();
-                sp.Orientation = Orientation.Horizontal;
+                var sp = new StackPanel {
+                    Orientation = Orientation.Horizontal
+                };
 
-                var t = new TextBlock();
-                t.Text = cls.ToString() + ": ";
-                t.Width = 60;
+                var t = new TextBlock {
+                    Text = cls.ToString() + ": ",
+                    Width = 60
+                };
 
-                var cp = new ColorPicker();
-                cp.Width = 100;
-                cp.Height = 25;
-                cp.SelectedColor = (Color)ColorConverter.ConvertFromString(DynLeaderboardsPlugin.Settings.DriverCategoryColors[cls]);
+                var cp = new ColorPicker {
+                    Width = 100,
+                    Height = 25,
+                    SelectedColor = (Color)ColorConverter.ConvertFromString(DynLeaderboardsPlugin.Settings.DriverCategoryColors[cls])
+                };
                 cp.SelectedColorChanged += (sender, e) => SelectedColorChanged(sender, e, cls, DynLeaderboardsPlugin.Settings.DriverCategoryColors);
 
                 _driverCategoryColorPickers.Add(cls, cp);
 
-                var btn = new SHButtonPrimary();
-                btn.Content = "Reset";
+                var btn = new SHButtonPrimary {
+                    Content = "Reset"
+                };
                 btn.Click += (sender, e) => DriverCategoryColorPickerReset(cls);
                 btn.Height = 25;
 
@@ -228,7 +249,7 @@ namespace KLPlugins.DynLeaderboards.Settings {
             DynLeaderboardsPlugin.Settings.Log = !DynLeaderboardsPlugin.Settings.Log;
         }
 
-        private void SelectedColorChanged<T>(object sender, RoutedPropertyChangedEventArgs<Color?> e, T c, Dictionary<T, string> settingsColors) {
+        private void SelectedColorChanged<T>(object _, RoutedPropertyChangedEventArgs<Color?> e, T c, Dictionary<T, string> settingsColors) {
             if (e.NewValue != null) {
                 var newColor = (Color)e.NewValue;
                 settingsColors[c] = newColor.ToString();
@@ -264,8 +285,9 @@ namespace KLPlugins.DynLeaderboards.Settings {
         #region Dynamic leaderboard
 
         private void AddSelectDynLeaderboard_ComboBoxItem(DynLeaderboardConfig l) {
-            var row = new StackPanel();
-            row.Orientation = Orientation.Horizontal;
+            var row = new StackPanel {
+                Orientation = Orientation.Horizontal
+            };
 
             var nameBox = new TextBox {
                 Width = 200,
@@ -315,9 +337,10 @@ namespace KLPlugins.DynLeaderboards.Settings {
                 Margin = new Thickness(5, 0, 0, 0)
             };
 
-            var isEnabled = new SHToggleButton();
-            isEnabled.Name = $"{l.Name}_is_disabled_toggle";
-            isEnabled.IsChecked = l.IsEnabled;
+            var isEnabled = new SHToggleButton {
+                Name = $"{l.Name}_is_disabled_toggle",
+                IsChecked = l.IsEnabled
+            };
             isEnabled.Checked += (a, b) => l.IsEnabled = true;
             isEnabled.Unchecked += (a, b) => l.IsEnabled = false;
 
@@ -357,8 +380,9 @@ namespace KLPlugins.DynLeaderboards.Settings {
             NumPositions_StackPanel.Children.Clear();
 
             void AddSmallTitle(string name) {
-                var t = new SHSmallTitle();
-                t.Content = name;
+                var t = new SHSmallTitle {
+                    Content = name
+                };
                 NumPositions_StackPanel.Children.Add(t);
             }
 
@@ -498,31 +522,35 @@ namespace KLPlugins.DynLeaderboards.Settings {
             int max,
             int interval
         ) {
-            var sp = new StackPanel();
-            sp.Orientation = Orientation.Horizontal;
-            sp.ToolTip = tooltip;
+            var sp = new StackPanel {
+                Orientation = Orientation.Horizontal,
+                ToolTip = tooltip
+            };
 
-            var t = new TextBlock();
-            t.HorizontalAlignment = HorizontalAlignment.Left;
-            t.VerticalAlignment = VerticalAlignment.Center;
-            t.TextWrapping = TextWrapping.Wrap;
-            t.Width = 200;
-            t.Margin = new Thickness(3, 3, 3, 3);
-            t.Text = name;
+            var t = new TextBlock {
+                HorizontalAlignment = HorizontalAlignment.Left,
+                VerticalAlignment = VerticalAlignment.Center,
+                TextWrapping = TextWrapping.Wrap,
+                Width = 200,
+                Margin = new Thickness(3, 3, 3, 3),
+                Text = name
+            };
 
-            var num = new NumericUpDown();
-            num.HorizontalAlignment = HorizontalAlignment.Left;
-            num.VerticalAlignment = VerticalAlignment.Center;
-            num.Height = 25;
-            num.Width = 100;
-            num.HasDecimals = false;
-            num.Minimum = min;
-            num.Maximum = max;
-            num.Interval = interval;
-            num.Margin = new Thickness(3, 3, 3, 3);
-            var bind = new Binding(settingsPropertyName);
-            bind.Source = CurrentDynLeaderboardSettings;
-            bind.Mode = BindingMode.TwoWay;
+            var num = new NumericUpDown {
+                HorizontalAlignment = HorizontalAlignment.Left,
+                VerticalAlignment = VerticalAlignment.Center,
+                Height = 25,
+                Width = 100,
+                HasDecimals = false,
+                Minimum = min,
+                Maximum = max,
+                Interval = interval,
+                Margin = new Thickness(3, 3, 3, 3)
+            };
+            var bind = new Binding(settingsPropertyName) {
+                Source = CurrentDynLeaderboardSettings,
+                Mode = BindingMode.TwoWay
+            };
             num.SetBinding(NumericUpDown.ValueProperty, bind);
 
             sp.Children.Add(t);
@@ -535,18 +563,21 @@ namespace KLPlugins.DynLeaderboards.Settings {
             DynLeaderboards_ListView.Items.Clear();
             // Add currently selected leaderboards
             foreach (var l in CurrentDynLeaderboardSettings.Order) {
-                var sp = new StackPanel();
-                sp.Orientation = Orientation.Horizontal;
-                sp.ToolTip = l.Tooltip();
+                var sp = new StackPanel {
+                    Orientation = Orientation.Horizontal,
+                    ToolTip = l.Tooltip()
+                };
 
-                var tb = new SHToggleButton();
-                tb.Name = $"{l}_toggle_listview";
-                tb.IsChecked = true;
+                var tb = new SHToggleButton {
+                    Name = $"{l}_toggle_listview",
+                    IsChecked = true
+                };
                 tb.Checked += (a, b) => CreateDynamicLeaderboardList();
                 tb.Unchecked += (a, b) => CreateDynamicLeaderboardList();
 
-                var t = new TextBlock();
-                t.Text = l.ToString();
+                var t = new TextBlock {
+                    Text = l.ToString()
+                };
 
                 sp.Children.Add(tb);
                 sp.Children.Add(t);
@@ -558,18 +589,21 @@ namespace KLPlugins.DynLeaderboards.Settings {
             foreach (var l in (Leaderboard[])Enum.GetValues(typeof(Leaderboard))) {
                 if (l == Leaderboard.None || CurrentDynLeaderboardSettings.Order.Contains(l))
                     continue;
-                var sp = new StackPanel();
-                sp.Orientation = Orientation.Horizontal;
+                var sp = new StackPanel {
+                    Orientation = Orientation.Horizontal
+                };
 
-                var tb = new SHToggleButton();
-                tb.Name = $"{l}_toggle_listview";
-                tb.IsChecked = false;
+                var tb = new SHToggleButton {
+                    Name = $"{l}_toggle_listview",
+                    IsChecked = false
+                };
                 tb.Checked += (a, b) => CreateDynamicLeaderboardList();
                 tb.Unchecked += (a, b) => CreateDynamicLeaderboardList();
                 //tb.ToolTip = tooltip;
 
-                var t = new TextBlock();
-                t.Text = l.ToString();
+                var t = new TextBlock {
+                    Text = l.ToString()
+                };
 
                 sp.Children.Add(tb);
                 sp.Children.Add(t);
@@ -649,9 +683,10 @@ namespace KLPlugins.DynLeaderboards.Settings {
             OutLapProps_StackPanel.Children.Clear();
 
             void AddSmallTitle(string name) {
-                var t = new SHSmallTitle();
-                t.Content = name;
-                t.Margin = new Thickness(25, 0, 0, 0);
+                var t = new SHSmallTitle {
+                    Content = name,
+                    Margin = new Thickness(25, 0, 0, 0)
+                };
                 OutLapProps_StackPanel.Children.Add(t);
             }
 
@@ -715,9 +750,10 @@ namespace KLPlugins.DynLeaderboards.Settings {
             OutGapsProps_StackPanel.Children.Clear();
             // Add Gap Properties
             void AddSmallTitle(string name) {
-                var t = new SHSmallTitle();
-                t.Content = name;
-                t.Margin = new Thickness(25, 0, 0, 0);
+                var t = new SHSmallTitle {
+                    Content = name,
+                    Margin = new Thickness(25, 0, 0, 0)
+                };
                 OutGapsProps_StackPanel.Children.Add(t);
             }
 
@@ -792,12 +828,14 @@ namespace KLPlugins.DynLeaderboards.Settings {
                     continue;
 
                 if (v == OutDriverProp.FirstName) {
-                    var stitle = new SHSmallTitle();
-                    stitle.Content = "Names";
+                    var stitle = new SHSmallTitle {
+                        Content = "Names"
+                    };
                     ExposedDriverProperties_StackPanel.Children.Add(stitle);
                 } else if (v == OutDriverProp.Nationality) {
-                    var stitle = new SHSmallTitle();
-                    stitle.Content = "Other";
+                    var stitle = new SHSmallTitle {
+                        Content = "Other"
+                    };
                     ExposedDriverProperties_StackPanel.Children.Add(stitle);
                 }
 
@@ -815,19 +853,23 @@ namespace KLPlugins.DynLeaderboards.Settings {
         }
 
         private StackPanel CreatePropertyTogglesDescriptionRow() {
-            var sp = new StackPanel();
-            sp.Orientation = Orientation.Horizontal;
+            var sp = new StackPanel {
+                Orientation = Orientation.Horizontal
+            };
 
-            var t1 = new TextBlock();
-            t1.Width = 70;
+            var t1 = new TextBlock {
+                Width = 70
+            };
 
-            var t = new TextBlock();
-            t.Text = "Property name";
-            t.Width = 250;
-            var t2 = new TextBlock();
-            t2.Text = "Description";
-            t2.MaxWidth = 750;
-            t2.TextWrapping = TextWrapping.Wrap;
+            var t = new TextBlock {
+                Text = "Property name",
+                Width = 250
+            };
+            var t2 = new TextBlock {
+                Text = "Description",
+                MaxWidth = 750,
+                TextWrapping = TextWrapping.Wrap
+            };
 
             sp.Children.Add(t1);
             sp.Children.Add(t);
@@ -846,24 +888,28 @@ namespace KLPlugins.DynLeaderboards.Settings {
             RoutedEventHandler uncheckHandler,
             string tooltip
         ) {
-            var sp = new StackPanel();
-            sp.Orientation = Orientation.Horizontal;
+            var sp = new StackPanel {
+                Orientation = Orientation.Horizontal
+            };
 
-            var tb = new SHToggleButton();
-            tb.Name = $"{name}_toggle";
-            tb.IsChecked = isChecked;
+            var tb = new SHToggleButton {
+                Name = $"{name}_toggle",
+                IsChecked = isChecked
+            };
             tb.Checked += checkHandler;
             tb.Unchecked += uncheckHandler;
             tb.ToolTip = tooltip;
 
-            var t = new TextBlock();
-            t.Text = displayName;
-            t.ToolTip = tooltip;
-            t.Width = 250;
-            var t2 = new TextBlock();
-            t2.Text = tooltip;
-            t2.MaxWidth = 500;
-            t2.TextWrapping = TextWrapping.Wrap;
+            var t = new TextBlock {
+                Text = displayName,
+                ToolTip = tooltip,
+                Width = 250
+            };
+            var t2 = new TextBlock {
+                Text = tooltip,
+                MaxWidth = 500,
+                TextWrapping = TextWrapping.Wrap
+            };
 
             sp.Children.Add(tb);
             sp.Children.Add(t);
@@ -876,10 +922,11 @@ namespace KLPlugins.DynLeaderboards.Settings {
         /// Creates separator to insert between property toggle rows.
         /// </summary>
         private Separator CreateToggleSeparator() {
-            var s = new Separator();
-            s.Background = Brushes.LightGray;
-            s.Height = 1;
-            s.Margin = new Thickness(25, 0, 25, 0);
+            var s = new Separator {
+                Background = Brushes.LightGray,
+                Height = 1,
+                Margin = new Thickness(25, 0, 25, 0)
+            };
             return s;
         }
 

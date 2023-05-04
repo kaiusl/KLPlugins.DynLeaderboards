@@ -21,39 +21,39 @@ namespace KLPlugins.DynLeaderboards.Helpers {
     }
 
     class Timer {
-        Stopwatch watch;
-        FileStream? file;
-        StreamWriter? writer;
+        private readonly Stopwatch _watch;
+        private FileStream? _file;
+        private StreamWriter? _writer;
 
         internal Timer(string path) {
-            watch = new Stopwatch();
+            _watch = new Stopwatch();
             Directory.CreateDirectory(Path.GetDirectoryName(path));
-            file = File.Create(path);
-            writer = new StreamWriter(file);
+            _file = File.Create(path);
+            _writer = new StreamWriter(_file);
         }
 
         internal void Restart() {
-            watch.Restart();
+            _watch.Restart();
         }
 
         internal void Stop() {
-            watch.Stop();
+            _watch.Stop();
         }
 
         internal double Millis() {
-            return watch.Elapsed.TotalMilliseconds;
+            return _watch.Elapsed.TotalMilliseconds;
         }
 
         internal double Micros() {
-            return watch.Elapsed.TotalMilliseconds * 1_000.0;
+            return _watch.Elapsed.TotalMilliseconds * 1_000.0;
         }
 
         internal double Nanos() {
-            return watch.Elapsed.TotalMilliseconds * 1_000_000.0;
+            return _watch.Elapsed.TotalMilliseconds * 1_000_000.0;
         }
 
         internal void Write(double elapsed) {
-            writer?.WriteLine($"{elapsed}");
+            _writer?.WriteLine($"{elapsed}");
         }
 
         internal double StopAndWriteMicros() {
@@ -64,22 +64,22 @@ namespace KLPlugins.DynLeaderboards.Helpers {
         }
 
         internal void Dispose() {
-            watch.Stop();
-            if (writer != null) {
-                writer.Dispose();
-                writer = null;
+            _watch.Stop();
+            if (_writer != null) {
+                _writer.Dispose();
+                _writer = null;
             }
-            if (file != null) {
-                file.Dispose();
-                file = null;
+            if (_file != null) {
+                _file.Dispose();
+                _file = null;
             }
         }
     }
 
     internal class Timers {
 
-        Dictionary<string, Timer> _watches = new Dictionary<string, Timer>();
-        string _rootPath;
+        private readonly Dictionary<string, Timer> _watches = new();
+        private readonly string _rootPath;
 
         internal Timers(string rootPath) {
             _rootPath = rootPath;

@@ -6,8 +6,6 @@ using System.Text;
 using KLPlugins.DynLeaderboards.Car;
 using KLPlugins.DynLeaderboards.Track;
 
-#nullable enable
-
 namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork {
     internal class BroadcastingNetworkProtocol {
 
@@ -52,8 +50,8 @@ namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork {
         public int ConnectionId { get; private set; }
 
         private double _trackSplinePosOffset = 0.0;
-        private string _connectionIdentifier;
-        private SendMessageDelegate _send;
+        private readonly string _connectionIdentifier;
+        private readonly SendMessageDelegate _send;
         internal delegate void SendMessageDelegate(byte[] payload);
 
         #region Events
@@ -80,22 +78,19 @@ namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork {
 
         // To avoid huge UDP pakets for longer entry lists, we will first receive the indexes of cars and drivers,
         // cache the entries and wait for the detailled updates
-        private List<CarInfoMinimal> EntryListCars = new List<CarInfoMinimal>();
+        private readonly List<CarInfoMinimal> _entryListCars = new();
 
         #endregion EntryList handling
 
         #region optional failsafety - detect when we have a desync and need a new entry list
 
-        private DateTime lastEntrylistRequest = DateTime.Now;
+        private DateTime _lastEntrylistRequest = DateTime.Now;
 
         #endregion optional failsafety - detect when we have a desync and need a new entry list
 
         internal BroadcastingNetworkProtocol(string connectionIdentifier, SendMessageDelegate sendMessageDelegate) {
             if (string.IsNullOrEmpty(connectionIdentifier))
                 throw new ArgumentNullException(nameof(connectionIdentifier), $"No connection identifier set; we use this to distinguish different connections. Using the remote IP:Port is a good idea");
-
-            if (sendMessageDelegate == null)
-                throw new ArgumentNullException(nameof(sendMessageDelegate), $"The protocol class doesn't know anything about the network layer; please put a callback we can use to send data via UDP");
 
             _connectionIdentifier = connectionIdentifier;
             _send = sendMessageDelegate;
@@ -129,13 +124,13 @@ namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork {
                         break;
                     }
                 case InboundMessageTypes.ENTRY_LIST: {
-                        EntryListCars.Clear();
+                        _entryListCars.Clear();
                         OnNewEntrylist?.Invoke(_connectionIdentifier);
                         break;
                     }
                 case InboundMessageTypes.ENTRY_LIST_CAR: {
                         var carInfo = new CarInfo(br);
-                        EntryListCars.Add(new CarInfoMinimal(carInfo.Id, (ushort)carInfo.Drivers.Length));
+                        _entryListCars.Add(new CarInfoMinimal(carInfo.Id, (ushort)carInfo.Drivers.Length));
                         OnEntrylistUpdate?.Invoke(_connectionIdentifier, carInfo);
                         break;
                     }
@@ -156,12 +151,12 @@ namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork {
 #endif
                         var carUpdate = new RealtimeCarUpdate(br, _trackSplinePosOffset);
                         // the concept is: "don't know a car or driver? ask for an entry list update"
-                        var carEntryIndex = EntryListCars.FindIndex(x => x.Id == carUpdate.CarId);
-                        if (carEntryIndex == -1 || EntryListCars[carEntryIndex].DriverCount != carUpdate.DriverCount) {
+                        var carEntryIndex = _entryListCars.FindIndex(x => x.Id == carUpdate.CarId);
+                        if (carEntryIndex == -1 || _entryListCars[carEntryIndex].DriverCount != carUpdate.DriverCount) {
                             // Add small wait before a new request so we don't spam ACC with multiple requests
                             // The new entry list update may take some time to be sent
-                            if ((DateTime.Now - lastEntrylistRequest).TotalSeconds > 5) {
-                                lastEntrylistRequest = DateTime.Now;
+                            if ((DateTime.Now - _lastEntrylistRequest).TotalSeconds > 5) {
+                                _lastEntrylistRequest = DateTime.Now;
                                 RequestEntryList();
                             }
                         } else {
@@ -179,7 +174,7 @@ namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork {
                         break;
                     }
                 case InboundMessageTypes.BROADCASTING_EVENT: {
-                        BroadcastingEvent evt = new BroadcastingEvent(br);
+                        var evt = new BroadcastingEvent(br);
                         OnBroadcastingEvent?.Invoke(_connectionIdentifier, evt);
                         break;
                     }

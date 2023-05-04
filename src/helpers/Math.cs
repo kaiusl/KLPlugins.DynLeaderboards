@@ -6,7 +6,7 @@ namespace KLPlugins.DynLeaderboards.Helpers {
 
     internal class Statistics {
         public DescriptiveStatistics? Stats;
-        public List<double> data = new List<double>();
+        public List<double> data = new();
         public double Median { get; private set; } = 0.0;
 
         public void Add(double v) {

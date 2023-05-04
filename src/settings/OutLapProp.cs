@@ -115,242 +115,96 @@ namespace KLPlugins.DynLeaderboards.Settings {
         }
 
         public static string ToPropName(this OutLapProp p) {
-            switch (p) {
-                case OutLapProp.Laps:
-                    return "Laps.Count";
-
-                case OutLapProp.LastLapTime:
-                    return "Laps.Last.Time";
-
-                case OutLapProp.LastLapSectors:
-                    return "Laps.Last.S1/2/3";
-
-                case OutLapProp.BestLapTime:
-                    return "Laps.Best.Time";
-
-                case OutLapProp.BestLapSectors:
-                    return "Laps.Best.S1/2/3";
-
-                case OutLapProp.BestSectors:
-                    return "BestS1/2/3";
-
-                case OutLapProp.CurrentLapTime:
-                    return "Laps.Current.Time";
-
-                case OutLapProp.BestLapDeltaToOverallBest:
-                    return "Laps.Best.Delta.ToOverallBest";
-
-                case OutLapProp.BestLapDeltaToClassBest:
-                    return "Laps.Best.Delta.ToClassBest";
-
-                case OutLapProp.BestLapDeltaToLeaderBest:
-                    return "Laps.Best.Delta.ToLeaderBest";
-
-                case OutLapProp.BestLapDeltaToClassLeaderBest:
-                    return "Laps.Best.Delta.ToClassLeaderBest";
-
-                case OutLapProp.BestLapDeltaToFocusedBest:
-                    return "Laps.Best.Delta.ToFocusedBest";
-
-                case OutLapProp.BestLapDeltaToAheadBest:
-                    return "Laps.Best.Delta.ToAheadBest";
-
-                case OutLapProp.BestLapDeltaToAheadInClassBest:
-                    return "Laps.Best.Delta.ToAheadInClassBest";
-
-                case OutLapProp.LastLapDeltaToOverallBest:
-                    return "Laps.Last.Delta.ToOverallBest";
-
-                case OutLapProp.LastLapDeltaToClassBest:
-                    return "Laps.Last.Delta.ToClassBest";
-
-                case OutLapProp.LastLapDeltaToLeaderBest:
-                    return "Laps.Last.Delta.ToLeaderBest";
-
-                case OutLapProp.LastLapDeltaToClassLeaderBest:
-                    return "Laps.Last.Delta.ToClassLeaderBest";
-
-                case OutLapProp.LastLapDeltaToFocusedBest:
-                    return "Laps.Last.Delta.ToFocusedBest";
-
-                case OutLapProp.LastLapDeltaToAheadBest:
-                    return "Laps.Last.Delta.ToAheadBest";
-
-                case OutLapProp.LastLapDeltaToAheadInClassBest:
-                    return "Laps.Last.Delta.ToAheadInClassBest";
-
-                case OutLapProp.LastLapDeltaToOwnBest:
-                    return "Laps.Last.Delta.ToOwnBest";
-
-                case OutLapProp.LastLapDeltaToLeaderLast:
-                    return "Laps.Last.Delta.ToLeaderLast";
-
-                case OutLapProp.LastLapDeltaToClassLeaderLast:
-                    return "Laps.Last.Delta.ToClassLeaderLast";
-
-                case OutLapProp.LastLapDeltaToFocusedLast:
-                    return "Laps.Last.Delta.ToFocusedLast";
-
-                case OutLapProp.LastLapDeltaToAheadLast:
-                    return "Laps.Last.Delta.ToAheadLast";
-
-                case OutLapProp.LastLapDeltaToAheadInClassLast:
-                    return "Laps.Last.Delta.ToAheadInClassLast";
-
-                case OutLapProp.DynamicBestLapDeltaToFocusedBest:
-                    return "Laps.Best.Delta.Dynamic.ToFocusedBest";
-
-                case OutLapProp.DynamicLastLapDeltaToFocusedBest:
-                    return "Laps.Last.Delta.Dynamic.ToFocusedBest";
-
-                case OutLapProp.DynamicLastLapDeltaToFocusedLast:
-                    return "Laps.Last.Delta.Dynamic.ToFocusedLast";
-
-                case OutLapProp.CurrentLapIsValid:
-                    return "Laps.Current.IsValid";
-
-                case OutLapProp.LastLapIsValid:
-                    return "Laps.Last.IsValid";
-
-                case OutLapProp.CurrentLapIsOutLap:
-                    return "Laps.Current.IsOutLap";
-
-                case OutLapProp.LastLapIsOutLap:
-                    return "Laps.Last.IsOutLap";
-
-                case OutLapProp.CurrentLapIsInLap:
-                    return "Laps.Current.IsInLap";
-
-                case OutLapProp.LastLapIsInLap:
-                    return "Laps.Last.IsInLap";
-
-                default:
-                    throw new ArgumentOutOfRangeException("Invalid enum variant");
-            }
+            return p switch {
+                OutLapProp.Laps => "Laps.Count",
+                OutLapProp.LastLapTime => "Laps.Last.Time",
+                OutLapProp.LastLapSectors => "Laps.Last.S1/2/3",
+                OutLapProp.BestLapTime => "Laps.Best.Time",
+                OutLapProp.BestLapSectors => "Laps.Best.S1/2/3",
+                OutLapProp.BestSectors => "BestS1/2/3",
+                OutLapProp.CurrentLapTime => "Laps.Current.Time",
+                OutLapProp.BestLapDeltaToOverallBest => "Laps.Best.Delta.ToOverallBest",
+                OutLapProp.BestLapDeltaToClassBest => "Laps.Best.Delta.ToClassBest",
+                OutLapProp.BestLapDeltaToLeaderBest => "Laps.Best.Delta.ToLeaderBest",
+                OutLapProp.BestLapDeltaToClassLeaderBest => "Laps.Best.Delta.ToClassLeaderBest",
+                OutLapProp.BestLapDeltaToFocusedBest => "Laps.Best.Delta.ToFocusedBest",
+                OutLapProp.BestLapDeltaToAheadBest => "Laps.Best.Delta.ToAheadBest",
+                OutLapProp.BestLapDeltaToAheadInClassBest => "Laps.Best.Delta.ToAheadInClassBest",
+                OutLapProp.LastLapDeltaToOverallBest => "Laps.Last.Delta.ToOverallBest",
+                OutLapProp.LastLapDeltaToClassBest => "Laps.Last.Delta.ToClassBest",
+                OutLapProp.LastLapDeltaToLeaderBest => "Laps.Last.Delta.ToLeaderBest",
+                OutLapProp.LastLapDeltaToClassLeaderBest => "Laps.Last.Delta.ToClassLeaderBest",
+                OutLapProp.LastLapDeltaToFocusedBest => "Laps.Last.Delta.ToFocusedBest",
+                OutLapProp.LastLapDeltaToAheadBest => "Laps.Last.Delta.ToAheadBest",
+                OutLapProp.LastLapDeltaToAheadInClassBest => "Laps.Last.Delta.ToAheadInClassBest",
+                OutLapProp.LastLapDeltaToOwnBest => "Laps.Last.Delta.ToOwnBest",
+                OutLapProp.LastLapDeltaToLeaderLast => "Laps.Last.Delta.ToLeaderLast",
+                OutLapProp.LastLapDeltaToClassLeaderLast => "Laps.Last.Delta.ToClassLeaderLast",
+                OutLapProp.LastLapDeltaToFocusedLast => "Laps.Last.Delta.ToFocusedLast",
+                OutLapProp.LastLapDeltaToAheadLast => "Laps.Last.Delta.ToAheadLast",
+                OutLapProp.LastLapDeltaToAheadInClassLast => "Laps.Last.Delta.ToAheadInClassLast",
+                OutLapProp.DynamicBestLapDeltaToFocusedBest => "Laps.Best.Delta.Dynamic.ToFocusedBest",
+                OutLapProp.DynamicLastLapDeltaToFocusedBest => "Laps.Last.Delta.Dynamic.ToFocusedBest",
+                OutLapProp.DynamicLastLapDeltaToFocusedLast => "Laps.Last.Delta.Dynamic.ToFocusedLast",
+                OutLapProp.CurrentLapIsValid => "Laps.Current.IsValid",
+                OutLapProp.LastLapIsValid => "Laps.Last.IsValid",
+                OutLapProp.CurrentLapIsOutLap => "Laps.Current.IsOutLap",
+                OutLapProp.LastLapIsOutLap => "Laps.Last.IsOutLap",
+                OutLapProp.CurrentLapIsInLap => "Laps.Current.IsInLap",
+                OutLapProp.LastLapIsInLap => "Laps.Last.IsInLap",
+                _ => throw new ArgumentOutOfRangeException("Invalid enum variant"),
+            };
         }
 
         public static string ToolTipText(this OutLapProp p) {
-            switch (p) {
-                case OutLapProp.Laps:
-                    return "Number of completed laps";
-
-                case OutLapProp.LastLapTime:
-                    return "Last lap time.";
-
-                case OutLapProp.LastLapSectors:
-                    return "Last lap sector times.";
-
-                case OutLapProp.BestLapTime:
-                    return "Best lap time.";
-
-                case OutLapProp.BestLapSectors:
-                    return "Best lap sector times.";
-
-                case OutLapProp.BestSectors:
-                    return "Best sector times.";
-
-                case OutLapProp.CurrentLapTime:
-                    return "Current lap time.";
-
-                case OutLapProp.BestLapDeltaToOverallBest:
-                    return "Best lap delta to the overall best lap.";
-
-                case OutLapProp.BestLapDeltaToClassBest:
-                    return "Best lap delta to the class best lap.";
-
-                case OutLapProp.BestLapDeltaToLeaderBest:
-                    return "Best lap delta to the leader's best lap.";
-
-                case OutLapProp.BestLapDeltaToClassLeaderBest:
-                    return "Best lap delta to the class leader's best lap.";
-
-                case OutLapProp.BestLapDeltaToFocusedBest:
-                    return "Best lap delta to the focused car's best lap.";
-
-                case OutLapProp.BestLapDeltaToAheadBest:
-                    return "Best lap delta to the ahead car's best lap.";
-
-                case OutLapProp.BestLapDeltaToAheadInClassBest:
-                    return "Best lap delta to the in class ahead car's best lap.";
-
-                case OutLapProp.LastLapDeltaToOverallBest:
-                    return "Last lap delta to the overall best lap.";
-
-                case OutLapProp.LastLapDeltaToClassBest:
-                    return "Last lap delta to the class best lap.";
-
-                case OutLapProp.LastLapDeltaToLeaderBest:
-                    return "Last lap delta to the leader's best lap.";
-
-                case OutLapProp.LastLapDeltaToClassLeaderBest:
-                    return "Last lap delta to the class leader's best lap.";
-
-                case OutLapProp.LastLapDeltaToFocusedBest:
-                    return "Last lap delta to the focused car's best lap.";
-
-                case OutLapProp.LastLapDeltaToAheadBest:
-                    return "Last lap delta to the ahead car's best lap.";
-
-                case OutLapProp.LastLapDeltaToAheadInClassBest:
-                    return "Last lap delta to the in class car ahead's best lap.";
-
-                case OutLapProp.LastLapDeltaToOwnBest:
-                    return "Last lap delta to own best lap.";
-
-                case OutLapProp.LastLapDeltaToLeaderLast:
-                    return "Last lap delta to the leader's last lap.";
-
-                case OutLapProp.LastLapDeltaToClassLeaderLast:
-                    return "Last lap delta to the class leaders last lap.";
-
-                case OutLapProp.LastLapDeltaToFocusedLast:
-                    return "Last lap delta to the focused car's last lap.";
-
-                case OutLapProp.LastLapDeltaToAheadLast:
-                    return "Last lap delta to the ahead car's last lap.";
-
-                case OutLapProp.LastLapDeltaToAheadInClassLast:
-                    return "Last lap delta to the in class ahead car's last lap.";
-
-                case OutLapProp.DynamicBestLapDeltaToFocusedBest:
-                    return @"Best lap delta to the car's best based on currently displayed dynamic leaderboard.
+            return p switch {
+                OutLapProp.Laps => "Number of completed laps",
+                OutLapProp.LastLapTime => "Last lap time.",
+                OutLapProp.LastLapSectors => "Last lap sector times.",
+                OutLapProp.BestLapTime => "Best lap time.",
+                OutLapProp.BestLapSectors => "Best lap sector times.",
+                OutLapProp.BestSectors => "Best sector times.",
+                OutLapProp.CurrentLapTime => "Current lap time.",
+                OutLapProp.BestLapDeltaToOverallBest => "Best lap delta to the overall best lap.",
+                OutLapProp.BestLapDeltaToClassBest => "Best lap delta to the class best lap.",
+                OutLapProp.BestLapDeltaToLeaderBest => "Best lap delta to the leader's best lap.",
+                OutLapProp.BestLapDeltaToClassLeaderBest => "Best lap delta to the class leader's best lap.",
+                OutLapProp.BestLapDeltaToFocusedBest => "Best lap delta to the focused car's best lap.",
+                OutLapProp.BestLapDeltaToAheadBest => "Best lap delta to the ahead car's best lap.",
+                OutLapProp.BestLapDeltaToAheadInClassBest => "Best lap delta to the in class ahead car's best lap.",
+                OutLapProp.LastLapDeltaToOverallBest => "Last lap delta to the overall best lap.",
+                OutLapProp.LastLapDeltaToClassBest => "Last lap delta to the class best lap.",
+                OutLapProp.LastLapDeltaToLeaderBest => "Last lap delta to the leader's best lap.",
+                OutLapProp.LastLapDeltaToClassLeaderBest => "Last lap delta to the class leader's best lap.",
+                OutLapProp.LastLapDeltaToFocusedBest => "Last lap delta to the focused car's best lap.",
+                OutLapProp.LastLapDeltaToAheadBest => "Last lap delta to the ahead car's best lap.",
+                OutLapProp.LastLapDeltaToAheadInClassBest => "Last lap delta to the in class car ahead's best lap.",
+                OutLapProp.LastLapDeltaToOwnBest => "Last lap delta to own best lap.",
+                OutLapProp.LastLapDeltaToLeaderLast => "Last lap delta to the leader's last lap.",
+                OutLapProp.LastLapDeltaToClassLeaderLast => "Last lap delta to the class leaders last lap.",
+                OutLapProp.LastLapDeltaToFocusedLast => "Last lap delta to the focused car's last lap.",
+                OutLapProp.LastLapDeltaToAheadLast => "Last lap delta to the ahead car's last lap.",
+                OutLapProp.LastLapDeltaToAheadInClassLast => "Last lap delta to the in class ahead car's last lap.",
+                OutLapProp.DynamicBestLapDeltaToFocusedBest => @"Best lap delta to the car's best based on currently displayed dynamic leaderboard.
 Overall -> delta to leader's best lap,
 Class -> delta to class leader's best lap,
-Any relative -> delta to focused car's best lap";
-
-                case OutLapProp.DynamicLastLapDeltaToFocusedBest:
-                    return @"Last lap delta to the car's best based on currently displayed dynamic leaderboard.
+Any relative -> delta to focused car's best lap",
+                OutLapProp.DynamicLastLapDeltaToFocusedBest => @"Last lap delta to the car's best based on currently displayed dynamic leaderboard.
 Overall -> delta to leader's best lap,
 Class -> delta to class leader's best lap,
-Any relative -> delta to focused car's best lap";
-
-                case OutLapProp.DynamicLastLapDeltaToFocusedLast:
-                    return @"Last lap delta to the car's last based on currently displayed dynamic leaderboard.
+Any relative -> delta to focused car's best lap",
+                OutLapProp.DynamicLastLapDeltaToFocusedLast => @"Last lap delta to the car's last based on currently displayed dynamic leaderboard.
 Overall -> delta to leader's last lap,
 Class -> delta to class leader's last lap,
-Any relative -> delta to focused car's last lap";
-
-                case OutLapProp.CurrentLapIsValid:
-                    return "Is current lap valid?";
-
-                case OutLapProp.LastLapIsValid:
-                    return "Was last lap valid?";
-
-                case OutLapProp.CurrentLapIsOutLap:
-                    return "Is current lap an out lap?";
-
-                case OutLapProp.LastLapIsOutLap:
-                    return "Was last lap an out lap?";
-
-                case OutLapProp.CurrentLapIsInLap:
-                    return "Is current lap an in lap?";
-
-                case OutLapProp.LastLapIsInLap:
-                    return "Was last lap an in lap?";
-
-                default:
-                    throw new ArgumentOutOfRangeException("Invalid enum variant");
-            }
+Any relative -> delta to focused car's last lap",
+                OutLapProp.CurrentLapIsValid => "Is current lap valid?",
+                OutLapProp.LastLapIsValid => "Was last lap valid?",
+                OutLapProp.CurrentLapIsOutLap => "Is current lap an out lap?",
+                OutLapProp.LastLapIsOutLap => "Was last lap an out lap?",
+                OutLapProp.CurrentLapIsInLap => "Is current lap an in lap?",
+                OutLapProp.LastLapIsInLap => "Was last lap an in lap?",
+                _ => throw new ArgumentOutOfRangeException("Invalid enum variant"),
+            };
         }
     }
 }

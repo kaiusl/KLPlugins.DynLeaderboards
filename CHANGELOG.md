@@ -10,10 +10,18 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 - An option to disable given dynamic leaderboard from being calculated.
 
+### Fixed
+
+- Typo which caused broadcasting.json not to be read properly.
+
 ### Improvements
 
 - Cache more properties instead of calculating them from scratch on each update.
 - Remove bunch of unnecessary logging.
+- Overhaul broadcasting network protocol for cleaner code and potentially slighly better performance.
+- Upgrade to C# 9.0 to make use of some nice new syntax and clean up code.
+- Enable strict null checking and fix potential issues identified by it.
+- Apply code suggestions.
 
 ## [1.3.0] - 2023-04-20
 

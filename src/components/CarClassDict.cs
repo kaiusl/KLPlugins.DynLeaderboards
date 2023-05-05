@@ -8,25 +8,25 @@ namespace KLPlugins.DynLeaderboards.Car {
         public T DefaultValue { get; private set; }
 
         public CarClassArray(T defValue = default!) {
-            DefaultValue = defValue;
-            Reset();
+            this.DefaultValue = defValue;
+            this.Reset();
         }
 
         public CarClassArray(Func<CarClass, T> generator, T defValue = default!) {
-            DefaultValue = defValue;
+            this.DefaultValue = defValue;
             foreach (var v in (CarClass[])Enum.GetValues(typeof(CarClass))) {
-                _data[(int)v] = generator(v);
+                this._data[(int)v] = generator(v);
             }
         }
 
         public T this[CarClass key] {
-            get => _data[(int)key];
-            set => _data[(int)key] = value;
+            get => this._data[(int)key];
+            set => this._data[(int)key] = value;
         }
 
         public void Reset() {
             for (int i = 0; i < _numClasses; i++) {
-                _data[i] = DefaultValue;
+                this._data[i] = this.DefaultValue;
             }
         }
     }

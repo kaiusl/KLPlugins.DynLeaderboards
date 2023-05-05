@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq;
+
 using KLPlugins.DynLeaderboards.ksBroadcastingNetwork;
-using KLPlugins.DynLeaderboards.Settings;
 
 namespace KLPlugins.DynLeaderboards.Car {
 
@@ -84,17 +84,15 @@ namespace KLPlugins.DynLeaderboards.Car {
 
         public EnumMap(Func<E, T> generator) {
             int count = Convert.ToInt32(Enum.GetValues(typeof(E)).Cast<E>().Max());
-            _data = new T[count + 1];
+            this._data = new T[count + 1];
 
             foreach (var v in Enum.GetValues(typeof(E)).Cast<E>()) {
                 int index = Convert.ToInt32(v);
-                _data[index] = generator(v);
+                this._data[index] = generator(v);
             }
         }
 
-        public T this[E key] {
-            get => _data[Convert.ToInt32(key)];
-        }
+        public T this[E key] => this._data[Convert.ToInt32(key)];
     }
 
     internal static class CarsMethods {
@@ -177,7 +175,6 @@ namespace KLPlugins.DynLeaderboards.Car {
             };
         }
 
-
         internal static readonly EnumMap<CarType, string> PrettyNames = new(PrettyNameGenerator);
         public static string PrettyName(this CarType c) {
             return PrettyNames[c];
@@ -234,7 +231,6 @@ namespace KLPlugins.DynLeaderboards.Car {
                 _ => "Unknown",
             };
         }
-
 
         internal static readonly EnumMap<CarType, string> Marks = new(MarkGenerator);
         public static string Mark(this CarType c) {
@@ -333,7 +329,6 @@ namespace KLPlugins.DynLeaderboards.Car {
         public static string PrettyName(this TeamCupCategory c) {
             return _teamCupCategoryStrings[c];
         }
-
 
         private static readonly EnumMap<TeamCupCategory, string> _accCupCategoryColors = new(ACCCupCategoryColorsGenerator);
         public static string ACCColor(this TeamCupCategory c) {

@@ -1,9 +1,7 @@
 ﻿using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 
 using KLPlugins.DynLeaderboards.Car;
-using KLPlugins.DynLeaderboards.ksBroadcastingNetwork;
 using KLPlugins.DynLeaderboards.Settings;
 
 namespace KLPlugins.DynLeaderboards {
@@ -27,7 +25,6 @@ namespace KLPlugins.DynLeaderboards {
         public DynPositionDelegate GetDynPosition { get; private set; }
         public DynPositionDelegate GetDynPositionStart { get; private set; }
 
-
         public DynLeaderboardConfig Settings { get; private set; }
 
         private int?[]? _relativePosOnTrackCarsIdxs { get; set; }
@@ -40,47 +37,53 @@ namespace KLPlugins.DynLeaderboards {
         private int? _focusedCarPosInPartialRelativeClassCarsIdxs { get; set; }
 
         internal DynLeaderboardValues(DynLeaderboardConfig settings) {
-            Settings = settings;
+            this.Settings = settings;
 
-            if (DynLeaderboardContainsAny(Leaderboard.RelativeOnTrack)) {
-                _relativePosOnTrackCarsIdxs = new int?[Settings.NumOnTrackRelativePos * 2 + 1];
-                _relativePosOnTrackWoPitCarsIdxs = new int?[Settings.NumOnTrackRelativePos * 2 + 1];
+            if (this.DynLeaderboardContainsAny(Leaderboard.RelativeOnTrack)) {
+                this._relativePosOnTrackCarsIdxs = new int?[this.Settings.NumOnTrackRelativePos * 2 + 1];
+                this._relativePosOnTrackWoPitCarsIdxs = new int?[this.Settings.NumOnTrackRelativePos * 2 + 1];
             }
 
-            if (DynLeaderboardContainsAny(Leaderboard.RelativeOverall))
-                _relativeOverallCarsIdxs = new int?[Settings.NumOverallRelativePos * 2 + 1];
+            if (this.DynLeaderboardContainsAny(Leaderboard.RelativeOverall)) {
+                this._relativeOverallCarsIdxs = new int?[this.Settings.NumOverallRelativePos * 2 + 1];
+            }
 
-            if (DynLeaderboardContainsAny(Leaderboard.PartialRelativeOverall))
-                _partialRelativeOverallCarsIdxs = new int?[Settings.PartialRelativeOverallNumOverallPos + Settings.PartialRelativeOverallNumRelativePos * 2 + 1];
+            if (this.DynLeaderboardContainsAny(Leaderboard.PartialRelativeOverall)) {
+                this._partialRelativeOverallCarsIdxs = new int?[this.Settings.PartialRelativeOverallNumOverallPos + this.Settings.PartialRelativeOverallNumRelativePos * 2 + 1];
+            }
 
-            if (DynLeaderboardContainsAny(Leaderboard.RelativeClass))
-                _relativeClassCarsIdxs = new int?[Settings.NumClassRelativePos * 2 + 1];
+            if (this.DynLeaderboardContainsAny(Leaderboard.RelativeClass)) {
+                this._relativeClassCarsIdxs = new int?[this.Settings.NumClassRelativePos * 2 + 1];
+            }
 
-            if (DynLeaderboardContainsAny(Leaderboard.PartialRelativeClass))
-                _partialRelativeClassCarsIdxs = new int?[Settings.PartialRelativeClassNumClassPos + Settings.PartialRelativeClassNumRelativePos * 2 + 1];
+            if (this.DynLeaderboardContainsAny(Leaderboard.PartialRelativeClass)) {
+                this._partialRelativeClassCarsIdxs = new int?[this.Settings.PartialRelativeClassNumClassPos + this.Settings.PartialRelativeClassNumRelativePos * 2 + 1];
+            }
 
-            GetDynCar = (i) => null;
-            GetFocusedCarIdxInDynLeaderboard = () => null;
-            GetDynGapToFocused = (i) => double.NaN;
-            GetDynGapToAhead = (i) => double.NaN;
-            GetDynBestLapDeltaToFocusedBest = (i) => double.NaN;
-            GetDynLastLapDeltaToFocusedBest = (i) => double.NaN;
-            GetDynLastLapDeltaToFocusedLast = (i) => double.NaN;
-            GetDynPosition = (i) => null;
-            GetDynPositionStart = (i) => null;
+            this.GetDynCar = (i) => null;
+            this.GetFocusedCarIdxInDynLeaderboard = () => null;
+            this.GetDynGapToFocused = (i) => double.NaN;
+            this.GetDynGapToAhead = (i) => double.NaN;
+            this.GetDynBestLapDeltaToFocusedBest = (i) => double.NaN;
+            this.GetDynLastLapDeltaToFocusedBest = (i) => double.NaN;
+            this.GetDynLastLapDeltaToFocusedLast = (i) => double.NaN;
+            this.GetDynPosition = (i) => null;
+            this.GetDynPositionStart = (i) => null;
         }
 
         internal void ResetPos() {
-            ResetIdxs(_relativeClassCarsIdxs);
-            ResetIdxs(_relativeOverallCarsIdxs);
-            ResetIdxs(_relativePosOnTrackCarsIdxs);
-            ResetIdxs(_relativePosOnTrackWoPitCarsIdxs);
-            ResetIdxs(_partialRelativeClassCarsIdxs);
-            ResetIdxs(_partialRelativeOverallCarsIdxs);
+            ResetIdxs(this._relativeClassCarsIdxs);
+            ResetIdxs(this._relativeOverallCarsIdxs);
+            ResetIdxs(this._relativePosOnTrackCarsIdxs);
+            ResetIdxs(this._relativePosOnTrackWoPitCarsIdxs);
+            ResetIdxs(this._partialRelativeClassCarsIdxs);
+            ResetIdxs(this._partialRelativeOverallCarsIdxs);
 
             static void ResetIdxs(int?[]? arr) {
-                if (arr == null)
+                if (arr == null) {
                     return;
+                }
+
                 for (int i = 0; i < arr.Length; i++) {
                     arr[i] = null;
                 }
@@ -88,143 +91,142 @@ namespace KLPlugins.DynLeaderboards {
         }
 
         internal void SetDynGetters(Values v) {
-            switch (Settings.CurrentLeaderboard()) {
+            switch (this.Settings.CurrentLeaderboard()) {
                 case Leaderboard.Overall:
-                    GetDynCar = (i) => v.GetCar(i);
-                    GetFocusedCarIdxInDynLeaderboard = () => v.FocusedCarIdx;
-                    GetDynGapToFocused = (i) => v.GetCar(i)?.GapToLeader;
-                    GetDynGapToAhead = (i) => v.GetCar(i)?.GapToAhead;
-                    GetDynBestLapDeltaToFocusedBest = (i) => v.GetCar(i)?.BestLapDeltaToLeaderBest;
-                    GetDynLastLapDeltaToFocusedBest = (i) => v.GetCar(i)?.LastLapDeltaToLeaderBest;
-                    GetDynLastLapDeltaToFocusedLast = (i) => v.GetCar(i)?.LastLapDeltaToLeaderLast;
-                    GetDynPosition = (i) => v.GetCar(i)?.OverallPos;
-                    GetDynPositionStart = (i) => v.GetCar(i)?.StartPos;
+                    this.GetDynCar = (i) => v.GetCar(i);
+                    this.GetFocusedCarIdxInDynLeaderboard = () => v.FocusedCarIdx;
+                    this.GetDynGapToFocused = (i) => v.GetCar(i)?.GapToLeader;
+                    this.GetDynGapToAhead = (i) => v.GetCar(i)?.GapToAhead;
+                    this.GetDynBestLapDeltaToFocusedBest = (i) => v.GetCar(i)?.BestLapDeltaToLeaderBest;
+                    this.GetDynLastLapDeltaToFocusedBest = (i) => v.GetCar(i)?.LastLapDeltaToLeaderBest;
+                    this.GetDynLastLapDeltaToFocusedLast = (i) => v.GetCar(i)?.LastLapDeltaToLeaderLast;
+                    this.GetDynPosition = (i) => v.GetCar(i)?.OverallPos;
+                    this.GetDynPositionStart = (i) => v.GetCar(i)?.StartPos;
                     break;
 
                 case Leaderboard.Class:
                     if (v.PosInClassCarsIdxs == null) {
                         DynLeaderboardsPlugin.LogError("Cannot calculate class positions.");
-                        SetDynGettersDefault();
+                        this.SetDynGettersDefault();
                         break;
                     }
-                    GetDynCar = (i) => v.GetCar(i, v.PosInClassCarsIdxs);
-                    GetFocusedCarIdxInDynLeaderboard = () => v.FocusedCarPosInClassCarsIdxs;
-                    GetDynGapToFocused = (i) => GetDynCar(i)?.GapToClassLeader;
-                    GetDynGapToAhead = (i) => GetDynCar(i)?.GapToAheadInClass;
-                    GetDynBestLapDeltaToFocusedBest = (i) => GetDynCar(i)?.BestLapDeltaToClassLeaderBest;
-                    GetDynLastLapDeltaToFocusedBest = (i) => GetDynCar(i)?.LastLapDeltaToClassLeaderBest;
-                    GetDynLastLapDeltaToFocusedLast = (i) => GetDynCar(i)?.LastLapDeltaToClassLeaderLast;
-                    GetDynPosition = (i) => GetDynCar(i)?.InClassPos;
-                    GetDynPositionStart = (i) => GetDynCar(i)?.StartPosInClass;
+                    this.GetDynCar = (i) => v.GetCar(i, v.PosInClassCarsIdxs);
+                    this.GetFocusedCarIdxInDynLeaderboard = () => v.FocusedCarPosInClassCarsIdxs;
+                    this.GetDynGapToFocused = (i) => this.GetDynCar(i)?.GapToClassLeader;
+                    this.GetDynGapToAhead = (i) => this.GetDynCar(i)?.GapToAheadInClass;
+                    this.GetDynBestLapDeltaToFocusedBest = (i) => this.GetDynCar(i)?.BestLapDeltaToClassLeaderBest;
+                    this.GetDynLastLapDeltaToFocusedBest = (i) => this.GetDynCar(i)?.LastLapDeltaToClassLeaderBest;
+                    this.GetDynLastLapDeltaToFocusedLast = (i) => this.GetDynCar(i)?.LastLapDeltaToClassLeaderLast;
+                    this.GetDynPosition = (i) => this.GetDynCar(i)?.InClassPos;
+                    this.GetDynPositionStart = (i) => this.GetDynCar(i)?.StartPosInClass;
                     break;
 
                 case Leaderboard.RelativeOverall:
-                    _relativeOverallCarsIdxs ??= new int?[Settings.NumOverallRelativePos * 2 + 1];
+                    this._relativeOverallCarsIdxs ??= new int?[this.Settings.NumOverallRelativePos * 2 + 1];
 
-                    GetDynCar = (i) => v.GetCar(i, _relativeOverallCarsIdxs);
-                    GetFocusedCarIdxInDynLeaderboard = () => Settings.NumOverallRelativePos;
-                    GetDynGapToFocused = (i) => GetDynCar(i)?.GapToFocusedTotal;
-                    GetDynGapToAhead = (i) => GetDynCar(i)?.GapToAhead;
-                    GetDynBestLapDeltaToFocusedBest = (i) => GetDynCar(i)?.BestLapDeltaToFocusedBest;
-                    GetDynLastLapDeltaToFocusedBest = (i) => GetDynCar(i)?.LastLapDeltaToFocusedBest;
-                    GetDynLastLapDeltaToFocusedLast = (i) => GetDynCar(i)?.LastLapDeltaToFocusedLast;
-                    GetDynPosition = (i) => GetDynCar(i)?.OverallPos;
-                    GetDynPositionStart = (i) => GetDynCar(i)?.StartPos;
+                    this.GetDynCar = (i) => v.GetCar(i, this._relativeOverallCarsIdxs);
+                    this.GetFocusedCarIdxInDynLeaderboard = () => this.Settings.NumOverallRelativePos;
+                    this.GetDynGapToFocused = (i) => this.GetDynCar(i)?.GapToFocusedTotal;
+                    this.GetDynGapToAhead = (i) => this.GetDynCar(i)?.GapToAhead;
+                    this.GetDynBestLapDeltaToFocusedBest = (i) => this.GetDynCar(i)?.BestLapDeltaToFocusedBest;
+                    this.GetDynLastLapDeltaToFocusedBest = (i) => this.GetDynCar(i)?.LastLapDeltaToFocusedBest;
+                    this.GetDynLastLapDeltaToFocusedLast = (i) => this.GetDynCar(i)?.LastLapDeltaToFocusedLast;
+                    this.GetDynPosition = (i) => this.GetDynCar(i)?.OverallPos;
+                    this.GetDynPositionStart = (i) => this.GetDynCar(i)?.StartPos;
                     break;
 
                 case Leaderboard.RelativeClass:
-                    _relativeClassCarsIdxs ??= new int?[Settings.NumClassRelativePos * 2 + 1];
+                    this._relativeClassCarsIdxs ??= new int?[this.Settings.NumClassRelativePos * 2 + 1];
 
-                    GetDynCar = (i) => v.GetCar(i, _relativeClassCarsIdxs);
-                    GetFocusedCarIdxInDynLeaderboard = () => Settings.NumClassRelativePos;
-                    GetDynGapToFocused = (i) => GetDynCar(i)?.GapToFocusedTotal;
-                    GetDynGapToAhead = (i) => GetDynCar(i)?.GapToAheadInClass;
-                    GetDynBestLapDeltaToFocusedBest = (i) => GetDynCar(i)?.BestLapDeltaToFocusedBest;
-                    GetDynLastLapDeltaToFocusedBest = (i) => GetDynCar(i)?.LastLapDeltaToFocusedBest;
-                    GetDynLastLapDeltaToFocusedLast = (i) => GetDynCar(i)?.LastLapDeltaToFocusedLast;
-                    GetDynPosition = (i) => GetDynCar(i)?.InClassPos;
-                    GetDynPositionStart = (i) => GetDynCar(i)?.StartPosInClass;
+                    this.GetDynCar = (i) => v.GetCar(i, this._relativeClassCarsIdxs);
+                    this.GetFocusedCarIdxInDynLeaderboard = () => this.Settings.NumClassRelativePos;
+                    this.GetDynGapToFocused = (i) => this.GetDynCar(i)?.GapToFocusedTotal;
+                    this.GetDynGapToAhead = (i) => this.GetDynCar(i)?.GapToAheadInClass;
+                    this.GetDynBestLapDeltaToFocusedBest = (i) => this.GetDynCar(i)?.BestLapDeltaToFocusedBest;
+                    this.GetDynLastLapDeltaToFocusedBest = (i) => this.GetDynCar(i)?.LastLapDeltaToFocusedBest;
+                    this.GetDynLastLapDeltaToFocusedLast = (i) => this.GetDynCar(i)?.LastLapDeltaToFocusedLast;
+                    this.GetDynPosition = (i) => this.GetDynCar(i)?.InClassPos;
+                    this.GetDynPositionStart = (i) => this.GetDynCar(i)?.StartPosInClass;
                     break;
 
                 case Leaderboard.PartialRelativeOverall:
-                    _partialRelativeOverallCarsIdxs ??= new int?[Settings.PartialRelativeOverallNumOverallPos + Settings.PartialRelativeOverallNumRelativePos * 2 + 1];
+                    this._partialRelativeOverallCarsIdxs ??= new int?[this.Settings.PartialRelativeOverallNumOverallPos + this.Settings.PartialRelativeOverallNumRelativePos * 2 + 1];
 
-                    GetDynCar = (i) => v.GetCar(i, _partialRelativeOverallCarsIdxs);
-                    GetFocusedCarIdxInDynLeaderboard = () => _focusedCarPosInPartialRelativeOverallCarsIdxs;
-                    GetDynGapToFocused = (i) => GetDynCar(i)?.GapToFocusedTotal;
-                    GetDynGapToAhead = (i) => GetDynCar(i)?.GapToAhead;
-                    GetDynBestLapDeltaToFocusedBest = (i) => GetDynCar(i)?.BestLapDeltaToFocusedBest;
-                    GetDynLastLapDeltaToFocusedBest = (i) => GetDynCar(i)?.LastLapDeltaToFocusedBest;
-                    GetDynLastLapDeltaToFocusedLast = (i) => GetDynCar(i)?.LastLapDeltaToFocusedLast;
-                    GetDynPosition = (i) => GetDynCar(i)?.OverallPos;
-                    GetDynPositionStart = (i) => GetDynCar(i)?.StartPos;
+                    this.GetDynCar = (i) => v.GetCar(i, this._partialRelativeOverallCarsIdxs);
+                    this.GetFocusedCarIdxInDynLeaderboard = () => this._focusedCarPosInPartialRelativeOverallCarsIdxs;
+                    this.GetDynGapToFocused = (i) => this.GetDynCar(i)?.GapToFocusedTotal;
+                    this.GetDynGapToAhead = (i) => this.GetDynCar(i)?.GapToAhead;
+                    this.GetDynBestLapDeltaToFocusedBest = (i) => this.GetDynCar(i)?.BestLapDeltaToFocusedBest;
+                    this.GetDynLastLapDeltaToFocusedBest = (i) => this.GetDynCar(i)?.LastLapDeltaToFocusedBest;
+                    this.GetDynLastLapDeltaToFocusedLast = (i) => this.GetDynCar(i)?.LastLapDeltaToFocusedLast;
+                    this.GetDynPosition = (i) => this.GetDynCar(i)?.OverallPos;
+                    this.GetDynPositionStart = (i) => this.GetDynCar(i)?.StartPos;
                     break;
 
                 case Leaderboard.PartialRelativeClass:
-                    _partialRelativeClassCarsIdxs ??= new int?[Settings.PartialRelativeClassNumClassPos + Settings.PartialRelativeClassNumRelativePos * 2 + 1];
+                    this._partialRelativeClassCarsIdxs ??= new int?[this.Settings.PartialRelativeClassNumClassPos + this.Settings.PartialRelativeClassNumRelativePos * 2 + 1];
 
-                    GetDynCar = (i) => v.GetCar(i, _partialRelativeClassCarsIdxs);
-                    GetFocusedCarIdxInDynLeaderboard = () => _focusedCarPosInPartialRelativeClassCarsIdxs;
-                    GetDynGapToFocused = (i) => GetDynCar(i)?.GapToFocusedTotal;
-                    GetDynGapToAhead = (i) => GetDynCar(i)?.GapToAheadInClass;
-                    GetDynBestLapDeltaToFocusedBest = (i) => GetDynCar(i)?.BestLapDeltaToFocusedBest;
-                    GetDynLastLapDeltaToFocusedBest = (i) => GetDynCar(i)?.LastLapDeltaToFocusedBest;
-                    GetDynLastLapDeltaToFocusedLast = (i) => GetDynCar(i)?.LastLapDeltaToFocusedLast;
-                    GetDynPosition = (i) => GetDynCar(i)?.InClassPos;
-                    GetDynPositionStart = (i) => GetDynCar(i)?.StartPosInClass;
+                    this.GetDynCar = (i) => v.GetCar(i, this._partialRelativeClassCarsIdxs);
+                    this.GetFocusedCarIdxInDynLeaderboard = () => this._focusedCarPosInPartialRelativeClassCarsIdxs;
+                    this.GetDynGapToFocused = (i) => this.GetDynCar(i)?.GapToFocusedTotal;
+                    this.GetDynGapToAhead = (i) => this.GetDynCar(i)?.GapToAheadInClass;
+                    this.GetDynBestLapDeltaToFocusedBest = (i) => this.GetDynCar(i)?.BestLapDeltaToFocusedBest;
+                    this.GetDynLastLapDeltaToFocusedBest = (i) => this.GetDynCar(i)?.LastLapDeltaToFocusedBest;
+                    this.GetDynLastLapDeltaToFocusedLast = (i) => this.GetDynCar(i)?.LastLapDeltaToFocusedLast;
+                    this.GetDynPosition = (i) => this.GetDynCar(i)?.InClassPos;
+                    this.GetDynPositionStart = (i) => this.GetDynCar(i)?.StartPosInClass;
                     break;
 
                 case Leaderboard.RelativeOnTrack:
-                    _relativePosOnTrackCarsIdxs ??= new int?[Settings.NumOnTrackRelativePos * 2 + 1];
+                    this._relativePosOnTrackCarsIdxs ??= new int?[this.Settings.NumOnTrackRelativePos * 2 + 1];
 
-                    GetDynCar = (i) => v.GetCar(i, _relativePosOnTrackCarsIdxs);
-                    GetFocusedCarIdxInDynLeaderboard = () => Settings.NumOnTrackRelativePos;
-                    GetDynGapToFocused = (i) => GetDynCar(i)?.GapToFocusedOnTrack;
-                    GetDynGapToAhead = (i) => GetDynCar(i)?.GapToAheadOnTrack;
-                    GetDynBestLapDeltaToFocusedBest = (i) => GetDynCar(i)?.BestLapDeltaToFocusedBest;
-                    GetDynLastLapDeltaToFocusedBest = (i) => GetDynCar(i)?.LastLapDeltaToFocusedBest;
-                    GetDynLastLapDeltaToFocusedLast = (i) => GetDynCar(i)?.LastLapDeltaToFocusedLast;
-                    GetDynPosition = (i) => GetDynCar(i)?.OverallPos;
-                    GetDynPositionStart = (i) => GetDynCar(i)?.StartPos;
+                    this.GetDynCar = (i) => v.GetCar(i, this._relativePosOnTrackCarsIdxs);
+                    this.GetFocusedCarIdxInDynLeaderboard = () => this.Settings.NumOnTrackRelativePos;
+                    this.GetDynGapToFocused = (i) => this.GetDynCar(i)?.GapToFocusedOnTrack;
+                    this.GetDynGapToAhead = (i) => this.GetDynCar(i)?.GapToAheadOnTrack;
+                    this.GetDynBestLapDeltaToFocusedBest = (i) => this.GetDynCar(i)?.BestLapDeltaToFocusedBest;
+                    this.GetDynLastLapDeltaToFocusedBest = (i) => this.GetDynCar(i)?.LastLapDeltaToFocusedBest;
+                    this.GetDynLastLapDeltaToFocusedLast = (i) => this.GetDynCar(i)?.LastLapDeltaToFocusedLast;
+                    this.GetDynPosition = (i) => this.GetDynCar(i)?.OverallPos;
+                    this.GetDynPositionStart = (i) => this.GetDynCar(i)?.StartPos;
                     break;
 
                 case Leaderboard.RelativeOnTrackWoPit:
-                    _relativePosOnTrackWoPitCarsIdxs ??= new int?[Settings.NumOnTrackRelativePos * 2 + 1];
+                    this._relativePosOnTrackWoPitCarsIdxs ??= new int?[this.Settings.NumOnTrackRelativePos * 2 + 1];
 
-                    GetDynCar = (i) => v.GetCar(i, _relativePosOnTrackWoPitCarsIdxs);
-                    GetFocusedCarIdxInDynLeaderboard = () => Settings.NumOnTrackRelativePos;
-                    GetDynGapToFocused = (i) => GetDynCar(i)?.GapToFocusedOnTrack;
-                    GetDynGapToAhead = (i) => GetDynCar(i)?.GapToAheadOnTrack;
-                    GetDynBestLapDeltaToFocusedBest = (i) => GetDynCar(i)?.BestLapDeltaToFocusedBest;
-                    GetDynLastLapDeltaToFocusedBest = (i) => GetDynCar(i)?.LastLapDeltaToFocusedBest;
-                    GetDynLastLapDeltaToFocusedLast = (i) => GetDynCar(i)?.LastLapDeltaToFocusedLast;
-                    GetDynPosition = (i) => GetDynCar(i)?.OverallPos;
-                    GetDynPositionStart = (i) => GetDynCar(i)?.StartPos;
+                    this.GetDynCar = (i) => v.GetCar(i, this._relativePosOnTrackWoPitCarsIdxs);
+                    this.GetFocusedCarIdxInDynLeaderboard = () => this.Settings.NumOnTrackRelativePos;
+                    this.GetDynGapToFocused = (i) => this.GetDynCar(i)?.GapToFocusedOnTrack;
+                    this.GetDynGapToAhead = (i) => this.GetDynCar(i)?.GapToAheadOnTrack;
+                    this.GetDynBestLapDeltaToFocusedBest = (i) => this.GetDynCar(i)?.BestLapDeltaToFocusedBest;
+                    this.GetDynLastLapDeltaToFocusedBest = (i) => this.GetDynCar(i)?.LastLapDeltaToFocusedBest;
+                    this.GetDynLastLapDeltaToFocusedLast = (i) => this.GetDynCar(i)?.LastLapDeltaToFocusedLast;
+                    this.GetDynPosition = (i) => this.GetDynCar(i)?.OverallPos;
+                    this.GetDynPositionStart = (i) => this.GetDynCar(i)?.StartPos;
                     break;
 
                 default:
-                    SetDynGettersDefault();
+                    this.SetDynGettersDefault();
                     break;
             }
         }
 
         void SetDynGettersDefault() {
-            GetDynCar = (i) => null;
-            GetFocusedCarIdxInDynLeaderboard = () => null;
-            GetDynGapToFocused = (i) => double.NaN;
-            GetDynGapToAhead = (i) => double.NaN;
-            GetDynBestLapDeltaToFocusedBest = (i) => double.NaN;
-            GetDynLastLapDeltaToFocusedBest = (i) => double.NaN;
-            GetDynLastLapDeltaToFocusedLast = (i) => double.NaN;
-            GetDynPosition = (i) => null;
-            GetDynPositionStart = (i) => null;
+            this.GetDynCar = (i) => null;
+            this.GetFocusedCarIdxInDynLeaderboard = () => null;
+            this.GetDynGapToFocused = (i) => double.NaN;
+            this.GetDynGapToAhead = (i) => double.NaN;
+            this.GetDynBestLapDeltaToFocusedBest = (i) => double.NaN;
+            this.GetDynLastLapDeltaToFocusedBest = (i) => double.NaN;
+            this.GetDynLastLapDeltaToFocusedLast = (i) => double.NaN;
+            this.GetDynPosition = (i) => null;
+            this.GetDynPositionStart = (i) => null;
         }
 
         internal void SetRelativeOnTrackOrder(List<CarSplinePos> _relativeSplinePositions, int focusedCarIdx) {
-            _relativePosOnTrackCarsIdxs ??= new int?[Settings.NumOnTrackRelativePos * 2 + 1];
+            this._relativePosOnTrackCarsIdxs ??= new int?[this.Settings.NumOnTrackRelativePos * 2 + 1];
 
-
-            var relPos = Settings.NumOnTrackRelativePos;
+            var relPos = this.Settings.NumOnTrackRelativePos;
             var ahead = _relativeSplinePositions
                 .Where(x => x.SplinePos > 0)
                 .Take(relPos)
@@ -238,24 +240,24 @@ namespace KLPlugins.DynLeaderboards {
                 .ToList()
                 .ConvertAll(x => (int?)x.CarIdx);
 
-            ahead.CopyTo(_relativePosOnTrackCarsIdxs, relPos - ahead.Count);
-            _relativePosOnTrackCarsIdxs[relPos] = focusedCarIdx;
-            behind.CopyTo(_relativePosOnTrackCarsIdxs, relPos + 1);
+            ahead.CopyTo(this._relativePosOnTrackCarsIdxs, relPos - ahead.Count);
+            this._relativePosOnTrackCarsIdxs[relPos] = focusedCarIdx;
+            behind.CopyTo(this._relativePosOnTrackCarsIdxs, relPos + 1);
 
             // Set missing positions to -1
             var startidx = relPos - ahead.Count;
             var endidx = relPos + behind.Count + 1;
             for (int i = 0; i < relPos * 2 + 1; i++) {
                 if (i < startidx || i >= endidx) {
-                    _relativePosOnTrackCarsIdxs[i] = null;
+                    this._relativePosOnTrackCarsIdxs[i] = null;
                 }
             }
         }
 
         internal void SetRelativeOnTrackWoPitOrder(List<CarSplinePos> _relativeSplinePositions, int focusedCarIdx, List<CarData> cars, bool isRace) {
-            _relativePosOnTrackWoPitCarsIdxs ??= new int?[Settings.NumOnTrackRelativePos * 2 + 1];
+            this._relativePosOnTrackWoPitCarsIdxs ??= new int?[this.Settings.NumOnTrackRelativePos * 2 + 1];
 
-            var relPos = Settings.NumOnTrackRelativePos;
+            var relPos = this.Settings.NumOnTrackRelativePos;
             var ahead = _relativeSplinePositions
                 .Where(x => {
                     var car = cars[x.CarIdx];
@@ -279,65 +281,65 @@ namespace KLPlugins.DynLeaderboards {
                 .ToList()
                 .ConvertAll(x => (int?)x.CarIdx);
 
-            ahead.CopyTo(_relativePosOnTrackWoPitCarsIdxs, relPos - ahead.Count);
-            _relativePosOnTrackWoPitCarsIdxs[relPos] = focusedCarIdx;
-            behind.CopyTo(_relativePosOnTrackWoPitCarsIdxs, relPos + 1);
+            ahead.CopyTo(this._relativePosOnTrackWoPitCarsIdxs, relPos - ahead.Count);
+            this._relativePosOnTrackWoPitCarsIdxs[relPos] = focusedCarIdx;
+            behind.CopyTo(this._relativePosOnTrackWoPitCarsIdxs, relPos + 1);
 
             // Set missing positions to -1
             var startidx = relPos - ahead.Count;
             var endidx = relPos + behind.Count + 1;
             for (int i = 0; i < relPos * 2 + 1; i++) {
                 if (i < startidx || i >= endidx) {
-                    _relativePosOnTrackWoPitCarsIdxs[i] = null;
+                    this._relativePosOnTrackWoPitCarsIdxs[i] = null;
                 }
             }
         }
 
         internal void SetRelativeOverallOrder(int focusedCarIdx, List<CarData> cars) {
-            _relativeOverallCarsIdxs ??= new int?[Settings.NumOverallRelativePos * 2 + 1];
+            this._relativeOverallCarsIdxs ??= new int?[this.Settings.NumOverallRelativePos * 2 + 1];
 
-            var numRelPos = Settings.NumOverallRelativePos;
+            var numRelPos = this.Settings.NumOverallRelativePos;
             for (int i = 0; i < numRelPos * 2 + 1; i++) {
                 var idxInCars = focusedCarIdx - numRelPos + i;
-                _relativeOverallCarsIdxs[i] = idxInCars < cars.Count && idxInCars >= 0 ? (int?)idxInCars : null;
+                this._relativeOverallCarsIdxs[i] = idxInCars < cars.Count && idxInCars >= 0 ? (int?)idxInCars : null;
             }
         }
 
         internal void SetPartialRelativeOverallOrder(int FocusedCarIdx, List<CarData> Cars) {
-            _partialRelativeOverallCarsIdxs ??= new int?[Settings.PartialRelativeOverallNumOverallPos + Settings.PartialRelativeOverallNumRelativePos * 2 + 1];
+            this._partialRelativeOverallCarsIdxs ??= new int?[this.Settings.PartialRelativeOverallNumOverallPos + this.Settings.PartialRelativeOverallNumRelativePos * 2 + 1];
 
-            var numOverallPos = Settings.PartialRelativeOverallNumOverallPos;
-            var numRelPos = Settings.PartialRelativeOverallNumRelativePos;
+            var numOverallPos = this.Settings.PartialRelativeOverallNumOverallPos;
+            var numRelPos = this.Settings.PartialRelativeOverallNumRelativePos;
 
             // TODO: Try to clean this mess up
-            _focusedCarPosInPartialRelativeOverallCarsIdxs = null;
+            this._focusedCarPosInPartialRelativeOverallCarsIdxs = null;
             for (int i = 0; i < numOverallPos + numRelPos * 2 + 1; i++) {
                 int? idxInCars = i;
                 if (i > numOverallPos - 1 && FocusedCarIdx > numOverallPos + numRelPos) {
                     idxInCars += FocusedCarIdx - numOverallPos - numRelPos;
                 }
-                _partialRelativeOverallCarsIdxs[i] = idxInCars < Cars.Count ? idxInCars : null;
+                this._partialRelativeOverallCarsIdxs[i] = idxInCars < Cars.Count ? idxInCars : null;
                 if (idxInCars == FocusedCarIdx) {
-                    _focusedCarPosInPartialRelativeOverallCarsIdxs = i;
+                    this._focusedCarPosInPartialRelativeOverallCarsIdxs = i;
                 }
             }
         }
 
         internal void SetRelativeClassOrder(int FocusedCarIdx, List<CarData> Cars, int?[] PosInClassCarsIdxs) {
-            _relativeClassCarsIdxs ??= new int?[Settings.NumClassRelativePos * 2 + 1];
+            this._relativeClassCarsIdxs ??= new int?[this.Settings.NumClassRelativePos * 2 + 1];
 
-            for (int i = 0; i < Settings.NumClassRelativePos * 2 + 1; i++) {
-                int? idx = Cars[(int)FocusedCarIdx].InClassPos - Settings.NumClassRelativePos + i - 1;
+            for (int i = 0; i < this.Settings.NumClassRelativePos * 2 + 1; i++) {
+                int? idx = Cars[(int)FocusedCarIdx].InClassPos - this.Settings.NumClassRelativePos + i - 1;
                 idx = PosInClassCarsIdxs.ElementAtOrDefault((int)idx);
-                _relativeClassCarsIdxs[i] = idx != null && idx < Cars.Count && idx >= 0 ? idx : null;
+                this._relativeClassCarsIdxs[i] = idx != null && idx < Cars.Count && idx >= 0 ? idx : null;
             }
         }
 
         internal void SetPartialRelativeClassOrder(int FocusedCarIdx, List<CarData> Cars, int?[] PosInClassCarsIdxs) {
-            _partialRelativeClassCarsIdxs ??= new int?[Settings.PartialRelativeClassNumClassPos + Settings.PartialRelativeClassNumRelativePos * 2 + 1];
+            this._partialRelativeClassCarsIdxs ??= new int?[this.Settings.PartialRelativeClassNumClassPos + this.Settings.PartialRelativeClassNumRelativePos * 2 + 1];
 
-            var overallPos = Settings.PartialRelativeClassNumClassPos;
-            var relPos = Settings.PartialRelativeClassNumRelativePos;
+            var overallPos = this.Settings.PartialRelativeClassNumClassPos;
+            var relPos = this.Settings.PartialRelativeClassNumRelativePos;
 
             // TODO: Try to clean this mess up
             for (int i = 0; i < overallPos + relPos * 2 + 1; i++) {
@@ -347,16 +349,16 @@ namespace KLPlugins.DynLeaderboards {
                     idx += focusedClassPos - overallPos - relPos;
                 }
                 idx = PosInClassCarsIdxs.ElementAtOrDefault((int)idx);
-                _partialRelativeClassCarsIdxs[i] = idx != null && idx < Cars.Count && idx >= 0 ? idx : null;
+                this._partialRelativeClassCarsIdxs[i] = idx != null && idx < Cars.Count && idx >= 0 ? idx : null;
                 if (idx == FocusedCarIdx) {
-                    _focusedCarPosInPartialRelativeClassCarsIdxs = i;
+                    this._focusedCarPosInPartialRelativeClassCarsIdxs = i;
                 }
             }
         }
 
         private bool DynLeaderboardContainsAny(params Leaderboard[] leaderboards) {
             foreach (var v in leaderboards) {
-                if (Settings.Order.Contains(v)) {
+                if (this.Settings.Order.Contains(v)) {
                     return true;
                 }
             }

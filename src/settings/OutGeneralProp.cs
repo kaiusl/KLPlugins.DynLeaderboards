@@ -16,11 +16,17 @@ namespace KLPlugins.DynLeaderboards.Settings {
 
     internal static class OutGeneralPropExtensions {
 
-        public static bool Includes(this OutGeneralProp p, OutGeneralProp o) => (p & o) != 0;
+        public static bool Includes(this OutGeneralProp p, OutGeneralProp o) {
+            return (p & o) != 0;
+        }
 
-        public static void Combine(ref this OutGeneralProp p, OutGeneralProp o) => p |= o;
+        public static void Combine(ref this OutGeneralProp p, OutGeneralProp o) {
+            p |= o;
+        }
 
-        public static void Remove(ref this OutGeneralProp p, OutGeneralProp o) => p &= ~o;
+        public static void Remove(ref this OutGeneralProp p, OutGeneralProp o) {
+            p &= ~o;
+        }
 
         public static string ToolTipText(this OutGeneralProp p) {
             return p switch {

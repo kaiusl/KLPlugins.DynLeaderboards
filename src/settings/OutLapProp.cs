@@ -49,7 +49,9 @@ namespace KLPlugins.DynLeaderboards.Settings {
 
     internal static class OutLapPropExtensions {
 
-        public static bool Includes(this OutLapProp p, OutLapProp o) => (p & o) != 0;
+        public static bool Includes(this OutLapProp p, OutLapProp o) {
+            return (p & o) != 0;
+        }
 
         public static bool IncludesAny(this OutLapProp p, params OutLapProp[] others) {
             foreach (var o in others) {
@@ -69,9 +71,13 @@ namespace KLPlugins.DynLeaderboards.Settings {
             return true;
         }
 
-        public static void Combine(ref this OutLapProp p, OutLapProp o) => p |= o;
+        public static void Combine(ref this OutLapProp p, OutLapProp o) {
+            p |= o;
+        }
 
-        public static void Remove(ref this OutLapProp p, OutLapProp o) => p &= ~o;
+        public static void Remove(ref this OutLapProp p, OutLapProp o) {
+            p &= ~o;
+        }
 
         public static OutLapProp[] Order() {
             return new OutLapProp[] {

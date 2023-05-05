@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 
@@ -26,52 +25,52 @@ namespace KLPlugins.DynLeaderboards.Helpers {
         private StreamWriter? _writer;
 
         internal Timer(string path) {
-            _watch = new Stopwatch();
+            this._watch = new Stopwatch();
             Directory.CreateDirectory(Path.GetDirectoryName(path));
-            _file = File.Create(path);
-            _writer = new StreamWriter(_file);
+            this._file = File.Create(path);
+            this._writer = new StreamWriter(this._file);
         }
 
         internal void Restart() {
-            _watch.Restart();
+            this._watch.Restart();
         }
 
         internal void Stop() {
-            _watch.Stop();
+            this._watch.Stop();
         }
 
         internal double Millis() {
-            return _watch.Elapsed.TotalMilliseconds;
+            return this._watch.Elapsed.TotalMilliseconds;
         }
 
         internal double Micros() {
-            return _watch.Elapsed.TotalMilliseconds * 1_000.0;
+            return this._watch.Elapsed.TotalMilliseconds * 1_000.0;
         }
 
         internal double Nanos() {
-            return _watch.Elapsed.TotalMilliseconds * 1_000_000.0;
+            return this._watch.Elapsed.TotalMilliseconds * 1_000_000.0;
         }
 
         internal void Write(double elapsed) {
-            _writer?.WriteLine($"{elapsed}");
+            this._writer?.WriteLine($"{elapsed}");
         }
 
         internal double StopAndWriteMicros() {
-            Stop();
-            var micros = Micros();
-            Write(micros);
+            this.Stop();
+            var micros = this.Micros();
+            this.Write(micros);
             return micros;
         }
 
         internal void Dispose() {
-            _watch.Stop();
-            if (_writer != null) {
-                _writer.Dispose();
-                _writer = null;
+            this._watch.Stop();
+            if (this._writer != null) {
+                this._writer.Dispose();
+                this._writer = null;
             }
-            if (_file != null) {
-                _file.Dispose();
-                _file = null;
+            if (this._file != null) {
+                this._file.Dispose();
+                this._file = null;
             }
         }
     }
@@ -82,31 +81,31 @@ namespace KLPlugins.DynLeaderboards.Helpers {
         private readonly string _rootPath;
 
         internal Timers(string rootPath) {
-            _rootPath = rootPath;
-            Directory.CreateDirectory(_rootPath);
-            SimHub.Logging.Current.Info($"Created dir at {_rootPath}");
+            this._rootPath = rootPath;
+            Directory.CreateDirectory(this._rootPath);
+            SimHub.Logging.Current.Info($"Created dir at {this._rootPath}");
         }
 
         internal Timer Add(string name) {
-            var path = $"{_rootPath}\\{name}\\{DynLeaderboardsPlugin.PluginStartTime}.txt";
-            if (!_watches.ContainsKey(name)) {
+            var path = $"{this._rootPath}\\{name}\\{DynLeaderboardsPlugin.PluginStartTime}.txt";
+            if (!this._watches.ContainsKey(name)) {
                 var timer = new Timer(path);
-                _watches.Add(name, timer);
+                this._watches.Add(name, timer);
             }
-            return _watches[name];
+            return this._watches[name];
         }
 
         internal Timer AddAndRestart(string name) {
-            var timer = Add(name);
+            var timer = this.Add(name);
             timer.Restart();
             return timer;
         }
 
         internal void Dispose() {
-            foreach (var w in _watches) {
+            foreach (var w in this._watches) {
                 w.Value.Dispose();
             }
-            _watches.Clear();
+            this._watches.Clear();
         }
     }
 }

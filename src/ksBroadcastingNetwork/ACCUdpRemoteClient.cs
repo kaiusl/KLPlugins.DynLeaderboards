@@ -27,35 +27,35 @@ namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork {
         /// To get the events delivered inside the UI thread, just create this object from the UI thread/synchronization context.
         /// </summary>
         internal ACCUdpRemoteClient(string ip, int port, string displayName, string connectionPassword, string commandPassword, int msRealtimeUpdateInterval) {
-            _ipPort = $"{ip}:{port}";
-            MessageHandler = new BroadcastingNetworkProtocol(_ipPort, Send);
-            _client = new UdpClient();
-            _client.Connect(ip, port);
+            this._ipPort = $"{ip}:{port}";
+            this.MessageHandler = new BroadcastingNetworkProtocol(this._ipPort, this.Send);
+            this._client = new UdpClient();
+            this._client.Connect(ip, port);
 
-            _displayName = displayName;
-            _connectionPassword = connectionPassword;
-            _commandPassword = commandPassword;
-            _msRealtimeUpdateInterval = msRealtimeUpdateInterval;
-            IsConnected = false;
-            MessageHandler.OnConnectionStateChanged += OnBroadcastConnectionStateChanged;
+            this._displayName = displayName;
+            this._connectionPassword = connectionPassword;
+            this._commandPassword = commandPassword;
+            this._msRealtimeUpdateInterval = msRealtimeUpdateInterval;
+            this.IsConnected = false;
+            this.MessageHandler.OnConnectionStateChanged += this.OnBroadcastConnectionStateChanged;
 
             DynLeaderboardsPlugin.LogInfo("Requested broadcast connection");
-            _listenerTask = ConnectAndRun();
+            this._listenerTask = this.ConnectAndRun();
         }
 
         internal ACCUdpRemoteClient(ACCUdpRemoteClientConfig cfg) : this(cfg.Ip, cfg.Port, cfg.DisplayName, cfg.ConnectionPassword, cfg.CommandPassword, cfg.UpdateIntervalMs) {
         }
 
         private void Send(byte[] payload) {
-            if (_client == null) {
+            if (this._client == null) {
                 DynLeaderboardsPlugin.LogWarn($"Tried to send a message to ACC but our client has already been shut down.");
                 return;
             }
-            _ = _client.Send(payload, payload.Length);
+            _ = this._client.Send(payload, payload.Length);
         }
 
         internal void Shutdown() {
-            ShutdownAsync().ContinueWith(t => {
+            this.ShutdownAsync().ContinueWith(t => {
                 if (t.Exception?.InnerExceptions?.Any() == true) {
                     DynLeaderboardsPlugin.LogError($"Client shut down with {t.Exception.InnerExceptions.Count} errors");
                 } else {
@@ -65,24 +65,23 @@ namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork {
         }
 
         internal async Task ShutdownAsync() {
-            if (_listenerTask != null && !_listenerTask.IsCompleted) {
-                MessageHandler.Disconnect();
-                _client?.Close();
-                _client = null;
-                IsConnected = false;
-                await _listenerTask;
+            if (this._listenerTask != null && !this._listenerTask.IsCompleted) {
+                this.MessageHandler.Disconnect();
+                this._client?.Close();
+                this._client = null;
+                this.IsConnected = false;
+                await this._listenerTask;
             }
         }
 
         private async Task ConnectAndRun() {
-            RequestConnection();
-            while (_client != null) {
+            this.RequestConnection();
+            while (this._client != null) {
                 try {
-                    var udpPacket = await _client.ReceiveAsync();
-                    using (var ms = new System.IO.MemoryStream(udpPacket.Buffer))
-                    using (var reader = new System.IO.BinaryReader(ms)) {
-                        MessageHandler.ProcessMessage(reader);
-                    }
+                    var udpPacket = await this._client.ReceiveAsync();
+                    using var ms = new System.IO.MemoryStream(udpPacket.Buffer);
+                    using var reader = new System.IO.BinaryReader(ms);
+                    this.MessageHandler.ProcessMessage(reader);
                 } catch (ObjectDisposedException) {
                     // Shutdown happened
                     DynLeaderboardsPlugin.LogInfo("Broadcast client shut down.");
@@ -95,25 +94,25 @@ namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork {
                     DynLeaderboardsPlugin.LogInfo($"Failed to process ACC message. Err {ex}.");
                 }
             }
-            IsConnected = false;
+            this.IsConnected = false;
         }
 
         private void RequestConnection() {
-            MessageHandler.RequestConnection(
-                    displayName: _displayName,
-                    connectionPassword: _connectionPassword,
-                    msRealtimeUpdateInterval: _msRealtimeUpdateInterval,
-                    commandPassword: _commandPassword
+            this.MessageHandler.RequestConnection(
+                    displayName: this._displayName,
+                    connectionPassword: this._connectionPassword,
+                    msRealtimeUpdateInterval: this._msRealtimeUpdateInterval,
+                    commandPassword: this._commandPassword
                 );
         }
 
         private void OnBroadcastConnectionStateChanged(int connectionId, bool connectionSuccess, bool isReadonly, string error) {
             if (connectionSuccess) {
                 DynLeaderboardsPlugin.LogInfo("Connected to broadcast client.");
-                IsConnected = true;
+                this.IsConnected = true;
             } else {
                 DynLeaderboardsPlugin.LogError($"Failed to connect to broadcast client. Err: {error}. Trying again..");
-                RequestConnection();
+                this.RequestConnection();
             }
         }
 
@@ -121,16 +120,16 @@ namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork {
 
         private bool _disposedValue = false; // To detect redundant calls
         protected virtual void Dispose(bool disposing) {
-            if (!_disposedValue) {
+            if (!this._disposedValue) {
                 if (disposing) {
                     try {
                         DynLeaderboardsPlugin.LogInfo("Disposed.");
-                        if (_client != null) {
-                            MessageHandler.Disconnect();
-                            _client.Close();
-                            _client.Dispose();
-                            _client = null;
-                            IsConnected = false;
+                        if (this._client != null) {
+                            this.MessageHandler.Disconnect();
+                            this._client.Close();
+                            this._client.Dispose();
+                            this._client = null;
+                            this.IsConnected = false;
                         }
                     } catch (Exception ex) {
                         System.Diagnostics.Debug.WriteLine(ex);
@@ -140,7 +139,7 @@ namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork {
                 // TODO: free unmanaged resources (unmanaged objects) and override a finalizer below.
                 // TODO: set large fields to null.
 
-                _disposedValue = true;
+                this._disposedValue = true;
             }
         }
 
@@ -153,7 +152,7 @@ namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork {
         // This code added to correctly implement the disposable pattern.
         public void Dispose() {
             // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
-            Dispose(true);
+            this.Dispose(true);
             // TODO: uncomment the following line if the finalizer is overridden above.
             // GC.SuppressFinalize(this);
         }
@@ -171,10 +170,10 @@ namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork {
             // Property names must match with the ones in json
             private int _udpListenerPort;
             public int updListenerPort {
-                readonly get => _udpListenerPort;
+                readonly get => this._udpListenerPort;
                 set {
                     ValidatePort(value);
-                    _udpListenerPort = value;
+                    this._udpListenerPort = value;
                 }
             }
             public string connectionPassword { get; set; }
@@ -195,15 +194,15 @@ namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork {
             }
 
             internal readonly void Validate() {
-                ValidatePort(updListenerPort);
+                ValidatePort(this.updListenerPort);
             }
         }
 
         internal string Ip { get; }
-        internal int Port => _config.updListenerPort;
+        internal int Port => this._config.updListenerPort;
         internal string DisplayName { get; }
-        internal string ConnectionPassword => _config.connectionPassword;
-        internal string CommandPassword => _config.commandPassword;
+        internal string ConnectionPassword => this._config.connectionPassword;
+        internal string CommandPassword => this._config.commandPassword;
         internal int UpdateIntervalMs { get; }
 
         private ACCBroadcastConfig _config;
@@ -215,16 +214,16 @@ namespace KLPlugins.DynLeaderboards.ksBroadcastingNetwork {
             try {
                 var configPath = $"{DynLeaderboardsPlugin.Settings.AccDataLocation}\\Config\\broadcasting.json";
                 var rawJson = File.ReadAllText(configPath, Encoding.Unicode).Replace("\"", "'");
-                _config = JsonConvert.DeserializeObject<ACCBroadcastConfig>(rawJson);
-                _config.Validate();
+                this._config = JsonConvert.DeserializeObject<ACCBroadcastConfig>(rawJson);
+                this._config.Validate();
             } catch (Exception e) {
                 DynLeaderboardsPlugin.LogWarn($"Couldn't read broadcasting.json. Using default, it may or may not work. Underlying error: {e}.");
-                _config = ACCBroadcastConfig.ACCDefault();
+                this._config = ACCBroadcastConfig.ACCDefault();
             }
 
-            Ip = ip;
-            DisplayName = displayName;
-            UpdateIntervalMs = updateTime;
+            this.Ip = ip;
+            this.DisplayName = displayName;
+            this.UpdateIntervalMs = updateTime;
         }
     }
 }

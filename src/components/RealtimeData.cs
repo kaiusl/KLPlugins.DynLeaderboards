@@ -1,4 +1,5 @@
 ﻿using System;
+
 using KLPlugins.DynLeaderboards.Helpers;
 using KLPlugins.DynLeaderboards.ksBroadcastingNetwork;
 
@@ -18,27 +19,28 @@ namespace KLPlugins.DynLeaderboards.Realtime {
         public bool IsRace { get; private set; }
 
         internal RealtimeData(RealtimeUpdate update) {
-            OldData = update;
-            NewData = update;
+            this.OldData = update;
+            this.NewData = update;
         }
 
         internal void OnRealtimeUpdate(RealtimeUpdate update) {
-            OldData = NewData;
-            NewData = update;
+            this.OldData = this.NewData;
+            this.NewData = update;
 
-            IsRace = NewData.SessionType == RaceSessionType.Race;
-            IsSession = NewData.Phase == SessionPhase.Session;
-            IsPreSession = !IsSession && NewData.Phase.EqualsAny(SessionPhase.Starting, SessionPhase.PreFormation, SessionPhase.FormationLap, SessionPhase.PreSession);
-            IsPostSession = !IsSession && NewData.Phase.EqualsAny(SessionPhase.SessionOver, SessionPhase.PostSession, SessionPhase.ResultUI);
+            this.IsRace = this.NewData.SessionType == RaceSessionType.Race;
+            this.IsSession = this.NewData.Phase == SessionPhase.Session;
+            this.IsPreSession = !this.IsSession && this.NewData.Phase.EqualsAny(SessionPhase.Starting, SessionPhase.PreFormation, SessionPhase.FormationLap, SessionPhase.PreSession);
+            this.IsPostSession = !this.IsSession && this.NewData.Phase.EqualsAny(SessionPhase.SessionOver, SessionPhase.PostSession, SessionPhase.ResultUI);
 
-            IsSessionStart = OldData.Phase != SessionPhase.Session && IsSession;
-            IsFocusedChange = NewData.FocusedCarIndex != OldData.FocusedCarIndex;
-            IsNewSession = OldData.SessionType != NewData.SessionType
-                || NewData.SessionIndex != OldData.SessionIndex
-                || OldData.Phase.EqualsAny(SessionPhase.Session, SessionPhase.SessionOver, SessionPhase.PostSession, SessionPhase.ResultUI) && IsPreSession;
+            this.IsSessionStart = this.OldData.Phase != SessionPhase.Session && this.IsSession;
+            this.IsFocusedChange = this.NewData.FocusedCarIndex != this.OldData.FocusedCarIndex;
+            this.IsNewSession = this.OldData.SessionType != this.NewData.SessionType
+                || this.NewData.SessionIndex != this.OldData.SessionIndex
+                || (this.OldData.Phase.EqualsAny(SessionPhase.Session, SessionPhase.SessionOver, SessionPhase.PostSession, SessionPhase.ResultUI) && this.IsPreSession);
 
-            if (SessionTotalTime == TimeSpan.Zero)
-                SessionTotalTime = NewData.SessionRunningTime + NewData.SessionRemainingTime;
+            if (this.SessionTotalTime == TimeSpan.Zero) {
+                this.SessionTotalTime = this.NewData.SessionRunningTime + this.NewData.SessionRemainingTime;
+            }
         }
     }
 }

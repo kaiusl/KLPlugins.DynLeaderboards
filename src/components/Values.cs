@@ -25,8 +25,8 @@ namespace KLPlugins.DynLeaderboards {
         public double SplinePos = 0;
 
         public CarSplinePos(int idx, double pos) {
-            CarIdx = idx;
-            SplinePos = pos;
+            this.CarIdx = idx;
+            this.SplinePos = pos;
         }
     }
 
@@ -66,71 +66,80 @@ namespace KLPlugins.DynLeaderboards {
         internal ACCRawData? RawData { get; private set; }
 
         internal Values() {
-            Cars = new List<CarData>();
+            this.Cars = new List<CarData>();
             var num = DynLeaderboardsPlugin.Settings.GetMaxNumClassPos();
-            if (num > 0)
-                PosInClassCarsIdxs = new int?[100];
+            if (num > 0) {
+                this.PosInClassCarsIdxs = new int?[100];
+            }
 
-            ResetPos();
-            _broadcastConfig = new ACCUdpRemoteClientConfig("127.0.0.1", "KLDynLeaderboardsPlugin", DynLeaderboardsPlugin.Settings.BroadcastDataUpdateRateMs);
+            this.ResetPos();
+            this._broadcastConfig = new ACCUdpRemoteClientConfig("127.0.0.1", "KLDynLeaderboardsPlugin", DynLeaderboardsPlugin.Settings.BroadcastDataUpdateRateMs);
             foreach (var l in DynLeaderboardsPlugin.Settings.DynLeaderboardConfigs) {
                 if (l.IsEnabled) {
-                    LeaderboardValues.Add(new DynLeaderboardValues(l));
+                    this.LeaderboardValues.Add(new DynLeaderboardValues(l));
                 }
             }
-            SetDynamicCarGetter();
+            this.SetDynamicCarGetter();
         }
 
-        public CarData? GetCar(int i) => Cars.ElementAtOrDefault(i);
+        public CarData? GetCar(int i) {
+            return this.Cars.ElementAtOrDefault(i);
+        }
 
         public CarData? GetFocusedCar() {
-            if (FocusedCarIdx == null || FocusedCarIdx == -1)
+            if (this.FocusedCarIdx == null || this.FocusedCarIdx == -1) {
                 return null;
-            return Cars[(int)FocusedCarIdx];
+            }
+
+            return this.Cars[(int)this.FocusedCarIdx];
         }
 
         public CarData? GetBestLapCar(CarClass cls) {
-            var idx = _bestLapByClassCarIdxs[cls];
-            if (idx == null)
+            var idx = this._bestLapByClassCarIdxs[cls];
+            if (idx == null) {
                 return null;
-            return Cars.ElementAtOrDefault((int)idx);
+            }
+
+            return this.Cars.ElementAtOrDefault((int)idx);
         }
 
         public CarData? GetFocusedClassBestLapCar() {
-            var focusedClass = GetFocusedCar()?.CarClass;
-            if (focusedClass == null)
+            var focusedClass = this.GetFocusedCar()?.CarClass;
+            if (focusedClass == null) {
                 return null;
-            return GetBestLapCar((CarClass)focusedClass);
+            }
+
+            return this.GetBestLapCar((CarClass)focusedClass);
         }
 
         internal void Reset() {
-            if (BroadcastClient != null) {
-                DisposeBroadcastClient();
+            if (this.BroadcastClient != null) {
+                this.DisposeBroadcastClient();
             }
-            RealtimeData = null;
-            TrackData = null;
-            Cars.Clear();
-            ResetPos();
-            _lastUpdateCarIds.Clear();
-            _classLeaderIdxs.Reset();
-            _bestLapByClassCarIdxs.Reset();
-            _relativeSplinePositions.Clear();
-            _startingPositionsSet = false;
-            MaxDriverStintTime = -1;
-            MaxDriverTotalDriveTime = -1;
-            SessionEndTimeForBroadcastEventsTime.Reset();
-            _broadcastEvt_realtimeData_sessiontime_diff.Reset();
-            SessionTimeRemaining = int.MaxValue;
+            this.RealtimeData = null;
+            this.TrackData = null;
+            this.Cars.Clear();
+            this.ResetPos();
+            this._lastUpdateCarIds.Clear();
+            this._classLeaderIdxs.Reset();
+            this._bestLapByClassCarIdxs.Reset();
+            this._relativeSplinePositions.Clear();
+            this._startingPositionsSet = false;
+            this.MaxDriverStintTime = -1;
+            this.MaxDriverTotalDriveTime = -1;
+            this.SessionEndTimeForBroadcastEventsTime.Reset();
+            this._broadcastEvt_realtimeData_sessiontime_diff.Reset();
+            this.SessionTimeRemaining = int.MaxValue;
         }
 
         private void ResetPos() {
-            ResetIdxs(PosInClassCarsIdxs);
-            foreach (var l in LeaderboardValues) {
+            ResetIdxs(this.PosInClassCarsIdxs);
+            foreach (var l in this.LeaderboardValues) {
                 l.ResetPos();
             }
 
-            _relativeSplinePositions.Clear();
-            FocusedCarIdx = null;
+            this._relativeSplinePositions.Clear();
+            this.FocusedCarIdx = null;
 
             static void ResetIdxs(int?[]? arr) {
                 if (arr != null) {
@@ -144,80 +153,82 @@ namespace KLPlugins.DynLeaderboards {
         #region IDisposable Support
 
         ~Values() {
-            Dispose(false);
+            this.Dispose(false);
             GC.SuppressFinalize(this);
         }
 
         private bool _isDisposed = false;
 
         protected virtual void Dispose(bool disposing) {
-            if (!_isDisposed) {
+            if (!this._isDisposed) {
                 if (disposing) {
                     DynLeaderboardsPlugin.LogInfo("Disposed");
-                    DisposeBroadcastClient();
+                    this.DisposeBroadcastClient();
                 }
 
-                _isDisposed = true;
+                this._isDisposed = true;
             }
         }
 
         public void Dispose() {
-            Dispose(true);
+            this.Dispose(true);
         }
 
         #endregion IDisposable Support
 
         internal void OnDataUpdate(PluginManager _, GameData data) {
-            RawData = (ACCRawData)data.NewData.GetRawDataObject();
-            SessionTimeRemaining = RawData.Graphics.SessionTimeLeft / 1000.0f;
+            this.RawData = (ACCRawData)data.NewData.GetRawDataObject();
+            this.SessionTimeRemaining = this.RawData.Graphics.SessionTimeLeft / 1000.0f;
         }
 
         internal void OnGameStateChanged(bool running, PluginManager _) {
             if (running) {
-                if (BroadcastClient != null) {
+                if (this.BroadcastClient != null) {
                     DynLeaderboardsPlugin.LogWarn("Broadcast client wasn't 'null' at start of new event. Shouldn't be possible, there is a bug in disposing of Broadcast client from previous session.");
-                    DisposeBroadcastClient();
+                    this.DisposeBroadcastClient();
                 }
-                ConnectToBroadcastClient();
+                this.ConnectToBroadcastClient();
             } else {
-                Reset();
+                this.Reset();
             }
         }
 
         internal CarData? GetCar(int i, int?[] idxs) {
             var idx = idxs.ElementAtOrDefault(i);
-            if (idx == null)
+            if (idx == null) {
                 return null;
-            return Cars.ElementAtOrDefault((int)idx);
+            }
+
+            return this.Cars.ElementAtOrDefault((int)idx);
         }
 
         internal void SetDynamicCarGetter() {
-            foreach (var l in LeaderboardValues) {
+            foreach (var l in this.LeaderboardValues) {
                 l.SetDynGetters(this);
             }
         }
 
         internal void AddNewLeaderboard(DynLeaderboardConfig s) {
-            LeaderboardValues.Add(new DynLeaderboardValues(s));
-            SetDynamicCarGetter();
+            this.LeaderboardValues.Add(new DynLeaderboardValues(s));
+            this.SetDynamicCarGetter();
         }
 
         #region Broadcast client connection
 
         internal void ConnectToBroadcastClient() {
-            BroadcastClient = new ACCUdpRemoteClient(_broadcastConfig);
-            BroadcastClient.MessageHandler.OnEntrylistUpdate += OnEntryListUpdate;
-            BroadcastClient.MessageHandler.OnRealtimeCarUpdate += OnRealtimeCarUpdate;
-            BroadcastClient.MessageHandler.OnRealtimeUpdate += OnBroadcastRealtimeUpdate;
-            BroadcastClient.MessageHandler.OnTrackDataUpdate += OnTrackDataUpdate;
-            BroadcastClient.MessageHandler.OnBroadcastingEvent += OnBroadcastingEvent;
+            this.BroadcastClient = new ACCUdpRemoteClient(this._broadcastConfig);
+            this.BroadcastClient.MessageHandler.OnEntrylistUpdate += this.OnEntryListUpdate;
+            this.BroadcastClient.MessageHandler.OnRealtimeCarUpdate += this.OnRealtimeCarUpdate;
+            this.BroadcastClient.MessageHandler.OnRealtimeUpdate += this.OnBroadcastRealtimeUpdate;
+            this.BroadcastClient.MessageHandler.OnTrackDataUpdate += this.OnTrackDataUpdate;
+            this.BroadcastClient.MessageHandler.OnBroadcastingEvent += this.OnBroadcastingEvent;
         }
 
         internal async void DisposeBroadcastClient() {
-            if (BroadcastClient != null) {
-                await BroadcastClient.ShutdownAsync();
-                BroadcastClient.Dispose();
-                BroadcastClient = null;
+            if (this.BroadcastClient != null) {
+                await this.BroadcastClient.ShutdownAsync();
+                this.BroadcastClient.Dispose();
+                this.BroadcastClient = null;
             }
         }
 
@@ -232,13 +243,14 @@ namespace KLPlugins.DynLeaderboards {
         // New entry list if found new car or driver
 
         private void OnBroadcastingEvent(string sender, in BroadcastingEvent evt) {
-            if (RealtimeData == null) {
+            if (this.RealtimeData == null) {
                 return;
             }
             //Debug.Assert(evt != null);
             //Debug.Assert(RealtimeData != null);
-            if (RealtimeData.NewData.SessionRunningTime == TimeSpan.Zero)
+            if (this.RealtimeData.NewData.SessionRunningTime == TimeSpan.Zero) {
                 return;
+            }
 
             // Its possible for this message to be late, I have seen something like 5s. I think Acc also sends multiple ones as I also have seen double messages.
             // Anyways this would mess up finish detection and order as the finish times would be wrong
@@ -252,20 +264,20 @@ namespace KLPlugins.DynLeaderboards {
             // we need to check that it had really run out at the moment the message was meant to be sent.
 
             var msgTime = evt.Time;
-            var timeFromLastRealtimeUpdate = (DateTime.Now - RealtimeData.NewData.RecieveTime).TotalSeconds;
-            var currentSessionRunningTime = RealtimeData.NewData.SessionRunningTime.TotalSeconds + timeFromLastRealtimeUpdate;
+            var timeFromLastRealtimeUpdate = (DateTime.Now - this.RealtimeData.NewData.RecieveTime).TotalSeconds;
+            var currentSessionRunningTime = this.RealtimeData.NewData.SessionRunningTime.TotalSeconds + timeFromLastRealtimeUpdate;
 
             // Store RealtimeData.SessionRunningTime and BroadcastEvent.MsgTime difference
             var sessiontime_diff = msgTime - currentSessionRunningTime;
-            if (RealtimeData.NewData.SessionRemainingTime != TimeSpan.Zero && (_broadcastEvt_realtimeData_sessiontime_diff.Stats == null || _broadcastEvt_realtimeData_sessiontime_diff.Stats.Count < 100)) {
-                _broadcastEvt_realtimeData_sessiontime_diff.Add(sessiontime_diff);
+            if (this.RealtimeData.NewData.SessionRemainingTime != TimeSpan.Zero && (this._broadcastEvt_realtimeData_sessiontime_diff.Stats == null || this._broadcastEvt_realtimeData_sessiontime_diff.Stats.Count < 100)) {
+                this._broadcastEvt_realtimeData_sessiontime_diff.Add(sessiontime_diff);
             }
 
             // Check if this event was late
             var isLateEvent = false;
             var msgTimeDiffFromExpected = 0.0;
-            if (_broadcastEvt_realtimeData_sessiontime_diff.Stats != null && _broadcastEvt_realtimeData_sessiontime_diff.Stats.Count > 5) {
-                msgTimeDiffFromExpected = Math.Abs(sessiontime_diff - _broadcastEvt_realtimeData_sessiontime_diff.Median);
+            if (this._broadcastEvt_realtimeData_sessiontime_diff.Stats != null && this._broadcastEvt_realtimeData_sessiontime_diff.Stats.Count > 5) {
+                msgTimeDiffFromExpected = Math.Abs(sessiontime_diff - this._broadcastEvt_realtimeData_sessiontime_diff.Median);
                 if (msgTimeDiffFromExpected > 0.1) {
                     isLateEvent = true;
                 } else {
@@ -274,37 +286,37 @@ namespace KLPlugins.DynLeaderboards {
             }
 
             // Store session end times for BroadcastEvents
-            if (RealtimeData.OldData != null && RealtimeData.NewData.SessionRemainingTime != TimeSpan.Zero) {
-                var endTime = msgTime + RealtimeData.NewData.SessionRemainingTime.TotalSeconds - timeFromLastRealtimeUpdate;
-                SessionEndTimeForBroadcastEventsTime.Add(endTime);
+            if (this.RealtimeData.OldData != null && this.RealtimeData.NewData.SessionRemainingTime != TimeSpan.Zero) {
+                var endTime = msgTime + this.RealtimeData.NewData.SessionRemainingTime.TotalSeconds - timeFromLastRealtimeUpdate;
+                this.SessionEndTimeForBroadcastEventsTime.Add(endTime);
 
-                var sesstimeremainings = float.IsNaN(SessionTimeRemaining) ? float.MaxValue : SessionTimeRemaining;
+                var sesstimeremainings = float.IsNaN(this.SessionTimeRemaining) ? float.MaxValue : this.SessionTimeRemaining;
             }
 
             var id = evt.CarId;
-            var car = Cars.Find(x => x.CarIndex == id);
+            var car = this.Cars.Find(x => x.CarIndex == id);
             if (evt.Type == BroadcastingCarEventType.LapCompleted
-                && RealtimeData.IsRace
+                && this.RealtimeData.IsRace
                 && car != null
                 && !car.SetFinishedOnNextUpdate // If broadcast event is late, we could have already set this
-                && (Cars[0].CarIndex == car.CarIndex || Cars[0].SetFinishedOnNextUpdate)
+                && (this.Cars[0].CarIndex == car.CarIndex || this.Cars[0].SetFinishedOnNextUpdate)
             ) {
-                if (SessionTimeRemaining == 0
-                    || (SessionTimeRemaining == float.NaN
-                        && !double.IsNaN(SessionEndTimeForBroadcastEventsTime.Median)
-                        && SessionEndTimeForBroadcastEventsTime.Median <= msgTime
+                if (this.SessionTimeRemaining == 0
+                    || (this.SessionTimeRemaining == float.NaN
+                        && !double.IsNaN(this.SessionEndTimeForBroadcastEventsTime.Median)
+                        && this.SessionEndTimeForBroadcastEventsTime.Median <= msgTime
                         )
                 ) {
                     // Check if the session was really over
                     var wasSessionReallyFinished = true;
                     var currentSessionRunningTimeAtMsgSent = currentSessionRunningTime - msgTimeDiffFromExpected;
-                    var sessionFinishedTime = currentSessionRunningTimeAtMsgSent - RealtimeData.SessionTotalTime.TotalSeconds;
-                    if (Cars[0].CarIndex == car.CarIndex && isLateEvent && sessionFinishedTime < 0) {
+                    var sessionFinishedTime = currentSessionRunningTimeAtMsgSent - this.RealtimeData.SessionTotalTime.TotalSeconds;
+                    if (this.Cars[0].CarIndex == car.CarIndex && isLateEvent && sessionFinishedTime < 0) {
                         wasSessionReallyFinished = false;
                     }
 
                     if (wasSessionReallyFinished) {
-                        var sesstimeremainings = float.IsNaN(SessionTimeRemaining) ? float.MaxValue : SessionTimeRemaining;
+                        var sesstimeremainings = float.IsNaN(this.SessionTimeRemaining) ? float.MaxValue : this.SessionTimeRemaining;
                         car.SetIsFinished(TimeSpan.FromSeconds(currentSessionRunningTimeAtMsgSent));
                     }
                 }
@@ -312,31 +324,33 @@ namespace KLPlugins.DynLeaderboards {
         }
 
         private void OnBroadcastRealtimeUpdate(string sender, RealtimeUpdate update) {
-            if (Cars.Count == 0) return;
-
-            if (RealtimeData == null) {
-                RealtimeData = new RealtimeData(update);
+            if (this.Cars.Count == 0) {
                 return;
-            } else {
-                RealtimeData.OnRealtimeUpdate(update);
             }
 
-            if (RealtimeData.IsNewSession) {
+            if (this.RealtimeData == null) {
+                this.RealtimeData = new RealtimeData(update);
+                return;
+            } else {
+                this.RealtimeData.OnRealtimeUpdate(update);
+            }
+
+            if (this.RealtimeData.IsNewSession) {
                 // Clear all data at the beginning of session
                 // Technically we only need clear parts of the data, but this is simpler
                 DynLeaderboardsPlugin.LogInfo("New session.");
-                Cars.Clear();
+                this.Cars.Clear();
                 // BroadcastClient cannot be null at this point, otherwise we wouldn't have gotten here. 
                 // This is a callback method called from BroadcastClient.
-                Debug.Assert(BroadcastClient != null);
-                BroadcastClient!.MessageHandler.RequestEntryList();
-                ResetPos();
-                SessionEndTimeForBroadcastEventsTime.Reset();
-                _broadcastEvt_realtimeData_sessiontime_diff.Reset();
-                _lastUpdateCarIds.Clear();
-                _relativeSplinePositions.Clear();
-                _startingPositionsSet = false;
-                SessionTimeRemaining = int.MaxValue;
+                Debug.Assert(this.BroadcastClient != null);
+                this.BroadcastClient!.MessageHandler.RequestEntryList();
+                this.ResetPos();
+                this.SessionEndTimeForBroadcastEventsTime.Reset();
+                this._broadcastEvt_realtimeData_sessiontime_diff.Reset();
+                this._lastUpdateCarIds.Clear();
+                this._relativeSplinePositions.Clear();
+                this._startingPositionsSet = false;
+                this.SessionTimeRemaining = int.MaxValue;
             }
 
             SetMaxStintTimes();
@@ -346,33 +360,34 @@ namespace KLPlugins.DynLeaderboards {
             // We need to check if the car is finished before setting the overall order
             // If we don't and the car just finished, it would gain a lap until the next update,
             // this causes flickering in results at the moment anyone finished
-            if (RealtimeData.IsRace && RealtimeData.IsPostSession) {
-                foreach (var c in Cars) {
+            if (this.RealtimeData.IsRace && this.RealtimeData.IsPostSession) {
+                foreach (var c in this.Cars) {
                     c.CheckIsFinished();
                 }
             }
 
-            if (!_startingPositionsSet && RealtimeData.IsRace && Cars.All(x => x.NewData != null)) {
+            if (!this._startingPositionsSet && this.RealtimeData.IsRace && this.Cars.All(x => x.NewData != null)) {
                 SetStartingOrder();
             }
             SetOverallOrder();
 
-            FocusedCarIdx = Cars.FindIndex(x => x.CarIndex == update.FocusedCarIndex);
-            if (FocusedCarIdx != null && FocusedCarIdx != -1 && !RealtimeData.IsNewSession && TrackData != null) {
+            this.FocusedCarIdx = this.Cars.FindIndex(x => x.CarIndex == update.FocusedCarIndex);
+            if (this.FocusedCarIdx != null && this.FocusedCarIdx != -1 && !this.RealtimeData.IsNewSession && this.TrackData != null) {
                 SetRelativeOrders();
-                UpdateCarData((int)FocusedCarIdx, TrackData);
+                UpdateCarData((int)this.FocusedCarIdx, this.TrackData);
             }
 
             #region Local functions
 
             void SetMaxStintTimes() {
-                if (!RealtimeData.IsRace || !RealtimeData.IsPreSession || MaxDriverStintTime != -1)
+                if (!this.RealtimeData.IsRace || !this.RealtimeData.IsPreSession || this.MaxDriverStintTime != -1) {
                     return;
+                }
 
-                MaxDriverStintTime = (int)DynLeaderboardsPlugin.PManager.GetPropertyValue<SimHub.Plugins.DataPlugins.DataCore.DataCorePlugin>("GameRawData.Graphics.DriverStintTimeLeft") / 1000.0;
-                MaxDriverTotalDriveTime = (int)DynLeaderboardsPlugin.PManager.GetPropertyValue<SimHub.Plugins.DataPlugins.DataCore.DataCorePlugin>("GameRawData.Graphics.DriverStintTotalTimeLeft") / 1000.0;
-                if (MaxDriverTotalDriveTime == 65535) { // This is max value, which means that the limit doesn't exist
-                    MaxDriverTotalDriveTime = -1;
+                this.MaxDriverStintTime = (int)DynLeaderboardsPlugin.PManager.GetPropertyValue<SimHub.Plugins.DataPlugins.DataCore.DataCorePlugin>("GameRawData.Graphics.DriverStintTimeLeft") / 1000.0;
+                this.MaxDriverTotalDriveTime = (int)DynLeaderboardsPlugin.PManager.GetPropertyValue<SimHub.Plugins.DataPlugins.DataCore.DataCorePlugin>("GameRawData.Graphics.DriverStintTotalTimeLeft") / 1000.0;
+                if (this.MaxDriverTotalDriveTime == 65535) { // This is max value, which means that the limit doesn't exist
+                    this.MaxDriverTotalDriveTime = -1;
                 }
             }
 
@@ -385,9 +400,9 @@ namespace KLPlugins.DynLeaderboards {
                 // Then we could possibly remove cars that are actually still in session
                 // Thus we keep track of how many times in order each car hasn't received the update
                 // If it's larger than some number, we remove the car
-                if (_lastUpdateCarIds.Count != 0) {
-                    foreach (var car in Cars) {
-                        if (!_lastUpdateCarIds.Contains(car.CarIndex)) {
+                if (this._lastUpdateCarIds.Count != 0) {
+                    foreach (var car in this.Cars) {
+                        if (!this._lastUpdateCarIds.Contains(car.CarIndex)) {
                             car.MissedRealtimeUpdates++;
                         } else {
                             car.MissedRealtimeUpdates = 0;
@@ -395,20 +410,21 @@ namespace KLPlugins.DynLeaderboards {
                     }
 
                     // Also don't remove cars that have finished as we want to freeze the results after finish
-                    var numRemovedCars = Cars.RemoveAll(x => x.MissedRealtimeUpdates > 10 && !x.IsFinished);
+                    var numRemovedCars = this.Cars.RemoveAll(x => x.MissedRealtimeUpdates > 10 && !x.IsFinished);
                 }
-                _lastUpdateCarIds.Clear();
+                this._lastUpdateCarIds.Clear();
             }
 
             void SetOverallOrder() {
                 // Sort cars in overall position order
-                if (RealtimeData.IsRace) {
+                if (this.RealtimeData.IsRace) {
                     // In race use TotalSplinePosition (splinePosition + laps) which updates real time.
                     // RealtimeCarUpdate.Position only updates at the end of sector
 
                     int cmp(CarData a, CarData b) {
-                        if (a == b || a.NewData == null || b.NewData == null)
+                        if (a == b || a.NewData == null || b.NewData == null) {
                             return 0;
+                        }
 
                         // Sort cars that have crossed the start line always in front of cars who haven't
                         if (a.HasCrossedStartLine && !b.HasCrossedStartLine) {
@@ -462,12 +478,14 @@ namespace KLPlugins.DynLeaderboards {
                         return b.TotalSplinePosition.CompareTo(a.TotalSplinePosition);
                     };
 
-                    Cars.Sort(cmp);
+                    this.Cars.Sort(cmp);
                 } else {
                     // In other sessions TotalSplinePosition doesn't make any sense, use RealtimeCarUpdate.Position
                     int cmp(CarData a, CarData b) {
-                        if (a == b)
+                        if (a == b) {
                             return 0;
+                        }
+
                         var apos = a.NewData?.Position ?? 1000;
                         var bpos = b.NewData?.Position ?? 1000;
                         if (apos == bpos) { // Make sort stable, fixes jumping
@@ -476,44 +494,44 @@ namespace KLPlugins.DynLeaderboards {
                         return apos.CompareTo(bpos);
                     }
 
-                    Cars.Sort(cmp);
+                    this.Cars.Sort(cmp);
                 }
             }
 
             void SetStartingOrder() {
                 // This method is called after we have checked that all cars have NewData
-                Cars.Sort((a, b) => a.NewData!.Position.CompareTo(b.NewData!.Position)); // Spline position may give wrong results if cars are sitting on the grid, thus NewData.Position
+                this.Cars.Sort((a, b) => a.NewData!.Position.CompareTo(b.NewData!.Position)); // Spline position may give wrong results if cars are sitting on the grid, thus NewData.Position
 
                 var classPositions = new CarClassArray<int>(0); // Keep track of what class position are we at the moment
-                for (int i = 0; i < Cars.Count; i++) {
-                    var thisCar = Cars[i];
+                for (int i = 0; i < this.Cars.Count; i++) {
+                    var thisCar = this.Cars[i];
                     var thisClass = thisCar.CarClass;
                     var classPos = ++classPositions[thisClass];
                     thisCar.SetStartingPositions(i + 1, classPos);
                 }
-                _startingPositionsSet = true;
+                this._startingPositionsSet = true;
             }
 
             void SetRelativeOrders() {
-                foreach (var l in LeaderboardValues) {
+                foreach (var l in this.LeaderboardValues) {
                     switch (l.Settings.CurrentLeaderboard()) {
                         case Leaderboard.RelativeOverall:
-                            l.SetRelativeOverallOrder((int)FocusedCarIdx, Cars);
+                            l.SetRelativeOverallOrder((int)this.FocusedCarIdx, this.Cars);
                             break;
 
                         case Leaderboard.PartialRelativeOverall:
-                            l.SetPartialRelativeOverallOrder((int)FocusedCarIdx, Cars);
+                            l.SetPartialRelativeOverallOrder((int)this.FocusedCarIdx, this.Cars);
                             break;
 
                         case Leaderboard.RelativeClass:
-                            if (PosInClassCarsIdxs != null) {
-                                l.SetRelativeClassOrder((int)FocusedCarIdx, Cars, PosInClassCarsIdxs);
+                            if (this.PosInClassCarsIdxs != null) {
+                                l.SetRelativeClassOrder((int)this.FocusedCarIdx, this.Cars, this.PosInClassCarsIdxs);
                             }
                             break;
 
                         case Leaderboard.PartialRelativeClass:
-                            if (PosInClassCarsIdxs != null) {
-                                l.SetPartialRelativeClassOrder((int)FocusedCarIdx, Cars, PosInClassCarsIdxs);
+                            if (this.PosInClassCarsIdxs != null) {
+                                l.SetPartialRelativeClassOrder((int)this.FocusedCarIdx, this.Cars, this.PosInClassCarsIdxs);
                             }
                             break;
 
@@ -527,16 +545,16 @@ namespace KLPlugins.DynLeaderboards {
             /// Update car related data like positions and gaps
             /// </summary>
             void UpdateCarData(int FocusedCarIdx, TrackData trackData) {
-                Debug.Assert(Cars.Count != 0);
+                Debug.Assert(this.Cars.Count != 0);
 
                 // Clear old data
-                _relativeSplinePositions.Clear();
-                _classLeaderIdxs.Reset();
-                _bestLapByClassCarIdxs.Reset();
+                this._relativeSplinePositions.Clear();
+                this._classLeaderIdxs.Reset();
+                this._bestLapByClassCarIdxs.Reset();
 
-                var leaderCar = Cars[0];
+                var leaderCar = this.Cars[0];
                 // FocusedCarIdx is checked to be not null before
-                var focusedCar = Cars[FocusedCarIdx];
+                var focusedCar = this.Cars[FocusedCarIdx];
                 var focusedClass = focusedCar.CarClass;
 
                 if (leaderCar.NewData == null) {
@@ -546,8 +564,8 @@ namespace KLPlugins.DynLeaderboards {
 
                 // We need to do 2 passes on Cars list, because we need to know best lap cars at the
                 // moment we update CarData and only way we can do that is to go thorough all the cars
-                for (int idxInCars = 0; idxInCars < Cars.Count; idxInCars++) {
-                    var thisCar = Cars[idxInCars];
+                for (int idxInCars = 0; idxInCars < this.Cars.Count; idxInCars++) {
+                    var thisCar = this.Cars[idxInCars];
                     UpdateBestLapCarIdxs(thisCar, idxInCars);
                     UpdateRelativeSplinePosition(thisCar, idxInCars);
                     thisCar.OnRealtimeUpdateFirstPass(focusedCar.CarIndex);
@@ -555,34 +573,34 @@ namespace KLPlugins.DynLeaderboards {
 
                 var classPositions = new CarClassArray<int>(0);  // Keep track of what class position are we at the moment
                 var lastSeenInClassCarIdxs = new CarClassArray<int?>(null);  // Keep track of the indexes of last cars seen in each class
-                for (int idxInCars = 0; idxInCars < Cars.Count; idxInCars++) {
-                    var thisCar = Cars[idxInCars];
+                for (int idxInCars = 0; idxInCars < this.Cars.Count; idxInCars++) {
+                    var thisCar = this.Cars[idxInCars];
                     var thisCarClassPos = ++classPositions[thisCar.CarClass];
                     SetPositionInClass(thisCar.CarClass, thisCarClassPos, idxInCars);
 
                     var carAheadInClassIdx = lastSeenInClassCarIdxs[thisCar.CarClass];
-                    var overallBestLapCarIdx = _bestLapByClassCarIdxs[CarClass.Overall];
-                    var classBestLapCarIdx = _bestLapByClassCarIdxs[thisCar.CarClass];
+                    var overallBestLapCarIdx = this._bestLapByClassCarIdxs[CarClass.Overall];
+                    var classBestLapCarIdx = this._bestLapByClassCarIdxs[thisCar.CarClass];
 
                     thisCar.OnRealtimeUpdateSecondPass(
                         trackData: trackData,
-                        realtimeData: RealtimeData,
+                        realtimeData: this.RealtimeData,
                         leaderCar: leaderCar,
                         // _classLeadeIdxs must contain thisClass, and Cars must contain that car. SetPositionInClass must set it.
-                        classLeaderCar: Cars[(int)_classLeaderIdxs[thisCar.CarClass]!],
+                        classLeaderCar: this.Cars[(int)this._classLeaderIdxs[thisCar.CarClass]!],
                         focusedCar: focusedCar,
-                        carAhead: idxInCars != 0 ? Cars[idxInCars - 1] : null,
-                        carAheadInClass: carAheadInClassIdx != null ? Cars[(int)carAheadInClassIdx] : null,
-                        carAheadOnTrack: GetCarAheadOnTrack(thisCar),
-                        overallBestLapCar: overallBestLapCarIdx != null ? Cars[(int)overallBestLapCarIdx] : null,
-                        classBestLapCar: classBestLapCarIdx != null ? Cars[(int)classBestLapCarIdx] : null,
+                        carAhead: idxInCars != 0 ? this.Cars[idxInCars - 1] : null,
+                        carAheadInClass: carAheadInClassIdx != null ? this.Cars[(int)carAheadInClassIdx] : null,
+                        carAheadOnTrack: this.GetCarAheadOnTrack(thisCar),
+                        overallBestLapCar: overallBestLapCarIdx != null ? this.Cars[(int)overallBestLapCarIdx] : null,
+                        classBestLapCar: classBestLapCarIdx != null ? this.Cars[(int)classBestLapCarIdx] : null,
                         overallPos: idxInCars + 1,
                         classPos: thisCarClassPos
                     );
                     lastSeenInClassCarIdxs[thisCar.CarClass] = idxInCars;
                 }
-                if (PosInClassCarsIdxs != null) {
-                    ClearUnusedClassPositions(classPositions[focusedClass], PosInClassCarsIdxs);
+                if (this.PosInClassCarsIdxs != null) {
+                    ClearUnusedClassPositions(classPositions[focusedClass], this.PosInClassCarsIdxs);
                 }
 
                 SetRelativeOnTrackOrders();
@@ -597,9 +615,9 @@ namespace KLPlugins.DynLeaderboards {
                     }
 
                     void UpdateBestLap(CarClass cls) {
-                        var currentIdx = _bestLapByClassCarIdxs[cls];
-                        if (currentIdx == null || Cars[(int)currentIdx].NewData?.BestSessionLap.Laptime >= thisCarBestLap) {
-                            _bestLapByClassCarIdxs[cls] = idxInCars;
+                        var currentIdx = this._bestLapByClassCarIdxs[cls];
+                        if (currentIdx == null || this.Cars[(int)currentIdx].NewData?.BestSessionLap.Laptime >= thisCarBestLap) {
+                            this._bestLapByClassCarIdxs[cls] = idxInCars;
                         }
                     }
                 }
@@ -607,19 +625,20 @@ namespace KLPlugins.DynLeaderboards {
                 void UpdateRelativeSplinePosition(CarData thisCar, int idxInCars) {
                     var relSplinePos = thisCar.CalculateRelativeSplinePosition(focusedCar);
                     // Since we cannot remove cars after finish, don't add cars that have left to the relative
-                    if (thisCar.MissedRealtimeUpdates < 10 && relSplinePos != null)
-                        _relativeSplinePositions.Add(new CarSplinePos(idxInCars, (double)relSplinePos));
+                    if (thisCar.MissedRealtimeUpdates < 10 && relSplinePos != null) {
+                        this._relativeSplinePositions.Add(new CarSplinePos(idxInCars, (double)relSplinePos));
+                    }
                 }
 
                 void SetPositionInClass(CarClass thisCarClass, int thisCarClassPos, int idxInCars) {
                     if (thisCarClassPos == classPositions.DefaultValue + 1) { // First time we see this class, must be the leader
-                        _classLeaderIdxs[thisCarClass] = idxInCars;
+                        this._classLeaderIdxs[thisCarClass] = idxInCars;
                     }
 
-                    if (PosInClassCarsIdxs != null && thisCarClass == focusedCar.CarClass) {
-                        PosInClassCarsIdxs[thisCarClassPos - 1] = idxInCars;
+                    if (this.PosInClassCarsIdxs != null && thisCarClass == focusedCar.CarClass) {
+                        this.PosInClassCarsIdxs[thisCarClassPos - 1] = idxInCars;
                         if (idxInCars == FocusedCarIdx) {
-                            FocusedCarPosInClassCarsIdxs = thisCarClassPos - 1;
+                            this.FocusedCarPosInClassCarsIdxs = thisCarClassPos - 1;
                         }
                     }
                 }
@@ -627,22 +646,29 @@ namespace KLPlugins.DynLeaderboards {
                 void ClearUnusedClassPositions(int numCarsInFocusedCarClass, int?[] PosInClassCarsIdxs) {
                     // If somebody left the session, need to reset following class positions
                     for (int i = numCarsInFocusedCarClass; i < DynLeaderboardsPlugin.Settings.GetMaxNumClassPos(); i++) {
-                        if (PosInClassCarsIdxs[i] == null)
+                        if (PosInClassCarsIdxs[i] == null) {
                             break; // All following must already be nulls
+                        }
+
                         PosInClassCarsIdxs[i] = null;
                     }
                 }
 
                 void SetRelativeOnTrackOrders() {
-                    if (_relativeSplinePositions == null || _relativeSplinePositions.Count == 0)
+                    if (this._relativeSplinePositions == null || this._relativeSplinePositions.Count == 0) {
                         return;
-                    _relativeSplinePositions.Sort((a, b) => a.SplinePos.CompareTo(b.SplinePos));
+                    }
 
-                    foreach (var l in LeaderboardValues) {
-                        if (l.Settings.CurrentLeaderboard() == Leaderboard.RelativeOnTrack)
-                            l.SetRelativeOnTrackOrder(_relativeSplinePositions, FocusedCarIdx);
-                        if (l.Settings.CurrentLeaderboard() == Leaderboard.RelativeOnTrackWoPit)
-                            l.SetRelativeOnTrackWoPitOrder(_relativeSplinePositions, FocusedCarIdx, Cars, RealtimeData.IsRace);
+                    this._relativeSplinePositions.Sort((a, b) => a.SplinePos.CompareTo(b.SplinePos));
+
+                    foreach (var l in this.LeaderboardValues) {
+                        if (l.Settings.CurrentLeaderboard() == Leaderboard.RelativeOnTrack) {
+                            l.SetRelativeOnTrackOrder(this._relativeSplinePositions, FocusedCarIdx);
+                        }
+
+                        if (l.Settings.CurrentLeaderboard() == Leaderboard.RelativeOnTrackWoPit) {
+                            l.SetRelativeOnTrackWoPitOrder(this._relativeSplinePositions, FocusedCarIdx, this.Cars, this.RealtimeData.IsRace);
+                        }
                     }
                 }
 
@@ -656,7 +682,7 @@ namespace KLPlugins.DynLeaderboards {
             // Closest car ahead is the one with smallest positive relative spline position.
             CarData? closestCar = null;
             double relsplinepos = double.MaxValue;
-            foreach (var car in Cars) {
+            foreach (var car in this.Cars) {
                 var pos = car.CalculateRelativeSplinePosition(c);
                 if (pos != null && pos > 0 && pos < relsplinepos) {
                     closestCar = car;
@@ -669,9 +695,9 @@ namespace KLPlugins.DynLeaderboards {
         private void OnEntryListUpdate(string sender, in CarInfo carInfo) {
             // Add new cars if not already added, update car info of all the cars (adds new drivers if some were missing)
             var id = carInfo.Id;
-            var car = Cars.Find(x => x.CarIndex == id);
+            var car = this.Cars.Find(x => x.CarIndex == id);
             if (car == null) {
-                Cars.Add(new CarData(in carInfo, null));
+                this.Cars.Add(new CarData(in carInfo, null));
             } else {
                 car.OnEntryListUpdate(in carInfo);
             }
@@ -680,19 +706,23 @@ namespace KLPlugins.DynLeaderboards {
         private void OnRealtimeCarUpdate(string sender, RealtimeCarUpdate update) {
             // Update Realtime data of existing cars
             // If found new car, BroadcastClient itself requests new entry list
-            if (RealtimeData == null)
+            if (this.RealtimeData == null) {
                 return;
-            var car = Cars.Find(x => x.CarIndex == update.CarId);
-            if (car == null)
+            }
+
+            var car = this.Cars.Find(x => x.CarIndex == update.CarId);
+            if (car == null) {
                 return;
-            car.OnRealtimeCarUpdate(update, RealtimeData);
-            _lastUpdateCarIds.Add(car.CarIndex);
+            }
+
+            car.OnRealtimeCarUpdate(update, this.RealtimeData);
+            this._lastUpdateCarIds.Add(car.CarIndex);
         }
 
         private void OnTrackDataUpdate(string sender, TrackData update) {
-            if (TrackData == null || TrackData.Id != update.Id) {
-                TrackData = update;
-                TrackData.ReadDefBestLaps();
+            if (this.TrackData == null || this.TrackData.Id != update.Id) {
+                this.TrackData = update;
+                this.TrackData.ReadDefBestLaps();
             }
         }
 

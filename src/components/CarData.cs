@@ -28,9 +28,9 @@ namespace KLPlugins.DynLeaderboards.Car {
         private int _currentDriverIndex { get; set; }
         public List<DriverData> Drivers { get; internal set; } = new List<DriverData>();
         public NationalityEnum TeamNationality { get; internal set; }
-        public string CarClassColor => DynLeaderboardsPlugin.Settings.CarClassColors[CarClass];
-        public string TeamCupCategoryColor => DynLeaderboardsPlugin.Settings.TeamCupCategoryColors[TeamCupCategory];
-        public string TeamCupCategoryTextColor => DynLeaderboardsPlugin.Settings.TeamCupCategoryTextColors[TeamCupCategory];
+        public string CarClassColor => DynLeaderboardsPlugin.Settings.CarClassColors[this.CarClass];
+        public string TeamCupCategoryColor => DynLeaderboardsPlugin.Settings.TeamCupCategoryColors[this.TeamCupCategory];
+        public string TeamCupCategoryTextColor => DynLeaderboardsPlugin.Settings.TeamCupCategoryTextColors[this.TeamCupCategory];
 
         // RealtimeCarUpdates
         public RealtimeCarUpdate? NewData { get; private set; } = null;
@@ -38,7 +38,7 @@ namespace KLPlugins.DynLeaderboards.Car {
         public RealtimeCarUpdate? OldData { get; private set; } = null;
 
         public int CurrentDriverIndex;
-        public DriverData CurrentDriver => Drivers[CurrentDriverIndex];
+        public DriverData CurrentDriver => this.Drivers[this.CurrentDriverIndex];
 
         // ..BySplinePosition
         public double TotalSplinePosition { get; private set; } = 0.0;
@@ -79,7 +79,7 @@ namespace KLPlugins.DynLeaderboards.Car {
         public double? CurrentStintTime { get; private set; } = null;
         public int LastStintLaps { get; private set; } = 0;
         public int CurrentStintLaps { get; private set; } = 0;
-        public double CurrentDriverTotalDrivingTime => CurrentDriver.GetTotalDrivingTime(true, CurrentStintTime);
+        public double CurrentDriverTotalDrivingTime => this.CurrentDriver.GetTotalDrivingTime(true, this.CurrentStintTime);
 
         // Lap deltas
         public double? BestLapDeltaToOverallBest { get; private set; } = null;
@@ -138,20 +138,20 @@ namespace KLPlugins.DynLeaderboards.Car {
         ////////////////////////
 
         internal CarData(in CarInfo info, RealtimeCarUpdate? update) {
-            CarIndex = info.Id;
-            CarModelType = info.ModelType;
-            CarClass = info.Class;
-            TeamName = info.TeamName;
-            RaceNumber = info.RaceNumber;
-            TeamCupCategory = info.CupCategory;
-            _currentDriverIndex = info.CurrentDriverIndex;
-            CurrentDriverIndex = _currentDriverIndex;
+            this.CarIndex = info.Id;
+            this.CarModelType = info.ModelType;
+            this.CarClass = info.Class;
+            this.TeamName = info.TeamName;
+            this.RaceNumber = info.RaceNumber;
+            this.TeamCupCategory = info.CupCategory;
+            this._currentDriverIndex = info.CurrentDriverIndex;
+            this.CurrentDriverIndex = this._currentDriverIndex;
             foreach (var d in info.Drivers) {
-                AddDriver(d);
+                this.AddDriver(d);
             }
-            TeamNationality = info.TeamNationality;
+            this.TeamNationality = info.TeamNationality;
 
-            NewData = update;
+            this.NewData = update;
         }
 
         /// <summary>
@@ -160,15 +160,19 @@ namespace KLPlugins.DynLeaderboards.Car {
         /// <param name="i"></param>
         /// <returns></returns>
         public DriverData GetDriver(int i) {
-            if (i == 0)
-                return Drivers.ElementAtOrDefault(CurrentDriverIndex);
-            if (i <= CurrentDriverIndex)
-                return Drivers.ElementAtOrDefault(i - 1);
-            return Drivers.ElementAtOrDefault(i);
+            if (i == 0) {
+                return this.Drivers.ElementAtOrDefault(this.CurrentDriverIndex);
+            }
+
+            if (i <= this.CurrentDriverIndex) {
+                return this.Drivers.ElementAtOrDefault(i - 1);
+            }
+
+            return this.Drivers.ElementAtOrDefault(i);
         }
 
         public double? GetDriverTotalDrivingTime(int i) {
-            return GetDriver(i)?.GetTotalDrivingTime(i == 0, CurrentStintTime);
+            return this.GetDriver(i)?.GetTotalDrivingTime(i == 0, this.CurrentStintTime);
         }
 
         /// <summary>
@@ -180,28 +184,30 @@ namespace KLPlugins.DynLeaderboards.Car {
             // We need to make sure that the order is as specified by new info
             // But also add new drivers. We keep old drivers but move them to the end of list
             // as they might rejoin and then we need to have the old data. (I'm not sure if ACC keeps those drivers or not, but we make sure to keep the data.)
-            CurrentDriverIndex = info.CurrentDriverIndex;
-            if (Drivers.Count == info.Drivers.Length
-                && Drivers.Zip(info.Drivers, (a, b) => a.Equals(b)).All(x => x)
-            )
+            this.CurrentDriverIndex = info.CurrentDriverIndex;
+            if (this.Drivers.Count == info.Drivers.Length
+                && this.Drivers.Zip(info.Drivers, (a, b) => a.Equals(b)).All(x => x)
+            ) {
                 return; // All drivers are same
+            }
 
             // Fix drivers list
             for (int i = 0; i < info.Drivers.Length; i++) {
-                var currentDriver = Drivers[i];
+                var currentDriver = this.Drivers[i];
                 var newDriver = info.Drivers[i];
-                if (currentDriver.Equals(newDriver))
+                if (currentDriver.Equals(newDriver)) {
                     continue;
+                }
 
-                var oldIdx = Drivers.FindIndex(x => x.Equals(newDriver));
+                var oldIdx = this.Drivers.FindIndex(x => x.Equals(newDriver));
                 if (oldIdx == -1) {
                     // Must be new driver
-                    Drivers.Insert(i, new DriverData(newDriver));
+                    this.Drivers.Insert(i, new DriverData(newDriver));
                 } else {
                     // Driver is present but it's order has changed
-                    var old = Drivers[oldIdx];
-                    Drivers.RemoveAt(oldIdx);
-                    Drivers.Insert(i, old);
+                    var old = this.Drivers[oldIdx];
+                    this.Drivers.RemoveAt(oldIdx);
+                    this.Drivers.Insert(i, old);
                 }
             }
         }
@@ -216,56 +222,61 @@ namespace KLPlugins.DynLeaderboards.Car {
             // We have set finished positions in ´OnRealtimeUpdate´ and that's really all that matters
             //if (IsFinished) return;
 
-            OldData = NewData;
-            NewData = update;
-            if (OldData == null || IsFinished)
+            this.OldData = this.NewData;
+            this.NewData = update;
+            if (this.OldData == null || this.IsFinished) {
                 return;
+            }
 
-            _isNewLap = OldData.Laps != NewData.Laps;
-            _isSplinePositionReset = OldData.SplinePosition > 0.9 && NewData.SplinePosition < 0.1;
-            _enteredPitlane = !OldData.IsInPitlane && NewData.IsInPitlane;
-            _exitedPitlane = OldData.IsInPitlane && !NewData.IsInPitlane;
+            this._isNewLap = this.OldData.Laps != this.NewData.Laps;
+            this._isSplinePositionReset = this.OldData.SplinePosition > 0.9 && this.NewData.SplinePosition < 0.1;
+            this._enteredPitlane = !this.OldData.IsInPitlane && this.NewData.IsInPitlane;
+            this._exitedPitlane = this.OldData.IsInPitlane && !this.NewData.IsInPitlane;
 
-            if (realtimeData.IsRace)
+            if (realtimeData.IsRace) {
                 HandleOffsetLapUpdates();
+            }
             // Wait for one more update at the beginning of session, so we have all relevant data for calculations below
-            if (IsFinalRealtimeCarUpdateAdded)
+            if (this.IsFinalRealtimeCarUpdateAdded) {
                 return;
+            }
 
-            CurrentDriverIndex = NewData.DriverIndex;
+            this.CurrentDriverIndex = this.NewData.DriverIndex;
 
             if (realtimeData.IsRace) {
                 CheckForCrossingStartLine();
-                TotalSplinePosition = NewData.SplinePosition + NewData.Laps;
-                if (OffsetLapUpdate == OffsetLapUpdateType.LapBeforeSpline)
-                    TotalSplinePosition -= 1;
-                else if (OffsetLapUpdate == OffsetLapUpdateType.SplineBeforeLap)
-                    TotalSplinePosition += 1;
+                this.TotalSplinePosition = this.NewData.SplinePosition + this.NewData.Laps;
+                if (this.OffsetLapUpdate == OffsetLapUpdateType.LapBeforeSpline) {
+                    this.TotalSplinePosition -= 1;
+                } else if (this.OffsetLapUpdate == OffsetLapUpdateType.SplineBeforeLap) {
+                    this.TotalSplinePosition += 1;
+                }
+
                 UpdatePitInfo();
             }
             HandleRTG();
 
-            if (_isNewLap) {
-                CurrentDriver.OnLapFinished(NewData.LastLap);
-                IsLastLapOutLap = IsCurrentLapOutLap;
-                IsCurrentLapOutLap = false;
-                IsLastLapInLap = IsCurrentLapInLap;
-                IsCurrentLapInLap = false;
+            if (this._isNewLap) {
+                this.CurrentDriver.OnLapFinished(this.NewData.LastLap);
+                this.IsLastLapOutLap = this.IsCurrentLapOutLap;
+                this.IsCurrentLapOutLap = false;
+                this.IsLastLapInLap = this.IsCurrentLapInLap;
+                this.IsCurrentLapInLap = false;
             }
 
-            if (_exitedPitlane) {
-                IsCurrentLapOutLap = true;
+            if (this._exitedPitlane) {
+                this.IsCurrentLapOutLap = true;
             }
-            if (_enteredPitlane) {
-                IsCurrentLapInLap = true;
+            if (this._enteredPitlane) {
+                this.IsCurrentLapInLap = true;
             }
 
             UpdateStintInfo();
             UpdateBestLapSectors();
 
-            MaxSpeed = Math.Max(MaxSpeed, NewData.Kmh);
-            if (SetFinishedOnNextUpdate && OffsetLapUpdate == OffsetLapUpdateType.None) {
-                IsFinalRealtimeCarUpdateAdded = true;
+            this.MaxSpeed = Math.Max(this.MaxSpeed, this.NewData.Kmh);
+            if (this.SetFinishedOnNextUpdate && this.OffsetLapUpdate == OffsetLapUpdateType.None) {
+                this.IsFinalRealtimeCarUpdateAdded = true;
             }
 
             #region Local functions
@@ -273,117 +284,117 @@ namespace KLPlugins.DynLeaderboards.Car {
             void CheckForCrossingStartLine() {
                 // Initial update before the start of the race
                 if (realtimeData.IsPreSession
-                    && HasCrossedStartLine
-                    && NewData.SplinePosition > 0.5
-                    && NewData.Laps == 0
+                    && this.HasCrossedStartLine
+                    && this.NewData.SplinePosition > 0.5
+                    && this.NewData.Laps == 0
                 ) {
-                    HasCrossedStartLine = false;
+                    this.HasCrossedStartLine = false;
                 }
 
-                if (!HasCrossedStartLine && (_isSplinePositionReset || _exitedPitlane)) {
-                    HasCrossedStartLine = true;
+                if (!this.HasCrossedStartLine && (this._isSplinePositionReset || this._exitedPitlane)) {
+                    this.HasCrossedStartLine = true;
                 }
             }
 
             void HandleRTG() {
                 if (realtimeData.IsRace
-                    && !SetFinishedOnNextUpdate // It's okay to jump to the pits after finishing
-                    && NewData.IsInPitlane
-                    && OldData.IsOnTrack
+                    && !this.SetFinishedOnNextUpdate // It's okay to jump to the pits after finishing
+                    && this.NewData.IsInPitlane
+                    && this.OldData.IsOnTrack
                 ) {
-                    JumpedToPits = true;
+                    this.JumpedToPits = true;
                 }
 
-                if (JumpedToPits && !NewData.IsInPitlane) {
-                    JumpedToPits = false;
+                if (this.JumpedToPits && !this.NewData.IsInPitlane) {
+                    this.JumpedToPits = false;
                 }
             }
 
             void HandleOffsetLapUpdates() {
                 // Check for offset lap update
-                if (OffsetLapUpdate == OffsetLapUpdateType.None
-                    && _isNewLap
-                    && NewData.SplinePosition > 0.9
+                if (this.OffsetLapUpdate == OffsetLapUpdateType.None
+                    && this._isNewLap
+                    && this.NewData.SplinePosition > 0.9
                 ) {
-                    OffsetLapUpdate = OffsetLapUpdateType.LapBeforeSpline;
-                    _lapAtOffsetLapUpdate = NewData.Laps;
-                } else if (OffsetLapUpdate == OffsetLapUpdateType.None
-                                && _isSplinePositionReset
-                                && NewData.Laps != _lapAtOffsetLapUpdate // Remove double detection with above
-                                && NewData.Laps == OldData.Laps
-                                && HasCrossedStartLine
+                    this.OffsetLapUpdate = OffsetLapUpdateType.LapBeforeSpline;
+                    this._lapAtOffsetLapUpdate = this.NewData.Laps;
+                } else if (this.OffsetLapUpdate == OffsetLapUpdateType.None
+                                && this._isSplinePositionReset
+                                && this.NewData.Laps != this._lapAtOffsetLapUpdate // Remove double detection with above
+                                && this.NewData.Laps == this.OldData.Laps
+                                && this.HasCrossedStartLine
                     ) {
-                    OffsetLapUpdate = OffsetLapUpdateType.SplineBeforeLap;
-                    _lapAtOffsetLapUpdate = NewData.Laps;
+                    this.OffsetLapUpdate = OffsetLapUpdateType.SplineBeforeLap;
+                    this._lapAtOffsetLapUpdate = this.NewData.Laps;
                 }
 
-                if (OffsetLapUpdate == OffsetLapUpdateType.LapBeforeSpline) {
-                    if (NewData.SplinePosition < 0.9) {
-                        OffsetLapUpdate = OffsetLapUpdateType.None;
+                if (this.OffsetLapUpdate == OffsetLapUpdateType.LapBeforeSpline) {
+                    if (this.NewData.SplinePosition < 0.9) {
+                        this.OffsetLapUpdate = OffsetLapUpdateType.None;
                     }
-                } else if (OffsetLapUpdate == OffsetLapUpdateType.SplineBeforeLap) {
-                    if (NewData.Laps != _lapAtOffsetLapUpdate || (NewData.SplinePosition > 0.025 && NewData.SplinePosition < 0.9)) {
+                } else if (this.OffsetLapUpdate == OffsetLapUpdateType.SplineBeforeLap) {
+                    if (this.NewData.Laps != this._lapAtOffsetLapUpdate || (this.NewData.SplinePosition > 0.025 && this.NewData.SplinePosition < 0.9)) {
                         // Second condition is a fallback in case the lap actually shouldn't have been updated (eg at the start line, jumped to pits and then crossed the line in the pits)
-                        OffsetLapUpdate = OffsetLapUpdateType.None;
+                        this.OffsetLapUpdate = OffsetLapUpdateType.None;
                     }
                 }
             }
 
             void UpdatePitInfo() {
                 // Pit started
-                if (_enteredPitlane
-                    || (PitEntryTime == null && NewData.IsInPitlane && !realtimeData.IsPreSession) // We join/start SimHub mid session
+                if (this._enteredPitlane
+                    || (this.PitEntryTime == null && this.NewData.IsInPitlane && !realtimeData.IsPreSession) // We join/start SimHub mid session
                 ) {
-                    PitCount++;
-                    PitEntryTime = realtimeData.NewData.SessionRunningTime.TotalSeconds;
+                    this.PitCount++;
+                    this.PitEntryTime = realtimeData.NewData.SessionRunningTime.TotalSeconds;
                 }
 
                 // Pit ended
-                if (PitEntryTime != null && _exitedPitlane) {
-                    IsCurrentLapOutLap = true;
-                    LastPitTime = realtimeData.NewData.SessionRunningTime.TotalSeconds - PitEntryTime;
-                    TotalPitTime += (double)LastPitTime;
-                    PitEntryTime = null;
-                    CurrentTimeInPits = null;
+                if (this.PitEntryTime != null && this._exitedPitlane) {
+                    this.IsCurrentLapOutLap = true;
+                    this.LastPitTime = realtimeData.NewData.SessionRunningTime.TotalSeconds - this.PitEntryTime;
+                    this.TotalPitTime += (double)this.LastPitTime;
+                    this.PitEntryTime = null;
+                    this.CurrentTimeInPits = null;
                 }
 
-                if (PitEntryTime != null) {
-                    CurrentTimeInPits = realtimeData.NewData.SessionRunningTime.TotalSeconds - PitEntryTime;
+                if (this.PitEntryTime != null) {
+                    this.CurrentTimeInPits = realtimeData.NewData.SessionRunningTime.TotalSeconds - this.PitEntryTime;
                 }
             }
 
             void UpdateStintInfo() {
-                if (_isNewLap) {
-                    CurrentStintLaps++;
+                if (this._isNewLap) {
+                    this.CurrentStintLaps++;
                 }
 
                 // Stint started
-                if (_exitedPitlane // Pitlane exit
+                if (this._exitedPitlane // Pitlane exit
                     || (realtimeData.IsRace && realtimeData.IsSessionStart) // Race start
-                    || (_stintStartTime == null && NewData.IsOnTrack && !realtimeData.IsPreSession) // We join/start SimHub mid session
+                    || (this._stintStartTime == null && this.NewData.IsOnTrack && !realtimeData.IsPreSession) // We join/start SimHub mid session
                 ) {
-                    _stintStartTime = realtimeData.NewData.SessionRunningTime.TotalSeconds;
+                    this._stintStartTime = realtimeData.NewData.SessionRunningTime.TotalSeconds;
                 }
 
                 // Stint ended
-                if (_enteredPitlane && _stintStartTime != null) {
-                    LastStintTime = realtimeData.NewData.SessionRunningTime.TotalSeconds - (double)_stintStartTime;
-                    CurrentDriver.OnStintEnd((double)LastStintTime);
-                    _stintStartTime = null;
-                    CurrentStintTime = null;
-                    LastStintLaps = CurrentStintLaps;
-                    CurrentStintLaps = 0;
+                if (this._enteredPitlane && this._stintStartTime != null) {
+                    this.LastStintTime = realtimeData.NewData.SessionRunningTime.TotalSeconds - (double)this._stintStartTime;
+                    this.CurrentDriver.OnStintEnd((double)this.LastStintTime);
+                    this._stintStartTime = null;
+                    this.CurrentStintTime = null;
+                    this.LastStintLaps = this.CurrentStintLaps;
+                    this.CurrentStintLaps = 0;
                 }
 
-                if (_stintStartTime != null) {
-                    CurrentStintTime = realtimeData.NewData.SessionRunningTime.TotalSeconds - (double)_stintStartTime;
+                if (this._stintStartTime != null) {
+                    this.CurrentStintTime = realtimeData.NewData.SessionRunningTime.TotalSeconds - (double)this._stintStartTime;
                 }
             }
 
             void UpdateBestLapSectors() {
                 // Note that NewData.BestSessionLap doesn't contain the sectors of that best lap but the best sectors.
-                if (_isNewLap && NewData.LastLap.IsValidForBest) {
-                    NewData.LastLap.Splits.CopyTo(BestLapSectors, 0);
+                if (this._isNewLap && this.NewData.LastLap.IsValidForBest) {
+                    this.NewData.LastLap.Splits.CopyTo(this.BestLapSectors, 0);
                 }
             }
 
@@ -391,8 +402,8 @@ namespace KLPlugins.DynLeaderboards.Car {
         }
 
         internal void OnRealtimeUpdateFirstPass(int focusedCarIndex) {
-            _splinePositionTime.Reset();
-            IsFocused = CarIndex == focusedCarIndex;
+            this._splinePositionTime.Reset();
+            this.IsFocused = this.CarIndex == focusedCarIndex;
         }
 
         internal void OnRealtimeUpdateSecondPass(
@@ -409,15 +420,15 @@ namespace KLPlugins.DynLeaderboards.Car {
             int overallPos,
             int classPos
         ) {
-            IsOverallBestLapCar = CarIndex == overallBestLapCar?.CarIndex;
-            IsClassBestLapCar = CarIndex == classBestLapCar?.CarIndex;
+            this.IsOverallBestLapCar = this.CarIndex == overallBestLapCar?.CarIndex;
+            this.IsClassBestLapCar = this.CarIndex == classBestLapCar?.CarIndex;
 
-            InClassPos = classPos;
-            OverallPos = overallPos;
+            this.InClassPos = classPos;
+            this.OverallPos = overallPos;
 
             if (realtimeData.NewData.SessionRemainingTime == TimeSpan.Zero && realtimeData.IsRace) {
                 // We also need to check finished here (after positions update) to detect leaders finish
-                CheckIsFinished();
+                this.CheckIsFinished();
 
                 // If broadcast event was missed we can double check here. Note that we must assume that the session is ended for more than BroadcastDataUpdateRate,
                 // otherwise we could falsely detect finish.
@@ -425,14 +436,14 @@ namespace KLPlugins.DynLeaderboards.Car {
                 // Say our refresh rate is 5s.Then if you crossed the line inside that 5s then on the next update
                 // a) clock has run out and b) you just crossed the line(eg finished lap), this means that you will
                 // be falsely counted as finished.
-                if (!IsFinished
+                if (!this.IsFinished
                     && (realtimeData.NewData.SessionRunningTime - realtimeData.SessionTotalTime).TotalMilliseconds > DynLeaderboardsPlugin.Settings.BroadcastDataUpdateRateMs
-                    && _isNewLap
-                    && (leaderCar.CarIndex == CarIndex || leaderCar.SetFinishedOnNextUpdate)
+                    && this._isNewLap
+                    && (leaderCar.CarIndex == this.CarIndex || leaderCar.SetFinishedOnNextUpdate)
                 ) {
-                    SetFinishedOnNextUpdate = true;
+                    this.SetFinishedOnNextUpdate = true;
                     var timeFromLastRealtimeUpdate = (DateTime.Now - realtimeData.NewData.RecieveTime).TotalSeconds;
-                    FinishTime = realtimeData.NewData.SessionRunningTime + TimeSpan.FromSeconds(timeFromLastRealtimeUpdate);
+                    this.FinishTime = realtimeData.NewData.SessionRunningTime + TimeSpan.FromSeconds(timeFromLastRealtimeUpdate);
                 }
             }
 
@@ -443,11 +454,14 @@ namespace KLPlugins.DynLeaderboards.Car {
 
             void SetGaps() {
                 // Freeze gaps until all is in order again, fixes gap suddenly jumping to larger values as spline positions could be out of sync
-                if (OffsetLapUpdate == OffsetLapUpdateType.None) {
-                    if (focusedCar.OffsetLapUpdate == OffsetLapUpdateType.None)
-                        GapToFocusedOnTrack = CalculateOnTrackGap(this, focusedCar, trackData);
-                    if (carAheadOnTrack?.OffsetLapUpdate == OffsetLapUpdateType.None)
-                        GapToAheadOnTrack = CalculateOnTrackGap(carAheadOnTrack, this, trackData);
+                if (this.OffsetLapUpdate == OffsetLapUpdateType.None) {
+                    if (focusedCar.OffsetLapUpdate == OffsetLapUpdateType.None) {
+                        this.GapToFocusedOnTrack = CalculateOnTrackGap(this, focusedCar, trackData);
+                    }
+
+                    if (carAheadOnTrack?.OffsetLapUpdate == OffsetLapUpdateType.None) {
+                        this.GapToAheadOnTrack = CalculateOnTrackGap(carAheadOnTrack, this, trackData);
+                    }
                 }
 
                 if (realtimeData.IsRace) {
@@ -456,17 +470,17 @@ namespace KLPlugins.DynLeaderboards.Car {
                     // That would result in wrong gaps. We keep the gaps at the last valid value and update once both cars have finished.
 
                     // Freeze gaps until all is in order again, fixes gap suddenly jumping to larger values as spline positions could be out of sync
-                    if (OffsetLapUpdate == OffsetLapUpdateType.None) {
-                        SetGap(this, leaderCar, leaderCar, GapToLeader, x => GapToLeader = x);
-                        SetGap(this, classLeaderCar, classLeaderCar, GapToClassLeader, x => GapToClassLeader = x);
-                        SetGap(focusedCar, this, focusedCar, GapToFocusedTotal, x => GapToFocusedTotal = x);
-                        SetGap(this, carAhead, carAhead, GapToAhead, x => GapToAhead = x);
-                        SetGap(this, carAheadInClass, carAheadInClass, GapToAheadInClass, x => GapToAheadInClass = x);
+                    if (this.OffsetLapUpdate == OffsetLapUpdateType.None) {
+                        SetGap(this, leaderCar, leaderCar, this.GapToLeader, x => this.GapToLeader = x);
+                        SetGap(this, classLeaderCar, classLeaderCar, this.GapToClassLeader, x => this.GapToClassLeader = x);
+                        SetGap(focusedCar, this, focusedCar, this.GapToFocusedTotal, x => this.GapToFocusedTotal = x);
+                        SetGap(this, carAhead, carAhead, this.GapToAhead, x => this.GapToAhead = x);
+                        SetGap(this, carAheadInClass, carAheadInClass, this.GapToAheadInClass, x => this.GapToAheadInClass = x);
 
                         void SetGap(CarData? from, CarData? to, CarData? other, double? currentGap, Action<double?> setGap) {
-                            if (from == null || to == null)
+                            if (from == null || to == null) {
                                 setGap(null);
-                            else if (other?.OffsetLapUpdate == OffsetLapUpdateType.None) {
+                            } else if (other?.OffsetLapUpdate == OffsetLapUpdateType.None) {
                                 setGap(CalculateGap(from, to, trackData));
                             }
                         }
@@ -477,21 +491,21 @@ namespace KLPlugins.DynLeaderboards.Car {
                     }
                 } else {
                     // Use best laps to calculate gaps
-                    var thisBestLap = NewData?.BestSessionLap.Laptime;
+                    var thisBestLap = this.NewData?.BestSessionLap.Laptime;
                     if (thisBestLap == null) {
-                        GapToLeader = null;
-                        GapToClassLeader = null;
-                        GapToFocusedTotal = null;
-                        GapToAheadInClass = null;
-                        GapToAhead = null;
+                        this.GapToLeader = null;
+                        this.GapToClassLeader = null;
+                        this.GapToFocusedTotal = null;
+                        this.GapToAheadInClass = null;
+                        this.GapToAhead = null;
                         return;
                     }
 
-                    GapToLeader = CalculateBestLapDelta(leaderCar);
-                    GapToClassLeader = CalculateBestLapDelta(classLeaderCar);
-                    GapToFocusedTotal = CalculateBestLapDelta(focusedCar);
-                    GapToAhead = CalculateBestLapDelta(carAhead);
-                    GapToAheadInClass = CalculateBestLapDelta(carAheadInClass);
+                    this.GapToLeader = CalculateBestLapDelta(leaderCar);
+                    this.GapToClassLeader = CalculateBestLapDelta(classLeaderCar);
+                    this.GapToFocusedTotal = CalculateBestLapDelta(focusedCar);
+                    this.GapToAhead = CalculateBestLapDelta(carAhead);
+                    this.GapToAheadInClass = CalculateBestLapDelta(carAheadInClass);
 
                     double? CalculateBestLapDelta(CarData? to) {
                         var toBest = to?.NewData?.BestSessionLap.Laptime;
@@ -501,57 +515,58 @@ namespace KLPlugins.DynLeaderboards.Car {
             }
 
             void SetRelLapDiff() {
-                if (NewData == null || focusedCar.NewData == null) {
+                if (this.NewData == null || focusedCar.NewData == null) {
                     return;
                 }
 
-                if (GapToFocusedTotal == null) {
-                    if (NewData.Laps < focusedCar.NewData.Laps) {
-                        RelativeOnTrackLapDiff = -1;
-                    } else if (NewData.Laps > focusedCar.NewData.Laps) {
-                        RelativeOnTrackLapDiff = 1;
+                if (this.GapToFocusedTotal == null) {
+                    if (this.NewData.Laps < focusedCar.NewData.Laps) {
+                        this.RelativeOnTrackLapDiff = -1;
+                    } else if (this.NewData.Laps > focusedCar.NewData.Laps) {
+                        this.RelativeOnTrackLapDiff = 1;
                     } else {
-                        if (GapToFocusedOnTrack > 0) {
-                            if (OverallPos > focusedCar.OverallPos) {
-                                RelativeOnTrackLapDiff = -1;
+                        if (this.GapToFocusedOnTrack > 0) {
+                            if (this.OverallPos > focusedCar.OverallPos) {
+                                this.RelativeOnTrackLapDiff = -1;
                             } else {
-                                RelativeOnTrackLapDiff = 0;
+                                this.RelativeOnTrackLapDiff = 0;
                             }
                         } else {
-                            if (OverallPos < focusedCar.OverallPos) {
-                                RelativeOnTrackLapDiff = 1;
+                            if (this.OverallPos < focusedCar.OverallPos) {
+                                this.RelativeOnTrackLapDiff = 1;
                             } else {
-                                RelativeOnTrackLapDiff = 0;
+                                this.RelativeOnTrackLapDiff = 0;
                             }
                         }
                     }
-                } else if (GapToFocusedTotal > 100_000) {
-                    RelativeOnTrackLapDiff = 1;
-                } else if (GapToFocusedTotal < 50_000) {
-                    RelativeOnTrackLapDiff = 0;
-                    if (GapToFocusedOnTrack > 0) {
-                        if (OverallPos > focusedCar.OverallPos) {
-                            RelativeOnTrackLapDiff = -1;
+                } else if (this.GapToFocusedTotal > 100_000) {
+                    this.RelativeOnTrackLapDiff = 1;
+                } else if (this.GapToFocusedTotal < 50_000) {
+                    this.RelativeOnTrackLapDiff = 0;
+                    if (this.GapToFocusedOnTrack > 0) {
+                        if (this.OverallPos > focusedCar.OverallPos) {
+                            this.RelativeOnTrackLapDiff = -1;
                         } else {
-                            RelativeOnTrackLapDiff = 0;
+                            this.RelativeOnTrackLapDiff = 0;
                         }
                     } else {
-                        if (OverallPos < focusedCar.OverallPos) {
-                            RelativeOnTrackLapDiff = 1;
+                        if (this.OverallPos < focusedCar.OverallPos) {
+                            this.RelativeOnTrackLapDiff = 1;
                         } else {
-                            RelativeOnTrackLapDiff = 0;
+                            this.RelativeOnTrackLapDiff = 0;
                         }
                     }
                 } else {
-                    RelativeOnTrackLapDiff = -1;
+                    this.RelativeOnTrackLapDiff = -1;
                 }
             }
 
             void SetLapDeltas() {
-                var thisBest = NewData?.BestSessionLap.Laptime;
-                var thisLast = NewData?.LastLap.Laptime;
-                if (thisBest == null && thisLast == null)
+                var thisBest = this.NewData?.BestSessionLap.Laptime;
+                var thisLast = this.NewData?.LastLap.Laptime;
+                if (thisBest == null && thisLast == null) {
                     return;
+                }
 
                 var overallBest = overallBestLapCar?.NewData?.BestSessionLap.Laptime;
                 var classBest = classBestLapCar?.NewData?.BestSessionLap.Laptime;
@@ -562,34 +577,51 @@ namespace KLPlugins.DynLeaderboards.Car {
                 var aheadInClassBest = carAheadInClass?.NewData?.BestSessionLap.Laptime;
 
                 if (thisBest != null) {
-                    if (overallBest != null)
-                        BestLapDeltaToOverallBest = (double)thisBest - (double)overallBest;
-                    if (classBest != null)
-                        BestLapDeltaToClassBest = (double)thisBest - (double)classBest;
-                    if (leaderBest != null)
-                        BestLapDeltaToLeaderBest = (double)thisBest - (double)leaderBest;
-                    if (classLeaderBest != null)
-                        BestLapDeltaToClassLeaderBest = (double)thisBest - (double)classLeaderBest;
-                    BestLapDeltaToFocusedBest = focusedBest != null ? (double)thisBest - (double)focusedBest : (double?)null;
-                    BestLapDeltaToAheadBest = aheadBest != null ? (double)thisBest - (double)aheadBest : (double?)null;
-                    BestLapDeltaToAheadInClassBest = aheadInClassBest != null ? (double)thisBest - (double)aheadInClassBest : (double?)null;
+                    if (overallBest != null) {
+                        this.BestLapDeltaToOverallBest = (double)thisBest - (double)overallBest;
+                    }
+
+                    if (classBest != null) {
+                        this.BestLapDeltaToClassBest = (double)thisBest - (double)classBest;
+                    }
+
+                    if (leaderBest != null) {
+                        this.BestLapDeltaToLeaderBest = (double)thisBest - (double)leaderBest;
+                    }
+
+                    if (classLeaderBest != null) {
+                        this.BestLapDeltaToClassLeaderBest = (double)thisBest - (double)classLeaderBest;
+                    }
+
+                    this.BestLapDeltaToFocusedBest = focusedBest != null ? (double)thisBest - (double)focusedBest : (double?)null;
+                    this.BestLapDeltaToAheadBest = aheadBest != null ? (double)thisBest - (double)aheadBest : (double?)null;
+                    this.BestLapDeltaToAheadInClassBest = aheadInClassBest != null ? (double)thisBest - (double)aheadInClassBest : (double?)null;
                 }
 
                 if (thisLast != null) {
-                    if (overallBest != null)
-                        LastLapDeltaToOverallBest = (double)thisLast - (double)overallBest;
-                    if (classBest != null)
-                        LastLapDeltaToClassBest = (double)thisLast - (double)classBest;
-                    if (leaderBest != null)
-                        LastLapDeltaToLeaderBest = (double)thisLast - (double)leaderBest;
-                    if (classLeaderBest != null)
-                        LastLapDeltaToClassLeaderBest = (double)thisLast - (double)classLeaderBest;
-                    LastLapDeltaToFocusedBest = focusedBest != null ? (double)thisLast - (double)focusedBest : (double?)null;
-                    LastLapDeltaToAheadBest = aheadBest != null ? (double)thisLast - (double)aheadBest : (double?)null;
-                    LastLapDeltaToAheadInClassBest = aheadInClassBest != null ? (double)thisLast - (double)aheadInClassBest : (double?)null;
+                    if (overallBest != null) {
+                        this.LastLapDeltaToOverallBest = (double)thisLast - (double)overallBest;
+                    }
 
-                    if (thisBest != null)
-                        LastLapDeltaToOwnBest = (double)thisLast - (double)thisBest;
+                    if (classBest != null) {
+                        this.LastLapDeltaToClassBest = (double)thisLast - (double)classBest;
+                    }
+
+                    if (leaderBest != null) {
+                        this.LastLapDeltaToLeaderBest = (double)thisLast - (double)leaderBest;
+                    }
+
+                    if (classLeaderBest != null) {
+                        this.LastLapDeltaToClassLeaderBest = (double)thisLast - (double)classLeaderBest;
+                    }
+
+                    this.LastLapDeltaToFocusedBest = focusedBest != null ? (double)thisLast - (double)focusedBest : (double?)null;
+                    this.LastLapDeltaToAheadBest = aheadBest != null ? (double)thisLast - (double)aheadBest : (double?)null;
+                    this.LastLapDeltaToAheadInClassBest = aheadInClassBest != null ? (double)thisLast - (double)aheadInClassBest : (double?)null;
+
+                    if (thisBest != null) {
+                        this.LastLapDeltaToOwnBest = (double)thisLast - (double)thisBest;
+                    }
 
                     var leaderLast = leaderCar?.NewData?.LastLap.Laptime;
                     var classLeaderLast = classLeaderCar?.NewData?.LastLap.Laptime;
@@ -597,13 +629,17 @@ namespace KLPlugins.DynLeaderboards.Car {
                     var aheadLast = carAhead?.NewData?.LastLap.Laptime;
                     var aheadInClassLast = carAheadInClass?.NewData?.LastLap.Laptime;
 
-                    if (leaderLast != null)
-                        LastLapDeltaToLeaderLast = (double)thisLast - (double)leaderLast;
-                    if (classLeaderLast != null)
-                        LastLapDeltaToClassLeaderLast = (double)thisLast - (double)classLeaderLast;
-                    LastLapDeltaToFocusedLast = focusedLast != null ? (double)thisLast - (double)focusedLast : (double?)null;
-                    LastLapDeltaToAheadLast = aheadLast != null ? (double)thisLast - (double)aheadLast : (double?)null;
-                    LastLapDeltaToAheadInClassLast = aheadInClassLast != null ? (double)thisLast - (double)aheadInClassLast : (double?)null;
+                    if (leaderLast != null) {
+                        this.LastLapDeltaToLeaderLast = (double)thisLast - (double)leaderLast;
+                    }
+
+                    if (classLeaderLast != null) {
+                        this.LastLapDeltaToClassLeaderLast = (double)thisLast - (double)classLeaderLast;
+                    }
+
+                    this.LastLapDeltaToFocusedLast = focusedLast != null ? (double)thisLast - (double)focusedLast : (double?)null;
+                    this.LastLapDeltaToAheadLast = aheadLast != null ? (double)thisLast - (double)aheadLast : (double?)null;
+                    this.LastLapDeltaToAheadInClassLast = aheadInClassLast != null ? (double)thisLast - (double)aheadInClassLast : (double?)null;
                 }
             }
 
@@ -611,14 +647,14 @@ namespace KLPlugins.DynLeaderboards.Car {
         }
 
         internal void CheckIsFinished() {
-            if (!IsFinished && IsFinalRealtimeCarUpdateAdded && OffsetLapUpdate == OffsetLapUpdateType.None) {
-                IsFinished = true;
+            if (!this.IsFinished && this.IsFinalRealtimeCarUpdateAdded && this.OffsetLapUpdate == OffsetLapUpdateType.None) {
+                this.IsFinished = true;
             }
         }
 
         internal void SetIsFinished(in TimeSpan finishTime) {
-            SetFinishedOnNextUpdate = true;
-            FinishTime = finishTime;
+            this.SetFinishedOnNextUpdate = true;
+            this.FinishTime = finishTime;
         }
 
         /// <summary>
@@ -627,12 +663,12 @@ namespace KLPlugins.DynLeaderboards.Car {
         /// <param name="overall"></param>
         /// <param name="inclass"></param>
         internal void SetStartingPositions(int overall, int inclass) {
-            StartPos = overall;
-            StartPosInClass = inclass;
+            this.StartPos = overall;
+            this.StartPosInClass = inclass;
         }
 
         private void AddDriver(in DriverInfo driverInfo) {
-            Drivers.Add(new DriverData(driverInfo));
+            this.Drivers.Add(new DriverData(driverInfo));
         }
 
         /// <summary>
@@ -658,15 +694,17 @@ namespace KLPlugins.DynLeaderboards.Car {
                 || !from.HasCrossedStartLine
                 || from.OffsetLapUpdate != OffsetLapUpdateType.None
                 || to.OffsetLapUpdate != OffsetLapUpdateType.None
-            )
+            ) {
                 return null;
+            }
 
             var flaps = from.NewData.Laps;
             var tlaps = to.NewData.Laps;
 
             // If one of the cars jumped to pits there is no correct way to calculate the gap
-            if (flaps == tlaps && (from.JumpedToPits || to.JumpedToPits))
+            if (flaps == tlaps && (from.JumpedToPits || to.JumpedToPits)) {
                 return null;
+            }
 
             if (from.IsFinished && to.IsFinished) {
                 if (flaps == tlaps) {
@@ -682,8 +720,8 @@ namespace KLPlugins.DynLeaderboards.Car {
             // This is correct if the session is not finished as you could go out and complete that lap.
             // If session has finished you cannot complete that lap.
             if (tlaps != flaps &&
-                (to.IsFinished && !from.IsFinished && from.NewData.IsInPitlane
-                || from.IsFinished && !to.IsFinished && to.NewData.IsInPitlane)
+                ((to.IsFinished && !from.IsFinished && from.NewData.IsInPitlane)
+                || (from.IsFinished && !to.IsFinished && to.NewData.IsInPitlane))
             ) {
                 return tlaps - flaps + 100_000;
             }
@@ -730,8 +768,9 @@ namespace KLPlugins.DynLeaderboards.Car {
                  || from.OffsetLapUpdate != OffsetLapUpdateType.None
                  || to.OffsetLapUpdate != OffsetLapUpdateType.None
                  || trackData == null
-             )
+             ) {
                 return null;
+            }
 
             var fromPos = from.NewData.SplinePosition;
             var toPos = to.NewData.SplinePosition;
@@ -791,9 +830,11 @@ namespace KLPlugins.DynLeaderboards.Car {
         /// <param name="otherCar"></param>
         /// <returns></returns>
         public double? CalculateRelativeSplinePosition(CarData otherCar) {
-            if (NewData == null || otherCar?.NewData == null)
+            if (this.NewData == null || otherCar?.NewData == null) {
                 return null;
-            return CalculateRelativeSplinePosition(NewData.SplinePosition, otherCar.NewData.SplinePosition);
+            }
+
+            return CalculateRelativeSplinePosition(this.NewData.SplinePosition, otherCar.NewData.SplinePosition);
         }
 
         /// <summary>
@@ -831,16 +872,16 @@ namespace KLPlugins.DynLeaderboards.Car {
         /// <returns></returns>
         private double GetSplinePosTime(CarClass cls, TrackData trackData) {
             // Same interpolated value is needed multiple times in one update, thus cache results.
-            var pos = _splinePositionTime[cls];
-            if (pos != _splinePositionTime.DefaultValue && pos != null) {
+            var pos = this._splinePositionTime[cls];
+            if (pos != this._splinePositionTime.DefaultValue && pos != null) {
                 return (double)pos;
             }
 
             // TrackData is passed from Values, Values never stores TrackData without LapInterpolators
             var interp = trackData.LapInterpolators![cls];
-            if (NewData != null && interp != null) {
-                var result = interp.Interpolate(NewData.SplinePosition);
-                _splinePositionTime[cls] = result;
+            if (this.NewData != null && interp != null) {
+                var result = interp.Interpolate(this.NewData.SplinePosition);
+                this._splinePositionTime[cls] = result;
                 return result;
             } else {
                 return -1;

@@ -26,11 +26,17 @@ namespace KLPlugins.DynLeaderboards.Settings {
 
     internal static class OutCarPropExtensions {
 
-        public static bool Includes(this OutCarProp p, OutCarProp o) => (p & o) != 0;
+        public static bool Includes(this OutCarProp p, OutCarProp o) {
+            return (p & o) != 0;
+        }
 
-        public static void Combine(ref this OutCarProp p, OutCarProp o) => p |= o;
+        public static void Combine(ref this OutCarProp p, OutCarProp o) {
+            p |= o;
+        }
 
-        public static void Remove(ref this OutCarProp p, OutCarProp o) => p &= ~o;
+        public static void Remove(ref this OutCarProp p, OutCarProp o) {
+            p &= ~o;
+        }
 
         public static string ToPropName(this OutCarProp p) {
             return p switch {
@@ -88,11 +94,17 @@ namespace KLPlugins.DynLeaderboards.Settings {
 
     internal static class OutPitPropExtensions {
 
-        public static bool Includes(this OutPitProp p, OutPitProp o) => (p & o) != 0;
+        public static bool Includes(this OutPitProp p, OutPitProp o) {
+            return (p & o) != 0;
+        }
 
-        public static void Combine(ref this OutPitProp p, OutPitProp o) => p |= o;
+        public static void Combine(ref this OutPitProp p, OutPitProp o) {
+            p |= o;
+        }
 
-        public static void Remove(ref this OutPitProp p, OutPitProp o) => p &= ~o;
+        public static void Remove(ref this OutPitProp p, OutPitProp o) {
+            p &= ~o;
+        }
 
         public static string ToPropName(this OutPitProp p) {
             return p switch {
@@ -130,7 +142,9 @@ namespace KLPlugins.DynLeaderboards.Settings {
 
     internal static class OutPosPropExtensions {
 
-        public static bool Includes(this OutPosProp p, OutPosProp o) => (p & o) != 0;
+        public static bool Includes(this OutPosProp p, OutPosProp o) {
+            return (p & o) != 0;
+        }
 
         public static bool IncludesAny(this OutPosProp p, params OutPosProp[] others) {
             foreach (var o in others) {
@@ -150,9 +164,13 @@ namespace KLPlugins.DynLeaderboards.Settings {
             return true;
         }
 
-        public static void Combine(ref this OutPosProp p, OutPosProp o) => p |= o;
+        public static void Combine(ref this OutPosProp p, OutPosProp o) {
+            p |= o;
+        }
 
-        public static void Remove(ref this OutPosProp p, OutPosProp o) => p &= ~o;
+        public static void Remove(ref this OutPosProp p, OutPosProp o) {
+            p &= ~o;
+        }
 
         public static string ToPropName(this OutPosProp p) {
             return p switch {
@@ -201,11 +219,17 @@ RelativeOnTrack -> overall position",
 
     internal static class OutGapPropExtensions {
 
-        public static bool Includes(this OutGapProp p, OutGapProp o) => (p & o) != 0;
+        public static bool Includes(this OutGapProp p, OutGapProp o) {
+            return (p & o) != 0;
+        }
 
-        public static void Combine(ref this OutGapProp p, OutGapProp o) => p |= o;
+        public static void Combine(ref this OutGapProp p, OutGapProp o) {
+            p |= o;
+        }
 
-        public static void Remove(ref this OutGapProp p, OutGapProp o) => p &= ~o;
+        public static void Remove(ref this OutGapProp p, OutGapProp o) {
+            p &= ~o;
+        }
 
         public static string ToPropName(this OutGapProp p) {
             return p switch {
@@ -256,11 +280,17 @@ RelativeOnTrack -> gap to ahead on track.",
 
     internal static class OutStintPropExtensions {
 
-        public static bool Includes(this OutStintProp p, OutStintProp o) => (p & o) != 0;
+        public static bool Includes(this OutStintProp p, OutStintProp o) {
+            return (p & o) != 0;
+        }
 
-        public static void Combine(ref this OutStintProp p, OutStintProp o) => p |= o;
+        public static void Combine(ref this OutStintProp p, OutStintProp o) {
+            p |= o;
+        }
 
-        public static void Remove(ref this OutStintProp p, OutStintProp o) => p &= ~o;
+        public static void Remove(ref this OutStintProp p, OutStintProp o) {
+            p &= ~o;
+        }
 
         public static string ToPropName(this OutStintProp p) {
             return p switch {

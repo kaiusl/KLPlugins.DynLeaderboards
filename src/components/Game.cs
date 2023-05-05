@@ -11,52 +11,44 @@
         public const string IracingName = "IRacing";
         public const string R3eName = "RRRE";
 
-        public bool IsAc { get => _isAc; }
-        public bool IsAcc { get => _isAcc; }
-        public bool IsRf2 { get => _isRf2; }
-        public bool IsIracing { get => _isIracing; }
-        public bool IsR3e { get => _isR3e; }
-        public bool IsUnknown { get => _isUnknown; }
-        public string Name { get => _name; }
-
-        private readonly bool _isAc = false;
-        private readonly bool _isAcc = false;
-        private readonly bool _isRf2 = false;
-        private readonly bool _isIracing = false;
-        private readonly bool _isR3e = false;
-        private readonly bool _isUnknown = false;
-        private readonly string _name;
+        public bool IsAc { get; } = false;
+        public bool IsAcc { get; } = false;
+        public bool IsRf2 { get; } = false;
+        public bool IsIracing { get; } = false;
+        public bool IsR3e { get; } = false;
+        public bool IsUnknown { get; } = false;
+        public string Name { get; }
 
         public Game(string gameName) {
-            _name = gameName;
+            this.Name = gameName;
             switch (gameName) {
                 case AcName:
-                    _isAc = true;
+                    this.IsAc = true;
                     DynLeaderboardsPlugin.LogInfo("Game set to AC");
                     break;
 
                 case AccName:
-                    _isAcc = true;
+                    this.IsAcc = true;
                     DynLeaderboardsPlugin.LogInfo("Game set to ACC");
                     break;
 
                 case Rf2Name:
-                    _isRf2 = true;
+                    this.IsRf2 = true;
                     DynLeaderboardsPlugin.LogInfo("Game set to RF2");
                     break;
 
                 case IracingName:
-                    _isIracing = true;
+                    this.IsIracing = true;
                     DynLeaderboardsPlugin.LogInfo("Game set to IRacing");
                     break;
 
                 case R3eName:
-                    _isR3e = true;
+                    this.IsR3e = true;
                     DynLeaderboardsPlugin.LogInfo("Game set to R3E");
                     break;
 
                 default:
-                    _isUnknown = true;
+                    this.IsUnknown = true;
                     DynLeaderboardsPlugin.LogInfo("Game set to Unknown");
                     break;
             }

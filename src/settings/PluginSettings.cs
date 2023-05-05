@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Xml;
-using System.Xml.Linq;
 
 using KLPlugins.DynLeaderboards.Car;
 using KLPlugins.DynLeaderboards.ksBroadcastingNetwork;
@@ -35,50 +33,50 @@ namespace KLPlugins.DynLeaderboards.Settings {
         private delegate JObject Migration(JObject o);
 
         internal PluginSettings() {
-            PluginDataLocation = pluginsDataDirName;
-            AccDataLocation = _defAccDataLocation;
-            Log = false;
-            BroadcastDataUpdateRateMs = 500;
-            DynLeaderboardConfigs = new List<DynLeaderboardConfig>();
-            CarClassColors = CreateDefCarClassColors();
-            TeamCupCategoryColors = CreateDefCupColors();
-            TeamCupCategoryTextColors = CreateDefCupTextColors();
-            DriverCategoryColors = CreateDefDriverCategoryColors();
-            SaveDynLeaderboardConfigs();
+            this.PluginDataLocation = pluginsDataDirName;
+            this.AccDataLocation = _defAccDataLocation;
+            this.Log = false;
+            this.BroadcastDataUpdateRateMs = 500;
+            this.DynLeaderboardConfigs = new List<DynLeaderboardConfig>();
+            this.CarClassColors = CreateDefCarClassColors();
+            this.TeamCupCategoryColors = CreateDefCupColors();
+            this.TeamCupCategoryTextColors = CreateDefCupTextColors();
+            this.DriverCategoryColors = CreateDefDriverCategoryColors();
+            this.SaveDynLeaderboardConfigs();
         }
 
         internal void ReadDynLeaderboardConfigs() {
             Directory.CreateDirectory(leaderboardConfigsDataDirName);
 
             foreach (var fileName in Directory.GetFiles(leaderboardConfigsDataDirName)) {
-                if (!File.Exists(fileName) || !fileName.EndsWith(".json"))
+                if (!File.Exists(fileName) || !fileName.EndsWith(".json")) {
                     continue;
+                }
 
-                using (StreamReader file = File.OpenText(fileName)) {
-                    var serializer = new JsonSerializer();
-                    DynLeaderboardConfig cfg;
-                    try {
-                        var result = (DynLeaderboardConfig?)serializer.Deserialize(file, typeof(DynLeaderboardConfig));
-                        if (result == null) {
-                            continue;
-                        }
-                        cfg = result;
-                    } catch (Exception e) {
-                        SimHub.Logging.Current.Error($"Failed to deserialize leaderboard \"{fileName}\" configuration. Error {e}.");
+                using StreamReader file = File.OpenText(fileName);
+                var serializer = new JsonSerializer();
+                DynLeaderboardConfig cfg;
+                try {
+                    var result = (DynLeaderboardConfig?)serializer.Deserialize(file, typeof(DynLeaderboardConfig));
+                    if (result == null) {
                         continue;
                     }
-
-                    // Check for conflicting leaderboard names. Add CONFLICT to the end of the name.
-                    if (DynLeaderboardConfigs.Any(x => x.Name == cfg.Name)) {
-                        var num = 1;
-                        while (DynLeaderboardConfigs.Any(x => x.Name == $"{cfg.Name}_CONFLICT{num}")) {
-                            num++;
-                        }
-                        cfg.Name = $"{cfg.Name}_CONFLICT{num}";
-                    }
-
-                    DynLeaderboardConfigs.Add(cfg);
+                    cfg = result;
+                } catch (Exception e) {
+                    SimHub.Logging.Current.Error($"Failed to deserialize leaderboard \"{fileName}\" configuration. Error {e}.");
+                    continue;
                 }
+
+                // Check for conflicting leaderboard names. Add CONFLICT to the end of the name.
+                if (this.DynLeaderboardConfigs.Any(x => x.Name == cfg.Name)) {
+                    var num = 1;
+                    while (this.DynLeaderboardConfigs.Any(x => x.Name == $"{cfg.Name}_CONFLICT{num}")) {
+                        num++;
+                    }
+                    cfg.Name = $"{cfg.Name}_CONFLICT{num}";
+                }
+
+                this.DynLeaderboardConfigs.Add(cfg);
             }
         }
 
@@ -88,15 +86,17 @@ namespace KLPlugins.DynLeaderboards.Settings {
 
             Directory.CreateDirectory(leaderboardConfigsDataBackupDirName);
 
-            foreach (var cfg in DynLeaderboardConfigs) {
+            foreach (var cfg in this.DynLeaderboardConfigs) {
                 var cfgFileName = $"{leaderboardConfigsDataDirName}\\{cfg.Name}.json";
                 var serializedCfg = JsonConvert.SerializeObject(cfg, Newtonsoft.Json.Formatting.Indented);
                 var isSame = File.Exists(cfgFileName) && serializedCfg == File.ReadAllText(cfgFileName);
 
                 if (!isSame) {
                     RenameOrDeleteOldBackups(cfg);
-                    if (File.Exists(cfgFileName))
+                    if (File.Exists(cfgFileName)) {
                         File.Move(cfgFileName, $"{leaderboardConfigsDataBackupDirName}\\{cfg.Name}_b{1}.json");
+                    }
+
                     File.WriteAllText(cfgFileName, serializedCfg);
                 }
             }
@@ -117,18 +117,21 @@ namespace KLPlugins.DynLeaderboards.Settings {
         }
 
         internal void RemoveLeaderboardAt(int i) {
-            var fname = $"{leaderboardConfigsDataDirName}\\{DynLeaderboardConfigs[i].Name}.json";
+            var fname = $"{leaderboardConfigsDataDirName}\\{this.DynLeaderboardConfigs[i].Name}.json";
             if (File.Exists(fname)) {
                 File.Delete(fname);
             }
-            DynLeaderboardConfigs.RemoveAt(i);
+            this.DynLeaderboardConfigs.RemoveAt(i);
         }
 
         public int GetMaxNumClassPos() {
             int max = 0;
-            if (DynLeaderboardConfigs.Count > 0) {
-                foreach (var v in DynLeaderboardConfigs) {
-                    if (!v.IsEnabled) continue;
+            if (this.DynLeaderboardConfigs.Count > 0) {
+                foreach (var v in this.DynLeaderboardConfigs) {
+                    if (!v.IsEnabled) {
+                        continue;
+                    }
+
                     max = Math.Max(max, v.NumClassPos);
                 }
             }
@@ -166,8 +169,10 @@ namespace KLPlugins.DynLeaderboards.Settings {
             var dict = new Dictionary<DriverCategory, string>(4);
             foreach (var c in Enum.GetValues(typeof(DriverCategory))) {
                 var cat = (DriverCategory)c;
-                if (cat == DriverCategory.Error)
+                if (cat == DriverCategory.Error) {
                     continue;
+                }
+
                 dict.Add(cat, cat.GetAccColor());
             }
             return dict;
@@ -176,7 +181,7 @@ namespace KLPlugins.DynLeaderboards.Settings {
         internal bool SetAccDataLocation(string newLoc) {
             if (!Directory.Exists($"{newLoc}\\Config")) {
                 if (Directory.Exists($"{_defAccDataLocation}\\Config")) {
-                    AccDataLocation = _defAccDataLocation;
+                    this.AccDataLocation = _defAccDataLocation;
                     DynLeaderboardsPlugin.LogWarn($"Set ACC data location doesn't exist. Using default location '{_defAccDataLocation}'");
                     return false;
                 } else {
@@ -184,7 +189,7 @@ namespace KLPlugins.DynLeaderboards.Settings {
                     return false;
                 }
             } else {
-                AccDataLocation = newLoc;
+                this.AccDataLocation = newLoc;
                 return true;
             }
         }
@@ -198,8 +203,10 @@ namespace KLPlugins.DynLeaderboards.Settings {
             Dictionary<string, Migration> _migrations = CreateMigrationsDict();
 
             string settingsFname = "PluginsData\\Common\\DynLeaderboardsPlugin.GeneralSettings.json";
-            if (!File.Exists(settingsFname))
+            if (!File.Exists(settingsFname)) {
                 return;
+            }
+
             JObject savedSettings = JObject.Parse(File.ReadAllText(settingsFname));
 
             int version = 0; // If settings doesn't contain version key, it's 0
@@ -207,8 +214,9 @@ namespace KLPlugins.DynLeaderboards.Settings {
                 version = (int)savedSettings["Version"]!;
             }
 
-            if (version == currentSettingsVersion)
+            if (version == currentSettingsVersion) {
                 return;
+            }
 
             // Migrate step by step to current version.
             while (version != currentSettingsVersion) {
@@ -217,12 +225,11 @@ namespace KLPlugins.DynLeaderboards.Settings {
             }
 
             // Save up to date setting back to the disk
-            using (StreamWriter file = File.CreateText(settingsFname)) {
-                var serializer = new JsonSerializer {
-                    Formatting = Newtonsoft.Json.Formatting.Indented
-                };
-                serializer.Serialize(file, savedSettings);
-            }
+            using StreamWriter file = File.CreateText(settingsFname);
+            var serializer = new JsonSerializer {
+                Formatting = Newtonsoft.Json.Formatting.Indented
+            };
+            serializer.Serialize(file, savedSettings);
 
         }
 
@@ -264,13 +271,15 @@ namespace KLPlugins.DynLeaderboards.Settings {
                 foreach (var cfg in o[key]!) {
                     var fname = $"{leaderboardConfigsDataDirName}\\{cfg["Name"]}.json";
                     if (File.Exists(fname)) // Don't overwrite existing configs
+{
                         continue;
-                    using (StreamWriter file = File.CreateText(fname)) {
-                        var serializer = new JsonSerializer {
-                            Formatting = Newtonsoft.Json.Formatting.Indented
-                        };
-                        serializer.Serialize(file, cfg);
                     }
+
+                    using StreamWriter file = File.CreateText(fname);
+                    var serializer = new JsonSerializer {
+                        Formatting = Newtonsoft.Json.Formatting.Indented
+                    };
+                    serializer.Serialize(file, cfg);
                 }
             }
 
@@ -288,11 +297,11 @@ namespace KLPlugins.DynLeaderboards.Settings {
 
         private string _name = "";
         public string Name {
-            get { return _name; }
+            get => this._name;
             set {
                 char[] arr = value.ToCharArray();
                 arr = Array.FindAll(arr, c => char.IsLetterOrDigit(c));
-                _name = new string(arr);
+                this._name = new string(arr);
             }
         }
 
@@ -330,10 +339,10 @@ namespace KLPlugins.DynLeaderboards.Settings {
         public List<Leaderboard> Order { get; set; } = new List<Leaderboard>();
 
         public int CurrentLeaderboardIdx {
-            get => _currentLeaderboardIdx;
+            get => this._currentLeaderboardIdx;
             set {
-                _currentLeaderboardIdx = value > -1 && value < Order.Count ? value : 0;
-                CurrentLeaderboardName = CurrentLeaderboard().ToString();
+                this._currentLeaderboardIdx = value > -1 && value < this.Order.Count ? value : 0;
+                this.CurrentLeaderboardName = this.CurrentLeaderboard().ToString();
             }
         }
         private int _currentLeaderboardIdx = 0;
@@ -341,14 +350,14 @@ namespace KLPlugins.DynLeaderboards.Settings {
         public bool IsEnabled { get; set; } = true;
 
         public Leaderboard CurrentLeaderboard() {
-            return Order.ElementAtOrDefault(CurrentLeaderboardIdx);
+            return this.Order.ElementAtOrDefault(this.CurrentLeaderboardIdx);
         }
 
         public DynLeaderboardConfig() { }
 
         internal DynLeaderboardConfig(string name) {
-            Name = name;
-            Order = new List<Leaderboard>() {
+            this.Name = name;
+            this.Order = new List<Leaderboard>() {
                 Leaderboard.Overall,
                 Leaderboard.Class,
                 Leaderboard.PartialRelativeOverall,
@@ -358,23 +367,23 @@ namespace KLPlugins.DynLeaderboards.Settings {
                 Leaderboard.RelativeOnTrack,
                 Leaderboard.RelativeOnTrackWoPit
             };
-            CurrentLeaderboardName = Order[_currentLeaderboardIdx].ToString();
+            this.CurrentLeaderboardName = this.Order[this._currentLeaderboardIdx].ToString();
         }
 
         internal void Rename(string newName) {
-            var configFileName = $"{PluginSettings.leaderboardConfigsDataDirName}\\{Name}.json";
+            var configFileName = $"{PluginSettings.leaderboardConfigsDataDirName}\\{this.Name}.json";
             if (File.Exists(configFileName)) {
                 File.Move(configFileName, $"{PluginSettings.leaderboardConfigsDataDirName}\\{newName}.json");
             }
 
             for (int i = 5; i > -1; i--) {
-                var currentBackupName = $"{PluginSettings.leaderboardConfigsDataBackupDirName}\\{Name}_b{i + 1}.json";
+                var currentBackupName = $"{PluginSettings.leaderboardConfigsDataBackupDirName}\\{this.Name}_b{i + 1}.json";
                 if (File.Exists(currentBackupName)) {
                     File.Move(currentBackupName, $"{PluginSettings.leaderboardConfigsDataBackupDirName}\\{newName}_b{i + 1}.json");
                 }
             }
 
-            Name = newName;
+            this.Name = newName;
         }
 
     }

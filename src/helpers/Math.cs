@@ -10,17 +10,18 @@ namespace KLPlugins.DynLeaderboards.Helpers {
         public double Median { get; private set; } = 0.0;
 
         public void Add(double v) {
-            data.Add(v);
-            Stats = new DescriptiveStatistics(data);
-            Median = MathNet.Numerics.Statistics.Statistics.Median(data);
-            if (double.IsNaN(Median))
-                Median = 0.0;
+            this.data.Add(v);
+            this.Stats = new DescriptiveStatistics(this.data);
+            this.Median = MathNet.Numerics.Statistics.Statistics.Median(this.data);
+            if (double.IsNaN(this.Median)) {
+                this.Median = 0.0;
+            }
         }
 
         public void Reset() {
-            Stats = null;
-            data.Clear();
-            Median = 0.0;
+            this.Stats = null;
+            this.data.Clear();
+            this.Median = 0.0;
         }
     }
 }

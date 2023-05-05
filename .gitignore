@@ -371,7 +371,6 @@ FodyWeavers.xsd
 /log.txt
 /toc.yml
 /docfx_project
-/.editorconfig
 /PluginsData/KLPlugins/DynLeaderboards/laps_data/.ipynb_checkpoints
 /PluginsData/KLPlugins/DynLeaderboards/laps_data/new
 /PluginsData/KLPlugins/DynLeaderboards/laps_data/orig
@@ -401,4 +400,3 @@ FodyWeavers.xsd
 /PluginsData/KLPlugins/DynLeaderboards/brands_hatch_pos.txt
 /PluginsData/KLPlugins/DynLeaderboards/Barcelona_pos.txt
 /PluginsData/KLPlugins/DynLeaderboards/6_pos.txt
-.vscode/tasks.json

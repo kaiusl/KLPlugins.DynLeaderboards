@@ -41,6 +41,7 @@ namespace KLPlugins.DynLeaderboards.Car {
         Ferrari296GT3 = 32,
         LamborghiniHuracanEvo2 = 33,
         Porsche992GT3R = 34,
+        McLaren720SGT3Evo = 35,
 
         AlpineA110GT4 = 50,
         AMRV8VantageGT4 = 51,
@@ -131,7 +132,8 @@ namespace KLPlugins.DynLeaderboards.Car {
                 or CarType.AudiR8LMSGT3Evo2
                 or CarType.Ferrari296GT3
                 or CarType.LamborghiniHuracanEvo2
-                or CarType.Porsche992GT3R => CarClass.GT3,
+                or CarType.Porsche992GT3R
+                or CarType.McLaren720SGT3Evo => CarClass.GT3,
 
                 CarType.Ferrari488ChallengeEvo => CarClass.CHL,
                 CarType.BMWM2CSRacing => CarClass.TCX,
@@ -211,6 +213,7 @@ namespace KLPlugins.DynLeaderboards.Car {
                 CarType.Ferrari296GT3 => "Ferrari 296 GT3",
                 CarType.LamborghiniHuracanEvo2 => "Lamborghini Huracan GT3 EVO2",
                 CarType.Porsche992GT3R => "Porsche 992 GT3 R",
+                CarType.McLaren720SGT3Evo => "McLaren 720S GT3 Evo",
                 CarType.Ferrari488ChallengeEvo => "Ferrari 488 Challenge Evo",
                 CarType.BMWM2CSRacing => "BMW M2 CS Racing",
                 CarType.Porsche991IIGT3Cup => "Porsche 991II GT3 Cup",
@@ -269,7 +272,8 @@ namespace KLPlugins.DynLeaderboards.Car {
 
                 CarType.McLaren720SGT3
                 or CarType.McLaren650SGT3
-                or CarType.McLaren570SGT4 => "McLaren",
+                or CarType.McLaren570SGT4
+                or CarType.McLaren720SGT3Evo => "McLaren",
 
                 CarType.NissanGTRGT32018
                 or CarType.NissanGTRGT32017 => "Nissan",

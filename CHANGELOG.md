@@ -6,6 +6,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Added
+
+- Support McLaren 720S GT3 Evo which was added in ACC v1.9.3.
+
+  This also means that ACC v1.9.3 needs atleast the v1.3.2 version of this plugin to fully function properly.
+
 ## [1.3.1] - 2023-05-15
 
 ### Added

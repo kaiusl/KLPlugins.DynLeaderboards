@@ -393,7 +393,10 @@ namespace KLPlugins.DynLeaderboards.Car {
 
             void UpdateBestLapSectors() {
                 // Note that NewData.BestSessionLap doesn't contain the sectors of that best lap but the best sectors.
-                if (this._isNewLap && this.NewData.LastLap.IsValidForBest) {
+                if (this._isNewLap
+                    && this.NewData.LastLap.IsValidForBest
+                    && this.NewData.LastLap.Laptime == this.NewData.BestSessionLap.Laptime
+                ) {
                     this.NewData.LastLap.Splits.CopyTo(this.BestLapSectors, 0);
                 }
             }

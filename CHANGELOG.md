@@ -6,6 +6,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Fixed
+
+- `Laps.Best.Sx` was showing last lap sectors not best lap sectors ([#23])
+
+[#23]: https://github.com/kaiusl/KLPlugins.DynLeaderboards/issues/23
+
 ## [1.3.2] - 2023.05-26
 
 ### Added

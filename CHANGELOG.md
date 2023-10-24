@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+## [1.3.3] - 2023-10-24
+
 ### Fixed
 
 - `Laps.Best.Sx` was showing last lap sectors not the best lap sectors ([#23])
@@ -13,7 +15,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 [#23]: https://github.com/kaiusl/KLPlugins.DynLeaderboards/issues/23
 
-## [1.3.2] - 2023.05-26
+## [1.3.2] - 2023-05-26
 
 ### Added
 
@@ -173,7 +175,8 @@ excludes all the cars in the pitlane which are not on the same lap as the focuse
 ## [1.0.0] - 2022-04-19
 - Initial public release
 
-[Unreleased]: https://github.com/kaiusl/KLPlugins.Leaderboard/compare/v1.3.2...HEAD
+[Unreleased]: https://github.com/kaiusl/KLPlugins.Leaderboard/compare/v1.3.3...HEAD
+[1.3.3]: https://github.com/kaiusl/KLPlugins.Leaderboard/releases/tag/v1.3.3
 [1.3.2]: https://github.com/kaiusl/KLPlugins.Leaderboard/releases/tag/v1.3.2
 [1.3.1]: https://github.com/kaiusl/KLPlugins.Leaderboard/releases/tag/v1.3.1
 [1.3.0]: https://github.com/kaiusl/KLPlugins.Leaderboard/releases/tag/v1.3.0

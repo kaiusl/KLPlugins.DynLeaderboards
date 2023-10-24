@@ -366,7 +366,7 @@ namespace KLPlugins.DynLeaderboards {
                 }
             }
 
-            if (!this._startingPositionsSet && this.RealtimeData.IsRace && this.Cars.All(x => x.NewData != null)) {
+            if (!this._startingPositionsSet && this.RealtimeData.IsRace && this.Cars.Count != 0 && this.Cars.All(x => x.NewData != null)) {
                 SetStartingOrder();
             }
             SetOverallOrder();

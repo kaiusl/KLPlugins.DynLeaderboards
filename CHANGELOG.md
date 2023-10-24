@@ -8,7 +8,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Fixed
 
-- `Laps.Best.Sx` was showing last lap sectors not best lap sectors ([#23])
+- `Laps.Best.Sx` was showing last lap sectors not the best lap sectors ([#23])
+- `Position.x.Start` not updating after race restart ([#23])
 
 [#23]: https://github.com/kaiusl/KLPlugins.DynLeaderboards/issues/23
 

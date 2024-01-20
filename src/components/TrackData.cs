@@ -42,7 +42,7 @@ namespace KLPlugins.DynLeaderboards.Track {
         /// Read default lap data for calculation of gaps.
         /// </summary>
         internal void ReadDefBestLaps() {
-            this.LapInterpolators = new CarClassArray<LapInterpolator?>(null);
+            this.LapInterpolators = new CarClassArray<LapInterpolator?>((_) => null);
 
             this.AddLapInterpolator(CarClass.GT3);
             this.AddLapInterpolator(CarClass.GT4);

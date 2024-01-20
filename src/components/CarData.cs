@@ -47,6 +47,7 @@ namespace KLPlugins.DynLeaderboards.Car {
         public double? GapToLeader { get; private set; } = null;
 
         public double? GapToClassLeader { get; private set; } = null;
+        public double? GapToCupLeader { get; private set; } = null;
         public double? GapToFocusedTotal { get; private set; } = null;
         public double? GapToFocusedOnTrack { get; private set; } = null;
 
@@ -416,6 +417,7 @@ namespace KLPlugins.DynLeaderboards.Car {
             TrackData trackData,
             CarData leaderCar,
             CarData classLeaderCar,
+            CarData cupLeaderCar,
             CarData focusedCar,
             CarData? carAhead,
             CarData? carAheadInClass,
@@ -480,6 +482,7 @@ namespace KLPlugins.DynLeaderboards.Car {
                     if (this.OffsetLapUpdate == OffsetLapUpdateType.None) {
                         SetGap(this, leaderCar, leaderCar, this.GapToLeader, x => this.GapToLeader = x);
                         SetGap(this, classLeaderCar, classLeaderCar, this.GapToClassLeader, x => this.GapToClassLeader = x);
+                        SetGap(this, cupLeaderCar, cupLeaderCar, this.GapToCupLeader, x => this.GapToCupLeader = x);
                         SetGap(focusedCar, this, focusedCar, this.GapToFocusedTotal, x => this.GapToFocusedTotal = x);
                         SetGap(this, carAhead, carAhead, this.GapToAhead, x => this.GapToAhead = x);
                         SetGap(this, carAheadInClass, carAheadInClass, this.GapToAheadInClass, x => this.GapToAheadInClass = x);
@@ -502,6 +505,7 @@ namespace KLPlugins.DynLeaderboards.Car {
                     if (thisBestLap == null) {
                         this.GapToLeader = null;
                         this.GapToClassLeader = null;
+                        this.GapToCupLeader = null;
                         this.GapToFocusedTotal = null;
                         this.GapToAheadInClass = null;
                         this.GapToAhead = null;
@@ -510,6 +514,7 @@ namespace KLPlugins.DynLeaderboards.Car {
 
                     this.GapToLeader = CalculateBestLapDelta(leaderCar);
                     this.GapToClassLeader = CalculateBestLapDelta(classLeaderCar);
+                    this.GapToCupLeader = CalculateBestLapDelta(cupLeaderCar);
                     this.GapToFocusedTotal = CalculateBestLapDelta(focusedCar);
                     this.GapToAhead = CalculateBestLapDelta(carAhead);
                     this.GapToAheadInClass = CalculateBestLapDelta(carAheadInClass);

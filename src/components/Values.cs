@@ -610,6 +610,8 @@ namespace KLPlugins.DynLeaderboards {
                         leaderCar: leaderCar,
                         // _classLeadeIdxs must contain thisClass, and Cars must contain that car. SetPositionInClass must set it.
                         classLeaderCar: this.Cars[(int)this._classLeaderIdxs[thisCar.CarClass]!],
+                        // same reason as above
+                        cupLeaderCar: this.Cars[(int)this._cupLeaderIdxs[thisCar.CarClass][thisCar.TeamCupCategory]!],
                         focusedCar: focusedCar,
                         carAhead: idxInCars != 0 ? this.Cars[idxInCars - 1] : null,
                         carAheadInClass: carAheadInClassIdx != null ? this.Cars[(int)carAheadInClassIdx] : null,

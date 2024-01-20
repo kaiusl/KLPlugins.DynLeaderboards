@@ -112,9 +112,11 @@ namespace KLPlugins.DynLeaderboards.Car {
 
         public double? LastLapDeltaToLeaderLast { get; private set; } = null;
         public double? LastLapDeltaToClassLeaderLast { get; private set; } = null;
+        public double? LastLapDeltaToCupLeaderLast { get; private set; } = null;
         public double? LastLapDeltaToFocusedLast { get; private set; } = null;
         public double? LastLapDeltaToAheadLast { get; private set; } = null;
         public double? LastLapDeltaToAheadInClassLast { get; private set; } = null;
+        public double? LastLapDeltaToAheadInCupLast { get; private set; } = null;
 
         // Else
         public bool IsFinished { get; private set; } = false;
@@ -670,9 +672,11 @@ namespace KLPlugins.DynLeaderboards.Car {
 
                     var leaderLast = leaderCar?.NewData?.LastLap.Laptime;
                     var classLeaderLast = classLeaderCar?.NewData?.LastLap.Laptime;
+                    var cupLeaderLast = cupLeaderCar?.NewData?.LastLap.Laptime;
                     var focusedLast = focusedCar?.NewData?.LastLap.Laptime;
                     var aheadLast = carAhead?.NewData?.LastLap.Laptime;
                     var aheadInClassLast = carAheadInClass?.NewData?.LastLap.Laptime;
+                    var aheadInCupLast = carAheadInCup?.NewData?.LastLap.Laptime;
 
                     if (leaderLast != null) {
                         this.LastLapDeltaToLeaderLast = (double)thisLast - (double)leaderLast;
@@ -682,9 +686,14 @@ namespace KLPlugins.DynLeaderboards.Car {
                         this.LastLapDeltaToClassLeaderLast = (double)thisLast - (double)classLeaderLast;
                     }
 
+                    if (cupLeaderLast != null) {
+                        this.LastLapDeltaToCupLeaderLast = (double)thisLast - (double)cupLeaderLast;
+                    }
+
                     this.LastLapDeltaToFocusedLast = focusedLast != null ? (double)thisLast - (double)focusedLast : (double?)null;
                     this.LastLapDeltaToAheadLast = aheadLast != null ? (double)thisLast - (double)aheadLast : (double?)null;
                     this.LastLapDeltaToAheadInClassLast = aheadInClassLast != null ? (double)thisLast - (double)aheadInClassLast : (double?)null;
+                    this.LastLapDeltaToAheadInCupLast = aheadInCupLast != null ? (double)thisLast - (double)aheadInCupLast : (double?)null;
                 }
             }
 

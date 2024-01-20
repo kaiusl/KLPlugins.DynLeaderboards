@@ -5,18 +5,16 @@ namespace KLPlugins.DynLeaderboards.Car {
     internal class CarClassArray<T> {
         private const int _numClasses = 10;
         private readonly T[] _data = new T[_numClasses];
-        public T DefaultValue { get; private set; }
+        public Func<CarClass, T> DefaultValue { get; private set; }
 
-        public CarClassArray(T defValue = default!) {
-            this.DefaultValue = defValue;
+        public CarClassArray(T defValue) {
+            this.DefaultValue = (_) => defValue;
             this.Reset();
         }
 
-        public CarClassArray(Func<CarClass, T> generator, T defValue = default!) {
-            this.DefaultValue = defValue;
-            foreach (var v in (CarClass[])Enum.GetValues(typeof(CarClass))) {
-                this._data[(int)v] = generator(v);
-            }
+        public CarClassArray(Func<CarClass, T> defaultGenerator) {
+            this.DefaultValue = defaultGenerator;
+            this.Reset();
         }
 
         public T this[CarClass key] {
@@ -25,8 +23,8 @@ namespace KLPlugins.DynLeaderboards.Car {
         }
 
         public void Reset() {
-            for (int i = 0; i < _numClasses; i++) {
-                this._data[i] = this.DefaultValue;
+            foreach (var v in (CarClass[])Enum.GetValues(typeof(CarClass))) {
+                this._data[(int)v] = this.DefaultValue(v);
             }
         }
     }

@@ -100,11 +100,14 @@ namespace KLPlugins.DynLeaderboards.Car {
 
         public double? LastLapDeltaToOverallBest { get; private set; } = null;
         public double? LastLapDeltaToClassBest { get; private set; } = null;
+        public double? LastLapDeltaToCupBest { get; private set; } = null;
         public double? LastLapDeltaToLeaderBest { get; private set; } = null;
         public double? LastLapDeltaToClassLeaderBest { get; private set; } = null;
+        public double? LastLapDeltaToCupLeaderBest { get; private set; } = null;
         public double? LastLapDeltaToFocusedBest { get; private set; } = null;
         public double? LastLapDeltaToAheadBest { get; private set; } = null;
         public double? LastLapDeltaToAheadInClassBest { get; private set; } = null;
+        public double? LastLapDeltaToAheadInCupBest { get; private set; } = null;
         public double? LastLapDeltaToOwnBest { get; private set; } = null;
 
         public double? LastLapDeltaToLeaderLast { get; private set; } = null;
@@ -640,6 +643,10 @@ namespace KLPlugins.DynLeaderboards.Car {
                         this.LastLapDeltaToClassBest = (double)thisLast - (double)classBest;
                     }
 
+                    if (cupBest != null) {
+                        this.LastLapDeltaToCupBest = (double)thisLast - (double)cupBest;
+                    }
+
                     if (leaderBest != null) {
                         this.LastLapDeltaToLeaderBest = (double)thisLast - (double)leaderBest;
                     }
@@ -648,9 +655,14 @@ namespace KLPlugins.DynLeaderboards.Car {
                         this.LastLapDeltaToClassLeaderBest = (double)thisLast - (double)classLeaderBest;
                     }
 
+                    if (cupLeaderBest != null) {
+                        this.LastLapDeltaToCupLeaderBest = (double)thisLast - (double)cupLeaderBest;
+                    }
+
                     this.LastLapDeltaToFocusedBest = focusedBest != null ? (double)thisLast - (double)focusedBest : (double?)null;
                     this.LastLapDeltaToAheadBest = aheadBest != null ? (double)thisLast - (double)aheadBest : (double?)null;
                     this.LastLapDeltaToAheadInClassBest = aheadInClassBest != null ? (double)thisLast - (double)aheadInClassBest : (double?)null;
+                    this.LastLapDeltaToAheadInCupBest = aheadInCupBest != null ? (double)thisLast - (double)aheadInCupBest : (double?)null;
 
                     if (thisBest != null) {
                         this.LastLapDeltaToOwnBest = (double)thisLast - (double)thisBest;

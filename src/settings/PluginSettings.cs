@@ -138,6 +138,21 @@ namespace KLPlugins.DynLeaderboards.Settings {
             return max;
         }
 
+
+        public int GetMaxNumCupPos() {
+            int max = 0;
+            if (this.DynLeaderboardConfigs.Count > 0) {
+                foreach (var v in this.DynLeaderboardConfigs) {
+                    if (!v.IsEnabled) {
+                        continue;
+                    }
+
+                    max = Math.Max(max, v.NumCupPos);
+                }
+            }
+            return max;
+        }
+
         private static Dictionary<CarClass, string> CreateDefCarClassColors() {
             var carClassColors = new Dictionary<CarClass, string>(8);
             foreach (var c in Enum.GetValues(typeof(CarClass))) {
@@ -326,7 +341,7 @@ namespace KLPlugins.DynLeaderboards.Settings {
                 cfg.Version = 2;
                 cfg.NumCupPos = cfg.NumClassPos;
                 cfg.NumCupRelativePos = cfg.NumClassRelativePos;
-                cfg.PartialRelativeCupNumClassPos = cfg.PartialRelativeClassNumClassPos;
+                cfg.PartialRelativeCupNumCupPos = cfg.PartialRelativeClassNumClassPos;
                 cfg.PartialRelativeCupNumRelativePos = cfg.PartialRelativeClassNumRelativePos;
 
                 using StreamWriter fileOut = File.CreateText(fileName);
@@ -390,7 +405,7 @@ namespace KLPlugins.DynLeaderboards.Settings {
         public int PartialRelativeOverallNumRelativePos { get; set; } = 5;
         public int PartialRelativeClassNumClassPos { get; set; } = 5;
         public int PartialRelativeClassNumRelativePos { get; set; } = 5;
-        public int PartialRelativeCupNumClassPos { get; set; } = 5;
+        public int PartialRelativeCupNumCupPos { get; set; } = 5;
         public int PartialRelativeCupNumRelativePos { get; set; } = 5;
 
         public List<Leaderboard> Order { get; set; } = new List<Leaderboard>();

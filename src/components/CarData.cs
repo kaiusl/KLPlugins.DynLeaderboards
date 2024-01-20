@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -58,8 +58,10 @@ namespace KLPlugins.DynLeaderboards.Car {
         public int InClassPos { get; private set; } = -1;
 
         public int OverallPos { get; private set; } = -1;
+        public int InCupPos { get; private set; } = -1;
         public int StartPos { get; private set; } = -1;
         public int StartPosInClass { get; private set; } = -1;
+        public int StartPosInCup { get; private set; } = -1;
 
         // Pit info
         public int PitCount { get; private set; } = 0;
@@ -421,13 +423,15 @@ namespace KLPlugins.DynLeaderboards.Car {
             CarData? overallBestLapCar,
             CarData? classBestLapCar,
             int overallPos,
-            int classPos
+            int classPos,
+            int cupPos
         ) {
             this.IsOverallBestLapCar = this.CarIndex == overallBestLapCar?.CarIndex;
             this.IsClassBestLapCar = this.CarIndex == classBestLapCar?.CarIndex;
 
             this.InClassPos = classPos;
             this.OverallPos = overallPos;
+            this.InCupPos = cupPos;
 
             if (realtimeData.NewData.SessionRemainingTime == TimeSpan.Zero && realtimeData.IsRace) {
                 // We also need to check finished here (after positions update) to detect leaders finish

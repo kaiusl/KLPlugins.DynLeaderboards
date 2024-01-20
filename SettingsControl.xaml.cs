@@ -411,6 +411,17 @@ namespace KLPlugins.DynLeaderboards.Settings {
                    1
                 )
             );
+            this.NumPositions_StackPanel.Children.Add(this.CreateToggleSeparator());
+            this.NumPositions_StackPanel.Children.Add(
+               this.CreateNumRow(
+                   "Cup: ",
+                   "Set number of cup positions exposed as properties. ",
+                   nameof(DynLeaderboardConfig.NumCupPos),
+                   0,
+                   100,
+                   1
+                )
+            );
 
             AddSmallTitle("Relative leaderboards");
 
@@ -432,6 +443,18 @@ namespace KLPlugins.DynLeaderboards.Settings {
                     "Set number of class relative positions exposed from the focused car in one direction." +
                     " That is if it's set to 5, we show 5 cars ahead and 5 behind.",
                     nameof(DynLeaderboardConfig.NumClassRelativePos),
+                    0,
+                    50,
+                    1
+                )
+            );
+            this.NumPositions_StackPanel.Children.Add(this.CreateToggleSeparator());
+            this.NumPositions_StackPanel.Children.Add(
+                this.CreateNumRow(
+                    "Cup: ",
+                    "Set number of class and cup relative positions exposed from the focused car in one direction." +
+                    " That is if it's set to 5, we show 5 cars ahead and 5 behind.",
+                    nameof(DynLeaderboardConfig.NumCupRelativePos),
                     0,
                     50,
                     1
@@ -493,6 +516,30 @@ namespace KLPlugins.DynLeaderboards.Settings {
                    "leaderboard from the focused car in one direction. " +
                    "That is if it's set to 5, we show 5 cars ahead and 5 behind.",
                    nameof(DynLeaderboardConfig.PartialRelativeClassNumRelativePos),
+                   0,
+                   50,
+                   1
+                )
+            );
+            this.NumPositions_StackPanel.Children.Add(this.CreateToggleSeparator());
+            this.NumPositions_StackPanel.Children.Add(
+               this.CreateNumRow(
+                   "Cup      - top positions: ",
+                   "Set number of cup positions exposed for partial relative class leaderboard.",
+                   nameof(DynLeaderboardConfig.PartialRelativeCupNumClassPos),
+                   0,
+                   100,
+                   1
+                )
+            );
+            this.NumPositions_StackPanel.Children.Add(this.CreateToggleSeparator());
+            this.NumPositions_StackPanel.Children.Add(
+               this.CreateNumRow(
+                   "Cup      - relative positions: ",
+                   "Set number of relative positions exposed for partial relative cup " +
+                   "leaderboard from the focused car in one direction. " +
+                   "That is if it's set to 5, we show 5 cars ahead and 5 behind.",
+                   nameof(DynLeaderboardConfig.PartialRelativeCupNumRelativePos),
                    0,
                    50,
                    1

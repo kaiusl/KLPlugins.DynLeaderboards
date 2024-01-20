@@ -56,6 +56,7 @@ namespace KLPlugins.DynLeaderboards {
         // Store relative spline positions for relative leaderboard,
         // need to store separately as we need to sort by spline pos at the end on update loop
         private readonly CarClassArray<int?> _bestLapByClassCarIdxs = new((_) => null);
+        private readonly CarClassArray<CupCategoryArray<int?>> _bestLapByCupCarIdxs = new((_) => new(_ => null));
 
         private readonly List<CarSplinePos> _relativeSplinePositions = new();
         private readonly CarClassArray<int?> _classLeaderIdxs = new((_) => null); // Indexes of class leaders in Cars list
@@ -107,6 +108,15 @@ namespace KLPlugins.DynLeaderboards {
             return this.Cars.ElementAtOrDefault((int)idx);
         }
 
+        public CarData? GetBestLapCarByCup(CarClass cls, TeamCupCategory cup) {
+            var idx = this._bestLapByCupCarIdxs[cls][cup];
+            if (idx == null) {
+                return null;
+            }
+
+            return this.Cars.ElementAtOrDefault((int)idx);
+        }
+
         public CarData? GetFocusedClassBestLapCar() {
             var focusedClass = this.GetFocusedCar()?.CarClass;
             if (focusedClass == null) {
@@ -128,6 +138,7 @@ namespace KLPlugins.DynLeaderboards {
             this._classLeaderIdxs.Reset();
             this._cupLeaderIdxs.Reset();
             this._bestLapByClassCarIdxs.Reset();
+            this._bestLapByCupCarIdxs.Reset();
             this._relativeSplinePositions.Clear();
             this._startingPositionsSet = false;
             this.MaxDriverStintTime = -1;
@@ -572,6 +583,7 @@ namespace KLPlugins.DynLeaderboards {
                 this._classLeaderIdxs.Reset();
                 this._cupLeaderIdxs.Reset();
                 this._bestLapByClassCarIdxs.Reset();
+                this._bestLapByCupCarIdxs.Reset();
 
                 var leaderCar = this.Cars[0];
                 // FocusedCarIdx is checked to be not null before
@@ -607,6 +619,7 @@ namespace KLPlugins.DynLeaderboards {
                     var carAheadInCupIdx = lastSeenInCupCarIdxs[thisCar.CarClass][thisCar.TeamCupCategory];
                     var overallBestLapCarIdx = this._bestLapByClassCarIdxs[CarClass.Overall];
                     var classBestLapCarIdx = this._bestLapByClassCarIdxs[thisCar.CarClass];
+                    var cupBestLapCarIdx = this._bestLapByCupCarIdxs[thisCar.CarClass][thisCar.TeamCupCategory];
 
                     thisCar.OnRealtimeUpdateSecondPass(
                         trackData: trackData,
@@ -623,6 +636,7 @@ namespace KLPlugins.DynLeaderboards {
                         carAheadOnTrack: this.GetCarAheadOnTrack(thisCar),
                         overallBestLapCar: overallBestLapCarIdx != null ? this.Cars[(int)overallBestLapCarIdx] : null,
                         classBestLapCar: classBestLapCarIdx != null ? this.Cars[(int)classBestLapCarIdx] : null,
+                        cupBestLapCar: cupBestLapCarIdx != null ? this.Cars[(int)cupBestLapCarIdx] : null,
                         overallPos: idxInCars + 1,
                         classPos: thisCarClassPos,
                         cupPos: thisCarCupPos
@@ -646,6 +660,11 @@ namespace KLPlugins.DynLeaderboards {
                     if (thisCarBestLap != null) {
                         UpdateBestLap(thisCar.CarClass);
                         UpdateBestLap(CarClass.Overall);
+
+                        var currentIdx = this._bestLapByCupCarIdxs[thisCar.CarClass][thisCar.TeamCupCategory];
+                        if (currentIdx == null || this.Cars[(int)currentIdx].NewData?.BestSessionLap.Laptime >= thisCarBestLap) {
+                            this._bestLapByCupCarIdxs[thisCar.CarClass][thisCar.TeamCupCategory] = idxInCars;
+                        }
                     }
 
                     void UpdateBestLap(CarClass cls) {

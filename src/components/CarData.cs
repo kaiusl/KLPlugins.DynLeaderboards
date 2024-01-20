@@ -89,6 +89,7 @@ namespace KLPlugins.DynLeaderboards.Car {
         public double? BestLapDeltaToOverallBest { get; private set; } = null;
 
         public double? BestLapDeltaToClassBest { get; private set; } = null;
+        public double? BestLapDeltaToCupBest { get; private set; } = null;
         public double? BestLapDeltaToLeaderBest { get; private set; } = null;
         public double? BestLapDeltaToClassLeaderBest { get; private set; } = null;
         public double? BestLapDeltaToFocusedBest { get; private set; } = null;
@@ -426,6 +427,7 @@ namespace KLPlugins.DynLeaderboards.Car {
             CarData? carAheadOnTrack,
             CarData? overallBestLapCar,
             CarData? classBestLapCar,
+            CarData? cupBestLapCar,
             int overallPos,
             int classPos,
             int cupPos
@@ -587,6 +589,7 @@ namespace KLPlugins.DynLeaderboards.Car {
 
                 var overallBest = overallBestLapCar?.NewData?.BestSessionLap.Laptime;
                 var classBest = classBestLapCar?.NewData?.BestSessionLap.Laptime;
+                var cupBest = cupBestLapCar?.NewData?.BestSessionLap.Laptime;
                 var leaderBest = leaderCar?.NewData?.BestSessionLap.Laptime;
                 var classLeaderBest = classLeaderCar?.NewData?.BestSessionLap.Laptime;
                 var focusedBest = focusedCar?.NewData?.BestSessionLap.Laptime;
@@ -600,6 +603,10 @@ namespace KLPlugins.DynLeaderboards.Car {
 
                     if (classBest != null) {
                         this.BestLapDeltaToClassBest = (double)thisBest - (double)classBest;
+                    }
+
+                    if (cupBest != null) {
+                        this.BestLapDeltaToCupBest = (double)thisBest - (double)cupBest;
                     }
 
                     if (leaderBest != null) {

@@ -53,6 +53,7 @@ namespace KLPlugins.DynLeaderboards.Car {
 
         public double? GapToAhead { get; private set; } = null;
         public double? GapToAheadInClass { get; internal set; } = null;
+        public double? GapToAheadInCup { get; internal set; } = null;
         public double? GapToAheadOnTrack { get; internal set; } = null;
 
         // Positions
@@ -421,6 +422,7 @@ namespace KLPlugins.DynLeaderboards.Car {
             CarData focusedCar,
             CarData? carAhead,
             CarData? carAheadInClass,
+            CarData? carAheadInCup,
             CarData? carAheadOnTrack,
             CarData? overallBestLapCar,
             CarData? classBestLapCar,
@@ -486,6 +488,7 @@ namespace KLPlugins.DynLeaderboards.Car {
                         SetGap(focusedCar, this, focusedCar, this.GapToFocusedTotal, x => this.GapToFocusedTotal = x);
                         SetGap(this, carAhead, carAhead, this.GapToAhead, x => this.GapToAhead = x);
                         SetGap(this, carAheadInClass, carAheadInClass, this.GapToAheadInClass, x => this.GapToAheadInClass = x);
+                        SetGap(this, carAheadInCup, carAheadInCup, this.GapToAheadInCup, x => this.GapToAheadInCup = x);
 
                         void SetGap(CarData? from, CarData? to, CarData? other, double? currentGap, Action<double?> setGap) {
                             if (from == null || to == null) {
@@ -508,6 +511,7 @@ namespace KLPlugins.DynLeaderboards.Car {
                         this.GapToCupLeader = null;
                         this.GapToFocusedTotal = null;
                         this.GapToAheadInClass = null;
+                        this.GapToAheadInCup = null;
                         this.GapToAhead = null;
                         return;
                     }
@@ -518,6 +522,7 @@ namespace KLPlugins.DynLeaderboards.Car {
                     this.GapToFocusedTotal = CalculateBestLapDelta(focusedCar);
                     this.GapToAhead = CalculateBestLapDelta(carAhead);
                     this.GapToAheadInClass = CalculateBestLapDelta(carAheadInClass);
+                    this.GapToAheadInCup = CalculateBestLapDelta(carAheadInCup);
 
                     double? CalculateBestLapDelta(CarData? to) {
                         var toBest = to?.NewData?.BestSessionLap.Laptime;

@@ -592,8 +592,9 @@ namespace KLPlugins.DynLeaderboards {
                 }
 
                 var classPositions = new CarClassArray<int>(0);  // Keep track of what class position are we at the moment
-                var cupPositions = new CarClassArray<CupCategoryArray<int>>((_) => new CupCategoryArray<int>(0));  // Keep track of what cup position are we at the moment 
+                var cupPositions = new CarClassArray<CupCategoryArray<int>>((_) => new(0));  // Keep track of what cup position are we at the moment 
                 var lastSeenInClassCarIdxs = new CarClassArray<int?>((_) => null);  // Keep track of the indexes of last cars seen in each class
+                var lastSeenInCupCarIdxs = new CarClassArray<CupCategoryArray<int?>>((_) => new((_) => null));  // Keep track of the indexes of last cars seen in each cup
                 for (int idxInCars = 0; idxInCars < this.Cars.Count; idxInCars++) {
                     var thisCar = this.Cars[idxInCars];
                     var thisCarClassPos = ++classPositions[thisCar.CarClass];
@@ -601,6 +602,7 @@ namespace KLPlugins.DynLeaderboards {
                     SetPositionInClassAndCup(thisCar.CarClass, thisCar.TeamCupCategory, thisCarClassPos, thisCarCupPos, idxInCars);
 
                     var carAheadInClassIdx = lastSeenInClassCarIdxs[thisCar.CarClass];
+                    var carAheadInCupIdx = lastSeenInCupCarIdxs[thisCar.CarClass][thisCar.TeamCupCategory];
                     var overallBestLapCarIdx = this._bestLapByClassCarIdxs[CarClass.Overall];
                     var classBestLapCarIdx = this._bestLapByClassCarIdxs[thisCar.CarClass];
 
@@ -615,6 +617,7 @@ namespace KLPlugins.DynLeaderboards {
                         focusedCar: focusedCar,
                         carAhead: idxInCars != 0 ? this.Cars[idxInCars - 1] : null,
                         carAheadInClass: carAheadInClassIdx != null ? this.Cars[(int)carAheadInClassIdx] : null,
+                        carAheadInCup: carAheadInCupIdx != null ? this.Cars[(int)carAheadInCupIdx] : null,
                         carAheadOnTrack: this.GetCarAheadOnTrack(thisCar),
                         overallBestLapCar: overallBestLapCarIdx != null ? this.Cars[(int)overallBestLapCarIdx] : null,
                         classBestLapCar: classBestLapCarIdx != null ? this.Cars[(int)classBestLapCarIdx] : null,
@@ -623,6 +626,7 @@ namespace KLPlugins.DynLeaderboards {
                         cupPos: thisCarCupPos
                     );
                     lastSeenInClassCarIdxs[thisCar.CarClass] = idxInCars;
+                    lastSeenInCupCarIdxs[thisCar.CarClass][thisCar.TeamCupCategory] = idxInCars;
                 }
                 if (this.PosInClassCarsIdxs != null) {
                     ClearUnusedClassPositions(classPositions[focusedClass], this.PosInClassCarsIdxs);

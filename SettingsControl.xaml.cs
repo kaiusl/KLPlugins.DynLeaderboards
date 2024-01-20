@@ -526,7 +526,7 @@ namespace KLPlugins.DynLeaderboards.Settings {
                this.CreateNumRow(
                    "Cup      - top positions: ",
                    "Set number of cup positions exposed for partial relative class leaderboard.",
-                   nameof(DynLeaderboardConfig.PartialRelativeCupNumClassPos),
+                   nameof(DynLeaderboardConfig.PartialRelativeCupNumCupPos),
                    0,
                    100,
                    1

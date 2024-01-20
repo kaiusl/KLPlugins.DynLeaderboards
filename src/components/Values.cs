@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -46,7 +46,9 @@ namespace KLPlugins.DynLeaderboards {
 
         internal ACCUdpRemoteClient? BroadcastClient { get; private set; }
         internal int?[]? PosInClassCarsIdxs { get; private set; }
+        internal int?[]? PosInCupCarsIdxs { get; private set; }
         internal int? FocusedCarPosInClassCarsIdxs { get; private set; }
+        internal int? FocusedCarPosInCupCarsIdxs { get; private set; }
         internal int? FocusedCarIdx { get; private set; } = null;
         internal Statistics SessionEndTimeForBroadcastEventsTime = new();
         internal List<DynLeaderboardValues> LeaderboardValues { get; private set; } = new List<DynLeaderboardValues>();
@@ -70,6 +72,7 @@ namespace KLPlugins.DynLeaderboards {
             var num = DynLeaderboardsPlugin.Settings.GetMaxNumClassPos();
             if (num > 0) {
                 this.PosInClassCarsIdxs = new int?[100];
+                this.PosInCupCarsIdxs = new int?[100];
             }
 
             this.ResetPos();
@@ -134,6 +137,7 @@ namespace KLPlugins.DynLeaderboards {
 
         private void ResetPos() {
             ResetIdxs(this.PosInClassCarsIdxs);
+            ResetIdxs(this.PosInCupCarsIdxs);
             foreach (var l in this.LeaderboardValues) {
                 l.ResetPos();
             }
@@ -535,6 +539,18 @@ namespace KLPlugins.DynLeaderboards {
                             }
                             break;
 
+                        case Leaderboard.RelativeCup:
+                            if (this.PosInCupCarsIdxs != null) {
+                                l.SetRelativeCupOrder((int)this.FocusedCarIdx, this.Cars, this.PosInCupCarsIdxs);
+                            }
+                            break;
+
+                        case Leaderboard.PartialRelativeCup:
+                            if (this.PosInCupCarsIdxs != null) {
+                                l.SetPartialRelativeCupOrder((int)this.FocusedCarIdx, this.Cars, this.PosInCupCarsIdxs);
+                            }
+                            break;
+
                         default:
                             break;
                     }
@@ -556,6 +572,7 @@ namespace KLPlugins.DynLeaderboards {
                 // FocusedCarIdx is checked to be not null before
                 var focusedCar = this.Cars[FocusedCarIdx];
                 var focusedClass = focusedCar.CarClass;
+                var focusedCup = focusedCar.TeamCupCategory;
 
                 if (leaderCar.NewData == null) {
                     // First RealtimeUpdate, cars do not yet have their RealtimeCarUpdates, wait until next message
@@ -572,11 +589,13 @@ namespace KLPlugins.DynLeaderboards {
                 }
 
                 var classPositions = new CarClassArray<int>(0);  // Keep track of what class position are we at the moment
+                var cupPositions = new CarClassArray<CupCategoryArray<int>>((_) => new CupCategoryArray<int>(0));  // Keep track of what cup position are we at the moment 
                 var lastSeenInClassCarIdxs = new CarClassArray<int?>((_) => null);  // Keep track of the indexes of last cars seen in each class
                 for (int idxInCars = 0; idxInCars < this.Cars.Count; idxInCars++) {
                     var thisCar = this.Cars[idxInCars];
                     var thisCarClassPos = ++classPositions[thisCar.CarClass];
-                    SetPositionInClass(thisCar.CarClass, thisCarClassPos, idxInCars);
+                    var thisCarCupPos = ++(cupPositions[thisCar.CarClass][thisCar.TeamCupCategory]);
+                    SetPositionInClassAndCup(thisCar.CarClass, thisCar.TeamCupCategory, thisCarClassPos, thisCarCupPos, idxInCars);
 
                     var carAheadInClassIdx = lastSeenInClassCarIdxs[thisCar.CarClass];
                     var overallBestLapCarIdx = this._bestLapByClassCarIdxs[CarClass.Overall];
@@ -595,12 +614,16 @@ namespace KLPlugins.DynLeaderboards {
                         overallBestLapCar: overallBestLapCarIdx != null ? this.Cars[(int)overallBestLapCarIdx] : null,
                         classBestLapCar: classBestLapCarIdx != null ? this.Cars[(int)classBestLapCarIdx] : null,
                         overallPos: idxInCars + 1,
-                        classPos: thisCarClassPos
+                        classPos: thisCarClassPos,
+                        cupPos: thisCarCupPos
                     );
                     lastSeenInClassCarIdxs[thisCar.CarClass] = idxInCars;
                 }
                 if (this.PosInClassCarsIdxs != null) {
                     ClearUnusedClassPositions(classPositions[focusedClass], this.PosInClassCarsIdxs);
+                }
+                if (this.PosInCupCarsIdxs != null) {
+                    ClearUnusedCupPositions(cupPositions[focusedClass][focusedCup], this.PosInCupCarsIdxs);
                 }
 
                 SetRelativeOnTrackOrders();
@@ -630,15 +653,22 @@ namespace KLPlugins.DynLeaderboards {
                     }
                 }
 
-                void SetPositionInClass(CarClass thisCarClass, int thisCarClassPos, int idxInCars) {
+                void SetPositionInClassAndCup(CarClass thisCarClass, TeamCupCategory thisCarCup, int thisCarClassPos, int thisCarCupPos, int idxInCars) {
                     if (thisCarClassPos == classPositions.DefaultValue(thisCarClass) + 1) { // First time we see this class, must be the leader
                         this._classLeaderIdxs[thisCarClass] = idxInCars;
+
+                        // TODO: Add this._cupLeaderIdxs
                     }
 
                     if (this.PosInClassCarsIdxs != null && thisCarClass == focusedCar.CarClass) {
                         this.PosInClassCarsIdxs[thisCarClassPos - 1] = idxInCars;
+
+                        if (this.PosInCupCarsIdxs != null && thisCarCup == focusedCar.TeamCupCategory) {
+                            this.PosInCupCarsIdxs[thisCarCupPos - 1] = idxInCars;
+                        }
                         if (idxInCars == FocusedCarIdx) {
                             this.FocusedCarPosInClassCarsIdxs = thisCarClassPos - 1;
+                            this.FocusedCarPosInCupCarsIdxs = thisCarCupPos - 1;
                         }
                     }
                 }
@@ -651,6 +681,17 @@ namespace KLPlugins.DynLeaderboards {
                         }
 
                         PosInClassCarsIdxs[i] = null;
+                    }
+                }
+
+                void ClearUnusedCupPositions(int numCarsInFocusedCarCup, int?[] PosInCupCarsIdxs) {
+                    // If somebody left the session, need to reset following class positions
+                    for (int i = numCarsInFocusedCarCup; i < DynLeaderboardsPlugin.Settings.GetMaxNumCupPos(); i++) {
+                        if (PosInCupCarsIdxs[i] == null) {
+                            break; // All following must already be nulls
+                        }
+
+                        PosInCupCarsIdxs[i] = null;
                     }
                 }
 

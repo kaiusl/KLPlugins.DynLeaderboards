@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Generic;
 
 namespace KLPlugins.DynLeaderboards.Car {
 
-    internal class CarClassArray<T> {
+    internal class CarClassArray<T> : IEnumerable<T> {
         private const int _numClasses = 10;
         private readonly T[] _data = new T[_numClasses];
         public Func<CarClass, T> DefaultValue { get; private set; }
@@ -26,6 +28,16 @@ namespace KLPlugins.DynLeaderboards.Car {
             foreach (var v in (CarClass[])Enum.GetValues(typeof(CarClass))) {
                 this._data[(int)v] = this.DefaultValue(v);
             }
+        }
+
+        public IEnumerator<T> GetEnumerator() {
+            foreach (var v in (CarClass[])Enum.GetValues(typeof(CarClass))) {
+                yield return this._data[(int)v];
+            }
+        }
+
+        IEnumerator IEnumerable.GetEnumerator() {
+            return this.GetEnumerator();
         }
     }
 }

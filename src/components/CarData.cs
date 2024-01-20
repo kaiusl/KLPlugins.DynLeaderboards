@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -127,7 +127,7 @@ namespace KLPlugins.DynLeaderboards.Car {
         internal int MissedRealtimeUpdates { get; set; } = 0;
 
         private double? _stintStartTime = null;
-        private readonly CarClassArray<double?> _splinePositionTime = new(null);
+        private readonly CarClassArray<double?> _splinePositionTime = new((_) => null);
         private int _lapAtOffsetLapUpdate = -1;
 
         private bool _isSplinePositionReset = false;
@@ -876,7 +876,7 @@ namespace KLPlugins.DynLeaderboards.Car {
         private double GetSplinePosTime(CarClass cls, TrackData trackData) {
             // Same interpolated value is needed multiple times in one update, thus cache results.
             var pos = this._splinePositionTime[cls];
-            if (pos != this._splinePositionTime.DefaultValue && pos != null) {
+            if (pos != this._splinePositionTime.DefaultValue(cls) && pos != null) {
                 return (double)pos;
             }
 

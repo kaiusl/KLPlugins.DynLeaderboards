@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -53,10 +53,10 @@ namespace KLPlugins.DynLeaderboards {
 
         // Store relative spline positions for relative leaderboard,
         // need to store separately as we need to sort by spline pos at the end on update loop
-        private readonly CarClassArray<int?> _bestLapByClassCarIdxs = new(null);
+        private readonly CarClassArray<int?> _bestLapByClassCarIdxs = new((_) => null);
 
         private readonly List<CarSplinePos> _relativeSplinePositions = new();
-        private readonly CarClassArray<int?> _classLeaderIdxs = new(null); // Indexes of class leaders in Cars list
+        private readonly CarClassArray<int?> _classLeaderIdxs = new((_) => null); // Indexes of class leaders in Cars list
         private readonly List<ushort> _lastUpdateCarIds = new();
         private readonly ACCUdpRemoteClientConfig _broadcastConfig;
         private bool _startingPositionsSet = false;
@@ -572,7 +572,7 @@ namespace KLPlugins.DynLeaderboards {
                 }
 
                 var classPositions = new CarClassArray<int>(0);  // Keep track of what class position are we at the moment
-                var lastSeenInClassCarIdxs = new CarClassArray<int?>(null);  // Keep track of the indexes of last cars seen in each class
+                var lastSeenInClassCarIdxs = new CarClassArray<int?>((_) => null);  // Keep track of the indexes of last cars seen in each class
                 for (int idxInCars = 0; idxInCars < this.Cars.Count; idxInCars++) {
                     var thisCar = this.Cars[idxInCars];
                     var thisCarClassPos = ++classPositions[thisCar.CarClass];
@@ -631,7 +631,7 @@ namespace KLPlugins.DynLeaderboards {
                 }
 
                 void SetPositionInClass(CarClass thisCarClass, int thisCarClassPos, int idxInCars) {
-                    if (thisCarClassPos == classPositions.DefaultValue + 1) { // First time we see this class, must be the leader
+                    if (thisCarClassPos == classPositions.DefaultValue(thisCarClass) + 1) { // First time we see this class, must be the leader
                         this._classLeaderIdxs[thisCarClass] = idxInCars;
                     }
 

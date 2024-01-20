@@ -126,6 +126,14 @@ namespace KLPlugins.DynLeaderboards {
             return this.GetBestLapCar((CarClass)focusedClass);
         }
 
+        // There is no need to reset CarClassArray itself which would simply create new CupCategoryArrays.
+        // Instead we usually want to reset the values in CupCategoryArrays.
+        internal static void ResetNestedCarCupArray<T>(CarClassArray<CupCategoryArray<T>> array) {
+            foreach (var cupArray in array) {
+                cupArray.Reset();
+            }
+        }
+
         internal void Reset() {
             if (this.BroadcastClient != null) {
                 this.DisposeBroadcastClient();
@@ -136,9 +144,9 @@ namespace KLPlugins.DynLeaderboards {
             this.ResetPos();
             this._lastUpdateCarIds.Clear();
             this._classLeaderIdxs.Reset();
-            this._cupLeaderIdxs.Reset();
+            ResetNestedCarCupArray(this._cupLeaderIdxs);
             this._bestLapByClassCarIdxs.Reset();
-            this._bestLapByCupCarIdxs.Reset();
+            ResetNestedCarCupArray(this._bestLapByCupCarIdxs);
             this._relativeSplinePositions.Clear();
             this._startingPositionsSet = false;
             this.MaxDriverStintTime = -1;
@@ -581,9 +589,9 @@ namespace KLPlugins.DynLeaderboards {
                 // Clear old data
                 this._relativeSplinePositions.Clear();
                 this._classLeaderIdxs.Reset();
-                this._cupLeaderIdxs.Reset();
+                ResetNestedCarCupArray(this._cupLeaderIdxs);
                 this._bestLapByClassCarIdxs.Reset();
-                this._bestLapByCupCarIdxs.Reset();
+                ResetNestedCarCupArray(this._bestLapByCupCarIdxs);
 
                 var leaderCar = this.Cars[0];
                 // FocusedCarIdx is checked to be not null before

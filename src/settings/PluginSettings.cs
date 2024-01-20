@@ -12,7 +12,7 @@ using Newtonsoft.Json.Linq;
 
 namespace KLPlugins.DynLeaderboards.Settings {
     internal class PluginSettings {
-        public int Version { get; set; } = 1;
+        public int Version { get; set; } = 2;
         public string AccDataLocation { get; set; }
         public bool Log { get; set; }
         public int BroadcastDataUpdateRateMs { get; set; }
@@ -22,7 +22,7 @@ namespace KLPlugins.DynLeaderboards.Settings {
         public Dictionary<TeamCupCategory, string> TeamCupCategoryTextColors { get; set; }
         public Dictionary<DriverCategory, string> DriverCategoryColors { get; set; }
 
-        internal const int currentSettingsVersion = 1;
+        internal const int currentSettingsVersion = 2;
         internal List<DynLeaderboardConfig> DynLeaderboardConfigs { get; set; } = new List<DynLeaderboardConfig>();
         internal string PluginDataLocation { get; set; }
 
@@ -239,7 +239,8 @@ namespace KLPlugins.DynLeaderboards.Settings {
         /// <returns></returns>
         private static Dictionary<string, Migration> CreateMigrationsDict() {
             var migrations = new Dictionary<string, Migration> {
-                ["0_1"] = Mig0To1
+                ["0_1"] = Mig0To1,
+                ["1_2"] = Mig1To2,
             };
 
 #if DEBUG
@@ -288,12 +289,64 @@ namespace KLPlugins.DynLeaderboards.Settings {
 
             return o;
         }
+
+        /// <summary>
+        /// Migration of setting from version 0 to version 1
+        /// </summary>
+        /// <param name="o"></param>
+        /// <returns></returns>
+        private static JObject Mig1To2(JObject o) {
+            // v1 to v2 changes:
+            // - added Cup leaderboards and options to change number of position in those leaderboards, but these are not breaking changes
+            // - no breaking changes
+            // - only need to bump version and add new options
+
+            o["Version"] = 2;
+
+            foreach (var fileName in Directory.GetFiles(leaderboardConfigsDataDirName)) {
+                if (!File.Exists(fileName) || !fileName.EndsWith(".json")) {
+                    continue;
+                }
+
+                using StreamReader file = File.OpenText(fileName);
+                var serializer = new JsonSerializer();
+                DynLeaderboardConfig cfg;
+                try {
+                    var result = (DynLeaderboardConfig?)serializer.Deserialize(file, typeof(DynLeaderboardConfig));
+                    if (result == null) {
+                        continue;
+                    }
+                    cfg = result;
+                } catch (Exception e) {
+                    SimHub.Logging.Current.Error($"Failed to deserialize leaderboard \"{fileName}\" configuration. Error {e}.");
+                    continue;
+                }
+                file.Close();
+
+                cfg.Version = 2;
+                cfg.NumCupPos = cfg.NumClassPos;
+                cfg.NumCupRelativePos = cfg.NumClassRelativePos;
+                cfg.PartialRelativeCupNumClassPos = cfg.PartialRelativeClassNumClassPos;
+                cfg.PartialRelativeCupNumRelativePos = cfg.PartialRelativeClassNumRelativePos;
+
+                using StreamWriter fileOut = File.CreateText(fileName);
+                var serializerOut = new JsonSerializer {
+                    Formatting = Newtonsoft.Json.Formatting.Indented
+                };
+                serializerOut.Serialize(fileOut, cfg);
+
+            }
+
+            SimHub.Logging.Current.Info($"Migrated settings from v1 to v2.");
+
+            return o;
+        }
     }
 
     public class DynLeaderboardConfig {
-        internal const int currentConfigVersion = 1;
+        internal const int currentConfigVersion = 2;
 
-        public int Version { get; set; } = 1;
+        public int Version { get; set; } = 2;
 
         private string _name = "";
         public string Name {
@@ -327,14 +380,18 @@ namespace KLPlugins.DynLeaderboards.Settings {
 
         public int NumOverallPos { get; set; } = 16;
         public int NumClassPos { get; set; } = 16;
+        public int NumCupPos { get; set; } = 16;
         public int NumOnTrackRelativePos { get; set; } = 5;
         public int NumOverallRelativePos { get; set; } = 5;
         public int NumClassRelativePos { get; set; } = 5;
+        public int NumCupRelativePos { get; set; } = 5;
         public int NumDrivers { get; set; } = 1;
         public int PartialRelativeOverallNumOverallPos { get; set; } = 5;
         public int PartialRelativeOverallNumRelativePos { get; set; } = 5;
         public int PartialRelativeClassNumClassPos { get; set; } = 5;
         public int PartialRelativeClassNumRelativePos { get; set; } = 5;
+        public int PartialRelativeCupNumClassPos { get; set; } = 5;
+        public int PartialRelativeCupNumRelativePos { get; set; } = 5;
 
         public List<Leaderboard> Order { get; set; } = new List<Leaderboard>();
 
@@ -360,10 +417,13 @@ namespace KLPlugins.DynLeaderboards.Settings {
             this.Order = new List<Leaderboard>() {
                 Leaderboard.Overall,
                 Leaderboard.Class,
+                Leaderboard.Cup,
                 Leaderboard.PartialRelativeOverall,
                 Leaderboard.PartialRelativeClass,
+                Leaderboard.PartialRelativeCup,
                 Leaderboard.RelativeOverall,
                 Leaderboard.RelativeClass,
+                Leaderboard.RelativeCup,
                 Leaderboard.RelativeOnTrack,
                 Leaderboard.RelativeOnTrackWoPit
             };

@@ -509,11 +509,13 @@ namespace KLPlugins.DynLeaderboards {
                 this.Cars.Sort((a, b) => a.NewData!.Position.CompareTo(b.NewData!.Position)); // Spline position may give wrong results if cars are sitting on the grid, thus NewData.Position
 
                 var classPositions = new CarClassArray<int>(0); // Keep track of what class position are we at the moment
+                var cupPositions = new CarClassArray<CupCategoryArray<int>>((_) => new(0));  // Keep track of what cup position are we at the moment
                 for (int i = 0; i < this.Cars.Count; i++) {
                     var thisCar = this.Cars[i];
                     var thisClass = thisCar.CarClass;
                     var classPos = ++classPositions[thisClass];
-                    thisCar.SetStartingPositions(i + 1, classPos);
+                    var cupPos = ++cupPositions[thisClass][thisCar.TeamCupCategory];
+                    thisCar.SetStartingPositions(i + 1, classPos, cupPos);
                 }
                 this._startingPositionsSet = true;
             }

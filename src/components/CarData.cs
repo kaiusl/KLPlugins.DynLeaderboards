@@ -678,10 +678,11 @@ namespace KLPlugins.DynLeaderboards.Car {
         /// Sets starting positions for this car.
         /// </summary>
         /// <param name="overall"></param>
-        /// <param name="inclass"></param>
-        internal void SetStartingPositions(int overall, int inclass) {
+        /// <param name="inClass"></param>
+        internal void SetStartingPositions(int overall, int inClass, int inCup) {
             this.StartPos = overall;
-            this.StartPosInClass = inclass;
+            this.StartPosInClass = inClass;
+            this.StartPosInClass = inCup;
         }
 
         private void AddDriver(in DriverInfo driverInfo) {

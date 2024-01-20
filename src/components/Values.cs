@@ -59,6 +59,7 @@ namespace KLPlugins.DynLeaderboards {
 
         private readonly List<CarSplinePos> _relativeSplinePositions = new();
         private readonly CarClassArray<int?> _classLeaderIdxs = new((_) => null); // Indexes of class leaders in Cars list
+        private readonly CarClassArray<CupCategoryArray<int?>> _cupLeaderIdxs = new((_) => new(_ => null)); // Indexes of cup leaders in Cars list
         private readonly List<ushort> _lastUpdateCarIds = new();
         private readonly ACCUdpRemoteClientConfig _broadcastConfig;
         private bool _startingPositionsSet = false;
@@ -125,6 +126,7 @@ namespace KLPlugins.DynLeaderboards {
             this.ResetPos();
             this._lastUpdateCarIds.Clear();
             this._classLeaderIdxs.Reset();
+            this._cupLeaderIdxs.Reset();
             this._bestLapByClassCarIdxs.Reset();
             this._relativeSplinePositions.Clear();
             this._startingPositionsSet = false;
@@ -566,6 +568,7 @@ namespace KLPlugins.DynLeaderboards {
                 // Clear old data
                 this._relativeSplinePositions.Clear();
                 this._classLeaderIdxs.Reset();
+                this._cupLeaderIdxs.Reset();
                 this._bestLapByClassCarIdxs.Reset();
 
                 var leaderCar = this.Cars[0];
@@ -657,7 +660,10 @@ namespace KLPlugins.DynLeaderboards {
                     if (thisCarClassPos == classPositions.DefaultValue(thisCarClass) + 1) { // First time we see this class, must be the leader
                         this._classLeaderIdxs[thisCarClass] = idxInCars;
 
-                        // TODO: Add this._cupLeaderIdxs
+                        if (thisCarCupPos == cupPositions[thisCarClass].DefaultValue(thisCarCup)) {
+                            // First time we see this cup, must be the leader
+                            this._cupLeaderIdxs[thisCarClass][thisCarCup] = idxInCars;
+                        }
                     }
 
                     if (this.PosInClassCarsIdxs != null && thisCarClass == focusedCar.CarClass) {

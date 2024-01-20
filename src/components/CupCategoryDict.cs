@@ -1,10 +1,12 @@
 using System;
+using System.Collections.Generic;
+using System.Collections;
 
 using KLPlugins.DynLeaderboards.ksBroadcastingNetwork;
 
 namespace KLPlugins.DynLeaderboards {
 
-    internal class CupCategoryArray<T> {
+    internal class CupCategoryArray<T> : IEnumerable<T> {
         private const int _numCupCategories = 5;
         private readonly T[] _data = new T[_numCupCategories];
         public Func<TeamCupCategory, T> DefaultValue { get; private set; }
@@ -28,6 +30,17 @@ namespace KLPlugins.DynLeaderboards {
             foreach (var v in (TeamCupCategory[])Enum.GetValues(typeof(TeamCupCategory))) {
                 this._data[(int)v] = this.DefaultValue(v);
             }
+        }
+
+
+        public IEnumerator<T> GetEnumerator() {
+            foreach (var v in (TeamCupCategory[])Enum.GetValues(typeof(TeamCupCategory))) {
+                yield return this._data[(int)v];
+            }
+        }
+
+        IEnumerator IEnumerable.GetEnumerator() {
+            return this.GetEnumerator();
         }
     }
 }

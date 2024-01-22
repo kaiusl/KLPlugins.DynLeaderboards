@@ -10,6 +10,29 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 - Relative leaderboards showing wrong car for one update after a position change.
 
+### Added
+
+- New Cup, RelativeCup, PartialRelativeCup leaderboard types ([#24], [#25]). 
+  These are effectively Class, RelativeClass and PartialRelativeClass except they also filter by the focused car's cup category (Pro/Overall, Pro-Am, Am, National).
+- Few new properties related to new leaderboard types:
+  - `Laps.Best.Delta.ToCupBest`
+  - `Laps.Best.Delta.ToCupLeaderBest`
+  - `Laps.Best.Delta.ToAheadInCupBest`
+  - `Laps.Last.Delta.ToCupBest`
+  - `Laps.Last.Delta.ToCupLeaderBest`
+  - `Laps.Last.Delta.ToAheadInCupBest`
+  - `Laps.Last.Delta.ToCupLeaderLast`
+  - `Laps.Last.Delta.ToAheadInCupLast`
+  - `Gap.ToCupLeader`
+  - `Gap.ToAhead.Cup`
+  - `Position.Cup`
+  - `Position.Cup.Start`
+  - `IsCupBestLapCar`
+  - Dynamic properties have been updated to include cup specific properties.
+
+[#24]: https://github.com/kaiusl/KLPlugins.DynLeaderboards/discussions/24
+[#25]: https://github.com/kaiusl/KLPlugins.DynLeaderboards/pull/25
+
 ## [1.3.3] - 2023-10-24
 
 ### Fixed

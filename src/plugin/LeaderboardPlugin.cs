@@ -369,10 +369,12 @@ namespace KLPlugins.DynLeaderboards {
                 // Gaps
                 AddGapProp(OutGapProp.GapToLeader, () => l.GetDynCar(i)?.GapToLeader);
                 AddGapProp(OutGapProp.GapToClassLeader, () => l.GetDynCar(i)?.GapToClassLeader);
+                AddGapProp(OutGapProp.GapToCupLeader, () => l.GetDynCar(i)?.GapToCupLeader);
                 AddGapProp(OutGapProp.GapToFocusedOnTrack, () => l.GetDynCar(i)?.GapToFocusedOnTrack);
                 AddGapProp(OutGapProp.GapToFocusedTotal, () => l.GetDynCar(i)?.GapToFocusedTotal);
                 AddGapProp(OutGapProp.GapToAheadOverall, () => l.GetDynCar(i)?.GapToAhead);
                 AddGapProp(OutGapProp.GapToAheadInClass, () => l.GetDynCar(i)?.GapToAheadInClass);
+                AddGapProp(OutGapProp.GapToAheadInCup, () => l.GetDynCar(i)?.GapToAheadInCup);
                 AddGapProp(OutGapProp.GapToAheadOnTrack, () => l.GetDynCar(i)?.GapToAheadOnTrack);
 
                 AddGapProp(OutGapProp.DynamicGapToFocused, () => l.GetDynGapToFocused(i));
@@ -380,9 +382,12 @@ namespace KLPlugins.DynLeaderboards {
 
                 //// Positions
                 AddPosProp(OutPosProp.ClassPosition, () => l.GetDynCar(i)?.InClassPos);
+                AddPosProp(OutPosProp.CupPosition, () => l.GetDynCar(i)?.InCupPos);
                 AddPosProp(OutPosProp.OverallPosition, () => l.GetDynCar(i)?.OverallPos);
                 AddPosProp(OutPosProp.ClassPositionStart, () => l.GetDynCar(i)?.StartPosInClass);
+                AddPosProp(OutPosProp.CupPositionStart, () => l.GetDynCar(i)?.StartPosInCup);
                 AddPosProp(OutPosProp.OverallPositionStart, () => l.GetDynCar(i)?.StartPos);
+
                 AddPosProp(OutPosProp.DynamicPosition, () => l.GetDynPosition(i));
                 AddPosProp(OutPosProp.DynamicPositionStart, () => l.GetDynPositionStart(i));
 
@@ -399,26 +404,34 @@ namespace KLPlugins.DynLeaderboards {
 
                 AddLapProp(OutLapProp.BestLapDeltaToOverallBest, () => l.GetDynCar(i)?.BestLapDeltaToOverallBest);
                 AddLapProp(OutLapProp.BestLapDeltaToClassBest, () => l.GetDynCar(i)?.BestLapDeltaToClassBest);
+                AddLapProp(OutLapProp.BestLapDeltaToCupBest, () => l.GetDynCar(i)?.BestLapDeltaToCupBest);
                 AddLapProp(OutLapProp.BestLapDeltaToLeaderBest, () => l.GetDynCar(i)?.BestLapDeltaToLeaderBest);
                 AddLapProp(OutLapProp.BestLapDeltaToClassLeaderBest, () => l.GetDynCar(i)?.BestLapDeltaToClassLeaderBest);
+                AddLapProp(OutLapProp.BestLapDeltaToCupLeaderBest, () => l.GetDynCar(i)?.BestLapDeltaToCupLeaderBest);
                 AddLapProp(OutLapProp.BestLapDeltaToFocusedBest, () => l.GetDynCar(i)?.BestLapDeltaToFocusedBest);
                 AddLapProp(OutLapProp.BestLapDeltaToAheadBest, () => l.GetDynCar(i)?.BestLapDeltaToAheadBest);
                 AddLapProp(OutLapProp.BestLapDeltaToAheadInClassBest, () => l.GetDynCar(i)?.BestLapDeltaToAheadInClassBest);
+                AddLapProp(OutLapProp.BestLapDeltaToAheadInCupBest, () => l.GetDynCar(i)?.BestLapDeltaToAheadInCupBest);
 
                 AddLapProp(OutLapProp.LastLapDeltaToOverallBest, () => l.GetDynCar(i)?.LastLapDeltaToOverallBest);
                 AddLapProp(OutLapProp.LastLapDeltaToClassBest, () => l.GetDynCar(i)?.LastLapDeltaToClassBest);
+                AddLapProp(OutLapProp.LastLapDeltaToCupBest, () => l.GetDynCar(i)?.LastLapDeltaToCupBest);
                 AddLapProp(OutLapProp.LastLapDeltaToLeaderBest, () => l.GetDynCar(i)?.LastLapDeltaToLeaderBest);
                 AddLapProp(OutLapProp.LastLapDeltaToClassLeaderBest, () => l.GetDynCar(i)?.LastLapDeltaToClassLeaderBest);
+                AddLapProp(OutLapProp.LastLapDeltaToCupLeaderBest, () => l.GetDynCar(i)?.LastLapDeltaToCupLeaderBest);
                 AddLapProp(OutLapProp.LastLapDeltaToFocusedBest, () => l.GetDynCar(i)?.LastLapDeltaToFocusedBest);
                 AddLapProp(OutLapProp.LastLapDeltaToAheadBest, () => l.GetDynCar(i)?.LastLapDeltaToAheadBest);
                 AddLapProp(OutLapProp.LastLapDeltaToAheadInClassBest, () => l.GetDynCar(i)?.LastLapDeltaToAheadInClassBest);
+                AddLapProp(OutLapProp.LastLapDeltaToAheadInCupBest, () => l.GetDynCar(i)?.LastLapDeltaToAheadInCupBest);
                 AddLapProp(OutLapProp.LastLapDeltaToOwnBest, () => l.GetDynCar(i)?.LastLapDeltaToOwnBest);
 
                 AddLapProp(OutLapProp.LastLapDeltaToLeaderLast, () => l.GetDynCar(i)?.LastLapDeltaToLeaderLast);
                 AddLapProp(OutLapProp.LastLapDeltaToClassLeaderLast, () => l.GetDynCar(i)?.LastLapDeltaToClassLeaderLast);
+                AddLapProp(OutLapProp.LastLapDeltaToCupLeaderLast, () => l.GetDynCar(i)?.LastLapDeltaToCupLeaderLast);
                 AddLapProp(OutLapProp.LastLapDeltaToFocusedLast, () => l.GetDynCar(i)?.LastLapDeltaToFocusedLast);
                 AddLapProp(OutLapProp.LastLapDeltaToAheadLast, () => l.GetDynCar(i)?.LastLapDeltaToAheadLast);
                 AddLapProp(OutLapProp.LastLapDeltaToAheadInClassLast, () => l.GetDynCar(i)?.LastLapDeltaToAheadInClassLast);
+                AddLapProp(OutLapProp.LastLapDeltaToAheadInCupLast, () => l.GetDynCar(i)?.LastLapDeltaToAheadInCupLast);
 
                 AddLapProp(OutLapProp.DynamicBestLapDeltaToFocusedBest, () => l.GetDynBestLapDeltaToFocusedBest(i));
                 AddLapProp(OutLapProp.DynamicLastLapDeltaToFocusedBest, () => l.GetDynLastLapDeltaToFocusedBest(i));
@@ -430,6 +443,7 @@ namespace KLPlugins.DynLeaderboards {
                 AddProp(OutCarProp.IsFocused, () => (l.GetDynCar(i)?.IsFocused ?? false) ? 1 : 0);
                 AddProp(OutCarProp.IsOverallBestLapCar, () => (l.GetDynCar(i)?.IsOverallBestLapCar ?? false) ? 1 : 0);
                 AddProp(OutCarProp.IsClassBestLapCar, () => (l.GetDynCar(i)?.IsClassBestLapCar ?? false) ? 1 : 0);
+                AddProp(OutCarProp.IsCupBestLapCar, () => (l.GetDynCar(i)?.IsCupBestLapCar ?? false) ? 1 : 0);
                 AddProp(OutCarProp.RelativeOnTrackLapDiff, () => l.GetDynCar(i)?.RelativeOnTrackLapDiff ?? 0);
 
                 //this.AttachDelegate($"{startName}.DBG_TotalSplinePosition", () => (l.GetDynCar(i))?.TotalSplinePosition);

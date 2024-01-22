@@ -21,7 +21,8 @@ namespace KLPlugins.DynLeaderboards.Settings {
         IsFocused = 1 << 11,
         IsOverallBestLapCar = 1 << 12,
         IsClassBestLapCar = 1 << 13,
-        RelativeOnTrackLapDiff = 1 << 14
+        RelativeOnTrackLapDiff = 1 << 14,
+        IsCupBestLapCar = 1 << 15,
     }
 
     internal static class OutCarPropExtensions {
@@ -55,6 +56,7 @@ namespace KLPlugins.DynLeaderboards.Settings {
                 OutCarProp.IsOverallBestLapCar => "IsOverallBestLapCar",
                 OutCarProp.IsClassBestLapCar => "IsClassBestLapCar",
                 OutCarProp.RelativeOnTrackLapDiff => "RelativeOnTrackLapDiff",
+                OutCarProp.IsCupBestLapCar => "IsCupBestLapCar",
                 _ => throw new ArgumentOutOfRangeException($"Invalid enum variant {p}"),
             };
         }
@@ -77,6 +79,7 @@ namespace KLPlugins.DynLeaderboards.Settings {
                 OutCarProp.IsOverallBestLapCar => "Is this the car that has overall best lap?",
                 OutCarProp.IsClassBestLapCar => "Is this the car that has class best lap?",
                 OutCarProp.RelativeOnTrackLapDiff => "Show if this car is ahead or behind by the lap on the relative on track. 1: this car is ahead by a lap, 0: same lap, -1: this car is behind by a lap.",
+                OutCarProp.IsCupBestLapCar => "Is this the car that has cup best lap?",
                 _ => throw new ArgumentOutOfRangeException($"Invalid enum variant {p}"),
             };
         }
@@ -138,6 +141,8 @@ namespace KLPlugins.DynLeaderboards.Settings {
         ClassPositionStart = 1 << 3,
         DynamicPosition = 1 << 4,
         DynamicPositionStart = 1 << 5,
+        CupPosition = 1 << 6,
+        CupPositionStart = 1 << 7,
     }
 
     internal static class OutPosPropExtensions {
@@ -180,6 +185,8 @@ namespace KLPlugins.DynLeaderboards.Settings {
                 OutPosProp.OverallPositionStart => "Position.Overall.Start",
                 OutPosProp.DynamicPosition => "Position.Dynamic",
                 OutPosProp.DynamicPositionStart => "Position.Dynamic.Start",
+                OutPosProp.CupPosition => "Position.Cup",
+                OutPosProp.CupPositionStart => "Position.Cup.Start",
                 _ => throw new ArgumentOutOfRangeException($"Invalid enum variant {p}"),
             };
         }
@@ -188,15 +195,19 @@ namespace KLPlugins.DynLeaderboards.Settings {
             return p switch {
                 OutPosProp.ClassPosition => "Current class position",
                 OutPosProp.OverallPosition => "Current overall position",
+                OutPosProp.CupPosition => "Current cup position",
                 OutPosProp.ClassPositionStart => "Class position at race start",
                 OutPosProp.OverallPositionStart => "Overall position at race start",
+                OutPosProp.CupPositionStart => "Cup position at race start",
                 OutPosProp.DynamicPosition => @"Position that changes based of currently displayed dynamic leaderboard.
 Any overall -> ovarall position,
 Any class -> class position,
+Any cup -> cup position,
 RelativeOnTrack -> overall position",
                 OutPosProp.DynamicPositionStart => @"Position at the race start that changes based of currently displayed dynamic leaderboard.
 Any overall -> ovarall position,
 Any class -> class position,
+Any cup -> cup position,
 RelativeOnTrack -> overall position",
                 _ => throw new ArgumentOutOfRangeException($"Invalid enum variant {p}"),
             };
@@ -213,6 +224,8 @@ RelativeOnTrack -> overall position",
         GapToAheadOverall = 1 << 4,
         GapToAheadInClass = 1 << 5,
         GapToAheadOnTrack = 1 << 6,
+        GapToCupLeader = 1 << 7,
+        GapToAheadInCup = 1 << 8,
         DynamicGapToFocused = 1 << 20,
         DynamicGapToAhead = 1 << 21,
     }
@@ -235,10 +248,12 @@ RelativeOnTrack -> overall position",
             return p switch {
                 OutGapProp.GapToLeader => "Gap.ToOverallLeader",
                 OutGapProp.GapToClassLeader => "Gap.ToClassLeader",
+                OutGapProp.GapToCupLeader => "Gap.ToCupLeader",
                 OutGapProp.GapToFocusedTotal => "Gap.ToFocused.Total",
                 OutGapProp.GapToFocusedOnTrack => "Gap.ToFocused.OnTrack",
                 OutGapProp.GapToAheadOverall => "Gap.ToAhead.Overall",
                 OutGapProp.GapToAheadInClass => "Gap.ToAhead.Class",
+                OutGapProp.GapToAheadInCup => "Gap.ToAhead.Cup",
                 OutGapProp.GapToAheadOnTrack => "Gap.ToAhead.OnTrack",
                 OutGapProp.DynamicGapToFocused => "Gap.Dynamic.ToFocused",
                 OutGapProp.DynamicGapToAhead => "Gap.Dynamic.ToAhead",
@@ -250,19 +265,23 @@ RelativeOnTrack -> overall position",
             return p switch {
                 OutGapProp.GapToLeader => "Total gap to the leader.",
                 OutGapProp.GapToClassLeader => "Total gap to the class leader.",
+                OutGapProp.GapToCupLeader => "Total gap to the cup leader.",
                 OutGapProp.GapToFocusedTotal => "Total gap to the focused car.",
                 OutGapProp.GapToFocusedOnTrack => "On track gap to the focused car.",
                 OutGapProp.GapToAheadOverall => "Total gap to the car ahead in overall.",
                 OutGapProp.GapToAheadInClass => "Total gap to the car ahead in class.",
+                OutGapProp.GapToAheadInCup => "Total gap to the car ahead in cup.",
                 OutGapProp.GapToAheadOnTrack => "Relative on track gap to car ahead.",
                 OutGapProp.DynamicGapToFocused => @"Gap that changes based of currently displayed dynamic leaderboard.
 Overall -> gap to leader,
 Class -> gap to class leader,
+Cup -> gap to cup leader,
 PartialRelativeOverall/PartialRelativeClass/RelativePverall/RelativeClass -> gap to focused total,
 RelativeOnTrack -> gap to focused on track.",
                 OutGapProp.DynamicGapToAhead => @"Gap to the car ahead that changes based on the currently displayed dynamic leaderboard.
 Overall/RelativeOverall/PartialRelativeOverall -> gap to ahead in overall order,
 Class/RelativeClass/PartialRelativeClass -> gap to ahead in class order,
+Cup/RelativeCup/PartialRelativeCup -> gap to ahead in cup order,
 RelativeOnTrack -> gap to ahead on track.",
                 _ => throw new ArgumentOutOfRangeException($"Invalid enum variant {p}"),
             };

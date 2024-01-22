@@ -140,11 +140,11 @@ namespace KLPlugins.DynLeaderboards {
                     }
                     this.GetDynCar = (i) => v.GetCar(i, v.PosInCupCarsIdxs);
                     this.GetFocusedCarIdxInDynLeaderboard = () => v.FocusedCarPosInCupCarsIdxs;
-                    this.GetDynGapToFocused = (i) => null;// this.GetDynCar(i)?.GapToCupLeader;
-                    this.GetDynGapToAhead = (i) => null;// this.GetDynCar(i)?.GapToAheadInClass;
-                    this.GetDynBestLapDeltaToFocusedBest = (i) => null;// this.GetDynCar(i)?.BestLapDeltaToCupLeaderBest;
-                    this.GetDynLastLapDeltaToFocusedBest = (i) => null;// this.GetDynCar(i)?.LastLapDeltaToCupLeaderBest;
-                    this.GetDynLastLapDeltaToFocusedLast = (i) => null;// this.GetDynCar(i)?.LastLapDeltaToCupLeaderLast;
+                    this.GetDynGapToFocused = (i) => this.GetDynCar(i)?.GapToCupLeader;
+                    this.GetDynGapToAhead = (i) => this.GetDynCar(i)?.GapToAheadInCup;
+                    this.GetDynBestLapDeltaToFocusedBest = (i) => this.GetDynCar(i)?.BestLapDeltaToCupLeaderBest;
+                    this.GetDynLastLapDeltaToFocusedBest = (i) => this.GetDynCar(i)?.LastLapDeltaToCupLeaderBest;
+                    this.GetDynLastLapDeltaToFocusedLast = (i) => this.GetDynCar(i)?.LastLapDeltaToCupLeaderLast;
                     this.GetDynPosition = (i) => this.GetDynCar(i)?.InCupPos;
                     this.GetDynPositionStart = (i) => this.GetDynCar(i)?.StartPosInCup;
                     break;
@@ -183,7 +183,7 @@ namespace KLPlugins.DynLeaderboards {
                     this.GetDynCar = (i) => v.GetCar(i, this._relativeCupCarsIdxs);
                     this.GetFocusedCarIdxInDynLeaderboard = () => this.Settings.NumCupRelativePos;
                     this.GetDynGapToFocused = (i) => this.GetDynCar(i)?.GapToFocusedTotal;
-                    this.GetDynGapToAhead = (i) => null;// this.GetDynCar(i)?.GapToAheadInCup;
+                    this.GetDynGapToAhead = (i) => this.GetDynCar(i)?.GapToAheadInCup;
                     this.GetDynBestLapDeltaToFocusedBest = (i) => this.GetDynCar(i)?.BestLapDeltaToFocusedBest;
                     this.GetDynLastLapDeltaToFocusedBest = (i) => this.GetDynCar(i)?.LastLapDeltaToFocusedBest;
                     this.GetDynLastLapDeltaToFocusedLast = (i) => this.GetDynCar(i)?.LastLapDeltaToFocusedLast;
@@ -225,7 +225,7 @@ namespace KLPlugins.DynLeaderboards {
                     this.GetDynCar = (i) => v.GetCar(i, this._partialRelativeCupCarsIdxs);
                     this.GetFocusedCarIdxInDynLeaderboard = () => this._focusedCarPosInPartialRelativeCupCarsIdxs;
                     this.GetDynGapToFocused = (i) => this.GetDynCar(i)?.GapToFocusedTotal;
-                    this.GetDynGapToAhead = (i) => null; // this.GetDynCar(i)?.GapToAheadInCup;
+                    this.GetDynGapToAhead = (i) => this.GetDynCar(i)?.GapToAheadInCup;
                     this.GetDynBestLapDeltaToFocusedBest = (i) => this.GetDynCar(i)?.BestLapDeltaToFocusedBest;
                     this.GetDynLastLapDeltaToFocusedBest = (i) => this.GetDynCar(i)?.LastLapDeltaToFocusedBest;
                     this.GetDynLastLapDeltaToFocusedLast = (i) => this.GetDynCar(i)?.LastLapDeltaToFocusedLast;

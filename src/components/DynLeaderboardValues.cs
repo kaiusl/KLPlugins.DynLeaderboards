@@ -85,10 +85,12 @@ namespace KLPlugins.DynLeaderboards {
         internal void ResetPos() {
             ResetIdxs(this._relativeClassCarsIdxs);
             ResetIdxs(this._relativeOverallCarsIdxs);
+            ResetIdxs(this._relativeCupCarsIdxs);
             ResetIdxs(this._relativePosOnTrackCarsIdxs);
             ResetIdxs(this._relativePosOnTrackWoPitCarsIdxs);
             ResetIdxs(this._partialRelativeClassCarsIdxs);
             ResetIdxs(this._partialRelativeOverallCarsIdxs);
+            ResetIdxs(this._partialRelativeCupCarsIdxs);
 
             static void ResetIdxs(int?[]? arr) {
                 if (arr == null) {

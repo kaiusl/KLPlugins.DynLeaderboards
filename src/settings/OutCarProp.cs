@@ -39,6 +39,27 @@ namespace KLPlugins.DynLeaderboards.Settings {
             p &= ~o;
         }
 
+        public static OutCarProp[] Order() {
+            return new[] {
+                 OutCarProp.CarNumber,
+                 OutCarProp.CarModel,
+                 OutCarProp.CarManufacturer,
+                 OutCarProp.CarClass,
+                 OutCarProp.TeamName,
+                 OutCarProp.TeamCupCategory,
+                 OutCarProp.CarClassColor,
+                 OutCarProp.TeamCupCategoryColor,
+                 OutCarProp.TeamCupCategoryTextColor,
+                 OutCarProp.IsFinished,
+                 OutCarProp.MaxSpeed,
+                 OutCarProp.IsFocused,
+                 OutCarProp.IsOverallBestLapCar,
+                 OutCarProp.IsClassBestLapCar,
+                 OutCarProp.IsCupBestLapCar,
+                 OutCarProp.RelativeOnTrackLapDiff,
+             };
+        }
+
         public static string ToPropName(this OutCarProp p) {
             return p switch {
                 OutCarProp.CarNumber => "Car.Number",
@@ -109,6 +130,16 @@ namespace KLPlugins.DynLeaderboards.Settings {
             p &= ~o;
         }
 
+        public static OutPitProp[] Order() {
+            return new[] {
+                OutPitProp.IsInPitLane,
+                OutPitProp.PitStopCount,
+                OutPitProp.PitTimeTotal,
+                OutPitProp.PitTimeLast,
+                OutPitProp.PitTimeCurrent,
+             };
+        }
+
         public static string ToPropName(this OutPitProp p) {
             return p switch {
                 OutPitProp.IsInPitLane => "Pit.IsIn",
@@ -175,6 +206,19 @@ namespace KLPlugins.DynLeaderboards.Settings {
 
         public static void Remove(ref this OutPosProp p, OutPosProp o) {
             p &= ~o;
+        }
+
+        public static OutPosProp[] Order() {
+            return new[] {
+                OutPosProp.OverallPosition,
+                OutPosProp.OverallPositionStart,
+                OutPosProp.ClassPosition,
+                OutPosProp.ClassPositionStart,
+                OutPosProp.CupPosition,
+                OutPosProp.CupPositionStart,
+                OutPosProp.DynamicPosition,
+                OutPosProp.DynamicPositionStart
+             };
         }
 
         public static string ToPropName(this OutPosProp p) {
@@ -244,6 +288,22 @@ RelativeOnTrack -> overall position",
             p &= ~o;
         }
 
+        public static OutGapProp[] Order() {
+            return new[] {
+                 OutGapProp.GapToLeader,
+                 OutGapProp.GapToClassLeader,
+                 OutGapProp.GapToCupLeader,
+                 OutGapProp.GapToFocusedTotal,
+                 OutGapProp.GapToFocusedOnTrack,
+                 OutGapProp.GapToAheadOverall,
+                 OutGapProp.GapToAheadInClass,
+                 OutGapProp.GapToAheadInCup,
+                 OutGapProp.GapToAheadOnTrack,
+                 OutGapProp.DynamicGapToFocused,
+                 OutGapProp.DynamicGapToAhead,
+             };
+        }
+
         public static string ToPropName(this OutGapProp p) {
             return p switch {
                 OutGapProp.GapToLeader => "Gap.ToOverallLeader",
@@ -309,6 +369,15 @@ RelativeOnTrack -> gap to ahead on track.",
 
         public static void Remove(ref this OutStintProp p, OutStintProp o) {
             p &= ~o;
+        }
+
+        public static OutStintProp[] Order() {
+            return new[] {
+                 OutStintProp.CurrentStintTime,
+                 OutStintProp.CurrentStintLaps,
+                 OutStintProp.LastStintTime,
+                 OutStintProp.LastStintLaps
+             };
         }
 
         public static string ToPropName(this OutStintProp p) {

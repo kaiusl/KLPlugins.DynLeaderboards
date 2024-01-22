@@ -709,7 +709,7 @@ namespace KLPlugins.DynLeaderboards.Settings {
             this.OutOtherProps_StackPanel.Children.Clear();
 
             StackPanel panel = this.OutCarProps_StackPanel;
-            foreach (var v in (OutCarProp[])Enum.GetValues(typeof(OutCarProp))) {
+            foreach (var v in OutCarPropExtensions.Order()) {
                 if (v == OutCarProp.None) {
                     continue;
                 }
@@ -783,7 +783,7 @@ namespace KLPlugins.DynLeaderboards.Settings {
         private void AddStintToggles() {
             this.OutStintProps_StackPanel.Children.Clear();
             // Add Stint Properties
-            foreach (var v in (OutStintProp[])Enum.GetValues(typeof(OutStintProp))) {
+            foreach (var v in OutStintPropExtensions.Order()) {
                 if (v == OutStintProp.None) {
                     continue;
                 }
@@ -813,7 +813,7 @@ namespace KLPlugins.DynLeaderboards.Settings {
                 this.OutGapsProps_StackPanel.Children.Add(t);
             }
 
-            foreach (var v in (OutGapProp[])Enum.GetValues(typeof(OutGapProp))) {
+            foreach (var v in OutGapPropExtensions.Order()) {
                 if (v == OutGapProp.None) {
                     continue;
                 }
@@ -839,7 +839,7 @@ namespace KLPlugins.DynLeaderboards.Settings {
         private void AddPosToggles() {
             this.OutPosProps_StackPanel.Children.Clear();
             // Add Pos Properties
-            foreach (var v in (OutPosProp[])Enum.GetValues(typeof(OutPosProp))) {
+            foreach (var v in OutPosPropExtensions.Order()) {
                 if (v == OutPosProp.None) {
                     continue;
                 }
@@ -861,7 +861,7 @@ namespace KLPlugins.DynLeaderboards.Settings {
         private void AddPitToggles() {
             this.OutPitProps_StackPanel.Children.Clear();
             // Add Pit Properties
-            foreach (var v in (OutPitProp[])Enum.GetValues(typeof(OutPitProp))) {
+            foreach (var v in OutPitPropExtensions.Order()) {
                 if (v == OutPitProp.None) {
                     continue;
                 }
@@ -883,7 +883,7 @@ namespace KLPlugins.DynLeaderboards.Settings {
         private void AddDriverToggles() {
             this.ExposedDriverProperties_StackPanel.Children.Clear();
             this.ExposedDriverProperties_StackPanel.Children.Add(this.CreatePropertyTogglesDescriptionRow());
-            foreach (var v in (OutDriverProp[])Enum.GetValues(typeof(OutDriverProp))) {
+            foreach (var v in OutDriverPropExtensions.Order()) {
                 if (v == OutDriverProp.None) {
                     continue;
                 }

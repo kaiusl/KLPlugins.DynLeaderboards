@@ -33,6 +33,22 @@ namespace KLPlugins.DynLeaderboards.Settings {
             p &= ~o;
         }
 
+        public static OutDriverProp[] Order() {
+            return new[] {
+                OutDriverProp.FirstName,
+                OutDriverProp.LastName,
+                OutDriverProp.ShortName,
+                OutDriverProp.FullName,
+                OutDriverProp.InitialPlusLastName,
+                OutDriverProp.Nationality,
+                OutDriverProp.Category,
+                OutDriverProp.TotalLaps,
+                OutDriverProp.TotalDrivingTime,
+                OutDriverProp.BestLapTime,
+                OutDriverProp.CategoryColor
+             };
+        }
+
         public static string ToolTipText(this OutDriverProp p) {
             return p switch {
                 OutDriverProp.None => "None",

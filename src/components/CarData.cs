@@ -127,6 +127,7 @@ namespace KLPlugins.DynLeaderboards.Car {
         public bool IsFocused { get; internal set; } = false;
         public bool IsOverallBestLapCar { get; private set; } = false;
         public bool IsClassBestLapCar { get; private set; } = false;
+        public bool IsCupBestLapCar { get; private set; } = false;
         public int RelativeOnTrackLapDiff { get; private set; } = 0;
 
         public bool JumpedToPits { get; private set; } = false;
@@ -441,6 +442,7 @@ namespace KLPlugins.DynLeaderboards.Car {
         ) {
             this.IsOverallBestLapCar = this.CarIndex == overallBestLapCar?.CarIndex;
             this.IsClassBestLapCar = this.CarIndex == classBestLapCar?.CarIndex;
+            this.IsCupBestLapCar = this.CarIndex == cupBestLapCar?.CarIndex;
 
             this.InClassPos = classPos;
             this.OverallPos = overallPos;

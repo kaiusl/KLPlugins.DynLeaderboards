@@ -111,6 +111,7 @@ namespace KLPlugins.DynLeaderboards.Settings {
                 OutLapProp.CurrentLapIsValid,
                 OutLapProp.CurrentLapIsOutLap,
                 OutLapProp.CurrentLapIsInLap,
+
                 OutLapProp.BestLapDeltaToOverallBest,
                 OutLapProp.BestLapDeltaToClassBest,
                 OutLapProp.BestLapDeltaToCupBest,
@@ -121,6 +122,7 @@ namespace KLPlugins.DynLeaderboards.Settings {
                 OutLapProp.BestLapDeltaToAheadBest,
                 OutLapProp.BestLapDeltaToAheadInClassBest,
                 OutLapProp.BestLapDeltaToAheadInCupBest,
+
                 OutLapProp.LastLapDeltaToOverallBest,
                 OutLapProp.LastLapDeltaToClassBest,
                 OutLapProp.LastLapDeltaToCupBest,
@@ -132,6 +134,7 @@ namespace KLPlugins.DynLeaderboards.Settings {
                 OutLapProp.LastLapDeltaToAheadInClassBest,
                 OutLapProp.LastLapDeltaToAheadInCupBest,
                 OutLapProp.LastLapDeltaToOwnBest,
+
                 OutLapProp.LastLapDeltaToLeaderLast,
                 OutLapProp.LastLapDeltaToClassLeaderLast,
                 OutLapProp.LastLapDeltaToCupLeaderLast,
@@ -139,6 +142,7 @@ namespace KLPlugins.DynLeaderboards.Settings {
                 OutLapProp.LastLapDeltaToAheadLast,
                 OutLapProp.LastLapDeltaToAheadInClassLast,
                 OutLapProp.LastLapDeltaToAheadInCupLast,
+                
                 OutLapProp.DynamicBestLapDeltaToFocusedBest,
                 OutLapProp.DynamicLastLapDeltaToFocusedBest,
                 OutLapProp.DynamicLastLapDeltaToFocusedLast,

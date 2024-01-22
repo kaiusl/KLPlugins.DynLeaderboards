@@ -692,13 +692,13 @@ namespace KLPlugins.DynLeaderboards {
                 }
 
                 void SetPositionInClassAndCup(CarClass thisCarClass, TeamCupCategory thisCarCup, int thisCarClassPos, int thisCarCupPos, int idxInCars) {
-                    if (thisCarClassPos == classPositions.DefaultValue(thisCarClass) + 1) { // First time we see this class, must be the leader
+                    if (thisCarClassPos == 1) { // First time we see this class, must be the leader
                         this._classLeaderIdxs[thisCarClass] = idxInCars;
+                    }
 
-                        if (thisCarCupPos == cupPositions[thisCarClass].DefaultValue(thisCarCup)) {
-                            // First time we see this cup, must be the leader
-                            this._cupLeaderIdxs[thisCarClass][thisCarCup] = idxInCars;
-                        }
+                    if (thisCarCupPos == 1) {
+                        // First time we see this cup, must be the leader
+                        this._cupLeaderIdxs[thisCarClass][thisCarCup] = idxInCars;
                     }
 
                     if (this.PosInClassCarsIdxs != null && thisCarClass == focusedCar.CarClass) {

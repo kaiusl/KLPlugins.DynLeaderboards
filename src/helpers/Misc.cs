@@ -120,8 +120,6 @@ namespace KLPlugins.DynLeaderboards.Helpers {
     ///   * It's values are distinct (otherwise two variants map to same index).
     ///   * It's values preferably start at 0 and are contiguous (otherwise we waste space).
     /// </summary>
-    /// <typeparam name="E"></typeparam>
-    /// <typeparam name="T"></typeparam>
     internal class EnumMap<E, T> : IEnumerable<T> where E : Enum {
         private readonly int _dataLen;
         private readonly T[] _data;
@@ -139,7 +137,7 @@ namespace KLPlugins.DynLeaderboards.Helpers {
                 var minValue = values.Min();
                 var numValues = values.Count();
                 var distinctValues = values.Distinct().Count();
-                if (minValue != 0 || numValues != distinctValues) {
+                if (minValue != 0 || numValues != distinctValues || maxValue != numValues - 1) {
                     SimHub.Logging.Current.Warn($"KLPlugins.DynLeaderboards:\n    EnumMap<{typeof(E)}, {typeof(T)}> uses not an ideal enum:\n    min={minValue}, max={maxValue}, values={numValues}, distinctValues={distinctValues}");
                 }
                 EnumMap<E, T>._hasWarned = true;

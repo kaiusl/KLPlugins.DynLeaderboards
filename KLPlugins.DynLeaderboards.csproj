@@ -110,8 +110,6 @@
   <ItemGroup>
     <Compile Include="src\components\DynLeaderboardValues.cs" />
     <Compile Include="src\components\Game.cs" />
-    <Compile Include="src\components\CarClassDict.cs" />
-    <Compile Include="src\components\CupCategoryDict.cs" />
     <Compile Include="src\enums\Leaderboard.cs" />
     <Compile Include="src\enums\Tracks.cs" />
     <Compile Include="src\helpers\Math.cs" />

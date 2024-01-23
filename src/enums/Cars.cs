@@ -1,6 +1,7 @@
-﻿using System;
+using System;
 using System.Linq;
 
+using KLPlugins.DynLeaderboards.Helpers;
 using KLPlugins.DynLeaderboards.ksBroadcastingNetwork;
 
 namespace KLPlugins.DynLeaderboards.Car {
@@ -78,22 +79,6 @@ namespace KLPlugins.DynLeaderboards.Car {
         GTC = 3,
         TCX = 4,
         Unknown = 5
-    }
-
-    internal class EnumMap<E, T> where E : System.Enum {
-        private readonly T[] _data;
-
-        public EnumMap(Func<E, T> generator) {
-            int count = Convert.ToInt32(Enum.GetValues(typeof(E)).Cast<E>().Max());
-            this._data = new T[count + 1];
-
-            foreach (var v in Enum.GetValues(typeof(E)).Cast<E>()) {
-                int index = Convert.ToInt32(v);
-                this._data[index] = generator(v);
-            }
-        }
-
-        public T this[E key] => this._data[Convert.ToInt32(key)];
     }
 
     internal static class CarsMethods {

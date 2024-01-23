@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 
 using KLPlugins.DynLeaderboards.Car;
+using KLPlugins.DynLeaderboards.Helpers;
 
 using MathNet.Numerics.Interpolation;
 
@@ -28,7 +29,7 @@ namespace KLPlugins.DynLeaderboards.Track {
         public TrackType Id { get; }
         public float LengthMeters { get; }
         public double SplinePosOffset { get; }
-        internal CarClassArray<LapInterpolator?>? LapInterpolators = null;
+        internal EnumMap<CarClass, LapInterpolator?>? LapInterpolators = null;
 
         internal TrackData(BinaryReader br) {
             _ = br.ReadInt32(); // connectionId
@@ -42,7 +43,7 @@ namespace KLPlugins.DynLeaderboards.Track {
         /// Read default lap data for calculation of gaps.
         /// </summary>
         internal void ReadDefBestLaps() {
-            this.LapInterpolators = new CarClassArray<LapInterpolator?>((_) => null);
+            this.LapInterpolators = new EnumMap<CarClass, LapInterpolator?>((_) => null);
 
             this.AddLapInterpolator(CarClass.GT3);
             this.AddLapInterpolator(CarClass.GT4);

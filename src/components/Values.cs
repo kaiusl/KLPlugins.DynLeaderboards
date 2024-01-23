@@ -55,12 +55,12 @@ namespace KLPlugins.DynLeaderboards {
 
         // Store relative spline positions for relative leaderboard,
         // need to store separately as we need to sort by spline pos at the end on update loop
-        private readonly CarClassArray<int?> _bestLapByClassCarIdxs = new((_) => null);
-        private readonly CarClassArray<CupCategoryArray<int?>> _bestLapByCupCarIdxs = new((_) => new(_ => null));
+        private readonly EnumMap<CarClass, int?> _bestLapByClassCarIdxs = new((_) => null);
+        private readonly EnumMap<CarClass, EnumMap<TeamCupCategory, int?>> _bestLapByCupCarIdxs = new((_) => new(_ => null));
 
         private readonly List<CarSplinePos> _relativeSplinePositions = new();
-        private readonly CarClassArray<int?> _classLeaderIdxs = new((_) => null); // Indexes of class leaders in Cars list
-        private readonly CarClassArray<CupCategoryArray<int?>> _cupLeaderIdxs = new((_) => new(_ => null)); // Indexes of cup leaders in Cars list
+        private readonly EnumMap<CarClass, int?> _classLeaderIdxs = new((_) => null); // Indexes of class leaders in Cars list
+        private readonly EnumMap<CarClass, EnumMap<TeamCupCategory, int?>> _cupLeaderIdxs = new((_) => new(_ => null)); // Indexes of cup leaders in Cars list
         private readonly List<ushort> _lastUpdateCarIds = new();
         private readonly ACCUdpRemoteClientConfig _broadcastConfig;
         private bool _startingPositionsSet = false;
@@ -128,7 +128,9 @@ namespace KLPlugins.DynLeaderboards {
 
         // There is no need to reset CarClassArray itself which would simply create new CupCategoryArrays.
         // Instead we usually want to reset the values in CupCategoryArrays.
-        internal static void ResetNestedCarCupArray<T>(CarClassArray<CupCategoryArray<T>> array) {
+        internal static void ResetNestedCarCupArray<T, E1, E2>(EnumMap<E1, EnumMap<E2, T>> array)
+            where E1 : Enum
+            where E2 : Enum {
             foreach (var cupArray in array) {
                 cupArray.Reset();
             }
@@ -527,8 +529,8 @@ namespace KLPlugins.DynLeaderboards {
                 // This method is called after we have checked that all cars have NewData
                 this.Cars.Sort((a, b) => a.NewData!.Position.CompareTo(b.NewData!.Position)); // Spline position may give wrong results if cars are sitting on the grid, thus NewData.Position
 
-                var classPositions = new CarClassArray<int>(0); // Keep track of what class position are we at the moment
-                var cupPositions = new CarClassArray<CupCategoryArray<int>>((_) => new(0));  // Keep track of what cup position are we at the moment
+                var classPositions = new EnumMap<CarClass, int>(0); // Keep track of what class position are we at the moment
+                var cupPositions = new EnumMap<CarClass, EnumMap<TeamCupCategory, int>>((_) => new(0));  // Keep track of what cup position are we at the moment
                 for (int i = 0; i < this.Cars.Count; i++) {
                     var thisCar = this.Cars[i];
                     var thisClass = thisCar.CarClass;
@@ -613,10 +615,10 @@ namespace KLPlugins.DynLeaderboards {
                     thisCar.OnRealtimeUpdateFirstPass(focusedCar.CarIndex);
                 }
 
-                var classPositions = new CarClassArray<int>(0);  // Keep track of what class position are we at the moment
-                var cupPositions = new CarClassArray<CupCategoryArray<int>>((_) => new(0));  // Keep track of what cup position are we at the moment 
-                var lastSeenInClassCarIdxs = new CarClassArray<int?>((_) => null);  // Keep track of the indexes of last cars seen in each class
-                var lastSeenInCupCarIdxs = new CarClassArray<CupCategoryArray<int?>>((_) => new((_) => null));  // Keep track of the indexes of last cars seen in each cup
+                var classPositions = new EnumMap<CarClass, int>(0);  // Keep track of what class position are we at the moment
+                var cupPositions = new EnumMap<CarClass, EnumMap<TeamCupCategory, int>>((_) => new(0));  // Keep track of what cup position are we at the moment 
+                var lastSeenInClassCarIdxs = new EnumMap<CarClass, int?>((_) => null);  // Keep track of the indexes of last cars seen in each class
+                var lastSeenInCupCarIdxs = new EnumMap<CarClass, EnumMap<TeamCupCategory, int?>>((_) => new((_) => null));  // Keep track of the indexes of last cars seen in each cup
                 for (int idxInCars = 0; idxInCars < this.Cars.Count; idxInCars++) {
                     var thisCar = this.Cars[idxInCars];
                     var thisCarClassPos = ++classPositions[thisCar.CarClass];

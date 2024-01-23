@@ -373,8 +373,8 @@ namespace KLPlugins.DynLeaderboards {
 
             this.FocusedCarIdx = this.Cars.FindIndex(x => x.CarIndex == update.FocusedCarIndex);
             if (this.FocusedCarIdx != null && this.FocusedCarIdx != -1 && !this.RealtimeData.IsNewSession && this.TrackData != null) {
-                SetRelativeOrders();
                 UpdateCarData((int)this.FocusedCarIdx, this.TrackData);
+                SetRelativeOrders();
             }
 
             #region Local functions

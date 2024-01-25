@@ -53,12 +53,15 @@ namespace KLPlugins.DynLeaderboards.Track {
             this.AddLapInterpolator(CarClass.ST15);
             this.AddLapInterpolator(CarClass.ST21);
             this.AddLapInterpolator(CarClass.CHL);
+            this.AddLapInterpolator(CarClass.GT2);
 
-            this.SetReplacements(CarClass.GT3, new CarClass[] { CarClass.CUP21, CarClass.ST21, CarClass.CUP17, CarClass.ST15, CarClass.CHL });
-            this.SetReplacements(CarClass.CUP21, new CarClass[] { CarClass.CUP17, CarClass.ST21, CarClass.ST15, CarClass.CHL, CarClass.GT3 });
-            this.SetReplacements(CarClass.CUP17, new CarClass[] { CarClass.CUP21, CarClass.ST21, CarClass.ST15, CarClass.CHL, CarClass.GT3 });
-            this.SetReplacements(CarClass.ST21, new CarClass[] { CarClass.CUP21, CarClass.CUP17, CarClass.ST15, CarClass.CHL, CarClass.GT3 });
-            this.SetReplacements(CarClass.ST15, new CarClass[] { CarClass.ST21, CarClass.CUP21, CarClass.CUP17, CarClass.CHL, CarClass.GT3 });
+            this.SetReplacements(CarClass.GT3, new CarClass[] { CarClass.GT2, CarClass.ST21, CarClass.CUP21, CarClass.CHL });
+            this.SetReplacements(CarClass.CUP21, new CarClass[] { CarClass.CUP17, CarClass.ST21, CarClass.CHL, CarClass.GT2, CarClass.GT3 });
+            this.SetReplacements(CarClass.CUP17, new CarClass[] { CarClass.CUP21, CarClass.ST21, CarClass.CHL, CarClass.GT2, CarClass.GT3 });
+            this.SetReplacements(CarClass.ST15, new CarClass[] { CarClass.ST21, CarClass.CUP21, CarClass.CHL, CarClass.GT2, CarClass.GT3 });
+            this.SetReplacements(CarClass.ST21, new CarClass[] { CarClass.CHL, CarClass.CUP21, CarClass.GT2, CarClass.GT3 });
+            this.SetReplacements(CarClass.CHL, new CarClass[] { CarClass.ST21, CarClass.CUP21, CarClass.GT2, CarClass.GT3 });
+            this.SetReplacements(CarClass.GT2, new CarClass[] { CarClass.GT3, CarClass.ST21, CarClass.CHL, CarClass.CUP21 });
         }
 
         /// Assumes that `this.LapInterpolators != null`

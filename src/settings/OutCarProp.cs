@@ -88,7 +88,7 @@ namespace KLPlugins.DynLeaderboards.Settings {
                 OutCarProp.CarNumber => "Car number.",
                 OutCarProp.CarModel => "Car model name.",
                 OutCarProp.CarManufacturer => "Car manufacturer.",
-                OutCarProp.CarClass => "Car class (GT3, GT4, ST15, ST21, CHL, CUP17, CUP21, TCX).",
+                OutCarProp.CarClass => "Car class (GT2, GT3, GT4, ST15, ST21, CHL, CUP17, CUP21, TCX).",
                 OutCarProp.TeamName => "Team name.",
                 OutCarProp.TeamCupCategory => "Team cup category (Overall/Pro, ProAm, Am, Silver, National).",
                 OutCarProp.IsFinished => "Is the car finished?",

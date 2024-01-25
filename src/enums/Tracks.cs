@@ -24,8 +24,9 @@
         Indianapolis = 22,
         WatkinsGlen = 23,
         Valencia = 24,
+        RedBullRing = 25,
 
-        Unknown = 255
+        Unknown = 26
     }
 
     internal static class TrackExtensions {

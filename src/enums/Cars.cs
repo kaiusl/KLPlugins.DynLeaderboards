@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Linq;
 
 using KLPlugins.DynLeaderboards.Helpers;
@@ -56,7 +56,14 @@ namespace KLPlugins.DynLeaderboards.Car {
         MercedesAMGGT4 = 60,
         Porsche718CaymanGT4 = 61,
 
-        Unknown = 62
+        AudiR8LMSGT2 = 80,
+        KTMXBowGT2 = 82,
+        MaseratiMC20GT2 = 83,
+        MercedesAMGGT2 = 84,
+        Porsche911GT2RSCSEvo = 85,
+        Porsche9352019 = 86,
+
+        Unknown = 87
     }
 
     public enum CarClass {
@@ -69,7 +76,8 @@ namespace KLPlugins.DynLeaderboards.Car {
         CUP17 = 6,
         CUP21 = 7,
         TCX = 8,
-        Unknown = 9
+        GT2 = 9,
+        Unknown = 10
     }
 
     public enum CarGroup {
@@ -78,7 +86,8 @@ namespace KLPlugins.DynLeaderboards.Car {
         GT4 = 2,
         GTC = 3,
         TCX = 4,
-        Unknown = 5
+        GT2 = 5,
+        Unknown = 6
     }
 
     internal static class CarsMethods {
@@ -139,6 +148,13 @@ namespace KLPlugins.DynLeaderboards.Car {
                 or CarType.MercedesAMGGT4
                 or CarType.Porsche718CaymanGT4 => CarClass.GT4,
 
+                CarType.AudiR8LMSGT2
+                or CarType.KTMXBowGT2
+                or CarType.MaseratiMC20GT2
+                or CarType.Porsche911GT2RSCSEvo
+                or CarType.MercedesAMGGT2
+                or CarType.Porsche9352019 => CarClass.GT2,
+
                 _ => CarClass.Unknown
             };
         }
@@ -158,6 +174,7 @@ namespace KLPlugins.DynLeaderboards.Car {
                 or CarClass.CUP21
                 or CarClass.CHL => CarGroup.GTC,
                 CarClass.TCX => CarGroup.TCX,
+                CarClass.GT2 => CarGroup.GT2,
                 _ => CarGroup.Unknown
             };
         }
@@ -170,7 +187,7 @@ namespace KLPlugins.DynLeaderboards.Car {
         private static string PrettyNameGenerator(CarType c) {
             return c switch {
                 CarType.Porsche991GT3R => "Porsche 991 GT3 R",
-                CarType.MercedesAMGGT3 => "Mercedes AMG-GT3",
+                CarType.MercedesAMGGT3 => "Mercedes-AMG GT3",
                 CarType.Ferrari488GT3 => "Ferrari 488 GT3",
                 CarType.AudiR8LMSGT3 => "Audi R8 LMS GT3",
                 CarType.LamborghiniHuracanGT3 => "Lamborghini Huracan GT3",
@@ -191,8 +208,8 @@ namespace KLPlugins.DynLeaderboards.Car {
                 CarType.HondaNSXGT3Evo => "Honda NSX GT3 Evo",
                 CarType.McLaren720SGT3 => "McLaren 720S GT3",
                 CarType.Porsche991IIGT3R => "Porsche 991II GT3 R",
-                CarType.Ferrari488GT3Evo => "Ferrari 488 GT3 EVO 2020",
-                CarType.MercedesAMGGT3Evo => "Mercedes AMG-GT3 20",
+                CarType.Ferrari488GT3Evo => "Ferrari 488 GT3 EVO 20",
+                CarType.MercedesAMGGT3Evo => "Mercedes-AMG GT3 20",
                 CarType.BMWM4GT3 => "BMW M4 GT3",
                 CarType.AudiR8LMSGT3Evo2 => "Audi R8 LMS GT3 evo II",
                 CarType.Ferrari296GT3 => "Ferrari 296 GT3",
@@ -214,8 +231,16 @@ namespace KLPlugins.DynLeaderboards.Car {
                 CarType.KTMXbowGT4 => "KTM X-Bow GT4",
                 CarType.MaseratiMCGT4 => "Maserati MC GT4",
                 CarType.McLaren570SGT4 => "McLaren 570S GT4",
-                CarType.MercedesAMGGT4 => "Mercedes AMG-GT4",
+                CarType.MercedesAMGGT4 => "Mercedes-AMG GT4",
                 CarType.Porsche718CaymanGT4 => "Porsche 718 Cayman GT4",
+
+                CarType.AudiR8LMSGT2 => "Audi R8 LMS GT2",
+                CarType.KTMXBowGT2 => "KTM X-Bow GT2",
+                CarType.MaseratiMC20GT2 => "Maserati MC20 GT2",
+                CarType.MercedesAMGGT2 => "Mercedes-AMG GT2",
+                CarType.Porsche911GT2RSCSEvo => "Porsche 911 GT2 RS CS Evo",
+                CarType.Porsche9352019 => "Porsche 935",
+
                 _ => "Unknown",
             };
         }
@@ -232,11 +257,14 @@ namespace KLPlugins.DynLeaderboards.Car {
                 or CarType.Porsche991IIGT3Cup
                 or CarType.Porsche992GT3Cup
                 or CarType.Porsche718CaymanGT4
-                or CarType.Porsche992GT3R => "Porsche",
+                or CarType.Porsche992GT3R
+                or CarType.Porsche911GT2RSCSEvo
+                or CarType.Porsche9352019 => "Porsche",
 
                 CarType.MercedesAMGGT3
                 or CarType.MercedesAMGGT3Evo
-                or CarType.MercedesAMGGT4 => "Mercedes",
+                or CarType.MercedesAMGGT4
+                or CarType.MercedesAMGGT2 => "Mercedes",
 
                 CarType.Ferrari488GT3
                 or CarType.Ferrari488GT3Evo
@@ -246,7 +274,8 @@ namespace KLPlugins.DynLeaderboards.Car {
                 CarType.AudiR8LMSGT3
                 or CarType.AudiR8LMSGT3Evo
                 or CarType.AudiR8LMSGT3Evo2
-                or CarType.AudiR8LMSGT4 => "Audi",
+                or CarType.AudiR8LMSGT4
+                or CarType.AudiR8LMSGT2 => "Audi",
 
                 CarType.LamborghiniHuracanGT3
                 or CarType.LamborghiniGallardoREX
@@ -284,8 +313,13 @@ namespace KLPlugins.DynLeaderboards.Car {
                 CarType.AlpineA110GT4 => "Alpine",
                 CarType.ChevroletCamaroGT4 => "Chevrolet",
                 CarType.GinettaG55GT4 => "Ginetta",
-                CarType.KTMXbowGT4 => "KTM",
-                CarType.MaseratiMCGT4 => "Maserati",
+
+                CarType.KTMXbowGT4
+                or CarType.KTMXBowGT2 => "KTM",
+
+                CarType.MaseratiMCGT4
+                or CarType.MaseratiMC20GT2 => "Maserati",
+
                 _ => "Unknown",
             };
         }
@@ -297,7 +331,7 @@ namespace KLPlugins.DynLeaderboards.Car {
 
         private static string ACCClassColorGenerator(CarClass c) {
             return c switch {
-                CarClass.GT3 => $"#FF000000",
+                CarClass.GT3 => "#FF000000",
                 CarClass.GT4 => "#FF262660",
                 CarClass.CUP17 => "#FF457C45",
                 CarClass.CUP21 => "#FF284C28",
@@ -305,6 +339,7 @@ namespace KLPlugins.DynLeaderboards.Car {
                 CarClass.ST21 => "#FF988A00",
                 CarClass.CHL => "#FFB90000",
                 CarClass.TCX => "#FF007CA7",
+                CarClass.GT2 => "#FFFF3100",
                 _ => "#FF000000",
             };
         }
@@ -348,6 +383,22 @@ namespace KLPlugins.DynLeaderboards.Car {
                 TeamCupCategory.Silver => "#FFFFFFFF",
                 TeamCupCategory.National => "#FFFFFFFF",
                 _ => "#FF000000",
+            };
+        }
+    }
+
+    internal static class CarClassExt {
+        public static CarClass[] Order() {
+            return new[] {
+                CarClass.GT2,
+                CarClass.GT3,
+                CarClass.GT4,
+                CarClass.CUP17,
+                CarClass.CUP21,
+                CarClass.ST15,
+                CarClass.ST21,
+                CarClass.CHL,
+                CarClass.TCX,
             };
         }
     }

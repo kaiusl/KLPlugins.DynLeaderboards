@@ -91,8 +91,7 @@ namespace KLPlugins.DynLeaderboards.Settings {
         }
 
         private void AddClassColors() {
-            foreach (var c in Enum.GetValues(typeof(CarClass))) {
-                var cls = (CarClass)c;
+            foreach (var cls in CarClassExt.Order()) {
                 if (cls == CarClass.Unknown || cls == CarClass.Overall) {
                     continue;
                 }

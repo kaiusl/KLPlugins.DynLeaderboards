@@ -371,10 +371,10 @@ FodyWeavers.xsd
 /log.txt
 /toc.yml
 /docfx_project
+
 /PluginsData/KLPlugins/DynLeaderboards/laps_data/.ipynb_checkpoints
 /PluginsData/KLPlugins/DynLeaderboards/laps_data/new
 /PluginsData/KLPlugins/DynLeaderboards/laps_data/orig
-/PluginsData/KLPlugins/DynLeaderboards/laps_data/raw
 /PluginsData/KLPlugins/DynLeaderboards/laps_data/Untitled.ipynb
 /PluginsData/KLPlugins/DynLeaderboards/NewLaps
 /PluginsData/KLPlugins/DynLeaderboards/Zolder_pos.txt

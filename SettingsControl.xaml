@@ -140,6 +140,39 @@
                                            VerticalAlignment="Center"
                                            Click="Logging_ToggleButton_Click" />
                 </Grid>
+
+                <Grid ToolTip="Include Lamborghini Huracan ST EVO2 in GT2 class.">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition MaxWidth="500" />
+                        <ColumnDefinition MinWidth="100" />
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition MinHeight="35" />
+                    </Grid.RowDefinitions>
+
+                    <TextBlock Grid.Column="0" Text="Include ST21 class in GT2 class: " Style="{StaticResource Description}" />
+                    <styles:SHToggleButton Grid.Column="1" x:Name="IncludeST21InGT2_ToggleButton"
+                                           HorizontalAlignment="Left"
+                                           VerticalAlignment="Center"
+                                           Click="IncludeST21InGT2_ToggleButton_Click" />
+                </Grid>
+
+                <Grid ToolTip="Include Ferrari 488 Challenge Evo in GT2 class.">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition MaxWidth="500" />
+                        <ColumnDefinition MinWidth="100" />
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition MinHeight="35" />
+                    </Grid.RowDefinitions>
+
+                    <TextBlock Grid.Column="0" Text="Include CHL class in GT2 class: " Style="{StaticResource Description}" />
+                    <styles:SHToggleButton Grid.Column="1" x:Name="IncludeCHLInGT2_ToggleButton"
+                                           HorizontalAlignment="Left"
+                                           VerticalAlignment="Center"
+                                           Click="IncludeCHLInGT2_ToggleButton_Click" />
+                </Grid>
+                
                 <Separator />
 
                 <styles:SHSectionTitle Text="EXPOSED PROPERTIES" />

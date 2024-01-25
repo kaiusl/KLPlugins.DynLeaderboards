@@ -26,6 +26,9 @@ namespace KLPlugins.DynLeaderboards.Settings {
         internal List<DynLeaderboardConfig> DynLeaderboardConfigs { get; set; } = new List<DynLeaderboardConfig>();
         internal string PluginDataLocation { get; set; }
 
+        public bool Include_ST21_In_GT2 { get; set; }
+        public bool Include_CHL_In_GT2 { get; set; }
+
         internal const string pluginsDataDirName = "PluginsData\\KLPlugins\\DynLeaderboards";
         internal const string leaderboardConfigsDataDirName = "PluginsData\\KLPlugins\\DynLeaderboards\\leaderboardConfigs";
         internal const string leaderboardConfigsDataBackupDirName = "PluginsData\\KLPlugins\\DynLeaderboards\\leaderboardConfigs\\b";
@@ -42,6 +45,8 @@ namespace KLPlugins.DynLeaderboards.Settings {
             this.TeamCupCategoryColors = CreateDefCupColors();
             this.TeamCupCategoryTextColors = CreateDefCupTextColors();
             this.DriverCategoryColors = CreateDefDriverCategoryColors();
+            this.Include_CHL_In_GT2 = false;
+            this.Include_ST21_In_GT2 = false;
             this.SaveDynLeaderboardConfigs();
         }
 
@@ -313,10 +318,13 @@ namespace KLPlugins.DynLeaderboards.Settings {
         private static JObject Mig1To2(JObject o) {
             // v1 to v2 changes:
             // - added Cup leaderboards and options to change number of position in those leaderboards, but these are not breaking changes
-            // - no breaking changes
+            // - no breaking changes of old configuration
+            // - added Include_ST21_In_GT2 and Include_CHL_In_GT2
             // - only need to bump version and add new options
 
             o["Version"] = 2;
+            o["Include_ST21_In_GT2"] = false;
+            o["Include_CHL_In_GT2"] = false;
 
             foreach (var fileName in Directory.GetFiles(leaderboardConfigsDataDirName)) {
                 if (!File.Exists(fileName) || !fileName.EndsWith(".json")) {

@@ -96,7 +96,7 @@ namespace KLPlugins.DynLeaderboards.Car {
             return Classes[c];
         }
 
-        private static CarClass ClassGenerator(CarType c) {
+        internal static CarClass ClassGenerator(CarType c) {
             return c switch {
                 CarType.Porsche991GT3R
                 or CarType.MercedesAMGGT3

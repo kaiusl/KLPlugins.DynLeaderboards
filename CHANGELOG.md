@@ -31,6 +31,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   - `IsCupBestLapCar`
   - Dynamic properties have been updated to include cup specific properties.
 - Support GT2 class and 6 new cars in it.
+- An option to include Lamborghini Huracan ST EVO2 and Ferrari 488 Challenge Evo in GT2 class.
+  The option is under the General settings tab.
 
 [#24]: https://github.com/kaiusl/KLPlugins.DynLeaderboards/discussions/24
 [#25]: https://github.com/kaiusl/KLPlugins.DynLeaderboards/pull/25

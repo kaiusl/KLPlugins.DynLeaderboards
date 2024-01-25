@@ -125,6 +125,16 @@ namespace KLPlugins.DynLeaderboards {
             PluginSettings.Migrate();
             Settings = this.ReadCommonSettings<PluginSettings>("GeneralSettings", () => new PluginSettings());
             Settings.ReadDynLeaderboardConfigs();
+
+            foreach (var i in Enum.GetValues(typeof(CarType)).Cast<CarType>()) {
+                var cls = CarsMethods.ClassGenerator(i);
+                if ((Settings.Include_ST21_In_GT2 && cls == CarClass.ST21) || (Settings.Include_CHL_In_GT2 && cls == CarClass.CHL)) {
+                    CarsMethods.Classes[i] = CarClass.GT2;
+                } else {
+                    CarsMethods.Classes[i] = cls;
+                }
+            }
+
             this._logFileName = $"{Settings.PluginDataLocation}\\Logs\\Log_{PluginStartTime}.txt";
             var gameName = (string)pluginManager.GetPropertyValue<SimHub.Plugins.DataPlugins.DataCore.DataCorePlugin>("CurrentGame");
 

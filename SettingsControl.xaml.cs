@@ -57,6 +57,8 @@ namespace KLPlugins.DynLeaderboards.Settings {
             this.UpdateInterval_NumericUpDown.Value = this.Settings.BroadcastDataUpdateRateMs;
             this.AccDataLocation_TextBox.Background = Brushes.LightGreen;
             this.Logging_ToggleButton.IsChecked = this.Settings.Log;
+            this.IncludeST21InGT2_ToggleButton.IsChecked = this.Settings.Include_ST21_In_GT2;
+            this.IncludeCHLInGT2_ToggleButton.IsChecked = this.Settings.Include_CHL_In_GT2;
         }
 
         #region General settings
@@ -248,6 +250,15 @@ namespace KLPlugins.DynLeaderboards.Settings {
 
         private void Logging_ToggleButton_Click(object sender, RoutedEventArgs e) {
             DynLeaderboardsPlugin.Settings.Log = !DynLeaderboardsPlugin.Settings.Log;
+        }
+
+
+        private void IncludeST21InGT2_ToggleButton_Click(object sender, RoutedEventArgs e) {
+            DynLeaderboardsPlugin.Settings.Include_ST21_In_GT2 = !DynLeaderboardsPlugin.Settings.Include_ST21_In_GT2;
+        }
+
+        private void IncludeCHLInGT2_ToggleButton_Click(object sender, RoutedEventArgs e) {
+            DynLeaderboardsPlugin.Settings.Include_CHL_In_GT2 = !DynLeaderboardsPlugin.Settings.Include_CHL_In_GT2;
         }
 
         private void SelectedColorChanged<T>(object _, RoutedPropertyChangedEventArgs<Color?> e, T c, Dictionary<T, string> settingsColors) {

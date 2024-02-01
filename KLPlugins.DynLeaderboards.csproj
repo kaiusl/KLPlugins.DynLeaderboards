@@ -164,7 +164,6 @@
   <ItemGroup>
     <None Include=".editorconfig" />
     <None Include="CHANGELOG.md" />
-    <None Include="packages.config" />
     <None Include="README.md" />
   </ItemGroup>
   <ItemGroup />

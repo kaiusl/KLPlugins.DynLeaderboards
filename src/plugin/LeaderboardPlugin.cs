@@ -229,43 +229,35 @@ namespace KLPlugins.DynLeaderboards {
                 }
 
                 // Laps and sectors
-                // AddLapProp(OutLapProp.Laps, () => l.GetDynCar(i)?.NewData?.Laps);
-                // AddLapProp(OutLapProp.LastLapTime, () => l.GetDynCar(i)?.NewData?.LastLap.Laptime);
-                // if (l.Config.OutLapProps.Includes(OutLapProp.LastLapSectors)) {
-                //     this.AttachDelegate($"{startName}.Laps.Last.S1", () => l.GetDynCar(i)?.NewData?.LastLap.Splits?[0]);
-                //     this.AttachDelegate($"{startName}.Laps.Last.S2", () => l.GetDynCar(i)?.NewData?.LastLap.Splits?[1]);
-                //     this.AttachDelegate($"{startName}.Laps.Last.S3", () => l.GetDynCar(i)?.NewData?.LastLap.Splits?[2]);
-                // }
+                AddLapProp(OutLapProp.Laps, () => l.GetDynCar(i)?.Laps);
+                AddLapProp(OutLapProp.LastLapTime, () => l.GetDynCar(i)?.LastLap.GetLapTime()?.TotalSeconds);
+                if (l.Config.OutLapProps.Includes(OutLapProp.LastLapSectors)) {
+                    this.AttachDelegate($"{startName}.Laps.Last.S1", () => l.GetDynCar(i)?.LastLap.GetSectorSplit(0)?.TotalSeconds);
+                    this.AttachDelegate($"{startName}.Laps.Last.S2", () => l.GetDynCar(i)?.LastLap.GetSectorSplit(1)?.TotalSeconds);
+                    this.AttachDelegate($"{startName}.Laps.Last.S3", () => l.GetDynCar(i)?.LastLap.GetSectorSplit(2)?.TotalSeconds);
+                }
 
-                // AddLapProp(OutLapProp.BestLapTime, () => l.GetDynCar(i)?.NewData?.BestSessionLap.Laptime);
-                // if (l.Config.OutLapProps.Includes(OutLapProp.BestLapSectors)) {
-                //     this.AttachDelegate($"{startName}.Laps.Best.S1", () => l.GetDynCar(i)?.BestLapSectors?[0]);
-                //     this.AttachDelegate($"{startName}.Laps.Best.S2", () => l.GetDynCar(i)?.BestLapSectors?[1]);
-                //     this.AttachDelegate($"{startName}.Laps.Best.S3", () => l.GetDynCar(i)?.BestLapSectors?[2]);
-                // }
-                // if (l.Config.OutLapProps.Includes(OutLapProp.BestSectors)) {
-                //     this.AttachDelegate($"{startName}.BestS1", () => l.GetDynCar(i)?.NewData?.BestSessionLap.Splits?[0]);
-                //     this.AttachDelegate($"{startName}.BestS2", () => l.GetDynCar(i)?.NewData?.BestSessionLap.Splits?[1]);
-                //     this.AttachDelegate($"{startName}.BestS3", () => l.GetDynCar(i)?.NewData?.BestSessionLap.Splits?[2]);
-                // }
+                AddLapProp(OutLapProp.BestLapTime, () => l.GetDynCar(i)?.BestLap.GetLapTime()?.TotalSeconds);
+                if (l.Config.OutLapProps.Includes(OutLapProp.BestLapSectors)) {
+                    this.AttachDelegate($"{startName}.Laps.Best.S1", () => l.GetDynCar(i)?.BestLap.GetSectorSplit(0)?.TotalSeconds);
+                    this.AttachDelegate($"{startName}.Laps.Best.S2", () => l.GetDynCar(i)?.BestLap.GetSectorSplit(1)?.TotalSeconds);
+                    this.AttachDelegate($"{startName}.Laps.Best.S3", () => l.GetDynCar(i)?.BestLap.GetSectorSplit(2)?.TotalSeconds);
+                }
+                if (l.Config.OutLapProps.Includes(OutLapProp.BestSectors)) {
+                    this.AttachDelegate($"{startName}.BestS1", () => l.GetDynCar(i)?.BestSectors.GetSectorSplit(0)?.TotalSeconds);
+                    this.AttachDelegate($"{startName}.BestS2", () => l.GetDynCar(i)?.BestSectors.GetSectorSplit(1)?.TotalSeconds);
+                    this.AttachDelegate($"{startName}.BestS3", () => l.GetDynCar(i)?.BestSectors.GetSectorSplit(2)?.TotalSeconds);
+                }
 
-                // AddLapProp(OutLapProp.CurrentLapTime, () => l.GetDynCar(i)?.NewData?.CurrentLap.Laptime);
+                AddLapProp(OutLapProp.CurrentLapTime, () => l.GetDynCar(i)?.CurrentLapTime);
 
-                // AddLapProp(OutLapProp.CurrentLapIsValid, () => this.MaybeBoolToInt(l.GetDynCar(i)?.NewData?.CurrentLap.IsValidForBest));
-                // AddLapProp(OutLapProp.LastLapIsValid, () => {
-                //     // IsValidForBest is true even if there is no actual lap, make it consistent with other properties
-                //     var last_lap = l.GetDynCar(i)?.NewData?.LastLap;
-                //     if (last_lap?.Laptime != null) {
-                //         return this.MaybeBoolToInt(last_lap?.IsValidForBest);
-                //     } else {
-                //         return null;
-                //     }
-                // });
+                AddLapProp(OutLapProp.CurrentLapIsValid, () => this.MaybeBoolToInt(l.GetDynCar(i)?.IsCurrentLapValid));
+                AddLapProp(OutLapProp.LastLapIsValid, () => this.MaybeBoolToInt(l.GetDynCar(i)?.IsLastLapValid));
 
-                // AddLapProp(OutLapProp.CurrentLapIsOutLap, () => this.MaybeBoolToInt(l.GetDynCar(i)?.IsCurrentLapOutLap));
-                // AddLapProp(OutLapProp.LastLapIsOutLap, () => this.MaybeBoolToInt(l.GetDynCar(i)?.IsLastLapOutLap));
-                // AddLapProp(OutLapProp.CurrentLapIsInLap, () => this.MaybeBoolToInt(l.GetDynCar(i)?.IsCurrentLapInLap));
-                // AddLapProp(OutLapProp.LastLapIsInLap, () => this.MaybeBoolToInt(l.GetDynCar(i)?.IsLastLapInLap));
+                AddLapProp(OutLapProp.CurrentLapIsOutLap, () => this.MaybeBoolToInt(l.GetDynCar(i)?.IsCurrentLapOutLap));
+                AddLapProp(OutLapProp.LastLapIsOutLap, () => this.MaybeBoolToInt(l.GetDynCar(i)?.IsLastLapOutLap));
+                AddLapProp(OutLapProp.CurrentLapIsInLap, () => this.MaybeBoolToInt(l.GetDynCar(i)?.IsCurrentLapInLap));
+                AddLapProp(OutLapProp.LastLapIsInLap, () => this.MaybeBoolToInt(l.GetDynCar(i)?.IsLastLapInLap));
 
                 // void AddOneDriverFromList(int j) {
                 //     var driverId = $"Driver.{j + 1}";

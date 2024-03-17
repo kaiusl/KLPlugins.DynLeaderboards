@@ -111,16 +111,8 @@
     <Compile Include="src\components\DynLeaderboardValues.cs" />
     <Compile Include="src\components\Game.cs" />
     <Compile Include="src\enums\Leaderboard.cs" />
-    <Compile Include="src\enums\Tracks.cs" />
     <Compile Include="src\helpers\Math.cs" />
     <Compile Include="src\helpers\Misc.cs" />
-    <Compile Include="src\ksBroadcastingNetwork\ACCUdpRemoteClient.cs" />
-    <Compile Include="src\ksBroadcastingNetwork\BroadcastingEnums.cs" />
-    <Compile Include="src\ksBroadcastingNetwork\BroadcastingNetworkProtocol.cs" />
-    <Compile Include="src\enums\Cars.cs" />
-    <Compile Include="src\components\CarData.cs" />
-    <Compile Include="src\components\DriverData.cs" />
-    <Compile Include="src\components\RealtimeData.cs" />
     <Compile Include="src\components\TrackData.cs" />
     <Compile Include="src\plugin\LeaderboardPlugin.cs" />
     <Compile Include="src\settings\OutCarProp.cs" />
@@ -129,6 +121,7 @@
     <Compile Include="src\settings\OutLapProp.cs" />
     <Compile Include="src\settings\PluginSettings.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="src/components/Car.cs"/>
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>

@@ -4,9 +4,6 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 
-using KLPlugins.DynLeaderboards.Car;
-using KLPlugins.DynLeaderboards.ksBroadcastingNetwork;
-
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -17,10 +14,6 @@ namespace KLPlugins.DynLeaderboards.Settings {
         public bool Log { get; set; }
         public int BroadcastDataUpdateRateMs { get; set; }
         public OutGeneralProp OutGeneralProps = OutGeneralProp.None;
-        public Dictionary<CarClass, string> CarClassColors { get; set; }
-        public Dictionary<TeamCupCategory, string> TeamCupCategoryColors { get; set; }
-        public Dictionary<TeamCupCategory, string> TeamCupCategoryTextColors { get; set; }
-        public Dictionary<DriverCategory, string> DriverCategoryColors { get; set; }
 
         internal const int currentSettingsVersion = 2;
         internal List<DynLeaderboardConfig> DynLeaderboardConfigs { get; set; } = new List<DynLeaderboardConfig>();
@@ -41,10 +34,6 @@ namespace KLPlugins.DynLeaderboards.Settings {
             this.Log = false;
             this.BroadcastDataUpdateRateMs = 500;
             this.DynLeaderboardConfigs = new List<DynLeaderboardConfig>();
-            this.CarClassColors = CreateDefCarClassColors();
-            this.TeamCupCategoryColors = CreateDefCupColors();
-            this.TeamCupCategoryTextColors = CreateDefCupTextColors();
-            this.DriverCategoryColors = CreateDefDriverCategoryColors();
             this.Include_CHL_In_GT2 = false;
             this.Include_ST21_In_GT2 = false;
             this.SaveDynLeaderboardConfigs();
@@ -158,46 +147,6 @@ namespace KLPlugins.DynLeaderboards.Settings {
             return max;
         }
 
-        private static Dictionary<CarClass, string> CreateDefCarClassColors() {
-            var carClassColors = new Dictionary<CarClass, string>(8);
-            foreach (var c in Enum.GetValues(typeof(CarClass))) {
-                var cls = (CarClass)c;
-                carClassColors.Add(cls, cls.ACCColor());
-            }
-            return carClassColors;
-        }
-
-        private static Dictionary<TeamCupCategory, string> CreateDefCupColors() {
-            var cupColors = new Dictionary<TeamCupCategory, string>(5);
-            foreach (var c in Enum.GetValues(typeof(TeamCupCategory))) {
-                var cup = (TeamCupCategory)c;
-                cupColors.Add(cup, cup.ACCColor());
-            }
-            return cupColors;
-        }
-
-        private static Dictionary<TeamCupCategory, string> CreateDefCupTextColors() {
-            var cupTextColors = new Dictionary<TeamCupCategory, string>(5);
-            foreach (var c in Enum.GetValues(typeof(TeamCupCategory))) {
-                var cup = (TeamCupCategory)c;
-                cupTextColors.Add(cup, cup.ACCTextColor());
-            }
-            return cupTextColors;
-        }
-
-        private static Dictionary<DriverCategory, string> CreateDefDriverCategoryColors() {
-            var dict = new Dictionary<DriverCategory, string>(4);
-            foreach (var c in Enum.GetValues(typeof(DriverCategory))) {
-                var cat = (DriverCategory)c;
-                if (cat == DriverCategory.Error) {
-                    continue;
-                }
-
-                dict.Add(cat, cat.GetAccColor());
-            }
-            return dict;
-        }
-
         internal bool SetAccDataLocation(string newLoc) {
             if (!Directory.Exists($"{newLoc}\\Config")) {
                 if (Directory.Exists($"{_defAccDataLocation}\\Config")) {
@@ -258,10 +207,7 @@ namespace KLPlugins.DynLeaderboards.Settings {
         /// </summary>
         /// <returns></returns>
         private static Dictionary<string, Migration> CreateMigrationsDict() {
-            var migrations = new Dictionary<string, Migration> {
-                ["0_1"] = Mig0To1,
-                ["1_2"] = Mig1To2,
-            };
+            var migrations = new Dictionary<string, Migration> { };
 
 #if DEBUG
             for (int i = 0; i < currentSettingsVersion; i++) {
@@ -272,98 +218,7 @@ namespace KLPlugins.DynLeaderboards.Settings {
             return migrations;
         }
 
-        /// <summary>
-        /// Migration of setting from version 0 to version 1
-        /// </summary>
-        /// <param name="o"></param>
-        /// <returns></returns>
-        private static JObject Mig0To1(JObject o) {
-            // v0 to v1 changes:
-            // - Added version number to PluginSetting and DynLeaderboardConfig
-            // - DynLeaderboardConfigs are saved separately in PluginsData\KLPlugins\DynLeaderboards\leaderboardConfigs
-            //   and not saved in PluginsData\Common\DynLeaderboardsPlugin.GeneralSettings.json
 
-            o["Version"] = 1;
-
-            Directory.CreateDirectory(leaderboardConfigsDataDirName);
-            Directory.CreateDirectory(leaderboardConfigsDataBackupDirName);
-            const string key = "DynLeaderboardConfigs";
-            if (o.ContainsKey(key)) {
-                foreach (var cfg in o[key]!) {
-                    var fname = $"{leaderboardConfigsDataDirName}\\{cfg["Name"]}.json";
-                    if (File.Exists(fname)) // Don't overwrite existing configs
-{
-                        continue;
-                    }
-
-                    using StreamWriter file = File.CreateText(fname);
-                    var serializer = new JsonSerializer {
-                        Formatting = Newtonsoft.Json.Formatting.Indented
-                    };
-                    serializer.Serialize(file, cfg);
-                }
-            }
-
-            SimHub.Logging.Current.Info($"Migrated settings from v0 to v1.");
-            o.Remove("DynLeaderboardConfigs");
-
-            return o;
-        }
-
-        /// <summary>
-        /// Migration of setting from version 0 to version 1
-        /// </summary>
-        /// <param name="o"></param>
-        /// <returns></returns>
-        private static JObject Mig1To2(JObject o) {
-            // v1 to v2 changes:
-            // - added Cup leaderboards and options to change number of position in those leaderboards, but these are not breaking changes
-            // - no breaking changes of old configuration
-            // - added Include_ST21_In_GT2 and Include_CHL_In_GT2
-            // - only need to bump version and add new options
-
-            o["Version"] = 2;
-            o["Include_ST21_In_GT2"] = false;
-            o["Include_CHL_In_GT2"] = false;
-
-            foreach (var fileName in Directory.GetFiles(leaderboardConfigsDataDirName)) {
-                if (!File.Exists(fileName) || !fileName.EndsWith(".json")) {
-                    continue;
-                }
-
-                using StreamReader file = File.OpenText(fileName);
-                var serializer = new JsonSerializer();
-                DynLeaderboardConfig cfg;
-                try {
-                    var result = (DynLeaderboardConfig?)serializer.Deserialize(file, typeof(DynLeaderboardConfig));
-                    if (result == null) {
-                        continue;
-                    }
-                    cfg = result;
-                } catch (Exception e) {
-                    SimHub.Logging.Current.Error($"Failed to deserialize leaderboard \"{fileName}\" configuration. Error {e}.");
-                    continue;
-                }
-                file.Close();
-
-                cfg.Version = 2;
-                cfg.NumCupPos = cfg.NumClassPos;
-                cfg.NumCupRelativePos = cfg.NumClassRelativePos;
-                cfg.PartialRelativeCupNumCupPos = cfg.PartialRelativeClassNumClassPos;
-                cfg.PartialRelativeCupNumRelativePos = cfg.PartialRelativeClassNumRelativePos;
-
-                using StreamWriter fileOut = File.CreateText(fileName);
-                var serializerOut = new JsonSerializer {
-                    Formatting = Newtonsoft.Json.Formatting.Indented
-                };
-                serializerOut.Serialize(fileOut, cfg);
-
-            }
-
-            SimHub.Logging.Current.Info($"Migrated settings from v1 to v2.");
-
-            return o;
-        }
     }
 
     public class DynLeaderboardConfig {
@@ -440,15 +295,15 @@ namespace KLPlugins.DynLeaderboards.Settings {
             this.Order = new List<Leaderboard>() {
                 Leaderboard.Overall,
                 Leaderboard.Class,
-                Leaderboard.Cup,
-                Leaderboard.PartialRelativeOverall,
-                Leaderboard.PartialRelativeClass,
-                Leaderboard.PartialRelativeCup,
-                Leaderboard.RelativeOverall,
-                Leaderboard.RelativeClass,
-                Leaderboard.RelativeCup,
-                Leaderboard.RelativeOnTrack,
-                Leaderboard.RelativeOnTrackWoPit
+                // Leaderboard.Cup,
+                // Leaderboard.PartialRelativeOverall,
+                // Leaderboard.PartialRelativeClass,
+                // Leaderboard.PartialRelativeCup,
+                // Leaderboard.RelativeOverall,
+                // Leaderboard.RelativeClass,
+                // Leaderboard.RelativeCup,
+                // Leaderboard.RelativeOnTrack,
+                // Leaderboard.RelativeOnTrackWoPit
             };
             this.CurrentLeaderboardName = this.Order[this._currentLeaderboardIdx].ToString();
         }

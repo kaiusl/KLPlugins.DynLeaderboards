@@ -299,8 +299,8 @@ namespace KLPlugins.DynLeaderboards {
                 // AddProp(OutCarProp.TeamCupCategoryTextColor, () => l.GetDynCar(i)?.TeamCupCategoryTextColor);
 
                 // // Gaps
-                 AddGapProp(OutGapProp.GapToLeader, () => l.GetDynCar(i)?.GapToLeader);
-                 AddGapProp(OutGapProp.GapToClassLeader, () => l.GetDynCar(i)?.GapToClassLeader);
+                AddGapProp(OutGapProp.GapToLeader, () => l.GetDynCar(i)?.GapToLeader);
+                AddGapProp(OutGapProp.GapToClassLeader, () => l.GetDynCar(i)?.GapToClassLeader);
                 // AddGapProp(OutGapProp.GapToCupLeader, () => l.GetDynCar(i)?.GapToCupLeader);
                 // AddGapProp(OutGapProp.GapToFocusedOnTrack, () => l.GetDynCar(i)?.GapToFocusedOnTrack);
                 AddGapProp(OutGapProp.GapToFocusedTotal, () => l.GetDynCar(i)?.GapToFocusedTotal);
@@ -399,7 +399,7 @@ namespace KLPlugins.DynLeaderboards {
             }
 
             this.AttachDelegate($"{l.Config.Name}.CurrentLeaderboard", () => l.Config.CurrentLeaderboardName);
-            this.AttachDelegate($"{l.Config.Name}.FocusedPosInCurrentLeaderboard", () => l.GetFocusedCarIdxInDynLeaderboard());
+            this.AttachDelegate($"{l.Config.Name}.FocusedPosInCurrentLeaderboard", () => l.FocusedIndex);
 
             // Declare an action which can be called
             this.AddAction($"{l.Config.Name}.NextLeaderboard", (_, _) => {

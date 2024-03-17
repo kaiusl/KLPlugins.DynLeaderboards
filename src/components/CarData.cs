@@ -32,6 +32,8 @@ namespace KLPlugins.DynLeaderboards.Car {
 
         public int PositionOverall { get; private set; }
         public int PositionInClass { get; private set; }
+        public int PositionOverallStart => this._rawDataNew.StartPosition ?? -1;
+        public int PositionInClassStart => this._rawDataNew.StartPositionClass ?? -1;
         public int IndexOverall => this.PositionOverall - 1;
         public int IndexClass => this.PositionInClass - 1;
 

@@ -23,6 +23,8 @@ namespace KLPlugins.DynLeaderboards.Settings {
         IsClassBestLapCar = 1 << 13,
         RelativeOnTrackLapDiff = 1 << 14,
         IsCupBestLapCar = 1 << 15,
+
+        CarClassTextColor = 1 << 16,
     }
 
     internal static class OutCarPropExtensions {

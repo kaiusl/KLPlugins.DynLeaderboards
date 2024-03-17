@@ -121,7 +121,7 @@
     <Compile Include="src\settings\OutLapProp.cs" />
     <Compile Include="src\settings\PluginSettings.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="src/components/Car.cs"/>
+    <Compile Include="src/components/CarData.cs"/>
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>

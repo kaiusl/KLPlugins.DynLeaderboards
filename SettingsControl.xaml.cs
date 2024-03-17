@@ -6,9 +6,6 @@ using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Media;
 
-using KLPlugins.DynLeaderboards.Car;
-using KLPlugins.DynLeaderboards.ksBroadcastingNetwork;
-
 using MahApps.Metro.Controls;
 
 using SimHub.Plugins.Styles;
@@ -21,11 +18,6 @@ namespace KLPlugins.DynLeaderboards.Settings {
         internal DynLeaderboardsPlugin Plugin { get; }
         internal PluginSettings Settings => DynLeaderboardsPlugin.Settings;
         internal DynLeaderboardConfig CurrentDynLeaderboardSettings { get; private set; }
-
-        private readonly Dictionary<CarClass, ColorPicker> _classColorPickers = new(8);
-        private readonly Dictionary<TeamCupCategory, ColorPicker> _cupColorPickers = new(5);
-        private readonly Dictionary<TeamCupCategory, ColorPicker> _cupTextColorPickers = new(5);
-        private readonly Dictionary<DriverCategory, ColorPicker> _driverCategoryColorPickers = new(4);
 
         //internal SettingsControl() {
         //    InitializeComponent();
@@ -93,41 +85,41 @@ namespace KLPlugins.DynLeaderboards.Settings {
         }
 
         private void AddClassColors() {
-            foreach (var cls in CarClassExt.Order()) {
-                if (cls == CarClass.Unknown || cls == CarClass.Overall) {
-                    continue;
-                }
+            // foreach (var cls in CarClassExt.Order()) {
+            //     if (cls == CarClass.Unknown || cls == CarClass.Overall) {
+            //         continue;
+            //     }
 
-                var sp = new StackPanel {
-                    Orientation = Orientation.Horizontal
-                };
+            //     var sp = new StackPanel {
+            //         Orientation = Orientation.Horizontal
+            //     };
 
-                var t = new TextBlock {
-                    Text = cls.ToString() + ": ",
-                    Width = 60
-                };
+            //     var t = new TextBlock {
+            //         Text = cls.ToString() + ": ",
+            //         Width = 60
+            //     };
 
-                var cp = new ColorPicker {
-                    Width = 100,
-                    Height = 25,
-                    SelectedColor = (Color)ColorConverter.ConvertFromString(DynLeaderboardsPlugin.Settings.CarClassColors[cls])
-                };
-                cp.SelectedColorChanged += (sender, e) => this.SelectedColorChanged(sender, e, cls, DynLeaderboardsPlugin.Settings.CarClassColors);
+            //     var cp = new ColorPicker {
+            //         Width = 100,
+            //         Height = 25,
+            //         SelectedColor = (Color)ColorConverter.ConvertFromString(DynLeaderboardsPlugin.Settings.CarClassColors[cls])
+            //     };
+            //     cp.SelectedColorChanged += (sender, e) => this.SelectedColorChanged(sender, e, cls, DynLeaderboardsPlugin.Settings.CarClassColors);
 
-                this._classColorPickers.Add(cls, cp);
+            //     this._classColorPickers.Add(cls, cp);
 
-                var btn = new SHButtonPrimary {
-                    Content = "Reset",
-                    Height = 25
-                };
-                btn.Click += (sender, e) => this.ClassColorPickerReset(cls);
+            //     var btn = new SHButtonPrimary {
+            //         Content = "Reset",
+            //         Height = 25
+            //     };
+            //     btn.Click += (sender, e) => this.ClassColorPickerReset(cls);
 
-                sp.Children.Add(t);
-                sp.Children.Add(cp);
-                sp.Children.Add(btn);
+            //     sp.Children.Add(t);
+            //     sp.Children.Add(cp);
+            //     sp.Children.Add(btn);
 
-                this.ClassColors_StackPanel.Children.Add(sp);
-            }
+            //     this.ClassColors_StackPanel.Children.Add(sp);
+            // }
         }
 
         private void AddTeamCupColors() {
@@ -149,94 +141,94 @@ namespace KLPlugins.DynLeaderboards.Settings {
             sp.Children.Add(t2);
             this.TeamCupColors_StackPanel.Children.Add(sp);
 
-            foreach (var c in Enum.GetValues(typeof(TeamCupCategory))) {
-                var cup = (TeamCupCategory)c;
+            // foreach (var c in Enum.GetValues(typeof(TeamCupCategory))) {
+            //     var cup = (TeamCupCategory)c;
 
-                sp = new StackPanel {
-                    Orientation = Orientation.Horizontal
-                };
+            //     sp = new StackPanel {
+            //         Orientation = Orientation.Horizontal
+            //     };
 
-                t = new TextBlock {
-                    Text = cup.ToString() + ": ",
-                    Width = 60
-                };
+            //     t = new TextBlock {
+            //         Text = cup.ToString() + ": ",
+            //         Width = 60
+            //     };
 
-                var cp1 = new ColorPicker {
-                    Width = 100,
-                    Height = 25,
-                    SelectedColor = (Color)ColorConverter.ConvertFromString(DynLeaderboardsPlugin.Settings.TeamCupCategoryColors[cup])
-                };
-                cp1.SelectedColorChanged += (sender, e) => this.SelectedColorChanged(sender, e, cup, DynLeaderboardsPlugin.Settings.TeamCupCategoryColors);
-                this._cupColorPickers.Add(cup, cp1);
+            //     var cp1 = new ColorPicker {
+            //         Width = 100,
+            //         Height = 25,
+            //         SelectedColor = (Color)ColorConverter.ConvertFromString(DynLeaderboardsPlugin.Settings.TeamCupCategoryColors[cup])
+            //     };
+            //     cp1.SelectedColorChanged += (sender, e) => this.SelectedColorChanged(sender, e, cup, DynLeaderboardsPlugin.Settings.TeamCupCategoryColors);
+            //     this._cupColorPickers.Add(cup, cp1);
 
-                var btn1 = new SHButtonPrimary {
-                    Content = "Reset"
-                };
-                btn1.Click += (sender, e) => this.TeamCupColorPickerReset(cup);
-                btn1.Height = 25;
+            //     var btn1 = new SHButtonPrimary {
+            //         Content = "Reset"
+            //     };
+            //     btn1.Click += (sender, e) => this.TeamCupColorPickerReset(cup);
+            //     btn1.Height = 25;
 
-                var cp2 = new ColorPicker {
-                    Margin = new Thickness(25, 0, 0, 0),
-                    Width = 100,
-                    Height = 25,
-                    SelectedColor = (Color)ColorConverter.ConvertFromString(DynLeaderboardsPlugin.Settings.TeamCupCategoryTextColors[cup])
-                };
-                cp2.SelectedColorChanged += (sender, e) => this.SelectedColorChanged(sender, e, cup, DynLeaderboardsPlugin.Settings.TeamCupCategoryTextColors);
-                this._cupTextColorPickers.Add(cup, cp2);
+            //     var cp2 = new ColorPicker {
+            //         Margin = new Thickness(25, 0, 0, 0),
+            //         Width = 100,
+            //         Height = 25,
+            //         SelectedColor = (Color)ColorConverter.ConvertFromString(DynLeaderboardsPlugin.Settings.TeamCupCategoryTextColors[cup])
+            //     };
+            //     cp2.SelectedColorChanged += (sender, e) => this.SelectedColorChanged(sender, e, cup, DynLeaderboardsPlugin.Settings.TeamCupCategoryTextColors);
+            //     this._cupTextColorPickers.Add(cup, cp2);
 
-                var btn2 = new SHButtonPrimary {
-                    Content = "Reset"
-                };
-                btn2.Click += (sender, e) => this.TeamCupTextColorPickerReset(cup);
-                btn2.Height = 25;
+            //     var btn2 = new SHButtonPrimary {
+            //         Content = "Reset"
+            //     };
+            //     btn2.Click += (sender, e) => this.TeamCupTextColorPickerReset(cup);
+            //     btn2.Height = 25;
 
-                sp.Children.Add(t);
-                sp.Children.Add(cp1);
-                sp.Children.Add(btn1);
-                sp.Children.Add(cp2);
-                sp.Children.Add(btn2);
+            //     sp.Children.Add(t);
+            //     sp.Children.Add(cp1);
+            //     sp.Children.Add(btn1);
+            //     sp.Children.Add(cp2);
+            //     sp.Children.Add(btn2);
 
-                this.TeamCupColors_StackPanel.Children.Add(sp);
-            }
+            //     this.TeamCupColors_StackPanel.Children.Add(sp);
+            // }
         }
 
         private void AddDriverCategoryColors() {
-            foreach (var c in Enum.GetValues(typeof(DriverCategory))) {
-                var cls = (DriverCategory)c;
-                if (cls == DriverCategory.Error) {
-                    continue;
-                }
+            // foreach (var c in Enum.GetValues(typeof(DriverCategory))) {
+            //     var cls = (DriverCategory)c;
+            //     if (cls == DriverCategory.Error) {
+            //         continue;
+            //     }
 
-                var sp = new StackPanel {
-                    Orientation = Orientation.Horizontal
-                };
+            //     var sp = new StackPanel {
+            //         Orientation = Orientation.Horizontal
+            //     };
 
-                var t = new TextBlock {
-                    Text = cls.ToString() + ": ",
-                    Width = 60
-                };
+            //     var t = new TextBlock {
+            //         Text = cls.ToString() + ": ",
+            //         Width = 60
+            //     };
 
-                var cp = new ColorPicker {
-                    Width = 100,
-                    Height = 25,
-                    SelectedColor = (Color)ColorConverter.ConvertFromString(DynLeaderboardsPlugin.Settings.DriverCategoryColors[cls])
-                };
-                cp.SelectedColorChanged += (sender, e) => this.SelectedColorChanged(sender, e, cls, DynLeaderboardsPlugin.Settings.DriverCategoryColors);
+            //     var cp = new ColorPicker {
+            //         Width = 100,
+            //         Height = 25,
+            //         SelectedColor = (Color)ColorConverter.ConvertFromString(DynLeaderboardsPlugin.Settings.DriverCategoryColors[cls])
+            //     };
+            //     cp.SelectedColorChanged += (sender, e) => this.SelectedColorChanged(sender, e, cls, DynLeaderboardsPlugin.Settings.DriverCategoryColors);
 
-                this._driverCategoryColorPickers.Add(cls, cp);
+            //     this._driverCategoryColorPickers.Add(cls, cp);
 
-                var btn = new SHButtonPrimary {
-                    Content = "Reset"
-                };
-                btn.Click += (sender, e) => this.DriverCategoryColorPickerReset(cls);
-                btn.Height = 25;
+            //     var btn = new SHButtonPrimary {
+            //         Content = "Reset"
+            //     };
+            //     btn.Click += (sender, e) => this.DriverCategoryColorPickerReset(cls);
+            //     btn.Height = 25;
 
-                sp.Children.Add(t);
-                sp.Children.Add(cp);
-                sp.Children.Add(btn);
+            //     sp.Children.Add(t);
+            //     sp.Children.Add(cp);
+            //     sp.Children.Add(btn);
 
-                this.DriverCategoryColors_StackPanel.Children.Add(sp);
-            }
+            //     this.DriverCategoryColors_StackPanel.Children.Add(sp);
+            // }
         }
 
         private void AccDataLocation_TextChanged(object sender, TextChangedEventArgs e) {
@@ -268,25 +260,25 @@ namespace KLPlugins.DynLeaderboards.Settings {
             }
         }
 
-        private void ClassColorPickerReset(CarClass cls) {
-            DynLeaderboardsPlugin.Settings.CarClassColors[cls] = cls.ACCColor();
-            this._classColorPickers[cls].SelectedColor = (Color)ColorConverter.ConvertFromString(cls.ACCColor());
-        }
+        // private void ClassColorPickerReset(CarClass cls) {
+        //     DynLeaderboardsPlugin.Settings.CarClassColors[cls] = cls.ACCColor();
+        //     this._classColorPickers[cls].SelectedColor = (Color)ColorConverter.ConvertFromString(cls.ACCColor());
+        // }
 
-        private void TeamCupColorPickerReset(TeamCupCategory cup) {
-            DynLeaderboardsPlugin.Settings.TeamCupCategoryColors[cup] = cup.ACCColor();
-            this._cupColorPickers[cup].SelectedColor = (Color)ColorConverter.ConvertFromString(cup.ACCColor());
-        }
+        // private void TeamCupColorPickerReset(TeamCupCategory cup) {
+        //     DynLeaderboardsPlugin.Settings.TeamCupCategoryColors[cup] = cup.ACCColor();
+        //     this._cupColorPickers[cup].SelectedColor = (Color)ColorConverter.ConvertFromString(cup.ACCColor());
+        // }
 
-        private void TeamCupTextColorPickerReset(TeamCupCategory cup) {
-            DynLeaderboardsPlugin.Settings.TeamCupCategoryTextColors[cup] = cup.ACCTextColor();
-            this._cupTextColorPickers[cup].SelectedColor = (Color)ColorConverter.ConvertFromString(cup.ACCTextColor());
-        }
+        // private void TeamCupTextColorPickerReset(TeamCupCategory cup) {
+        //     DynLeaderboardsPlugin.Settings.TeamCupCategoryTextColors[cup] = cup.ACCTextColor();
+        //     this._cupTextColorPickers[cup].SelectedColor = (Color)ColorConverter.ConvertFromString(cup.ACCTextColor());
+        // }
 
-        private void DriverCategoryColorPickerReset(DriverCategory cls) {
-            DynLeaderboardsPlugin.Settings.DriverCategoryColors[cls] = cls.GetAccColor();
-            this._driverCategoryColorPickers[cls].SelectedColor = (Color)ColorConverter.ConvertFromString(cls.GetAccColor());
-        }
+        // private void DriverCategoryColorPickerReset(DriverCategory cls) {
+        //     DynLeaderboardsPlugin.Settings.DriverCategoryColors[cls] = cls.GetAccColor();
+        //     this._driverCategoryColorPickers[cls].SelectedColor = (Color)ColorConverter.ConvertFromString(cls.GetAccColor());
+        // }
 
         private void Hyperlink_RequestNavigate(object sender, System.Windows.Navigation.RequestNavigateEventArgs e) {
             System.Diagnostics.Process.Start(e.Uri.ToString());
@@ -699,7 +691,7 @@ namespace KLPlugins.DynLeaderboards.Settings {
                     i++;
                 }
             }
-            this.Plugin.SetDynamicCarGetter(this.Settings.DynLeaderboardConfigs[selected]);
+            //  this.Plugin.SetDynamicCarGetter(this.Settings.DynLeaderboardConfigs[selected]);
         }
 
         private void AddPropertyToggles() {

@@ -7,6 +7,12 @@ namespace KLPlugins.DynLeaderboards.Car {
     public class CarData {
 
         public string CarClass => this._rawDataNew.CarClass;
+        public string CarClassColor => this._rawDataNew.CarClassColor;
+        public string CarClassTextColor => this._rawDataNew.CarClassTextColor;
+
+        public string CarNumber => this._rawDataNew.CarNumber;
+        public string CarModel => this._rawDataNew.CarName;
+        public string TeamName => this._rawDataNew.TeamName;
 
         public int Laps => this._rawDataNew.CurrentLap ?? 0;
         public double CurrentLapTime => this._rawDataNew.CurrentLapHighPrecision ?? double.NaN;

@@ -281,18 +281,20 @@ namespace KLPlugins.DynLeaderboards {
                 }
 
                 // // Car and team
-                // AddProp(OutCarProp.CarNumber, () => l.GetDynCar(i)?.RaceNumber);
-                // AddProp(OutCarProp.CarModel, () => l.GetDynCar(i)?.CarModelType.PrettyName());
+                AddProp(OutCarProp.CarNumber, () => l.GetDynCar(i)?.CarNumber);
+                AddProp(OutCarProp.CarModel, () => l.GetDynCar(i)?.CarModel);
                 // AddProp(OutCarProp.CarManufacturer, () => l.GetDynCar(i)?.CarModelType.Mark());
-                // AddProp(OutCarProp.CarClass, () => l.GetDynCar(i)?.CarClass.PrettyName());
-                // AddProp(OutCarProp.TeamName, () => l.GetDynCar(i)?.TeamName);
+                AddProp(OutCarProp.CarClass, () => l.GetDynCar(i)?.CarClass);
+                AddProp(OutCarProp.TeamName, () => l.GetDynCar(i)?.TeamName);
                 // AddProp(OutCarProp.TeamCupCategory, () => l.GetDynCar(i)?.TeamCupCategory.PrettyName());
+                
                 // AddStintProp(OutStintProp.CurrentStintTime, () => l.GetDynCar(i)?.CurrentStintTime);
                 // AddStintProp(OutStintProp.LastStintTime, () => l.GetDynCar(i)?.LastStintTime);
                 // AddStintProp(OutStintProp.CurrentStintLaps, () => l.GetDynCar(i)?.CurrentStintLaps);
                 // AddStintProp(OutStintProp.LastStintLaps, () => l.GetDynCar(i)?.LastStintLaps);
 
-                // AddProp(OutCarProp.CarClassColor, () => l.GetDynCar(i)?.CarClassColor);
+                AddProp(OutCarProp.CarClassColor, () => l.GetDynCar(i)?.CarClassColor);
+                AddProp(OutCarProp.CarClassTextColor, () => l.GetDynCar(i)?.CarClassTextColor);
                 // AddProp(OutCarProp.TeamCupCategoryColor, () => l.GetDynCar(i)?.TeamCupCategoryColor);
                 // AddProp(OutCarProp.TeamCupCategoryTextColor, () => l.GetDynCar(i)?.TeamCupCategoryTextColor);
 

@@ -37,6 +37,12 @@ namespace KLPlugins.DynLeaderboards.Car {
         public int IndexOverall => this.PositionOverall - 1;
         public int IndexClass => this.PositionInClass - 1;
 
+        public bool IsInPitLane => this._rawDataNew.IsCarInPitLane;
+        public int PitCount => this._rawDataNew.PitCount ?? 0;
+        public double PitTimeLast => this._rawDataNew.PitLastDuration?.TotalSeconds ?? 0.0;
+
+
+
         private Opponent _rawDataNew;
         private Opponent _rawDataOld;
 

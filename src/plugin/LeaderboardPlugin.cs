@@ -259,26 +259,26 @@ namespace KLPlugins.DynLeaderboards {
                 AddLapProp(OutLapProp.CurrentLapIsInLap, () => this.MaybeBoolToInt(l.GetDynCar(i)?.IsCurrentLapInLap));
                 AddLapProp(OutLapProp.LastLapIsInLap, () => this.MaybeBoolToInt(l.GetDynCar(i)?.IsLastLapInLap));
 
-                // void AddOneDriverFromList(int j) {
-                //     var driverId = $"Driver.{j + 1}";
-                //     AddDriverProp(OutDriverProp.FirstName, driverId, () => l.GetDynCar(i)?.GetDriver(j)?.FirstName);
-                //     AddDriverProp(OutDriverProp.LastName, driverId, () => l.GetDynCar(i)?.GetDriver(j)?.LastName);
-                //     AddDriverProp(OutDriverProp.ShortName, driverId, () => l.GetDynCar(i)?.GetDriver(j)?.ShortName);
-                //     AddDriverProp(OutDriverProp.FullName, driverId, () => l.GetDynCar(i)?.GetDriver(j)?.FullName);
-                //     AddDriverProp(OutDriverProp.InitialPlusLastName, driverId, () => l.GetDynCar(i)?.GetDriver(j)?.InitialPlusLastName);
-                //     AddDriverProp(OutDriverProp.Nationality, driverId, () => l.GetDynCar(i)?.GetDriver(j)?.Nationality);
-                //     AddDriverProp(OutDriverProp.Category, driverId, () => l.GetDynCar(i)?.GetDriver(j)?.Category);
-                //     AddDriverProp(OutDriverProp.TotalLaps, driverId, () => l.GetDynCar(i)?.GetDriver(j)?.TotalLaps);
-                //     AddDriverProp(OutDriverProp.BestLapTime, driverId, () => l.GetDynCar(i)?.GetDriver(j)?.BestSessionLap?.Laptime);
-                //     AddDriverProp(OutDriverProp.TotalDrivingTime, driverId, () => l.GetDynCar(i)?.GetDriverTotalDrivingTime(j));
-                //     AddDriverProp(OutDriverProp.CategoryColor, driverId, () => l.GetDynCar(i)?.GetDriver(j)?.CategoryColor);
-                // }
+                void AddOneDriverFromList(int j) {
+                    var driverId = $"Driver.{j + 1}";
+                    // AddDriverProp(OutDriverProp.FirstName, driverId, () => l.GetDynCar(i)?.GetDriver(j)?.FirstName);
+                    // AddDriverProp(OutDriverProp.LastName, driverId, () => l.GetDynCar(i)?.GetDriver(j)?.LastName);
+                    AddDriverProp(OutDriverProp.ShortName, driverId, () => l.GetDynCar(i)?.Drivers.ElementAtOrDefault(j)?.ShortName);
+                    AddDriverProp(OutDriverProp.FullName, driverId, () => l.GetDynCar(i)?.Drivers.ElementAtOrDefault(j)?.FullName);
+                    // AddDriverProp(OutDriverProp.InitialPlusLastName, driverId, () => l.GetDynCar(i)?.GetDriver(j)?.InitialPlusLastName);
+                    // AddDriverProp(OutDriverProp.Nationality, driverId, () => l.GetDynCar(i)?.GetDriver(j)?.Nationality);
+                    // AddDriverProp(OutDriverProp.Category, driverId, () => l.GetDynCar(i)?.GetDriver(j)?.Category);
+                    // AddDriverProp(OutDriverProp.TotalLaps, driverId, () => l.GetDynCar(i)?.GetDriver(j)?.TotalLaps);
+                    // AddDriverProp(OutDriverProp.BestLapTime, driverId, () => l.GetDynCar(i)?.GetDriver(j)?.BestSessionLap?.Laptime);
+                    // AddDriverProp(OutDriverProp.TotalDrivingTime, driverId, () => l.GetDynCar(i)?.GetDriverTotalDrivingTime(j));
+                    // AddDriverProp(OutDriverProp.CategoryColor, driverId, () => l.GetDynCar(i)?.GetDriver(j)?.CategoryColor);
+                }
 
-                // if (l.Config.NumDrivers > 0) {
-                //     for (int j = 0; j < l.Config.NumDrivers; j++) {
-                //         AddOneDriverFromList(j);
-                //     }
-                // }
+                if (l.Config.NumDrivers > 0) {
+                    for (int j = 0; j < l.Config.NumDrivers; j++) {
+                        AddOneDriverFromList(j);
+                    }
+                }
 
                 // // Car and team
                 // AddProp(OutCarProp.CarNumber, () => l.GetDynCar(i)?.RaceNumber);

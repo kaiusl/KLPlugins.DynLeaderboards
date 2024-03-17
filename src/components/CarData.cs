@@ -1,9 +1,10 @@
+using System.Collections.Generic;
+
 using GameReaderCommon;
 
 namespace KLPlugins.DynLeaderboards.Car {
 
     public class CarData {
-        public string DriverName => this._rawDataNew.Name;
 
         public string CarClass => this._rawDataNew.CarClass;
 
@@ -21,7 +22,7 @@ namespace KLPlugins.DynLeaderboards.Car {
 
         public bool IsFocused => this._rawDataNew.IsPlayer;
 
-
+        public List<Driver> Drivers { get; } = new();
 
         public int PositionOverall { get; private set; }
         public int PositionInClass { get; private set; }
@@ -46,6 +47,17 @@ namespace KLPlugins.DynLeaderboards.Car {
                 // new lap
                 this.IsLastLapValid = this._rawDataOld.LapValid;
             }
+
+            var currentDriverIndex = this.Drivers.FindIndex(d => d.FullName == this._rawDataNew.Name);
+            if (currentDriverIndex == -1) {
+                this.Drivers.Insert(0, new Driver(this._rawDataNew));
+            } else if (currentDriverIndex == 0) {
+                // OK!
+            } else {
+                var driver = this.Drivers[currentDriverIndex];
+                this.Drivers.RemoveAt(currentDriverIndex);
+                this.Drivers.Insert(0, driver);
+            }
         }
 
         public void SetOverallPosition(int overall) {
@@ -57,5 +69,15 @@ namespace KLPlugins.DynLeaderboards.Car {
             this.PositionInClass = cls;
         }
 
+    }
+
+    public class Driver {
+        public string FullName { get; private set; }
+        public string ShortName { get; private set; }
+
+        public Driver(Opponent o) {
+            this.FullName = o.Name;
+            this.ShortName = o.ShortName;
+        }
     }
 }

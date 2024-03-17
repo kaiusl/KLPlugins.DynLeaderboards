@@ -287,7 +287,7 @@ namespace KLPlugins.DynLeaderboards {
                 AddProp(OutCarProp.CarClass, () => l.GetDynCar(i)?.CarClass);
                 AddProp(OutCarProp.TeamName, () => l.GetDynCar(i)?.TeamName);
                 // AddProp(OutCarProp.TeamCupCategory, () => l.GetDynCar(i)?.TeamCupCategory.PrettyName());
-                
+
                 // AddStintProp(OutStintProp.CurrentStintTime, () => l.GetDynCar(i)?.CurrentStintTime);
                 // AddStintProp(OutStintProp.LastStintTime, () => l.GetDynCar(i)?.LastStintTime);
                 // AddStintProp(OutStintProp.CurrentStintLaps, () => l.GetDynCar(i)?.CurrentStintLaps);
@@ -316,9 +316,9 @@ namespace KLPlugins.DynLeaderboards {
                 AddPosProp(OutPosProp.ClassPosition, () => l.GetDynCar(i)?.PositionInClass);
                 // AddPosProp(OutPosProp.CupPosition, () => l.GetDynCar(i)?.InCupPos);
                 AddPosProp(OutPosProp.OverallPosition, () => l.GetDynCar(i)?.PositionOverall);
-                // AddPosProp(OutPosProp.ClassPositionStart, () => l.GetDynCar(i)?.StartPosInClass);
+                AddPosProp(OutPosProp.ClassPositionStart, () => l.GetDynCar(i)?.PositionInClassStart);
                 // AddPosProp(OutPosProp.CupPositionStart, () => l.GetDynCar(i)?.StartPosInCup);
-                // AddPosProp(OutPosProp.OverallPositionStart, () => l.GetDynCar(i)?.StartPos);
+                AddPosProp(OutPosProp.OverallPositionStart, () => l.GetDynCar(i)?.PositionOverallStart);
 
                 AddPosProp(OutPosProp.DynamicPosition, () => l.GetDynPosition(i));
                 AddPosProp(OutPosProp.DynamicPositionStart, () => l.GetDynPositionStart(i));

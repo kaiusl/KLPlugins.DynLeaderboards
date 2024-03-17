@@ -42,6 +42,10 @@ namespace KLPlugins.DynLeaderboards.Car {
         public double PitTimeLast => this._rawDataNew.PitLastDuration?.TotalSeconds ?? 0.0;
 
 
+        public double GapToLeader => (this._rawDataNew.LapsToLeader ?? 0) * 10000 + this._rawDataNew.GaptoLeader ?? 0;
+        public double GapToClassLeader => (this._rawDataNew.LapsToClassLeader ?? 0) * 10000 + this._rawDataNew.GaptoClassLeader ?? 0;
+        public double GapToFocusedTotal => (this._rawDataNew.LapsToPlayer ?? 0) * 10000 + this._rawDataNew.GaptoPlayer ?? 0;
+
 
         private Opponent _rawDataNew;
         private Opponent _rawDataOld;

@@ -47,6 +47,9 @@ namespace KLPlugins.DynLeaderboards.Car {
         public double GapToFocusedTotal => (this._rawDataNew.LapsToPlayer ?? 0) * 10000 + this._rawDataNew.GaptoPlayer ?? 0;
 
         public double SplinePosition => this._rawDataNew.TrackPositionPercent ?? throw new System.Exception("TrackPositionPercent is null");
+        /// <summary>
+        /// > 0 if ahead, < 0 if behind. Is in range [-0.5, 0.5].
+        /// </summary>
         public double RelativeSplinePositionToFocusedCar { get; private set; }
 
         private Opponent _rawDataNew;

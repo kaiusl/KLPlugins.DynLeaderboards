@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 
 using GameReaderCommon;
@@ -17,6 +17,8 @@ namespace KLPlugins.DynLeaderboards {
         public TrackData? TrackData { get; private set; }
         public List<CarData> OverallOrder { get; } = new();
         public List<CarData> ClassOrder { get; } = new();
+        public List<CarData> RelativeOnTrackAheadOrder { get; } = new();
+        public List<CarData> RelativeOnTrackBehindOrder { get; } = new();
         public CarData? FocusedCar { get; private set; } = null;
 
         internal Values() {
@@ -72,9 +74,24 @@ namespace KLPlugins.DynLeaderboards {
 
             // Some parts of the update require that basic data on every car has been updated
             if (this.FocusedCar != null) {
+                this.RelativeOnTrackAheadOrder.Clear();
+                this.RelativeOnTrackBehindOrder.Clear();
                 foreach (var car in this.OverallOrder) {
                     car.UpdateDependsOnOthers(this.FocusedCar);
+                    if (car.IsFocused) {
+                        // nothing to do
+                    } else if (car.RelativeSplinePositionToFocusedCar > 0) {
+                        this.RelativeOnTrackAheadOrder.Add(car);
+                    } else {
+                        this.RelativeOnTrackBehindOrder.Add(car);
+                    }
                 }
+
+                static int CmpCarByRelativeSplinePositionToFocusedCar(CarData c1, CarData c2) {
+                    return c2.RelativeSplinePositionToFocusedCar.CompareTo(c1.RelativeSplinePositionToFocusedCar);
+                }
+                this.RelativeOnTrackAheadOrder.Sort(CmpCarByRelativeSplinePositionToFocusedCar);
+                this.RelativeOnTrackBehindOrder.Sort(CmpCarByRelativeSplinePositionToFocusedCar);
             }
         }
 

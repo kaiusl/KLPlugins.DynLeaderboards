@@ -325,6 +325,27 @@ namespace KLPlugins.DynLeaderboards {
                         }
                     }
                     break;
+                case Leaderboard.RelativeOnTrack: {
+                        var relPos = this.Config.NumOnTrackRelativePos;
+
+                        if (v.RelativeOnTrackAheadOrder.Count < relPos) {
+                            for (int i = 0; i < relPos - v.RelativeOnTrackAheadOrder.Count; i++) {
+                                this.Cars.Add(null);
+                            }
+                        }
+
+                        foreach (var car in v.RelativeOnTrackAheadOrder.Take(relPos)) {
+                            this.Cars.Add(car);
+                        }
+
+                        this.Cars.Add(v.FocusedCar);
+                        this.FocusedIndex = relPos;
+
+                        foreach (var car in v.RelativeOnTrackBehindOrder.Take(relPos)) {
+                            this.Cars.Add(car);
+                        }
+                    }
+                    break;
                 default:
                     break;
             }

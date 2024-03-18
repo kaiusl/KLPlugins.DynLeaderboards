@@ -346,6 +346,36 @@ namespace KLPlugins.DynLeaderboards {
                         }
                     }
                     break;
+
+                case Leaderboard.RelativeOnTrackWoPit: {
+                        var relPos = this.Config.NumOnTrackRelativePos;
+
+                        var aheadCars = v.RelativeOnTrackAheadOrder
+                            .Where(c => !c.IsInPitLane)
+                            .Take(relPos);
+                        var aheadCount = aheadCars.Count();
+
+                        if (aheadCount < relPos) {
+                            for (int i = 0; i < relPos - aheadCount; i++) {
+                                this.Cars.Add(null);
+                            }
+                        }
+
+                        foreach (var car in aheadCars) {
+                            this.Cars.Add(car);
+                        }
+
+                        this.Cars.Add(v.FocusedCar);
+                        this.FocusedIndex = relPos;
+
+                        var behindCars = v.RelativeOnTrackBehindOrder
+                            .Where(c => !c.IsInPitLane)
+                            .Take(relPos);
+                        foreach (var car in behindCars) {
+                            this.Cars.Add(car);
+                        }
+                    }
+                    break;
                 default:
                     break;
             }

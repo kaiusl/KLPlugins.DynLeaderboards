@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 
 using GameReaderCommon;
@@ -68,6 +68,13 @@ namespace KLPlugins.DynLeaderboards {
             foreach (var (car, i) in classCars) {
                 this.ClassOrder.Add(car);
                 car.SetClassPosition(i + 1);
+            }
+
+            // Some parts of the update require that basic data on every car has been updated
+            if (this.FocusedCar != null) {
+                foreach (var car in this.OverallOrder) {
+                    car.UpdateDependsOnOthers(this.FocusedCar);
+                }
             }
         }
 

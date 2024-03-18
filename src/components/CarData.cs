@@ -46,18 +46,24 @@ namespace KLPlugins.DynLeaderboards.Car {
         public double GapToClassLeader => (this._rawDataNew.LapsToClassLeader ?? 0) * 10000 + this._rawDataNew.GaptoClassLeader ?? 0;
         public double GapToFocusedTotal => (this._rawDataNew.LapsToPlayer ?? 0) * 10000 + this._rawDataNew.GaptoPlayer ?? 0;
 
+        public double SplinePosition => this._rawDataNew.TrackPositionPercent ?? throw new System.Exception("TrackPositionPercent is null");
+        public double RelativeSplinePositionToFocusedCar { get; private set; }
 
         private Opponent _rawDataNew;
         private Opponent _rawDataOld;
 
         public CarData(Opponent rawData) {
             this._rawDataNew = rawData;
-            this.Update(rawData);
+            this.UpdateIndependent(rawData);
             this.PositionOverall = this._rawDataNew!.Position;
             this.PositionInClass = this._rawDataNew.PositionInClass;
         }
 
-        public void Update(Opponent rawData) {
+        /// <summary>
+        /// Update data that is independent of other cars data.
+        /// </summary>
+        /// <param name="rawData"></param>
+        public void UpdateIndependent(Opponent rawData) {
             this._rawDataOld = this._rawDataNew;
             this._rawDataNew = rawData;
 
@@ -70,11 +76,26 @@ namespace KLPlugins.DynLeaderboards.Car {
             if (currentDriverIndex == -1) {
                 this.Drivers.Insert(0, new Driver(this._rawDataNew));
             } else if (currentDriverIndex == 0) {
-                // OK!
+                // OK, current driver is already first in list
             } else {
+                // move current driver to the front
                 var driver = this.Drivers[currentDriverIndex];
                 this.Drivers.RemoveAt(currentDriverIndex);
                 this.Drivers.Insert(0, driver);
+            }
+        }
+
+        /// <summary>
+        /// Update data that requires that other cars have already received the basic update.
+        /// 
+        /// This includes for example relative spline positions, gaps and lap time deltas.
+        /// </summary>
+        /// <param name="focusedCar"></param>
+        public void UpdateDependsOnOthers(CarData focusedCar) {
+            if (this.IsFocused) {
+                this.RelativeSplinePositionToFocusedCar = 0;
+            } else {
+                this.RelativeSplinePositionToFocusedCar = this.CalculateRelativeSplinePosition(focusedCar);
             }
         }
 
@@ -85,6 +106,46 @@ namespace KLPlugins.DynLeaderboards.Car {
 
         public void SetClassPosition(int cls) {
             this.PositionInClass = cls;
+        }
+
+        /// <summary>
+        /// Calculates relative spline position from `this` to <paramref name="otherCar"/>.
+        ///
+        /// Car will be shown ahead if it's ahead by less than half a lap, otherwise it's behind.
+        /// If result is positive then `this` is ahead of <paramref name="otherCar"/>, if negative it's behind.
+        /// </summary>
+        /// <returns>
+        /// Value in [-0.5, 0.5] or `null` if the result cannot be calculated.
+        /// </returns>
+        /// <param name="otherCar"></param>
+        /// <returns></returns>
+        public double CalculateRelativeSplinePosition(CarData otherCar) {
+            return CalculateRelativeSplinePosition(this.SplinePosition, otherCar.SplinePosition);
+        }
+
+        /// <summary>
+        /// Calculates relative spline position of from <paramref name="fromPos"/> to <paramref name="toPos"/>.
+        ///
+        /// Position will be shown ahead if it's ahead by less than half a lap, otherwise it's behind.
+        /// If result is positive then `to` is ahead of `from`, if negative it's behind.
+        /// </summary>
+        /// <param name="toPos"></param>
+        /// <param name="fromPos"></param>
+        /// <returns>
+        /// Value in [-0.5, 0.5].
+        /// </returns>
+        public static double CalculateRelativeSplinePosition(double toPos, double fromPos) {
+            var relSplinePos = toPos - fromPos;
+            if (relSplinePos > 0.5) {
+                // `to` is more than half a lap ahead, so technically it's closer from behind.
+                // Take one lap away to show it behind `from`.
+                relSplinePos -= 1.0;
+            } else if (relSplinePos < -0.5) {
+                // `to` is more than half a lap behind, so it's in front.
+                // Add one lap to show it in front of us.
+                relSplinePos += 1.0;
+            }
+            return relSplinePos;
         }
 
     }

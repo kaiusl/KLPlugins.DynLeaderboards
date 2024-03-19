@@ -382,6 +382,7 @@ namespace KLPlugins.DynLeaderboards {
                 // //this.AttachDelegate($"{startName}.DBG_Position", () => (l.GetDynCar(i))?.NewData?.Position);
                 // //this.AttachDelegate($"{startName}.DBG_TrackPosition", () => (l.GetDynCar(i))?.NewData?.TrackPosition);
                 // //this.AttachDelegate($"{startName}.DBG_OffsetLapUpdate", () => (l.GetDynCar(i))?.OffsetLapUpdate);
+                //this.AttachDelegate($"{startName}.DBG_ID", () => (l.GetDynCar(i))?.Id);
             };
 
             var numPos = new int[] {

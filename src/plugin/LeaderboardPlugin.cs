@@ -229,7 +229,7 @@ namespace KLPlugins.DynLeaderboards {
                 }
 
                 // Laps and sectors
-                AddLapProp(OutLapProp.Laps, () => l.GetDynCar(i)?.Laps);
+                AddLapProp(OutLapProp.Laps, () => l.GetDynCar(i)?.Laps.New);
                 AddLapProp(OutLapProp.LastLapTime, () => l.GetDynCar(i)?.LastLap.GetLapTime()?.TotalSeconds);
                 if (l.Config.OutLapProps.Includes(OutLapProp.LastLapSectors)) {
                     this.AttachDelegate($"{startName}.Laps.Last.S1", () => l.GetDynCar(i)?.LastLap.GetSectorSplit(0)?.TotalSeconds);

@@ -184,4 +184,23 @@ namespace KLPlugins.DynLeaderboards.Helpers {
             return Enum.GetValues(typeof(E)).Cast<E>().Select(v => Convert.ToInt32(v));
         }
     }
+
+
+    public static class IEnumerableExtensions {
+        public static IEnumerable<(T, int)> WithIndex<T>(this IEnumerable<T> enumerable) {
+            return enumerable.Select((v, i) => (v, i));
+        }
+
+        /// <returns>Index of the first item that matches the predicate, -1 if not found.</returns>
+        public static int FirstIndex<T>(this IEnumerable<T> enumerable, Func<T, bool> predicate) {
+            foreach ((T item, int i) in enumerable.WithIndex()) {
+                if (predicate(item)) {
+                    return i;
+                }
+            }
+
+            return -1;
+        }
+    }
+
 }

@@ -98,6 +98,8 @@ namespace KLPlugins.DynLeaderboards {
                 }
             }
 
+            this.SetOverallOrder();
+
             // TODO: this is temporary, use completely custom sort later
             this.OverallOrder.Sort((c1, c2) => {
                 var isUpdated = c2.IsUpdated.CompareTo(c1.IsUpdated);
@@ -159,6 +161,83 @@ namespace KLPlugins.DynLeaderboards {
                 }
                 this.RelativeOnTrackAheadOrder.Sort(CmpCarByRelativeSplinePositionToFocusedCar);
                 this.RelativeOnTrackBehindOrder.Sort(CmpCarByRelativeSplinePositionToFocusedCar);
+            }
+        }
+
+        void SetOverallOrder() {
+            // Sort cars in overall position order
+            if (this.Session.SessionType == SessionType.Race) {
+                // In race use TotalSplinePosition (splinePosition + laps) which updates real time.
+                // RealtimeCarUpdate.Position only updates at the end of sector
+
+                int cmp(CarData a, CarData b) {
+                    if (a == b) {
+                        return 0;
+                    }
+
+                    // // Sort cars that have crossed the start line always in front of cars who haven't
+                    // if (a.HasCrossedStartLine && !b.HasCrossedStartLine) {
+                    //     return -1;
+                    // } else if (b.HasCrossedStartLine && !a.HasCrossedStartLine) {
+                    //     return 1;
+                    // }
+
+                    // Always compare by laps first
+                    var alaps = a.Laps;
+                    var blaps = b.Laps;
+                    if (alaps != blaps) {
+                        return blaps.CompareTo(alaps);
+                    }
+
+                    // // Keep order if one of the cars has offset lap update, could cause jumping otherwise
+                    // if (a.OffsetLapUpdate != 0 || b.OffsetLapUpdate != 0) {
+                    //     return a.OverallPos.CompareTo(b.OverallPos);
+                    // }
+
+                    // // If car jumped to the pits we need to but it behind everyone on that same lap, but it's okay for the finished car to jump to the pits
+                    // if (a.JumpedToPits && !b.JumpedToPits && !a.IsFinished) {
+                    //     return 1;
+                    // }
+                    // if (b.JumpedToPits && !a.JumpedToPits && !b.IsFinished) {
+                    //     return -1;
+                    // }
+
+                    if (a.IsFinished || b.IsFinished) {
+                        // We cannot use NewData.Position to set results after finish because, if someone finished and leaves the server then the positions of the guys behind him would be wrong by one.
+                        // Need to use FinishTime
+                        if (!a.IsFinished || !b.IsFinished) {
+                            // If one hasn't finished and their number of laps is same, that means that the car who has finished must be lap down.
+                            // Thus it should be behind the one who hasn't finished.
+                            var aFTime = a.FinishTime == null ? long.MinValue : (long)a.FinishTime!;
+                            var bFTime = b.FinishTime == null ? long.MinValue : (long)b.FinishTime!;
+                            return aFTime.CompareTo(bFTime);
+                        } else {
+                            // Both cars have finished
+                            var aFTime = a.FinishTime == null ? long.MaxValue : (long)a.FinishTime;
+                            var bFTime = b.FinishTime == null ? long.MaxValue : (long)b.FinishTime;
+                            return aFTime.CompareTo(bFTime);
+                        }
+                    }
+
+                    // Keep order, make sort stable, fixes jumping
+                    if (a.TotalSplinePosition == b.TotalSplinePosition) {
+                        return a.PositionOverall.CompareTo(b.PositionOverall);
+                    }
+                    return b.TotalSplinePosition.CompareTo(a.TotalSplinePosition);
+                };
+
+                this.OverallOrder.Sort(cmp);
+            } else {
+                // In other sessions TotalSplinePosition doesn't make any sense, use RealtimeCarUpdate.Position
+                int cmp(CarData a, CarData b) {
+                    if (a == b) {
+                        return 0;
+                    }
+
+                    return a.PositionOverall.CompareTo(b.PositionOverall);
+                }
+
+                this.OverallOrder.Sort(cmp);
             }
         }
 

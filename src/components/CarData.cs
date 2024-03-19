@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 
 using GameReaderCommon;
@@ -51,11 +52,13 @@ namespace KLPlugins.DynLeaderboards.Car {
         /// > 0 if ahead, < 0 if behind. Is in range [-0.5, 0.5].
         /// </summary>
         public double RelativeSplinePositionToFocusedCar { get; private set; }
+        public double TotalSplinePosition { get; private set; } = 0.0;
 
         internal string Id => this.RawDataNew.Id;
         internal bool IsUpdated { get; set; }
 
         public bool IsFinished { get; private set; } = false;
+        public long? FinishTime { get; private set; } = null;
         internal Opponent RawDataNew;
         internal Opponent RawDataOld;
 
@@ -94,6 +97,8 @@ namespace KLPlugins.DynLeaderboards.Car {
                 this.Drivers.RemoveAt(currentDriverIndex);
                 this.Drivers.Insert(0, driver);
             }
+
+            this.TotalSplinePosition = this.Laps + this.SplinePosition;
         }
 
         /// <summary>
@@ -111,6 +116,7 @@ namespace KLPlugins.DynLeaderboards.Car {
 
             if (v.IsFirstFinished && this.IsNewLap) {
                 this.IsFinished = true;
+                this.FinishTime = DateTime.Now.Ticks;
             }
         }
 

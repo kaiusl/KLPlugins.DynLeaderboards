@@ -84,11 +84,11 @@ namespace KLPlugins.DynLeaderboards {
                 }
 
                 if (car == null) {
-                    car = new CarData(opponent);
+                    car = new CarData(this, opponent);
                     this.OverallOrder.Add(car);
                 } else {
                     Debug.Assert(car.Id == opponent.Id);
-                    car.UpdateIndependent(opponent);
+                    car.UpdateIndependent(this, opponent);
                 }
 
                 car.IsUpdated = true;
@@ -194,13 +194,13 @@ namespace KLPlugins.DynLeaderboards {
                     //     return a.OverallPos.CompareTo(b.OverallPos);
                     // }
 
-                    // // If car jumped to the pits we need to but it behind everyone on that same lap, but it's okay for the finished car to jump to the pits
-                    // if (a.JumpedToPits && !b.JumpedToPits && !a.IsFinished) {
-                    //     return 1;
-                    // }
-                    // if (b.JumpedToPits && !a.JumpedToPits && !b.IsFinished) {
-                    //     return -1;
-                    // }
+                    // If car jumped to the pits we need to but it behind everyone on that same lap, but it's okay for the finished car to jump to the pits
+                    if (a.JumpedToPits && !b.JumpedToPits && !a.IsFinished) {
+                        return 1;
+                    }
+                    if (b.JumpedToPits && !a.JumpedToPits && !b.IsFinished) {
+                        return -1;
+                    }
 
                     if (a.IsFinished || b.IsFinished) {
                         // We cannot use NewData.Position to set results after finish because, if someone finished and leaves the server then the positions of the guys behind him would be wrong by one.

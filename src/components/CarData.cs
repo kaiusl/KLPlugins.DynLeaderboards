@@ -107,10 +107,10 @@ namespace KLPlugins.DynLeaderboards.Car {
         /// This includes for example relative spline positions, gaps and lap time deltas.
         /// </summary>
         /// <param name="focusedCar"></param>
-        public void UpdateDependsOnOthers(Values v, CarData focusedCar) {
+        public void UpdateDependsOnOthers(Values v, CarData? focusedCar) {
             if (this.IsFocused) {
                 this.RelativeSplinePositionToFocusedCar = 0;
-            } else {
+            } else if (focusedCar != null) {
                 this.RelativeSplinePositionToFocusedCar = this.CalculateRelativeSplinePosition(focusedCar);
             }
 

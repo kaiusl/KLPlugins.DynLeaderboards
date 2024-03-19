@@ -139,20 +139,20 @@ namespace KLPlugins.DynLeaderboards {
                 }
                 car.SetClassPosition(classPositions[car.CarClass]++);
 
-                if (this.FocusedCar != null) {
-                    car.UpdateDependsOnOthers(this, this.FocusedCar);
-                    if (car.CarClass == focusedClass) {
-                        this.ClassOrder.Add(car);
-                    }
 
-                    if (car.IsFocused) {
-                        // nothing to do
-                    } else if (car.RelativeSplinePositionToFocusedCar > 0) {
-                        this.RelativeOnTrackAheadOrder.Add(car);
-                    } else {
-                        this.RelativeOnTrackBehindOrder.Add(car);
-                    }
+                car.UpdateDependsOnOthers(this, this.FocusedCar);
+                if (focusedClass != null && car.CarClass == focusedClass) {
+                    this.ClassOrder.Add(car);
                 }
+
+                if (car.IsFocused) {
+                    // nothing to do
+                } else if (car.RelativeSplinePositionToFocusedCar > 0) {
+                    this.RelativeOnTrackAheadOrder.Add(car);
+                } else {
+                    this.RelativeOnTrackBehindOrder.Add(car);
+                }
+
             }
 
             if (this.FocusedCar != null) {

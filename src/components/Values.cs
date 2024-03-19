@@ -29,7 +29,17 @@ namespace KLPlugins.DynLeaderboards {
         public bool IsFirstFinished { get; private set; } = false;
 
         internal Values() {
+        }
 
+        internal void Reset() {
+            this.Booleans.Reset();
+            this.Session.Reset();
+            this.OverallOrder.Clear();
+            this.ClassOrder.Clear();
+            this.RelativeOnTrackAheadOrder.Clear();
+            this.RelativeOnTrackBehindOrder.Clear();
+            this.FocusedCar = null;
+            this.IsFirstFinished = false;
         }
 
         #region IDisposable Support
@@ -57,13 +67,17 @@ namespace KLPlugins.DynLeaderboards {
 
         #endregion IDisposable Support
         internal void OnDataUpdate(PluginManager _, GameData data) {
-            if (this.Booleans.NewData.IsNewEvent) {
+            this.Session.OnDataUpdate(data);
+
+            if (this.Booleans.NewData.IsNewEvent || this.Session.IsNewSession) {
+                this.Reset();
+
+                this.Session.OnDataUpdate(data);
                 this.Booleans.OnNewEvent(this.Session.SessionType);
-                // TODO: reset other data
             }
 
             this.Booleans.OnDataUpdate(data, this);
-            this.Session.OnDataUpdate(data, this);
+
             this.UpdateCars(data);
         }
 
@@ -249,7 +263,7 @@ namespace KLPlugins.DynLeaderboards {
         internal void OnGameStateChanged(bool running, PluginManager _) {
             if (running) {
             } else {
-                //this.Reset();
+                this.Reset();
             }
         }
 

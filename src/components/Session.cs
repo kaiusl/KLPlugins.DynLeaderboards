@@ -18,12 +18,18 @@ namespace KLPlugins.DynLeaderboards {
 
         internal void Reset() {
             this.SessionType = SessionType.Unknown;
+            this.SessionPhase = SessionPhase.Unknown;
+            
             this.IsNewSession = false;
+            this.IsTimeLimited = false;
+            this.IsLapLimited = false;
+
             this.TimeOfDay = 0;
+            this._isSessionLimitSet = false;
         }
 
 
-        internal void OnDataUpdate(GameData data, Values v) {
+        internal void OnDataUpdate(GameData data) {
             var newSessType = SessionTypeMethods.FromSHGameData(data);
             this.IsNewSession = newSessType != this.SessionType;
             this.SessionType = newSessType;

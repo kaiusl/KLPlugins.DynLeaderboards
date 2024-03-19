@@ -15,6 +15,7 @@ namespace KLPlugins.DynLeaderboards {
     /// </summary>
     public class Values : IDisposable {
         public TrackData? TrackData { get; private set; }
+        public Session Session { get; private set; } = new();
         public Booleans Booleans { get; private set; } = new();
 
         public List<CarData> OverallOrder { get; } = new();
@@ -58,6 +59,7 @@ namespace KLPlugins.DynLeaderboards {
             }
 
             this.Booleans.OnDataUpdate(data, this);
+            this.Session.OnDataUpdate(data, this);
 
             // TODO: don't create new CarData each time, update previous objects
             this.OverallOrder.Clear();

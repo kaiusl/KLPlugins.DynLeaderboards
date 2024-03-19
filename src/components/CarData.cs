@@ -72,19 +72,21 @@ namespace KLPlugins.DynLeaderboards.Car {
         public double RelativeSplinePositionToFocusedCar { get; private set; }
         public double TotalSplinePosition { get; private set; } = 0.0;
 
+        public bool JumpedToPits { get; private set; } = false;
+        public bool IsFinished { get; private set; } = false;
+        public long? FinishTime { get; private set; } = null;
+
         internal string Id => this.RawDataNew.Id;
         internal bool IsUpdated { get; set; }
 
-        public bool IsFinished { get; private set; } = false;
-        public long? FinishTime { get; private set; } = null;
         internal Opponent RawDataNew;
         internal Opponent RawDataOld;
 
         public bool IsNewLap { get; private set; } = false;
 
-        public CarData(Opponent rawData) {
+        public CarData(Values values, Opponent rawData) {
             this.RawDataNew = rawData;
-            this.UpdateIndependent(rawData);
+            this.UpdateIndependent(values, rawData);
             this.CarClass = this.RawDataNew.CarClass ?? "";
             this.CarClassColor = this.RawDataNew.CarClassColor ?? "#FFFFFF";
             this.CarClassTextColor = this.RawDataNew.CarClassTextColor ?? "#000000";
@@ -99,10 +101,9 @@ namespace KLPlugins.DynLeaderboards.Car {
         /// Update data that is independent of other cars data.
         /// </summary>
         /// <param name="rawData"></param>
-        public void UpdateIndependent(Opponent rawData) {
+        public void UpdateIndependent(Values values, Opponent rawData) {
             this.RawDataOld = this.RawDataNew;
             this.RawDataNew = rawData;
-
 
             this.IsNewLap = this.RawDataNew.CurrentLap > this.RawDataOld.CurrentLap;
             if (this.IsNewLap) {
@@ -146,6 +147,22 @@ namespace KLPlugins.DynLeaderboards.Car {
 
             this.SplinePosition = this.RawDataNew.TrackPositionPercent ?? throw new System.Exception("TrackPositionPercent is null");
             this.TotalSplinePosition = this.Laps + this.SplinePosition;
+
+            this.HandleJumpToPits(values.Session.SessionType);
+        }
+
+        void HandleJumpToPits(SessionType sessionType) {
+            if (sessionType == SessionType.Race
+                && !this.IsFinished // It's okay to jump to the pits after finishing
+                && this.Location.Old == CarLocation.Track
+                && this.IsInPitLane
+            ) {
+                this.JumpedToPits = true;
+            }
+
+            if (this.JumpedToPits && !this.IsInPitLane) {
+                this.JumpedToPits = false;
+            }
         }
 
         /// <summary>

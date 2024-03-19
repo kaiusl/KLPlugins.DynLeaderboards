@@ -175,12 +175,12 @@ namespace KLPlugins.DynLeaderboards {
                         return 0;
                     }
 
-                    // // Sort cars that have crossed the start line always in front of cars who haven't
-                    // if (a.HasCrossedStartLine && !b.HasCrossedStartLine) {
-                    //     return -1;
-                    // } else if (b.HasCrossedStartLine && !a.HasCrossedStartLine) {
-                    //     return 1;
-                    // }
+                    // Sort cars that have crossed the start line always in front of cars who haven't
+                    if (a.HasCrossedStartLine && !b.HasCrossedStartLine) {
+                        return -1;
+                    } else if (b.HasCrossedStartLine && !a.HasCrossedStartLine) {
+                        return 1;
+                    }
 
                     // Always compare by laps first
                     var alaps = a.Laps.New;
@@ -189,10 +189,10 @@ namespace KLPlugins.DynLeaderboards {
                         return blaps.CompareTo(alaps);
                     }
 
-                    // // Keep order if one of the cars has offset lap update, could cause jumping otherwise
-                    // if (a.OffsetLapUpdate != 0 || b.OffsetLapUpdate != 0) {
-                    //     return a.OverallPos.CompareTo(b.OverallPos);
-                    // }
+                    // Keep order if one of the cars has offset lap update, could cause jumping otherwise
+                    if (a.OffsetLapUpdate != 0 || b.OffsetLapUpdate != 0) {
+                        return a.PositionOverall.CompareTo(b.PositionOverall);
+                    }
 
                     // If car jumped to the pits we need to but it behind everyone on that same lap, but it's okay for the finished car to jump to the pits
                     if (a.JumpedToPits && !b.JumpedToPits && !a.IsFinished) {

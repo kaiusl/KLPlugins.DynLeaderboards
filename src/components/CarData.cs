@@ -6,63 +6,66 @@ namespace KLPlugins.DynLeaderboards.Car {
 
     public class CarData {
 
-        public string CarClass => this._rawDataNew.CarClass ?? "";
-        public string CarClassColor => this._rawDataNew.CarClassColor;
-        public string CarClassTextColor => this._rawDataNew.CarClassTextColor;
+        public string CarClass => this.RawDataNew.CarClass ?? "";
+        public string CarClassColor => this.RawDataNew.CarClassColor;
+        public string CarClassTextColor => this.RawDataNew.CarClassTextColor;
 
-        public string CarNumber => this._rawDataNew.CarNumber;
-        public string CarModel => this._rawDataNew.CarName;
-        public string TeamName => this._rawDataNew.TeamName;
+        public string CarNumber => this.RawDataNew.CarNumber;
+        public string CarModel => this.RawDataNew.CarName;
+        public string TeamName => this.RawDataNew.TeamName;
 
-        public int Laps => this._rawDataNew.CurrentLap - 1 ?? 0;
-        public double CurrentLapTime => this._rawDataNew.CurrentLapHighPrecision ?? double.NaN;
-        public bool IsCurrentLapOutLap => this._rawDataNew.PitOutAtLap == this.Laps + 1;
-        public bool IsLastLapOutLap => this._rawDataNew.PitOutAtLap == this.Laps;
-        public bool IsCurrentLapInLap => this._rawDataNew.PitEnterAtLap == this.Laps + 1;
-        public bool IsLastLapInLap => this._rawDataNew.PitEnterAtLap == this.Laps;
-        public bool IsCurrentLapValid => this._rawDataNew.LapValid;
+        public int Laps => this.RawDataNew.CurrentLap - 1 ?? 0;
+        public double CurrentLapTime => this.RawDataNew.CurrentLapHighPrecision ?? double.NaN;
+        public bool IsCurrentLapOutLap => this.RawDataNew.PitOutAtLap == this.Laps + 1;
+        public bool IsLastLapOutLap => this.RawDataNew.PitOutAtLap == this.Laps;
+        public bool IsCurrentLapInLap => this.RawDataNew.PitEnterAtLap == this.Laps + 1;
+        public bool IsLastLapInLap => this.RawDataNew.PitEnterAtLap == this.Laps;
+        public bool IsCurrentLapValid => this.RawDataNew.LapValid;
         public bool IsLastLapValid { get; private set; }
-        public SectorTimes LastLap => this._rawDataNew.LastLapSectorTimes;
-        public SectorTimes BestLap => this._rawDataNew.BestLapSectorTimes;
-        public SectorSplits BestSectors => this._rawDataNew.BestSectorSplits;
+        public SectorTimes LastLap => this.RawDataNew.LastLapSectorTimes;
+        public SectorTimes BestLap => this.RawDataNew.BestLapSectorTimes;
+        public SectorSplits BestSectors => this.RawDataNew.BestSectorSplits;
 
-        public bool IsFocused => this._rawDataNew.IsPlayer;
+        public bool IsFocused => this.RawDataNew.IsPlayer;
 
         public List<Driver> Drivers { get; } = new();
 
         public int PositionOverall { get; private set; }
         public int PositionInClass { get; private set; }
-        public int PositionOverallStart => this._rawDataNew.StartPosition ?? -1;
-        public int PositionInClassStart => this._rawDataNew.StartPositionClass ?? -1;
+        public int PositionOverallStart => this.RawDataNew.StartPosition ?? -1;
+        public int PositionInClassStart => this.RawDataNew.StartPositionClass ?? -1;
         public int IndexOverall => this.PositionOverall - 1;
         public int IndexClass => this.PositionInClass - 1;
 
-        public bool IsInPitLane => this._rawDataNew.IsCarInPitLane;
-        public int PitCount => this._rawDataNew.PitCount ?? 0;
-        public double PitTimeLast => this._rawDataNew.PitLastDuration?.TotalSeconds ?? 0.0;
+        public bool IsInPitLane => this.RawDataNew.IsCarInPitLane;
+        public int PitCount => this.RawDataNew.PitCount ?? 0;
+        public double PitTimeLast => this.RawDataNew.PitLastDuration?.TotalSeconds ?? 0.0;
 
 
-        public double GapToLeader => (this._rawDataNew.LapsToLeader ?? 0) * 10000 + this._rawDataNew.GaptoLeader ?? 0;
-        public double GapToClassLeader => (this._rawDataNew.LapsToClassLeader ?? 0) * 10000 + this._rawDataNew.GaptoClassLeader ?? 0;
-        public double GapToFocusedTotal => (this._rawDataNew.LapsToPlayer ?? 0) * 10000 + this._rawDataNew.GaptoPlayer ?? 0;
+        public double GapToLeader => (this.RawDataNew.LapsToLeader ?? 0) * 10000 + this.RawDataNew.GaptoLeader ?? 0;
+        public double GapToClassLeader => (this.RawDataNew.LapsToClassLeader ?? 0) * 10000 + this.RawDataNew.GaptoClassLeader ?? 0;
+        public double GapToFocusedTotal => (this.RawDataNew.LapsToPlayer ?? 0) * 10000 + this.RawDataNew.GaptoPlayer ?? 0;
 
-        public double SplinePosition => this._rawDataNew.TrackPositionPercent ?? throw new System.Exception("TrackPositionPercent is null");
+        public double SplinePosition => this.RawDataNew.TrackPositionPercent ?? throw new System.Exception("TrackPositionPercent is null");
         /// <summary>
         /// > 0 if ahead, < 0 if behind. Is in range [-0.5, 0.5].
         /// </summary>
         public double RelativeSplinePositionToFocusedCar { get; private set; }
 
-        internal string Id => this._rawDataNew.Id;
+        internal string Id => this.RawDataNew.Id;
         internal bool IsUpdated { get; set; }
 
-        private Opponent _rawDataNew;
-        private Opponent _rawDataOld;
+        public bool IsFinished { get; private set; } = false;
+        internal Opponent RawDataNew;
+        internal Opponent RawDataOld;
+
+        public bool IsNewLap { get; private set; } = false;
 
         public CarData(Opponent rawData) {
-            this._rawDataNew = rawData;
+            this.RawDataNew = rawData;
             this.UpdateIndependent(rawData);
-            this.PositionOverall = this._rawDataNew!.Position;
-            this.PositionInClass = this._rawDataNew.PositionInClass;
+            this.PositionOverall = this.RawDataNew!.Position;
+            this.PositionInClass = this.RawDataNew.PositionInClass;
         }
 
         /// <summary>
@@ -70,17 +73,19 @@ namespace KLPlugins.DynLeaderboards.Car {
         /// </summary>
         /// <param name="rawData"></param>
         public void UpdateIndependent(Opponent rawData) {
-            this._rawDataOld = this._rawDataNew;
-            this._rawDataNew = rawData;
+            this.RawDataOld = this.RawDataNew;
+            this.RawDataNew = rawData;
+
 
             this.IsNewLap = this.RawDataNew.CurrentLap > this.RawDataOld.CurrentLap;
+            if (this.IsNewLap) {
                 // new lap
-                this.IsLastLapValid = this._rawDataOld.LapValid;
+                this.IsLastLapValid = this.RawDataOld.LapValid;
             }
 
-            var currentDriverIndex = this.Drivers.FindIndex(d => d.FullName == this._rawDataNew.Name);
+            var currentDriverIndex = this.Drivers.FindIndex(d => d.FullName == this.RawDataNew.Name);
             if (currentDriverIndex == -1) {
-                this.Drivers.Insert(0, new Driver(this._rawDataNew));
+                this.Drivers.Insert(0, new Driver(this.RawDataNew));
             } else if (currentDriverIndex == 0) {
                 // OK, current driver is already first in list
             } else {
@@ -97,11 +102,15 @@ namespace KLPlugins.DynLeaderboards.Car {
         /// This includes for example relative spline positions, gaps and lap time deltas.
         /// </summary>
         /// <param name="focusedCar"></param>
-        public void UpdateDependsOnOthers(CarData focusedCar) {
+        public void UpdateDependsOnOthers(Values v, CarData focusedCar) {
             if (this.IsFocused) {
                 this.RelativeSplinePositionToFocusedCar = 0;
             } else {
                 this.RelativeSplinePositionToFocusedCar = this.CalculateRelativeSplinePosition(focusedCar);
+            }
+
+            if (v.IsFirstFinished && this.IsNewLap) {
+                this.IsFinished = true;
             }
         }
 

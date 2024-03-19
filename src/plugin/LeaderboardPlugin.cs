@@ -324,8 +324,6 @@ namespace KLPlugins.DynLeaderboards {
                 AddPosProp(OutPosProp.DynamicPositionStart, () => l.GetDynPositionStart(i));
 
                 // // Pit
-                // // OldData as to be in sync with RelativeOnTrackNoPit leaderboard
-                // // Don't use OldData.IsInPitLane as that also shows in pitlane if car if CarLocation == PitEntry and PitExit, 
                 AddPitProp(OutPitProp.IsInPitLane, () => l.GetDynCar(i)?.IsInPitLane);
                 AddPitProp(OutPitProp.PitStopCount, () => l.GetDynCar(i)?.PitCount);
                 // AddPitProp(OutPitProp.PitTimeTotal, () => l.GetDynCar(i)?.TotalPitTime);
@@ -370,7 +368,7 @@ namespace KLPlugins.DynLeaderboards {
                 AddLapProp(OutLapProp.DynamicLastLapDeltaToFocusedLast, () => l.GetDynLastLapDeltaToFocusedLast(i));
 
                 // // Else
-                // AddProp(OutCarProp.IsFinished, () => (l.GetDynCar(i)?.IsFinished ?? false) ? 1 : 0);
+                AddProp(OutCarProp.IsFinished, () => (l.GetDynCar(i)?.IsFinished ?? false) ? 1 : 0);
                 // AddProp(OutCarProp.MaxSpeed, () => l.GetDynCar(i)?.MaxSpeed);
                 AddProp(OutCarProp.IsFocused, () => (l.GetDynCar(i)?.IsFocused ?? false) ? 1 : 0);
                 // AddProp(OutCarProp.IsOverallBestLapCar, () => (l.GetDynCar(i)?.IsOverallBestLapCar ?? false) ? 1 : 0);
@@ -383,6 +381,10 @@ namespace KLPlugins.DynLeaderboards {
                 // //this.AttachDelegate($"{startName}.DBG_TrackPosition", () => (l.GetDynCar(i))?.NewData?.TrackPosition);
                 // //this.AttachDelegate($"{startName}.DBG_OffsetLapUpdate", () => (l.GetDynCar(i))?.OffsetLapUpdate);
                 //this.AttachDelegate($"{startName}.DBG_ID", () => (l.GetDynCar(i))?.Id);
+                this.AttachDelegate($"{startName}.DBG_SessionType", () => this.Values.Session.SessionType.ToString());
+                this.AttachDelegate($"{startName}.DBG_Session.IsLapLimited", () => this.Values.Session.IsLapLimited);
+                this.AttachDelegate($"{startName}.DBG_Session.IsTimeLimited", () => this.Values.Session.IsTimeLimited);
+                this.AttachDelegate($"{startName}.DBG_IsFirstFinished", () => this.Values.IsFirstFinished);
             };
 
             var numPos = new int[] {

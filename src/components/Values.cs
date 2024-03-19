@@ -100,16 +100,16 @@ namespace KLPlugins.DynLeaderboards {
 
             this.SetOverallOrder();
 
-            // TODO: this is temporary, use completely custom sort later
-            this.OverallOrder.Sort((c1, c2) => {
-                var isUpdated = c2.IsUpdated.CompareTo(c1.IsUpdated);
-                // put cars that didn't receive update to the back
-                if (isUpdated != 0) {
-                    return isUpdated;
-                } else {
-                    return c1.RawDataNew.Position.CompareTo(c2.RawDataNew.Position); ;
-                }
-            });
+            // Remove cars that didn't receive update.
+            // It's OK not to receive an update if one has already finished.
+            // this.SetOverallOrder sorts such cars to the end of the list.
+            var numNotUpdated = this.OverallOrder
+                .AsEnumerable()
+                .Reverse()
+                .FirstIndex(c => c.IsUpdated || c.IsFinished);
+            if (numNotUpdated > 0) {
+                this.OverallOrder.RemoveRange(this.OverallOrder.Count - numNotUpdated, numNotUpdated);
+            }
 
             if (!this.IsFirstFinished && this.OverallOrder.Count > 0 && this.Session.SessionType == SessionType.Race) {
                 var first = this.OverallOrder.First();
@@ -118,12 +118,6 @@ namespace KLPlugins.DynLeaderboards {
                 } else if (this.Session.IsTimeLimited) {
                     this.IsFirstFinished = data.NewData.SessionTimeLeft.TotalSeconds <= 0 && first.IsNewLap;
                 }
-            }
-
-            // Remove cars that didn't receive update
-            var numNotUpdated = this.OverallOrder.AsEnumerable().Reverse().FirstIndex(c => c.IsUpdated);
-            if (numNotUpdated > 0) {
-                this.OverallOrder.RemoveRange(this.OverallOrder.Count - numNotUpdated, numNotUpdated);
             }
 
             this.ClassOrder.Clear();
@@ -176,10 +170,21 @@ namespace KLPlugins.DynLeaderboards {
                     }
 
                     // Sort cars that have crossed the start line always in front of cars who haven't
+                    // This affect order at race starts where the number of completed laps is 0 either
+                    // side of the line but the spline position flips from 1 to 0
                     if (a.HasCrossedStartLine && !b.HasCrossedStartLine) {
                         return -1;
                     } else if (b.HasCrossedStartLine && !a.HasCrossedStartLine) {
                         return 1;
+                    }
+
+                    // Sort cars that didn't receive an update to the end, so we can easily remove them.
+                    // It's OK for car to not receive an update after they have finished,
+                    // it means they left but we want to keep them around
+                    if (!a.IsUpdated && !a.IsFinished && (b.IsUpdated || b.IsFinished)) {
+                        return 1;
+                    } else if (!b.IsUpdated && !b.IsFinished && (a.IsUpdated || a.IsFinished)) {
+                        return -1;
                     }
 
                     // Always compare by laps first

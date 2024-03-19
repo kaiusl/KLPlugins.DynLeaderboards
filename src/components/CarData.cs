@@ -6,7 +6,7 @@ namespace KLPlugins.DynLeaderboards.Car {
 
     public class CarData {
 
-        public string CarClass => this._rawDataNew.CarClass;
+        public string CarClass => this._rawDataNew.CarClass ?? "";
         public string CarClassColor => this._rawDataNew.CarClassColor;
         public string CarClassTextColor => this._rawDataNew.CarClassTextColor;
 
@@ -51,6 +51,9 @@ namespace KLPlugins.DynLeaderboards.Car {
         /// > 0 if ahead, < 0 if behind. Is in range [-0.5, 0.5].
         /// </summary>
         public double RelativeSplinePositionToFocusedCar { get; private set; }
+
+        internal string Id => this._rawDataNew.Id;
+        internal bool IsUpdated { get; set; }
 
         private Opponent _rawDataNew;
         private Opponent _rawDataOld;

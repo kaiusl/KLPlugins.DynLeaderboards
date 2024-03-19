@@ -168,10 +168,12 @@ namespace KLPlugins.DynLeaderboards.Car {
     public class Driver {
         public string FullName { get; private set; }
         public string ShortName { get; private set; }
+        public string InitialPlusLastName { get; private set; }
 
         public Driver(Opponent o) {
             this.FullName = o.Name;
-            this.ShortName = o.ShortName;
+            this.ShortName = o.Initials;
+            this.InitialPlusLastName = o.ShortName;
         }
     }
 }

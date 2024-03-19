@@ -238,7 +238,7 @@ namespace KLPlugins.DynLeaderboards {
                         }
                     }
 
-                    // Keep order, make sort stable, fixes jumping
+                    // Keep order, make sort stable, fixes jumping, essentially keeps the cars in previous order
                     if (a.TotalSplinePosition == b.TotalSplinePosition) {
                         return a.PositionOverall.CompareTo(b.PositionOverall);
                     }
@@ -247,13 +247,14 @@ namespace KLPlugins.DynLeaderboards {
 
                 this.OverallOrder.Sort(cmp);
             } else {
-                // In other sessions TotalSplinePosition doesn't make any sense, use RealtimeCarUpdate.Position
+                // In other sessions TotalSplinePosition doesn't make any sense, use Position
                 int cmp(CarData a, CarData b) {
                     if (a == b) {
                         return 0;
                     }
 
-                    return a.PositionOverall.CompareTo(b.PositionOverall);
+                    // Need to use RawDataNew.Position because the CarData.PositionOverall is updated based of the result of this sort
+                    return a.RawDataNew.Position.CompareTo(b.RawDataNew.Position);
                 }
 
                 this.OverallOrder.Sort(cmp);

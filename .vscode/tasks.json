@@ -13,10 +13,7 @@
                 "/consoleloggerparameters:NoSummary",
                 "/p:configuration=Release"
             ],
-            "group": {
-                "kind": "build",
-                "isDefault": true
-            },
+            "group": "build",
             "presentation": {
                 "reveal": "silent"
             },
@@ -48,7 +45,10 @@
                 "/consoleloggerparameters:NoSummary",
                 "/p:configuration=Debug"
             ],
-            "group": "build",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
             "presentation": {
                 "reveal": "silent"
             },

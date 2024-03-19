@@ -207,7 +207,10 @@ namespace KLPlugins.DynLeaderboards.Settings {
         /// </summary>
         /// <returns></returns>
         private static Dictionary<string, Migration> CreateMigrationsDict() {
-            var migrations = new Dictionary<string, Migration> { };
+            var migrations = new Dictionary<string, Migration> {
+                ["0_1"] = Mig0To1,
+                ["1_2"] = Mig1To2,
+            };
 
 #if DEBUG
             for (int i = 0; i < currentSettingsVersion; i++) {
@@ -216,6 +219,99 @@ namespace KLPlugins.DynLeaderboards.Settings {
 #endif
 
             return migrations;
+        }
+
+        /// <summary>
+        /// Migration of setting from version 0 to version 1
+        /// </summary>
+        /// <param name="o"></param>
+        /// <returns></returns>
+        private static JObject Mig0To1(JObject o) {
+            // v0 to v1 changes:
+            // - Added version number to PluginSetting and DynLeaderboardConfig
+            // - DynLeaderboardConfigs are saved separately in PluginsData\KLPlugins\DynLeaderboards\leaderboardConfigs
+            //   and not saved in PluginsData\Common\DynLeaderboardsPlugin.GeneralSettings.json
+
+            o["Version"] = 1;
+
+            Directory.CreateDirectory(leaderboardConfigsDataDirName);
+            Directory.CreateDirectory(leaderboardConfigsDataBackupDirName);
+            const string key = "DynLeaderboardConfigs";
+            if (o.ContainsKey(key)) {
+                foreach (var cfg in o[key]!) {
+                    var fname = $"{leaderboardConfigsDataDirName}\\{cfg["Name"]}.json";
+                    if (File.Exists(fname)) // Don't overwrite existing configs
+{
+                        continue;
+                    }
+
+                    using StreamWriter file = File.CreateText(fname);
+                    var serializer = new JsonSerializer {
+                        Formatting = Newtonsoft.Json.Formatting.Indented
+                    };
+                    serializer.Serialize(file, cfg);
+                }
+            }
+
+            SimHub.Logging.Current.Info($"Migrated settings from v0 to v1.");
+            o.Remove("DynLeaderboardConfigs");
+
+            return o;
+        }
+
+        /// <summary>
+        /// Migration of setting from version 0 to version 1
+        /// </summary>
+        /// <param name="o"></param>
+        /// <returns></returns>
+        private static JObject Mig1To2(JObject o) {
+            // v1 to v2 changes:
+            // - added Cup leaderboards and options to change number of position in those leaderboards, but these are not breaking changes
+            // - no breaking changes of old configuration
+            // - added Include_ST21_In_GT2 and Include_CHL_In_GT2
+            // - only need to bump version and add new options
+
+            o["Version"] = 2;
+            o["Include_ST21_In_GT2"] = false;
+            o["Include_CHL_In_GT2"] = false;
+
+            foreach (var fileName in Directory.GetFiles(leaderboardConfigsDataDirName)) {
+                if (!File.Exists(fileName) || !fileName.EndsWith(".json")) {
+                    continue;
+                }
+
+                using StreamReader file = File.OpenText(fileName);
+                var serializer = new JsonSerializer();
+                DynLeaderboardConfig cfg;
+                try {
+                    var result = (DynLeaderboardConfig?)serializer.Deserialize(file, typeof(DynLeaderboardConfig));
+                    if (result == null) {
+                        continue;
+                    }
+                    cfg = result;
+                } catch (Exception e) {
+                    SimHub.Logging.Current.Error($"Failed to deserialize leaderboard \"{fileName}\" configuration. Error {e}.");
+                    continue;
+                }
+                file.Close();
+
+                cfg.Version = 2;
+                cfg.NumCupPos = cfg.NumClassPos;
+                cfg.NumCupRelativePos = cfg.NumClassRelativePos;
+                cfg.PartialRelativeCupNumCupPos = cfg.PartialRelativeClassNumClassPos;
+                cfg.PartialRelativeCupNumRelativePos = cfg.PartialRelativeClassNumRelativePos;
+
+                using StreamWriter fileOut = File.CreateText(fileName);
+                var serializerOut = new JsonSerializer {
+                    Formatting = Newtonsoft.Json.Formatting.Indented
+                };
+                serializerOut.Serialize(fileOut, cfg);
+
+            }
+
+            SimHub.Logging.Current.Info($"Migrated settings from v1 to v2.");
+
+            return o;
         }
 
 
@@ -262,6 +358,7 @@ namespace KLPlugins.DynLeaderboards.Settings {
         public int NumOnTrackRelativePos { get; set; } = 5;
         public int NumOverallRelativePos { get; set; } = 5;
         public int NumClassRelativePos { get; set; } = 5;
+        
         public int NumCupRelativePos { get; set; } = 5;
         public int NumDrivers { get; set; } = 1;
         public int PartialRelativeOverallNumOverallPos { get; set; } = 5;

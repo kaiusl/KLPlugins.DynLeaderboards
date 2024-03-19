@@ -56,11 +56,6 @@ namespace KLPlugins.DynLeaderboards {
         }
 
         private void SetDynGetters(Values v) {
-            if (v.FocusedCar == null) {
-                this.SetDynGettersDefault();
-                return;
-            }
-
             switch (this.Config.CurrentLeaderboard()) {
                 case Leaderboard.Overall:
                     this.GetDynCar = (i) => v.OverallOrder.ElementAtOrDefault(i);

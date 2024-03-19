@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 
 using GameReaderCommon;
@@ -15,6 +15,8 @@ namespace KLPlugins.DynLeaderboards {
     /// </summary>
     public class Values : IDisposable {
         public TrackData? TrackData { get; private set; }
+        public Booleans Booleans { get; private set; } = new();
+
         public List<CarData> OverallOrder { get; } = new();
         public List<CarData> ClassOrder { get; } = new();
         public List<CarData> RelativeOnTrackAheadOrder { get; } = new();
@@ -50,6 +52,12 @@ namespace KLPlugins.DynLeaderboards {
 
         #endregion IDisposable Support
         internal void OnDataUpdate(PluginManager _, GameData data) {
+            if (this.Booleans.NewData.IsNewEvent) {
+                this.Booleans.OnNewEvent(this.Session.SessionType);
+                // TODO: reset other data
+            }
+
+            this.Booleans.OnDataUpdate(data, this);
 
             // TODO: don't create new CarData each time, update previous objects
             this.OverallOrder.Clear();

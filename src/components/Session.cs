@@ -3,9 +3,11 @@
 namespace KLPlugins.DynLeaderboards {
     public class Session {
         public SessionType SessionType { get; private set; } = SessionType.Unknown;
+        public SessionPhase SessionPhase { get; private set; } = SessionPhase.Unknown;
         public bool IsNewSession { get; private set; }
         public bool IsTimeLimited { get; private set; }
         public bool IsLapLimited { get; private set; }
+        public bool IsRace => this.SessionType == SessionType.Race;
         public double TimeOfDay { get; private set; }
 
         private bool _isSessionLimitSet = false;
@@ -41,6 +43,7 @@ namespace KLPlugins.DynLeaderboards {
                 var rawDataNew = (ACSharedMemory.ACC.Reader.ACCRawData)data.NewData.GetRawDataObject();
 
                 this.TimeOfDay = rawDataNew.Graphics.clock;
+                this.SessionPhase = (SessionPhase)rawDataNew.Realtime.Phase;
             }
 
         }
@@ -154,4 +157,16 @@ namespace KLPlugins.DynLeaderboards {
             };
         }
     }
+
+    public enum SessionPhase {
+        Unknown = 0,
+        Starting = 1,
+        PreFormation = 2,
+        FormationLap = 3,
+        PreSession = 4,
+        Session = 5,
+        SessionOver = 6,
+        PostSession = 7,
+        ResultUI = 8
+    };
 }

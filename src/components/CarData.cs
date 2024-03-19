@@ -261,8 +261,6 @@ namespace KLPlugins.DynLeaderboards.Car {
         NONE = 0,
         Track = 1,
         Pitlane = 2,
-        PitEntry = 3,
-        PitExit = 4,
-        PitBox = 5,
+        PitBox = 3,
     }
 }

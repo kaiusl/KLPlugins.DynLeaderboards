@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 
 using GameReaderCommon;
@@ -25,6 +25,8 @@ namespace KLPlugins.DynLeaderboards {
         public List<CarData> RelativeOnTrackAheadOrder { get; } = new();
         public List<CarData> RelativeOnTrackBehindOrder { get; } = new();
         public CarData? FocusedCar { get; private set; } = null;
+
+        public bool IsFirstFinished { get; private set; } = false;
 
         internal Values() {
 
@@ -107,6 +109,15 @@ namespace KLPlugins.DynLeaderboards {
                 }
             });
 
+            if (!this.IsFirstFinished && this.OverallOrder.Count > 0 && this.Session.SessionType == SessionType.Race) {
+                var first = this.OverallOrder.First();
+                if (this.Session.IsLapLimited) {
+                    this.IsFirstFinished = first.Laps == data.NewData.TotalLaps;
+                } else if (this.Session.IsTimeLimited) {
+                    this.IsFirstFinished = data.NewData.SessionTimeLeft.TotalSeconds <= 0 && first.IsNewLap;
+                }
+            }
+
             // Remove cars that didn't receive update
             var numNotUpdated = this.OverallOrder.AsEnumerable().Reverse().FirstIndex(c => c.IsUpdated);
             if (numNotUpdated > 0) {
@@ -121,18 +132,13 @@ namespace KLPlugins.DynLeaderboards {
             foreach (var (car, i) in this.OverallOrder.WithIndex()) {
                 car.SetOverallPosition(i + 1);
 
-                if (car.CarClass == null) {
-                    DynLeaderboardsPlugin.LogError($"Car {car.Id} has no class");
-                    continue;
-                }
-
                 if (!classPositions.ContainsKey(car.CarClass)) {
                     classPositions.Add(car.CarClass, 1);
                 }
                 car.SetClassPosition(classPositions[car.CarClass]++);
 
                 if (this.FocusedCar != null) {
-                    car.UpdateDependsOnOthers(this.FocusedCar);
+                    car.UpdateDependsOnOthers(this, this.FocusedCar);
                     if (car.CarClass == focusedClass) {
                         this.ClassOrder.Add(car);
                     }

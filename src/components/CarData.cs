@@ -33,7 +33,7 @@ namespace KLPlugins.DynLeaderboards.Car {
 
         public NewOld<CarLocation> Location { get; private set; } = new(CarLocation.NONE);
 
-        public int Laps { get; private set; }
+        public NewOld<int> Laps { get; private set; }
         public double CurrentLapTime { get; private set; }
         public bool IsCurrentLapOutLap { get; private set; }
         public bool IsLastLapOutLap { get; private set; }
@@ -57,6 +57,7 @@ namespace KLPlugins.DynLeaderboards.Car {
         public int IndexClass { get; private set; }
 
         public bool IsInPitLane { get; private set; }
+        public bool ExitedPitLane { get; private set; }
         public int PitCount { get; private set; }
         public double PitTimeLast { get; private set; }
 
@@ -73,6 +74,7 @@ namespace KLPlugins.DynLeaderboards.Car {
         public double TotalSplinePosition { get; private set; } = 0.0;
 
         public bool JumpedToPits { get; private set; } = false;
+        public bool HasCrossedStartLine { get; private set; } = true;
         public bool IsFinished { get; private set; } = false;
         public long? FinishTime { get; private set; } = null;
 
@@ -81,6 +83,18 @@ namespace KLPlugins.DynLeaderboards.Car {
 
         internal Opponent RawDataNew;
         internal Opponent RawDataOld;
+
+        // In some games the spline position and the lap counter reset at different locations.
+        // Since we use total spline position to order the cars on track, we need them to be in sync
+        internal enum OffsetLapUpdateType {
+            None = 0,
+            LapBeforeSpline = 1,
+            SplineBeforeLap = 2
+        }
+        internal OffsetLapUpdateType OffsetLapUpdate { get; private set; } = OffsetLapUpdateType.None;
+        private int _lapAtOffsetLapUpdate = -1;
+        private bool _isSplinePositionReset = false;
+
 
         public bool IsNewLap { get; private set; } = false;
 
@@ -131,29 +145,37 @@ namespace KLPlugins.DynLeaderboards.Car {
                 this.Location.Update(CarLocation.Track);
             }
 
-            this.Laps = (this.RawDataNew.CurrentLap ?? 1) - 1;
+            this.Laps.Update((this.RawDataNew.CurrentLap ?? 1) - 1);
             this.CurrentLapTime = this.RawDataNew.CurrentLapTime?.TotalSeconds ?? 0.0;
 
             this.IsInPitLane = this.Location.New == CarLocation.Pitlane || this.Location.New == CarLocation.PitBox;
+            this.ExitedPitLane = this.Location.New == CarLocation.Track && this.Location.Old == CarLocation.Pitlane;
             this.PitCount = this.RawDataNew.PitCount ?? 0;
             this.PitTimeLast = this.RawDataNew.PitLastDuration?.TotalSeconds ?? 0.0;
-            this.IsCurrentLapOutLap = (this.RawDataNew.PitOutAtLap ?? -1) == this.Laps + 1;
-            this.IsLastLapOutLap = (this.RawDataNew.PitOutAtLap ?? -1) == this.Laps;
-            this.IsCurrentLapInLap = (this.RawDataNew.PitEnterAtLap ?? -1) == this.Laps + 1;
-            this.IsLastLapInLap = (this.RawDataNew.PitEnterAtLap ?? -1) == this.Laps;
+            this.IsCurrentLapOutLap = (this.RawDataNew.PitOutAtLap ?? -1) == this.Laps.New + 1;
+            this.IsLastLapOutLap = (this.RawDataNew.PitOutAtLap ?? -1) == this.Laps.New;
+            this.IsCurrentLapInLap = (this.RawDataNew.PitEnterAtLap ?? -1) == this.Laps.New + 1;
+            this.IsLastLapInLap = (this.RawDataNew.PitEnterAtLap ?? -1) == this.Laps.New;
 
             this.PositionInClassStart = this.RawDataNew.StartPositionClass;
             this.PositionOverallStart = this.RawDataNew.StartPosition;
 
             this.SplinePosition = this.RawDataNew.TrackPositionPercent ?? throw new System.Exception("TrackPositionPercent is null");
-            this.TotalSplinePosition = this.Laps + this.SplinePosition;
+            this.TotalSplinePosition = this.Laps.New + this.SplinePosition;
 
-            this.HandleJumpToPits(values.Session.SessionType);
+            if (values.Session.IsRace) {
+                this.HandleJumpToPits(values.Session.SessionType);
+                this.CheckForCrossingStartLine(values.Session.SessionPhase);
+            }
+
+            if (values.Session.SessionType == SessionType.Race) {
+                this.HandleOffsetLapUpdates();
+            }
         }
 
         void HandleJumpToPits(SessionType sessionType) {
-            if (sessionType == SessionType.Race
-                && !this.IsFinished // It's okay to jump to the pits after finishing
+            Debug.Assert(sessionType == SessionType.Race);
+            if (!this.IsFinished // It's okay to jump to the pits after finishing
                 && this.Location.Old == CarLocation.Track
                 && this.IsInPitLane
             ) {
@@ -162,6 +184,51 @@ namespace KLPlugins.DynLeaderboards.Car {
 
             if (this.JumpedToPits && !this.IsInPitLane) {
                 this.JumpedToPits = false;
+            }
+        }
+
+        void CheckForCrossingStartLine(SessionPhase sessionPhase) {
+            // Initial update before the start of the race
+            if (sessionPhase == SessionPhase.PreSession
+                && this.HasCrossedStartLine
+                && this.SplinePosition > 0.5
+                && this.Laps.New == 0
+            ) {
+                this.HasCrossedStartLine = false;
+            }
+
+            if (!this.HasCrossedStartLine && (this._isSplinePositionReset || this.ExitedPitLane)) {
+                this.HasCrossedStartLine = true;
+            }
+        }
+
+        void HandleOffsetLapUpdates() {
+            // Check for offset lap update
+            if (this.OffsetLapUpdate == OffsetLapUpdateType.None
+                && this.IsNewLap
+                && this.SplinePosition > 0.9
+            ) {
+                this.OffsetLapUpdate = OffsetLapUpdateType.LapBeforeSpline;
+                this._lapAtOffsetLapUpdate = this.Laps.New;
+            } else if (this.OffsetLapUpdate == OffsetLapUpdateType.None
+                            && this._isSplinePositionReset
+                            && this.Laps.New != this._lapAtOffsetLapUpdate // Remove double detection with above
+                            && this.Laps.New == this.Laps.Old
+                            && this.HasCrossedStartLine
+                ) {
+                this.OffsetLapUpdate = OffsetLapUpdateType.SplineBeforeLap;
+                this._lapAtOffsetLapUpdate = this.Laps.New;
+            }
+
+            if (this.OffsetLapUpdate == OffsetLapUpdateType.LapBeforeSpline) {
+                if (this.SplinePosition < 0.9) {
+                    this.OffsetLapUpdate = OffsetLapUpdateType.None;
+                }
+            } else if (this.OffsetLapUpdate == OffsetLapUpdateType.SplineBeforeLap) {
+                if (this.Laps.New != this._lapAtOffsetLapUpdate || (this.SplinePosition > 0.025 && this.SplinePosition < 0.9)) {
+                    // Second condition is a fallback in case the lap actually shouldn't have been updated (eg at the start line, jumped to pits and then crossed the line in the pits)
+                    this.OffsetLapUpdate = OffsetLapUpdateType.None;
+                }
             }
         }
 

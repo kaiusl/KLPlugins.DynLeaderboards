@@ -6,6 +6,21 @@ using GameReaderCommon;
 
 namespace KLPlugins.DynLeaderboards.Car {
 
+    public struct NewOld<T> {
+        public T New { get; private set; }
+        public T Old { get; private set; }
+
+        internal NewOld(T data) {
+            this.New = data;
+            this.Old = data;
+        }
+
+        internal void Update(T data) {
+            this.Old = this.New;
+            this.New = data;
+        }
+    }
+
     public class CarData {
 
         public string CarClass { get; private set; }
@@ -15,6 +30,8 @@ namespace KLPlugins.DynLeaderboards.Car {
         public string CarNumber { get; private set; }
         public string CarModel { get; private set; }
         public string? TeamName { get; private set; }
+
+        public NewOld<CarLocation> Location { get; private set; } = new(CarLocation.NONE);
 
         public int Laps { get; private set; }
         public double CurrentLapTime { get; private set; }
@@ -105,10 +122,18 @@ namespace KLPlugins.DynLeaderboards.Car {
                 this.Drivers.Insert(0, driver);
             }
 
+            if (this.RawDataNew.IsCarInPit) {
+                this.Location.Update(CarLocation.PitBox);
+            } else if (this.RawDataNew.IsCarInPitLane) {
+                this.Location.Update(CarLocation.Pitlane);
+            } else {
+                this.Location.Update(CarLocation.Track);
+            }
+
             this.Laps = (this.RawDataNew.CurrentLap ?? 1) - 1;
             this.CurrentLapTime = this.RawDataNew.CurrentLapTime?.TotalSeconds ?? 0.0;
 
-            this.IsInPitLane = this.RawDataNew.IsCarInPitLane;
+            this.IsInPitLane = this.Location.New == CarLocation.Pitlane || this.Location.New == CarLocation.PitBox;
             this.PitCount = this.RawDataNew.PitCount ?? 0;
             this.PitTimeLast = this.RawDataNew.PitLastDuration?.TotalSeconds ?? 0.0;
             this.IsCurrentLapOutLap = (this.RawDataNew.PitOutAtLap ?? -1) == this.Laps + 1;
@@ -213,5 +238,14 @@ namespace KLPlugins.DynLeaderboards.Car {
             this.ShortName = o.Initials;
             this.InitialPlusLastName = o.ShortName;
         }
+    }
+
+    public enum CarLocation {
+        NONE = 0,
+        Track = 1,
+        Pitlane = 2,
+        PitEntry = 3,
+        PitExit = 4,
+        PitBox = 5,
     }
 }

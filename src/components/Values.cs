@@ -114,7 +114,7 @@ namespace KLPlugins.DynLeaderboards {
             if (!this.IsFirstFinished && this.OverallOrder.Count > 0 && this.Session.SessionType == SessionType.Race) {
                 var first = this.OverallOrder.First();
                 if (this.Session.IsLapLimited) {
-                    this.IsFirstFinished = first.Laps == data.NewData.TotalLaps;
+                    this.IsFirstFinished = first.Laps.New == data.NewData.TotalLaps;
                 } else if (this.Session.IsTimeLimited) {
                     this.IsFirstFinished = data.NewData.SessionTimeLeft.TotalSeconds <= 0 && first.IsNewLap;
                 }
@@ -183,8 +183,8 @@ namespace KLPlugins.DynLeaderboards {
                     // }
 
                     // Always compare by laps first
-                    var alaps = a.Laps;
-                    var blaps = b.Laps;
+                    var alaps = a.Laps.New;
+                    var blaps = b.Laps.New;
                     if (alaps != blaps) {
                         return blaps.CompareTo(alaps);
                     }

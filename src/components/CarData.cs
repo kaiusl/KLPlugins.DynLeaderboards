@@ -73,7 +73,7 @@ namespace KLPlugins.DynLeaderboards.Car {
             this._rawDataOld = this._rawDataNew;
             this._rawDataNew = rawData;
 
-            if (this.Laps > this._rawDataOld.CurrentLap) {
+            this.IsNewLap = this.RawDataNew.CurrentLap > this.RawDataOld.CurrentLap;
                 // new lap
                 this.IsLastLapValid = this._rawDataOld.LapValid;
             }

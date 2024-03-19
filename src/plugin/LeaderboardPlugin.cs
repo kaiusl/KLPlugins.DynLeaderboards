@@ -265,7 +265,7 @@ namespace KLPlugins.DynLeaderboards {
                     // AddDriverProp(OutDriverProp.LastName, driverId, () => l.GetDynCar(i)?.GetDriver(j)?.LastName);
                     AddDriverProp(OutDriverProp.ShortName, driverId, () => l.GetDynCar(i)?.Drivers.ElementAtOrDefault(j)?.ShortName);
                     AddDriverProp(OutDriverProp.FullName, driverId, () => l.GetDynCar(i)?.Drivers.ElementAtOrDefault(j)?.FullName);
-                    // AddDriverProp(OutDriverProp.InitialPlusLastName, driverId, () => l.GetDynCar(i)?.GetDriver(j)?.InitialPlusLastName);
+                    AddDriverProp(OutDriverProp.InitialPlusLastName, driverId, () => l.GetDynCar(i)?.Drivers.ElementAtOrDefault(j)?.InitialPlusLastName);
                     // AddDriverProp(OutDriverProp.Nationality, driverId, () => l.GetDynCar(i)?.GetDriver(j)?.Nationality);
                     // AddDriverProp(OutDriverProp.Category, driverId, () => l.GetDynCar(i)?.GetDriver(j)?.Category);
                     // AddDriverProp(OutDriverProp.TotalLaps, driverId, () => l.GetDynCar(i)?.GetDriver(j)?.TotalLaps);

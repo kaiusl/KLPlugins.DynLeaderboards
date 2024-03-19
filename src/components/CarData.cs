@@ -14,12 +14,12 @@ namespace KLPlugins.DynLeaderboards.Car {
         public string CarModel => this._rawDataNew.CarName;
         public string TeamName => this._rawDataNew.TeamName;
 
-        public int Laps => this._rawDataNew.CurrentLap ?? 0;
+        public int Laps => this._rawDataNew.CurrentLap - 1 ?? 0;
         public double CurrentLapTime => this._rawDataNew.CurrentLapHighPrecision ?? double.NaN;
-        public bool IsCurrentLapOutLap => this._rawDataNew.PitOutAtLap == this.Laps;
-        public bool IsLastLapOutLap => this._rawDataNew.PitOutAtLap == this.Laps - 1;
-        public bool IsCurrentLapInLap => this._rawDataNew.PitEnterAtLap == this.Laps;
-        public bool IsLastLapInLap => this._rawDataNew.PitEnterAtLap == this.Laps - 1;
+        public bool IsCurrentLapOutLap => this._rawDataNew.PitOutAtLap == this.Laps + 1;
+        public bool IsLastLapOutLap => this._rawDataNew.PitOutAtLap == this.Laps;
+        public bool IsCurrentLapInLap => this._rawDataNew.PitEnterAtLap == this.Laps + 1;
+        public bool IsLastLapInLap => this._rawDataNew.PitEnterAtLap == this.Laps;
         public bool IsCurrentLapValid => this._rawDataNew.LapValid;
         public bool IsLastLapValid { get; private set; }
         public SectorTimes LastLap => this._rawDataNew.LastLapSectorTimes;

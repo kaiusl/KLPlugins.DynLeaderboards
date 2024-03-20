@@ -155,7 +155,19 @@ namespace KLPlugins.DynLeaderboards {
                 car.SetClassPosition(classPositions[car.CarClass]++);
 
 
-                car.UpdateDependsOnOthers(this, this.FocusedCar);
+                car.UpdateDependsOnOthers(
+                    values: this,
+                    overallBestLapCar: null,
+                    classBestLapCar: null,
+                    cupBestLapCar: null,
+                    leaderCar: this.OverallOrder.First(),
+                    classLeaderCar: this.ClassOrder.First(),
+                    cupLeaderCar: null,
+                    focusedCar: this.FocusedCar,
+                    carAhead: this.FocusedCar != null ? this.OverallOrder.ElementAtOrDefault(this.FocusedCar.IndexOverall - 1) : null,
+                    carAheadInClass: this.FocusedCar != null ? this.ClassOrder.ElementAtOrDefault(this.FocusedCar.IndexClass - 1) : null,
+                    carAheadInCup: null
+                    );
                 if (focusedClass != null && car.CarClass == focusedClass) {
                     this.ClassOrder.Add(car);
                 }

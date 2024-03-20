@@ -75,6 +75,7 @@ namespace KLPlugins.DynLeaderboards.Car {
 
         public bool JumpedToPits { get; private set; } = false;
         public bool HasCrossedStartLine { get; private set; } = true;
+        private bool _isHasCrossedStartLineSet = false;
         public bool IsFinished { get; private set; } = false;
         public long? FinishTime { get; private set; } = null;
 
@@ -192,12 +193,14 @@ namespace KLPlugins.DynLeaderboards.Car {
         void CheckForCrossingStartLine(SessionPhase sessionPhase) {
             // Initial update before the start of the race
             if (sessionPhase == SessionPhase.PreSession
+                && !this._isHasCrossedStartLineSet
                 && this.HasCrossedStartLine
                 && this.SplinePosition > 0.5
                 && this.Laps.New == 0
             ) {
                 DynLeaderboardsPlugin.LogInfo($"[{this.Id}] has not crossed the start line");
                 this.HasCrossedStartLine = false;
+                this._isHasCrossedStartLineSet = true;
             }
 
             if (!this.HasCrossedStartLine && (this._isSplinePositionReset || this.ExitedPitLane)) {

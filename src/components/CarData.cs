@@ -160,7 +160,9 @@ namespace KLPlugins.DynLeaderboards.Car {
             this.PositionInClassStart = this.RawDataNew.StartPositionClass;
             this.PositionOverallStart = this.RawDataNew.StartPosition;
 
-            this.SplinePosition = this.RawDataNew.TrackPositionPercent ?? throw new System.Exception("TrackPositionPercent is null");
+            var newSplinePos = this.RawDataNew.TrackPositionPercent ?? throw new System.Exception("TrackPositionPercent is null");
+            this._isSplinePositionReset = newSplinePos < this.SplinePosition;
+            this.SplinePosition = newSplinePos;
             this.TotalSplinePosition = this.Laps.New + this.SplinePosition;
 
             if (values.Session.IsRace) {

@@ -304,13 +304,13 @@ namespace KLPlugins.DynLeaderboards {
                 // // Gaps
                 AddGapProp(OutGapProp.GapToLeader, () => l.GetDynCar(i)?.GapToLeader);
                 AddGapProp(OutGapProp.GapToClassLeader, () => l.GetDynCar(i)?.GapToClassLeader);
-                // AddGapProp(OutGapProp.GapToCupLeader, () => l.GetDynCar(i)?.GapToCupLeader);
-                // AddGapProp(OutGapProp.GapToFocusedOnTrack, () => l.GetDynCar(i)?.GapToFocusedOnTrack);
+                AddGapProp(OutGapProp.GapToCupLeader, () => l.GetDynCar(i)?.GapToCupLeader);
+                AddGapProp(OutGapProp.GapToFocusedOnTrack, () => l.GetDynCar(i)?.GapToFocusedOnTrack);
                 AddGapProp(OutGapProp.GapToFocusedTotal, () => l.GetDynCar(i)?.GapToFocusedTotal);
-                // AddGapProp(OutGapProp.GapToAheadOverall, () => l.GetDynCar(i)?.GapToAhead);
-                // AddGapProp(OutGapProp.GapToAheadInClass, () => l.GetDynCar(i)?.GapToAheadInClass);
-                // AddGapProp(OutGapProp.GapToAheadInCup, () => l.GetDynCar(i)?.GapToAheadInCup);
-                // AddGapProp(OutGapProp.GapToAheadOnTrack, () => l.GetDynCar(i)?.GapToAheadOnTrack);
+                AddGapProp(OutGapProp.GapToAheadOverall, () => l.GetDynCar(i)?.GapToAhead);
+                AddGapProp(OutGapProp.GapToAheadInClass, () => l.GetDynCar(i)?.GapToAheadInClass);
+                AddGapProp(OutGapProp.GapToAheadInCup, () => l.GetDynCar(i)?.GapToAheadInCup);
+                AddGapProp(OutGapProp.GapToAheadOnTrack, () => l.GetDynCar(i)?.GapToAheadOnTrack);
 
                 AddGapProp(OutGapProp.DynamicGapToFocused, () => l.GetDynGapToFocused(i));
                 AddGapProp(OutGapProp.DynamicGapToAhead, () => l.GetDynGapToAhead(i));

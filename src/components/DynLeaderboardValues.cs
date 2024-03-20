@@ -226,99 +226,35 @@ namespace KLPlugins.DynLeaderboards {
                 case Leaderboard.Class:
                     this.FocusedIndex = v.FocusedCar.IndexClass;
                     break;
-                case Leaderboard.RelativeOverall: {
-                        this.FocusedIndex = this.Config.NumOverallRelativePos;
-                        int start = v.FocusedCar.IndexOverall - this.Config.NumOverallRelativePos;
-                        int end = start + this.Config.NumOverallRelativePos * 2 + 1;
-
-                        int i = start;
-                        for (; i < 0; i++) {
-                            this.Cars.Add(null);
-                        }
-                        for (; i < end; i++) {
-                            this.Cars.Add(v.OverallOrder.ElementAtOrDefault(i));
-                        }
-                    }
+                case Leaderboard.RelativeOverall:
+                    this.SetCarsRelativeX(
+                        numRelPos: this.Config.NumOverallRelativePos,
+                        cars: v.OverallOrder,
+                        focusedCarIndexInCars: v.FocusedCar.IndexOverall
+                    );
                     break;
-                case Leaderboard.RelativeClass: {
-                        this.FocusedIndex = this.Config.NumClassRelativePos;
-                        int start = v.FocusedCar.IndexClass - this.Config.NumClassRelativePos;
-                        int end = start + this.Config.NumClassRelativePos * 2 + 1;
-
-                        int i = start;
-                        for (; i < 0; i++) {
-                            this.Cars.Add(null);
-                        }
-                        for (; i < end; i++) {
-                            this.Cars.Add(v.ClassOrder.ElementAtOrDefault(i));
-                        }
-                    }
+                case Leaderboard.RelativeClass:
+                    this.SetCarsRelativeX(
+                        numRelPos: this.Config.NumClassRelativePos,
+                        cars: v.ClassOrder,
+                        focusedCarIndexInCars: v.FocusedCar.IndexClass
+                    );
                     break;
-                case Leaderboard.PartialRelativeOverall: {
-                        var topPos = this.Config.PartialRelativeOverallNumOverallPos;
-                        var relPos = this.Config.PartialRelativeOverallNumRelativePos;
-
-                        // Top positions are always added
-                        for (int i = 0; i < topPos; i++) {
-                            var car = v.OverallOrder.ElementAtOrDefault(i);
-                            this.Cars.Add(car);
-                            if (car.IsFocused) {
-                                this.FocusedIndex = i;
-                            }
-                        }
-
-                        // Calculate relative part start and end
-                        var start = v.FocusedCar.IndexOverall - topPos;
-                        var end = start + relPos * 2 + 1;
-
-                        // if start reaches into the top positions, shift it down so it doesn't overlap
-                        if (start <= topPos) {
-                            var diff = topPos - start;
-                            start += diff;
-                            end += diff;
-                        }
-
-                        for (int i = start; i < end; i++) {
-                            var car = v.OverallOrder.ElementAtOrDefault(i);
-                            this.Cars.Add(car);
-                            if (car.IsFocused) {
-                                this.FocusedIndex = this.Cars.Count - 1;
-                            }
-                        }
-                    }
+                case Leaderboard.PartialRelativeOverall:
+                    this.SetCarsPartialRelativeX(
+                        numTopPos: this.Config.PartialRelativeOverallNumOverallPos,
+                        numRelPos: this.Config.PartialRelativeOverallNumRelativePos,
+                        cars: v.OverallOrder,
+                        focusedCarIndexInCars: v.FocusedCar.IndexOverall
+                    );
                     break;
-                case Leaderboard.PartialRelativeClass: {
-                        var topPos = this.Config.PartialRelativeClassNumClassPos;
-                        var relPos = this.Config.PartialRelativeClassNumRelativePos;
-
-                        // Top positions are always added
-                        for (int i = 0; i < topPos; i++) {
-                            var car = v.ClassOrder.ElementAtOrDefault(i);
-                            this.Cars.Add(car);
-                            if (car.IsFocused) {
-                                this.FocusedIndex = i;
-                            }
-                        }
-
-                        // Calculate relative part start and end
-                        var start = v.FocusedCar.IndexClass - topPos;
-                        var end = start + relPos * 2 + 1;
-
-                        // if start reaches into the top positions, shift it down so it doesn't overlap
-                        if (start <= topPos) {
-                            var diff = topPos - start;
-                            start += diff;
-                            end += diff;
-                        }
-
-                        for (int i = start; i < end; i++) {
-                            var car = v.ClassOrder.ElementAtOrDefault(i);
-                            this.Cars.Add(car);
-                            if (car.IsFocused) {
-                                this.FocusedIndex = this.Cars.Count - 1;
-                            }
-                        }
-                    }
+                case Leaderboard.PartialRelativeClass:
+                    this.SetCarsPartialRelativeX(
+                        numTopPos: this.Config.PartialRelativeClassNumClassPos,
+                        numRelPos: this.Config.PartialRelativeClassNumRelativePos,
+                        cars: v.ClassOrder,
+                        focusedCarIndexInCars: v.FocusedCar.IndexClass
+                    );
                     break;
                 case Leaderboard.RelativeOnTrack: {
                         var relPos = this.Config.NumOnTrackRelativePos;
@@ -373,6 +309,50 @@ namespace KLPlugins.DynLeaderboards {
                     break;
                 default:
                     break;
+            }
+        }
+
+        private void SetCarsRelativeX(int numRelPos, List<CarData> cars, int focusedCarIndexInCars) {
+            this.FocusedIndex = numRelPos;
+            int start = focusedCarIndexInCars - numRelPos;
+            int end = start + numRelPos * 2 + 1;
+
+            int i = start;
+            for (; i < 0; i++) {
+                this.Cars.Add(null);
+            }
+            for (; i < end; i++) {
+                this.Cars.Add(cars.ElementAtOrDefault(i));
+            }
+        }
+
+        private void SetCarsPartialRelativeX(int numTopPos, int numRelPos, List<CarData> cars, int focusedCarIndexInCars) {
+            // Top positions are always added
+            for (int i = 0; i < numTopPos; i++) {
+                var car = cars.ElementAtOrDefault(i);
+                this.Cars.Add(car);
+                if (car != null && car.IsFocused) {
+                    this.FocusedIndex = i;
+                }
+            }
+
+            // Calculate relative part start and end
+            var start = focusedCarIndexInCars - numTopPos;
+            var end = start + numRelPos * 2 + 1;
+
+            // if start reaches into the top positions, shift it down so it doesn't overlap
+            if (start <= numTopPos) {
+                var diff = numTopPos - start;
+                start += diff;
+                end += diff;
+            }
+
+            for (int i = start; i < end; i++) {
+                var car = cars.ElementAtOrDefault(i);
+                this.Cars.Add(car);
+                if (car != null && car.IsFocused) {
+                    this.FocusedIndex = this.Cars.Count - 1;
+                }
             }
         }
 

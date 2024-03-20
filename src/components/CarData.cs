@@ -126,7 +126,8 @@ namespace KLPlugins.DynLeaderboards.Car {
 
             this.IsNewLap = this.RawDataNew.CurrentLap > this.RawDataOld.CurrentLap;
             if (this.IsNewLap) {
-                this.LastLap = new Lap(this.RawDataNew.LastLapSectorTimes) {
+                Debug.Assert(this.CurrentDriver != null, "Current driver shouldn't be null since someone had to finish this lap.");
+                this.LastLap = new Lap(this.RawDataNew.LastLapSectorTimes, this.Laps.New, this.CurrentDriver!) {
                     IsValid = this.IsCurrentLapValid,
                     IsOutLap = this.IsCurrentLapOutLap,
                     IsInLap = this.IsCurrentLapInLap,
@@ -136,7 +137,7 @@ namespace KLPlugins.DynLeaderboards.Car {
                 if (maybeBestLap != null) {
                     var maybeBestLapTime = maybeBestLap.GetLapTime()?.TotalSeconds;
                     if (this.BestLap?.Time == null || (maybeBestLapTime != null && maybeBestLapTime < this.BestLap.Time)) {
-                        this.BestLap = new Lap(maybeBestLap!);
+                        this.BestLap = new Lap(maybeBestLap!, this.Laps.New, this.CurrentDriver!);
                         DynLeaderboardsPlugin.LogInfo($"[{this.Id}] best lap: {this.BestLap.Time}");
                     }
                 }
@@ -358,15 +359,21 @@ namespace KLPlugins.DynLeaderboards.Car {
         public bool IsInLap { get; internal set; } = false;
         public bool IsValid { get; internal set; } = true;
 
-        public Lap(SectorTimes sectorTimes) {
+        public int LapNumber { get; private set; }
+        public Driver Driver { get; private set; }
+
+        public Lap(SectorTimes sectorTimes, int lapNumber, Driver driver) {
             this.Time = sectorTimes.GetLapTime()?.TotalSeconds;
             this.S1Time = sectorTimes.GetSectorSplit(1)?.TotalSeconds;
             this.S2Time = sectorTimes.GetSectorSplit(2)?.TotalSeconds;
             this.S3Time = sectorTimes.GetSectorSplit(3)?.TotalSeconds;
+
+            this.LapNumber = lapNumber;
+            this.Driver = driver;
         }
+
+
     }
-
-
 
     public enum CarLocation {
         NONE = 0,

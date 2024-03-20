@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 
 using GameReaderCommon;
@@ -82,15 +82,13 @@ namespace KLPlugins.DynLeaderboards {
         }
 
         private void UpdateCars(GameData data) {
-            IEnumerable<(Opponent, int)> cars;
-            if (DynLeaderboardsPlugin.Game.IsAcc) {
-                // In ACC the first car is "Me", which is weird ghost car that doesn't have any info
-                cars = data.NewData.Opponents.Skip(1).WithIndex();
-            } else {
-                cars = data.NewData.Opponents.WithIndex();
-            }
+            IEnumerable<(Opponent, int)> cars = data.NewData.Opponents.WithIndex();
 
             foreach (var (opponent, i) in cars) {
+                if (DynLeaderboardsPlugin.Game.IsAcc && opponent.Id == "Me") {
+                    continue;
+                }
+
                 // Most common case is that the car's position hasn't changed
                 var car = this.OverallOrder.ElementAtOrDefault(i);
                 if (car == null || car.Id != opponent.Id) {

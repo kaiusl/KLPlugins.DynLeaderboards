@@ -122,6 +122,9 @@ namespace KLPlugins.DynLeaderboards {
                     var ldb = new DynLeaderboard(config, this.Values);
                     this.DynLeaderboards.Add(ldb);
                     this.AttachDynLeaderboard(ldb);
+                    LogInfo($"Added enabled leaderboard: {ldb.Config.Name}.");
+                } else {
+                    LogInfo($"Didn't add disabled leaderboard: {config.Name}.");
                 }
             }
             this.AttachGeneralDelegates();

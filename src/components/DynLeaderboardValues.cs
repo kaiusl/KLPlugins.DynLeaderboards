@@ -41,6 +41,7 @@ namespace KLPlugins.DynLeaderboards {
         }
 
         internal void OnLeaderboardChange(Values v) {
+            DynLeaderboardsPlugin.LogInfo($"OnLeaderboardChange [{this.Config.Name}]: {this.Config.CurrentLeaderboard()}");
             this.SetDynGetters(v);
         }
 

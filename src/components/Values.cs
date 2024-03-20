@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 
 using GameReaderCommon;
@@ -32,6 +32,7 @@ namespace KLPlugins.DynLeaderboards {
         }
 
         internal void Reset() {
+            DynLeaderboardsPlugin.LogInfo($"Values.Reset()");
             this.Booleans.Reset();
             this.Session.Reset();
             this.OverallOrder.Clear();
@@ -70,6 +71,7 @@ namespace KLPlugins.DynLeaderboards {
             this.Session.OnDataUpdate(data);
 
             if (this.Booleans.NewData.IsNewEvent || this.Session.IsNewSession) {
+                DynLeaderboardsPlugin.LogInfo($"newEvent={this.Booleans.NewData.IsNewEvent}, newSession={this.Session.IsNewSession}");
                 this.Reset();
 
                 this.Session.OnDataUpdate(data);
@@ -129,6 +131,10 @@ namespace KLPlugins.DynLeaderboards {
                     this.IsFirstFinished = first.Laps.New == data.NewData.TotalLaps;
                 } else if (this.Session.IsTimeLimited) {
                     this.IsFirstFinished = data.NewData.SessionTimeLeft.TotalSeconds <= 0 && first.IsNewLap;
+                }
+
+                if (this.IsFirstFinished) {
+                    DynLeaderboardsPlugin.LogInfo($"First finished: id={this.OverallOrder.First().Id}");
                 }
             }
 

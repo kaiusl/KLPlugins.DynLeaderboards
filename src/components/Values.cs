@@ -79,6 +79,9 @@ namespace KLPlugins.DynLeaderboards {
                 DynLeaderboardsPlugin.LogInfo($"newEvent={this.Booleans.NewData.IsNewEvent}, newSession={this.Session.IsNewSession}");
                 this.ResetWithoutSession();
                 this.Booleans.OnNewEvent(this.Session.SessionType);
+                this.TrackData = new TrackData(data);
+
+                DynLeaderboardsPlugin.LogInfo($"Track set to: id={this.TrackData.Id}, name={this.TrackData.Name}");
             }
 
             this.Booleans.OnDataUpdate(data, this);

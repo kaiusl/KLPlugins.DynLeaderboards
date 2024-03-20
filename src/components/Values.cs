@@ -153,24 +153,23 @@ namespace KLPlugins.DynLeaderboards {
                     classPositions.Add(car.CarClass, 1);
                 }
                 car.SetClassPosition(classPositions[car.CarClass]++);
-
-
-                car.UpdateDependsOnOthers(
-                    values: this,
-                    overallBestLapCar: null,
-                    classBestLapCar: null,
-                    cupBestLapCar: null,
-                    leaderCar: this.OverallOrder.First(),
-                    classLeaderCar: this.ClassOrder.First(),
-                    cupLeaderCar: null,
-                    focusedCar: this.FocusedCar,
-                    carAhead: this.FocusedCar != null ? this.OverallOrder.ElementAtOrDefault(this.FocusedCar.IndexOverall - 1) : null,
-                    carAheadInClass: this.FocusedCar != null ? this.ClassOrder.ElementAtOrDefault(this.FocusedCar.IndexClass - 1) : null,
-                    carAheadInCup: null
-                    );
                 if (focusedClass != null && car.CarClass == focusedClass) {
                     this.ClassOrder.Add(car);
                 }
+
+                car.UpdateDependsOnOthers(
+                    values: this,
+                    overallBestLapCar: null, // TODO: find best lap cars
+                    classBestLapCar: null, // TODO
+                    cupBestLapCar: null, // TODO
+                    leaderCar: this.OverallOrder.First(), // If we get there, there must be at least on car
+                    classLeaderCar: null, // TODO: store all class leader cars
+                    cupLeaderCar: null, // TODO: store all cup leader cars
+                    focusedCar: this.FocusedCar,
+                    carAhead: this.FocusedCar != null ? this.OverallOrder.ElementAtOrDefault(this.FocusedCar.IndexOverall - 1) : null,
+                    carAheadInClass: null, // TODO: store car ahead in each class
+                    carAheadInCup: null // TODO: store car ahead in each cup
+                );
 
                 if (car.IsFocused) {
                     // nothing to do

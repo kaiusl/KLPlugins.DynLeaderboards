@@ -98,6 +98,12 @@ namespace KLPlugins.DynLeaderboards.Car {
         public bool IsFinished { get; private set; } = false;
         public long? FinishTime { get; private set; } = null;
 
+        public int? CurrentStintLaps { get; private set; }
+        public double? LastStintTime { get; private set; }
+        public double? CurrentStintTime { get; private set; }
+        public int? LastStintLaps { get; private set; }
+        private DateTime? _stintStartTime;
+
         internal string Id => this.RawDataNew.Id;
         internal bool IsUpdated { get; set; }
 
@@ -113,8 +119,10 @@ namespace KLPlugins.DynLeaderboards.Car {
         }
         internal OffsetLapUpdateType OffsetLapUpdate { get; private set; } = OffsetLapUpdateType.None;
 
+
         private int _lapAtOffsetLapUpdate = -1;
         private bool _isSplinePositionReset = false;
+
         private const double _LAP_GAP_VALUE = 100_000;
         private const double _HALF_LAP_GAP_VALUE = _LAP_GAP_VALUE / 2;
 
@@ -203,9 +211,10 @@ namespace KLPlugins.DynLeaderboards.Car {
             if (values.Session.IsRace) {
                 this.HandleJumpToPits(values.Session.SessionType);
                 this.CheckForCrossingStartLine(values.Session.SessionPhase);
-
-                this.UpdatePitInfo(values.Session.SessionPhase);
             }
+
+            this.UpdatePitInfo();
+            this.UpdateStintInfo(values.Session);
 
             this.HandleOffsetLapUpdates();
         }
@@ -281,7 +290,7 @@ namespace KLPlugins.DynLeaderboards.Car {
             }
         }
 
-        void UpdatePitInfo(SessionPhase sessionPhase) {
+        void UpdatePitInfo() {
             var pitEntryTime = this.RawDataNew.PitEnterAtTime;
             // Pit ended
             if (pitEntryTime != null && this.ExitedPitLane) {
@@ -293,6 +302,35 @@ namespace KLPlugins.DynLeaderboards.Car {
             if (pitEntryTime != null) {
                 var time = (TimeSpan)(DateTime.Now - pitEntryTime);
                 this.PitTimeCurrent = time.TotalSeconds;
+            }
+        }
+
+        void UpdateStintInfo(Session session) {
+            if (this.IsNewLap && this.CurrentStintLaps != null) {
+                this.CurrentStintLaps++;
+            }
+
+            // Stint started
+            if (this.ExitedPitLane // Pitlane exit
+                || (session.IsRace && session.IsSessionStart) // Race start
+                || (this._stintStartTime == null && this.Location.New == CarLocation.Track && session.SessionPhase != SessionPhase.PreSession) // We join/start SimHub mid session
+            ) {
+                this._stintStartTime = DateTime.Now;
+                this.CurrentStintLaps = 0;
+            }
+
+            // Stint ended
+            if (this.EnteredPitLane && this._stintStartTime != null) {
+                this.LastStintTime = (DateTime.Now - (DateTime)this._stintStartTime).TotalSeconds;
+                this.CurrentDriver!.OnStintEnd((double)this.LastStintTime);
+                this.LastStintLaps = this.CurrentStintLaps;
+                this._stintStartTime = null;
+                this.CurrentStintTime = null;
+                this.CurrentStintLaps = null;
+            }
+
+            if (this._stintStartTime != null) {
+                this.CurrentStintTime = (DateTime.Now - (DateTime)this._stintStartTime).TotalSeconds;
             }
         }
 
@@ -728,10 +766,25 @@ namespace KLPlugins.DynLeaderboards.Car {
         public string ShortName { get; private set; }
         public string InitialPlusLastName { get; private set; }
 
+
+        private double _totalDrivingTime;
+
         public Driver(Opponent o) {
             this.FullName = o.Name;
             this.ShortName = o.Initials;
             this.InitialPlusLastName = o.ShortName;
+        }
+
+        internal void OnStintEnd(double lastStintTime) {
+            this._totalDrivingTime += lastStintTime;
+        }
+
+        internal double GetTotalDrivingTime(bool isDriving = false, double? currentStintTime = null) {
+            if (isDriving && currentStintTime != null) {
+                return this._totalDrivingTime + (double)currentStintTime;
+            }
+
+            return this._totalDrivingTime;
         }
     }
 

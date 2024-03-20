@@ -36,13 +36,10 @@ namespace KLPlugins.DynLeaderboards.Car {
         public NewOld<int> Laps { get; } = new(0);
         public double CurrentLapTime { get; private set; }
         public bool IsCurrentLapOutLap { get; private set; }
-        public bool IsLastLapOutLap { get; private set; }
         public bool IsCurrentLapInLap { get; private set; }
-        public bool IsLastLapInLap { get; private set; }
         public bool IsCurrentLapValid { get; private set; }
-        public bool IsLastLapValid { get; private set; }
-        public SectorTimes LastLap => this.RawDataNew.LastLapSectorTimes;
-        public SectorTimes BestLap => this.RawDataNew.BestLapSectorTimes;
+        public Lap? LastLap { get; private set; }
+        public Lap? BestLap { get; private set; }
         public SectorSplits BestSectors => this.RawDataNew.BestSectorSplits;
 
         public bool IsFocused => this.RawDataNew.IsPlayer;
@@ -122,7 +119,21 @@ namespace KLPlugins.DynLeaderboards.Car {
 
             this.IsNewLap = this.RawDataNew.CurrentLap > this.RawDataOld.CurrentLap;
             if (this.IsNewLap) {
-                this.IsLastLapValid = this.RawDataOld.LapValid;
+                this.LastLap = new Lap(this.RawDataNew.LastLapSectorTimes) {
+                    IsValid = this.IsCurrentLapValid,
+                    IsOutLap = this.IsCurrentLapOutLap,
+                    IsInLap = this.IsCurrentLapInLap,
+                };
+
+                var maybeBestLap = this.RawDataNew.BestLapSectorTimes;
+                if (maybeBestLap != null) {
+                    var maybeBestLapTime = maybeBestLap.GetLapTime()?.TotalSeconds;
+                    if (this.BestLap?.Time == null || (maybeBestLapTime != null && maybeBestLapTime < this.BestLap.Time)) {
+                        this.BestLap = new Lap(maybeBestLap!);
+                        DynLeaderboardsPlugin.LogInfo($"[{this.Id}] best lap: {this.BestLap.Time}");
+                    }
+                }
+
             }
 
             var currentDriverIndex = this.Drivers.FindIndex(d => d.FullName == this.RawDataNew.Name);
@@ -153,9 +164,7 @@ namespace KLPlugins.DynLeaderboards.Car {
             this.PitCount = this.RawDataNew.PitCount ?? 0;
             this.PitTimeLast = this.RawDataNew.PitLastDuration?.TotalSeconds ?? 0.0;
             this.IsCurrentLapOutLap = (this.RawDataNew.PitOutAtLap ?? -1) == this.Laps.New + 1;
-            this.IsLastLapOutLap = (this.RawDataNew.PitOutAtLap ?? -1) == this.Laps.New;
             this.IsCurrentLapInLap = (this.RawDataNew.PitEnterAtLap ?? -1) == this.Laps.New + 1;
-            this.IsLastLapInLap = (this.RawDataNew.PitEnterAtLap ?? -1) == this.Laps.New;
 
             this.PositionInClassStart = this.RawDataNew.StartPositionClass;
             this.PositionOverallStart = this.RawDataNew.StartPosition;
@@ -321,7 +330,6 @@ namespace KLPlugins.DynLeaderboards.Car {
             }
             return relSplinePos;
         }
-
     }
 
     public class Driver {
@@ -335,6 +343,26 @@ namespace KLPlugins.DynLeaderboards.Car {
             this.InitialPlusLastName = o.ShortName;
         }
     }
+
+    public class Lap {
+        public double? Time { get; private set; }
+        public double? S1Time { get; private set; }
+        public double? S2Time { get; private set; }
+        public double? S3Time { get; private set; }
+
+        public bool IsOutLap { get; internal set; } = false;
+        public bool IsInLap { get; internal set; } = false;
+        public bool IsValid { get; internal set; } = true;
+
+        public Lap(SectorTimes sectorTimes) {
+            this.Time = sectorTimes.GetLapTime()?.TotalSeconds;
+            this.S1Time = sectorTimes.GetSectorSplit(1)?.TotalSeconds;
+            this.S2Time = sectorTimes.GetSectorSplit(2)?.TotalSeconds;
+            this.S3Time = sectorTimes.GetSectorSplit(3)?.TotalSeconds;
+        }
+    }
+
+
 
     public enum CarLocation {
         NONE = 0,

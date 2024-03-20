@@ -60,37 +60,27 @@ namespace KLPlugins.DynLeaderboards {
             switch (this.Config.CurrentLeaderboard()) {
                 case Leaderboard.Overall:
                     this.GetDynCar = (i) => v.OverallOrder.ElementAtOrDefault(i);
-                    // this.GetDynGapToFocused = (i) => v.GetCar(i)?.GapToLeader;
+                    this.GetDynGapToFocused = (i) => this.GetDynCar(i)?.GapToLeader;
                     // this.GetDynGapToAhead = (i) => v.GetCar(i)?.GapToAhead;
-                    // this.GetDynBestLapDeltaToFocusedBest = (i) => v.GetCar(i)?.BestLapDeltaToLeaderBest;
-                    // this.GetDynLastLapDeltaToFocusedBest = (i) => v.GetCar(i)?.LastLapDeltaToLeaderBest;
-                    // this.GetDynLastLapDeltaToFocusedLast = (i) => v.GetCar(i)?.LastLapDeltaToLeaderLast;
-                    // this.GetDynPosition = (i) => v.GetCar(i)?.OverallPos;
-                    // this.GetDynPositionStart = (i) => v.GetCar(i)?.StartPos;
+                    this.GetDynBestLapDeltaToFocusedBest = (i) => this.GetDynCar(i)?.BestLap?.DeltaToLeaderBest;
+                    this.GetDynLastLapDeltaToFocusedBest = (i) => this.GetDynCar(i)?.LastLap?.DeltaToLeaderBest;
+                    this.GetDynLastLapDeltaToFocusedLast = (i) => this.GetDynCar(i)?.LastLap?.DeltaToLeaderLast;
+                    this.GetDynPosition = (i) => this.GetDynCar(i)?.PositionOverall;
+                    this.GetDynPositionStart = (i) => this.GetDynCar(i)?.PositionOverallStart;
                     break;
 
                 case Leaderboard.Class:
                     this.GetDynCar = (i) => v.ClassOrder.ElementAtOrDefault(i);
-                    // if (v.PosInClassCarsIdxs == null) {
-                    //     DynLeaderboardsPlugin.LogError("Cannot calculate class positions.");
-                    //     this.SetDynGettersDefault();
-                    //     break;
-                    // }
-                    // this.GetDynGapToFocused = (i) => this.GetDynCar(i)?.GapToClassLeader;
-                    // this.GetDynGapToAhead = (i) => this.GetDynCar(i)?.GapToAheadInClass;
-                    // this.GetDynBestLapDeltaToFocusedBest = (i) => this.GetDynCar(i)?.BestLapDeltaToClassLeaderBest;
-                    // this.GetDynLastLapDeltaToFocusedBest = (i) => this.GetDynCar(i)?.LastLapDeltaToClassLeaderBest;
-                    // this.GetDynLastLapDeltaToFocusedLast = (i) => this.GetDynCar(i)?.LastLapDeltaToClassLeaderLast;
-                    // this.GetDynPosition = (i) => this.GetDynCar(i)?.InClassPos;
-                    // this.GetDynPositionStart = (i) => this.GetDynCar(i)?.StartPosInClass;
+                    this.GetDynGapToFocused = (i) => this.GetDynCar(i)?.GapToClassLeader;
+                    //this.GetDynGapToAhead = (i) => this.GetDynCar(i)?.GapToAheadInClass;
+                    this.GetDynBestLapDeltaToFocusedBest = (i) => this.GetDynCar(i)?.BestLap?.DeltaToClassLeaderBest;
+                    this.GetDynLastLapDeltaToFocusedBest = (i) => this.GetDynCar(i)?.LastLap?.DeltaToClassLeaderBest;
+                    this.GetDynLastLapDeltaToFocusedLast = (i) => this.GetDynCar(i)?.LastLap?.DeltaToClassLeaderLast;
+                    this.GetDynPosition = (i) => this.GetDynCar(i)?.PositionInClass;
+                    this.GetDynPositionStart = (i) => this.GetDynCar(i)?.PositionInClassStart;
                     break;
 
                 // case Leaderboard.Cup:
-                //     if (v.PosInCupCarsIdxs == null) {
-                //         DynLeaderboardsPlugin.LogError("Cannot calculate cup positions.");
-                //         this.SetDynGettersDefault();
-                //         break;
-                //     }
                 //     this.GetDynCar = (i) => v.GetCar(i, v.PosInCupCarsIdxs);
                 //     this.GetFocusedCarIdxInDynLeaderboard = () => v.FocusedCarPosInCupCarsIdxs;
                 //     this.GetDynGapToFocused = (i) => this.GetDynCar(i)?.GapToCupLeader;
@@ -102,69 +92,40 @@ namespace KLPlugins.DynLeaderboards {
                 //     this.GetDynPositionStart = (i) => this.GetDynCar(i)?.StartPosInCup;
                 //     break;
 
-                // case Leaderboard.RelativeOverall:
-                //     //this._relativeOverallCarsIdxs ??= new int?[this.Settings.NumOverallRelativePos * 2 + 1];
+                case Leaderboard.RelativeOverall:
+                case Leaderboard.PartialRelativeOverall:
+                    this.GetDynGapToFocused = (i) => this.GetDynCar(i)?.GapToFocusedTotal;
+                    // this.GetDynGapToAhead = (i) => this.GetDynCar(i)?.GapToAhead;
+                    this.GetDynBestLapDeltaToFocusedBest = (i) => this.GetDynCar(i)?.BestLap?.DeltaToFocusedBest;
+                    this.GetDynLastLapDeltaToFocusedBest = (i) => this.GetDynCar(i)?.LastLap?.DeltaToFocusedBest;
+                    this.GetDynLastLapDeltaToFocusedLast = (i) => this.GetDynCar(i)?.LastLap?.DeltaToFocusedLast;
+                    this.GetDynPosition = (i) => this.GetDynCar(i)?.PositionOverall;
+                    this.GetDynPositionStart = (i) => this.GetDynCar(i)?.PositionOverallStart;
+                    break;
 
-                //     // this.GetDynGapToFocused = (i) => this.GetDynCar(i)?.GapToFocusedTotal;
-                //     // this.GetDynGapToAhead = (i) => this.GetDynCar(i)?.GapToAhead;
-                //     // this.GetDynBestLapDeltaToFocusedBest = (i) => this.GetDynCar(i)?.BestLapDeltaToFocusedBest;
-                //     // this.GetDynLastLapDeltaToFocusedBest = (i) => this.GetDynCar(i)?.LastLapDeltaToFocusedBest;
-                //     // this.GetDynLastLapDeltaToFocusedLast = (i) => this.GetDynCar(i)?.LastLapDeltaToFocusedLast;
-                //     // this.GetDynPosition = (i) => this.GetDynCar(i)?.OverallPos;
-                //     // this.GetDynPositionStart = (i) => this.GetDynCar(i)?.StartPos;
-                //     break;
+                case Leaderboard.RelativeClass:
+                case Leaderboard.PartialRelativeClass:
+                    this.GetDynGapToFocused = (i) => this.GetDynCar(i)?.GapToFocusedTotal;
+                    // this.GetDynGapToAhead = (i) => this.GetDynCar(i)?.GapToAheadInClass;
+                    this.GetDynBestLapDeltaToFocusedBest = (i) => this.GetDynCar(i)?.BestLap?.DeltaToFocusedBest;
+                    this.GetDynLastLapDeltaToFocusedBest = (i) => this.GetDynCar(i)?.LastLap?.DeltaToFocusedBest;
+                    this.GetDynLastLapDeltaToFocusedLast = (i) => this.GetDynCar(i)?.LastLap?.DeltaToFocusedLast;
+                    this.GetDynPosition = (i) => this.GetDynCar(i)?.PositionInClass;
+                    this.GetDynPositionStart = (i) => this.GetDynCar(i)?.PositionInClassStart;
+                    break;
 
-                // case Leaderboard.RelativeClass:
-                //     //     this._relativeClassCarsIdxs ??= new int?[this.Settings.NumClassRelativePos * 2 + 1];
+                // case Leaderboard.RelativeCup:
+                //     this._relativeCupCarsIdxs ??= new int?[this.Settings.NumCupRelativePos * 2 + 1];
 
-                //     //     this.GetDynGapToFocused = (i) => this.GetDynCar(i)?.GapToFocusedTotal;
-                //     //     this.GetDynGapToAhead = (i) => this.GetDynCar(i)?.GapToAheadInClass;
-                //     //     this.GetDynBestLapDeltaToFocusedBest = (i) => this.GetDynCar(i)?.BestLapDeltaToFocusedBest;
-                //     //     this.GetDynLastLapDeltaToFocusedBest = (i) => this.GetDynCar(i)?.LastLapDeltaToFocusedBest;
-                //     //     this.GetDynLastLapDeltaToFocusedLast = (i) => this.GetDynCar(i)?.LastLapDeltaToFocusedLast;
-                //     //     this.GetDynPosition = (i) => this.GetDynCar(i)?.InClassPos;
-                //     //     this.GetDynPositionStart = (i) => this.GetDynCar(i)?.StartPosInClass;
-                //     break;
-
-                // // case Leaderboard.RelativeCup:
-                // //     this._relativeCupCarsIdxs ??= new int?[this.Settings.NumCupRelativePos * 2 + 1];
-
-                // //     this.GetDynCar = (i) => v.GetCar(i, this._relativeCupCarsIdxs);
-                // //     this.GetFocusedCarIdxInDynLeaderboard = () => this.Settings.NumCupRelativePos;
-                // //     this.GetDynGapToFocused = (i) => this.GetDynCar(i)?.GapToFocusedTotal;
-                // //     this.GetDynGapToAhead = (i) => this.GetDynCar(i)?.GapToAheadInCup;
-                // //     this.GetDynBestLapDeltaToFocusedBest = (i) => this.GetDynCar(i)?.BestLapDeltaToFocusedBest;
-                // //     this.GetDynLastLapDeltaToFocusedBest = (i) => this.GetDynCar(i)?.LastLapDeltaToFocusedBest;
-                // //     this.GetDynLastLapDeltaToFocusedLast = (i) => this.GetDynCar(i)?.LastLapDeltaToFocusedLast;
-                // //     this.GetDynPosition = (i) => this.GetDynCar(i)?.InCupPos;
-                // //     this.GetDynPositionStart = (i) => this.GetDynCar(i)?.StartPosInCup;
-                // //     break;
-
-                // case Leaderboard.PartialRelativeOverall:
-                //     //     this._partialRelativeOverallCarsIdxs ??= new int?[
-                //     //this.Settings.PartialRelativeOverallNumOverallPos + this.Settings.PartialRelativeOverallNumRelativePos * 2 + 1];
-                //     //     this.GetFocusedCarIdxInDynLeaderboard = () => this._focusedCarPosInPartialRelativeOverallCarsIdxs;
-                //     //     this.GetDynGapToFocused = (i) => this.GetDynCar(i)?.GapToFocusedTotal;
-                //     //     this.GetDynGapToAhead = (i) => this.GetDynCar(i)?.GapToAhead;
-                //     //     this.GetDynBestLapDeltaToFocusedBest = (i) => this.GetDynCar(i)?.BestLapDeltaToFocusedBest;
-                //     //     this.GetDynLastLapDeltaToFocusedBest = (i) => this.GetDynCar(i)?.LastLapDeltaToFocusedBest;
-                //     //     this.GetDynLastLapDeltaToFocusedLast = (i) => this.GetDynCar(i)?.LastLapDeltaToFocusedLast;
-                //     //     this.GetDynPosition = (i) => this.GetDynCar(i)?.OverallPos;
-                //     //     this.GetDynPositionStart = (i) => this.GetDynCar(i)?.StartPos;
-                //     break;
-
-                // case Leaderboard.PartialRelativeClass:
-                //     this._partialRelativeClassCarsIdxs ??= new int?[this.Settings.PartialRelativeClassNumClassPos + this.Settings.PartialRelativeClassNumRelativePos * 2 + 1];
-
-                //     this.GetDynCar = (i) => v.GetCar(i, this._partialRelativeClassCarsIdxs);
-                //     this.GetFocusedCarIdxInDynLeaderboard = () => this._focusedCarPosInPartialRelativeClassCarsIdxs;
+                //     this.GetDynCar = (i) => v.GetCar(i, this._relativeCupCarsIdxs);
+                //     this.GetFocusedCarIdxInDynLeaderboard = () => this.Settings.NumCupRelativePos;
                 //     this.GetDynGapToFocused = (i) => this.GetDynCar(i)?.GapToFocusedTotal;
-                //     this.GetDynGapToAhead = (i) => this.GetDynCar(i)?.GapToAheadInClass;
+                //     this.GetDynGapToAhead = (i) => this.GetDynCar(i)?.GapToAheadInCup;
                 //     this.GetDynBestLapDeltaToFocusedBest = (i) => this.GetDynCar(i)?.BestLapDeltaToFocusedBest;
                 //     this.GetDynLastLapDeltaToFocusedBest = (i) => this.GetDynCar(i)?.LastLapDeltaToFocusedBest;
                 //     this.GetDynLastLapDeltaToFocusedLast = (i) => this.GetDynCar(i)?.LastLapDeltaToFocusedLast;
-                //     this.GetDynPosition = (i) => this.GetDynCar(i)?.InClassPos;
-                //     this.GetDynPositionStart = (i) => this.GetDynCar(i)?.StartPosInClass;
+                //     this.GetDynPosition = (i) => this.GetDynCar(i)?.InCupPos;
+                //     this.GetDynPositionStart = (i) => this.GetDynCar(i)?.StartPosInCup;
                 //     break;
 
                 // case Leaderboard.PartialRelativeCup:
@@ -181,33 +142,16 @@ namespace KLPlugins.DynLeaderboards {
                 //     this.GetDynPositionStart = (i) => this.GetDynCar(i)?.StartPosInCup;
                 //     break;
 
-                // case Leaderboard.RelativeOnTrack:
-                //     this._relativePosOnTrackCarsIdxs ??= new int?[this.Settings.NumOnTrackRelativePos * 2 + 1];
-
-                //     this.GetDynCar = (i) => v.GetCar(i, this._relativePosOnTrackCarsIdxs);
-                //     this.GetFocusedCarIdxInDynLeaderboard = () => this.Settings.NumOnTrackRelativePos;
-                //     this.GetDynGapToFocused = (i) => this.GetDynCar(i)?.GapToFocusedOnTrack;
-                //     this.GetDynGapToAhead = (i) => this.GetDynCar(i)?.GapToAheadOnTrack;
-                //     this.GetDynBestLapDeltaToFocusedBest = (i) => this.GetDynCar(i)?.BestLapDeltaToFocusedBest;
-                //     this.GetDynLastLapDeltaToFocusedBest = (i) => this.GetDynCar(i)?.LastLapDeltaToFocusedBest;
-                //     this.GetDynLastLapDeltaToFocusedLast = (i) => this.GetDynCar(i)?.LastLapDeltaToFocusedLast;
-                //     this.GetDynPosition = (i) => this.GetDynCar(i)?.OverallPos;
-                //     this.GetDynPositionStart = (i) => this.GetDynCar(i)?.StartPos;
-                //     break;
-
-                // case Leaderboard.RelativeOnTrackWoPit:
-                //     this._relativePosOnTrackWoPitCarsIdxs ??= new int?[this.Settings.NumOnTrackRelativePos * 2 + 1];
-
-                //     this.GetDynCar = (i) => v.GetCar(i, this._relativePosOnTrackWoPitCarsIdxs);
-                //     this.GetFocusedCarIdxInDynLeaderboard = () => this.Settings.NumOnTrackRelativePos;
-                //     this.GetDynGapToFocused = (i) => this.GetDynCar(i)?.GapToFocusedOnTrack;
-                //     this.GetDynGapToAhead = (i) => this.GetDynCar(i)?.GapToAheadOnTrack;
-                //     this.GetDynBestLapDeltaToFocusedBest = (i) => this.GetDynCar(i)?.BestLapDeltaToFocusedBest;
-                //     this.GetDynLastLapDeltaToFocusedBest = (i) => this.GetDynCar(i)?.LastLapDeltaToFocusedBest;
-                //     this.GetDynLastLapDeltaToFocusedLast = (i) => this.GetDynCar(i)?.LastLapDeltaToFocusedLast;
-                //     this.GetDynPosition = (i) => this.GetDynCar(i)?.OverallPos;
-                //     this.GetDynPositionStart = (i) => this.GetDynCar(i)?.StartPos;
-                //     break;
+                case Leaderboard.RelativeOnTrack:
+                case Leaderboard.RelativeOnTrackWoPit:
+                    //this.GetDynGapToFocused = (i) => this.GetDynCar(i)?.GapToFocusedOnTrack;
+                    //this.GetDynGapToAhead = (i) => this.GetDynCar(i)?.GapToAheadOnTrack;
+                    this.GetDynBestLapDeltaToFocusedBest = (i) => this.GetDynCar(i)?.BestLap?.DeltaToFocusedBest;
+                    this.GetDynLastLapDeltaToFocusedBest = (i) => this.GetDynCar(i)?.LastLap?.DeltaToFocusedBest;
+                    this.GetDynLastLapDeltaToFocusedLast = (i) => this.GetDynCar(i)?.LastLap?.DeltaToFocusedLast;
+                    this.GetDynPosition = (i) => this.GetDynCar(i)?.PositionOverall;
+                    this.GetDynPositionStart = (i) => this.GetDynCar(i)?.PositionOverallStart;
+                    break;
 
                 default:
                     this.SetDynGettersDefault();

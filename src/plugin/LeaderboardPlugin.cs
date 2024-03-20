@@ -329,9 +329,9 @@ namespace KLPlugins.DynLeaderboards {
                 // // Pit
                 AddPitProp(OutPitProp.IsInPitLane, () => l.GetDynCar(i)?.IsInPitLane);
                 AddPitProp(OutPitProp.PitStopCount, () => l.GetDynCar(i)?.PitCount);
-                // AddPitProp(OutPitProp.PitTimeTotal, () => l.GetDynCar(i)?.TotalPitTime);
+                AddPitProp(OutPitProp.PitTimeTotal, () => l.GetDynCar(i)?.TotalPitTime);
                 AddPitProp(OutPitProp.PitTimeLast, () => l.GetDynCar(i)?.PitTimeLast);
-                // AddPitProp(OutPitProp.PitTimeCurrent, () => l.GetDynCar(i)?.CurrentTimeInPits);
+                AddPitProp(OutPitProp.PitTimeCurrent, () => l.GetDynCar(i)?.PitTimeCurrent);
 
                 // // Lap deltas
 

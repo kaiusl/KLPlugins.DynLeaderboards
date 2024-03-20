@@ -213,11 +213,15 @@ namespace KLPlugins.DynLeaderboards.Helpers {
 
     public static class DictExtensions {
         public static V? GetValueOrDefault<K, V>(this Dictionary<K, V> dict, K key) {
+            return dict.GetValueOr(key, default);
+        }
+
+        public static V? GetValueOr<K, V>(this Dictionary<K, V> dict, K key, V? defValue) {
             if (dict.ContainsKey(key)) {
                 return dict[key];
             }
 
-            return default;
+            return defValue;
         }
     }
 

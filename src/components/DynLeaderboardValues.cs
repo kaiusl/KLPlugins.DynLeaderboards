@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Linq;
 
 using GameReaderCommon;
@@ -94,6 +94,7 @@ namespace KLPlugins.DynLeaderboards {
 
                 case Leaderboard.RelativeOverall:
                 case Leaderboard.PartialRelativeOverall:
+                    this.GetDynCar = i => this.Cars.ElementAtOrDefault(i);
                     this.GetDynGapToFocused = (i) => this.GetDynCar(i)?.GapToFocusedTotal;
                     // this.GetDynGapToAhead = (i) => this.GetDynCar(i)?.GapToAhead;
                     this.GetDynBestLapDeltaToFocusedBest = (i) => this.GetDynCar(i)?.BestLap?.DeltaToFocusedBest;
@@ -105,6 +106,7 @@ namespace KLPlugins.DynLeaderboards {
 
                 case Leaderboard.RelativeClass:
                 case Leaderboard.PartialRelativeClass:
+                    this.GetDynCar = i => this.Cars.ElementAtOrDefault(i);
                     this.GetDynGapToFocused = (i) => this.GetDynCar(i)?.GapToFocusedTotal;
                     // this.GetDynGapToAhead = (i) => this.GetDynCar(i)?.GapToAheadInClass;
                     this.GetDynBestLapDeltaToFocusedBest = (i) => this.GetDynCar(i)?.BestLap?.DeltaToFocusedBest;
@@ -144,6 +146,7 @@ namespace KLPlugins.DynLeaderboards {
 
                 case Leaderboard.RelativeOnTrack:
                 case Leaderboard.RelativeOnTrackWoPit:
+                    this.GetDynCar = i => this.Cars.ElementAtOrDefault(i);
                     //this.GetDynGapToFocused = (i) => this.GetDynCar(i)?.GapToFocusedOnTrack;
                     //this.GetDynGapToAhead = (i) => this.GetDynCar(i)?.GapToAheadOnTrack;
                     this.GetDynBestLapDeltaToFocusedBest = (i) => this.GetDynCar(i)?.BestLap?.DeltaToFocusedBest;

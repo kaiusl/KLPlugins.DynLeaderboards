@@ -179,10 +179,12 @@ namespace KLPlugins.DynLeaderboards.Car {
                 && this.Location.Old == CarLocation.Track
                 && this.IsInPitLane
             ) {
+                DynLeaderboardsPlugin.LogInfo($"[{this.Id}] jumped to pits");
                 this.JumpedToPits = true;
             }
 
             if (this.JumpedToPits && !this.IsInPitLane) {
+                DynLeaderboardsPlugin.LogInfo($"[{this.Id}] jumped to pits cleared.");
                 this.JumpedToPits = false;
             }
         }
@@ -194,10 +196,12 @@ namespace KLPlugins.DynLeaderboards.Car {
                 && this.SplinePosition > 0.5
                 && this.Laps.New == 0
             ) {
+                DynLeaderboardsPlugin.LogInfo($"[{this.Id}] has not crossed the start line");
                 this.HasCrossedStartLine = false;
             }
 
             if (!this.HasCrossedStartLine && (this._isSplinePositionReset || this.ExitedPitLane)) {
+                DynLeaderboardsPlugin.LogInfo($"[{this.Id}] crossed the start line");
                 this.HasCrossedStartLine = true;
             }
         }
@@ -210,6 +214,7 @@ namespace KLPlugins.DynLeaderboards.Car {
             ) {
                 this.OffsetLapUpdate = OffsetLapUpdateType.LapBeforeSpline;
                 this._lapAtOffsetLapUpdate = this.Laps.New;
+                DynLeaderboardsPlugin.LogInfo($"Offset lap update [{this.Id}]: {this.OffsetLapUpdate}: sp={this.SplinePosition}, oldLap={this.Laps.Old}, newLap={this.Laps.New}");
             } else if (this.OffsetLapUpdate == OffsetLapUpdateType.None
                             && this._isSplinePositionReset
                             && this.Laps.New != this._lapAtOffsetLapUpdate // Remove double detection with above
@@ -218,16 +223,19 @@ namespace KLPlugins.DynLeaderboards.Car {
                 ) {
                 this.OffsetLapUpdate = OffsetLapUpdateType.SplineBeforeLap;
                 this._lapAtOffsetLapUpdate = this.Laps.New;
+                DynLeaderboardsPlugin.LogInfo($"Offset lap update [{this.Id}]: {this.OffsetLapUpdate}: sp={this.SplinePosition}, oldLap={this.Laps.Old}, newLap={this.Laps.New}");
             }
 
             if (this.OffsetLapUpdate == OffsetLapUpdateType.LapBeforeSpline) {
                 if (this.SplinePosition < 0.9) {
                     this.OffsetLapUpdate = OffsetLapUpdateType.None;
+                    DynLeaderboardsPlugin.LogInfo($"Offset lap update fixed [{this.Id}]: {this.OffsetLapUpdate}: sp={this.SplinePosition}, oldLap={this.Laps.Old}, newLap={this.Laps.New}");
                 }
             } else if (this.OffsetLapUpdate == OffsetLapUpdateType.SplineBeforeLap) {
                 if (this.Laps.New != this._lapAtOffsetLapUpdate || (this.SplinePosition > 0.025 && this.SplinePosition < 0.9)) {
                     // Second condition is a fallback in case the lap actually shouldn't have been updated (eg at the start line, jumped to pits and then crossed the line in the pits)
                     this.OffsetLapUpdate = OffsetLapUpdateType.None;
+                    DynLeaderboardsPlugin.LogInfo($"Offset lap update fixed [{this.Id}]: {this.OffsetLapUpdate}: sp={this.SplinePosition}, oldLap={this.Laps.Old}, newLap={this.Laps.New}");
                 }
             }
         }

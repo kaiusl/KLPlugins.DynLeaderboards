@@ -17,6 +17,7 @@ namespace KLPlugins.DynLeaderboards {
         }
 
         internal void Reset() {
+            DynLeaderboardsPlugin.LogInfo("Session.Reset()");
             this.SessionType = SessionType.Unknown;
             this.SessionPhase = SessionPhase.Unknown;
             
@@ -43,6 +44,7 @@ namespace KLPlugins.DynLeaderboards {
                 this.IsLapLimited = data.NewData.RemainingLaps > 0;
                 this.IsTimeLimited = !this.IsLapLimited;
                 this._isSessionLimitSet = true;
+                DynLeaderboardsPlugin.LogInfo($"Session limit set: isLapLimited={this.IsLapLimited}, isTimeLimited={this.IsTimeLimited}");
             }
 
             if (DynLeaderboardsPlugin.Game.IsAcc) {

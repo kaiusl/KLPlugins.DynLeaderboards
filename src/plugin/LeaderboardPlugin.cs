@@ -377,7 +377,7 @@ namespace KLPlugins.DynLeaderboards {
                 AddProp(OutCarProp.IsOverallBestLapCar, () => (l.GetDynCar(i)?.IsBestLapCarOverall ?? false).ToInt());
                 AddProp(OutCarProp.IsClassBestLapCar, () => (l.GetDynCar(i)?.IsBestLapCarInClass ?? false).ToInt());
                 // AddProp(OutCarProp.IsCupBestLapCar, () => (l.GetDynCar(i)?.IsCupBestLapCar ?? false) ? 1 : 0);
-                // AddProp(OutCarProp.RelativeOnTrackLapDiff, () => l.GetDynCar(i)?.RelativeOnTrackLapDiff ?? 0);
+                AddProp(OutCarProp.RelativeOnTrackLapDiff, () => (int?)l.GetDynCar(i)?.RelativeOnTrackLapDiff ?? 0);
 
                 this.AttachDelegate($"{startName}.DBG_TotalSplinePosition", () => (l.GetDynCar(i))?.TotalSplinePosition);
                 this.AttachDelegate($"{startName}.DBG_SplinePosition", () => (l.GetDynCar(i))?.SplinePosition);

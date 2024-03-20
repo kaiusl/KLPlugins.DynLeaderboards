@@ -1,4 +1,4 @@
-using GameReaderCommon;
+﻿using GameReaderCommon;
 
 namespace KLPlugins.DynLeaderboards {
     public class Session {
@@ -31,13 +31,14 @@ namespace KLPlugins.DynLeaderboards {
 
 
         internal void OnDataUpdate(GameData data) {
-            var newSessType = SessionTypeMethods.FromSHGameData(data);
+            var newSessType = SessionTypeExtensions.FromSHGameData(data);
             this.IsNewSession = newSessType != this.SessionType;
-            this.SessionType = newSessType;
-
             if (this.IsNewSession) {
-                this.TimeOfDay = 0;
+                this.Reset();
             }
+
+            this.SessionType = newSessType;
+            this.SessionPhase = SessionPhaseExtensions.FromSHGameData(data);
 
             if (!this._isSessionLimitSet) {
                 // Need to set once as at the end of the session SessionTimeLeft == 0 and this will confuse plugin
@@ -51,7 +52,6 @@ namespace KLPlugins.DynLeaderboards {
                 var rawDataNew = (ACSharedMemory.ACC.Reader.ACCRawData)data.NewData.GetRawDataObject();
 
                 this.TimeOfDay = rawDataNew.Graphics.clock;
-                this.SessionPhase = (SessionPhase)rawDataNew.Realtime.Phase;
             }
 
         }
@@ -73,7 +73,20 @@ namespace KLPlugins.DynLeaderboards {
         Unknown
     }
 
-    internal static class SessionTypeMethods {
+
+    public enum SessionPhase {
+        Unknown = 0,
+        Starting = 1,
+        PreFormation = 2,
+        FormationLap = 3,
+        PreSession = 4,
+        Session = 5,
+        SessionOver = 6,
+        PostSession = 7,
+        ResultUI = 8
+    };
+
+    internal static class SessionTypeExtensions {
         internal static SessionType FromSHGameData(GameData data) {
             if (DynLeaderboardsPlugin.Game.IsAcc) {
                 var accData = (ACSharedMemory.ACC.Reader.ACCRawData)data.NewData.GetRawDataObject();
@@ -148,7 +161,7 @@ namespace KLPlugins.DynLeaderboards {
             };
         }
 
-        internal static string ToPrettyString(SessionType s) {
+        internal static string ToPrettyString(this SessionType s) {
             return s switch {
                 SessionType.Practice => "Practice",
                 SessionType.Qualifying => "Qualifying",
@@ -166,15 +179,26 @@ namespace KLPlugins.DynLeaderboards {
         }
     }
 
-    public enum SessionPhase {
-        Unknown = 0,
-        Starting = 1,
-        PreFormation = 2,
-        FormationLap = 3,
-        PreSession = 4,
-        Session = 5,
-        SessionOver = 6,
-        PostSession = 7,
-        ResultUI = 8
-    };
+    internal static class SessionPhaseExtensions {
+        internal static SessionPhase FromSHGameData(GameData data) {
+            if (DynLeaderboardsPlugin.Game.IsAcc) {
+                var accData = (ACSharedMemory.ACC.Reader.ACCRawData)data.NewData.GetRawDataObject();
+                return accData.Realtime.Phase switch {
+                    ksBroadcastingNetwork.SessionPhase.NONE => SessionPhase.Unknown,
+                    ksBroadcastingNetwork.SessionPhase.Starting => SessionPhase.Starting,
+                    ksBroadcastingNetwork.SessionPhase.PreFormation => SessionPhase.PreFormation,
+                    ksBroadcastingNetwork.SessionPhase.FormationLap => SessionPhase.FormationLap,
+                    ksBroadcastingNetwork.SessionPhase.PreSession => SessionPhase.PreSession,
+                    ksBroadcastingNetwork.SessionPhase.Session => SessionPhase.Session,
+                    ksBroadcastingNetwork.SessionPhase.SessionOver => SessionPhase.SessionOver,
+                    ksBroadcastingNetwork.SessionPhase.PostSession => SessionPhase.PostSession,
+                    ksBroadcastingNetwork.SessionPhase.ResultUI => SessionPhase.ResultUI,
+                    _ => throw new System.Exception($"Unknown session phase {accData.Realtime.Phase}"),
+                };
+            } else {
+                // TODO: Figure out how to detect these in other games
+                return SessionPhase.Unknown;
+            }
+        }
+    }
 }

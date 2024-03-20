@@ -33,8 +33,13 @@ namespace KLPlugins.DynLeaderboards {
 
         internal void Reset() {
             DynLeaderboardsPlugin.LogInfo($"Values.Reset()");
-            this.Booleans.Reset();
             this.Session.Reset();
+            this.ResetWithoutSession();
+        }
+
+        internal void ResetWithoutSession() {
+            DynLeaderboardsPlugin.LogInfo($"Values.ResetWithoutSession()");
+            this.Booleans.Reset();
             this.OverallOrder.Clear();
             this.ClassOrder.Clear();
             this.RelativeOnTrackAheadOrder.Clear();
@@ -72,9 +77,7 @@ namespace KLPlugins.DynLeaderboards {
 
             if (this.Booleans.NewData.IsNewEvent || this.Session.IsNewSession) {
                 DynLeaderboardsPlugin.LogInfo($"newEvent={this.Booleans.NewData.IsNewEvent}, newSession={this.Session.IsNewSession}");
-                this.Reset();
-
-                this.Session.OnDataUpdate(data);
+                this.ResetWithoutSession();
                 this.Booleans.OnNewEvent(this.Session.SessionType);
             }
 

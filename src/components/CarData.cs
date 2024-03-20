@@ -67,8 +67,11 @@ namespace KLPlugins.DynLeaderboards.Car {
 
         public bool IsInPitLane { get; private set; }
         public bool ExitedPitLane { get; private set; }
+        public bool EnteredPitLane { get; private set; }
         public int PitCount { get; private set; }
-        public double PitTimeLast { get; private set; }
+        public double? PitTimeLast { get; private set; }
+        public double TotalPitTime { get; private set; }
+        public double? PitTimeCurrent { get; private set; }
 
 
         public double? GapToLeader { get; private set; }
@@ -109,6 +112,7 @@ namespace KLPlugins.DynLeaderboards.Car {
             SplineBeforeLap = 2
         }
         internal OffsetLapUpdateType OffsetLapUpdate { get; private set; } = OffsetLapUpdateType.None;
+
         private int _lapAtOffsetLapUpdate = -1;
         private bool _isSplinePositionReset = false;
         private const double _LAP_GAP_VALUE = 100_000;
@@ -152,6 +156,7 @@ namespace KLPlugins.DynLeaderboards.Car {
 
             this.IsInPitLane = this.Location.New == CarLocation.Pitlane || this.Location.New == CarLocation.PitBox;
             this.ExitedPitLane = this.Location.New == CarLocation.Track && this.Location.Old == CarLocation.Pitlane;
+            this.EnteredPitLane = this.Location.New == CarLocation.Pitlane && this.Location.Old == CarLocation.Track;
             this.PitCount = this.RawDataNew.PitCount ?? 0;
             this.PitTimeLast = this.RawDataNew.PitLastDuration?.TotalSeconds ?? 0.0;
             this.IsCurrentLapOutLap = (this.RawDataNew.PitOutAtLap ?? -1) == this.Laps.New + 1;
@@ -198,6 +203,8 @@ namespace KLPlugins.DynLeaderboards.Car {
             if (values.Session.IsRace) {
                 this.HandleJumpToPits(values.Session.SessionType);
                 this.CheckForCrossingStartLine(values.Session.SessionPhase);
+
+                this.UpdatePitInfo(values.Session.SessionPhase);
             }
 
             this.HandleOffsetLapUpdates();
@@ -271,6 +278,21 @@ namespace KLPlugins.DynLeaderboards.Car {
                     this._lapAtOffsetLapUpdate = -1;
                     DynLeaderboardsPlugin.LogInfo($"Offset lap update fixed [{this.Id}]: {this.OffsetLapUpdate}: sp={this.SplinePosition}, oldLap={this.Laps.Old}, newLap={this.Laps.New}");
                 }
+            }
+        }
+
+        void UpdatePitInfo(SessionPhase sessionPhase) {
+            var pitEntryTime = this.RawDataNew.PitEnterAtTime;
+            // Pit ended
+            if (pitEntryTime != null && this.ExitedPitLane) {
+                this.IsCurrentLapOutLap = true;
+                this.TotalPitTime += (double)this.PitTimeLast!;
+                this.PitTimeCurrent = null;
+            }
+
+            if (pitEntryTime != null) {
+                var time = (TimeSpan)(DateTime.Now - pitEntryTime);
+                this.PitTimeCurrent = time.TotalSeconds;
             }
         }
 

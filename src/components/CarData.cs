@@ -170,9 +170,7 @@ namespace KLPlugins.DynLeaderboards.Car {
                 this.CheckForCrossingStartLine(values.Session.SessionPhase);
             }
 
-            if (values.Session.SessionType == SessionType.Race) {
-                this.HandleOffsetLapUpdates();
-            }
+            this.HandleOffsetLapUpdates();
         }
 
         void HandleJumpToPits(SessionType sessionType) {

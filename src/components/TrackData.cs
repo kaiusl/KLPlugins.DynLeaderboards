@@ -4,6 +4,8 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 
+using GameReaderCommon;
+
 using KLPlugins.DynLeaderboards.Helpers;
 
 using MathNet.Numerics.Interpolation;
@@ -26,9 +28,16 @@ namespace KLPlugins.DynLeaderboards.Track {
     public class TrackData {
         public string Name { get; }
         public string Id { get; }
-        public float LengthMeters { get; }
+        public double LengthMeters { get; }
         public double SplinePosOffset { get; }
         internal Dictionary<string, LapInterpolator?>? LapInterpolators = null;
+
+        internal TrackData(GameData data) {
+            this.Name = data.NewData.TrackName;
+            this.Id = data.NewData.TrackId;
+            this.LengthMeters = data.NewData.TrackLength;
+            this.SplinePosOffset = 0.0; // TODO: read from track data
+        }
 
         /// <summary>
         /// Read default lap data for calculation of gaps.

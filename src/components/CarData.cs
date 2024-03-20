@@ -596,8 +596,8 @@ namespace KLPlugins.DynLeaderboards.Car {
                 }
 
                 // TrackData is passed from Values, Values never stores TrackData without LapInterpolators
-                var toInterp = trackData.LapInterpolators![to.CarClass];
-                var fromInterp = trackData.LapInterpolators![from.CarClass];
+                var toInterp = trackData.LapInterpolators?.GetValueOr(to.CarClass, null);
+                var fromInterp = trackData.LapInterpolators?.GetValueOr(from.CarClass, null);
                 if (toInterp == null && fromInterp == null) {
                     // lap data is not available, use naive distance based calculation
                     return CalculateNaiveGap(distBetween, trackData);
@@ -631,8 +631,8 @@ namespace KLPlugins.DynLeaderboards.Car {
             var relativeSplinePos = CalculateRelativeSplinePosition(fromPos, toPos);
 
             // TrackData is passed from Values, Values never stores TrackData without LapInterpolators
-            var toInterp = trackData.LapInterpolators![to.CarClass];
-            var fromInterp = trackData.LapInterpolators![from.CarClass];
+            var toInterp = trackData.LapInterpolators?.GetValueOr(to.CarClass, null);
+            var fromInterp = trackData.LapInterpolators?.GetValueOr(from.CarClass, null);
             if (toInterp == null && fromInterp == null) {
                 // lap data is not available, use naive distance based calculation
                 return CalculateNaiveGap(relativeSplinePos, trackData);

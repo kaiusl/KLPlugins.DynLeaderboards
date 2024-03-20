@@ -264,17 +264,17 @@ namespace KLPlugins.DynLeaderboards {
 
                 void AddOneDriverFromList(int j) {
                     var driverId = $"Driver.{j + 1}";
-                    // AddDriverProp(OutDriverProp.FirstName, driverId, () => l.GetDynCar(i)?.GetDriver(j)?.FirstName);
-                    // AddDriverProp(OutDriverProp.LastName, driverId, () => l.GetDynCar(i)?.GetDriver(j)?.LastName);
+                    AddDriverProp(OutDriverProp.FirstName, driverId, () => l.GetDynCar(i)?.Drivers.ElementAtOrDefault(j)?.FirstName);
+                    AddDriverProp(OutDriverProp.LastName, driverId, () => l.GetDynCar(i)?.Drivers.ElementAtOrDefault(j)?.LastName);
                     AddDriverProp(OutDriverProp.ShortName, driverId, () => l.GetDynCar(i)?.Drivers.ElementAtOrDefault(j)?.ShortName);
                     AddDriverProp(OutDriverProp.FullName, driverId, () => l.GetDynCar(i)?.Drivers.ElementAtOrDefault(j)?.FullName);
                     AddDriverProp(OutDriverProp.InitialPlusLastName, driverId, () => l.GetDynCar(i)?.Drivers.ElementAtOrDefault(j)?.InitialPlusLastName);
-                    // AddDriverProp(OutDriverProp.Nationality, driverId, () => l.GetDynCar(i)?.GetDriver(j)?.Nationality);
-                    // AddDriverProp(OutDriverProp.Category, driverId, () => l.GetDynCar(i)?.GetDriver(j)?.Category);
-                    // AddDriverProp(OutDriverProp.TotalLaps, driverId, () => l.GetDynCar(i)?.GetDriver(j)?.TotalLaps);
-                    // AddDriverProp(OutDriverProp.BestLapTime, driverId, () => l.GetDynCar(i)?.GetDriver(j)?.BestSessionLap?.Laptime);
+                    AddDriverProp(OutDriverProp.Nationality, driverId, () => l.GetDynCar(i)?.Drivers.ElementAtOrDefault(j)?.Nationality);
+                    AddDriverProp(OutDriverProp.Category, driverId, () => l.GetDynCar(i)?.Drivers.ElementAtOrDefault(j)?.Category);
+                    AddDriverProp(OutDriverProp.TotalLaps, driverId, () => l.GetDynCar(i)?.Drivers.ElementAtOrDefault(j)?.TotalLaps);
+                    AddDriverProp(OutDriverProp.BestLapTime, driverId, () => l.GetDynCar(i)?.Drivers.ElementAtOrDefault(j)?.BestLap?.Time);
                     AddDriverProp(OutDriverProp.TotalDrivingTime, driverId, () => l.GetDynCar(i)?.Drivers.ElementAtOrDefault(j).GetTotalDrivingTime());
-                    // AddDriverProp(OutDriverProp.CategoryColor, driverId, () => l.GetDynCar(i)?.GetDriver(j)?.CategoryColor);
+                    AddDriverProp(OutDriverProp.CategoryColor, driverId, () => l.GetDynCar(i)?.Drivers.ElementAtOrDefault(j)?.CategoryColor);
                 }
 
                 if (l.Config.NumDrivers > 0) {

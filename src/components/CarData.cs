@@ -192,6 +192,9 @@ namespace KLPlugins.DynLeaderboards.Car {
 
             if (this.IsNewLap) {
                 Debug.Assert(this.CurrentDriver != null, "Current driver shouldn't be null since someone had to finish this lap.");
+                var currentDriver = this.CurrentDriver!;
+                currentDriver.TotalLaps += 1;
+
                 this.LastLap = new Lap(this.RawDataNew.LastLapSectorTimes, this.Laps.New, this.CurrentDriver!) {
                     IsValid = this.IsCurrentLapValid,
                     IsOutLap = this.IsCurrentLapOutLap,
@@ -203,7 +206,11 @@ namespace KLPlugins.DynLeaderboards.Car {
                     var maybeBestLapTime = maybeBestLap.GetLapTime()?.TotalSeconds;
                     if (this.BestLap?.Time == null || (maybeBestLapTime != null && maybeBestLapTime < this.BestLap.Time)) {
                         this.BestLap = new Lap(maybeBestLap!, this.Laps.New, this.CurrentDriver!);
+                        currentDriver.BestLap = this.BestLap; // If it's car's best lap, it must also be the drivers
                         DynLeaderboardsPlugin.LogInfo($"[{this.Id}] best lap: {this.BestLap.Time}");
+                    } else if (currentDriver!.BestLap == null || (maybeBestLapTime != null && maybeBestLapTime < currentDriver.BestLap.Time)) {
+                        currentDriver!.BestLap = new Lap(maybeBestLap!, this.Laps.New, currentDriver!);
+                        DynLeaderboardsPlugin.LogInfo($"[{this.Id}] best lap for driver '{currentDriver.FullName}': {this.BestLap.Time}");
                     }
                 }
             }
@@ -762,10 +769,18 @@ namespace KLPlugins.DynLeaderboards.Car {
     }
 
     public class Driver {
-        public string FullName { get; private set; }
+        public string? FirstName { get; private set; }
+        public string? LastName { get; private set; }
         public string ShortName { get; private set; }
+        public string FullName { get; private set; }
         public string InitialPlusLastName { get; private set; }
+        public string? Initials { get; private set; }
 
+        public string? Category { get; private set; }
+        public string? Nationality { get; private set; }
+        public int TotalLaps { get; internal set; } = 0;
+        public Lap? BestLap { get; internal set; } = null;
+        public string CategoryColor => "#FFFFFF";
 
         private double _totalDrivingTime;
 

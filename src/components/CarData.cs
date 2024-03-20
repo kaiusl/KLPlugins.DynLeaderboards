@@ -6,7 +6,7 @@ using GameReaderCommon;
 
 namespace KLPlugins.DynLeaderboards.Car {
 
-    public struct NewOld<T> {
+    public class NewOld<T> {
         public T New { get; private set; }
         public T Old { get; private set; }
 
@@ -31,9 +31,9 @@ namespace KLPlugins.DynLeaderboards.Car {
         public string CarModel { get; private set; }
         public string? TeamName { get; private set; }
 
-        public NewOld<CarLocation> Location { get; private set; } = new(CarLocation.NONE);
+        public NewOld<CarLocation> Location { get; } = new(CarLocation.NONE);
 
-        public NewOld<int> Laps { get; private set; }
+        public NewOld<int> Laps { get; } = new(0);
         public double CurrentLapTime { get; private set; }
         public bool IsCurrentLapOutLap { get; private set; }
         public bool IsLastLapOutLap { get; private set; }

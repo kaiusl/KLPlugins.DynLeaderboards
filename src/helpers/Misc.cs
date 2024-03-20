@@ -203,4 +203,12 @@ namespace KLPlugins.DynLeaderboards.Helpers {
         }
     }
 
+    public static class ListExtensions {
+        public static void MoveElementAt<T>(this List<T> list, int from, int to) {
+            var item = list[from];
+            list.RemoveAt(from);
+            list.Insert(to, item);
+        }
+    }
+
 }

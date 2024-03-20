@@ -1,4 +1,4 @@
-﻿using GameReaderCommon;
+using GameReaderCommon;
 
 namespace KLPlugins.DynLeaderboards {
     public class Session {
@@ -20,8 +20,8 @@ namespace KLPlugins.DynLeaderboards {
             DynLeaderboardsPlugin.LogInfo("Session.Reset()");
             this.SessionType = SessionType.Unknown;
             this.SessionPhase = SessionPhase.Unknown;
-            
-            this.IsNewSession = false;
+
+            this.IsNewSession = true;
             this.IsTimeLimited = false;
             this.IsLapLimited = false;
 

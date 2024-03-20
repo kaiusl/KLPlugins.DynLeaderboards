@@ -6,6 +6,7 @@ using System.Linq;
 using GameReaderCommon;
 
 using KLPlugins.DynLeaderboards.Helpers;
+using KLPlugins.DynLeaderboards.Track;
 
 namespace KLPlugins.DynLeaderboards.Car {
 
@@ -73,6 +74,12 @@ namespace KLPlugins.DynLeaderboards.Car {
         public double? GapToLeader { get; private set; }
         public double? GapToClassLeader { get; private set; }
         public double? GapToFocusedTotal { get; private set; }
+        public double? GapToFocusedOnTrack { get; private set; }
+        public double? GapToAheadOnTrack { get; private set; }
+        public double? GapToCupLeader { get; private set; }
+        public double? GapToAhead { get; private set; }
+        public double? GapToAheadInClass { get; private set; }
+        public double? GapToAheadInCup { get; private set; }
         public RelativeLapDiff RelativeOnTrackLapDiff { get; private set; }
         public double SplinePosition { get; private set; }
 
@@ -102,10 +109,10 @@ namespace KLPlugins.DynLeaderboards.Car {
             SplineBeforeLap = 2
         }
         internal OffsetLapUpdateType OffsetLapUpdate { get; private set; } = OffsetLapUpdateType.None;
-        public int GapToFocusedOnTrack { get; private set; }
-
         private int _lapAtOffsetLapUpdate = -1;
         private bool _isSplinePositionReset = false;
+        private const double _LAP_GAP_VALUE = 100_000;
+        private const double _HALF_LAP_GAP_VALUE = _LAP_GAP_VALUE / 2;
 
 
         public CarData(Values values, Opponent rawData) {
@@ -299,16 +306,12 @@ namespace KLPlugins.DynLeaderboards.Car {
                 this.RelativeOnTrackLapDiff = RelativeLapDiff.SAME_LAP;
             } else if (focusedCar != null) {
                 this.RelativeSplinePositionToFocusedCar = this.CalculateRelativeSplinePosition(focusedCar);
-                this.SetRelLapDiff(focusedCar);
             }
 
             if (values.IsFirstFinished && this.IsNewLap) {
                 this.IsFinished = true;
                 this.FinishTime = DateTime.Now.Ticks;
             }
-
-
-
 
             this.BestLap?.CalculateDeltas(
                 thisCar: this,
@@ -336,6 +339,19 @@ namespace KLPlugins.DynLeaderboards.Car {
                 carAhead: carAhead,
                 carAheadInClass: carAheadInClass,
                 carAheadInCup: carAheadInCup
+            );
+
+            this.SetGaps(
+                focusedCar: focusedCar,
+                leaderCar: leaderCar,
+                classLeaderCar: classLeaderCar,
+                cupLeaderCar: cupLeaderCar,
+                carAhead: carAhead,
+                carAheadInClass: carAheadInClass,
+                carAheadInCup: carAheadInCup,
+                carAheadOnTrack: carAhead,
+                trackData: values.TrackData,
+                session: values.Session
             );
 
         }
@@ -374,9 +390,9 @@ namespace KLPlugins.DynLeaderboards.Car {
                         }
                     }
                 }
-            } else if (this.GapToFocusedTotal > 100_000) {
+            } else if (this.GapToFocusedTotal > _LAP_GAP_VALUE) {
                 this.RelativeOnTrackLapDiff = RelativeLapDiff.AHEAD;
-            } else if (this.GapToFocusedTotal < 50_000) {
+            } else if (this.GapToFocusedTotal < _HALF_LAP_GAP_VALUE) {
                 this.RelativeOnTrackLapDiff = RelativeLapDiff.SAME_LAP;
                 if (this.GapToFocusedOnTrack > 0) {
                     if (this.PositionOverall > focusedCar.PositionOverall) {
@@ -435,6 +451,254 @@ namespace KLPlugins.DynLeaderboards.Car {
             }
             return relSplinePos;
         }
+
+        void SetGaps(
+            CarData? focusedCar,
+            CarData leaderCar,
+            CarData classLeaderCar,
+            CarData cupLeaderCar,
+            CarData? carAhead,
+            CarData? carAheadInClass,
+            CarData? carAheadInCup,
+            CarData? carAheadOnTrack,
+            TrackData? trackData,
+            Session session
+        ) {
+            // Freeze gaps until all is in order again, fixes gap suddenly jumping to larger values as spline positions could be out of sync
+            if (trackData != null && this.OffsetLapUpdate == OffsetLapUpdateType.None) {
+                if (focusedCar != null && focusedCar.OffsetLapUpdate == OffsetLapUpdateType.None) {
+                    this.GapToFocusedOnTrack = CalculateOnTrackGap(this, focusedCar, trackData);
+                }
+
+                if (carAheadOnTrack?.OffsetLapUpdate == OffsetLapUpdateType.None) {
+                    this.GapToAheadOnTrack = CalculateOnTrackGap(carAheadOnTrack, this, trackData);
+                }
+            }
+
+            if (session.IsRace) {
+                // Use time gaps on track
+                // We update the gap only if CalculateGap returns a proper value because we don't want to update the gap if one of the cars has finished.
+                // That would result in wrong gaps. We keep the gaps at the last valid value and update once both cars have finished.
+
+                // Freeze gaps until all is in order again, fixes gap suddenly jumping to larger values as spline positions could be out of sync
+                if (trackData != null && this.OffsetLapUpdate == OffsetLapUpdateType.None) {
+                    SetGap(this, leaderCar, leaderCar, this.GapToLeader, x => this.GapToLeader = x);
+                    SetGap(this, classLeaderCar, classLeaderCar, this.GapToClassLeader, x => this.GapToClassLeader = x);
+                    SetGap(this, cupLeaderCar, cupLeaderCar, this.GapToCupLeader, x => this.GapToCupLeader = x);
+                    SetGap(focusedCar, this, focusedCar, this.GapToFocusedTotal, x => this.GapToFocusedTotal = x);
+                    SetGap(this, carAhead, carAhead, this.GapToAhead, x => this.GapToAhead = x);
+                    SetGap(this, carAheadInClass, carAheadInClass, this.GapToAheadInClass, x => this.GapToAheadInClass = x);
+                    SetGap(this, carAheadInCup, carAheadInCup, this.GapToAheadInCup, x => this.GapToAheadInCup = x);
+
+                    void SetGap(CarData? from, CarData? to, CarData? other, double? currentGap, Action<double?> setGap) {
+                        if (from == null || to == null) {
+                            setGap(null);
+                        } else if (other?.OffsetLapUpdate == OffsetLapUpdateType.None) {
+                            setGap(CalculateGap(from, to, trackData));
+                        }
+                    }
+
+                    if (focusedCar != null && focusedCar.OffsetLapUpdate == OffsetLapUpdateType.None) {
+                        this.SetRelLapDiff(focusedCar);
+                    }
+                }
+            } else {
+                // Use best laps to calculate gaps
+                var thisBestLap = this.BestLap?.Time;
+                if (thisBestLap == null) {
+                    this.GapToLeader = null;
+                    this.GapToClassLeader = null;
+                    this.GapToCupLeader = null;
+                    this.GapToFocusedTotal = null;
+                    this.GapToAheadInClass = null;
+                    this.GapToAheadInCup = null;
+                    this.GapToAhead = null;
+                    return;
+                }
+
+                this.GapToLeader = CalculateBestLapDelta(leaderCar);
+                this.GapToClassLeader = CalculateBestLapDelta(classLeaderCar);
+                this.GapToCupLeader = CalculateBestLapDelta(cupLeaderCar);
+                this.GapToFocusedTotal = CalculateBestLapDelta(focusedCar);
+                this.GapToAhead = CalculateBestLapDelta(carAhead);
+                this.GapToAheadInClass = CalculateBestLapDelta(carAheadInClass);
+                this.GapToAheadInCup = CalculateBestLapDelta(carAheadInCup);
+
+                double? CalculateBestLapDelta(CarData? to) {
+                    var toBest = to?.BestLap?.Time;
+                    return toBest != null ? thisBestLap - toBest : null;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Calculates gap between two cars.
+        /// </summary>
+        /// <returns>
+        /// The gap in seconds or laps with respect to the <paramref name="from">.
+        /// It is positive if <paramref name="to"> is ahead of <paramref name="from"> and negative if behind.
+        /// If the gap is larger than a lap we only return the lap part (1lap, 2laps) and add 100_000 to the value to differentiate it from gap on the same lap.
+        /// For example 100_002 means that <paramref name="to"> is 2 laps ahead whereas result 99_998 means it's 2 laps behind.
+        /// If the result couldn't be calculated it returns <c>double.NaN</c>.
+        /// </returns>
+        /// <param name="from"></param>
+        /// <param name="to"></param>
+        /// <returns></returns>
+        public static double? CalculateGap(CarData from, CarData to, TrackData trackData) {
+            if (from.Id == to.Id
+                || !to.HasCrossedStartLine
+                || !from.HasCrossedStartLine
+                || from.OffsetLapUpdate != OffsetLapUpdateType.None
+                || to.OffsetLapUpdate != OffsetLapUpdateType.None
+            ) {
+                return null;
+            }
+
+            var flaps = from.Laps.New;
+            var tlaps = to.Laps.New;
+
+            // If one of the cars jumped to pits there is no correct way to calculate the gap
+            if (flaps == tlaps && (from.JumpedToPits || to.JumpedToPits)) {
+                return null;
+            }
+
+            if (from.IsFinished && to.IsFinished) {
+                if (flaps == tlaps) {
+                    // If there IsFinished is set, FinishTime must also be set
+                    return (from.FinishTime! - to.FinishTime!) / 1000.0;
+                } else {
+                    return tlaps - flaps + _LAP_GAP_VALUE;
+                }
+            }
+
+            // Fixes wrong gaps after finish on cars that haven't finished and are in pits.
+            // Without this the gap could be off by one lap from the gap calculated from completed laps.
+            // This is correct if the session is not finished as you could go out and complete that lap.
+            // If session has finished you cannot complete that lap.
+            if (tlaps != flaps &&
+                ((to.IsFinished && !from.IsFinished && from.IsInPitLane)
+                || (from.IsFinished && !to.IsFinished && to.IsInPitLane))
+            ) {
+                return tlaps - flaps + _LAP_GAP_VALUE;
+            }
+
+            var distBetween = to.TotalSplinePosition - from.TotalSplinePosition; // Negative if 'to' is behind
+            if (distBetween <= -1) { // 'to' is more than a lap behind of 'from'
+                return Math.Ceiling(distBetween) + _LAP_GAP_VALUE;
+            } else if (distBetween >= 1) { // 'to' is more than a lap ahead of 'from'
+                return Math.Floor(distBetween) + _LAP_GAP_VALUE;
+            } else {
+                if (from.IsFinished
+                    || to.IsFinished
+                    || trackData == null
+                ) {
+                    return null;
+                }
+
+                // TrackData is passed from Values, Values never stores TrackData without LapInterpolators
+                var toInterp = trackData.LapInterpolators![to.CarClass];
+                var fromInterp = trackData.LapInterpolators![from.CarClass];
+                if (toInterp == null && fromInterp == null) {
+                    // lap data is not available, use naive distance based calculation
+                    return CalculateNaiveGap(distBetween, trackData);
+                }
+
+                throw new NotImplementedException();
+
+                // double? gap;
+                // // At least one toInterp or fromInterp must be not null, because of the above check
+                // (LapInterpolator interp, var cls) = fromInterp != null ? (toInterp!, to.CarClass) : (fromInterp!, from.CarClass);
+                // if (distBetween > 0) { // `to` is ahead of `from`
+                //     gap = CalculateGapBetweenPos(from.GetSplinePosTime(cls, trackData), to.GetSplinePosTime(cls, trackData), interp.LapTime);
+                // } else { // `to` is behind of `from`
+                //     gap = -CalculateGapBetweenPos(to.GetSplinePosTime(cls, trackData), from.GetSplinePosTime(cls, trackData), interp.LapTime);
+                // }
+                // return gap;
+            }
+        }
+
+        public static double? CalculateOnTrackGap(CarData from, CarData to, TrackData trackData) {
+            if (from.Id == to.Id
+                 || from.OffsetLapUpdate != OffsetLapUpdateType.None
+                 || to.OffsetLapUpdate != OffsetLapUpdateType.None
+                 || trackData == null
+             ) {
+                return null;
+            }
+
+            var fromPos = from.SplinePosition;
+            var toPos = to.SplinePosition;
+            var relativeSplinePos = CalculateRelativeSplinePosition(fromPos, toPos);
+
+            // TrackData is passed from Values, Values never stores TrackData without LapInterpolators
+            var toInterp = trackData.LapInterpolators![to.CarClass];
+            var fromInterp = trackData.LapInterpolators![from.CarClass];
+            if (toInterp == null && fromInterp == null) {
+                // lap data is not available, use naive distance based calculation
+                return CalculateNaiveGap(relativeSplinePos, trackData);
+            }
+
+            throw new NotImplementedException();
+
+            // double? gap;
+            // // At least one toInterp or fromInterp must be not null, because of the above check
+            // (LapInterpolator interp, var cls) = toInterp != null ? (toInterp!, to.CarClass) : (fromInterp!, from.CarClass);
+            // if (relativeSplinePos < 0) {
+            //     gap = -CalculateGapBetweenPos(from.GetSplinePosTime(cls, trackData), to.GetSplinePosTime(cls, trackData), interp.LapTime);
+            // } else {
+            //     gap = CalculateGapBetweenPos(to.GetSplinePosTime(cls, trackData), from.GetSplinePosTime(cls, trackData), interp.LapTime);
+            // }
+            // return gap;
+        }
+
+        private static double CalculateNaiveGap(double splineDist, TrackData trackData) {
+            var dist = splineDist * trackData.LengthMeters;
+            // use avg speed of 50m/s (180km/h)
+            // we could use actual speeds of the cars
+            // but the gap will fluctuate either way so I don't think it makes things better.
+            // This also avoid the question of which speed to use (faster, slower, average)
+            // and what happens if either car is standing (eg speed is 0 and we would divide by 0).
+            // It's an just in case backup anyway, so most of the times it should never even be reached.7654
+            return dist / 50;
+        }
+
+        /// <summary>
+        /// Calculates the gap in seconds from <paramref name="start"/> to <paramref name="end"/>.
+        /// </summary>
+        /// <returns>Non-negative value</returns>
+        public static double CalculateGapBetweenPos(double start, double end, double lapTime) {
+            if (end < start) { // Ahead is on another lap, gap is time from `start` to end of the lap, and then to `end`
+                return lapTime - start + end;
+            } else { // We must be on the same lap, gap is time from `start` to reach `end`
+                return end - start;
+            }
+        }
+
+        // /// <summary>
+        // /// Calculates expected lap time for <paramref name="cls"> class car at the position of <c>this</c> car.
+        // /// </summary>
+        // /// <returns>
+        // /// Lap time in seconds or <c>-1.0</c> if it cannot be calculated.
+        // /// </returns>>
+        // /// <param name="cls"></param>
+        // /// <returns></returns>
+        // private double GetSplinePosTime(string cls, TrackData trackData) {
+        //     // Same interpolated value is needed multiple times in one update, thus cache results.
+        //     var pos = this._splinePositionTime[cls];
+        //     if (pos != this._splinePositionTime.Generator(cls) && pos != null) {
+        //         return (double)pos;
+        //     }
+
+        //     // TrackData is passed from Values, Values never stores TrackData without LapInterpolators
+        //     var interp = trackData.LapInterpolators![cls];
+        //     if (this.NewData != null && interp != null) {
+        //         var result = interp.Interpolate(this.NewData.SplinePosition);
+        //         this._splinePositionTime[cls] = result;
+        //         return result;
+        //     } else {
+        //         return -1;
+        //     }
+        // }
     }
 
     public class Driver {

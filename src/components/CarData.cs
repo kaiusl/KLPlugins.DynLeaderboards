@@ -272,8 +272,8 @@ namespace KLPlugins.DynLeaderboards.Car {
             CarData? classBestLapCar,
             CarData? cupBestLapCar,
             CarData leaderCar,
-            CarData classLeaderCar,
-            CarData cupLeaderCar,
+            CarData? classLeaderCar, // TODO: remove nullable
+            CarData? cupLeaderCar, // TODO: remove nullable
             CarData? carAhead,
             CarData? carAheadInClass,
             CarData? carAheadInCup

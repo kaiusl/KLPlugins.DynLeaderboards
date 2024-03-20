@@ -273,7 +273,7 @@ namespace KLPlugins.DynLeaderboards {
                     // AddDriverProp(OutDriverProp.Category, driverId, () => l.GetDynCar(i)?.GetDriver(j)?.Category);
                     // AddDriverProp(OutDriverProp.TotalLaps, driverId, () => l.GetDynCar(i)?.GetDriver(j)?.TotalLaps);
                     // AddDriverProp(OutDriverProp.BestLapTime, driverId, () => l.GetDynCar(i)?.GetDriver(j)?.BestSessionLap?.Laptime);
-                    // AddDriverProp(OutDriverProp.TotalDrivingTime, driverId, () => l.GetDynCar(i)?.GetDriverTotalDrivingTime(j));
+                    AddDriverProp(OutDriverProp.TotalDrivingTime, driverId, () => l.GetDynCar(i)?.Drivers.ElementAtOrDefault(j).GetTotalDrivingTime());
                     // AddDriverProp(OutDriverProp.CategoryColor, driverId, () => l.GetDynCar(i)?.GetDriver(j)?.CategoryColor);
                 }
 
@@ -291,10 +291,10 @@ namespace KLPlugins.DynLeaderboards {
                 AddProp(OutCarProp.TeamName, () => l.GetDynCar(i)?.TeamName);
                 // AddProp(OutCarProp.TeamCupCategory, () => l.GetDynCar(i)?.TeamCupCategory.PrettyName());
 
-                // AddStintProp(OutStintProp.CurrentStintTime, () => l.GetDynCar(i)?.CurrentStintTime);
-                // AddStintProp(OutStintProp.LastStintTime, () => l.GetDynCar(i)?.LastStintTime);
-                // AddStintProp(OutStintProp.CurrentStintLaps, () => l.GetDynCar(i)?.CurrentStintLaps);
-                // AddStintProp(OutStintProp.LastStintLaps, () => l.GetDynCar(i)?.LastStintLaps);
+                AddStintProp(OutStintProp.CurrentStintTime, () => l.GetDynCar(i)?.CurrentStintTime);
+                AddStintProp(OutStintProp.LastStintTime, () => l.GetDynCar(i)?.LastStintTime);
+                AddStintProp(OutStintProp.CurrentStintLaps, () => l.GetDynCar(i)?.CurrentStintLaps);
+                AddStintProp(OutStintProp.LastStintLaps, () => l.GetDynCar(i)?.LastStintLaps);
 
                 AddProp(OutCarProp.CarClassColor, () => l.GetDynCar(i)?.CarClassColor);
                 AddProp(OutCarProp.CarClassTextColor, () => l.GetDynCar(i)?.CarClassTextColor);

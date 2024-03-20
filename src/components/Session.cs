@@ -4,6 +4,7 @@ namespace KLPlugins.DynLeaderboards {
     public class Session {
         public SessionType SessionType { get; private set; } = SessionType.Unknown;
         public SessionPhase SessionPhase { get; private set; } = SessionPhase.Unknown;
+        public bool IsSessionStart { get; private set; }
         public bool IsNewSession { get; private set; }
         public bool IsTimeLimited { get; private set; }
         public bool IsLapLimited { get; private set; }
@@ -38,7 +39,9 @@ namespace KLPlugins.DynLeaderboards {
             }
 
             this.SessionType = newSessType;
+            var oldPhase = this.SessionPhase;
             this.SessionPhase = SessionPhaseExtensions.FromSHGameData(data);
+            this.IsSessionStart = oldPhase != SessionPhase.Session && this.SessionPhase == SessionPhase.Session;
 
             if (!this._isSessionLimitSet) {
                 // Need to set once as at the end of the session SessionTimeLeft == 0 and this will confuse plugin

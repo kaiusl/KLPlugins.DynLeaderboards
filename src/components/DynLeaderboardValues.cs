@@ -61,7 +61,7 @@ namespace KLPlugins.DynLeaderboards {
                 case Leaderboard.Overall:
                     this.GetDynCar = (i) => v.OverallOrder.ElementAtOrDefault(i);
                     this.GetDynGapToFocused = (i) => this.GetDynCar(i)?.GapToLeader;
-                    // this.GetDynGapToAhead = (i) => v.GetCar(i)?.GapToAhead;
+                    this.GetDynGapToAhead = (i) => this.GetDynCar(i)?.GapToAhead;
                     this.GetDynBestLapDeltaToFocusedBest = (i) => this.GetDynCar(i)?.BestLap?.DeltaToLeaderBest;
                     this.GetDynLastLapDeltaToFocusedBest = (i) => this.GetDynCar(i)?.LastLap?.DeltaToLeaderBest;
                     this.GetDynLastLapDeltaToFocusedLast = (i) => this.GetDynCar(i)?.LastLap?.DeltaToLeaderLast;
@@ -72,7 +72,7 @@ namespace KLPlugins.DynLeaderboards {
                 case Leaderboard.Class:
                     this.GetDynCar = (i) => v.ClassOrder.ElementAtOrDefault(i);
                     this.GetDynGapToFocused = (i) => this.GetDynCar(i)?.GapToClassLeader;
-                    //this.GetDynGapToAhead = (i) => this.GetDynCar(i)?.GapToAheadInClass;
+                    this.GetDynGapToAhead = (i) => this.GetDynCar(i)?.GapToAheadInClass;
                     this.GetDynBestLapDeltaToFocusedBest = (i) => this.GetDynCar(i)?.BestLap?.DeltaToClassLeaderBest;
                     this.GetDynLastLapDeltaToFocusedBest = (i) => this.GetDynCar(i)?.LastLap?.DeltaToClassLeaderBest;
                     this.GetDynLastLapDeltaToFocusedLast = (i) => this.GetDynCar(i)?.LastLap?.DeltaToClassLeaderLast;
@@ -96,7 +96,7 @@ namespace KLPlugins.DynLeaderboards {
                 case Leaderboard.PartialRelativeOverall:
                     this.GetDynCar = i => this.Cars.ElementAtOrDefault(i);
                     this.GetDynGapToFocused = (i) => this.GetDynCar(i)?.GapToFocusedTotal;
-                    // this.GetDynGapToAhead = (i) => this.GetDynCar(i)?.GapToAhead;
+                    this.GetDynGapToAhead = (i) => this.GetDynCar(i)?.GapToAhead;
                     this.GetDynBestLapDeltaToFocusedBest = (i) => this.GetDynCar(i)?.BestLap?.DeltaToFocusedBest;
                     this.GetDynLastLapDeltaToFocusedBest = (i) => this.GetDynCar(i)?.LastLap?.DeltaToFocusedBest;
                     this.GetDynLastLapDeltaToFocusedLast = (i) => this.GetDynCar(i)?.LastLap?.DeltaToFocusedLast;
@@ -108,7 +108,7 @@ namespace KLPlugins.DynLeaderboards {
                 case Leaderboard.PartialRelativeClass:
                     this.GetDynCar = i => this.Cars.ElementAtOrDefault(i);
                     this.GetDynGapToFocused = (i) => this.GetDynCar(i)?.GapToFocusedTotal;
-                    // this.GetDynGapToAhead = (i) => this.GetDynCar(i)?.GapToAheadInClass;
+                    this.GetDynGapToAhead = (i) => this.GetDynCar(i)?.GapToAheadInClass;
                     this.GetDynBestLapDeltaToFocusedBest = (i) => this.GetDynCar(i)?.BestLap?.DeltaToFocusedBest;
                     this.GetDynLastLapDeltaToFocusedBest = (i) => this.GetDynCar(i)?.LastLap?.DeltaToFocusedBest;
                     this.GetDynLastLapDeltaToFocusedLast = (i) => this.GetDynCar(i)?.LastLap?.DeltaToFocusedLast;
@@ -147,8 +147,8 @@ namespace KLPlugins.DynLeaderboards {
                 case Leaderboard.RelativeOnTrack:
                 case Leaderboard.RelativeOnTrackWoPit:
                     this.GetDynCar = i => this.Cars.ElementAtOrDefault(i);
-                    //this.GetDynGapToFocused = (i) => this.GetDynCar(i)?.GapToFocusedOnTrack;
-                    //this.GetDynGapToAhead = (i) => this.GetDynCar(i)?.GapToAheadOnTrack;
+                    this.GetDynGapToFocused = (i) => this.GetDynCar(i)?.GapToFocusedOnTrack;
+                    this.GetDynGapToAhead = (i) => this.GetDynCar(i)?.GapToAheadOnTrack;
                     this.GetDynBestLapDeltaToFocusedBest = (i) => this.GetDynCar(i)?.BestLap?.DeltaToFocusedBest;
                     this.GetDynLastLapDeltaToFocusedBest = (i) => this.GetDynCar(i)?.LastLap?.DeltaToFocusedBest;
                     this.GetDynLastLapDeltaToFocusedLast = (i) => this.GetDynCar(i)?.LastLap?.DeltaToFocusedLast;

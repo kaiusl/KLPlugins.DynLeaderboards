@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -254,13 +254,13 @@ namespace KLPlugins.DynLeaderboards {
 
                 AddLapProp(OutLapProp.CurrentLapTime, () => l.GetDynCar(i)?.CurrentLapTime);
 
-                AddLapProp(OutLapProp.CurrentLapIsValid, () => this.MaybeBoolToInt(l.GetDynCar(i)?.IsCurrentLapValid));
-                AddLapProp(OutLapProp.LastLapIsValid, () => this.MaybeBoolToInt(l.GetDynCar(i)?.LastLap?.IsValid));
+                AddLapProp(OutLapProp.CurrentLapIsValid, () => l.GetDynCar(i)?.IsCurrentLapValid.ToInt());
+                AddLapProp(OutLapProp.LastLapIsValid, () => l.GetDynCar(i)?.LastLap?.IsValid.ToInt());
 
-                AddLapProp(OutLapProp.CurrentLapIsOutLap, () => this.MaybeBoolToInt(l.GetDynCar(i)?.IsCurrentLapOutLap));
-                AddLapProp(OutLapProp.LastLapIsOutLap, () => this.MaybeBoolToInt(l.GetDynCar(i)?.LastLap?.IsOutLap));
-                AddLapProp(OutLapProp.CurrentLapIsInLap, () => this.MaybeBoolToInt(l.GetDynCar(i)?.IsCurrentLapInLap));
-                AddLapProp(OutLapProp.LastLapIsInLap, () => this.MaybeBoolToInt(l.GetDynCar(i)?.LastLap?.IsInLap));
+                AddLapProp(OutLapProp.CurrentLapIsOutLap, () => l.GetDynCar(i)?.IsCurrentLapOutLap.ToInt());
+                AddLapProp(OutLapProp.LastLapIsOutLap, () => l.GetDynCar(i)?.LastLap?.IsOutLap.ToInt());
+                AddLapProp(OutLapProp.CurrentLapIsInLap, () => l.GetDynCar(i)?.IsCurrentLapInLap.ToInt());
+                AddLapProp(OutLapProp.LastLapIsInLap, () => l.GetDynCar(i)?.LastLap?.IsInLap.ToInt());
 
                 void AddOneDriverFromList(int j) {
                     var driverId = $"Driver.{j + 1}";
@@ -371,9 +371,9 @@ namespace KLPlugins.DynLeaderboards {
                 AddLapProp(OutLapProp.DynamicLastLapDeltaToFocusedLast, () => l.GetDynLastLapDeltaToFocusedLast(i));
 
                 // // Else
-                AddProp(OutCarProp.IsFinished, () => (l.GetDynCar(i)?.IsFinished ?? false) ? 1 : 0);
+                AddProp(OutCarProp.IsFinished, () => (l.GetDynCar(i)?.IsFinished ?? false).ToInt());
                 // AddProp(OutCarProp.MaxSpeed, () => l.GetDynCar(i)?.MaxSpeed);
-                AddProp(OutCarProp.IsFocused, () => (l.GetDynCar(i)?.IsFocused ?? false) ? 1 : 0);
+                AddProp(OutCarProp.IsFocused, () => (l.GetDynCar(i)?.IsFocused ?? false).ToInt());
                 AddProp(OutCarProp.IsOverallBestLapCar, () => (l.GetDynCar(i)?.IsBestLapCarOverall ?? false).ToInt());
                 AddProp(OutCarProp.IsClassBestLapCar, () => (l.GetDynCar(i)?.IsBestLapCarInClass ?? false).ToInt());
                 // AddProp(OutCarProp.IsCupBestLapCar, () => (l.GetDynCar(i)?.IsCupBestLapCar ?? false) ? 1 : 0);
@@ -429,16 +429,6 @@ namespace KLPlugins.DynLeaderboards {
                 l.OnLeaderboardChange(this.Values);
             });
         }
-
-        int? MaybeBoolToInt(bool? v) {
-            if (v == null) {
-                return null;
-            }
-
-            return (bool)v ? 1 : 0;
-        }
-
-
 
         internal void AddNewLeaderboard(DynLeaderboardConfig s) {
             Settings.DynLeaderboardConfigs.Add(s);

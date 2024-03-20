@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -374,8 +374,8 @@ namespace KLPlugins.DynLeaderboards {
                 AddProp(OutCarProp.IsFinished, () => (l.GetDynCar(i)?.IsFinished ?? false) ? 1 : 0);
                 // AddProp(OutCarProp.MaxSpeed, () => l.GetDynCar(i)?.MaxSpeed);
                 AddProp(OutCarProp.IsFocused, () => (l.GetDynCar(i)?.IsFocused ?? false) ? 1 : 0);
-                // AddProp(OutCarProp.IsOverallBestLapCar, () => (l.GetDynCar(i)?.IsOverallBestLapCar ?? false) ? 1 : 0);
-                // AddProp(OutCarProp.IsClassBestLapCar, () => (l.GetDynCar(i)?.IsClassBestLapCar ?? false) ? 1 : 0);
+                AddProp(OutCarProp.IsOverallBestLapCar, () => (l.GetDynCar(i)?.IsBestLapCarOverall ?? false).ToInt());
+                AddProp(OutCarProp.IsClassBestLapCar, () => (l.GetDynCar(i)?.IsBestLapCarInClass ?? false).ToInt());
                 // AddProp(OutCarProp.IsCupBestLapCar, () => (l.GetDynCar(i)?.IsCupBestLapCar ?? false) ? 1 : 0);
                 // AddProp(OutCarProp.RelativeOnTrackLapDiff, () => l.GetDynCar(i)?.RelativeOnTrackLapDiff ?? 0);
 
@@ -534,4 +534,11 @@ namespace KLPlugins.DynLeaderboards {
             _ = sw.Elapsed;
         }
     }
+
+    internal static class Extensions {
+        internal static int ToInt(this bool v) {
+            return v ? 1 : 0;
+        }
+    }
+
 }

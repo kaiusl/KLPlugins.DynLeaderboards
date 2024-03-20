@@ -45,6 +45,9 @@ namespace KLPlugins.DynLeaderboards.Car {
         public Lap? BestLap { get; private set; }
         public SectorSplits BestSectors => this.RawDataNew.BestSectorSplits;
 
+        public bool IsBestLapCarOverall { get; private set; }
+        public bool IsBestLapCarInClass { get; private set; }
+
         public bool IsFocused => this.RawDataNew.IsPlayer;
 
         /// <summary>
@@ -123,6 +126,9 @@ namespace KLPlugins.DynLeaderboards.Car {
         public void UpdateIndependent(Values values, Opponent rawData) {
             this.RawDataOld = this.RawDataNew;
             this.RawDataNew = rawData;
+
+            this.IsBestLapCarOverall = false;
+            this.IsBestLapCarInClass = false;
 
             this.Laps.Update((this.RawDataNew.CurrentLap ?? 1) - 1);
             this.IsNewLap = this.Laps.New > this.Laps.Old;
@@ -278,6 +284,13 @@ namespace KLPlugins.DynLeaderboards.Car {
             CarData? carAheadInClass,
             CarData? carAheadInCup
         ) {
+            if (overallBestLapCar == this) {
+                this.IsBestLapCarOverall = true;
+                this.IsBestLapCarInClass = true;
+            } else if (classBestLapCar == this) {
+                this.IsBestLapCarInClass = true;
+            }
+
             if (this.IsFocused) {
                 this.RelativeSplinePositionToFocusedCar = 0;
                 this.GapToFocusedTotal = 0;

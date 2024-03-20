@@ -1,8 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 
 using GameReaderCommon;
+
+using KLPlugins.DynLeaderboards.Helpers;
 
 namespace KLPlugins.DynLeaderboards.Car {
 
@@ -44,7 +47,11 @@ namespace KLPlugins.DynLeaderboards.Car {
 
         public bool IsFocused => this.RawDataNew.IsPlayer;
 
+        /// <summary>
+        /// List of all drivers. Current driver is always the first.
+        /// </summary>
         public List<Driver> Drivers { get; } = new();
+        public Driver? CurrentDriver => this.Drivers.FirstOrDefault();
 
         public int PositionOverall { get; private set; }
         public int PositionInClass { get; private set; }
@@ -133,7 +140,6 @@ namespace KLPlugins.DynLeaderboards.Car {
                         DynLeaderboardsPlugin.LogInfo($"[{this.Id}] best lap: {this.BestLap.Time}");
                     }
                 }
-
             }
 
             var currentDriverIndex = this.Drivers.FindIndex(d => d.FullName == this.RawDataNew.Name);
@@ -143,9 +149,7 @@ namespace KLPlugins.DynLeaderboards.Car {
                 // OK, current driver is already first in list
             } else {
                 // move current driver to the front
-                var driver = this.Drivers[currentDriverIndex];
-                this.Drivers.RemoveAt(currentDriverIndex);
-                this.Drivers.Insert(0, driver);
+                this.Drivers.MoveElementAt(currentDriverIndex, 0);
             }
 
             if (this.RawDataNew.IsCarInPit) {

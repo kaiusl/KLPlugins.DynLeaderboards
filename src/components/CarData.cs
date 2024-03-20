@@ -426,11 +426,11 @@ namespace KLPlugins.DynLeaderboards.Car {
         public double? DeltaToAheadInClassLast { get; private set; }
         public double? DeltaToAheadInCupLast { get; private set; }
 
-        public Lap(SectorTimes sectorTimes, int lapNumber, Driver driver) {
-            this.Time = sectorTimes.GetLapTime()?.TotalSeconds;
-            this.S1Time = sectorTimes.GetSectorSplit(1)?.TotalSeconds;
-            this.S2Time = sectorTimes.GetSectorSplit(2)?.TotalSeconds;
-            this.S3Time = sectorTimes.GetSectorSplit(3)?.TotalSeconds;
+        public Lap(SectorTimes? sectorTimes, int lapNumber, Driver driver) {
+            this.Time = sectorTimes?.GetLapTime()?.TotalSeconds;
+            this.S1Time = sectorTimes?.GetSectorSplit(1)?.TotalSeconds;
+            this.S2Time = sectorTimes?.GetSectorSplit(2)?.TotalSeconds;
+            this.S3Time = sectorTimes?.GetSectorSplit(3)?.TotalSeconds;
 
             this.LapNumber = lapNumber;
             this.Driver = driver;

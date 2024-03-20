@@ -124,7 +124,44 @@ namespace KLPlugins.DynLeaderboards.Car {
             this.RawDataOld = this.RawDataNew;
             this.RawDataNew = rawData;
 
-            this.IsNewLap = this.RawDataNew.CurrentLap > this.RawDataOld.CurrentLap;
+            this.Laps.Update((this.RawDataNew.CurrentLap ?? 1) - 1);
+            this.IsNewLap = this.Laps.New > this.Laps.Old;
+
+            if (this.RawDataNew.IsCarInPit) {
+                this.Location.Update(CarLocation.PitBox);
+            } else if (this.RawDataNew.IsCarInPitLane) {
+                this.Location.Update(CarLocation.Pitlane);
+            } else {
+                this.Location.Update(CarLocation.Track);
+            }
+
+            this.IsInPitLane = this.Location.New == CarLocation.Pitlane || this.Location.New == CarLocation.PitBox;
+            this.ExitedPitLane = this.Location.New == CarLocation.Track && this.Location.Old == CarLocation.Pitlane;
+            this.PitCount = this.RawDataNew.PitCount ?? 0;
+            this.PitTimeLast = this.RawDataNew.PitLastDuration?.TotalSeconds ?? 0.0;
+            this.IsCurrentLapOutLap = (this.RawDataNew.PitOutAtLap ?? -1) == this.Laps.New + 1;
+            this.IsCurrentLapInLap = (this.RawDataNew.PitEnterAtLap ?? -1) == this.Laps.New + 1;
+
+            this.PositionInClassStart = this.RawDataNew.StartPositionClass;
+            this.PositionOverallStart = this.RawDataNew.StartPosition;
+
+            var newSplinePos = this.RawDataNew.TrackPositionPercent ?? throw new System.Exception("TrackPositionPercent is null");
+            this._isSplinePositionReset = newSplinePos < 0.1 && this.SplinePosition > 0.9;
+            this.SplinePosition = newSplinePos;
+            this.TotalSplinePosition = this.Laps.New + this.SplinePosition;
+
+            this.CurrentLapTime = this.RawDataNew.CurrentLapTime?.TotalSeconds ?? 0.0;
+
+            var currentDriverIndex = this.Drivers.FindIndex(d => d.FullName == this.RawDataNew.Name);
+            if (currentDriverIndex == -1) {
+                this.Drivers.Insert(0, new Driver(this.RawDataNew));
+            } else if (currentDriverIndex == 0) {
+                // OK, current driver is already first in list
+            } else {
+                // move current driver to the front
+                this.Drivers.MoveElementAt(currentDriverIndex, 0);
+            }
+
             if (this.IsNewLap) {
                 Debug.Assert(this.CurrentDriver != null, "Current driver shouldn't be null since someone had to finish this lap.");
                 this.LastLap = new Lap(this.RawDataNew.LastLapSectorTimes, this.Laps.New, this.CurrentDriver!) {
@@ -142,42 +179,6 @@ namespace KLPlugins.DynLeaderboards.Car {
                     }
                 }
             }
-
-            var currentDriverIndex = this.Drivers.FindIndex(d => d.FullName == this.RawDataNew.Name);
-            if (currentDriverIndex == -1) {
-                this.Drivers.Insert(0, new Driver(this.RawDataNew));
-            } else if (currentDriverIndex == 0) {
-                // OK, current driver is already first in list
-            } else {
-                // move current driver to the front
-                this.Drivers.MoveElementAt(currentDriverIndex, 0);
-            }
-
-            if (this.RawDataNew.IsCarInPit) {
-                this.Location.Update(CarLocation.PitBox);
-            } else if (this.RawDataNew.IsCarInPitLane) {
-                this.Location.Update(CarLocation.Pitlane);
-            } else {
-                this.Location.Update(CarLocation.Track);
-            }
-
-            this.Laps.Update((this.RawDataNew.CurrentLap ?? 1) - 1);
-            this.CurrentLapTime = this.RawDataNew.CurrentLapTime?.TotalSeconds ?? 0.0;
-
-            this.IsInPitLane = this.Location.New == CarLocation.Pitlane || this.Location.New == CarLocation.PitBox;
-            this.ExitedPitLane = this.Location.New == CarLocation.Track && this.Location.Old == CarLocation.Pitlane;
-            this.PitCount = this.RawDataNew.PitCount ?? 0;
-            this.PitTimeLast = this.RawDataNew.PitLastDuration?.TotalSeconds ?? 0.0;
-            this.IsCurrentLapOutLap = (this.RawDataNew.PitOutAtLap ?? -1) == this.Laps.New + 1;
-            this.IsCurrentLapInLap = (this.RawDataNew.PitEnterAtLap ?? -1) == this.Laps.New + 1;
-
-            this.PositionInClassStart = this.RawDataNew.StartPositionClass;
-            this.PositionOverallStart = this.RawDataNew.StartPosition;
-
-            var newSplinePos = this.RawDataNew.TrackPositionPercent ?? throw new System.Exception("TrackPositionPercent is null");
-            this._isSplinePositionReset = newSplinePos < 0.1 && this.SplinePosition > 0.9;
-            this.SplinePosition = newSplinePos;
-            this.TotalSplinePosition = this.Laps.New + this.SplinePosition;
 
             if (values.Session.IsRace) {
                 this.HandleJumpToPits(values.Session.SessionType);

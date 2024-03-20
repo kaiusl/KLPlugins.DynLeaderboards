@@ -122,7 +122,6 @@ namespace KLPlugins.DynLeaderboards.Car {
 
             this.IsNewLap = this.RawDataNew.CurrentLap > this.RawDataOld.CurrentLap;
             if (this.IsNewLap) {
-                // new lap
                 this.IsLastLapValid = this.RawDataOld.LapValid;
             }
 
@@ -232,12 +231,14 @@ namespace KLPlugins.DynLeaderboards.Car {
             if (this.OffsetLapUpdate == OffsetLapUpdateType.LapBeforeSpline) {
                 if (this.SplinePosition < 0.9) {
                     this.OffsetLapUpdate = OffsetLapUpdateType.None;
+                    this._lapAtOffsetLapUpdate = -1;
                     DynLeaderboardsPlugin.LogInfo($"Offset lap update fixed [{this.Id}]: {this.OffsetLapUpdate}: sp={this.SplinePosition}, oldLap={this.Laps.Old}, newLap={this.Laps.New}");
                 }
             } else if (this.OffsetLapUpdate == OffsetLapUpdateType.SplineBeforeLap) {
                 if (this.Laps.New != this._lapAtOffsetLapUpdate || (this.SplinePosition > 0.025 && this.SplinePosition < 0.9)) {
                     // Second condition is a fallback in case the lap actually shouldn't have been updated (eg at the start line, jumped to pits and then crossed the line in the pits)
                     this.OffsetLapUpdate = OffsetLapUpdateType.None;
+                    this._lapAtOffsetLapUpdate = -1;
                     DynLeaderboardsPlugin.LogInfo($"Offset lap update fixed [{this.Id}]: {this.OffsetLapUpdate}: sp={this.SplinePosition}, oldLap={this.Laps.Old}, newLap={this.Laps.New}");
                 }
             }

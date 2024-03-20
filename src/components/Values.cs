@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 
 using GameReaderCommon;
@@ -145,12 +145,15 @@ namespace KLPlugins.DynLeaderboards {
             this.RelativeOnTrackAheadOrder.Clear();
             this.RelativeOnTrackBehindOrder.Clear();
             Dictionary<string, int> classPositions = [];
+            Dictionary<string, CarData> classLeaders = [];
+            Dictionary<string, CarData> carAheadInClass = [];
             var focusedClass = this.FocusedCar?.CarClass;
             foreach (var (car, i) in this.OverallOrder.WithIndex()) {
                 car.SetOverallPosition(i + 1);
 
                 if (!classPositions.ContainsKey(car.CarClass)) {
                     classPositions.Add(car.CarClass, 1);
+                    classLeaders.Add(car.CarClass, car);
                 }
                 car.SetClassPosition(classPositions[car.CarClass]++);
                 if (focusedClass != null && car.CarClass == focusedClass) {
@@ -163,11 +166,11 @@ namespace KLPlugins.DynLeaderboards {
                     classBestLapCar: null, // TODO
                     cupBestLapCar: null, // TODO
                     leaderCar: this.OverallOrder.First(), // If we get there, there must be at least on car
-                    classLeaderCar: null, // TODO: store all class leader cars
+                    classLeaderCar: classLeaders[car.CarClass], // If we get there, the leader must be present
                     cupLeaderCar: null, // TODO: store all cup leader cars
                     focusedCar: this.FocusedCar,
                     carAhead: this.FocusedCar != null ? this.OverallOrder.ElementAtOrDefault(this.FocusedCar.IndexOverall - 1) : null,
-                    carAheadInClass: null, // TODO: store car ahead in each class
+                    carAheadInClass: carAheadInClass.GetValueOrDefault(car.CarClass),
                     carAheadInCup: null // TODO: store car ahead in each cup
                 );
 
@@ -179,6 +182,7 @@ namespace KLPlugins.DynLeaderboards {
                     this.RelativeOnTrackBehindOrder.Add(car);
                 }
 
+                carAheadInClass[car.CarClass] = car;
             }
 
             if (this.FocusedCar != null) {

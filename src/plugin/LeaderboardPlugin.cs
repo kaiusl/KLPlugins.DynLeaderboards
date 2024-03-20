@@ -335,36 +335,36 @@ namespace KLPlugins.DynLeaderboards {
 
                 // // Lap deltas
 
-                // AddLapProp(OutLapProp.BestLapDeltaToOverallBest, () => l.GetDynCar(i)?.BestLapDeltaToOverallBest);
-                // AddLapProp(OutLapProp.BestLapDeltaToClassBest, () => l.GetDynCar(i)?.BestLapDeltaToClassBest);
-                // AddLapProp(OutLapProp.BestLapDeltaToCupBest, () => l.GetDynCar(i)?.BestLapDeltaToCupBest);
-                // AddLapProp(OutLapProp.BestLapDeltaToLeaderBest, () => l.GetDynCar(i)?.BestLapDeltaToLeaderBest);
-                // AddLapProp(OutLapProp.BestLapDeltaToClassLeaderBest, () => l.GetDynCar(i)?.BestLapDeltaToClassLeaderBest);
-                // AddLapProp(OutLapProp.BestLapDeltaToCupLeaderBest, () => l.GetDynCar(i)?.BestLapDeltaToCupLeaderBest);
-                // AddLapProp(OutLapProp.BestLapDeltaToFocusedBest, () => l.GetDynCar(i)?.BestLapDeltaToFocusedBest);
-                // AddLapProp(OutLapProp.BestLapDeltaToAheadBest, () => l.GetDynCar(i)?.BestLapDeltaToAheadBest);
-                // AddLapProp(OutLapProp.BestLapDeltaToAheadInClassBest, () => l.GetDynCar(i)?.BestLapDeltaToAheadInClassBest);
-                // AddLapProp(OutLapProp.BestLapDeltaToAheadInCupBest, () => l.GetDynCar(i)?.BestLapDeltaToAheadInCupBest);
+                AddLapProp(OutLapProp.BestLapDeltaToOverallBest, () => l.GetDynCar(i)?.BestLap?.DeltaToOverallBest);
+                AddLapProp(OutLapProp.BestLapDeltaToClassBest, () => l.GetDynCar(i)?.BestLap?.DeltaToClassBest);
+                AddLapProp(OutLapProp.BestLapDeltaToCupBest, () => l.GetDynCar(i)?.BestLap?.DeltaToCupBest);
+                AddLapProp(OutLapProp.BestLapDeltaToLeaderBest, () => l.GetDynCar(i)?.BestLap?.DeltaToLeaderBest);
+                AddLapProp(OutLapProp.BestLapDeltaToClassLeaderBest, () => l.GetDynCar(i)?.BestLap?.DeltaToClassLeaderBest);
+                AddLapProp(OutLapProp.BestLapDeltaToCupLeaderBest, () => l.GetDynCar(i)?.BestLap?.DeltaToCupLeaderBest);
+                AddLapProp(OutLapProp.BestLapDeltaToFocusedBest, () => l.GetDynCar(i)?.BestLap?.DeltaToFocusedBest);
+                AddLapProp(OutLapProp.BestLapDeltaToAheadBest, () => l.GetDynCar(i)?.BestLap?.DeltaToAheadBest);
+                AddLapProp(OutLapProp.BestLapDeltaToAheadInClassBest, () => l.GetDynCar(i)?.BestLap?.DeltaToAheadInClassBest);
+                AddLapProp(OutLapProp.BestLapDeltaToAheadInCupBest, () => l.GetDynCar(i)?.BestLap?.DeltaToAheadInCupBest);
 
-                // AddLapProp(OutLapProp.LastLapDeltaToOverallBest, () => l.GetDynCar(i)?.LastLapDeltaToOverallBest);
-                // AddLapProp(OutLapProp.LastLapDeltaToClassBest, () => l.GetDynCar(i)?.LastLapDeltaToClassBest);
-                // AddLapProp(OutLapProp.LastLapDeltaToCupBest, () => l.GetDynCar(i)?.LastLapDeltaToCupBest);
-                // AddLapProp(OutLapProp.LastLapDeltaToLeaderBest, () => l.GetDynCar(i)?.LastLapDeltaToLeaderBest);
-                // AddLapProp(OutLapProp.LastLapDeltaToClassLeaderBest, () => l.GetDynCar(i)?.LastLapDeltaToClassLeaderBest);
-                // AddLapProp(OutLapProp.LastLapDeltaToCupLeaderBest, () => l.GetDynCar(i)?.LastLapDeltaToCupLeaderBest);
-                // AddLapProp(OutLapProp.LastLapDeltaToFocusedBest, () => l.GetDynCar(i)?.LastLapDeltaToFocusedBest);
-                // AddLapProp(OutLapProp.LastLapDeltaToAheadBest, () => l.GetDynCar(i)?.LastLapDeltaToAheadBest);
-                // AddLapProp(OutLapProp.LastLapDeltaToAheadInClassBest, () => l.GetDynCar(i)?.LastLapDeltaToAheadInClassBest);
-                // AddLapProp(OutLapProp.LastLapDeltaToAheadInCupBest, () => l.GetDynCar(i)?.LastLapDeltaToAheadInCupBest);
-                // AddLapProp(OutLapProp.LastLapDeltaToOwnBest, () => l.GetDynCar(i)?.LastLapDeltaToOwnBest);
+                AddLapProp(OutLapProp.LastLapDeltaToOverallBest, () => l.GetDynCar(i)?.LastLap?.DeltaToOverallBest);
+                AddLapProp(OutLapProp.LastLapDeltaToClassBest, () => l.GetDynCar(i)?.LastLap?.DeltaToClassBest);
+                AddLapProp(OutLapProp.LastLapDeltaToCupBest, () => l.GetDynCar(i)?.LastLap?.DeltaToCupBest);
+                AddLapProp(OutLapProp.LastLapDeltaToLeaderBest, () => l.GetDynCar(i)?.LastLap?.DeltaToLeaderBest);
+                AddLapProp(OutLapProp.LastLapDeltaToClassLeaderBest, () => l.GetDynCar(i)?.LastLap?.DeltaToClassLeaderBest);
+                AddLapProp(OutLapProp.LastLapDeltaToCupLeaderBest, () => l.GetDynCar(i)?.LastLap?.DeltaToCupLeaderBest);
+                AddLapProp(OutLapProp.LastLapDeltaToFocusedBest, () => l.GetDynCar(i)?.LastLap?.DeltaToFocusedBest);
+                AddLapProp(OutLapProp.LastLapDeltaToAheadBest, () => l.GetDynCar(i)?.LastLap?.DeltaToAheadBest);
+                AddLapProp(OutLapProp.LastLapDeltaToAheadInClassBest, () => l.GetDynCar(i)?.LastLap?.DeltaToAheadInClassBest);
+                AddLapProp(OutLapProp.LastLapDeltaToAheadInCupBest, () => l.GetDynCar(i)?.LastLap?.DeltaToAheadInCupBest);
+                AddLapProp(OutLapProp.LastLapDeltaToOwnBest, () => l.GetDynCar(i)?.LastLap?.DeltaToOwnBest);
 
-                // AddLapProp(OutLapProp.LastLapDeltaToLeaderLast, () => l.GetDynCar(i)?.LastLapDeltaToLeaderLast);
-                // AddLapProp(OutLapProp.LastLapDeltaToClassLeaderLast, () => l.GetDynCar(i)?.LastLapDeltaToClassLeaderLast);
-                // AddLapProp(OutLapProp.LastLapDeltaToCupLeaderLast, () => l.GetDynCar(i)?.LastLapDeltaToCupLeaderLast);
-                // AddLapProp(OutLapProp.LastLapDeltaToFocusedLast, () => l.GetDynCar(i)?.LastLapDeltaToFocusedLast);
-                // AddLapProp(OutLapProp.LastLapDeltaToAheadLast, () => l.GetDynCar(i)?.LastLapDeltaToAheadLast);
-                // AddLapProp(OutLapProp.LastLapDeltaToAheadInClassLast, () => l.GetDynCar(i)?.LastLapDeltaToAheadInClassLast);
-                // AddLapProp(OutLapProp.LastLapDeltaToAheadInCupLast, () => l.GetDynCar(i)?.LastLapDeltaToAheadInCupLast);
+                AddLapProp(OutLapProp.LastLapDeltaToLeaderLast, () => l.GetDynCar(i)?.LastLap?.DeltaToLeaderLast);
+                AddLapProp(OutLapProp.LastLapDeltaToClassLeaderLast, () => l.GetDynCar(i)?.LastLap?.DeltaToClassLeaderLast);
+                AddLapProp(OutLapProp.LastLapDeltaToCupLeaderLast, () => l.GetDynCar(i)?.LastLap?.DeltaToCupLeaderLast);
+                AddLapProp(OutLapProp.LastLapDeltaToFocusedLast, () => l.GetDynCar(i)?.LastLap?.DeltaToFocusedLast);
+                AddLapProp(OutLapProp.LastLapDeltaToAheadLast, () => l.GetDynCar(i)?.LastLap?.DeltaToAheadLast);
+                AddLapProp(OutLapProp.LastLapDeltaToAheadInClassLast, () => l.GetDynCar(i)?.LastLap?.DeltaToAheadInClassLast);
+                AddLapProp(OutLapProp.LastLapDeltaToAheadInCupLast, () => l.GetDynCar(i)?.LastLap?.DeltaToAheadInCupLast);
 
                 AddLapProp(OutLapProp.DynamicBestLapDeltaToFocusedBest, () => l.GetDynBestLapDeltaToFocusedBest(i));
                 AddLapProp(OutLapProp.DynamicLastLapDeltaToFocusedBest, () => l.GetDynLastLapDeltaToFocusedBest(i));

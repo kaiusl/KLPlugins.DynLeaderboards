@@ -213,7 +213,7 @@ namespace KLPlugins.DynLeaderboards {
                             }
                         }
 
-                        foreach (var car in v.RelativeOnTrackAheadOrder.Take(relPos)) {
+                        foreach (var car in v.RelativeOnTrackAheadOrder.Take(relPos).Reverse()) {
                             this.Cars.Add(car);
                         }
 
@@ -231,7 +231,8 @@ namespace KLPlugins.DynLeaderboards {
 
                         var aheadCars = v.RelativeOnTrackAheadOrder
                             .Where(c => !c.IsInPitLane)
-                            .Take(relPos);
+                            .Take(relPos)
+                            .Reverse();
                         var aheadCount = aheadCars.Count();
 
                         if (aheadCount < relPos) {

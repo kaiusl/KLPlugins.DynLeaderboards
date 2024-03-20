@@ -89,6 +89,8 @@ namespace KLPlugins.DynLeaderboards {
         private void UpdateCars(GameData data) {
             IEnumerable<(Opponent, int)> cars = data.NewData.Opponents.WithIndex();
 
+            Dictionary<string, CarData> classBestLapCars = [];
+            CarData? overallBestLapCar = null;
             foreach (var (opponent, i) in cars) {
                 if (DynLeaderboardsPlugin.Game.IsAcc && opponent.Id == "Me") {
                     continue;
@@ -112,6 +114,26 @@ namespace KLPlugins.DynLeaderboards {
 
                 if (car.IsFocused) {
                     this.FocusedCar = car;
+                }
+
+
+                if (car.BestLap?.Time != null) {
+                    if (!classBestLapCars.ContainsKey(car.CarClass)) {
+                        classBestLapCars[car.CarClass] = car;
+                    } else {
+                        var currentClassBestLap = classBestLapCars[car.CarClass].BestLap!.Time!; // If it's in the dict, it cannot be null
+
+                        if (car.BestLap.Time < currentClassBestLap) {
+                            classBestLapCars[car.CarClass] = car;
+                        }
+                    }
+
+                    if (
+                        overallBestLapCar == null 
+                        || car.BestLap.Time < overallBestLapCar.BestLap!.Time! // If it's set, it cannot be null
+                    ) {
+                        overallBestLapCar = car;
+                    }
                 }
             }
 
@@ -162,15 +184,15 @@ namespace KLPlugins.DynLeaderboards {
 
                 car.UpdateDependsOnOthers(
                     values: this,
-                    overallBestLapCar: null, // TODO: find best lap cars
-                    classBestLapCar: null, // TODO
+                    overallBestLapCar: overallBestLapCar,
+                    classBestLapCar: classBestLapCars.GetValueOr(car.CarClass, null),
                     cupBestLapCar: null, // TODO
                     leaderCar: this.OverallOrder.First(), // If we get there, there must be at least on car
                     classLeaderCar: classLeaders[car.CarClass], // If we get there, the leader must be present
                     cupLeaderCar: null, // TODO: store all cup leader cars
                     focusedCar: this.FocusedCar,
                     carAhead: this.FocusedCar != null ? this.OverallOrder.ElementAtOrDefault(this.FocusedCar.IndexOverall - 1) : null,
-                    carAheadInClass: carAheadInClass.GetValueOrDefault(car.CarClass),
+                    carAheadInClass: carAheadInClass.GetValueOr(car.CarClass, null),
                     carAheadInCup: null // TODO: store car ahead in each cup
                 );
 

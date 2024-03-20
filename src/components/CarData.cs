@@ -265,7 +265,19 @@ namespace KLPlugins.DynLeaderboards.Car {
         /// This includes for example relative spline positions, gaps and lap time deltas.
         /// </summary>
         /// <param name="focusedCar"></param>
-        public void UpdateDependsOnOthers(Values v, CarData? focusedCar) {
+        public void UpdateDependsOnOthers(
+            Values values,
+            CarData? focusedCar,
+            CarData? overallBestLapCar,
+            CarData? classBestLapCar,
+            CarData? cupBestLapCar,
+            CarData leaderCar,
+            CarData classLeaderCar,
+            CarData cupLeaderCar,
+            CarData? carAhead,
+            CarData? carAheadInClass,
+            CarData? carAheadInCup
+        ) {
             if (this.IsFocused) {
                 this.RelativeSplinePositionToFocusedCar = 0;
                 this.GapToFocusedTotal = 0;
@@ -275,13 +287,42 @@ namespace KLPlugins.DynLeaderboards.Car {
                 this.GapToFocusedTotal = (this.RawDataNew.LapsToPlayer ?? 0) * 10000 + this.RawDataNew.GaptoPlayer ?? 0;
             }
 
-            if (v.IsFirstFinished && this.IsNewLap) {
+            if (values.IsFirstFinished && this.IsNewLap) {
                 this.IsFinished = true;
                 this.FinishTime = DateTime.Now.Ticks;
             }
 
             this.GapToLeader = (this.RawDataNew.LapsToLeader ?? 0) * 10000 + this.RawDataNew.GaptoLeader ?? 0;
             this.GapToClassLeader = (this.RawDataNew.LapsToClassLeader ?? 0) * 10000 + this.RawDataNew.GaptoClassLeader ?? 0;
+
+            this.BestLap?.CalculateDeltas(
+                thisCar: this,
+                overallBestLapCar: overallBestLapCar,
+                classBestLapCar: classBestLapCar,
+                cupBestLapCar: cupBestLapCar,
+                leaderCar: leaderCar,
+                classLeaderCar: classLeaderCar,
+                cupLeaderCar: cupLeaderCar,
+                focusedCar: focusedCar,
+                carAhead: carAhead,
+                carAheadInClass: carAheadInClass,
+                carAheadInCup: carAheadInCup
+            );
+
+            this.LastLap?.CalculateDeltas(
+                thisCar: this,
+                overallBestLapCar: overallBestLapCar,
+                classBestLapCar: classBestLapCar,
+                cupBestLapCar: cupBestLapCar,
+                leaderCar: leaderCar,
+                classLeaderCar: classLeaderCar,
+                cupLeaderCar: cupLeaderCar,
+                focusedCar: focusedCar,
+                carAhead: carAhead,
+                carAheadInClass: carAheadInClass,
+                carAheadInCup: carAheadInCup
+            );
+
         }
 
         public void SetOverallPosition(int overall) {
@@ -363,6 +404,28 @@ namespace KLPlugins.DynLeaderboards.Car {
         public int LapNumber { get; private set; }
         public Driver Driver { get; private set; }
 
+
+        public double? DeltaToOwnBest { get; private set; }
+
+        public double? DeltaToOverallBest { get; private set; }
+        public double? DeltaToClassBest { get; private set; }
+        public double? DeltaToCupBest { get; private set; }
+        public double? DeltaToLeaderBest { get; private set; }
+        public double? DeltaToClassLeaderBest { get; private set; }
+        public double? DeltaToCupLeaderBest { get; private set; }
+        public double? DeltaToFocusedBest { get; private set; }
+        public double? DeltaToAheadBest { get; private set; }
+        public double? DeltaToAheadInClassBest { get; private set; }
+        public double? DeltaToAheadInCupBest { get; private set; }
+
+        public double? DeltaToLeaderLast { get; private set; }
+        public double? DeltaToClassLeaderLast { get; private set; }
+        public double? DeltaToCupLeaderLast { get; private set; }
+        public double? DeltaToFocusedLast { get; private set; }
+        public double? DeltaToAheadLast { get; private set; }
+        public double? DeltaToAheadInClassLast { get; private set; }
+        public double? DeltaToAheadInCupLast { get; private set; }
+
         public Lap(SectorTimes sectorTimes, int lapNumber, Driver driver) {
             this.Time = sectorTimes.GetLapTime()?.TotalSeconds;
             this.S1Time = sectorTimes.GetSectorSplit(1)?.TotalSeconds;
@@ -373,6 +436,93 @@ namespace KLPlugins.DynLeaderboards.Car {
             this.Driver = driver;
         }
 
+        internal void CalculateDeltas(
+            CarData thisCar,
+            CarData? overallBestLapCar,
+            CarData? classBestLapCar,
+            CarData? cupBestLapCar,
+            CarData leaderCar,
+            CarData classLeaderCar,
+            CarData cupLeaderCar,
+            CarData? focusedCar,
+            CarData? carAhead,
+            CarData? carAheadInClass,
+            CarData? carAheadInCup
+        ) {
+            if (this.Time == null) {
+                return;
+            }
+
+            var overallBest = overallBestLapCar?.BestLap?.Time;
+            var classBest = classBestLapCar?.BestLap?.Time;
+            var cupBest = cupBestLapCar?.BestLap?.Time;
+            var leaderBest = leaderCar?.BestLap?.Time;
+            var classLeaderBest = classLeaderCar?.BestLap?.Time;
+            var cupLeaderBest = cupLeaderCar?.BestLap?.Time;
+            var focusedBest = focusedCar?.BestLap?.Time;
+            var aheadBest = carAhead?.BestLap?.Time;
+            var aheadInClassBest = carAheadInClass?.BestLap?.Time;
+            var aheadInCupBest = carAheadInCup?.BestLap?.Time;
+
+            if (overallBest != null) {
+                this.DeltaToOverallBest = this.Time - overallBest;
+            }
+
+            if (classBest != null) {
+                this.DeltaToClassBest = this.Time - classBest;
+            }
+
+            if (cupBest != null) {
+                this.DeltaToCupBest = this.Time - cupBest;
+            }
+
+            if (leaderBest != null) {
+                this.DeltaToLeaderBest = this.Time - leaderBest;
+            }
+
+            if (classLeaderBest != null) {
+                this.DeltaToClassLeaderBest = this.Time - classLeaderBest;
+            }
+
+            if (cupLeaderBest != null) {
+                this.DeltaToCupLeaderBest = this.Time - cupLeaderBest;
+            }
+
+            this.DeltaToFocusedBest = focusedBest != null ? this.Time - focusedBest : null;
+            this.DeltaToAheadBest = aheadBest != null ? this.Time - aheadBest : null;
+            this.DeltaToAheadInClassBest = aheadInClassBest != null ? this.Time - aheadInClassBest : null;
+            this.DeltaToAheadInCupBest = aheadInCupBest != null ? this.Time - aheadInCupBest : null;
+
+            var thisBest = thisCar.BestLap?.Time;
+            if (thisBest != null) {
+                this.DeltaToOwnBest = this.Time - thisBest;
+            }
+
+            var leaderLast = leaderCar?.LastLap?.Time;
+            var classLeaderLast = classLeaderCar?.LastLap?.Time;
+            var cupLeaderLast = cupLeaderCar?.LastLap?.Time;
+            var focusedLast = focusedCar?.LastLap?.Time;
+            var aheadLast = carAhead?.LastLap?.Time;
+            var aheadInClassLast = carAheadInClass?.LastLap?.Time;
+            var aheadInCupLast = carAheadInCup?.LastLap?.Time;
+
+            if (leaderLast != null) {
+                this.DeltaToLeaderLast = this.Time - leaderLast;
+            }
+
+            if (classLeaderLast != null) {
+                this.DeltaToClassLeaderLast = this.Time - classLeaderLast;
+            }
+
+            if (cupLeaderLast != null) {
+                this.DeltaToCupLeaderLast = this.Time - cupLeaderLast;
+            }
+
+            this.DeltaToFocusedLast = focusedLast != null ? this.Time - focusedLast : null;
+            this.DeltaToAheadLast = aheadLast != null ? this.Time - aheadLast : null;
+            this.DeltaToAheadInClassLast = aheadInClassLast != null ? this.Time - aheadInClassLast : null;
+            this.DeltaToAheadInCupLast = aheadInCupLast != null ? this.Time - aheadInCupLast : null;
+        }
 
     }
 

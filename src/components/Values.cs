@@ -12,6 +12,7 @@ using KLPlugins.DynLeaderboards.Helpers;
 using System.Diagnostics;
 using System.IO;
 using Newtonsoft.Json;
+using KLPlugins.DynLeaderboards.Settings;
 
 namespace KLPlugins.DynLeaderboards {
     /// <summary>
@@ -41,7 +42,7 @@ namespace KLPlugins.DynLeaderboards {
         }
 
         private static Dictionary<string, CarInfo> ReadCarInfos() {
-            var path = $"{DynLeaderboardsPlugin.Settings.PluginDataLocation}\\{DynLeaderboardsPlugin.Game.Name}\\CarInfos.json";
+            var path = $"{PluginSettings.PluginDataDirBase}\\{DynLeaderboardsPlugin.Game.Name}\\CarInfos.json";
             if (File.Exists(path)) {
                 return JsonConvert.DeserializeObject<Dictionary<string, CarInfo>>(File.ReadAllText(path)) ?? [];
             } else {
@@ -55,7 +56,7 @@ namespace KLPlugins.DynLeaderboards {
         }
 
         private static CarClassColors ReadCarClassColors() {
-            var path = $"{DynLeaderboardsPlugin.Settings.PluginDataLocation}\\CarClassColors.json";
+            var path = $"{PluginSettings.PluginDataDirBase}\\CarClassColors.json";
             if (File.Exists(path)) {
                 return JsonConvert.DeserializeObject<CarClassColors>(File.ReadAllText(path)) ?? new();
             } else {

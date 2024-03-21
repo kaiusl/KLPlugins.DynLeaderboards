@@ -10,6 +10,10 @@ using KLPlugins.DynLeaderboards.Helpers;
 
 using MathNet.Numerics.Interpolation;
 
+using Newtonsoft.Json;
+
+using Xceed.Wpf.Toolkit.Core.Converters;
+
 namespace KLPlugins.DynLeaderboards.Track {
     internal class LapInterpolator {
         internal double LapTime { get; }
@@ -33,12 +37,22 @@ namespace KLPlugins.DynLeaderboards.Track {
         internal Dictionary<string, LapInterpolator> LapInterpolators = [];
 
         internal TrackData(GameData data) {
+
             this.Name = data.NewData.TrackName;
             this.Id = data.NewData.TrackId;
             this.LengthMeters = data.NewData.TrackLength;
-            this.SplinePosOffset = 0.0; // TODO: read from track data
+            this.SplinePosOffset = ReadSplinePosOffsets()?.GetValueOr(this.Id, 0.0) ?? 0.0;
 
             this.CreateInterpolators();
+        }
+
+        private static Dictionary<string, double>? ReadSplinePosOffsets() {
+            var path = $"{DynLeaderboardsPlugin.Settings.PluginDataLocation}\\{DynLeaderboardsPlugin.Game.Name}\\SplinePosOffsets.json";
+            if (File.Exists(path)) {
+                return JsonConvert.DeserializeObject<Dictionary<string, double>>(File.ReadAllText(path));
+            } else {
+                return null;
+            }
         }
 
         /// <summary>

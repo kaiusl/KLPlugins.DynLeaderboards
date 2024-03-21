@@ -132,10 +132,10 @@ namespace KLPlugins.DynLeaderboards {
         }
 
         private void AttachGeneralDelegates() {
-            // // Add everything else
-            // if (Settings.OutGeneralProps.Includes(OutGeneralProp.SessionPhase)) {
-            //     this.AttachDelegate("Session.Phase", () => this._values.RealtimeData?.NewData?.Phase);
-            // }
+            // Add everything else
+            if (Settings.OutGeneralProps.Includes(OutGeneralProp.SessionPhase)) {
+                this.AttachDelegate("Session.Phase", () => this.Values.Session.SessionPhase.ToString());
+            }
 
             // if (Settings.OutGeneralProps.Includes(OutGeneralProp.MaxStintTime)) {
             //     this.AttachDelegate("Session.MaxStintTime", () => this._values.MaxDriverStintTime);

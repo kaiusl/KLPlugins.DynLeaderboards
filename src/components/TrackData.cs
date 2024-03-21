@@ -30,26 +30,41 @@ namespace KLPlugins.DynLeaderboards.Track {
         public string Id { get; }
         public double LengthMeters { get; }
         public double SplinePosOffset { get; }
-        internal Dictionary<string, LapInterpolator?>? LapInterpolators = null;
+        internal Dictionary<string, LapInterpolator> LapInterpolators = [];
 
         internal TrackData(GameData data) {
             this.Name = data.NewData.TrackName;
             this.Id = data.NewData.TrackId;
             this.LengthMeters = data.NewData.TrackLength;
             this.SplinePosOffset = 0.0; // TODO: read from track data
+
+            this.CreateInterpolators();
         }
 
         /// <summary>
         /// Read default lap data for calculation of gaps.
         /// </summary>
-        internal void ReadDefBestLaps() {
-            this.LapInterpolators = new();
+        private void CreateInterpolators() {
+            var lapsDataPath = $"{DynLeaderboardsPlugin.Settings.PluginDataLocation}\\{DynLeaderboardsPlugin.Game.Name}\\laps_data\\";
+            if (!Directory.Exists(lapsDataPath)) {
+                return;
+            }
+            foreach (var path in Directory.GetFiles(lapsDataPath)) {
+                if (!path.EndsWith(".txt")) continue;
+
+                var fileName = Path.GetFileNameWithoutExtension(path);
+                if (fileName.StartsWith(this.Id)) {
+                    var carClass = fileName.Substring(this.Id.Length + 1);
+                    this.AddLapInterpolator(path, carClass);
+                }
+            }
         }
 
         /// Assumes that `this.LapInterpolators != null`
-        private void AddLapInterpolator(string carClass) {
-            Debug.Assert(this.LapInterpolators != null);
-            var fname = $"{DynLeaderboardsPlugin.Settings.PluginDataLocation}\\laps_data\\{this.Id}_{carClass}.txt";
+        private void AddLapInterpolator(string fname, string carClass) {
+            Debug.Assert(this.LapInterpolators != null, "Expected this.LapInterpolators != null");
+
+            //var fname = $"{DynLeaderboardsPlugin.Settings.PluginDataLocation}\\{DynLeaderboardsPlugin.Game.Name}\\laps_data\\{this.Id}_{carClass}.txt";
             if (!File.Exists(fname)) {
                 DynLeaderboardsPlugin.LogInfo($"Couldn't build lap interpolator for {carClass} because no suitable track data exists.");
                 return;

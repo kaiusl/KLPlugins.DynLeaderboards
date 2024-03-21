@@ -17,19 +17,18 @@ namespace KLPlugins.DynLeaderboards.Settings {
 
         internal const int currentSettingsVersion = 2;
         internal List<DynLeaderboardConfig> DynLeaderboardConfigs { get; set; } = new List<DynLeaderboardConfig>();
-        internal string PluginDataLocation { get; set; }
-
         public bool Include_ST21_In_GT2 { get; set; }
         public bool Include_CHL_In_GT2 { get; set; }
 
-        internal const string pluginsDataDirName = "PluginsData\\KLPlugins\\DynLeaderboards";
-        internal const string leaderboardConfigsDataDirName = "PluginsData\\KLPlugins\\DynLeaderboards\\leaderboardConfigs";
-        internal const string leaderboardConfigsDataBackupDirName = "PluginsData\\KLPlugins\\DynLeaderboards\\leaderboardConfigs\\b";
+        internal const string PluginDataDir = "PluginsData\\KLPlugins\\DynLeaderboards";
+        internal const string PluginDataDirBase = PluginDataDir + "\\base";
+        internal const string PluginsDataDirOverrides = PluginDataDir + "\\overrides";
+        internal const string LeaderboardConfigsDataDir = PluginDataDir + "\\leaderboardConfigs";
+        internal const string LeaderboardConfigsDataBackupDir = LeaderboardConfigsDataDir + "\\b";
         private static readonly string _defAccDataLocation = "C:\\Users\\" + Environment.UserName + "\\Documents\\Assetto Corsa Competizione";
         private delegate JObject Migration(JObject o);
 
         internal PluginSettings() {
-            this.PluginDataLocation = pluginsDataDirName;
             this.AccDataLocation = _defAccDataLocation;
             this.Log = false;
             this.BroadcastDataUpdateRateMs = 500;
@@ -40,9 +39,9 @@ namespace KLPlugins.DynLeaderboards.Settings {
         }
 
         internal void ReadDynLeaderboardConfigs() {
-            Directory.CreateDirectory(leaderboardConfigsDataDirName);
+            Directory.CreateDirectory(LeaderboardConfigsDataDir);
 
-            foreach (var fileName in Directory.GetFiles(leaderboardConfigsDataDirName)) {
+            foreach (var fileName in Directory.GetFiles(LeaderboardConfigsDataDir)) {
                 if (!File.Exists(fileName) || !fileName.EndsWith(".json")) {
                     continue;
                 }
@@ -78,17 +77,17 @@ namespace KLPlugins.DynLeaderboards.Settings {
             // Keep 5 latest backups of each config.
             // New config is only saved and backups are made if the config has changed.
 
-            Directory.CreateDirectory(leaderboardConfigsDataBackupDirName);
+            Directory.CreateDirectory(LeaderboardConfigsDataBackupDir);
 
             foreach (var cfg in this.DynLeaderboardConfigs) {
-                var cfgFileName = $"{leaderboardConfigsDataDirName}\\{cfg.Name}.json";
+                var cfgFileName = $"{LeaderboardConfigsDataDir}\\{cfg.Name}.json";
                 var serializedCfg = JsonConvert.SerializeObject(cfg, Newtonsoft.Json.Formatting.Indented);
                 var isSame = File.Exists(cfgFileName) && serializedCfg == File.ReadAllText(cfgFileName);
 
                 if (!isSame) {
                     RenameOrDeleteOldBackups(cfg);
                     if (File.Exists(cfgFileName)) {
-                        File.Move(cfgFileName, $"{leaderboardConfigsDataBackupDirName}\\{cfg.Name}_b{1}.json");
+                        File.Move(cfgFileName, $"{LeaderboardConfigsDataBackupDir}\\{cfg.Name}_b{1}.json");
                     }
 
                     File.WriteAllText(cfgFileName, serializedCfg);
@@ -97,10 +96,10 @@ namespace KLPlugins.DynLeaderboards.Settings {
 
             static void RenameOrDeleteOldBackups(DynLeaderboardConfig cfg) {
                 for (int i = 5; i > -1; i--) {
-                    var currentBackupName = $"{leaderboardConfigsDataBackupDirName}\\{cfg.Name}_b{i + 1}.json";
+                    var currentBackupName = $"{LeaderboardConfigsDataBackupDir}\\{cfg.Name}_b{i + 1}.json";
                     if (File.Exists(currentBackupName)) {
                         if (i != 4) {
-                            File.Move(currentBackupName, $"{leaderboardConfigsDataBackupDirName}\\{cfg.Name}_b{i + 2}.json");
+                            File.Move(currentBackupName, $"{LeaderboardConfigsDataBackupDir}\\{cfg.Name}_b{i + 2}.json");
                         } else {
                             File.Delete(currentBackupName);
                         }
@@ -111,7 +110,7 @@ namespace KLPlugins.DynLeaderboards.Settings {
         }
 
         internal void RemoveLeaderboardAt(int i) {
-            var fname = $"{leaderboardConfigsDataDirName}\\{this.DynLeaderboardConfigs[i].Name}.json";
+            var fname = $"{LeaderboardConfigsDataDir}\\{this.DynLeaderboardConfigs[i].Name}.json";
             if (File.Exists(fname)) {
                 File.Delete(fname);
             }
@@ -234,12 +233,12 @@ namespace KLPlugins.DynLeaderboards.Settings {
 
             o["Version"] = 1;
 
-            Directory.CreateDirectory(leaderboardConfigsDataDirName);
-            Directory.CreateDirectory(leaderboardConfigsDataBackupDirName);
+            Directory.CreateDirectory(LeaderboardConfigsDataDir);
+            Directory.CreateDirectory(LeaderboardConfigsDataBackupDir);
             const string key = "DynLeaderboardConfigs";
             if (o.ContainsKey(key)) {
                 foreach (var cfg in o[key]!) {
-                    var fname = $"{leaderboardConfigsDataDirName}\\{cfg["Name"]}.json";
+                    var fname = $"{LeaderboardConfigsDataDir}\\{cfg["Name"]}.json";
                     if (File.Exists(fname)) // Don't overwrite existing configs
 {
                         continue;
@@ -275,7 +274,7 @@ namespace KLPlugins.DynLeaderboards.Settings {
             o["Include_ST21_In_GT2"] = false;
             o["Include_CHL_In_GT2"] = false;
 
-            foreach (var fileName in Directory.GetFiles(leaderboardConfigsDataDirName)) {
+            foreach (var fileName in Directory.GetFiles(LeaderboardConfigsDataDir)) {
                 if (!File.Exists(fileName) || !fileName.EndsWith(".json")) {
                     continue;
                 }
@@ -406,15 +405,15 @@ namespace KLPlugins.DynLeaderboards.Settings {
         }
 
         internal void Rename(string newName) {
-            var configFileName = $"{PluginSettings.leaderboardConfigsDataDirName}\\{this.Name}.json";
+            var configFileName = $"{PluginSettings.LeaderboardConfigsDataDir}\\{this.Name}.json";
             if (File.Exists(configFileName)) {
-                File.Move(configFileName, $"{PluginSettings.leaderboardConfigsDataDirName}\\{newName}.json");
+                File.Move(configFileName, $"{PluginSettings.LeaderboardConfigsDataDir}\\{newName}.json");
             }
 
             for (int i = 5; i > -1; i--) {
-                var currentBackupName = $"{PluginSettings.leaderboardConfigsDataBackupDirName}\\{this.Name}_b{i + 1}.json";
+                var currentBackupName = $"{PluginSettings.LeaderboardConfigsDataBackupDir}\\{this.Name}_b{i + 1}.json";
                 if (File.Exists(currentBackupName)) {
-                    File.Move(currentBackupName, $"{PluginSettings.leaderboardConfigsDataBackupDirName}\\{newName}_b{i + 1}.json");
+                    File.Move(currentBackupName, $"{PluginSettings.LeaderboardConfigsDataBackupDir}\\{newName}_b{i + 1}.json");
                 }
             }
 

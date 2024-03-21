@@ -7,6 +7,7 @@ using System.Linq;
 using GameReaderCommon;
 
 using KLPlugins.DynLeaderboards.Helpers;
+using KLPlugins.DynLeaderboards.Settings;
 
 using MathNet.Numerics.Interpolation;
 
@@ -47,12 +48,12 @@ namespace KLPlugins.DynLeaderboards.Track {
             this.CreateInterpolators();
         }
 
-        internal static void OnPluginInit(string pluginDataLocation, string gameName) {
-            _splinePosOffsets = ReadSplinePosOffsets(pluginDataLocation, gameName);
+        internal static void OnPluginInit(string gameName) {
+            _splinePosOffsets = ReadSplinePosOffsets(gameName);
         }
 
-        private static Dictionary<string, double>? ReadSplinePosOffsets(string pluginDataLocation, string gameName) {
-            var path = $"{pluginDataLocation}\\{gameName}\\SplinePosOffsets.json";
+        private static Dictionary<string, double>? ReadSplinePosOffsets(string gameName) {
+            var path = $"{PluginSettings.PluginDataDirBase}\\{gameName}\\SplinePosOffsets.json";
             if (File.Exists(path)) {
                 return JsonConvert.DeserializeObject<Dictionary<string, double>>(File.ReadAllText(path));
             } else {
@@ -64,7 +65,7 @@ namespace KLPlugins.DynLeaderboards.Track {
         /// Read default lap data for calculation of gaps.
         /// </summary>
         private void CreateInterpolators() {
-            var lapsDataPath = $"{DynLeaderboardsPlugin.Settings.PluginDataLocation}\\{DynLeaderboardsPlugin.Game.Name}\\laps_data\\";
+            var lapsDataPath = $"{PluginSettings.PluginDataDirBase}\\{DynLeaderboardsPlugin.Game.Name}\\laps_data\\";
             if (!Directory.Exists(lapsDataPath)) {
                 return;
             }

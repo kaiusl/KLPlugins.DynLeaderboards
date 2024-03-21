@@ -30,7 +30,6 @@ namespace KLPlugins.DynLeaderboards {
         internal const string PluginName = "DynLeaderboards";
         internal static PluginSettings Settings;
         internal static Game Game; // Const during the lifetime of this plugin, plugin is rebuilt at game change
-        internal static string GameDataPath; // Same as above
         internal static string PluginStartTime = $"{DateTime.Now:dd-MM-yyyy_HH-mm-ss}";
 
         private static FileStream? _logFile;
@@ -69,7 +68,7 @@ namespace KLPlugins.DynLeaderboards {
             Settings.SaveDynLeaderboardConfigs();
             // Delete unused files
             // Say something was accidentally copied there or file and leaderboard names were different which would render original file useless
-            foreach (var fname in Directory.GetFiles(PluginSettings.leaderboardConfigsDataDirName)) {
+            foreach (var fname in Directory.GetFiles(PluginSettings.LeaderboardConfigsDataDir)) {
                 var leaderboardName = fname.Replace(".json", "").Split('\\').Last();
                 if (!Settings.DynLeaderboardConfigs.Any(x => x.Name == leaderboardName)) {
                     File.Delete(fname);
@@ -114,9 +113,8 @@ namespace KLPlugins.DynLeaderboards {
 
             var gameName = (string)pm.GetPropertyValue<SimHub.Plugins.DataPlugins.DataCore.DataCorePlugin>("CurrentGame");
             Game = new Game(gameName);
-            GameDataPath = $@"{Settings.PluginDataLocation}\{gameName}";
-            TrackData.OnPluginInit(Settings.PluginDataLocation, gameName);
-            
+            TrackData.OnPluginInit(gameName);
+
             this.Values = new Values();
 
             foreach (var config in Settings.DynLeaderboardConfigs) {
@@ -464,7 +462,7 @@ namespace KLPlugins.DynLeaderboards {
         #region Logging
 
         internal void InitLogging() {
-            this._logFileName = $"{Settings.PluginDataLocation}\\Logs\\Log_{PluginStartTime}.txt";
+            this._logFileName = $"{PluginSettings.PluginDataDir}\\Logs\\Log_{PluginStartTime}.txt";
             if (Settings.Log) {
                 Directory.CreateDirectory(Path.GetDirectoryName(this._logFileName));
                 _logFile = File.Create(this._logFileName);

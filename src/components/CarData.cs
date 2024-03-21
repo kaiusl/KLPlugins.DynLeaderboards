@@ -66,7 +66,7 @@ namespace KLPlugins.DynLeaderboards.Car {
                 }
             }
 
-            DynLeaderboardsPlugin.LogInfo($"Read car class colors: {JsonConvert.SerializeObject(this._colors)}");
+            DynLeaderboardsPlugin.LogInfo($"Read car class colors: {this.Debug()}");
         }
 
         public CarClassColors() {
@@ -75,6 +75,14 @@ namespace KLPlugins.DynLeaderboards.Car {
 
         internal CarClassColor? Get(string key) {
             return this._colors.GetValueOr(key, null);
+        }
+
+        internal void Merge(CarClassColors other) {
+            this._colors.Merge(other._colors);
+        }
+
+        internal string Debug() {
+            return JsonConvert.SerializeObject(this._colors);
         }
 
     }

@@ -28,7 +28,7 @@ namespace KLPlugins.DynLeaderboards {
         public List<CarData> RelativeOnTrackBehindOrder { get; } = new();
         public CarData? FocusedCar { get; private set; } = null;
 
-        private Dictionary<string, CarInfo>? _carInfos = null;
+        private readonly Dictionary<string, CarInfo> _carInfos;
 
         /// <summary>
         /// 
@@ -37,7 +37,7 @@ namespace KLPlugins.DynLeaderboards {
         /// <returns></returns>
         internal CarInfo? GetCarInfo(string carName) {
             // _carInfoLUTs is not null when this object exists
-            return _carInfos!.GetValueOr(carName, null);
+            return _carInfos.GetValueOr(carName, null);
         }
 
         private static Dictionary<string, CarInfo> ReadCarInfos() {
@@ -49,9 +49,9 @@ namespace KLPlugins.DynLeaderboards {
             }
         }
 
-        private CarClassColors? _carClassColors = null;
+        private readonly CarClassColors _carClassColors;
         internal CarClassColor? GetCarClassColor(string carClass) {
-            return _carClassColors!.Get(carClass);
+            return _carClassColors.Get(carClass);
         }
 
         private static CarClassColors ReadCarClassColors() {

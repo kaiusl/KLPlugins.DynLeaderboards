@@ -8,6 +8,8 @@ using GameReaderCommon;
 using KLPlugins.DynLeaderboards.Helpers;
 using KLPlugins.DynLeaderboards.Track;
 
+using ksBroadcastingNetwork;
+
 namespace KLPlugins.DynLeaderboards.Car {
 
     public class NewOld<T> {
@@ -180,15 +182,7 @@ namespace KLPlugins.DynLeaderboards.Car {
 
             this.CurrentLapTime = this.RawDataNew.CurrentLapTime?.TotalSeconds ?? 0.0;
 
-            var currentDriverIndex = this.Drivers.FindIndex(d => d.FullName == this.RawDataNew.Name);
-            if (currentDriverIndex == -1) {
-                this.Drivers.Insert(0, new Driver(this.RawDataNew));
-            } else if (currentDriverIndex == 0) {
-                // OK, current driver is already first in list
-            } else {
-                // move current driver to the front
-                this.Drivers.MoveElementAt(currentDriverIndex, 0);
-            }
+            this.UpdateDrivers(rawData);
 
             if (this.IsNewLap) {
                 Debug.Assert(this.CurrentDriver != null, "Current driver shouldn't be null since someone had to finish this lap.");
@@ -224,6 +218,41 @@ namespace KLPlugins.DynLeaderboards.Car {
             this.UpdateStintInfo(values.Session);
 
             this.HandleOffsetLapUpdates();
+        }
+
+        void UpdateDrivers(Opponent rawData) {
+            if (DynLeaderboardsPlugin.Game.IsAcc) {
+                // ACC has more driver info than generic SimHub interface
+                var accOpponent = (ACSharedMemory.Models.ACCOpponent)rawData;
+                var realtimeCarUpdate = accOpponent.ExtraData;
+                if (this.Drivers.Count == 0) {
+                    foreach (var driver in realtimeCarUpdate.CarEntry.Drivers) {
+                        this.Drivers.Add(new Driver(driver));
+                    }
+                } else {
+                    // ACC driver name could be different from SimHub's full name
+                    var currentRawDriver = realtimeCarUpdate.CarEntry.Drivers[realtimeCarUpdate.DriverIndex];
+                    var currentDriverIndex = this.Drivers.FindIndex(d => d.FirstName == currentRawDriver.FirstName && d.LastName == currentRawDriver.LastName);
+                    if (currentDriverIndex == 0) {
+                        // OK, current driver is already first in list
+                    } else if (currentDriverIndex == -1) {
+                        this.Drivers.Insert(0, new Driver(currentRawDriver));
+                    } else {
+                        // move current driver to the front
+                        this.Drivers.MoveElementAt(currentDriverIndex, 0);
+                    }
+                }
+            } else {
+                var currentDriverIndex = this.Drivers.FindIndex(d => d.FullName == this.RawDataNew.Name);
+                if (currentDriverIndex == 0) {
+                    // OK, current driver is already first in list
+                } else if (currentDriverIndex == -1) {
+                    this.Drivers.Insert(0, new Driver(this.RawDataNew));
+                } else {
+                    // move current driver to the front
+                    this.Drivers.MoveElementAt(currentDriverIndex, 0);
+                }
+            }
         }
 
         void HandleJumpToPits(SessionType sessionType) {
@@ -776,8 +805,8 @@ namespace KLPlugins.DynLeaderboards.Car {
         public string InitialPlusLastName { get; private set; }
         public string? Initials { get; private set; }
 
-        public string? Category { get; private set; }
-        public string? Nationality { get; private set; }
+        public string Category { get; private set; } = "Platinum";
+        public string Nationality { get; private set; } = "Unknown";
         public int TotalLaps { get; internal set; } = 0;
         public Lap? BestLap { get; internal set; } = null;
         public string CategoryColor => "#FFFFFF";
@@ -790,6 +819,18 @@ namespace KLPlugins.DynLeaderboards.Car {
             this.InitialPlusLastName = o.ShortName;
         }
 
+        public Driver(ksBroadcastingNetwork.Structs.DriverInfo driver) {
+            this.FirstName = driver.FirstName;
+            this.LastName = driver.LastName;
+            this.ShortName = driver.ShortName;
+            this.Category = ACCDriverCategoryToPrettyString(driver.Category);
+            this.Nationality = ACCNationalityToPrettyString(driver.Nationality);
+
+            this.FullName = this.FirstName + " " + this.LastName;
+            this.InitialPlusLastName = this.CreateInitialPlusLastNameACC();
+            this.Initials = this.CreateInitialsACC();
+        }
+
         internal void OnStintEnd(double lastStintTime) {
             this._totalDrivingTime += lastStintTime;
         }
@@ -800,6 +841,118 @@ namespace KLPlugins.DynLeaderboards.Car {
             }
 
             return this._totalDrivingTime;
+        }
+
+        private string CreateInitialPlusLastNameACC() {
+            if (this.FirstName == "") {
+                return $"{this.LastName}";
+            }
+            return $"{this.FirstName![0]}. {this.LastName}";
+        }
+
+        private string CreateInitialsACC() {
+            if (this.FirstName != "" && this.LastName != "") {
+                return $"{this.FirstName![0]}{this.LastName![0]}";
+            } else if (this.FirstName == "" && this.LastName != "") {
+                return $"{this.LastName![0]}";
+            } else if (this.FirstName != "" && this.LastName == "") {
+                return $"{this.FirstName![0]}";
+            } else {
+                return "";
+            }
+        }
+
+        private static string ACCDriverCategoryToPrettyString(DriverCategory category) {
+            return category switch {
+                DriverCategory.Platinum => "Platinum",
+                DriverCategory.Gold => "Gold",
+                DriverCategory.Silver => "Silver",
+                DriverCategory.Bronze => "Bronze",
+                _ => "None",
+            };
+        }
+
+        private static string ACCNationalityToPrettyString(NationalityEnum nationality) {
+            return nationality switch {
+                NationalityEnum.Italy => "Italy",
+                NationalityEnum.Germany => "Germany",
+                NationalityEnum.France => "France",
+                NationalityEnum.Spain => "Spain",
+                NationalityEnum.GreatBritain => "Great Britain",
+                NationalityEnum.Hungary => "Hungary",
+                NationalityEnum.Belgium => "Belgium",
+                NationalityEnum.Switzerland => "Switzerland",
+                NationalityEnum.Austria => "Austria",
+                NationalityEnum.Russia => "Russia",
+                NationalityEnum.Thailand => "Thailand",
+                NationalityEnum.Netherlands => "Netherlands",
+                NationalityEnum.Poland => "Poland",
+                NationalityEnum.Argentina => "Argentina",
+                NationalityEnum.Monaco => "Monaco",
+                NationalityEnum.Ireland => "Ireland",
+                NationalityEnum.Brazil => "Brazil",
+                NationalityEnum.SouthAfrica => "South Africa",
+                NationalityEnum.PuertoRico => "Puerto Rico",
+                NationalityEnum.Slovakia => "Slovakia",
+                NationalityEnum.Oman => "Oman",
+                NationalityEnum.Greece => "Greece",
+                NationalityEnum.SaudiArabia => "Saudi Arabia",
+                NationalityEnum.Norway => "Norway",
+                NationalityEnum.Turkey => "Turkey",
+                NationalityEnum.SouthKorea => "South Korea",
+                NationalityEnum.Lebanon => "Lebanon",
+                NationalityEnum.Armenia => "Armenia",
+                NationalityEnum.Mexico => "Mexico",
+                NationalityEnum.Sweden => "Sweden",
+                NationalityEnum.Finland => "Finland",
+                NationalityEnum.Denmark => "Denmark",
+                NationalityEnum.Croatia => "Croatia",
+                NationalityEnum.Canada => "Canada",
+                NationalityEnum.China => "China",
+                NationalityEnum.Portugal => "Portugal",
+                NationalityEnum.Singapore => "Singapore",
+                NationalityEnum.Indonesia => "Indonesia",
+                NationalityEnum.USA => "USA",
+                NationalityEnum.NewZealand => "New Zealand",
+                NationalityEnum.Australia => "Australia",
+                NationalityEnum.SanMarino => "San Marino",
+                NationalityEnum.UAE => "UAE",
+                NationalityEnum.Luxembourg => "Luxembourg",
+                NationalityEnum.Kuwait => "Kuwait",
+                NationalityEnum.HongKong => "Hong Kong",
+                NationalityEnum.Colombia => "Colombia",
+                NationalityEnum.Japan => "Japan",
+                NationalityEnum.Andorra => "Andorra",
+                NationalityEnum.Azerbaijan => "Azerbaijan",
+                NationalityEnum.Bulgaria => "Bulgaria",
+                NationalityEnum.Cuba => "Cuba",
+                NationalityEnum.CzechRepublic => "Czech Republic",
+                NationalityEnum.Estonia => "Estonia",
+                NationalityEnum.Georgia => "Georgia",
+                NationalityEnum.India => "India",
+                NationalityEnum.Israel => "Israel",
+                NationalityEnum.Jamaica => "Jamaica",
+                NationalityEnum.Latvia => "Latvia",
+                NationalityEnum.Lithuania => "Lithuania",
+                NationalityEnum.Macau => "Macau",
+                NationalityEnum.Malaysia => "Malaysia",
+                NationalityEnum.Nepal => "Nepal",
+                NationalityEnum.NewCaledonia => "New Caledonia",
+                NationalityEnum.Nigeria => "Nigeria",
+                NationalityEnum.NorthernIreland => "Northern Ireland",
+                NationalityEnum.PapuaNewGuinea => "Papua New Guinea",
+                NationalityEnum.Philippines => "Philippines",
+                NationalityEnum.Qatar => "Qatar",
+                NationalityEnum.Romania => "Romania",
+                NationalityEnum.Scotland => "Scotland",
+                NationalityEnum.Serbia => "Serbia",
+                NationalityEnum.Slovenia => "Slovenia",
+                NationalityEnum.Taiwan => "Taiwan",
+                NationalityEnum.Ukraine => "Ukraine",
+                NationalityEnum.Venezuela => "Venezuela",
+                NationalityEnum.Wales => "Wales",
+                _ => "Unknown"
+            };
         }
     }
 

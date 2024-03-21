@@ -281,15 +281,21 @@ namespace KLPlugins.DynLeaderboards.Car {
                 Debug.Assert(this.CurrentDriver != null, "Current driver shouldn't be null since someone had to finish this lap.");
                 var currentDriver = this.CurrentDriver!;
                 currentDriver.TotalLaps += 1;
+            }
 
+            if (this.RawDataNew.LastLapTime != this.RawDataOld.LastLapTime) {
+                // Lap time end position may be offset with lap or spline position reset point.
                 this.LastLap = new Lap(this.RawDataNew.LastLapSectorTimes, this.Laps.New, this.CurrentDriver!) {
                     IsValid = this.IsCurrentLapValid,
                     IsOutLap = this.IsCurrentLapOutLap,
                     IsInLap = this.IsCurrentLapInLap,
                 };
+                DynLeaderboardsPlugin.LogInfo($"[{this.Id}] new last lap: {this.LastLap.Time}");
 
                 var maybeBestLap = this.RawDataNew.BestLapSectorTimes;
                 if (maybeBestLap != null) {
+                    Debug.Assert(this.CurrentDriver != null, "Current driver shouldn't be null since someone had to finish this lap.");
+                    var currentDriver = this.CurrentDriver!;
                     var maybeBestLapTime = maybeBestLap.GetLapTime()?.TotalSeconds;
                     if (this.BestLap?.Time == null || (maybeBestLapTime != null && maybeBestLapTime < this.BestLap.Time)) {
                         this.BestLap = new Lap(maybeBestLap!, this.Laps.New, this.CurrentDriver!);

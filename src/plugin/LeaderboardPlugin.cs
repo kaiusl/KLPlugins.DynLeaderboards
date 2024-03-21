@@ -137,13 +137,13 @@ namespace KLPlugins.DynLeaderboards {
                 this.AttachDelegate("Session.Phase", () => this.Values.Session.SessionPhase.ToString());
             }
 
-            // if (Settings.OutGeneralProps.Includes(OutGeneralProp.MaxStintTime)) {
-            //     this.AttachDelegate("Session.MaxStintTime", () => this._values.MaxDriverStintTime);
-            // }
+            if (Settings.OutGeneralProps.Includes(OutGeneralProp.MaxStintTime)) {
+                this.AttachDelegate("Session.MaxStintTime", () => this.Values.Session.MaxDriverStintTime);
+            }
 
-            // if (Settings.OutGeneralProps.Includes(OutGeneralProp.MaxDriveTime)) {
-            //     this.AttachDelegate("Session.MaxDriveTime", () => this._values.MaxDriverTotalDriveTime);
-            // }
+            if (Settings.OutGeneralProps.Includes(OutGeneralProp.MaxDriveTime)) {
+                this.AttachDelegate("Session.MaxDriveTime", () => this.Values.Session.MaxDriverTotalDriveTime);
+            }
 
             // if (Settings.OutGeneralProps.Includes(OutGeneralProp.CarClassColors)) {
             //     void addClassColor(CarClass cls) => this.AttachDelegate($"Color.Class.{cls}", () => Settings.CarClassColors[cls]);

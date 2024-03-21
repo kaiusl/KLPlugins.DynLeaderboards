@@ -11,6 +11,9 @@ namespace KLPlugins.DynLeaderboards {
         public bool IsRace => this.SessionType == SessionType.Race;
         public double TimeOfDay { get; private set; }
 
+        public double? MaxDriverStintTime { get; private set; }
+        public double? MaxDriverTotalDriveTime { get; private set; }
+
         private bool _isSessionLimitSet = false;
 
         internal Session() {
@@ -23,11 +26,15 @@ namespace KLPlugins.DynLeaderboards {
             this.SessionPhase = SessionPhase.Unknown;
 
             this.IsNewSession = true;
+            this.IsSessionStart = false;
             this.IsTimeLimited = false;
             this.IsLapLimited = false;
 
             this.TimeOfDay = 0;
             this._isSessionLimitSet = false;
+
+            this.MaxDriverStintTime = null;
+            this.MaxDriverTotalDriveTime = null;
         }
 
 
@@ -55,8 +62,16 @@ namespace KLPlugins.DynLeaderboards {
                 var rawDataNew = (ACSharedMemory.ACC.Reader.ACCRawData)data.NewData.GetRawDataObject();
 
                 this.TimeOfDay = rawDataNew.Graphics.clock;
-            }
 
+                // Set max stint times. This is only done once when we know that the session hasn't started, so that the time left shows max times.
+                if (this.MaxDriverStintTime == null && this.IsRace && this.SessionPhase == SessionPhase.PreSession) {
+                    this.MaxDriverStintTime = rawDataNew.Graphics.DriverStintTimeLeft / 1000.0;
+                    this.MaxDriverTotalDriveTime = rawDataNew.Graphics.DriverStintTotalTimeLeft / 1000.0;
+                    if (this.MaxDriverTotalDriveTime == 65535) { // This is max value, which means that the limit doesn't exist
+                        this.MaxDriverTotalDriveTime = null;
+                    }
+                }
+            }
         }
     }
 

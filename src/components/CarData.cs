@@ -38,6 +38,8 @@ namespace KLPlugins.DynLeaderboards.Car {
         public string CarManufacturer { get; private set; }
         public string? TeamName { get; private set; }
         public string TeamCupCategory { get; private set; } = "Overall";
+        public string TeamCupCategoryColor { get; private set; } = "#FFFFFF";
+        public string TeamCupCategoryTextColor { get; private set; } = "#000000";
 
         public NewOld<CarLocation> Location { get; } = new(CarLocation.NONE);
 

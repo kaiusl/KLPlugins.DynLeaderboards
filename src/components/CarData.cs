@@ -110,6 +110,8 @@ namespace KLPlugins.DynLeaderboards.Car {
         public int? LastStintLaps { get; private set; }
         private DateTime? _stintStartTime;
 
+        public double MaxSpeed { get; private set; } = 0.0;
+
         internal string Id => this.RawDataNew.Id;
         internal bool IsUpdated { get; set; }
 
@@ -207,6 +209,7 @@ namespace KLPlugins.DynLeaderboards.Car {
             this.TotalSplinePosition = this.Laps.New + this.SplinePosition;
 
             this.CurrentLapTime = this.RawDataNew.CurrentLapTime?.TotalSeconds ?? 0.0;
+            this.MaxSpeed = Math.Max(this.MaxSpeed, this.RawDataNew.Speed ?? 0.0);
 
             this.UpdateDrivers(rawData);
 

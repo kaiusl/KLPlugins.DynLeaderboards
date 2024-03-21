@@ -376,7 +376,7 @@ namespace KLPlugins.DynLeaderboards {
 
                 // // Else
                 AddProp(OutCarProp.IsFinished, () => (l.GetDynCar(i)?.IsFinished ?? false).ToInt());
-                // AddProp(OutCarProp.MaxSpeed, () => l.GetDynCar(i)?.MaxSpeed);
+                AddProp(OutCarProp.MaxSpeed, () => l.GetDynCar(i)?.MaxSpeed);
                 AddProp(OutCarProp.IsFocused, () => (l.GetDynCar(i)?.IsFocused ?? false).ToInt());
                 AddProp(OutCarProp.IsOverallBestLapCar, () => (l.GetDynCar(i)?.IsBestLapCarOverall ?? false).ToInt());
                 AddProp(OutCarProp.IsClassBestLapCar, () => (l.GetDynCar(i)?.IsBestLapCarInClass ?? false).ToInt());

@@ -38,17 +38,21 @@ namespace KLPlugins.DynLeaderboards.Track {
         private static Dictionary<string, double>? _splinePosOffsets = null;
 
         internal TrackData(GameData data) {
-            _splinePosOffsets ??= ReadSplinePosOffsets() ?? [];
+            Debug.Assert(_splinePosOffsets != null);
             this.Name = data.NewData.TrackName;
             this.Id = data.NewData.TrackId;
             this.LengthMeters = data.NewData.TrackLength;
-            this.SplinePosOffset = _splinePosOffsets.GetValueOr(this.Id, 0.0);
+            this.SplinePosOffset = _splinePosOffsets!.GetValueOr(this.Id, 0.0);
 
             this.CreateInterpolators();
         }
 
-        private static Dictionary<string, double>? ReadSplinePosOffsets() {
-            var path = $"{DynLeaderboardsPlugin.Settings.PluginDataLocation}\\{DynLeaderboardsPlugin.Game.Name}\\SplinePosOffsets.json";
+        internal static void OnPluginInit(string pluginDataLocation, string gameName) {
+            _splinePosOffsets = ReadSplinePosOffsets(pluginDataLocation, gameName);
+        }
+
+        private static Dictionary<string, double>? ReadSplinePosOffsets(string pluginDataLocation, string gameName) {
+            var path = $"{pluginDataLocation}\\{gameName}\\SplinePosOffsets.json";
             if (File.Exists(path)) {
                 return JsonConvert.DeserializeObject<Dictionary<string, double>>(File.ReadAllText(path));
             } else {

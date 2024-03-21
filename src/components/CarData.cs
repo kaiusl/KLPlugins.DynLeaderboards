@@ -133,6 +133,7 @@ namespace KLPlugins.DynLeaderboards.Car {
 
         private const double _LAP_GAP_VALUE = 100_000;
         private const double _HALF_LAP_GAP_VALUE = _LAP_GAP_VALUE / 2;
+        private Dictionary<string, double?> _splinePositionTimes = [];
 
 
         public CarData(Values values, Opponent rawData) {
@@ -589,6 +590,9 @@ namespace KLPlugins.DynLeaderboards.Car {
             TrackData? trackData,
             Session session
         ) {
+
+            this._splinePositionTimes.Clear();
+
             // Freeze gaps until all is in order again, fixes gap suddenly jumping to larger values as spline positions could be out of sync
             if (trackData != null && this.OffsetLapUpdate == OffsetLapUpdateType.None) {
                 if (focusedCar != null && focusedCar.OffsetLapUpdate == OffsetLapUpdateType.None) {
@@ -728,17 +732,15 @@ namespace KLPlugins.DynLeaderboards.Car {
                     return CalculateNaiveGap(distBetween, trackData);
                 }
 
-                throw new NotImplementedException();
-
-                // double? gap;
-                // // At least one toInterp or fromInterp must be not null, because of the above check
-                // (LapInterpolator interp, var cls) = fromInterp != null ? (toInterp!, to.CarClass) : (fromInterp!, from.CarClass);
-                // if (distBetween > 0) { // `to` is ahead of `from`
-                //     gap = CalculateGapBetweenPos(from.GetSplinePosTime(cls, trackData), to.GetSplinePosTime(cls, trackData), interp.LapTime);
-                // } else { // `to` is behind of `from`
-                //     gap = -CalculateGapBetweenPos(to.GetSplinePosTime(cls, trackData), from.GetSplinePosTime(cls, trackData), interp.LapTime);
-                // }
-                // return gap;
+                double? gap;
+                // At least one toInterp or fromInterp must be not null, because of the above check
+                (LapInterpolator interp, var cls) = fromInterp != null ? (toInterp!, to.CarClass) : (fromInterp!, from.CarClass);
+                if (distBetween > 0) { // `to` is ahead of `from`
+                    gap = CalculateGapBetweenPos(from.GetSplinePosTime(cls, trackData), to.GetSplinePosTime(cls, trackData), interp.LapTime);
+                } else { // `to` is behind of `from`
+                    gap = -CalculateGapBetweenPos(to.GetSplinePosTime(cls, trackData), from.GetSplinePosTime(cls, trackData), interp.LapTime);
+                }
+                return gap;
             }
         }
 
@@ -763,17 +765,15 @@ namespace KLPlugins.DynLeaderboards.Car {
                 return CalculateNaiveGap(relativeSplinePos, trackData);
             }
 
-            throw new NotImplementedException();
-
-            // double? gap;
-            // // At least one toInterp or fromInterp must be not null, because of the above check
-            // (LapInterpolator interp, var cls) = toInterp != null ? (toInterp!, to.CarClass) : (fromInterp!, from.CarClass);
-            // if (relativeSplinePos < 0) {
-            //     gap = -CalculateGapBetweenPos(from.GetSplinePosTime(cls, trackData), to.GetSplinePosTime(cls, trackData), interp.LapTime);
-            // } else {
-            //     gap = CalculateGapBetweenPos(to.GetSplinePosTime(cls, trackData), from.GetSplinePosTime(cls, trackData), interp.LapTime);
-            // }
-            // return gap;
+            double? gap;
+            // At least one toInterp or fromInterp must be not null, because of the above check
+            (LapInterpolator interp, var cls) = toInterp != null ? (toInterp!, to.CarClass) : (fromInterp!, from.CarClass);
+            if (relativeSplinePos < 0) {
+                gap = -CalculateGapBetweenPos(from.GetSplinePosTime(cls, trackData), to.GetSplinePosTime(cls, trackData), interp.LapTime);
+            } else {
+                gap = CalculateGapBetweenPos(to.GetSplinePosTime(cls, trackData), from.GetSplinePosTime(cls, trackData), interp.LapTime);
+            }
+            return gap;
         }
 
         private static double CalculateNaiveGap(double splineDist, TrackData trackData) {
@@ -799,31 +799,31 @@ namespace KLPlugins.DynLeaderboards.Car {
             }
         }
 
-        // /// <summary>
-        // /// Calculates expected lap time for <paramref name="cls"> class car at the position of <c>this</c> car.
-        // /// </summary>
-        // /// <returns>
-        // /// Lap time in seconds or <c>-1.0</c> if it cannot be calculated.
-        // /// </returns>>
-        // /// <param name="cls"></param>
-        // /// <returns></returns>
-        // private double GetSplinePosTime(string cls, TrackData trackData) {
-        //     // Same interpolated value is needed multiple times in one update, thus cache results.
-        //     var pos = this._splinePositionTime[cls];
-        //     if (pos != this._splinePositionTime.Generator(cls) && pos != null) {
-        //         return (double)pos;
-        //     }
+        /// <summary>
+        /// Calculates expected lap time for <paramref name="cls"> class car at the position of <c>this</c> car.
+        /// </summary>
+        /// <returns>
+        /// Lap time in seconds or <c>-1.0</c> if it cannot be calculated.
+        /// </returns>>
+        /// <param name="cls"></param>
+        /// <returns></returns>
+        private double GetSplinePosTime(string cls, TrackData trackData) {
+            // Same interpolated value is needed multiple times in one update, thus cache results.
+            var pos = this._splinePositionTimes.GetValueOr(cls, null);
+            if (pos != null) {
+                return (double)pos;
+            }
 
-        //     // TrackData is passed from Values, Values never stores TrackData without LapInterpolators
-        //     var interp = trackData.LapInterpolators![cls];
-        //     if (this.NewData != null && interp != null) {
-        //         var result = interp.Interpolate(this.NewData.SplinePosition);
-        //         this._splinePositionTime[cls] = result;
-        //         return result;
-        //     } else {
-        //         return -1;
-        //     }
-        // }
+            // TrackData is passed from Values, Values never stores TrackData without LapInterpolators
+            var interp = trackData.LapInterpolators.GetValueOr(cls, null);
+            if (interp != null) {
+                var result = interp.Interpolate(this.SplinePosition);
+                this._splinePositionTimes[cls] = result;
+                return result;
+            } else {
+                return -1;
+            }
+        }
     }
 
     public class Driver {

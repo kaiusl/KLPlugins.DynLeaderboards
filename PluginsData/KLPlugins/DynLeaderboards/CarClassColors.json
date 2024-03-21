@@ -1,0 +1,20 @@
+{
+    "global": {
+        "GT3": {
+            "bg": "#000000",
+            "fg": "#ffffff"
+        },
+        "GT4": {
+            "bg": "#ff0000",
+            "fg": "#ff00ff"
+        }
+    },
+    "game_overrides": {
+        "AssettoCorsaCompetizione": {
+            "GT3": {
+                "bg": "#00ffff",
+                "fg": "#0000ff"
+            }
+        }
+    }
+}

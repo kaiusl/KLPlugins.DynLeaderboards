@@ -42,12 +42,27 @@ namespace KLPlugins.DynLeaderboards {
         }
 
         private static Dictionary<string, CarInfo> ReadCarInfos() {
-            var path = $"{PluginSettings.PluginDataDirBase}\\{DynLeaderboardsPlugin.Game.Name}\\CarInfos.json";
-            if (File.Exists(path)) {
-                return JsonConvert.DeserializeObject<Dictionary<string, CarInfo>>(File.ReadAllText(path)) ?? [];
-            } else {
-                return [];
+            var pathEnd = $"\\{DynLeaderboardsPlugin.Game.Name}\\CarInfos.json";
+            var basePath = PluginSettings.PluginDataDirBase + pathEnd;
+            var overridesPath = PluginSettings.PluginDataDirOverrides + pathEnd;
+
+            Dictionary<string, CarInfo>? carInfos = null;
+            if (File.Exists(basePath)) {
+                carInfos = JsonConvert.DeserializeObject<Dictionary<string, CarInfo>>(File.ReadAllText(basePath));
             }
+
+            if (File.Exists(overridesPath)) {
+                var overrides = JsonConvert.DeserializeObject<Dictionary<string, CarInfo>>(File.ReadAllText(overridesPath));
+                if (carInfos != null) {
+                    if (overrides != null) {
+                        carInfos.Merge(overrides);
+                    }
+                } else {
+                    carInfos = overrides;
+                }
+            }
+
+            return carInfos ?? [];
         }
 
         private readonly CarClassColors _carClassColors;
@@ -56,12 +71,29 @@ namespace KLPlugins.DynLeaderboards {
         }
 
         private static CarClassColors ReadCarClassColors() {
-            var path = $"{PluginSettings.PluginDataDirBase}\\CarClassColors.json";
-            if (File.Exists(path)) {
-                return JsonConvert.DeserializeObject<CarClassColors>(File.ReadAllText(path)) ?? new();
-            } else {
-                return new();
+            var pathEnd = $"\\CarClassColors.json";
+            var basePath = PluginSettings.PluginDataDirBase + pathEnd;
+            var overridesPath = PluginSettings.PluginDataDirOverrides + pathEnd;
+
+            CarClassColors? carClassColors = null;
+            if (File.Exists(basePath)) {
+                carClassColors = JsonConvert.DeserializeObject<CarClassColors>(File.ReadAllText(basePath));
             }
+
+            if (File.Exists(overridesPath)) {
+                var overrides = JsonConvert.DeserializeObject<CarClassColors>(File.ReadAllText(overridesPath));
+                if (carClassColors != null) {
+                    if (overrides != null) {
+                        carClassColors.Merge(overrides);
+                    }
+                } else {
+                    carClassColors = overrides;
+                }
+            }
+
+            DynLeaderboardsPlugin.LogInfo($"Read car class colors: {carClassColors?.Debug()}");
+
+            return carClassColors ?? new();
         }
 
         public bool IsFirstFinished { get; private set; } = false;

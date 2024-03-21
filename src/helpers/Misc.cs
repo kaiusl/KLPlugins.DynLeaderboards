@@ -223,6 +223,12 @@ namespace KLPlugins.DynLeaderboards.Helpers {
 
             return defValue;
         }
+
+        public static void Merge<K, V>(this Dictionary<K, V> dict, Dictionary<K, V> other) {
+            foreach (var kv in other) {
+                dict[kv.Key] = kv.Value;
+            }
+        }
     }
 
 }

@@ -10,6 +10,7 @@ using System.Windows.Media;
 using GameReaderCommon;
 
 using KLPlugins.DynLeaderboards.Settings;
+using KLPlugins.DynLeaderboards.Track;
 
 using SimHub.Plugins;
 
@@ -114,7 +115,8 @@ namespace KLPlugins.DynLeaderboards {
             var gameName = (string)pm.GetPropertyValue<SimHub.Plugins.DataPlugins.DataCore.DataCorePlugin>("CurrentGame");
             Game = new Game(gameName);
             GameDataPath = $@"{Settings.PluginDataLocation}\{gameName}";
-
+            TrackData.OnPluginInit(Settings.PluginDataLocation, gameName);
+            
             this.Values = new Values();
 
             foreach (var config in Settings.DynLeaderboardConfigs) {

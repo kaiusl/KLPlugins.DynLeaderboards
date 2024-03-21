@@ -42,6 +42,43 @@ namespace KLPlugins.DynLeaderboards.Car {
         }
     }
 
+    class CarClassColor {
+        public string Fg { get; }
+        public string Bg { get; }
+
+        [JsonConstructor]
+        public CarClassColor(string fg, string bg) {
+            this.Fg = fg;
+            this.Bg = bg;
+        }
+    }
+
+    class CarClassColors {
+        private Dictionary<string, CarClassColor> _colors { get; }
+
+        [JsonConstructor]
+        public CarClassColors(Dictionary<string, CarClassColor> global, Dictionary<string, Dictionary<string, CarClassColor>> game_overrides) {
+            this._colors = global;
+            var overrides = game_overrides.GetValueOr(DynLeaderboardsPlugin.Game.Name, null);
+            if (overrides != null) {
+                foreach (var kvp in overrides) {
+                    this._colors[kvp.Key] = kvp.Value;
+                }
+            }
+
+            DynLeaderboardsPlugin.LogInfo($"Read car class colors: {JsonConvert.SerializeObject(this._colors)}");
+        }
+
+        public CarClassColors() {
+            this._colors = [];
+        }
+
+        internal CarClassColor? Get(string key) {
+            return this._colors.GetValueOr(key, null);
+        }
+
+    }
+
     public class CarData {
         public string CarClass { get; private set; }
         public string CarClassColor { get; private set; }

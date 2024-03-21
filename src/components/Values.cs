@@ -28,7 +28,7 @@ namespace KLPlugins.DynLeaderboards {
         public List<CarData> RelativeOnTrackBehindOrder { get; } = new();
         public CarData? FocusedCar { get; private set; } = null;
 
-        private static Dictionary<string, CarInfo>? _carInfos = null;
+        private Dictionary<string, CarInfo>? _carInfos = null;
 
         /// <summary>
         /// 
@@ -49,10 +49,25 @@ namespace KLPlugins.DynLeaderboards {
             }
         }
 
+        private CarClassColors? _carClassColors = null;
+        internal CarClassColor? GetCarClassColor(string carClass) {
+            return _carClassColors!.Get(carClass);
+        }
+
+        private static CarClassColors ReadCarClassColors() {
+            var path = $"{DynLeaderboardsPlugin.Settings.PluginDataLocation}\\CarClassColors.json";
+            if (File.Exists(path)) {
+                return JsonConvert.DeserializeObject<CarClassColors>(File.ReadAllText(path)) ?? new();
+            } else {
+                return new();
+            }
+        }
+
         public bool IsFirstFinished { get; private set; } = false;
 
         internal Values() {
-            _carInfos ??= ReadCarInfos();
+            _carInfos = ReadCarInfos();
+            _carClassColors = ReadCarClassColors();
         }
 
         internal void Reset() {

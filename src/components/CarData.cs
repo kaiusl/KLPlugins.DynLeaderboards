@@ -57,9 +57,9 @@ namespace KLPlugins.DynLeaderboards.Car {
         private Dictionary<string, CarClassColor> _colors { get; }
 
         [JsonConstructor]
-        public CarClassColors(Dictionary<string, CarClassColor> global, Dictionary<string, Dictionary<string, CarClassColor>> game_overrides) {
-            this._colors = global;
-            var overrides = game_overrides.GetValueOr(DynLeaderboardsPlugin.Game.Name, null);
+        public CarClassColors(Dictionary<string, CarClassColor>? global, Dictionary<string, Dictionary<string, CarClassColor>>? game_overrides) {
+            this._colors = global ?? [];
+            var overrides = game_overrides?.GetValueOr(DynLeaderboardsPlugin.Game.Name, null);
             if (overrides != null) {
                 foreach (var kvp in overrides) {
                     this._colors[kvp.Key] = kvp.Value;

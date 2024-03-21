@@ -1,4 +1,4 @@
-﻿using GameReaderCommon;
+using GameReaderCommon;
 
 namespace KLPlugins.DynLeaderboards {
     public class Session {
@@ -201,6 +201,9 @@ namespace KLPlugins.DynLeaderboards {
         internal static SessionPhase FromSHGameData(GameData data) {
             if (DynLeaderboardsPlugin.Game.IsAcc) {
                 var accData = (ACSharedMemory.ACC.Reader.ACCRawData)data.NewData.GetRawDataObject();
+                if (accData.Realtime?.Phase == null) {
+                    return SessionPhase.Unknown;
+                }
                 return accData.Realtime.Phase switch {
                     ksBroadcastingNetwork.SessionPhase.NONE => SessionPhase.Unknown,
                     ksBroadcastingNetwork.SessionPhase.Starting => SessionPhase.Starting,

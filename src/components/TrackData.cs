@@ -39,11 +39,10 @@ namespace KLPlugins.DynLeaderboards.Track {
         private static Dictionary<string, double>? _splinePosOffsets = null;
 
         internal TrackData(GameData data) {
-            Debug.Assert(_splinePosOffsets != null);
             this.Name = data.NewData.TrackName;
             this.Id = data.NewData.TrackId;
             this.LengthMeters = data.NewData.TrackLength;
-            this.SplinePosOffset = _splinePosOffsets!.GetValueOr(this.Id, 0.0);
+            this.SplinePosOffset = _splinePosOffsets?.GetValueOr(this.Id, 0.0) ?? 0.0;
 
             this.CreateInterpolators();
         }

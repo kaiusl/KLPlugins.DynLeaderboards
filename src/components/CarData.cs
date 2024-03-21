@@ -35,7 +35,9 @@ namespace KLPlugins.DynLeaderboards.Car {
 
         public string CarNumber { get; private set; }
         public string CarModel { get; private set; }
+        public string CarManufacturer { get; private set; }
         public string? TeamName { get; private set; }
+        public string TeamCupCategory { get; private set; } = "Overall";
 
         public NewOld<CarLocation> Location { get; } = new(CarLocation.NONE);
 
@@ -137,9 +139,31 @@ namespace KLPlugins.DynLeaderboards.Car {
             this.CarClassTextColor = this.RawDataNew.CarClassTextColor ?? "#000000";
             this.CarNumber = this.RawDataNew.CarNumber ?? "-1";
             this.CarModel = this.RawDataNew.CarName ?? "Unknown";
+            this.CarManufacturer = GetCarManufacturer(this.CarModel);
             this.TeamName = this.RawDataNew.TeamName;
             this.PositionOverall = this.RawDataNew!.Position;
             this.PositionInClass = this.RawDataNew.PositionInClass;
+
+            if (DynLeaderboardsPlugin.Game.IsAcc) {
+                var accRawData = (ACSharedMemory.Models.ACCOpponent)rawData;
+                this.TeamCupCategory = ACCTeamCupCategoryToString(accRawData.ExtraData.CarEntry.CupCategory);
+            }
+        }
+
+        static string ACCTeamCupCategoryToString(byte cupCategory) {
+            return cupCategory switch {
+                0 => "Overall",
+                1 => "ProAm",
+                2 => "Am",
+                3 => "Silver",
+                4 => "National",
+                _ => "Overall"
+            };
+        }
+
+        static string GetCarManufacturer(string carModel) {
+            // TODO: read from LUTs
+            return carModel.Split(' ')[0];
         }
 
         /// <summary>

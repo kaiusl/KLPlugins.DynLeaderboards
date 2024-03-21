@@ -35,13 +35,14 @@ namespace KLPlugins.DynLeaderboards.Track {
         public double LengthMeters { get; }
         public double SplinePosOffset { get; }
         internal Dictionary<string, LapInterpolator> LapInterpolators = [];
+        private static Dictionary<string, double>? _splinePosOffsets = null;
 
         internal TrackData(GameData data) {
-
+            _splinePosOffsets ??= ReadSplinePosOffsets() ?? [];
             this.Name = data.NewData.TrackName;
             this.Id = data.NewData.TrackId;
             this.LengthMeters = data.NewData.TrackLength;
-            this.SplinePosOffset = ReadSplinePosOffsets()?.GetValueOr(this.Id, 0.0) ?? 0.0;
+            this.SplinePosOffset = _splinePosOffsets.GetValueOr(this.Id, 0.0);
 
             this.CreateInterpolators();
         }

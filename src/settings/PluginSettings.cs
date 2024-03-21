@@ -22,7 +22,7 @@ namespace KLPlugins.DynLeaderboards.Settings {
 
         internal const string PluginDataDir = "PluginsData\\KLPlugins\\DynLeaderboards";
         internal const string PluginDataDirBase = PluginDataDir + "\\base";
-        internal const string PluginsDataDirOverrides = PluginDataDir + "\\overrides";
+        internal const string PluginDataDirOverrides = PluginDataDir + "\\overrides";
         internal const string LeaderboardConfigsDataDir = PluginDataDir + "\\leaderboardConfigs";
         internal const string LeaderboardConfigsDataBackupDir = LeaderboardConfigsDataDir + "\\b";
         private static readonly string _defAccDataLocation = "C:\\Users\\" + Environment.UserName + "\\Documents\\Assetto Corsa Competizione";

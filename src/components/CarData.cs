@@ -10,6 +10,8 @@ using KLPlugins.DynLeaderboards.Track;
 
 using ksBroadcastingNetwork;
 
+using Newtonsoft.Json;
+
 namespace KLPlugins.DynLeaderboards.Car {
 
     public class NewOld<T> {
@@ -27,8 +29,20 @@ namespace KLPlugins.DynLeaderboards.Car {
         }
     }
 
-    public class CarData {
+    class CarInfo {
+        public string? Name { get; }
+        public string? Manufacturer { get; }
+        public string? Class { get; }
 
+        [JsonConstructor]
+        public CarInfo(string? name, string? manufacturer, string? @class) {
+            this.Name = name;
+            this.Manufacturer = manufacturer;
+            this.Class = @class;
+        }
+    }
+
+    public class CarData {
         public string CarClass { get; private set; }
         public string CarClassColor { get; private set; }
         public string CarClassTextColor { get; private set; }
@@ -138,16 +152,24 @@ namespace KLPlugins.DynLeaderboards.Car {
 
         public CarData(Values values, Opponent rawData) {
             this.RawDataNew = rawData;
-            this.UpdateIndependent(values, rawData);
-            this.CarClass = this.RawDataNew.CarClass ?? "";
+
+            var carInfo = values.GetCarInfo(this.RawDataNew.CarName);
+            if (carInfo == null) {
+                DynLeaderboardsPlugin.LogWarn($"Car info not found for {this.RawDataNew.CarName}. Static car info (like class, manufacturer etc) may be missing or incorrect.");
+            }
+            this.CarClass = carInfo?.Class ?? this.RawDataNew.CarClass ?? "";
+            this.CarModel = carInfo?.Name ?? this.RawDataNew.CarName ?? "Unknown";
+            this.CarManufacturer = carInfo?.Manufacturer ?? GetCarManufacturer(this.CarModel);
+
             this.CarClassColor = this.RawDataNew.CarClassColor ?? "#FFFFFF";
             this.CarClassTextColor = this.RawDataNew.CarClassTextColor ?? "#000000";
             this.CarNumber = this.RawDataNew.CarNumber ?? "-1";
-            this.CarModel = this.RawDataNew.CarName ?? "Unknown";
-            this.CarManufacturer = GetCarManufacturer(this.CarModel);
+
             this.TeamName = this.RawDataNew.TeamName;
             this.PositionOverall = this.RawDataNew!.Position;
             this.PositionInClass = this.RawDataNew.PositionInClass;
+
+            this.UpdateIndependent(values, rawData);
 
             if (DynLeaderboardsPlugin.Game.IsAcc) {
                 var accRawData = (ACSharedMemory.Models.ACCOpponent)rawData;

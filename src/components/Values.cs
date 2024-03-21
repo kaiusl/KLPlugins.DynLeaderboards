@@ -10,6 +10,8 @@ using SimHub.Plugins;
 using System.Linq;
 using KLPlugins.DynLeaderboards.Helpers;
 using System.Diagnostics;
+using System.IO;
+using Newtonsoft.Json;
 
 namespace KLPlugins.DynLeaderboards {
     /// <summary>
@@ -26,9 +28,31 @@ namespace KLPlugins.DynLeaderboards {
         public List<CarData> RelativeOnTrackBehindOrder { get; } = new();
         public CarData? FocusedCar { get; private set; } = null;
 
+        private static Dictionary<string, CarInfo>? _carInfos = null;
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="carName">Car name returned by Opponent.CarName</param>
+        /// <returns></returns>
+        internal CarInfo? GetCarInfo(string carName) {
+            // _carInfoLUTs is not null when this object exists
+            return _carInfos!.GetValueOr(carName, null);
+        }
+
+        private static Dictionary<string, CarInfo> ReadCarInfos() {
+            var path = $"{DynLeaderboardsPlugin.Settings.PluginDataLocation}\\{DynLeaderboardsPlugin.Game.Name}\\CarInfos.json";
+            if (File.Exists(path)) {
+                return JsonConvert.DeserializeObject<Dictionary<string, CarInfo>>(File.ReadAllText(path)) ?? [];
+            } else {
+                return [];
+            }
+        }
+
         public bool IsFirstFinished { get; private set; } = false;
 
         internal Values() {
+            _carInfos ??= ReadCarInfos();
         }
 
         internal void Reset() {
@@ -132,7 +156,7 @@ namespace KLPlugins.DynLeaderboards {
                     }
 
                     if (
-                        overallBestLapCar == null 
+                        overallBestLapCar == null
                         || car.BestLap.Time < overallBestLapCar.BestLap!.Time! // If it's set, it cannot be null
                     ) {
                         overallBestLapCar = car;

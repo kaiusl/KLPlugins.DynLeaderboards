@@ -45,16 +45,14 @@ namespace KLPlugins.DynLeaderboards.Car {
 
     public class CarData {
         public CarClass CarClass { get; private set; }
-        public string CarClassColor { get; private set; }
-        public string CarClassTextColor { get; private set; }
+        public TextBoxColor CarClassColor { get; private set; }
 
-        public string CarNumber { get; private set; }
+        public string CarNumber { get; private set; } // string because 001 and 1 could be different numbers in some games
         public string CarModel { get; private set; }
         public string CarManufacturer { get; private set; }
         public string? TeamName { get; private set; }
         public string TeamCupCategory { get; private set; }
-        public string TeamCupCategoryColor { get; private set; }
-        public string TeamCupCategoryTextColor { get; private set; }
+        public TextBoxColor TeamCupCategoryColor { get; private set; }
 
         public NewOld<CarLocation> Location { get; } = new(CarLocation.NONE);
 
@@ -162,17 +160,15 @@ namespace KLPlugins.DynLeaderboards.Car {
             this.CarModel = carInfo?.Name ?? this.RawDataNew.CarName ?? "Unknown";
             this.CarManufacturer = carInfo?.Manufacturer ?? GetCarManufacturer(this.CarModel);
 
-            var classColor = values.GetCarClassColor(this.CarClass);
-            this.CarClassColor = classColor?.Bg ?? this.RawDataNew.CarClassColor ?? "#FFFFFF";
-            this.CarClassTextColor = classColor?.Fg ?? this.RawDataNew.CarClassTextColor ?? "#000000";
+            this.CarClassColor = values.GetCarClassColor(this.CarClass)
+                ?? TextBoxColor.TryNew(bg: this.RawDataNew.CarClassColor, fg: this.RawDataNew.CarClassTextColor)
+                ?? new TextBoxColor(bg: "#FFFFFF", fg: "#000000");
 
             this.CarNumber = this.RawDataNew.CarNumber ?? "-1";
 
             this.TeamName = this.RawDataNew.TeamName;
             this.PositionOverall = this.RawDataNew!.Position;
             this.PositionInClass = this.RawDataNew.PositionInClass;
-
-            this.UpdateIndependent(values, rawData);
 
             if (DynLeaderboardsPlugin.Game.IsAcc) {
                 var accRawData = (ACSharedMemory.Models.ACCOpponent)rawData;
@@ -181,9 +177,12 @@ namespace KLPlugins.DynLeaderboards.Car {
                 this.TeamCupCategory = "Overall";
             }
 
-            var cupColors = values.GetTeamCupCategoryColor(this.TeamCupCategory);
-            this.TeamCupCategoryColor = cupColors?.Bg ?? "#FFFFFF";
-            this.TeamCupCategoryTextColor = cupColors?.Fg ?? "#000000";
+            this.CarClassColor = values.GetTeamCupCategoryColor(this.TeamCupCategory)
+                ?? new TextBoxColor(bg: "#FFFFFF", fg: "#000000");
+
+            this.UpdateIndependent(values, rawData);
+
+
         }
 
         static string ACCTeamCupCategoryToString(byte cupCategory) {

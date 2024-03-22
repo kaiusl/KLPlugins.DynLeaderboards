@@ -13,6 +13,7 @@ namespace KLPlugins.DynLeaderboards.Settings {
         TeamCupTextColors = 1 << 6,
         DriverCategoryColors = 1 << 7,
         CarClassTextColors = 1 << 8,
+        DriverCategoryTextColors = 1 << 9,
     }
 
     internal static class OutGeneralPropExtensions {
@@ -38,7 +39,8 @@ namespace KLPlugins.DynLeaderboards.Settings {
                 OutGeneralProp.CarClassTextColors => "Text color for every car class.",
                 OutGeneralProp.TeamCupColors => "Background colors for every team cup category.",
                 OutGeneralProp.TeamCupTextColors => "Text colors for every team cup category",
-                OutGeneralProp.DriverCategoryColors => "Color for every driver category",
+                OutGeneralProp.DriverCategoryColors => "Background color for every driver category",
+                OutGeneralProp.DriverCategoryTextColors => "Text color for every driver category",
                 OutGeneralProp.None => "None",
                 _ => throw new ArgumentOutOfRangeException($"Invalid enum variant {p}"),
             };

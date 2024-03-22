@@ -83,6 +83,13 @@ namespace KLPlugins.DynLeaderboards {
         }
         internal IEnumerable<KeyValuePair<TeamCupCategory, TextBoxColor>> TeamCupCategoryColors => _teamCupCategoryColors.GetEnumerable();
 
+
+        private readonly TextBoxColors<DriverCategory> _driverCategoryColors;
+        internal TextBoxColor? GetDriverCategoryColor(DriverCategory teamCupCategory) {
+            return _driverCategoryColors.Get(teamCupCategory);
+        }
+        internal IEnumerable<KeyValuePair<DriverCategory, TextBoxColor>> DriverCategoryColors => _driverCategoryColors.GetEnumerable();
+
         private static TextBoxColors<K> ReadTextBoxColors<K>(string fileName) {
             var pathEnd = $"\\{fileName}";
             var basePath = PluginSettings.PluginDataDirBase + pathEnd;
@@ -115,6 +122,7 @@ namespace KLPlugins.DynLeaderboards {
             this.UpdateCarInfos();
             _carClassColors = ReadTextBoxColors<CarClass>("CarClassColors.json");
             _teamCupCategoryColors = ReadTextBoxColors<TeamCupCategory>("TeamCupCategoryColors.json");
+            _driverCategoryColors = ReadTextBoxColors<DriverCategory>("DriverCategoryColors.json");
         }
 
         internal void UpdateCarInfos() {

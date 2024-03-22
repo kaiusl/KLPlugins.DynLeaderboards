@@ -32,15 +32,29 @@ namespace KLPlugins.DynLeaderboards.Car {
     }
 
     class CarInfo {
-        public string? Name { get; }
-        public string? Manufacturer { get; }
-        public CarClass? Class { get; }
+        public string? Name { get; private set; }
+        public string? Manufacturer { get; private set; }
+        public CarClass? Class { get; private set; }
 
         [JsonConstructor]
         public CarInfo(string? name, string? manufacturer, CarClass? @class) {
             this.Name = name;
             this.Manufacturer = manufacturer;
             this.Class = @class;
+        }
+
+        public void Merge(CarInfo other) {
+            if (other.Name != null) {
+                this.Name = other.Name;
+            }
+
+            if (other.Manufacturer != null) {
+                this.Manufacturer = other.Manufacturer;
+            }
+
+            if (other.Class != null) {
+                this.Class = other.Class;
+            }
         }
     }
 

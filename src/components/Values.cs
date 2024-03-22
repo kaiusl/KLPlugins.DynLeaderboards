@@ -60,7 +60,13 @@ namespace KLPlugins.DynLeaderboards {
                 var overrides = JsonConvert.DeserializeObject<Dictionary<string, CarInfo>>(File.ReadAllText(overridesPath));
                 if (carInfos != null) {
                     if (overrides != null) {
-                        carInfos.Merge(overrides);
+                        foreach (var kvp in overrides) {
+                            if (carInfos.ContainsKey(kvp.Key)) {
+                                carInfos[kvp.Key].Merge(kvp.Value);
+                            } else {
+                                carInfos.Add(kvp.Key, kvp.Value);
+                            }
+                        }
                     }
                 } else {
                     carInfos = overrides;

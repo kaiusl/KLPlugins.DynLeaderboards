@@ -6,6 +6,7 @@ using System.Linq;
 
 using GameReaderCommon;
 
+using KLPlugins.DynLeaderboards.Car;
 using KLPlugins.DynLeaderboards.Helpers;
 using KLPlugins.DynLeaderboards.Settings;
 
@@ -35,7 +36,7 @@ namespace KLPlugins.DynLeaderboards.Track {
         public string Id { get; }
         public double LengthMeters { get; }
         public double SplinePosOffset { get; }
-        internal Dictionary<string, LapInterpolator> LapInterpolators = [];
+        internal Dictionary<CarClass, LapInterpolator> LapInterpolators = [];
         private static Dictionary<string, double>? _splinePosOffsets = null;
 
         internal TrackData(GameData data) {
@@ -73,14 +74,14 @@ namespace KLPlugins.DynLeaderboards.Track {
 
                 var fileName = Path.GetFileNameWithoutExtension(path);
                 if (fileName.StartsWith(this.Id)) {
-                    var carClass = fileName.Substring(this.Id.Length + 1);
+                    var carClass = new CarClass(fileName.Substring(this.Id.Length + 1));
                     this.AddLapInterpolator(path, carClass);
                 }
             }
         }
 
         /// Assumes that `this.LapInterpolators != null`
-        private void AddLapInterpolator(string fname, string carClass) {
+        private void AddLapInterpolator(string fname, CarClass carClass) {
             Debug.Assert(this.LapInterpolators != null, "Expected this.LapInterpolators != null");
 
             //var fname = $"{DynLeaderboardsPlugin.Settings.PluginDataLocation}\\{DynLeaderboardsPlugin.Game.Name}\\laps_data\\{this.Id}_{carClass}.txt";

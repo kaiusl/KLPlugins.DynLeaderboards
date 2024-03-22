@@ -65,42 +65,48 @@ namespace KLPlugins.DynLeaderboards {
             return carInfos ?? [];
         }
 
-        private readonly CarClassColors _carClassColors;
-        internal CarClassColor? GetCarClassColor(string carClass) {
+        private readonly TextBoxColors _carClassColors;
+        internal TextBoxColor? GetCarClassColor(string carClass) {
             return _carClassColors.Get(carClass);
         }
 
-        private static CarClassColors ReadCarClassColors() {
-            var pathEnd = $"\\CarClassColors.json";
+        private readonly TextBoxColors _teamCupCategoryColors;
+        internal TextBoxColor? GetTeamCupCategoryColor(string teamCupCategory) {
+            return _teamCupCategoryColors.Get(teamCupCategory);
+        }
+
+        private static TextBoxColors ReadTextBoxColors(string fileName) {
+            var pathEnd = $"\\{fileName}";
             var basePath = PluginSettings.PluginDataDirBase + pathEnd;
             var overridesPath = PluginSettings.PluginDataDirOverrides + pathEnd;
 
-            CarClassColors? carClassColors = null;
+            TextBoxColors? colors = null;
             if (File.Exists(basePath)) {
-                carClassColors = JsonConvert.DeserializeObject<CarClassColors>(File.ReadAllText(basePath));
+                colors = JsonConvert.DeserializeObject<TextBoxColors>(File.ReadAllText(basePath));
             }
 
             if (File.Exists(overridesPath)) {
-                var overrides = JsonConvert.DeserializeObject<CarClassColors>(File.ReadAllText(overridesPath));
-                if (carClassColors != null) {
+                var overrides = JsonConvert.DeserializeObject<TextBoxColors>(File.ReadAllText(overridesPath));
+                if (colors != null) {
                     if (overrides != null) {
-                        carClassColors.Merge(overrides);
+                        colors.Merge(overrides);
                     }
                 } else {
-                    carClassColors = overrides;
+                    colors = overrides;
                 }
             }
 
-            DynLeaderboardsPlugin.LogInfo($"Read car class colors: {carClassColors?.Debug()}");
+            DynLeaderboardsPlugin.LogInfo($"Read text box colors from '{fileName}': {colors?.Debug(pretty: true)}");
 
-            return carClassColors ?? new();
+            return colors ?? new();
         }
 
         public bool IsFirstFinished { get; private set; } = false;
 
         internal Values() {
             _carInfos = ReadCarInfos();
-            _carClassColors = ReadCarClassColors();
+            _carClassColors = ReadTextBoxColors("CarClassColors.json");
+            _teamCupCategoryColors = ReadTextBoxColors("TeamCupCategoryColors.json");
         }
 
         internal void Reset() {
@@ -381,6 +387,53 @@ namespace KLPlugins.DynLeaderboards {
             if (running) {
             } else {
                 this.Reset();
+            }
+        }
+
+    }
+
+    internal class TextBoxColor {
+        public string Fg { get; }
+        public string Bg { get; }
+
+        [JsonConstructor]
+        public TextBoxColor(string fg, string bg) {
+            this.Fg = fg;
+            this.Bg = bg;
+        }
+    }
+
+    internal class TextBoxColors {
+        private Dictionary<string, TextBoxColor> _colors { get; }
+
+        [JsonConstructor]
+        public TextBoxColors(Dictionary<string, TextBoxColor>? global, Dictionary<string, Dictionary<string, TextBoxColor>>? game_overrides) {
+            this._colors = global ?? [];
+            var overrides = game_overrides?.GetValueOr(DynLeaderboardsPlugin.Game.Name, null);
+            if (overrides != null) {
+                foreach (var kvp in overrides) {
+                    this._colors[kvp.Key] = kvp.Value;
+                }
+            }
+        }
+
+        public TextBoxColors() {
+            this._colors = [];
+        }
+
+        internal TextBoxColor? Get(string key) {
+            return this._colors.GetValueOr(key, null);
+        }
+
+        internal void Merge(TextBoxColors other) {
+            this._colors.Merge(other._colors);
+        }
+
+        internal string Debug(bool pretty = false) {
+            if (pretty) {
+                return JsonConvert.SerializeObject(this._colors, Formatting.Indented);
+            } else {
+                return JsonConvert.SerializeObject(this._colors);
             }
         }
 

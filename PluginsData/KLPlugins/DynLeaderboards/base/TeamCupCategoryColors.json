@@ -1,0 +1,25 @@
+{
+    "global": {
+        "Overall": {
+            "bg": "#FFFFFF",
+            "fg": "#000000"
+        },
+        "ProAm": {
+            "bg": "#000000",
+            "fg": "#FFFFFF"
+        },
+        "Am": {
+            "bg": "#E80000",
+            "fg": "#000000"
+        },
+        "Silver": {
+            "bg": "#666666",
+            "fg": "#FFFFFF"
+        },
+        "National": {
+            "bg": "#008F4B",
+            "fg": "#FFFFFF"
+        }
+    },
+    "game_overrides": {}
+}

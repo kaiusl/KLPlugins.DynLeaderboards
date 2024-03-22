@@ -14,56 +14,12 @@ using ksBroadcastingNetwork;
 using Newtonsoft.Json;
 
 namespace KLPlugins.DynLeaderboards.Car {
-    using CarName = string;
-
-    public class NewOld<T> {
-        public T New { get; private set; }
-        public T Old { get; private set; }
-
-        internal NewOld(T data) {
-            this.New = data;
-            this.Old = data;
-        }
-
-        internal void Update(T data) {
-            this.Old = this.New;
-            this.New = data;
-        }
-    }
-
-    class CarInfo {
-        public string? Name { get; private set; }
-        public string? Manufacturer { get; private set; }
-        public CarClass? Class { get; private set; }
-
-        [JsonConstructor]
-        public CarInfo(string? name, string? manufacturer, CarClass? @class) {
-            this.Name = name;
-            this.Manufacturer = manufacturer;
-            this.Class = @class;
-        }
-
-        public void Merge(CarInfo other) {
-            if (other.Name != null) {
-                this.Name = other.Name;
-            }
-
-            if (other.Manufacturer != null) {
-                this.Manufacturer = other.Manufacturer;
-            }
-
-            if (other.Class != null) {
-                this.Class = other.Class;
-            }
-        }
-    }
-
     public class CarData {
         public CarClass CarClass { get; private set; }
         public TextBoxColor CarClassColor { get; private set; }
 
         public string CarNumber { get; private set; } // string because 001 and 1 could be different numbers in some games
-        public CarName CarModel { get; private set; }
+        public string CarModel { get; private set; }
         public string CarManufacturer { get; private set; }
         public string? TeamName { get; private set; }
         public TeamCupCategory TeamCupCategory { get; private set; }
@@ -1191,6 +1147,49 @@ namespace KLPlugins.DynLeaderboards.Car {
         AHEAD = 1,
         SAME_LAP = 0,
         BEHIND = -1
+    }
+
+
+    public class NewOld<T> {
+        public T New { get; private set; }
+        public T Old { get; private set; }
+
+        internal NewOld(T data) {
+            this.New = data;
+            this.Old = data;
+        }
+
+        internal void Update(T data) {
+            this.Old = this.New;
+            this.New = data;
+        }
+    }
+
+    class CarInfo {
+        public string? Name { get; private set; }
+        public string? Manufacturer { get; private set; }
+        public CarClass? Class { get; private set; }
+
+        [JsonConstructor]
+        public CarInfo(string? name, string? manufacturer, CarClass? @class) {
+            this.Name = name;
+            this.Manufacturer = manufacturer;
+            this.Class = @class;
+        }
+
+        public void Merge(CarInfo other) {
+            if (other.Name != null) {
+                this.Name = other.Name;
+            }
+
+            if (other.Manufacturer != null) {
+                this.Manufacturer = other.Manufacturer;
+            }
+
+            if (other.Class != null) {
+                this.Class = other.Class;
+            }
+        }
     }
 
     [TypeConverter(typeof(CarClassTypeConverter))]

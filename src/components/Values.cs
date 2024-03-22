@@ -70,28 +70,28 @@ namespace KLPlugins.DynLeaderboards {
             return carInfos ?? [];
         }
 
-        private readonly TextBoxColors _carClassColors;
-        internal TextBoxColor? GetCarClassColor(string carClass) {
+        private readonly TextBoxColors<CarClass> _carClassColors;
+        internal TextBoxColor? GetCarClassColor(CarClass carClass) {
             return _carClassColors.Get(carClass);
         }
 
-        private readonly TextBoxColors _teamCupCategoryColors;
+        private readonly TextBoxColors<string> _teamCupCategoryColors;
         internal TextBoxColor? GetTeamCupCategoryColor(string teamCupCategory) {
             return _teamCupCategoryColors.Get(teamCupCategory);
         }
 
-        private static TextBoxColors ReadTextBoxColors(string fileName) {
+        private static TextBoxColors<K> ReadTextBoxColors<K>(string fileName) {
             var pathEnd = $"\\{fileName}";
             var basePath = PluginSettings.PluginDataDirBase + pathEnd;
             var overridesPath = PluginSettings.PluginDataDirOverrides + pathEnd;
 
-            TextBoxColors? colors = null;
+            TextBoxColors<K>? colors = null;
             if (File.Exists(basePath)) {
-                colors = JsonConvert.DeserializeObject<TextBoxColors>(File.ReadAllText(basePath));
+                colors = JsonConvert.DeserializeObject<TextBoxColors<K>>(File.ReadAllText(basePath));
             }
 
             if (File.Exists(overridesPath)) {
-                var overrides = JsonConvert.DeserializeObject<TextBoxColors>(File.ReadAllText(overridesPath));
+                var overrides = JsonConvert.DeserializeObject<TextBoxColors<K>>(File.ReadAllText(overridesPath));
                 if (colors != null) {
                     if (overrides != null) {
                         colors.Merge(overrides);
@@ -110,8 +110,8 @@ namespace KLPlugins.DynLeaderboards {
 
         internal Values() {
             this.UpdateCarInfos();
-            _carClassColors = ReadTextBoxColors("CarClassColors.json");
-            _teamCupCategoryColors = ReadTextBoxColors("TeamCupCategoryColors.json");
+            _carClassColors = ReadTextBoxColors<CarClass>("CarClassColors.json");
+            _teamCupCategoryColors = ReadTextBoxColors<string>("TeamCupCategoryColors.json");
         }
 
         internal void UpdateCarInfos() {
@@ -179,7 +179,7 @@ namespace KLPlugins.DynLeaderboards {
         private void UpdateCars(GameData data) {
             IEnumerable<(Opponent, int)> cars = data.NewData.Opponents.WithIndex();
 
-            Dictionary<string, CarData> classBestLapCars = [];
+            Dictionary<CarClass, CarData> classBestLapCars = [];
             CarData? overallBestLapCar = null;
             foreach (var (opponent, i) in cars) {
                 if (DynLeaderboardsPlugin.Game.IsAcc && opponent.Id == "Me") {
@@ -256,9 +256,9 @@ namespace KLPlugins.DynLeaderboards {
             this.ClassOrder.Clear();
             this.RelativeOnTrackAheadOrder.Clear();
             this.RelativeOnTrackBehindOrder.Clear();
-            Dictionary<string, int> classPositions = [];
-            Dictionary<string, CarData> classLeaders = [];
-            Dictionary<string, CarData> carAheadInClass = [];
+            Dictionary<CarClass, int> classPositions = [];
+            Dictionary<CarClass, CarData> classLeaders = [];
+            Dictionary<CarClass, CarData> carAheadInClass = [];
             var focusedClass = this.FocusedCar?.CarClass;
             foreach (var (car, i) in this.OverallOrder.WithIndex()) {
                 car.SetOverallPosition(i + 1);
@@ -412,11 +412,11 @@ namespace KLPlugins.DynLeaderboards {
         }
     }
 
-    internal class TextBoxColors {
-        private Dictionary<string, TextBoxColor> _colors { get; }
+    internal class TextBoxColors<K> {
+        private Dictionary<K, TextBoxColor> _colors { get; }
 
         [JsonConstructor]
-        public TextBoxColors(Dictionary<string, TextBoxColor>? global, Dictionary<string, Dictionary<string, TextBoxColor>>? game_overrides) {
+        public TextBoxColors(Dictionary<K, TextBoxColor>? global, Dictionary<string, Dictionary<K, TextBoxColor>>? game_overrides) {
             this._colors = global ?? [];
             var overrides = game_overrides?.GetValueOr(DynLeaderboardsPlugin.Game.Name, null);
             if (overrides != null) {
@@ -430,11 +430,11 @@ namespace KLPlugins.DynLeaderboards {
             this._colors = [];
         }
 
-        internal TextBoxColor? Get(string key) {
+        internal TextBoxColor? Get(K key) {
             return this._colors.GetValueOr(key, null);
         }
 
-        internal void Merge(TextBoxColors other) {
+        internal void Merge(TextBoxColors<K> other) {
             this._colors.Merge(other._colors);
         }
 

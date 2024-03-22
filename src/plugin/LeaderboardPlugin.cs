@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -39,6 +39,8 @@ namespace KLPlugins.DynLeaderboards {
         private static StreamWriter? _logWriter;
         private static bool _isLogFlushed = false;
         private string? _logFileName;
+        private double _dataUpdateTime = 0;
+
         internal Values Values { get; private set; }
         internal List<DynLeaderboard> DynLeaderboards { get; set; } = new();
 #pragma warning restore CS8618
@@ -53,12 +55,17 @@ namespace KLPlugins.DynLeaderboards {
         /// <param name="pluginManager"></param>
         /// <param name="data"></param>
         public void DataUpdate(PluginManager pm, ref GameData data) {
+            var swatch = Stopwatch.StartNew();
             if (data.GameRunning && data.OldData != null && data.NewData != null) {
                 this.Values.OnDataUpdate(pm, data);
                 foreach (var ldb in this.DynLeaderboards) {
                     ldb.OnDataUpdate(this.Values);
                 }
             }
+            swatch.Stop();
+            TimeSpan ts = swatch.Elapsed;
+
+            this._dataUpdateTime = ts.TotalMilliseconds;
         }
 
         /// <summary>
@@ -135,6 +142,8 @@ namespace KLPlugins.DynLeaderboards {
         }
 
         private void AttachGeneralDelegates() {
+            this.AttachDelegate("Perf.DataUpdateMS", () => this._dataUpdateTime);
+
             // Add everything else
             if (Settings.OutGeneralProps.Includes(OutGeneralProp.SessionPhase)) {
                 this.AttachDelegate("Session.Phase", () => this.Values.Session.SessionPhase.ToString());

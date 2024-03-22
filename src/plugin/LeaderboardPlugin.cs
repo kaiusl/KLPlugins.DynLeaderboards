@@ -236,26 +236,24 @@ namespace KLPlugins.DynLeaderboards {
                     }
                 }
 
-                // Laps and sectors
-                AddLapProp(OutLapProp.Laps, () => l.GetDynCar(i)?.Laps.New);
-                AddLapProp(OutLapProp.LastLapTime, () => l.GetDynCar(i)?.LastLap?.Time?.TotalSeconds);
-                if (l.Config.OutLapProps.Includes(OutLapProp.LastLapSectors)) {
-                    this.AttachDelegate($"{startName}.Laps.Last.S1", () => l.GetDynCar(i)?.LastLap?.S1Time?.TotalSeconds);
-                    this.AttachDelegate($"{startName}.Laps.Last.S2", () => l.GetDynCar(i)?.LastLap?.S2Time?.TotalSeconds);
-                    this.AttachDelegate($"{startName}.Laps.Last.S3", () => l.GetDynCar(i)?.LastLap?.S3Time?.TotalSeconds);
+                void AddSectors(OutLapProp prop, string name, Func<Sectors?> sectorsProvider) {
+                    if (l.Config.OutLapProps.Includes(prop)) {
+                        this.AttachDelegate($"{startName}.{name}1", () => sectorsProvider()?.S1Time?.TotalSeconds);
+                        this.AttachDelegate($"{startName}.{name}2", () => sectorsProvider()?.S2Time?.TotalSeconds);
+                        this.AttachDelegate($"{startName}.{name}3", () => sectorsProvider()?.S3Time?.TotalSeconds);
+                    }
                 }
 
+                // Laps and sectors
+                AddLapProp(OutLapProp.Laps, () => l.GetDynCar(i)?.Laps.New);
+
+                AddLapProp(OutLapProp.LastLapTime, () => l.GetDynCar(i)?.LastLap?.Time?.TotalSeconds);
+                AddSectors(OutLapProp.LastLapSectors, "Laps.Last.S", () => l.GetDynCar(i)?.LastLap);
+
                 AddLapProp(OutLapProp.BestLapTime, () => l.GetDynCar(i)?.BestLap?.Time?.TotalSeconds);
-                if (l.Config.OutLapProps.Includes(OutLapProp.BestLapSectors)) {
-                    this.AttachDelegate($"{startName}.Laps.Best.S1", () => l.GetDynCar(i)?.BestLap?.S1Time?.TotalSeconds);
-                    this.AttachDelegate($"{startName}.Laps.Best.S2", () => l.GetDynCar(i)?.BestLap?.S2Time?.TotalSeconds);
-                    this.AttachDelegate($"{startName}.Laps.Best.S3", () => l.GetDynCar(i)?.BestLap?.S2Time?.TotalSeconds);
-                }
-                if (l.Config.OutLapProps.Includes(OutLapProp.BestSectors)) {
-                    this.AttachDelegate($"{startName}.BestS1", () => l.GetDynCar(i)?.BestSectors.GetSectorSplit(0)?.TotalSeconds);
-                    this.AttachDelegate($"{startName}.BestS2", () => l.GetDynCar(i)?.BestSectors.GetSectorSplit(1)?.TotalSeconds);
-                    this.AttachDelegate($"{startName}.BestS3", () => l.GetDynCar(i)?.BestSectors.GetSectorSplit(2)?.TotalSeconds);
-                }
+                AddSectors(OutLapProp.BestLapSectors, "Laps.Best.S", () => l.GetDynCar(i)?.BestLap);
+    
+                AddSectors(OutLapProp.BestSectors, "Laps.BestS", () => l.GetDynCar(i)?.BestSectors);
 
                 AddLapProp(OutLapProp.CurrentLapTime, () => l.GetDynCar(i)?.CurrentLapTime.TotalSeconds);
 

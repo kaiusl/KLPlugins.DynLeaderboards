@@ -30,6 +30,20 @@ namespace KLPlugins.DynLeaderboards.Settings {
             p &= ~o;
         }
 
+        public static OutGeneralProp[] Order() {
+            return [
+                OutGeneralProp.SessionPhase,
+                OutGeneralProp.MaxStintTime,
+                OutGeneralProp.MaxDriveTime,
+                OutGeneralProp.CarClassColors,
+                OutGeneralProp.CarClassTextColors,
+                OutGeneralProp.TeamCupColors,
+                OutGeneralProp.TeamCupTextColors,
+                OutGeneralProp.DriverCategoryColors,
+                OutGeneralProp.DriverCategoryTextColors
+             ];
+        }
+
         public static string ToolTipText(this OutGeneralProp p) {
             return p switch {
                 OutGeneralProp.SessionPhase => "Session phase.",

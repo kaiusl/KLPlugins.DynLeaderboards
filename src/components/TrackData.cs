@@ -32,7 +32,7 @@ namespace KLPlugins.DynLeaderboards.Track {
     }
 
     public class TrackData {
-        public string Name { get; }
+        public string PrettyName { get; }
         public string Id { get; }
         public double LengthMeters { get; }
         public double SplinePosOffset { get; }
@@ -40,7 +40,7 @@ namespace KLPlugins.DynLeaderboards.Track {
         private static Dictionary<string, double>? _splinePosOffsets = null;
 
         internal TrackData(GameData data) {
-            this.Name = data.NewData.TrackName;
+            this.PrettyName = data.NewData.TrackName;
             this.Id = data.NewData.TrackId;
             this.LengthMeters = data.NewData.TrackLength;
             this.SplinePosOffset = _splinePosOffsets?.GetValueOr(this.Id, 0.0) ?? 0.0;

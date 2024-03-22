@@ -37,7 +37,6 @@ namespace KLPlugins.DynLeaderboards {
         /// <param name="carName">Car name returned by Opponent.CarName</param>
         /// <returns></returns>
         internal CarInfo? GetCarInfo(string carName) {
-            // _carInfoLUTs is not null when this object exists
             return _carInfos.GetValueOr(carName, null);
         }
 
@@ -185,7 +184,7 @@ namespace KLPlugins.DynLeaderboards {
                 this.Booleans.OnNewEvent(this.Session.SessionType);
                 this.TrackData = new TrackData(data);
 
-                DynLeaderboardsPlugin.LogInfo($"Track set to: id={this.TrackData.Id}, name={this.TrackData.Name}");
+                DynLeaderboardsPlugin.LogInfo($"Track set to: id={this.TrackData.Id}, name={this.TrackData.PrettyName}");
             }
 
             this.Booleans.OnDataUpdate(data, this);

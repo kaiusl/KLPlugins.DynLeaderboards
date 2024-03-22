@@ -6,11 +6,17 @@ namespace KLPlugins.DynLeaderboards {
     public class Session {
         public SessionType SessionType { get; private set; } = SessionType.Unknown;
         public SessionPhase SessionPhase { get; private set; } = SessionPhase.Unknown;
+        /// <summary>
+        /// Session start effectively means that green flag is shown. It will be true for one update.
+        /// </summary>
         public bool IsSessionStart { get; private set; }
         public bool IsNewSession { get; private set; }
         public bool IsTimeLimited { get; private set; }
         public bool IsLapLimited { get; private set; }
         public bool IsRace => this.SessionType == SessionType.Race;
+        /// <summary>
+        /// Time of day in game.
+        /// </summary>
         public TimeSpan TimeOfDay { get; private set; }
 
         public TimeSpan? MaxDriverStintTime { get; private set; }

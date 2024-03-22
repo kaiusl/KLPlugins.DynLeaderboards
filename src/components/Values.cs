@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 
 using GameReaderCommon;
@@ -358,13 +358,13 @@ namespace KLPlugins.DynLeaderboards {
                         if (!a.IsFinished || !b.IsFinished) {
                             // If one hasn't finished and their number of laps is same, that means that the car who has finished must be lap down.
                             // Thus it should be behind the one who hasn't finished.
-                            var aFTime = a.FinishTime == null ? long.MinValue : (long)a.FinishTime!;
-                            var bFTime = b.FinishTime == null ? long.MinValue : (long)b.FinishTime!;
+                            var aFTime = a.FinishTime == null ? long.MinValue : a.FinishTime.Value.Ticks;
+                            var bFTime = b.FinishTime == null ? long.MinValue : b.FinishTime.Value.Ticks;
                             return aFTime.CompareTo(bFTime);
                         } else {
                             // Both cars have finished
-                            var aFTime = a.FinishTime == null ? long.MaxValue : (long)a.FinishTime;
-                            var bFTime = b.FinishTime == null ? long.MaxValue : (long)b.FinishTime;
+                            var aFTime = a.FinishTime == null ? long.MaxValue : a.FinishTime.Value.Ticks;
+                            var bFTime = b.FinishTime == null ? long.MaxValue : b.FinishTime.Value.Ticks;
                             return aFTime.CompareTo(bFTime);
                         }
                     }

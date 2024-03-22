@@ -61,7 +61,7 @@ namespace KLPlugins.DynLeaderboards.Settings {
             this.OtherProperties_StackPanel.Children.Clear();
             this.OtherProperties_StackPanel.Children.Add(this.CreatePropertyTogglesDescriptionRow());
             this.OtherProperties_StackPanel.Children.Add(this.CreateToggleSeparator());
-            foreach (var v in (OutGeneralProp[])Enum.GetValues(typeof(OutGeneralProp))) {
+            foreach (var v in OutGeneralPropExtensions.Order()) {
                 if (v == OutGeneralProp.None) {
                     continue;
                 }

@@ -38,7 +38,7 @@ namespace KLPlugins.DynLeaderboards.Car {
         public bool IsCurrentLapValid { get; private set; }
         public Lap? LastLap { get; private set; }
         public Lap? BestLap { get; private set; }
-        public SectorSplits BestSectors => this.RawDataNew.BestSectorSplits;
+        public Sectors BestSectors { get; private set; }
 
         public bool IsBestLapCarOverall { get; private set; }
         public bool IsBestLapCarInClass { get; private set; }
@@ -267,13 +267,15 @@ namespace KLPlugins.DynLeaderboards.Car {
                     var maybeBestLapTime = maybeBestLap.GetLapTime();
                     if (this.BestLap?.Time == null || (maybeBestLapTime != null && maybeBestLapTime < this.BestLap.Time)) {
                         this.BestLap = new Lap(maybeBestLap!, this.Laps.New, this.CurrentDriver!);
-                        currentDriver.BestLap = this.BestLap; // If it's car's best lap, it must also be the drivers
+                        currentDriver.BestLap = this.BestLap.ToBasic(); // If it's car's best lap, it must also be the drivers
                         DynLeaderboardsPlugin.LogInfo($"[{this.Id}] best lap: {this.BestLap.Time}");
                     } else if (currentDriver!.BestLap == null || (maybeBestLapTime != null && maybeBestLapTime < currentDriver.BestLap.Time)) {
-                        currentDriver!.BestLap = new Lap(maybeBestLap!, this.Laps.New, currentDriver!);
+                        currentDriver!.BestLap = new LapBasic(maybeBestLap!, this.Laps.New, currentDriver!);
                         DynLeaderboardsPlugin.LogInfo($"[{this.Id}] best lap for driver '{currentDriver.FullName}': {this.BestLap.Time}");
                     }
                 }
+
+                this.BestSectors.Update(this.RawDataNew.BestSectorSplits);
             }
 
             if (values.Session.IsRace) {
@@ -874,7 +876,7 @@ namespace KLPlugins.DynLeaderboards.Car {
         public DriverCategory Category { get; private set; } = DriverCategory.Default;
         public string Nationality { get; private set; } = "Unknown";
         public int TotalLaps { get; internal set; } = 0;
-        public Lap? BestLap { get; internal set; } = null;
+        public LapBasic? BestLap { get; internal set; } = null;
         public TextBoxColor CategoryColor { get; internal set; }
 
         private TimeSpan _totalDrivingTime;
@@ -1030,11 +1032,60 @@ namespace KLPlugins.DynLeaderboards.Car {
         }
     }
 
-    public class Lap {
-        public TimeSpan? Time { get; private set; }
+
+    public class Sectors {
         public TimeSpan? S1Time { get; private set; }
         public TimeSpan? S2Time { get; private set; }
         public TimeSpan? S3Time { get; private set; }
+
+        public Sectors(SectorTimes? sectorTimes) {
+            this.S1Time = sectorTimes?.GetSectorSplit(1);
+            this.S2Time = sectorTimes?.GetSectorSplit(2);
+            this.S3Time = sectorTimes?.GetSectorSplit(3);
+        }
+
+        public Sectors(Sectors other) {
+            this.S1Time = other.S1Time;
+            this.S2Time = other.S2Time;
+            this.S3Time = other.S3Time;
+        }
+
+        internal void Update(SectorSplits? sectorSplits) {
+            this.S1Time = sectorSplits?.GetSectorSplit(1);
+            this.S2Time = sectorSplits?.GetSectorSplit(2);
+            this.S3Time = sectorSplits?.GetSectorSplit(3);
+        }
+    }
+
+    public class LapBasic : Sectors {
+        public TimeSpan? Time { get; private set; }
+
+        public bool IsOutLap { get; internal set; } = false;
+        public bool IsInLap { get; internal set; } = false;
+        public bool IsValid { get; internal set; } = true;
+
+        public int LapNumber { get; private set; }
+        public Driver Driver { get; private set; }
+
+        public LapBasic(SectorTimes? sectorTimes, int lapNumber, Driver driver) : base(sectorTimes) {
+            this.Time = sectorTimes?.GetLapTime();
+
+            this.LapNumber = lapNumber;
+            this.Driver = driver;
+        }
+
+        public LapBasic(Lap lap) : base(lap) {
+            this.Time = lap.Time;
+            this.LapNumber = lap.LapNumber;
+            this.Driver = lap.Driver;
+            this.IsOutLap = lap.IsOutLap;
+            this.IsInLap = lap.IsInLap;
+            this.IsValid = lap.IsValid;
+        }
+    }
+
+    public class Lap : Sectors {
+        public TimeSpan? Time { get; private set; }
 
         public bool IsOutLap { get; internal set; } = false;
         public bool IsInLap { get; internal set; } = false;
@@ -1065,14 +1116,15 @@ namespace KLPlugins.DynLeaderboards.Car {
         public TimeSpan? DeltaToAheadInClassLast { get; private set; }
         public TimeSpan? DeltaToAheadInCupLast { get; private set; }
 
-        public Lap(SectorTimes? sectorTimes, int lapNumber, Driver driver) {
+        public Lap(SectorTimes? sectorTimes, int lapNumber, Driver driver) : base(sectorTimes) {
             this.Time = sectorTimes?.GetLapTime();
-            this.S1Time = sectorTimes?.GetSectorSplit(1);
-            this.S2Time = sectorTimes?.GetSectorSplit(2);
-            this.S3Time = sectorTimes?.GetSectorSplit(3);
 
             this.LapNumber = lapNumber;
             this.Driver = driver;
+        }
+
+        public LapBasic ToBasic() {
+            return new LapBasic(this);
         }
 
         internal void CalculateDeltas(

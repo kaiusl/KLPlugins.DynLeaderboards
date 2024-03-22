@@ -1,3 +1,5 @@
+using System;
+
 using GameReaderCommon;
 
 namespace KLPlugins.DynLeaderboards {
@@ -9,10 +11,10 @@ namespace KLPlugins.DynLeaderboards {
         public bool IsTimeLimited { get; private set; }
         public bool IsLapLimited { get; private set; }
         public bool IsRace => this.SessionType == SessionType.Race;
-        public double TimeOfDay { get; private set; }
+        public TimeSpan TimeOfDay { get; private set; }
 
-        public double? MaxDriverStintTime { get; private set; }
-        public double? MaxDriverTotalDriveTime { get; private set; }
+        public TimeSpan? MaxDriverStintTime { get; private set; }
+        public TimeSpan? MaxDriverTotalDriveTime { get; private set; }
 
         private bool _isSessionLimitSet = false;
 
@@ -30,7 +32,7 @@ namespace KLPlugins.DynLeaderboards {
             this.IsTimeLimited = false;
             this.IsLapLimited = false;
 
-            this.TimeOfDay = 0;
+            this.TimeOfDay = TimeSpan.Zero;
             this._isSessionLimitSet = false;
 
             this.MaxDriverStintTime = null;
@@ -61,14 +63,14 @@ namespace KLPlugins.DynLeaderboards {
             if (DynLeaderboardsPlugin.Game.IsAcc) {
                 var rawDataNew = (ACSharedMemory.ACC.Reader.ACCRawData)data.NewData.GetRawDataObject();
 
-                this.TimeOfDay = rawDataNew.Graphics.clock;
+                this.TimeOfDay = TimeSpan.FromSeconds(rawDataNew.Graphics.clock);
 
                 // Set max stint times. This is only done once when we know that the session hasn't started, so that the time left shows max times.
-                if (this.MaxDriverStintTime == null && this.IsRace && this.SessionPhase == SessionPhase.PreSession) {
-                    this.MaxDriverStintTime = rawDataNew.Graphics.DriverStintTimeLeft / 1000.0;
-                    this.MaxDriverTotalDriveTime = rawDataNew.Graphics.DriverStintTotalTimeLeft / 1000.0;
-                    if (this.MaxDriverTotalDriveTime == 65535) { // This is max value, which means that the limit doesn't exist
-                        this.MaxDriverTotalDriveTime = null;
+                if (this.MaxDriverStintTime == null && this.IsRace && this.SessionPhase == SessionPhase.PreSession && rawDataNew.Graphics.DriverStintTimeLeft >= 0) {
+                    this.MaxDriverStintTime = TimeSpan.FromMilliseconds(rawDataNew.Graphics.DriverStintTimeLeft);
+                    var maxDriverTotalTime = rawDataNew.Graphics.DriverStintTotalTimeLeft;
+                    if (maxDriverTotalTime != 65_535_000) { // This is max value, which means that the limit doesn't exist
+                        this.MaxDriverTotalDriveTime = TimeSpan.FromMilliseconds(rawDataNew.Graphics.DriverStintTotalTimeLeft);
                     }
                 }
             }

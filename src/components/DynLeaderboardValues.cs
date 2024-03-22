@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -11,8 +12,8 @@ namespace KLPlugins.DynLeaderboards {
 
     public class DynLeaderboard {
         public delegate CarData? GetDynCarDelegate(int i);
-        public delegate double? DynGapDelegate(int i);
-        public delegate double? DynLapDeltaDelegate(int i);
+        public delegate TimeSpan? DynGapDelegate(int i);
+        public delegate TimeSpan? DynLapDeltaDelegate(int i);
         public delegate int? DynPositionDelegate(int i);
 
         public GetDynCarDelegate GetDynCar { get; private set; }
@@ -47,11 +48,11 @@ namespace KLPlugins.DynLeaderboards {
 
         private void SetDynGettersDefault() {
             this.GetDynCar = (i) => this.Cars.ElementAtOrDefault(i);
-            this.GetDynGapToFocused = (i) => double.NaN;
-            this.GetDynGapToAhead = (i) => double.NaN;
-            this.GetDynBestLapDeltaToFocusedBest = (i) => double.NaN;
-            this.GetDynLastLapDeltaToFocusedBest = (i) => double.NaN;
-            this.GetDynLastLapDeltaToFocusedLast = (i) => double.NaN;
+            this.GetDynGapToFocused = (i) => null;
+            this.GetDynGapToAhead = (i) => null;
+            this.GetDynBestLapDeltaToFocusedBest = (i) => null;
+            this.GetDynLastLapDeltaToFocusedBest = (i) => null;
+            this.GetDynLastLapDeltaToFocusedLast = (i) => null;
             this.GetDynPosition = (i) => null;
             this.GetDynPositionStart = (i) => null;
         }

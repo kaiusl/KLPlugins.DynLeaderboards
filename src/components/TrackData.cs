@@ -18,16 +18,16 @@ using Xceed.Wpf.Toolkit.Core.Converters;
 
 namespace KLPlugins.DynLeaderboards.Track {
     internal class LapInterpolator {
-        internal double LapTime { get; }
+        internal TimeSpan LapTime { get; }
         private LinearSpline _interpolator { get; }
 
-        internal LapInterpolator(LinearSpline interpolator, double lapTime) {
+        internal LapInterpolator(LinearSpline interpolator, TimeSpan lapTime) {
             this._interpolator = interpolator;
             this.LapTime = lapTime;
         }
 
-        internal double Interpolate(double splinePos) {
-            return this._interpolator.Interpolate(splinePos);
+        internal TimeSpan Interpolate(double splinePos) {
+            return TimeSpan.FromSeconds(this._interpolator.Interpolate(splinePos));
         }
     }
 
@@ -92,7 +92,11 @@ namespace KLPlugins.DynLeaderboards.Track {
 
             try {
                 var data = this.ReadLapInterpolatorData(fname);
-                this.LapInterpolators![carClass] = new LapInterpolator(LinearSpline.InterpolateSorted(data.Item1.ToArray(), data.Item2.ToArray()), data.Item2.Last());
+                this.LapInterpolators![carClass] = new LapInterpolator(LinearSpline.InterpolateSorted(
+                    data.Item1.ToArray(),
+                    data.Item2.ToArray()),
+                    TimeSpan.FromSeconds(data.Item2.Last()
+                ));
                 DynLeaderboardsPlugin.LogInfo($"Build lap interpolator for {carClass} from file {fname}");
             } catch (Exception ex) {
                 DynLeaderboardsPlugin.LogError($"Failed to read {fname} with error: {ex}");

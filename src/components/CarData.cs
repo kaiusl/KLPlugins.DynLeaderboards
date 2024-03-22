@@ -59,7 +59,7 @@ namespace KLPlugins.DynLeaderboards.Car {
 
         public NewOld<int> Laps { get; } = new(0);
         public bool IsNewLap { get; private set; } = false;
-        public double CurrentLapTime { get; private set; }
+        public TimeSpan CurrentLapTime { get; private set; }
         public bool IsCurrentLapOutLap { get; private set; }
         public bool IsCurrentLapInLap { get; private set; }
         public bool IsCurrentLapValid { get; private set; }
@@ -89,20 +89,20 @@ namespace KLPlugins.DynLeaderboards.Car {
         public bool ExitedPitLane { get; private set; }
         public bool EnteredPitLane { get; private set; }
         public int PitCount { get; private set; }
-        public double? PitTimeLast { get; private set; }
-        public double TotalPitTime { get; private set; }
-        public double? PitTimeCurrent { get; private set; }
+        public TimeSpan? PitTimeLast { get; private set; }
+        public TimeSpan TotalPitTime { get; private set; }
+        public TimeSpan? PitTimeCurrent { get; private set; }
 
 
-        public double? GapToLeader { get; private set; }
-        public double? GapToClassLeader { get; private set; }
-        public double? GapToFocusedTotal { get; private set; }
-        public double? GapToFocusedOnTrack { get; private set; }
-        public double? GapToAheadOnTrack { get; private set; }
-        public double? GapToCupLeader { get; private set; }
-        public double? GapToAhead { get; private set; }
-        public double? GapToAheadInClass { get; private set; }
-        public double? GapToAheadInCup { get; private set; }
+        public TimeSpan? GapToLeader { get; private set; }
+        public TimeSpan? GapToClassLeader { get; private set; }
+        public TimeSpan? GapToFocusedTotal { get; private set; }
+        public TimeSpan? GapToFocusedOnTrack { get; private set; }
+        public TimeSpan? GapToAheadOnTrack { get; private set; }
+        public TimeSpan? GapToCupLeader { get; private set; }
+        public TimeSpan? GapToAhead { get; private set; }
+        public TimeSpan? GapToAheadInClass { get; private set; }
+        public TimeSpan? GapToAheadInCup { get; private set; }
         public RelativeLapDiff RelativeOnTrackLapDiff { get; private set; }
         public double SplinePosition { get; private set; }
 
@@ -116,11 +116,11 @@ namespace KLPlugins.DynLeaderboards.Car {
         public bool HasCrossedStartLine { get; private set; } = true;
         private bool _isHasCrossedStartLineSet = false;
         public bool IsFinished { get; private set; } = false;
-        public long? FinishTime { get; private set; } = null;
+        public DateTime? FinishTime { get; private set; } = null;
 
         public int? CurrentStintLaps { get; private set; }
-        public double? LastStintTime { get; private set; }
-        public double? CurrentStintTime { get; private set; }
+        public TimeSpan? LastStintTime { get; private set; }
+        public TimeSpan? CurrentStintTime { get; private set; }
         public int? LastStintLaps { get; private set; }
         private DateTime? _stintStartTime;
 
@@ -145,9 +145,9 @@ namespace KLPlugins.DynLeaderboards.Car {
         private int _lapAtOffsetLapUpdate = -1;
         private bool _isSplinePositionReset = false;
 
-        private const double _LAP_GAP_VALUE = 100_000;
-        private const double _HALF_LAP_GAP_VALUE = _LAP_GAP_VALUE / 2;
-        private Dictionary<CarClass, double?> _splinePositionTimes = [];
+        private readonly static TimeSpan _LAP_GAP_VALUE = TimeSpan.FromSeconds(100_000);
+        private readonly static TimeSpan _HALF_LAP_GAP_VALUE = TimeSpan.FromSeconds(_LAP_GAP_VALUE.TotalSeconds / 2);
+        private Dictionary<CarClass, TimeSpan?> _splinePositionTimes = [];
 
 
         public CarData(Values values, Opponent rawData) {
@@ -226,7 +226,7 @@ namespace KLPlugins.DynLeaderboards.Car {
             this.ExitedPitLane = this.Location.New == CarLocation.Track && this.Location.Old == CarLocation.Pitlane;
             this.EnteredPitLane = this.Location.New == CarLocation.Pitlane && this.Location.Old == CarLocation.Track;
             this.PitCount = this.RawDataNew.PitCount ?? 0;
-            this.PitTimeLast = this.RawDataNew.PitLastDuration?.TotalSeconds ?? 0.0;
+            this.PitTimeLast = this.RawDataNew.PitLastDuration ?? TimeSpan.Zero;
             this.IsCurrentLapOutLap = (this.RawDataNew.PitOutAtLap ?? -1) == this.Laps.New + 1;
             this.IsCurrentLapInLap = (this.RawDataNew.PitEnterAtLap ?? -1) == this.Laps.New + 1;
 
@@ -242,7 +242,7 @@ namespace KLPlugins.DynLeaderboards.Car {
             this.SplinePosition = newSplinePos;
             this.TotalSplinePosition = this.Laps.New + this.SplinePosition;
 
-            this.CurrentLapTime = this.RawDataNew.CurrentLapTime?.TotalSeconds ?? 0.0;
+            this.CurrentLapTime = this.RawDataNew.CurrentLapTime ?? TimeSpan.Zero;
             this.MaxSpeed = Math.Max(this.MaxSpeed, this.RawDataNew.Speed ?? 0.0);
 
             this.UpdateDrivers(rawData);
@@ -266,7 +266,7 @@ namespace KLPlugins.DynLeaderboards.Car {
                 if (maybeBestLap != null) {
                     Debug.Assert(this.CurrentDriver != null, "Current driver shouldn't be null since someone had to finish this lap.");
                     var currentDriver = this.CurrentDriver!;
-                    var maybeBestLapTime = maybeBestLap.GetLapTime()?.TotalSeconds;
+                    var maybeBestLapTime = maybeBestLap.GetLapTime();
                     if (this.BestLap?.Time == null || (maybeBestLapTime != null && maybeBestLapTime < this.BestLap.Time)) {
                         this.BestLap = new Lap(maybeBestLap!, this.Laps.New, this.CurrentDriver!);
                         currentDriver.BestLap = this.BestLap; // If it's car's best lap, it must also be the drivers
@@ -400,13 +400,13 @@ namespace KLPlugins.DynLeaderboards.Car {
             // Pit ended
             if (pitEntryTime != null && this.ExitedPitLane) {
                 this.IsCurrentLapOutLap = true;
-                this.TotalPitTime += (double)this.PitTimeLast!;
+                this.TotalPitTime += this.PitTimeLast ?? TimeSpan.Zero;
                 this.PitTimeCurrent = null;
             }
 
             if (pitEntryTime != null) {
-                var time = (TimeSpan)(DateTime.Now - pitEntryTime);
-                this.PitTimeCurrent = time.TotalSeconds;
+                var time = DateTime.Now - pitEntryTime;
+                this.PitTimeCurrent = time;
             }
         }
 
@@ -426,8 +426,8 @@ namespace KLPlugins.DynLeaderboards.Car {
 
             // Stint ended
             if (this.EnteredPitLane && this._stintStartTime != null) {
-                this.LastStintTime = (DateTime.Now - (DateTime)this._stintStartTime).TotalSeconds;
-                this.CurrentDriver!.OnStintEnd((double)this.LastStintTime);
+                this.LastStintTime = DateTime.Now - this._stintStartTime;
+                this.CurrentDriver!.OnStintEnd(this.LastStintTime.Value);
                 this.LastStintLaps = this.CurrentStintLaps;
                 this._stintStartTime = null;
                 this.CurrentStintTime = null;
@@ -435,7 +435,7 @@ namespace KLPlugins.DynLeaderboards.Car {
             }
 
             if (this._stintStartTime != null) {
-                this.CurrentStintTime = (DateTime.Now - (DateTime)this._stintStartTime).TotalSeconds;
+                this.CurrentStintTime = DateTime.Now - this._stintStartTime;
             }
         }
 
@@ -467,7 +467,7 @@ namespace KLPlugins.DynLeaderboards.Car {
 
             if (this.IsFocused) {
                 this.RelativeSplinePositionToFocusedCar = 0;
-                this.GapToFocusedTotal = 0;
+                this.GapToFocusedTotal = TimeSpan.Zero;
                 this.RelativeOnTrackLapDiff = RelativeLapDiff.SAME_LAP;
             } else if (focusedCar != null) {
                 this.RelativeSplinePositionToFocusedCar = this.CalculateRelativeSplinePosition(focusedCar);
@@ -475,7 +475,7 @@ namespace KLPlugins.DynLeaderboards.Car {
 
             if (values.IsFirstFinished && this.IsNewLap) {
                 this.IsFinished = true;
-                this.FinishTime = DateTime.Now.Ticks;
+                this.FinishTime = DateTime.Now;
             }
 
             this.BestLap?.CalculateDeltas(
@@ -541,7 +541,7 @@ namespace KLPlugins.DynLeaderboards.Car {
                 } else if (this.Laps.New > focusedCar.Laps.New) {
                     this.RelativeOnTrackLapDiff = RelativeLapDiff.AHEAD;
                 } else {
-                    if (this.GapToFocusedOnTrack > 0) {
+                    if (this.GapToFocusedOnTrack > TimeSpan.Zero) {
                         if (this.PositionOverall > focusedCar.PositionOverall) {
                             this.RelativeOnTrackLapDiff = RelativeLapDiff.BEHIND;
                         } else {
@@ -559,7 +559,7 @@ namespace KLPlugins.DynLeaderboards.Car {
                 this.RelativeOnTrackLapDiff = RelativeLapDiff.AHEAD;
             } else if (this.GapToFocusedTotal < _HALF_LAP_GAP_VALUE) {
                 this.RelativeOnTrackLapDiff = RelativeLapDiff.SAME_LAP;
-                if (this.GapToFocusedOnTrack > 0) {
+                if (this.GapToFocusedOnTrack > TimeSpan.Zero) {
                     if (this.PositionOverall > focusedCar.PositionOverall) {
                         this.RelativeOnTrackLapDiff = RelativeLapDiff.BEHIND;
                     } else {
@@ -658,7 +658,7 @@ namespace KLPlugins.DynLeaderboards.Car {
                     SetGap(this, carAheadInClass, carAheadInClass, this.GapToAheadInClass, x => this.GapToAheadInClass = x);
                     SetGap(this, carAheadInCup, carAheadInCup, this.GapToAheadInCup, x => this.GapToAheadInCup = x);
 
-                    void SetGap(CarData? from, CarData? to, CarData? other, double? currentGap, Action<double?> setGap) {
+                    void SetGap(CarData? from, CarData? to, CarData? other, TimeSpan? currentGap, Action<TimeSpan?> setGap) {
                         if (from == null || to == null) {
                             setGap(null);
                         } else if (other?.OffsetLapUpdate == OffsetLapUpdateType.None) {
@@ -692,7 +692,7 @@ namespace KLPlugins.DynLeaderboards.Car {
                 this.GapToAheadInClass = CalculateBestLapDelta(carAheadInClass);
                 this.GapToAheadInCup = CalculateBestLapDelta(carAheadInCup);
 
-                double? CalculateBestLapDelta(CarData? to) {
+                TimeSpan? CalculateBestLapDelta(CarData? to) {
                     var toBest = to?.BestLap?.Time;
                     return toBest != null ? thisBestLap - toBest : null;
                 }
@@ -712,7 +712,7 @@ namespace KLPlugins.DynLeaderboards.Car {
         /// <param name="from"></param>
         /// <param name="to"></param>
         /// <returns></returns>
-        public static double? CalculateGap(CarData from, CarData to, TrackData trackData) {
+        public static TimeSpan? CalculateGap(CarData from, CarData to, TrackData trackData) {
             if (from.Id == to.Id
                 || !to.HasCrossedStartLine
                 || !from.HasCrossedStartLine
@@ -733,9 +733,9 @@ namespace KLPlugins.DynLeaderboards.Car {
             if (from.IsFinished && to.IsFinished) {
                 if (flaps == tlaps) {
                     // If there IsFinished is set, FinishTime must also be set
-                    return (from.FinishTime! - to.FinishTime!) / 1000.0;
+                    return from.FinishTime - to.FinishTime;
                 } else {
-                    return tlaps - flaps + _LAP_GAP_VALUE;
+                    return TimeSpan.FromSeconds(tlaps - flaps) + _LAP_GAP_VALUE;
                 }
             }
 
@@ -747,14 +747,14 @@ namespace KLPlugins.DynLeaderboards.Car {
                 ((to.IsFinished && !from.IsFinished && from.IsInPitLane)
                 || (from.IsFinished && !to.IsFinished && to.IsInPitLane))
             ) {
-                return tlaps - flaps + _LAP_GAP_VALUE;
+                return TimeSpan.FromSeconds(tlaps - flaps) + _LAP_GAP_VALUE;
             }
 
             var distBetween = to.TotalSplinePosition - from.TotalSplinePosition; // Negative if 'to' is behind
             if (distBetween <= -1) { // 'to' is more than a lap behind of 'from'
-                return Math.Ceiling(distBetween) + _LAP_GAP_VALUE;
+                return TimeSpan.FromSeconds(Math.Ceiling(distBetween)) + _LAP_GAP_VALUE;
             } else if (distBetween >= 1) { // 'to' is more than a lap ahead of 'from'
-                return Math.Floor(distBetween) + _LAP_GAP_VALUE;
+                return TimeSpan.FromSeconds(Math.Floor(distBetween)) + _LAP_GAP_VALUE;
             } else {
                 if (from.IsFinished
                     || to.IsFinished
@@ -771,7 +771,7 @@ namespace KLPlugins.DynLeaderboards.Car {
                     return CalculateNaiveGap(distBetween, trackData);
                 }
 
-                double? gap;
+                TimeSpan? gap;
                 // At least one toInterp or fromInterp must be not null, because of the above check
                 (LapInterpolator interp, var cls) = fromInterp != null ? (toInterp!, to.CarClass) : (fromInterp!, from.CarClass);
                 if (distBetween > 0) { // `to` is ahead of `from`
@@ -783,7 +783,7 @@ namespace KLPlugins.DynLeaderboards.Car {
             }
         }
 
-        public static double? CalculateOnTrackGap(CarData from, CarData to, TrackData trackData) {
+        public static TimeSpan? CalculateOnTrackGap(CarData from, CarData to, TrackData trackData) {
             if (from.Id == to.Id
                  || from.OffsetLapUpdate != OffsetLapUpdateType.None
                  || to.OffsetLapUpdate != OffsetLapUpdateType.None
@@ -804,7 +804,7 @@ namespace KLPlugins.DynLeaderboards.Car {
                 return CalculateNaiveGap(relativeSplinePos, trackData);
             }
 
-            double? gap;
+            TimeSpan? gap;
             // At least one toInterp or fromInterp must be not null, because of the above check
             (LapInterpolator interp, var cls) = toInterp != null ? (toInterp!, to.CarClass) : (fromInterp!, from.CarClass);
             if (relativeSplinePos < 0) {
@@ -815,7 +815,7 @@ namespace KLPlugins.DynLeaderboards.Car {
             return gap;
         }
 
-        private static double CalculateNaiveGap(double splineDist, TrackData trackData) {
+        private static TimeSpan CalculateNaiveGap(double splineDist, TrackData trackData) {
             var dist = splineDist * trackData.LengthMeters;
             // use avg speed of 50m/s (180km/h)
             // we could use actual speeds of the cars
@@ -823,14 +823,14 @@ namespace KLPlugins.DynLeaderboards.Car {
             // This also avoid the question of which speed to use (faster, slower, average)
             // and what happens if either car is standing (eg speed is 0 and we would divide by 0).
             // It's an just in case backup anyway, so most of the times it should never even be reached.7654
-            return dist / 50;
+            return TimeSpan.FromSeconds(dist / 50);
         }
 
         /// <summary>
         /// Calculates the gap in seconds from <paramref name="start"/> to <paramref name="end"/>.
         /// </summary>
         /// <returns>Non-negative value</returns>
-        public static double CalculateGapBetweenPos(double start, double end, double lapTime) {
+        public static TimeSpan CalculateGapBetweenPos(TimeSpan start, TimeSpan end, TimeSpan lapTime) {
             if (end < start) { // Ahead is on another lap, gap is time from `start` to end of the lap, and then to `end`
                 return lapTime - start + end;
             } else { // We must be on the same lap, gap is time from `start` to reach `end`
@@ -846,11 +846,11 @@ namespace KLPlugins.DynLeaderboards.Car {
         /// </returns>>
         /// <param name="cls"></param>
         /// <returns></returns>
-        private double GetSplinePosTime(CarClass cls, TrackData trackData) {
+        private TimeSpan GetSplinePosTime(CarClass cls, TrackData trackData) {
             // Same interpolated value is needed multiple times in one update, thus cache results.
             var pos = this._splinePositionTimes.GetValueOr(cls, null);
             if (pos != null) {
-                return (double)pos;
+                return pos.Value;
             }
 
             // TrackData is passed from Values, Values never stores TrackData without LapInterpolators
@@ -860,7 +860,7 @@ namespace KLPlugins.DynLeaderboards.Car {
                 this._splinePositionTimes[cls] = result;
                 return result;
             } else {
-                return -1;
+                return TimeSpan.FromSeconds(-1.0);
             }
         }
     }
@@ -879,7 +879,7 @@ namespace KLPlugins.DynLeaderboards.Car {
         public Lap? BestLap { get; internal set; } = null;
         public string CategoryColor => "#FFFFFF";
 
-        private double _totalDrivingTime;
+        private TimeSpan _totalDrivingTime;
 
         public Driver(Opponent o) {
             this.FullName = o.Name;
@@ -899,13 +899,13 @@ namespace KLPlugins.DynLeaderboards.Car {
             this.Initials = this.CreateInitialsACC();
         }
 
-        internal void OnStintEnd(double lastStintTime) {
+        internal void OnStintEnd(TimeSpan lastStintTime) {
             this._totalDrivingTime += lastStintTime;
         }
 
-        internal double GetTotalDrivingTime(bool isDriving = false, double? currentStintTime = null) {
+        internal TimeSpan GetTotalDrivingTime(bool isDriving = false, TimeSpan? currentStintTime = null) {
             if (isDriving && currentStintTime != null) {
-                return this._totalDrivingTime + (double)currentStintTime;
+                return this._totalDrivingTime + currentStintTime.Value;
             }
 
             return this._totalDrivingTime;
@@ -1025,10 +1025,10 @@ namespace KLPlugins.DynLeaderboards.Car {
     }
 
     public class Lap {
-        public double? Time { get; private set; }
-        public double? S1Time { get; private set; }
-        public double? S2Time { get; private set; }
-        public double? S3Time { get; private set; }
+        public TimeSpan? Time { get; private set; }
+        public TimeSpan? S1Time { get; private set; }
+        public TimeSpan? S2Time { get; private set; }
+        public TimeSpan? S3Time { get; private set; }
 
         public bool IsOutLap { get; internal set; } = false;
         public bool IsInLap { get; internal set; } = false;
@@ -1038,32 +1038,32 @@ namespace KLPlugins.DynLeaderboards.Car {
         public Driver Driver { get; private set; }
 
 
-        public double? DeltaToOwnBest { get; private set; }
+        public TimeSpan? DeltaToOwnBest { get; private set; }
 
-        public double? DeltaToOverallBest { get; private set; }
-        public double? DeltaToClassBest { get; private set; }
-        public double? DeltaToCupBest { get; private set; }
-        public double? DeltaToLeaderBest { get; private set; }
-        public double? DeltaToClassLeaderBest { get; private set; }
-        public double? DeltaToCupLeaderBest { get; private set; }
-        public double? DeltaToFocusedBest { get; private set; }
-        public double? DeltaToAheadBest { get; private set; }
-        public double? DeltaToAheadInClassBest { get; private set; }
-        public double? DeltaToAheadInCupBest { get; private set; }
+        public TimeSpan? DeltaToOverallBest { get; private set; }
+        public TimeSpan? DeltaToClassBest { get; private set; }
+        public TimeSpan? DeltaToCupBest { get; private set; }
+        public TimeSpan? DeltaToLeaderBest { get; private set; }
+        public TimeSpan? DeltaToClassLeaderBest { get; private set; }
+        public TimeSpan? DeltaToCupLeaderBest { get; private set; }
+        public TimeSpan? DeltaToFocusedBest { get; private set; }
+        public TimeSpan? DeltaToAheadBest { get; private set; }
+        public TimeSpan? DeltaToAheadInClassBest { get; private set; }
+        public TimeSpan? DeltaToAheadInCupBest { get; private set; }
 
-        public double? DeltaToLeaderLast { get; private set; }
-        public double? DeltaToClassLeaderLast { get; private set; }
-        public double? DeltaToCupLeaderLast { get; private set; }
-        public double? DeltaToFocusedLast { get; private set; }
-        public double? DeltaToAheadLast { get; private set; }
-        public double? DeltaToAheadInClassLast { get; private set; }
-        public double? DeltaToAheadInCupLast { get; private set; }
+        public TimeSpan? DeltaToLeaderLast { get; private set; }
+        public TimeSpan? DeltaToClassLeaderLast { get; private set; }
+        public TimeSpan? DeltaToCupLeaderLast { get; private set; }
+        public TimeSpan? DeltaToFocusedLast { get; private set; }
+        public TimeSpan? DeltaToAheadLast { get; private set; }
+        public TimeSpan? DeltaToAheadInClassLast { get; private set; }
+        public TimeSpan? DeltaToAheadInCupLast { get; private set; }
 
         public Lap(SectorTimes? sectorTimes, int lapNumber, Driver driver) {
-            this.Time = sectorTimes?.GetLapTime()?.TotalSeconds;
-            this.S1Time = sectorTimes?.GetSectorSplit(1)?.TotalSeconds;
-            this.S2Time = sectorTimes?.GetSectorSplit(2)?.TotalSeconds;
-            this.S3Time = sectorTimes?.GetSectorSplit(3)?.TotalSeconds;
+            this.Time = sectorTimes?.GetLapTime();
+            this.S1Time = sectorTimes?.GetSectorSplit(1);
+            this.S2Time = sectorTimes?.GetSectorSplit(2);
+            this.S3Time = sectorTimes?.GetSectorSplit(3);
 
             this.LapNumber = lapNumber;
             this.Driver = driver;
@@ -1156,7 +1156,6 @@ namespace KLPlugins.DynLeaderboards.Car {
             this.DeltaToAheadInClassLast = aheadInClassLast != null ? this.Time - aheadInClassLast : null;
             this.DeltaToAheadInCupLast = aheadInCupLast != null ? this.Time - aheadInCupLast : null;
         }
-
     }
 
     public enum CarLocation {

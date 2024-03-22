@@ -156,7 +156,7 @@ namespace KLPlugins.DynLeaderboards.Car {
             if (carInfo == null) {
                 DynLeaderboardsPlugin.LogWarn($"Car info not found for {this.RawDataNew.CarName}. Static car info (like class, manufacturer etc) may be missing or incorrect.");
             }
-            this.CarClass = carInfo?.Class ?? new CarClass(this.RawDataNew.CarClass ?? "");
+            this.CarClass = carInfo?.Class ?? CarClass.TryNew(this.RawDataNew.CarClass) ?? CarClass.Default;
             this.CarModel = carInfo?.Name ?? this.RawDataNew.CarName ?? "Unknown";
             this.CarManufacturer = carInfo?.Manufacturer ?? GetCarManufacturer(this.CarModel);
 
@@ -181,8 +181,6 @@ namespace KLPlugins.DynLeaderboards.Car {
                 ?? new TextBoxColor(bg: "#FFFFFF", fg: "#000000");
 
             this.UpdateIndependent(values, rawData);
-
-
         }
 
         static string ACCTeamCupCategoryToString(byte cupCategory) {
@@ -1176,6 +1174,15 @@ namespace KLPlugins.DynLeaderboards.Car {
     [TypeConverter(typeof(CarClassTypeConverter))]
     public readonly struct CarClass(string cls) {
         private string _cls { get; } = cls;
+
+        public static CarClass Default = new("");
+
+        public static CarClass? TryNew(string? cls) {
+            if (cls == null) {
+                return null;
+            }
+            return new(cls);
+        }
 
         public string AsString() {
             return this._cls;

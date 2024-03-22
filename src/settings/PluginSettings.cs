@@ -11,6 +11,7 @@ namespace KLPlugins.DynLeaderboards.Settings {
     internal class PluginSettings {
         public int Version { get; set; } = 2;
         public string AccDataLocation { get; set; }
+        public string? AcRootLocation { get; set; }
         public bool Log { get; set; }
         public int BroadcastDataUpdateRateMs { get; set; }
         public OutGeneralProp OutGeneralProps = OutGeneralProp.None;
@@ -160,6 +161,24 @@ namespace KLPlugins.DynLeaderboards.Settings {
                 this.AccDataLocation = newLoc;
                 return true;
             }
+        }
+
+        internal bool SetAcRootLocation(string newLoc) {
+            if (!Directory.Exists($"{newLoc}\\content\\cars")) {
+                DynLeaderboardsPlugin.LogWarn("Set AC root location is wrong. Please check your settings.");
+                return false;
+            } else {
+                this.AcRootLocation = newLoc;
+                return true;
+            }
+        }
+
+        internal bool IsAccDataLocationValid() {
+            return Directory.Exists($"{this.AccDataLocation}\\Config");
+        }
+
+        internal bool IsAcRootLocationValid() {
+            return Directory.Exists($"{this.AcRootLocation}\\content\\cars");
         }
 
         /// <summary>
@@ -357,7 +376,7 @@ namespace KLPlugins.DynLeaderboards.Settings {
         public int NumOnTrackRelativePos { get; set; } = 5;
         public int NumOverallRelativePos { get; set; } = 5;
         public int NumClassRelativePos { get; set; } = 5;
-        
+
         public int NumCupRelativePos { get; set; } = 5;
         public int NumDrivers { get; set; } = 1;
         public int PartialRelativeOverallNumOverallPos { get; set; } = 5;

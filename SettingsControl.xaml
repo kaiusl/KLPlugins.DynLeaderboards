@@ -98,8 +98,26 @@
                              HorizontalAlignment="Left"
                              VerticalAlignment="Center"
                              TextChanged="AccDataLocation_TextChanged" />
-                </Grid>
-                <Separator />
+                    </Grid>
+
+                    <Grid ToolTip="Location of AC root folder. That is where for example ..\content\cars is located.">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition MaxWidth="500" />
+                            <ColumnDefinition MinWidth="300" />
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition MinHeight="35" />
+                        </Grid.RowDefinitions>
+
+                        <TextBlock Grid.Column="0" Style="{StaticResource Description}">AC root location:</TextBlock>
+                        <TextBox Grid.Column="1" x:Name="AcRootLocation_TextBox"
+                            Height="25"
+                            HorizontalAlignment="Left"
+                            VerticalAlignment="Center"
+                            TextChanged="AcRootLocation_TextChanged" />
+                    </Grid>
+
+                    <Separator />
 
                 <!-- Update interval -->
 

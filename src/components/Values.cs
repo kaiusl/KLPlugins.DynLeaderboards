@@ -75,8 +75,8 @@ namespace KLPlugins.DynLeaderboards {
             return _carClassColors.Get(carClass);
         }
 
-        private readonly TextBoxColors<string> _teamCupCategoryColors;
-        internal TextBoxColor? GetTeamCupCategoryColor(string teamCupCategory) {
+        private readonly TextBoxColors<TeamCupCategory> _teamCupCategoryColors;
+        internal TextBoxColor? GetTeamCupCategoryColor(TeamCupCategory teamCupCategory) {
             return _teamCupCategoryColors.Get(teamCupCategory);
         }
 
@@ -111,7 +111,7 @@ namespace KLPlugins.DynLeaderboards {
         internal Values() {
             this.UpdateCarInfos();
             _carClassColors = ReadTextBoxColors<CarClass>("CarClassColors.json");
-            _teamCupCategoryColors = ReadTextBoxColors<string>("TeamCupCategoryColors.json");
+            _teamCupCategoryColors = ReadTextBoxColors<TeamCupCategory>("TeamCupCategoryColors.json");
         }
 
         internal void UpdateCarInfos() {

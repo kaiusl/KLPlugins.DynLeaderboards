@@ -28,7 +28,13 @@ namespace KLPlugins.DynLeaderboards {
 
         public DynLeaderboardConfig Config { get; private set; }
 
+        /// <summary>
+        /// List of cars for this dynamic leaderboard in the order they are displayed.
+        /// </summary>
         public List<CarData?> Cars { get; } = new();
+        /// <summary>
+        /// Focused car's index in <c>this.Cars</c>.
+        /// </summary>
         public int FocusedIndex = -1;
 
 

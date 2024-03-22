@@ -19,6 +19,9 @@ namespace KLPlugins.DynLeaderboards.Car {
         public TextBoxColor CarClassColor { get; private set; }
 
         public string CarNumber { get; private set; } // string because 001 and 1 could be different numbers in some games
+        /// <summary>
+        /// Pretty car model name.
+        /// </summary>
         public string CarModel { get; private set; }
         public string CarManufacturer { get; private set; }
         public string? TeamName { get; private set; }
@@ -52,7 +55,13 @@ namespace KLPlugins.DynLeaderboards.Car {
         public int PositionInClass { get; private set; }
         public int? PositionOverallStart { get; private set; }
         public int? PositionInClassStart { get; private set; }
+        /// <summary>
+        /// Index of this car in Values.OverallOrder.
+        /// </summary>
         public int IndexOverall { get; private set; }
+        /// <summary>
+        /// Index of this car in Values.ClassOrder.
+        /// </summary>
         public int IndexClass { get; private set; }
 
         public bool IsInPitLane { get; private set; }
@@ -74,15 +83,22 @@ namespace KLPlugins.DynLeaderboards.Car {
         public TimeSpan? GapToAheadInClass { get; private set; }
         public TimeSpan? GapToAheadInCup { get; private set; }
         public RelativeLapDiff RelativeOnTrackLapDiff { get; private set; }
+        /// <summary>
+        /// In range <c>[0, 1]</c>.
+        /// </summary>
         public double SplinePosition { get; private set; }
 
         /// <summary>
-        /// > 0 if ahead, < 0 if behind. Is in range [-0.5, 0.5].
+        /// <c>&gt; 0</c> if ahead, <c>&lt; 0</c> if behind. Is in range <c>[-0.5, 0.5]</c>.
         /// </summary>
         public double RelativeSplinePositionToFocusedCar { get; private set; }
+
         public double TotalSplinePosition { get; private set; } = 0.0;
 
         public bool JumpedToPits { get; private set; } = false;
+        /// <summary>
+        /// Has the car crossed the start line at race start. 
+        /// </summary>
         public bool HasCrossedStartLine { get; private set; } = true;
         private bool _isHasCrossedStartLineSet = false;
         public bool IsFinished { get; private set; } = false;
@@ -96,7 +112,17 @@ namespace KLPlugins.DynLeaderboards.Car {
 
         public double MaxSpeed { get; private set; } = 0.0;
 
+        /// <summary>
+        /// Car ID.
+        /// 
+        /// In AC its the drivers name.
+        /// In ACC single player its number from 0.
+        /// In ACC multiplayer its number from 1000.
+        /// </summary>
         internal string Id => this.RawDataNew.Id;
+        /// <summary>
+        /// Has this car received the update in latest data update.
+        /// </summary>
         internal bool IsUpdated { get; set; }
 
         internal Opponent RawDataNew;
@@ -110,11 +136,13 @@ namespace KLPlugins.DynLeaderboards.Car {
             SplineBeforeLap = 2
         }
         internal OffsetLapUpdateType OffsetLapUpdate { get; private set; } = OffsetLapUpdateType.None;
-
-
         private int _lapAtOffsetLapUpdate = -1;
         private bool _isSplinePositionReset = false;
 
+        /// <summary>
+        /// To indicate that the gap between this car and some other is more than a lap, 
+        /// we add <c>_LAP_GAP_VALUE</c> to the gap in laps.
+        /// </summary>
         private readonly static TimeSpan _LAP_GAP_VALUE = TimeSpan.FromSeconds(100_000);
         private readonly static TimeSpan _HALF_LAP_GAP_VALUE = TimeSpan.FromSeconds(_LAP_GAP_VALUE.TotalSeconds / 2);
         private Dictionary<CarClass, TimeSpan?> _splinePositionTimes = [];

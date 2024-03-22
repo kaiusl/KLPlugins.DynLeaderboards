@@ -46,8 +46,10 @@ namespace KLPlugins.DynLeaderboards.Settings {
 
             // Set current values for other settings
             this.AccDataLocation_TextBox.Text = this.Settings.AccDataLocation;
+            this.AcRootLocation_TextBox.Text = this.Settings.AcRootLocation ?? "TODO";
             this.UpdateInterval_NumericUpDown.Value = this.Settings.BroadcastDataUpdateRateMs;
-            this.AccDataLocation_TextBox.Background = Brushes.LightGreen;
+            this.AccDataLocation_TextBox.Background = this.Settings.IsAccDataLocationValid() ? Brushes.ForestGreen : Brushes.Crimson;
+            this.AcRootLocation_TextBox.Background = this.Settings.IsAcRootLocationValid() ? Brushes.ForestGreen : Brushes.Crimson;
             this.Logging_ToggleButton.IsChecked = this.Settings.Log;
             this.IncludeST21InGT2_ToggleButton.IsChecked = this.Settings.Include_ST21_In_GT2;
             this.IncludeCHLInGT2_ToggleButton.IsChecked = this.Settings.Include_CHL_In_GT2;
@@ -234,9 +236,18 @@ namespace KLPlugins.DynLeaderboards.Settings {
         private void AccDataLocation_TextChanged(object sender, TextChangedEventArgs e) {
             var success = DynLeaderboardsPlugin.Settings.SetAccDataLocation(this.AccDataLocation_TextBox.Text);
             if (success) {
-                this.AccDataLocation_TextBox.Background = Brushes.LightGreen;
+                this.AccDataLocation_TextBox.Background = Brushes.ForestGreen;
             } else {
-                this.AccDataLocation_TextBox.Background = Brushes.LightPink;
+                this.AccDataLocation_TextBox.Background = Brushes.Crimson;
+            }
+        }
+
+        private void AcRootLocation_TextChanged(object sender, TextChangedEventArgs e) {
+            var success = DynLeaderboardsPlugin.Settings.SetAcRootLocation(this.AcRootLocation_TextBox.Text);
+            if (success) {
+                this.AcRootLocation_TextBox.Background = Brushes.ForestGreen;
+            } else {
+                this.AcRootLocation_TextBox.Background = Brushes.Crimson;
             }
         }
 

@@ -1,0 +1,21 @@
+{
+    "global": {
+        "Platinum": {
+            "bg": "#FFFFFF",
+            "fg": "#000000"
+        },
+        "Gold": {
+            "bg": "#FFD700",
+            "fg": "#000000"
+        },
+        "Silver": {
+            "bg": "#A5A5A5",
+            "fg": "#000000"
+        },
+        "Bronze": {
+            "bg": "#CD7F32",
+            "fg": "#000000"
+        }
+    },
+    "game_overrides": {}
+}

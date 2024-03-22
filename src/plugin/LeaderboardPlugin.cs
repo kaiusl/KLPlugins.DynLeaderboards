@@ -162,7 +162,6 @@ namespace KLPlugins.DynLeaderboards {
                     this.AttachDelegate($"Color.Class.{kv.Key}", () => kv.Value.Bg);
                 }
             }
-
             if (Settings.OutGeneralProps.Includes(OutGeneralProp.CarClassColors)) {
                 foreach (var kv in this.Values.CarClassColors) {
                     this.AttachDelegate($"Color.Class.{kv.Key}.Text", () => kv.Value.Fg);
@@ -174,25 +173,22 @@ namespace KLPlugins.DynLeaderboards {
                     this.AttachDelegate($"Color.Cup.{kv.Key}", () => kv.Value.Bg);
                 }
             }
-
             if (Settings.OutGeneralProps.Includes(OutGeneralProp.TeamCupTextColors)) {
                 foreach (var kv in this.Values.TeamCupCategoryColors) {
                     this.AttachDelegate($"Color.Cup.{kv.Key}.Text", () => kv.Value.Fg);
                 }
             }
 
-            // if (Settings.OutGeneralProps.Includes(OutGeneralProp.DriverCategoryColors)) {
-            //     void addDriverCategoryColor(DriverCategory cat) => this.AttachDelegate($"Color.DriverCategory.{cat}", () => Settings.DriverCategoryColors[cat]);
-
-            //     foreach (var c in Enum.GetValues(typeof(DriverCategory))) {
-            //         var cat = (DriverCategory)c;
-            //         if (cat == DriverCategory.Error) {
-            //             continue;
-            //         }
-
-            //         addDriverCategoryColor(cat);
-            //     }
-            // }
+            if (Settings.OutGeneralProps.Includes(OutGeneralProp.DriverCategoryColors)) {
+                foreach (var kv in this.Values.DriverCategoryColors) {
+                    this.AttachDelegate($"Color.DriverCategory.{kv.Key}", () => kv.Value.Bg);
+                }
+            }
+            if (Settings.OutGeneralProps.Includes(OutGeneralProp.DriverCategoryTextColors)) {
+                foreach (var kv in this.Values.DriverCategoryColors) {
+                    this.AttachDelegate($"Color.DriverCategory.{kv.Key}.Text", () => kv.Value.Fg);
+                }
+            }
         }
 
         private void AttachDynLeaderboard(DynLeaderboard l) {

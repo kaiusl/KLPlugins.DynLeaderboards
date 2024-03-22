@@ -29,7 +29,7 @@ namespace KLPlugins.DynLeaderboards {
         public List<CarData> RelativeOnTrackBehindOrder { get; } = new();
         public CarData? FocusedCar { get; private set; } = null;
 
-        private readonly Dictionary<string, CarInfo> _carInfos;
+        private Dictionary<string, CarInfo> _carInfos;
 
         /// <summary>
         /// 
@@ -47,6 +47,11 @@ namespace KLPlugins.DynLeaderboards {
             var overridesPath = PluginSettings.PluginDataDirOverrides + pathEnd;
 
             Dictionary<string, CarInfo>? carInfos = null;
+            var baseExists = File.Exists(basePath);
+            if (DynLeaderboardsPlugin.Game.IsAc && !baseExists) {
+                DynLeaderboardsPlugin.UpdateACCarInfos();
+            }
+
             if (File.Exists(basePath)) {
                 carInfos = JsonConvert.DeserializeObject<Dictionary<string, CarInfo>>(File.ReadAllText(basePath));
             }
@@ -104,9 +109,13 @@ namespace KLPlugins.DynLeaderboards {
         public bool IsFirstFinished { get; private set; } = false;
 
         internal Values() {
-            _carInfos = ReadCarInfos();
+            this.UpdateCarInfos();
             _carClassColors = ReadTextBoxColors("CarClassColors.json");
             _teamCupCategoryColors = ReadTextBoxColors("TeamCupCategoryColors.json");
+        }
+
+        internal void UpdateCarInfos() {
+            _carInfos = ReadCarInfos();
         }
 
         internal void Reset() {

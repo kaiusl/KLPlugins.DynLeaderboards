@@ -9,8 +9,11 @@ using System.Windows.Media;
 
 using GameReaderCommon;
 
+using KLPlugins.DynLeaderboards.Car;
 using KLPlugins.DynLeaderboards.Settings;
 using KLPlugins.DynLeaderboards.Track;
+
+using Newtonsoft.Json;
 
 using SimHub.Plugins;
 
@@ -457,6 +460,69 @@ namespace KLPlugins.DynLeaderboards {
                     }
                 }
             };
+        }
+
+        internal static void UpdateACCarInfos() {
+            var carsFolder = Path.Combine(Settings.AcRootLocation, "content", "cars");
+            if (!Directory.Exists(carsFolder)) {
+                return;
+            }
+
+            Dictionary<string, CarInfo> carInfos = [];
+            foreach (var carFolderPath in Directory.GetDirectories(carsFolder)) {
+                var carId = Path.GetFileName(carFolderPath);
+                var uiInfoFilePath = Path.Combine(carFolderPath, "ui", "ui_car.json");
+                if (!File.Exists(uiInfoFilePath)) {
+                    continue;
+                }
+
+                var uiInfo = JsonConvert.DeserializeObject<ACUiCarInfo>(File.ReadAllText(uiInfoFilePath));
+                if (uiInfo == null) {
+                    continue;
+                }
+
+                var cls = uiInfo.Class;
+                if (cls == "race" || cls == "street") {
+                    // Kunos cars have a proper class name in the tags as #... (for example #GT4 or #Vintage Touring)
+                    var altCls = uiInfo.Tags?.Find(t => t.StartsWith("#"));
+                    if (altCls != null) {
+                        cls = altCls.Substring(1);
+                    } else {
+                        // Look for some more common patterns from the tags
+                        string[] lookups = ["gt3", "gt2", "gt4", "gt1", "gte", "lmp1", "lmp2", "lmp3", "formula1", "formula", "dtm"];
+                        foreach (var lookup in lookups) {
+                            altCls = uiInfo.Tags?.Find(t => t.ToLower() == lookup);
+                            if (altCls != null) {
+                                cls = altCls;
+                                break;
+                            }
+                        }
+                    }
+                }
+
+                carInfos[carId] = new CarInfo(uiInfo.Name, uiInfo.Brand, cls);
+                LogInfo($"Read AC car info from '{uiInfoFilePath}': {JsonConvert.SerializeObject(carInfos[carId])}");
+            }
+
+            if (carInfos.Count != 0) {
+                var outPath = Path.Combine(PluginSettings.PluginDataDirBase, Game.AcName, "CarInfos.json");
+                File.WriteAllText(outPath, JsonConvert.SerializeObject(carInfos, Formatting.Indented));
+            }
+        }
+
+        private class ACUiCarInfo {
+            public string Name { get; set; }
+            public string Brand { get; set; }
+            public string Class { get; set; }
+            public List<string> Tags { get; set; }
+
+            [JsonConstructor]
+            public ACUiCarInfo(string name, string brand, string @class, List<string> tags) {
+                this.Name = name;
+                this.Brand = brand;
+                this.Class = @class;
+                this.Tags = tags;
+            }
         }
 
         #region Logging

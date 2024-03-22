@@ -1076,5 +1076,10 @@ namespace KLPlugins.DynLeaderboards.Settings {
                 this.Settings.BroadcastDataUpdateRateMs = (int)e.NewValue;
             }
         }
+
+        private void UpdateACCarInfos_Button_Click(object sender, RoutedEventArgs e) {
+            DynLeaderboardsPlugin.UpdateACCarInfos();
+            this.Plugin.Values.UpdateCarInfos();
+        }
     }
 }

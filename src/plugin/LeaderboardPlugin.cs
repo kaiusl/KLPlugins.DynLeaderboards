@@ -303,10 +303,10 @@ namespace KLPlugins.DynLeaderboards {
                 AddStintProp(OutStintProp.CurrentStintLaps, () => l.GetDynCar(i)?.CurrentStintLaps);
                 AddStintProp(OutStintProp.LastStintLaps, () => l.GetDynCar(i)?.LastStintLaps);
 
-                AddProp(OutCarProp.CarClassColor, () => l.GetDynCar(i)?.CarClassColor);
-                AddProp(OutCarProp.CarClassTextColor, () => l.GetDynCar(i)?.CarClassTextColor);
-                AddProp(OutCarProp.TeamCupCategoryColor, () => l.GetDynCar(i)?.TeamCupCategoryColor);
-                AddProp(OutCarProp.TeamCupCategoryTextColor, () => l.GetDynCar(i)?.TeamCupCategoryTextColor);
+                AddProp(OutCarProp.CarClassColor, () => l.GetDynCar(i)?.CarClassColor.Bg);
+                AddProp(OutCarProp.CarClassTextColor, () => l.GetDynCar(i)?.CarClassColor.Fg);
+                AddProp(OutCarProp.TeamCupCategoryColor, () => l.GetDynCar(i)?.TeamCupCategoryColor.Bg);
+                AddProp(OutCarProp.TeamCupCategoryTextColor, () => l.GetDynCar(i)?.TeamCupCategoryColor.Fg);
 
                 // // Gaps
                 AddGapProp(OutGapProp.GapToLeader, () => l.GetDynCar(i)?.GapToLeader);

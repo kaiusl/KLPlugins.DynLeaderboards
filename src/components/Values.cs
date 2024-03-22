@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 
 using GameReaderCommon;
@@ -74,11 +74,14 @@ namespace KLPlugins.DynLeaderboards {
         internal TextBoxColor? GetCarClassColor(CarClass carClass) {
             return _carClassColors.Get(carClass);
         }
+        internal IEnumerable<KeyValuePair<CarClass, TextBoxColor>> CarClassColors => _carClassColors.GetEnumerable();
+
 
         private readonly TextBoxColors<TeamCupCategory> _teamCupCategoryColors;
         internal TextBoxColor? GetTeamCupCategoryColor(TeamCupCategory teamCupCategory) {
             return _teamCupCategoryColors.Get(teamCupCategory);
         }
+        internal IEnumerable<KeyValuePair<TeamCupCategory, TextBoxColor>> TeamCupCategoryColors => _teamCupCategoryColors.GetEnumerable();
 
         private static TextBoxColors<K> ReadTextBoxColors<K>(string fileName) {
             var pathEnd = $"\\{fileName}";
@@ -451,6 +454,10 @@ namespace KLPlugins.DynLeaderboards {
             } else {
                 return JsonConvert.SerializeObject(this._colors);
             }
+        }
+
+        public IEnumerable<KeyValuePair<K, TextBoxColor>> GetEnumerable() {
+            return this._colors;
         }
 
     }

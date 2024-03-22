@@ -157,32 +157,29 @@ namespace KLPlugins.DynLeaderboards {
                 this.AttachDelegate("Session.MaxDriveTime", () => this.Values.Session.MaxDriverTotalDriveTime?.TotalSeconds);
             }
 
-            // if (Settings.OutGeneralProps.Includes(OutGeneralProp.CarClassColors)) {
-            //     void addClassColor(CarClass cls) => this.AttachDelegate($"Color.Class.{cls}", () => Settings.CarClassColors[cls]);
+            if (Settings.OutGeneralProps.Includes(OutGeneralProp.CarClassColors)) {
+                foreach (var kv in this.Values.CarClassColors) {
+                    this.AttachDelegate($"Color.Class.{kv.Key}", () => kv.Value.Bg);
+                }
+            }
 
-            //     foreach (var c in Enum.GetValues(typeof(CarClass))) {
-            //         var cls = (CarClass)c;
-            //         if (cls == CarClass.Overall || cls == CarClass.Unknown) {
-            //             continue;
-            //         }
+            if (Settings.OutGeneralProps.Includes(OutGeneralProp.CarClassColors)) {
+                foreach (var kv in this.Values.CarClassColors) {
+                    this.AttachDelegate($"Color.Class.{kv.Key}.Text", () => kv.Value.Fg);
+                }
+            }
 
-            //         addClassColor(cls);
-            //     }
-            // }
+            if (Settings.OutGeneralProps.Includes(OutGeneralProp.TeamCupColors)) {
+                foreach (var kv in this.Values.TeamCupCategoryColors) {
+                    this.AttachDelegate($"Color.Cup.{kv.Key}", () => kv.Value.Bg);
+                }
+            }
 
-            // void addCupColor(TeamCupCategory cup) {
-            //     if (Settings.OutGeneralProps.Includes(OutGeneralProp.TeamCupColors)) {
-            //         this.AttachDelegate($"Color.Cup.{cup}", () => Settings.TeamCupCategoryColors[cup]);
-            //     }
-
-            //     if (Settings.OutGeneralProps.Includes(OutGeneralProp.TeamCupTextColors)) {
-            //         this.AttachDelegate($"Color.Cup.{cup}.Text", () => Settings.TeamCupCategoryTextColors[cup]);
-            //     }
-            // }
-
-            // foreach (var c in Enum.GetValues(typeof(TeamCupCategory))) {
-            //     addCupColor((TeamCupCategory)c);
-            // }
+            if (Settings.OutGeneralProps.Includes(OutGeneralProp.TeamCupTextColors)) {
+                foreach (var kv in this.Values.TeamCupCategoryColors) {
+                    this.AttachDelegate($"Color.Cup.{kv.Key}.Text", () => kv.Value.Fg);
+                }
+            }
 
             // if (Settings.OutGeneralProps.Includes(OutGeneralProp.DriverCategoryColors)) {
             //     void addDriverCategoryColor(DriverCategory cat) => this.AttachDelegate($"Color.DriverCategory.{cat}", () => Settings.DriverCategoryColors[cat]);

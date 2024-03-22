@@ -12,6 +12,7 @@ namespace KLPlugins.DynLeaderboards.Settings {
         TeamCupColors = 1 << 5,
         TeamCupTextColors = 1 << 6,
         DriverCategoryColors = 1 << 7,
+        CarClassTextColors = 1 << 8,
     }
 
     internal static class OutGeneralPropExtensions {
@@ -33,7 +34,8 @@ namespace KLPlugins.DynLeaderboards.Settings {
                 OutGeneralProp.SessionPhase => "Session phase.",
                 OutGeneralProp.MaxStintTime => "Maximum driver stint time.",
                 OutGeneralProp.MaxDriveTime => "Maximum total driving time for driver for player car. This can be different for other teams if they have different number of drivers.",
-                OutGeneralProp.CarClassColors => "Color for every car class.",
+                OutGeneralProp.CarClassColors => "Background color for every car class.",
+                OutGeneralProp.CarClassTextColors => "Text color for every car class.",
                 OutGeneralProp.TeamCupColors => "Background colors for every team cup category.",
                 OutGeneralProp.TeamCupTextColors => "Text colors for every team cup category",
                 OutGeneralProp.DriverCategoryColors => "Color for every driver category",

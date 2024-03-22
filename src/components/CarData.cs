@@ -206,8 +206,9 @@ namespace KLPlugins.DynLeaderboards.Car {
             this.CarModel = carInfo?.Name ?? this.RawDataNew.CarName ?? "Unknown";
             this.CarManufacturer = carInfo?.Manufacturer ?? GetCarManufacturer(this.CarModel);
 
-            this.CarClassColor = this.RawDataNew.CarClassColor ?? "#FFFFFF";
-            this.CarClassTextColor = this.RawDataNew.CarClassTextColor ?? "#000000";
+            var classColor = values.GetCarClassColor(this.CarClass);
+            this.CarClassColor = classColor?.Bg ?? this.RawDataNew.CarClassColor ?? "#FFFFFF";
+            this.CarClassTextColor = classColor?.Fg ?? this.RawDataNew.CarClassTextColor ?? "#000000";
             this.CarNumber = this.RawDataNew.CarNumber ?? "-1";
 
             this.TeamName = this.RawDataNew.TeamName;

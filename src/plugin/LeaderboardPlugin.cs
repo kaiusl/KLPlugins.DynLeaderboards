@@ -294,7 +294,7 @@ namespace KLPlugins.DynLeaderboards {
                 AddProp(OutCarProp.CarNumber, () => l.GetDynCar(i)?.CarNumber);
                 AddProp(OutCarProp.CarModel, () => l.GetDynCar(i)?.CarModel);
                 AddProp(OutCarProp.CarManufacturer, () => l.GetDynCar(i)?.CarManufacturer);
-                AddProp(OutCarProp.CarClass, () => l.GetDynCar(i)?.CarClass);
+                AddProp(OutCarProp.CarClass, () => l.GetDynCar(i)?.CarClass.AsString());
                 AddProp(OutCarProp.TeamName, () => l.GetDynCar(i)?.TeamName);
                 AddProp(OutCarProp.TeamCupCategory, () => l.GetDynCar(i)?.TeamCupCategory);
 
@@ -500,7 +500,7 @@ namespace KLPlugins.DynLeaderboards {
                     }
                 }
 
-                carInfos[carId] = new CarInfo(uiInfo.Name, uiInfo.Brand, cls);
+                carInfos[carId] = new CarInfo(uiInfo.Name, uiInfo.Brand, new CarClass(cls));
                 LogInfo($"Read AC car info from '{uiInfoFilePath}': {JsonConvert.SerializeObject(carInfos[carId])}");
             }
 

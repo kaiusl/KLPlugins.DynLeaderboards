@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
 
@@ -32,10 +33,10 @@ namespace KLPlugins.DynLeaderboards.Car {
     class CarInfo {
         public string? Name { get; }
         public string? Manufacturer { get; }
-        public string? Class { get; }
+        public CarClass? Class { get; }
 
         [JsonConstructor]
-        public CarInfo(string? name, string? manufacturer, string? @class) {
+        public CarInfo(string? name, string? manufacturer, CarClass? @class) {
             this.Name = name;
             this.Manufacturer = manufacturer;
             this.Class = @class;
@@ -43,7 +44,7 @@ namespace KLPlugins.DynLeaderboards.Car {
     }
 
     public class CarData {
-        public string CarClass { get; private set; }
+        public CarClass CarClass { get; private set; }
         public string CarClassColor { get; private set; }
         public string CarClassTextColor { get; private set; }
 
@@ -147,7 +148,7 @@ namespace KLPlugins.DynLeaderboards.Car {
 
         private const double _LAP_GAP_VALUE = 100_000;
         private const double _HALF_LAP_GAP_VALUE = _LAP_GAP_VALUE / 2;
-        private Dictionary<string, double?> _splinePositionTimes = [];
+        private Dictionary<CarClass, double?> _splinePositionTimes = [];
 
 
         public CarData(Values values, Opponent rawData) {
@@ -157,7 +158,7 @@ namespace KLPlugins.DynLeaderboards.Car {
             if (carInfo == null) {
                 DynLeaderboardsPlugin.LogWarn($"Car info not found for {this.RawDataNew.CarName}. Static car info (like class, manufacturer etc) may be missing or incorrect.");
             }
-            this.CarClass = carInfo?.Class ?? this.RawDataNew.CarClass ?? "";
+            this.CarClass = carInfo?.Class ?? new CarClass(this.RawDataNew.CarClass ?? "");
             this.CarModel = carInfo?.Name ?? this.RawDataNew.CarName ?? "Unknown";
             this.CarManufacturer = carInfo?.Manufacturer ?? GetCarManufacturer(this.CarModel);
 
@@ -847,7 +848,7 @@ namespace KLPlugins.DynLeaderboards.Car {
         /// </returns>>
         /// <param name="cls"></param>
         /// <returns></returns>
-        private double GetSplinePosTime(string cls, TrackData trackData) {
+        private double GetSplinePosTime(CarClass cls, TrackData trackData) {
             // Same interpolated value is needed multiple times in one update, thus cache results.
             var pos = this._splinePositionTimes.GetValueOr(cls, null);
             if (pos != null) {
@@ -1171,5 +1172,52 @@ namespace KLPlugins.DynLeaderboards.Car {
         AHEAD = 1,
         SAME_LAP = 0,
         BEHIND = -1
+    }
+
+    [TypeConverter(typeof(CarClassTypeConverter))]
+    public readonly struct CarClass(string cls) {
+        private string _cls { get; } = cls;
+
+        public string AsString() {
+            return this._cls;
+        }
+
+        public static bool operator ==(CarClass obj1, CarClass obj2) {
+            return obj1._cls == obj2._cls;
+        }
+
+        public static bool operator !=(CarClass obj1, CarClass obj2) {
+            return !(obj1 == obj2);
+        }
+
+        public override bool Equals(object obj) {
+            return obj is CarClass other && this._cls == other._cls;
+        }
+
+        public override int GetHashCode() {
+            return this._cls.GetHashCode();
+        }
+
+        public override string ToString() {
+            return this._cls.ToString();
+        }
+    }
+
+    class CarClassTypeConverter : TypeConverter {
+        public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType) {
+            return sourceType == typeof(string);
+        }
+
+        public override object ConvertFrom(ITypeDescriptorContext context, System.Globalization.CultureInfo culture, object value) {
+            return new CarClass((string)value);
+        }
+
+        public override bool CanConvertTo(ITypeDescriptorContext context, Type destinationType) {
+            return destinationType == typeof(string);
+        }
+
+        public override object ConvertTo(ITypeDescriptorContext context, System.Globalization.CultureInfo culture, object value, Type destinationType) {
+            return ((CarClass)value).AsString();
+        }
     }
 }

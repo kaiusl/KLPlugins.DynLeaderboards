@@ -14,6 +14,7 @@ using ksBroadcastingNetwork;
 using Newtonsoft.Json;
 
 namespace KLPlugins.DynLeaderboards.Car {
+    using CarName = string;
 
     public class NewOld<T> {
         public T New { get; private set; }
@@ -48,10 +49,10 @@ namespace KLPlugins.DynLeaderboards.Car {
         public TextBoxColor CarClassColor { get; private set; }
 
         public string CarNumber { get; private set; } // string because 001 and 1 could be different numbers in some games
-        public string CarModel { get; private set; }
+        public CarName CarModel { get; private set; }
         public string CarManufacturer { get; private set; }
         public string? TeamName { get; private set; }
-        public string TeamCupCategory { get; private set; }
+        public TeamCupCategory TeamCupCategory { get; private set; }
         public TextBoxColor TeamCupCategoryColor { get; private set; }
 
         public NewOld<CarLocation> Location { get; } = new(CarLocation.NONE);
@@ -174,7 +175,7 @@ namespace KLPlugins.DynLeaderboards.Car {
                 var accRawData = (ACSharedMemory.Models.ACCOpponent)rawData;
                 this.TeamCupCategory = ACCTeamCupCategoryToString(accRawData.ExtraData.CarEntry.CupCategory);
             } else {
-                this.TeamCupCategory = "Overall";
+                this.TeamCupCategory = TeamCupCategory.Default;
             }
 
             this.CarClassColor = values.GetTeamCupCategoryColor(this.TeamCupCategory)
@@ -183,14 +184,14 @@ namespace KLPlugins.DynLeaderboards.Car {
             this.UpdateIndependent(values, rawData);
         }
 
-        static string ACCTeamCupCategoryToString(byte cupCategory) {
+        static TeamCupCategory ACCTeamCupCategoryToString(byte cupCategory) {
             return cupCategory switch {
-                0 => "Overall",
-                1 => "ProAm",
-                2 => "Am",
-                3 => "Silver",
-                4 => "National",
-                _ => "Overall"
+                0 => new TeamCupCategory("Overall"),
+                1 => new TeamCupCategory("ProAm"),
+                2 => new TeamCupCategory("Am"),
+                3 => new TeamCupCategory("Silver"),
+                4 => new TeamCupCategory("National"),
+                _ => TeamCupCategory.Default
             };
         }
 
@@ -1224,6 +1225,62 @@ namespace KLPlugins.DynLeaderboards.Car {
 
         public override object ConvertTo(ITypeDescriptorContext context, System.Globalization.CultureInfo culture, object value, Type destinationType) {
             return ((CarClass)value).AsString();
+        }
+    }
+
+    [TypeConverter(typeof(TeamCupCategoryTypeConverter))]
+    public readonly struct TeamCupCategory(string cls) {
+        private string _cls { get; } = cls;
+
+        public static TeamCupCategory Default = new("Overall");
+
+        public static TeamCupCategory? TryNew(string? cls) {
+            if (cls == null) {
+                return null;
+            }
+            return new(cls);
+        }
+
+        public string AsString() {
+            return this._cls;
+        }
+
+        public static bool operator ==(TeamCupCategory obj1, TeamCupCategory obj2) {
+            return obj1._cls == obj2._cls;
+        }
+
+        public static bool operator !=(TeamCupCategory obj1, TeamCupCategory obj2) {
+            return !(obj1 == obj2);
+        }
+
+        public override bool Equals(object obj) {
+            return obj is TeamCupCategory other && this._cls == other._cls;
+        }
+
+        public override int GetHashCode() {
+            return this._cls.GetHashCode();
+        }
+
+        public override string ToString() {
+            return this._cls.ToString();
+        }
+    }
+
+    class TeamCupCategoryTypeConverter : TypeConverter {
+        public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType) {
+            return sourceType == typeof(string);
+        }
+
+        public override object ConvertFrom(ITypeDescriptorContext context, System.Globalization.CultureInfo culture, object value) {
+            return new TeamCupCategory((string)value);
+        }
+
+        public override bool CanConvertTo(ITypeDescriptorContext context, Type destinationType) {
+            return destinationType == typeof(string);
+        }
+
+        public override object ConvertTo(ITypeDescriptorContext context, System.Globalization.CultureInfo culture, object value, Type destinationType) {
+            return ((TeamCupCategory)value).AsString();
         }
     }
 }

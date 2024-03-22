@@ -401,7 +401,7 @@ namespace KLPlugins.DynLeaderboards {
 
     }
 
-    internal class TextBoxColor {
+    public class TextBoxColor {
         public string Fg { get; }
         public string Bg { get; }
 
@@ -409,6 +409,13 @@ namespace KLPlugins.DynLeaderboards {
         public TextBoxColor(string fg, string bg) {
             this.Fg = fg;
             this.Bg = bg;
+        }
+
+        public static TextBoxColor? TryNew(string? fg, string? bg) {
+            if (fg == null || bg == null) {
+                return null;
+            }
+            return new TextBoxColor(fg: fg, bg: bg);
         }
     }
 

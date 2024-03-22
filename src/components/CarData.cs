@@ -245,7 +245,7 @@ namespace KLPlugins.DynLeaderboards.Car {
             this.CurrentLapTime = this.RawDataNew.CurrentLapTime ?? TimeSpan.Zero;
             this.MaxSpeed = Math.Max(this.MaxSpeed, this.RawDataNew.Speed ?? 0.0);
 
-            this.UpdateDrivers(rawData);
+            this.UpdateDrivers(values, rawData);
 
             if (this.IsNewLap) {
                 Debug.Assert(this.CurrentDriver != null, "Current driver shouldn't be null since someone had to finish this lap.");
@@ -289,14 +289,14 @@ namespace KLPlugins.DynLeaderboards.Car {
             this.HandleOffsetLapUpdates();
         }
 
-        void UpdateDrivers(Opponent rawData) {
+        void UpdateDrivers(Values values, Opponent rawData) {
             if (DynLeaderboardsPlugin.Game.IsAcc) {
                 // ACC has more driver info than generic SimHub interface
                 var accOpponent = (ACSharedMemory.Models.ACCOpponent)rawData;
                 var realtimeCarUpdate = accOpponent.ExtraData;
                 if (this.Drivers.Count == 0) {
                     foreach (var driver in realtimeCarUpdate.CarEntry.Drivers) {
-                        this.Drivers.Add(new Driver(driver));
+                        this.Drivers.Add(new Driver(values, driver));
                     }
                 } else {
                     // ACC driver name could be different from SimHub's full name
@@ -305,7 +305,7 @@ namespace KLPlugins.DynLeaderboards.Car {
                     if (currentDriverIndex == 0) {
                         // OK, current driver is already first in list
                     } else if (currentDriverIndex == -1) {
-                        this.Drivers.Insert(0, new Driver(currentRawDriver));
+                        this.Drivers.Insert(0, new Driver(values, currentRawDriver));
                     } else {
                         // move current driver to the front
                         this.Drivers.MoveElementAt(currentDriverIndex, 0);
@@ -316,7 +316,7 @@ namespace KLPlugins.DynLeaderboards.Car {
                 if (currentDriverIndex == 0) {
                     // OK, current driver is already first in list
                 } else if (currentDriverIndex == -1) {
-                    this.Drivers.Insert(0, new Driver(this.RawDataNew));
+                    this.Drivers.Insert(0, new Driver(values, this.RawDataNew));
                 } else {
                     // move current driver to the front
                     this.Drivers.MoveElementAt(currentDriverIndex, 0);
@@ -873,21 +873,23 @@ namespace KLPlugins.DynLeaderboards.Car {
         public string InitialPlusLastName { get; private set; }
         public string? Initials { get; private set; }
 
-        public string Category { get; private set; } = "Platinum";
+        public DriverCategory Category { get; private set; } = DriverCategory.Default;
         public string Nationality { get; private set; } = "Unknown";
         public int TotalLaps { get; internal set; } = 0;
         public Lap? BestLap { get; internal set; } = null;
-        public string CategoryColor => "#FFFFFF";
+        public TextBoxColor CategoryColor { get; internal set; }
 
         private TimeSpan _totalDrivingTime;
 
-        public Driver(Opponent o) {
+        public Driver(Values v, Opponent o) {
             this.FullName = o.Name;
             this.ShortName = o.Initials;
             this.InitialPlusLastName = o.ShortName;
+
+            this.CategoryColor = v.GetDriverCategoryColor(this.Category) ?? DefCategoryColor();
         }
 
-        public Driver(ksBroadcastingNetwork.Structs.DriverInfo driver) {
+        public Driver(Values v, ksBroadcastingNetwork.Structs.DriverInfo driver) {
             this.FirstName = driver.FirstName;
             this.LastName = driver.LastName;
             this.ShortName = driver.ShortName;
@@ -897,6 +899,12 @@ namespace KLPlugins.DynLeaderboards.Car {
             this.FullName = this.FirstName + " " + this.LastName;
             this.InitialPlusLastName = this.CreateInitialPlusLastNameACC();
             this.Initials = this.CreateInitialsACC();
+
+            this.CategoryColor = v.GetDriverCategoryColor(this.Category) ?? DefCategoryColor();
+        }
+
+        private static TextBoxColor DefCategoryColor() {
+            return new TextBoxColor(fg: "#FFFFFF", bg: "#000000");
         }
 
         internal void OnStintEnd(TimeSpan lastStintTime) {
@@ -930,13 +938,13 @@ namespace KLPlugins.DynLeaderboards.Car {
             }
         }
 
-        private static string ACCDriverCategoryToPrettyString(DriverCategory category) {
+        private static DriverCategory ACCDriverCategoryToPrettyString(ksBroadcastingNetwork.DriverCategory category) {
             return category switch {
-                DriverCategory.Platinum => "Platinum",
-                DriverCategory.Gold => "Gold",
-                DriverCategory.Silver => "Silver",
-                DriverCategory.Bronze => "Bronze",
-                _ => "None",
+                ksBroadcastingNetwork.DriverCategory.Platinum => new DriverCategory("Platinum"),
+                ksBroadcastingNetwork.DriverCategory.Gold => new DriverCategory("Gold"),
+                ksBroadcastingNetwork.DriverCategory.Silver => new DriverCategory("Silver"),
+                ksBroadcastingNetwork.DriverCategory.Bronze => new DriverCategory("Bronze"),
+                _ => DriverCategory.Default,
             };
         }
 
@@ -1280,6 +1288,62 @@ namespace KLPlugins.DynLeaderboards.Car {
 
         public override object ConvertTo(ITypeDescriptorContext context, System.Globalization.CultureInfo culture, object value, Type destinationType) {
             return ((TeamCupCategory)value).AsString();
+        }
+    }
+
+    [TypeConverter(typeof(DriverCategoryTypeConverter))]
+    public readonly struct DriverCategory(string cls) {
+        private string _cls { get; } = cls;
+
+        public static DriverCategory Default = new("Platinum");
+
+        public static DriverCategory? TryNew(string? cls) {
+            if (cls == null) {
+                return null;
+            }
+            return new(cls);
+        }
+
+        public string AsString() {
+            return this._cls;
+        }
+
+        public static bool operator ==(DriverCategory obj1, DriverCategory obj2) {
+            return obj1._cls == obj2._cls;
+        }
+
+        public static bool operator !=(DriverCategory obj1, DriverCategory obj2) {
+            return !(obj1 == obj2);
+        }
+
+        public override bool Equals(object obj) {
+            return obj is DriverCategory other && this._cls == other._cls;
+        }
+
+        public override int GetHashCode() {
+            return this._cls.GetHashCode();
+        }
+
+        public override string ToString() {
+            return this._cls.ToString();
+        }
+    }
+
+    class DriverCategoryTypeConverter : TypeConverter {
+        public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType) {
+            return sourceType == typeof(string);
+        }
+
+        public override object ConvertFrom(ITypeDescriptorContext context, System.Globalization.CultureInfo culture, object value) {
+            return new DriverCategory((string)value);
+        }
+
+        public override bool CanConvertTo(ITypeDescriptorContext context, Type destinationType) {
+            return destinationType == typeof(string);
+        }
+
+        public override object ConvertTo(ITypeDescriptorContext context, System.Globalization.CultureInfo culture, object value, Type destinationType) {
+            return ((DriverCategory)value).AsString();
         }
     }
 }

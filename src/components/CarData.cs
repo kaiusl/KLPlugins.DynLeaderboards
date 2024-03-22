@@ -42,51 +42,6 @@ namespace KLPlugins.DynLeaderboards.Car {
         }
     }
 
-    class CarClassColor {
-        public string Fg { get; }
-        public string Bg { get; }
-
-        [JsonConstructor]
-        public CarClassColor(string fg, string bg) {
-            this.Fg = fg;
-            this.Bg = bg;
-        }
-    }
-
-    class CarClassColors {
-        private Dictionary<string, CarClassColor> _colors { get; }
-
-        [JsonConstructor]
-        public CarClassColors(Dictionary<string, CarClassColor>? global, Dictionary<string, Dictionary<string, CarClassColor>>? game_overrides) {
-            this._colors = global ?? [];
-            var overrides = game_overrides?.GetValueOr(DynLeaderboardsPlugin.Game.Name, null);
-            if (overrides != null) {
-                foreach (var kvp in overrides) {
-                    this._colors[kvp.Key] = kvp.Value;
-                }
-            }
-
-            DynLeaderboardsPlugin.LogInfo($"Read car class colors: {this.Debug()}");
-        }
-
-        public CarClassColors() {
-            this._colors = [];
-        }
-
-        internal CarClassColor? Get(string key) {
-            return this._colors.GetValueOr(key, null);
-        }
-
-        internal void Merge(CarClassColors other) {
-            this._colors.Merge(other._colors);
-        }
-
-        internal string Debug() {
-            return JsonConvert.SerializeObject(this._colors);
-        }
-
-    }
-
     public class CarData {
         public string CarClass { get; private set; }
         public string CarClassColor { get; private set; }
@@ -96,9 +51,9 @@ namespace KLPlugins.DynLeaderboards.Car {
         public string CarModel { get; private set; }
         public string CarManufacturer { get; private set; }
         public string? TeamName { get; private set; }
-        public string TeamCupCategory { get; private set; } = "Overall";
-        public string TeamCupCategoryColor { get; private set; } = "#FFFFFF";
-        public string TeamCupCategoryTextColor { get; private set; } = "#000000";
+        public string TeamCupCategory { get; private set; }
+        public string TeamCupCategoryColor { get; private set; }
+        public string TeamCupCategoryTextColor { get; private set; }
 
         public NewOld<CarLocation> Location { get; } = new(CarLocation.NONE);
 
@@ -209,6 +164,7 @@ namespace KLPlugins.DynLeaderboards.Car {
             var classColor = values.GetCarClassColor(this.CarClass);
             this.CarClassColor = classColor?.Bg ?? this.RawDataNew.CarClassColor ?? "#FFFFFF";
             this.CarClassTextColor = classColor?.Fg ?? this.RawDataNew.CarClassTextColor ?? "#000000";
+
             this.CarNumber = this.RawDataNew.CarNumber ?? "-1";
 
             this.TeamName = this.RawDataNew.TeamName;
@@ -220,7 +176,13 @@ namespace KLPlugins.DynLeaderboards.Car {
             if (DynLeaderboardsPlugin.Game.IsAcc) {
                 var accRawData = (ACSharedMemory.Models.ACCOpponent)rawData;
                 this.TeamCupCategory = ACCTeamCupCategoryToString(accRawData.ExtraData.CarEntry.CupCategory);
+            } else {
+                this.TeamCupCategory = "Overall";
             }
+
+            var cupColors = values.GetTeamCupCategoryColor(this.TeamCupCategory);
+            this.TeamCupCategoryColor = cupColors?.Bg ?? "#FFFFFF";
+            this.TeamCupCategoryTextColor = cupColors?.Fg ?? "#000000";
         }
 
         static string ACCTeamCupCategoryToString(byte cupCategory) {

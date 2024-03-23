@@ -399,17 +399,8 @@ namespace KLPlugins.DynLeaderboards {
                 this.AttachDelegate($"{startName}.DBG_IsFirstFinished", () => this.Values.IsFirstFinished);
             };
 
-            var numPos = new int[] {
-                l.Config.NumOverallPos,
-                l.Config.NumClassPos,
-                l.Config.NumOverallRelativePos*2+1,
-                l.Config.NumClassRelativePos*2+1,
-                l.Config.NumOnTrackRelativePos*2+1,
-                l.Config.PartialRelativeClassNumClassPos + l.Config.PartialRelativeClassNumRelativePos*2+1,
-                l.Config.PartialRelativeOverallNumOverallPos + l.Config.PartialRelativeOverallNumRelativePos*2+1
-            };
 
-            for (int i = 0; i < numPos.Max(); i++) {
+            for (int i = 0; i < l.MaxPositions; i++) {
                 addCar(i);
             }
 

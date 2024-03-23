@@ -3,7 +3,7 @@
 namespace KLPlugins.DynLeaderboards.Settings {
 
     [Flags]
-    public enum OutGeneralProp {
+    internal enum OutGeneralProp {
         None = 0,
         SessionPhase = 1 << 1,
         MaxStintTime = 1 << 2,
@@ -18,19 +18,19 @@ namespace KLPlugins.DynLeaderboards.Settings {
 
     internal static class OutGeneralPropExtensions {
 
-        public static bool Includes(this OutGeneralProp p, OutGeneralProp o) {
+        internal static bool Includes(this OutGeneralProp p, OutGeneralProp o) {
             return (p & o) != 0;
         }
 
-        public static void Combine(ref this OutGeneralProp p, OutGeneralProp o) {
+        internal static void Combine(ref this OutGeneralProp p, OutGeneralProp o) {
             p |= o;
         }
 
-        public static void Remove(ref this OutGeneralProp p, OutGeneralProp o) {
+        internal static void Remove(ref this OutGeneralProp p, OutGeneralProp o) {
             p &= ~o;
         }
 
-        public static OutGeneralProp[] Order() {
+        internal static OutGeneralProp[] Order() {
             return [
                 OutGeneralProp.SessionPhase,
                 OutGeneralProp.MaxStintTime,
@@ -44,7 +44,7 @@ namespace KLPlugins.DynLeaderboards.Settings {
              ];
         }
 
-        public static string ToolTipText(this OutGeneralProp p) {
+        internal static string ToolTipText(this OutGeneralProp p) {
             return p switch {
                 OutGeneralProp.SessionPhase => "Session phase.",
                 OutGeneralProp.MaxStintTime => "Maximum driver stint time.",

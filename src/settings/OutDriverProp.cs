@@ -3,7 +3,7 @@
 namespace KLPlugins.DynLeaderboards.Settings {
 
     [Flags]
-    public enum OutDriverProp {
+    internal enum OutDriverProp {
         None = 0,
 
         FirstName = 1 << 2,
@@ -21,19 +21,19 @@ namespace KLPlugins.DynLeaderboards.Settings {
 
     internal static class OutDriverPropExtensions {
 
-        public static bool Includes(this OutDriverProp p, OutDriverProp o) {
+        internal static bool Includes(this OutDriverProp p, OutDriverProp o) {
             return (p & o) != 0;
         }
 
-        public static void Combine(ref this OutDriverProp p, OutDriverProp o) {
+        internal static void Combine(ref this OutDriverProp p, OutDriverProp o) {
             p |= o;
         }
 
-        public static void Remove(ref this OutDriverProp p, OutDriverProp o) {
+        internal static void Remove(ref this OutDriverProp p, OutDriverProp o) {
             p &= ~o;
         }
 
-        public static OutDriverProp[] Order() {
+        internal static OutDriverProp[] Order() {
             return new[] {
                 OutDriverProp.FirstName,
                 OutDriverProp.LastName,
@@ -49,7 +49,7 @@ namespace KLPlugins.DynLeaderboards.Settings {
              };
         }
 
-        public static string ToolTipText(this OutDriverProp p) {
+        internal static string ToolTipText(this OutDriverProp p) {
             return p switch {
                 OutDriverProp.None => "None",
                 OutDriverProp.FirstName => "First name (Abcde)",

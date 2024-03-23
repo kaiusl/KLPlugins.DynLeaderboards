@@ -812,7 +812,7 @@ namespace KLPlugins.DynLeaderboards.Car {
             TimeSpan? gap;
             // At least one toInterp or fromInterp must be not null, because of the above check
             (LapInterpolator interp, var cls) = toInterp != null ? (toInterp!, to.CarClass) : (fromInterp!, from.CarClass);
-            if (relativeSplinePos < 0) {
+            if (relativeSplinePos > 0) {
                 gap = -CalculateGapBetweenPos(start: from.GetSplinePosTime(cls, trackData), end: to.GetSplinePosTime(cls, trackData), lapTime: interp.LapTime);
             } else {
                 gap = CalculateGapBetweenPos(start: to.GetSplinePosTime(cls, trackData), end: from.GetSplinePosTime(cls, trackData), lapTime: interp.LapTime);

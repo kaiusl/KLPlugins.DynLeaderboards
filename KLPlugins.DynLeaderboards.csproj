@@ -114,7 +114,6 @@
     <Compile Include="src\components\Booleans.cs" />
     <Compile Include="src\components\Session.cs" />
     <Compile Include="src\enums\Leaderboard.cs" />
-    <Compile Include="src\helpers\Math.cs" />
     <Compile Include="src\helpers\Misc.cs" />
     <Compile Include="src\components\TrackData.cs" />
     <Compile Include="src\plugin\LeaderboardPlugin.cs" />

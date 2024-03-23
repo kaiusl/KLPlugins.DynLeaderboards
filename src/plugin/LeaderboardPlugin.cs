@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -132,7 +132,7 @@ namespace KLPlugins.DynLeaderboards {
                     var ldb = new DynLeaderboard(config, this.Values);
                     this.DynLeaderboards.Add(ldb);
                     this.AttachDynLeaderboard(ldb);
-                    LogInfo($"Added enabled leaderboard: {ldb.Config.Name}.");
+                    LogInfo($"Added enabled leaderboard: {ldb.Name}.");
                 } else {
                     LogInfo($"Didn't add disabled leaderboard: {config.Name}.");
                 }
@@ -193,7 +193,7 @@ namespace KLPlugins.DynLeaderboards {
 
         private void AttachDynLeaderboard(DynLeaderboard l) {
             void addCar(int i) {
-                var startName = $"{l.Config.Name}.{i + 1}";
+                var startName = $"{l.Name}.{i + 1}";
                 void AddProp<T>(OutCarProp prop, Func<T> valueProvider) {
                     if (l.Config.OutCarProps.Includes(prop)) {
                         this.AttachDelegate($"{startName}.{prop.ToPropName()}", valueProvider);
@@ -413,11 +413,11 @@ namespace KLPlugins.DynLeaderboards {
                 addCar(i);
             }
 
-            this.AttachDelegate($"{l.Config.Name}.CurrentLeaderboard", () => l.Config.CurrentLeaderboardName);
-            this.AttachDelegate($"{l.Config.Name}.FocusedPosInCurrentLeaderboard", () => l.FocusedIndex);
+            this.AttachDelegate($"{l.Name}.CurrentLeaderboard", () => l.CurrentLeaderboardName);
+            this.AttachDelegate($"{l.Name}.FocusedPosInCurrentLeaderboard", () => l.FocusedIndex);
 
             // Declare an action which can be called
-            this.AddAction($"{l.Config.Name}.NextLeaderboard", (_, _) => {
+            this.AddAction($"{l.Name}.NextLeaderboard", (_, _) => {
                 if (l.Config.CurrentLeaderboardIdx == l.Config.Order.Count - 1) {
                     l.Config.CurrentLeaderboardIdx = 0;
                 } else {
@@ -427,7 +427,7 @@ namespace KLPlugins.DynLeaderboards {
             });
 
             // Declare an action which can be called
-            this.AddAction($"{l.Config.Name}.PreviousLeaderboard", (_, _) => {
+            this.AddAction($"{l.Name}.PreviousLeaderboard", (_, _) => {
                 if (l.Config.CurrentLeaderboardIdx == 0) {
                     l.Config.CurrentLeaderboardIdx = l.Config.Order.Count - 1;
                 } else {

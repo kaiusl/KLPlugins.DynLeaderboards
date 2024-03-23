@@ -29,6 +29,7 @@ namespace KLPlugins.DynLeaderboards {
 
         public string Name => this.Config.Name;
         public string CurrentLeaderboardName => this.Config.CurrentLeaderboardName;
+        public Leaderboard CurrentLeaderboard => this.Config.CurrentLeaderboard();
 
         internal DynLeaderboardConfig Config { get; set; }
 

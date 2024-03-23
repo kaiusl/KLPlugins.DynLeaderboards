@@ -439,5 +439,27 @@ namespace KLPlugins.DynLeaderboards.Settings {
             this.Name = newName;
         }
 
+        private int? _maxPositions = null;
+        internal int MaxPositions() {
+            if (this._maxPositions == null) {
+                var numPos = new int[] {
+                    this.NumOverallPos,
+                    this.NumClassPos,
+                    this.NumCupPos,
+                    this.NumOverallRelativePos*2+1,
+                    this.NumClassRelativePos*2+1,
+                    this.NumCupRelativePos*2+1,
+                    this.NumOnTrackRelativePos*2+1,
+                    this.PartialRelativeClassNumClassPos + this.PartialRelativeClassNumRelativePos*2+1,
+                    this.PartialRelativeOverallNumOverallPos + this.PartialRelativeOverallNumRelativePos*2+1,
+                    this.PartialRelativeCupNumCupPos + this.PartialRelativeCupNumRelativePos*2+1,
+                };
+
+                this._maxPositions = numPos.Max();
+            }
+
+            return this._maxPositions.Value;
+        }
+
     }
 }

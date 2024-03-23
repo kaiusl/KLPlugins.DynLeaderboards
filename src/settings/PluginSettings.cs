@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -335,7 +335,7 @@ namespace KLPlugins.DynLeaderboards.Settings {
 
     }
 
-    public class DynLeaderboardConfig {
+    internal class DynLeaderboardConfig {
         internal const int currentConfigVersion = 2;
 
         public int Version { get; set; } = 2;

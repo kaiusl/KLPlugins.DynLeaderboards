@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -112,12 +112,12 @@ namespace KLPlugins.DynLeaderboards.Helpers {
     }
 
     public static class IEnumerableExtensions {
-        public static IEnumerable<(T, int)> WithIndex<T>(this IEnumerable<T> enumerable) {
+        internal static IEnumerable<(T, int)> WithIndex<T>(this IEnumerable<T> enumerable) {
             return enumerable.Select((v, i) => (v, i));
         }
 
         /// <returns>Index of the first item that matches the predicate, -1 if not found.</returns>
-        public static int FirstIndex<T>(this IEnumerable<T> enumerable, Func<T, bool> predicate) {
+        internal static int FirstIndex<T>(this IEnumerable<T> enumerable, Func<T, bool> predicate) {
             foreach ((T item, int i) in enumerable.WithIndex()) {
                 if (predicate(item)) {
                     return i;
@@ -128,20 +128,20 @@ namespace KLPlugins.DynLeaderboards.Helpers {
         }
     }
 
-    public static class ListExtensions {
-        public static void MoveElementAt<T>(this List<T> list, int from, int to) {
+    internal static class ListExtensions {
+        internal static void MoveElementAt<T>(this List<T> list, int from, int to) {
             var item = list[from];
             list.RemoveAt(from);
             list.Insert(to, item);
         }
     }
 
-    public static class DictExtensions {
-        public static V? GetValueOrDefault<K, V>(this Dictionary<K, V> dict, K key) {
+    internal static class DictExtensions {
+        internal static V? GetValueOrDefault<K, V>(this Dictionary<K, V> dict, K key) {
             return dict.GetValueOr(key, default);
         }
 
-        public static V? GetValueOr<K, V>(this Dictionary<K, V> dict, K key, V? defValue) {
+        internal static V? GetValueOr<K, V>(this Dictionary<K, V> dict, K key, V? defValue) {
             if (dict.ContainsKey(key)) {
                 return dict[key];
             }
@@ -149,7 +149,7 @@ namespace KLPlugins.DynLeaderboards.Helpers {
             return defValue;
         }
 
-        public static void Merge<K, V>(this Dictionary<K, V> dict, Dictionary<K, V> other) {
+        internal static void Merge<K, V>(this Dictionary<K, V> dict, Dictionary<K, V> other) {
             foreach (var kv in other) {
                 dict[kv.Key] = kv.Value;
             }

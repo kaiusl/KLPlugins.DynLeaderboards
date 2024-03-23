@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
@@ -48,8 +49,9 @@ namespace KLPlugins.DynLeaderboards.Car {
         /// <summary>
         /// List of all drivers. Current driver is always the first.
         /// </summary>
-        public List<Driver> Drivers { get; } = new();
-        public Driver? CurrentDriver => this.Drivers.FirstOrDefault();
+        public ReadOnlyCollection<Driver> Drivers { get; }
+        private List<Driver> _drivers { get; } = new();
+        public Driver? CurrentDriver => this._drivers.FirstOrDefault();
 
         public int PositionOverall { get; private set; }
         public int PositionInClass { get; private set; }
@@ -99,10 +101,10 @@ namespace KLPlugins.DynLeaderboards.Car {
         /// <summary>
         /// Has the car crossed the start line at race start. 
         /// </summary>
-        public bool HasCrossedStartLine { get; private set; } = true;
+        internal bool HasCrossedStartLine { get; private set; } = true;
         private bool _isHasCrossedStartLineSet = false;
         public bool IsFinished { get; private set; } = false;
-        public DateTime? FinishTime { get; private set; } = null;
+        internal DateTime? FinishTime { get; private set; } = null;
 
         public int? CurrentStintLaps { get; private set; }
         public TimeSpan? LastStintTime { get; private set; }
@@ -148,7 +150,10 @@ namespace KLPlugins.DynLeaderboards.Car {
         private Dictionary<CarClass, TimeSpan?> _splinePositionTimes = [];
 
 
-        public CarData(Values values, Opponent rawData) {
+        internal CarData(Values values, Opponent rawData) {
+            this.Drivers = this._drivers.AsReadOnly();
+
+            this.RawDataOld = rawData;
             this.RawDataNew = rawData;
 
             var carInfo = values.GetCarInfo(this.RawDataNew.CarName);
@@ -182,7 +187,7 @@ namespace KLPlugins.DynLeaderboards.Car {
             this.UpdateIndependent(values, rawData);
         }
 
-        static TeamCupCategory ACCTeamCupCategoryToString(byte cupCategory) {
+        private static TeamCupCategory ACCTeamCupCategoryToString(byte cupCategory) {
             return cupCategory switch {
                 0 => new TeamCupCategory("Overall"),
                 1 => new TeamCupCategory("ProAm"),
@@ -193,7 +198,7 @@ namespace KLPlugins.DynLeaderboards.Car {
             };
         }
 
-        static string GetCarManufacturer(string carModel) {
+        private static string GetCarManufacturer(string carModel) {
             // TODO: read from LUTs
             return carModel.Split(' ')[0];
         }
@@ -202,7 +207,7 @@ namespace KLPlugins.DynLeaderboards.Car {
         /// Update data that is independent of other cars data.
         /// </summary>
         /// <param name="rawData"></param>
-        public void UpdateIndependent(Values values, Opponent rawData) {
+        internal void UpdateIndependent(Values values, Opponent rawData) {
             this.RawDataOld = this.RawDataNew;
             this.RawDataNew = rawData;
 
@@ -289,42 +294,42 @@ namespace KLPlugins.DynLeaderboards.Car {
             this.HandleOffsetLapUpdates();
         }
 
-        void UpdateDrivers(Values values, Opponent rawData) {
+        private void UpdateDrivers(Values values, Opponent rawData) {
             if (DynLeaderboardsPlugin.Game.IsAcc) {
                 // ACC has more driver info than generic SimHub interface
                 var accOpponent = (ACSharedMemory.Models.ACCOpponent)rawData;
                 var realtimeCarUpdate = accOpponent.ExtraData;
-                if (this.Drivers.Count == 0) {
+                if (this._drivers.Count == 0) {
                     foreach (var driver in realtimeCarUpdate.CarEntry.Drivers) {
-                        this.Drivers.Add(new Driver(values, driver));
+                        this._drivers.Add(new Driver(values, driver));
                     }
                 } else {
                     // ACC driver name could be different from SimHub's full name
                     var currentRawDriver = realtimeCarUpdate.CarEntry.Drivers[realtimeCarUpdate.DriverIndex];
-                    var currentDriverIndex = this.Drivers.FindIndex(d => d.FirstName == currentRawDriver.FirstName && d.LastName == currentRawDriver.LastName);
+                    var currentDriverIndex = this._drivers.FindIndex(d => d.FirstName == currentRawDriver.FirstName && d.LastName == currentRawDriver.LastName);
                     if (currentDriverIndex == 0) {
                         // OK, current driver is already first in list
                     } else if (currentDriverIndex == -1) {
-                        this.Drivers.Insert(0, new Driver(values, currentRawDriver));
+                        this._drivers.Insert(0, new Driver(values, currentRawDriver));
                     } else {
                         // move current driver to the front
-                        this.Drivers.MoveElementAt(currentDriverIndex, 0);
+                        this._drivers.MoveElementAt(currentDriverIndex, 0);
                     }
                 }
             } else {
-                var currentDriverIndex = this.Drivers.FindIndex(d => d.FullName == this.RawDataNew.Name);
+                var currentDriverIndex = this._drivers.FindIndex(d => d.FullName == this.RawDataNew.Name);
                 if (currentDriverIndex == 0) {
                     // OK, current driver is already first in list
                 } else if (currentDriverIndex == -1) {
-                    this.Drivers.Insert(0, new Driver(values, this.RawDataNew));
+                    this._drivers.Insert(0, new Driver(values, this.RawDataNew));
                 } else {
                     // move current driver to the front
-                    this.Drivers.MoveElementAt(currentDriverIndex, 0);
+                    this._drivers.MoveElementAt(currentDriverIndex, 0);
                 }
             }
         }
 
-        void HandleJumpToPits(SessionType sessionType) {
+        private void HandleJumpToPits(SessionType sessionType) {
             Debug.Assert(sessionType == SessionType.Race);
             if (!this.IsFinished // It's okay to jump to the pits after finishing
                 && this.Location.Old == CarLocation.Track
@@ -340,7 +345,7 @@ namespace KLPlugins.DynLeaderboards.Car {
             }
         }
 
-        void CheckForCrossingStartLine(SessionPhase sessionPhase) {
+        private void CheckForCrossingStartLine(SessionPhase sessionPhase) {
             // Initial update before the start of the race
             if (sessionPhase == SessionPhase.PreSession
                 && !this._isHasCrossedStartLineSet
@@ -359,7 +364,7 @@ namespace KLPlugins.DynLeaderboards.Car {
             }
         }
 
-        void HandleOffsetLapUpdates() {
+        private void HandleOffsetLapUpdates() {
             // Check for offset lap update
             if (this.OffsetLapUpdate == OffsetLapUpdateType.None
                 && this.IsNewLap
@@ -395,7 +400,7 @@ namespace KLPlugins.DynLeaderboards.Car {
             }
         }
 
-        void UpdatePitInfo() {
+        private void UpdatePitInfo() {
             var pitEntryTime = this.RawDataNew.PitEnterAtTime;
             // Pit ended
             if (pitEntryTime != null && this.ExitedPitLane) {
@@ -410,7 +415,7 @@ namespace KLPlugins.DynLeaderboards.Car {
             }
         }
 
-        void UpdateStintInfo(Session session) {
+        private void UpdateStintInfo(Session session) {
             if (this.IsNewLap && this.CurrentStintLaps != null) {
                 this.CurrentStintLaps++;
             }
@@ -445,7 +450,7 @@ namespace KLPlugins.DynLeaderboards.Car {
         /// This includes for example relative spline positions, gaps and lap time deltas.
         /// </summary>
         /// <param name="focusedCar"></param>
-        public void UpdateDependsOnOthers(
+        internal void UpdateDependsOnOthers(
             Values values,
             CarData? focusedCar,
             CarData? overallBestLapCar,
@@ -521,20 +526,20 @@ namespace KLPlugins.DynLeaderboards.Car {
 
         }
 
-        public void SetOverallPosition(int overall) {
+        internal void SetOverallPosition(int overall) {
             Debug.Assert(overall > 0);
             this.PositionOverall = overall;
             this.IndexOverall = overall - 1;
         }
 
 
-        public void SetClassPosition(int cls) {
+        internal void SetClassPosition(int cls) {
             Debug.Assert(cls > 0);
             this.PositionInClass = cls;
             this.IndexClass = cls - 1;
         }
 
-        void SetRelLapDiff(CarData focusedCar) {
+        private void SetRelLapDiff(CarData focusedCar) {
             if (this.GapToFocusedTotal == null) {
                 if (this.Laps.New < focusedCar.Laps.New) {
                     this.RelativeOnTrackLapDiff = RelativeLapDiff.BEHIND;
@@ -617,7 +622,7 @@ namespace KLPlugins.DynLeaderboards.Car {
             return relSplinePos;
         }
 
-        void SetGaps(
+        private void SetGaps(
             CarData? focusedCar,
             CarData leaderCar,
             CarData classLeaderCar,
@@ -815,7 +820,7 @@ namespace KLPlugins.DynLeaderboards.Car {
             return gap;
         }
 
-        private static TimeSpan CalculateNaiveGap(double splineDist, TrackData trackData) {
+        public static TimeSpan CalculateNaiveGap(double splineDist, TrackData trackData) {
             var dist = splineDist * trackData.LengthMeters;
             // use avg speed of 50m/s (180km/h)
             // we could use actual speeds of the cars
@@ -877,11 +882,11 @@ namespace KLPlugins.DynLeaderboards.Car {
         public string Nationality { get; private set; } = "Unknown";
         public int TotalLaps { get; internal set; } = 0;
         public LapBasic? BestLap { get; internal set; } = null;
-        public TextBoxColor CategoryColor { get; internal set; }
+        public TextBoxColor CategoryColor { get; private set; }
 
         private TimeSpan _totalDrivingTime;
 
-        public Driver(Values v, Opponent o) {
+        internal Driver(Values v, Opponent o) {
             this.FullName = o.Name;
             this.ShortName = o.Initials;
             this.InitialPlusLastName = o.ShortName;
@@ -889,7 +894,7 @@ namespace KLPlugins.DynLeaderboards.Car {
             this.CategoryColor = v.GetDriverCategoryColor(this.Category) ?? DefCategoryColor();
         }
 
-        public Driver(Values v, ksBroadcastingNetwork.Structs.DriverInfo driver) {
+        internal Driver(Values v, ksBroadcastingNetwork.Structs.DriverInfo driver) {
             this.FirstName = driver.FirstName;
             this.LastName = driver.LastName;
             this.ShortName = driver.ShortName;
@@ -911,7 +916,7 @@ namespace KLPlugins.DynLeaderboards.Car {
             this._totalDrivingTime += lastStintTime;
         }
 
-        internal TimeSpan GetTotalDrivingTime(bool isDriving = false, TimeSpan? currentStintTime = null) {
+        internal TimeSpan GetTotalDrivingTime(bool isDriving, TimeSpan? currentStintTime = null) {
             if (isDriving && currentStintTime != null) {
                 return this._totalDrivingTime + currentStintTime.Value;
             }
@@ -1038,13 +1043,13 @@ namespace KLPlugins.DynLeaderboards.Car {
         public TimeSpan? S2Time { get; private set; }
         public TimeSpan? S3Time { get; private set; }
 
-        public Sectors(SectorTimes? sectorTimes) {
+        internal Sectors(SectorTimes? sectorTimes) {
             this.S1Time = sectorTimes?.GetSectorSplit(1);
             this.S2Time = sectorTimes?.GetSectorSplit(2);
             this.S3Time = sectorTimes?.GetSectorSplit(3);
         }
 
-        public Sectors(Sectors other) {
+        internal Sectors(Sectors other) {
             this.S1Time = other.S1Time;
             this.S2Time = other.S2Time;
             this.S3Time = other.S3Time;
@@ -1069,14 +1074,14 @@ namespace KLPlugins.DynLeaderboards.Car {
         public int LapNumber { get; private set; }
         public Driver Driver { get; private set; }
 
-        public LapBasic(SectorTimes? sectorTimes, int lapNumber, Driver driver) : base(sectorTimes) {
+        internal LapBasic(SectorTimes? sectorTimes, int lapNumber, Driver driver) : base(sectorTimes) {
             this.Time = sectorTimes?.GetLapTime();
 
             this.LapNumber = lapNumber;
             this.Driver = driver;
         }
 
-        public LapBasic(Lap lap) : base(lap) {
+        internal LapBasic(Lap lap) : base(lap) {
             this.Time = lap.Time;
             this.LapNumber = lap.LapNumber;
             this.Driver = lap.Driver;
@@ -1118,7 +1123,7 @@ namespace KLPlugins.DynLeaderboards.Car {
         public TimeSpan? DeltaToAheadInClassLast { get; private set; }
         public TimeSpan? DeltaToAheadInCupLast { get; private set; }
 
-        public Lap(SectorTimes? sectorTimes, int lapNumber, Driver driver) : base(sectorTimes) {
+        internal Lap(SectorTimes? sectorTimes, int lapNumber, Driver driver) : base(sectorTimes) {
             this.Time = sectorTimes?.GetLapTime();
 
             this.LapNumber = lapNumber;
@@ -1247,7 +1252,7 @@ namespace KLPlugins.DynLeaderboards.Car {
         }
     }
 
-    class CarInfo {
+    internal class CarInfo {
         public string? Name { get; private set; }
         public string? Manufacturer { get; private set; }
         public CarClass? Class { get; private set; }
@@ -1312,7 +1317,7 @@ namespace KLPlugins.DynLeaderboards.Car {
         }
     }
 
-    class CarClassTypeConverter : TypeConverter {
+    internal class CarClassTypeConverter : TypeConverter {
         public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType) {
             return sourceType == typeof(string);
         }
@@ -1368,7 +1373,7 @@ namespace KLPlugins.DynLeaderboards.Car {
         }
     }
 
-    class TeamCupCategoryTypeConverter : TypeConverter {
+    internal class TeamCupCategoryTypeConverter : TypeConverter {
         public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType) {
             return sourceType == typeof(string);
         }
@@ -1424,7 +1429,7 @@ namespace KLPlugins.DynLeaderboards.Car {
         }
     }
 
-    class DriverCategoryTypeConverter : TypeConverter {
+    internal class DriverCategoryTypeConverter : TypeConverter {
         public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType) {
             return sourceType == typeof(string);
         }

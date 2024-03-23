@@ -3,7 +3,7 @@
 namespace KLPlugins.DynLeaderboards.Settings {
 
     [Flags]
-    public enum OutCarProp {
+    internal enum OutCarProp {
         None = 0,
 
         CarNumber = 1 << 0,
@@ -29,19 +29,19 @@ namespace KLPlugins.DynLeaderboards.Settings {
 
     internal static class OutCarPropExtensions {
 
-        public static bool Includes(this OutCarProp p, OutCarProp o) {
+        internal static bool Includes(this OutCarProp p, OutCarProp o) {
             return (p & o) != 0;
         }
 
-        public static void Combine(ref this OutCarProp p, OutCarProp o) {
+        internal static void Combine(ref this OutCarProp p, OutCarProp o) {
             p |= o;
         }
 
-        public static void Remove(ref this OutCarProp p, OutCarProp o) {
+        internal static void Remove(ref this OutCarProp p, OutCarProp o) {
             p &= ~o;
         }
 
-        public static OutCarProp[] Order() {
+        internal static OutCarProp[] Order() {
             return new[] {
                  OutCarProp.CarNumber,
                  OutCarProp.CarModel,
@@ -62,7 +62,7 @@ namespace KLPlugins.DynLeaderboards.Settings {
              };
         }
 
-        public static string ToPropName(this OutCarProp p) {
+        internal static string ToPropName(this OutCarProp p) {
             return p switch {
                 OutCarProp.CarNumber => "Car.Number",
                 OutCarProp.CarModel => "Car.Model",
@@ -84,7 +84,7 @@ namespace KLPlugins.DynLeaderboards.Settings {
             };
         }
 
-        public static string ToolTipText(this OutCarProp p) {
+        internal static string ToolTipText(this OutCarProp p) {
             return p switch {
                 OutCarProp.None => "None",
                 OutCarProp.CarNumber => "Car number.",
@@ -109,7 +109,7 @@ namespace KLPlugins.DynLeaderboards.Settings {
     }
 
     [Flags]
-    public enum OutPitProp {
+    internal enum OutPitProp {
         None = 0,
         IsInPitLane = 1 << 0,
         PitStopCount = 1 << 1,
@@ -120,19 +120,19 @@ namespace KLPlugins.DynLeaderboards.Settings {
 
     internal static class OutPitPropExtensions {
 
-        public static bool Includes(this OutPitProp p, OutPitProp o) {
+        internal static bool Includes(this OutPitProp p, OutPitProp o) {
             return (p & o) != 0;
         }
 
-        public static void Combine(ref this OutPitProp p, OutPitProp o) {
+        internal static void Combine(ref this OutPitProp p, OutPitProp o) {
             p |= o;
         }
 
-        public static void Remove(ref this OutPitProp p, OutPitProp o) {
+        internal static void Remove(ref this OutPitProp p, OutPitProp o) {
             p &= ~o;
         }
 
-        public static OutPitProp[] Order() {
+        internal static OutPitProp[] Order() {
             return new[] {
                 OutPitProp.IsInPitLane,
                 OutPitProp.PitStopCount,
@@ -142,7 +142,7 @@ namespace KLPlugins.DynLeaderboards.Settings {
              };
         }
 
-        public static string ToPropName(this OutPitProp p) {
+        internal static string ToPropName(this OutPitProp p) {
             return p switch {
                 OutPitProp.IsInPitLane => "Pit.IsIn",
                 OutPitProp.PitStopCount => "Pit.Count",
@@ -153,7 +153,7 @@ namespace KLPlugins.DynLeaderboards.Settings {
             };
         }
 
-        public static string ToolTipText(this OutPitProp p) {
+        internal static string ToolTipText(this OutPitProp p) {
             return p switch {
                 OutPitProp.IsInPitLane => "Is the car in pit lane?",
                 OutPitProp.PitStopCount => "Number of pitstops.",
@@ -166,7 +166,7 @@ namespace KLPlugins.DynLeaderboards.Settings {
     }
 
     [Flags]
-    public enum OutPosProp {
+    internal enum OutPosProp {
         None = 0,
         OverallPosition = 1 << 0,
         OverallPositionStart = 1 << 1,
@@ -180,11 +180,11 @@ namespace KLPlugins.DynLeaderboards.Settings {
 
     internal static class OutPosPropExtensions {
 
-        public static bool Includes(this OutPosProp p, OutPosProp o) {
+        internal static bool Includes(this OutPosProp p, OutPosProp o) {
             return (p & o) != 0;
         }
 
-        public static bool IncludesAny(this OutPosProp p, params OutPosProp[] others) {
+        internal static bool IncludesAny(this OutPosProp p, params OutPosProp[] others) {
             foreach (var o in others) {
                 if (p.Includes(o)) {
                     return true;
@@ -193,7 +193,7 @@ namespace KLPlugins.DynLeaderboards.Settings {
             return false;
         }
 
-        public static bool IncludesAll(this OutPosProp p, params OutPosProp[] others) {
+        internal static bool IncludesAll(this OutPosProp p, params OutPosProp[] others) {
             foreach (var o in others) {
                 if (!p.Includes(o)) {
                     return false;
@@ -202,15 +202,15 @@ namespace KLPlugins.DynLeaderboards.Settings {
             return true;
         }
 
-        public static void Combine(ref this OutPosProp p, OutPosProp o) {
+        internal static void Combine(ref this OutPosProp p, OutPosProp o) {
             p |= o;
         }
 
-        public static void Remove(ref this OutPosProp p, OutPosProp o) {
+        internal static void Remove(ref this OutPosProp p, OutPosProp o) {
             p &= ~o;
         }
 
-        public static OutPosProp[] Order() {
+        internal static OutPosProp[] Order() {
             return new[] {
                 OutPosProp.OverallPosition,
                 OutPosProp.OverallPositionStart,
@@ -223,7 +223,7 @@ namespace KLPlugins.DynLeaderboards.Settings {
              };
         }
 
-        public static string ToPropName(this OutPosProp p) {
+        internal static string ToPropName(this OutPosProp p) {
             return p switch {
                 OutPosProp.ClassPosition => "Position.Class",
                 OutPosProp.ClassPositionStart => "Position.Class.Start",
@@ -237,7 +237,7 @@ namespace KLPlugins.DynLeaderboards.Settings {
             };
         }
 
-        public static string ToolTipText(this OutPosProp p) {
+        internal static string ToolTipText(this OutPosProp p) {
             return p switch {
                 OutPosProp.ClassPosition => "Current class position",
                 OutPosProp.OverallPosition => "Current overall position",
@@ -261,7 +261,7 @@ RelativeOnTrack -> overall position",
     }
 
     [Flags]
-    public enum OutGapProp {
+    internal enum OutGapProp {
         None = 0,
         GapToLeader = 1 << 0,
         GapToClassLeader = 1 << 1,
@@ -278,19 +278,19 @@ RelativeOnTrack -> overall position",
 
     internal static class OutGapPropExtensions {
 
-        public static bool Includes(this OutGapProp p, OutGapProp o) {
+        internal static bool Includes(this OutGapProp p, OutGapProp o) {
             return (p & o) != 0;
         }
 
-        public static void Combine(ref this OutGapProp p, OutGapProp o) {
+        internal static void Combine(ref this OutGapProp p, OutGapProp o) {
             p |= o;
         }
 
-        public static void Remove(ref this OutGapProp p, OutGapProp o) {
+        internal static void Remove(ref this OutGapProp p, OutGapProp o) {
             p &= ~o;
         }
 
-        public static OutGapProp[] Order() {
+        internal static OutGapProp[] Order() {
             return new[] {
                  OutGapProp.GapToLeader,
                  OutGapProp.GapToClassLeader,
@@ -306,7 +306,7 @@ RelativeOnTrack -> overall position",
              };
         }
 
-        public static string ToPropName(this OutGapProp p) {
+        internal static string ToPropName(this OutGapProp p) {
             return p switch {
                 OutGapProp.GapToLeader => "Gap.ToOverallLeader",
                 OutGapProp.GapToClassLeader => "Gap.ToClassLeader",
@@ -323,7 +323,7 @@ RelativeOnTrack -> overall position",
             };
         }
 
-        public static string ToolTipText(this OutGapProp p) {
+        internal static string ToolTipText(this OutGapProp p) {
             return p switch {
                 OutGapProp.GapToLeader => "Total gap to the leader.",
                 OutGapProp.GapToClassLeader => "Total gap to the class leader.",
@@ -351,7 +351,7 @@ RelativeOnTrack -> gap to ahead on track.",
     }
 
     [Flags]
-    public enum OutStintProp {
+    internal enum OutStintProp {
         None = 0,
         CurrentStintTime = 1 << 0,
         CurrentStintLaps = 1 << 1,
@@ -361,19 +361,19 @@ RelativeOnTrack -> gap to ahead on track.",
 
     internal static class OutStintPropExtensions {
 
-        public static bool Includes(this OutStintProp p, OutStintProp o) {
+        internal static bool Includes(this OutStintProp p, OutStintProp o) {
             return (p & o) != 0;
         }
 
-        public static void Combine(ref this OutStintProp p, OutStintProp o) {
+        internal static void Combine(ref this OutStintProp p, OutStintProp o) {
             p |= o;
         }
 
-        public static void Remove(ref this OutStintProp p, OutStintProp o) {
+        internal static void Remove(ref this OutStintProp p, OutStintProp o) {
             p &= ~o;
         }
 
-        public static OutStintProp[] Order() {
+        internal static OutStintProp[] Order() {
             return new[] {
                  OutStintProp.CurrentStintTime,
                  OutStintProp.CurrentStintLaps,
@@ -382,7 +382,7 @@ RelativeOnTrack -> gap to ahead on track.",
              };
         }
 
-        public static string ToPropName(this OutStintProp p) {
+        internal static string ToPropName(this OutStintProp p) {
             return p switch {
                 OutStintProp.CurrentStintTime => "Stint.Current.Time",
                 OutStintProp.CurrentStintLaps => "Stint.Current.Laps",
@@ -392,7 +392,7 @@ RelativeOnTrack -> gap to ahead on track.",
             };
         }
 
-        public static string ToolTipText(this OutStintProp p) {
+        internal static string ToolTipText(this OutStintProp p) {
             return p switch {
                 OutStintProp.CurrentStintTime => "Current stint time.",
                 OutStintProp.LastStintTime => "Last stint time.",

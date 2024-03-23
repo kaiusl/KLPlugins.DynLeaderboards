@@ -13,6 +13,7 @@ using System.Diagnostics;
 using System.IO;
 using Newtonsoft.Json;
 using KLPlugins.DynLeaderboards.Settings;
+using System.Collections.ObjectModel;
 
 namespace KLPlugins.DynLeaderboards {
     /// <summary>
@@ -23,10 +24,14 @@ namespace KLPlugins.DynLeaderboards {
         public Session Session { get; private set; } = new();
         public Booleans Booleans { get; private set; } = new();
 
-        public List<CarData> OverallOrder { get; } = new();
-        public List<CarData> ClassOrder { get; } = new();
-        public List<CarData> RelativeOnTrackAheadOrder { get; } = new();
-        public List<CarData> RelativeOnTrackBehindOrder { get; } = new();
+        public ReadOnlyCollection<CarData> OverallOrder { get; }
+        public ReadOnlyCollection<CarData> ClassOrder { get; }
+        public ReadOnlyCollection<CarData> RelativeOnTrackAheadOrder { get; }
+        public ReadOnlyCollection<CarData> RelativeOnTrackBehindOrder { get; }
+        private List<CarData> _overallOrder { get; } = new();
+        private List<CarData> _classOrder { get; } = new();
+        private List<CarData> _relativeOnTrackAheadOrder { get; } = new();
+        private List<CarData> _relativeOnTrackBehindOrder { get; } = new();
         public CarData? FocusedCar { get; private set; } = null;
 
         private Dictionary<string, CarInfo> _carInfos;
@@ -121,13 +126,18 @@ namespace KLPlugins.DynLeaderboards {
             return colors ?? new();
         }
 
-        public bool IsFirstFinished { get; private set; } = false;
+        internal bool IsFirstFinished { get; private set; } = false;
 
         internal Values() {
-            this.UpdateCarInfos();
+            _carInfos = ReadCarInfos();
             _carClassColors = ReadTextBoxColors<CarClass>("CarClassColors.json");
             _teamCupCategoryColors = ReadTextBoxColors<TeamCupCategory>("TeamCupCategoryColors.json");
             _driverCategoryColors = ReadTextBoxColors<DriverCategory>("DriverCategoryColors.json");
+
+            this.OverallOrder = this._overallOrder.AsReadOnly();
+            this.ClassOrder = this._classOrder.AsReadOnly();
+            this.RelativeOnTrackAheadOrder = this._relativeOnTrackAheadOrder.AsReadOnly();
+            this.RelativeOnTrackBehindOrder = this._relativeOnTrackBehindOrder.AsReadOnly();
         }
 
         internal void UpdateCarInfos() {
@@ -143,10 +153,10 @@ namespace KLPlugins.DynLeaderboards {
         internal void ResetWithoutSession() {
             DynLeaderboardsPlugin.LogInfo($"Values.ResetWithoutSession()");
             this.Booleans.Reset();
-            this.OverallOrder.Clear();
-            this.ClassOrder.Clear();
-            this.RelativeOnTrackAheadOrder.Clear();
-            this.RelativeOnTrackBehindOrder.Clear();
+            this._overallOrder.Clear();
+            this._classOrder.Clear();
+            this._relativeOnTrackAheadOrder.Clear();
+            this._relativeOnTrackBehindOrder.Clear();
             this.FocusedCar = null;
             this.IsFirstFinished = false;
         }
@@ -203,14 +213,14 @@ namespace KLPlugins.DynLeaderboards {
                 }
 
                 // Most common case is that the car's position hasn't changed
-                var car = this.OverallOrder.ElementAtOrDefault(i);
+                var car = this._overallOrder.ElementAtOrDefault(i);
                 if (car == null || car.Id != opponent.Id) {
-                    car = this.OverallOrder.Find(c => c.Id == opponent.Id);
+                    car = this._overallOrder.Find(c => c.Id == opponent.Id);
                 }
 
                 if (car == null) {
                     car = new CarData(this, opponent);
-                    this.OverallOrder.Add(car);
+                    this._overallOrder.Add(car);
                 } else {
                     Debug.Assert(car.Id == opponent.Id);
                     car.UpdateIndependent(this, opponent);
@@ -248,16 +258,16 @@ namespace KLPlugins.DynLeaderboards {
             // Remove cars that didn't receive update.
             // It's OK not to receive an update if one has already finished.
             // this.SetOverallOrder sorts such cars to the end of the list.
-            var numNotUpdated = this.OverallOrder
+            var numNotUpdated = this._overallOrder
                 .AsEnumerable()
                 .Reverse()
                 .FirstIndex(c => c.IsUpdated || c.IsFinished);
             if (numNotUpdated > 0) {
-                this.OverallOrder.RemoveRange(this.OverallOrder.Count - numNotUpdated, numNotUpdated);
+                this._overallOrder.RemoveRange(this._overallOrder.Count - numNotUpdated, numNotUpdated);
             }
 
-            if (!this.IsFirstFinished && this.OverallOrder.Count > 0 && this.Session.SessionType == SessionType.Race) {
-                var first = this.OverallOrder.First();
+            if (!this.IsFirstFinished && this._overallOrder.Count > 0 && this.Session.SessionType == SessionType.Race) {
+                var first = this._overallOrder.First();
                 if (this.Session.IsLapLimited) {
                     this.IsFirstFinished = first.Laps.New == data.NewData.TotalLaps;
                 } else if (this.Session.IsTimeLimited) {
@@ -265,18 +275,18 @@ namespace KLPlugins.DynLeaderboards {
                 }
 
                 if (this.IsFirstFinished) {
-                    DynLeaderboardsPlugin.LogInfo($"First finished: id={this.OverallOrder.First().Id}");
+                    DynLeaderboardsPlugin.LogInfo($"First finished: id={this._overallOrder.First().Id}");
                 }
             }
 
-            this.ClassOrder.Clear();
-            this.RelativeOnTrackAheadOrder.Clear();
-            this.RelativeOnTrackBehindOrder.Clear();
+            this._classOrder.Clear();
+            this._relativeOnTrackAheadOrder.Clear();
+            this._relativeOnTrackBehindOrder.Clear();
             Dictionary<CarClass, int> classPositions = [];
             Dictionary<CarClass, CarData> classLeaders = [];
             Dictionary<CarClass, CarData> carAheadInClass = [];
             var focusedClass = this.FocusedCar?.CarClass;
-            foreach (var (car, i) in this.OverallOrder.WithIndex()) {
+            foreach (var (car, i) in this._overallOrder.WithIndex()) {
                 car.SetOverallPosition(i + 1);
 
                 if (!classPositions.ContainsKey(car.CarClass)) {
@@ -285,7 +295,7 @@ namespace KLPlugins.DynLeaderboards {
                 }
                 car.SetClassPosition(classPositions[car.CarClass]++);
                 if (focusedClass != null && car.CarClass == focusedClass) {
-                    this.ClassOrder.Add(car);
+                    this._classOrder.Add(car);
                 }
 
                 car.UpdateDependsOnOthers(
@@ -293,11 +303,11 @@ namespace KLPlugins.DynLeaderboards {
                     overallBestLapCar: overallBestLapCar,
                     classBestLapCar: classBestLapCars.GetValueOr(car.CarClass, null),
                     cupBestLapCar: null, // TODO
-                    leaderCar: this.OverallOrder.First(), // If we get there, there must be at least on car
+                    leaderCar: this._overallOrder.First(), // If we get there, there must be at least on car
                     classLeaderCar: classLeaders[car.CarClass], // If we get there, the leader must be present
                     cupLeaderCar: null, // TODO: store all cup leader cars
                     focusedCar: this.FocusedCar,
-                    carAhead: this.FocusedCar != null ? this.OverallOrder.ElementAtOrDefault(this.FocusedCar.IndexOverall - 1) : null,
+                    carAhead: this.FocusedCar != null ? this._overallOrder.ElementAtOrDefault(this.FocusedCar.IndexOverall - 1) : null,
                     carAheadInClass: carAheadInClass.GetValueOr(car.CarClass, null),
                     carAheadInCup: null // TODO: store car ahead in each cup
                 );
@@ -305,21 +315,21 @@ namespace KLPlugins.DynLeaderboards {
                 if (car.IsFocused) {
                     // nothing to do
                 } else if (car.RelativeSplinePositionToFocusedCar > 0) {
-                    this.RelativeOnTrackAheadOrder.Add(car);
+                    this._relativeOnTrackAheadOrder.Add(car);
                 } else {
-                    this.RelativeOnTrackBehindOrder.Add(car);
+                    this._relativeOnTrackBehindOrder.Add(car);
                 }
 
                 carAheadInClass[car.CarClass] = car;
             }
 
             if (this.FocusedCar != null) {
-                this.RelativeOnTrackAheadOrder.Sort((c1, c2) => c1.RelativeSplinePositionToFocusedCar.CompareTo(c2.RelativeSplinePositionToFocusedCar));
-                this.RelativeOnTrackBehindOrder.Sort((c1, c2) => c2.RelativeSplinePositionToFocusedCar.CompareTo(c1.RelativeSplinePositionToFocusedCar));
+                this._relativeOnTrackAheadOrder.Sort((c1, c2) => c1.RelativeSplinePositionToFocusedCar.CompareTo(c2.RelativeSplinePositionToFocusedCar));
+                this._relativeOnTrackBehindOrder.Sort((c1, c2) => c2.RelativeSplinePositionToFocusedCar.CompareTo(c1.RelativeSplinePositionToFocusedCar));
             }
         }
 
-        void SetOverallOrder() {
+        private void SetOverallOrder() {
             // Sort cars in overall position order
             if (this.Session.SessionType == SessionType.Race) {
                 // In race use TotalSplinePosition (splinePosition + laps) which updates real time.
@@ -392,7 +402,7 @@ namespace KLPlugins.DynLeaderboards {
                     return b.TotalSplinePosition.CompareTo(a.TotalSplinePosition);
                 };
 
-                this.OverallOrder.Sort(cmp);
+                this._overallOrder.Sort(cmp);
             } else {
                 // In other sessions TotalSplinePosition doesn't make any sense, use Position
                 int cmp(CarData a, CarData b) {
@@ -404,7 +414,7 @@ namespace KLPlugins.DynLeaderboards {
                     return a.RawDataNew.Position.CompareTo(b.RawDataNew.Position);
                 }
 
-                this.OverallOrder.Sort(cmp);
+                this._overallOrder.Sort(cmp);
             }
         }
 
@@ -439,7 +449,7 @@ namespace KLPlugins.DynLeaderboards {
         private Dictionary<K, TextBoxColor> _colors { get; }
 
         [JsonConstructor]
-        public TextBoxColors(Dictionary<K, TextBoxColor>? global, Dictionary<string, Dictionary<K, TextBoxColor>>? game_overrides) {
+        internal TextBoxColors(Dictionary<K, TextBoxColor>? global, Dictionary<string, Dictionary<K, TextBoxColor>>? game_overrides) {
             this._colors = global ?? [];
             var overrides = game_overrides?.GetValueOr(DynLeaderboardsPlugin.Game.Name, null);
             if (overrides != null) {
@@ -449,7 +459,7 @@ namespace KLPlugins.DynLeaderboards {
             }
         }
 
-        public TextBoxColors() {
+        internal TextBoxColors() {
             this._colors = [];
         }
 
@@ -469,7 +479,9 @@ namespace KLPlugins.DynLeaderboards {
             }
         }
 
-        public IEnumerable<KeyValuePair<K, TextBoxColor>> GetEnumerable() {
+        // We cannot easily implement IEnumerable because it messes up deserialization from JSON.
+        // However for our purposes this is enough.
+        internal IEnumerable<KeyValuePair<K, TextBoxColor>> GetEnumerable() {
             return this._colors;
         }
 

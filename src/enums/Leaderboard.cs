@@ -18,7 +18,7 @@
 
     internal static class LeaderboardExtensions {
 
-        public static string Tooltip(this Leaderboard l) {
+        internal static string Tooltip(this Leaderboard l) {
             return l switch {
                 Leaderboard.Overall => "`N` top overall positions. `N` can be set below.",
                 Leaderboard.Class => "`N` top class positions. `N` can be set below.",

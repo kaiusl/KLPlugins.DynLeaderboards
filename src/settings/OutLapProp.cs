@@ -3,7 +3,7 @@
 namespace KLPlugins.DynLeaderboards.Settings {
 
     [Flags]
-    public enum OutLapProp : long {
+    internal enum OutLapProp : long {
         None = 0,
         Laps = 1L << 0,
         LastLapTime = 1L << 1,
@@ -66,11 +66,11 @@ namespace KLPlugins.DynLeaderboards.Settings {
 
     internal static class OutLapPropExtensions {
 
-        public static bool Includes(this OutLapProp p, OutLapProp o) {
+        internal static bool Includes(this OutLapProp p, OutLapProp o) {
             return (p & o) != 0;
         }
 
-        public static bool IncludesAny(this OutLapProp p, params OutLapProp[] others) {
+        internal static bool IncludesAny(this OutLapProp p, params OutLapProp[] others) {
             foreach (var o in others) {
                 if (p.Includes(o)) {
                     return true;
@@ -79,7 +79,7 @@ namespace KLPlugins.DynLeaderboards.Settings {
             return false;
         }
 
-        public static bool IncludesAll(this OutLapProp p, params OutLapProp[] others) {
+        internal static bool IncludesAll(this OutLapProp p, params OutLapProp[] others) {
             foreach (var o in others) {
                 if (!p.Includes(o)) {
                     return false;
@@ -88,15 +88,15 @@ namespace KLPlugins.DynLeaderboards.Settings {
             return true;
         }
 
-        public static void Combine(ref this OutLapProp p, OutLapProp o) {
+        internal static void Combine(ref this OutLapProp p, OutLapProp o) {
             p |= o;
         }
 
-        public static void Remove(ref this OutLapProp p, OutLapProp o) {
+        internal static void Remove(ref this OutLapProp p, OutLapProp o) {
             p &= ~o;
         }
 
-        public static OutLapProp[] Order() {
+        internal static OutLapProp[] Order() {
             return new OutLapProp[] {
                 OutLapProp.Laps,
                 OutLapProp.LastLapTime,
@@ -149,7 +149,7 @@ namespace KLPlugins.DynLeaderboards.Settings {
             };
         }
 
-        public static string ToPropName(this OutLapProp p) {
+        internal static string ToPropName(this OutLapProp p) {
             return p switch {
                 OutLapProp.Laps => "Laps.Count",
                 OutLapProp.LastLapTime => "Laps.Last.Time",
@@ -199,7 +199,7 @@ namespace KLPlugins.DynLeaderboards.Settings {
             };
         }
 
-        public static string ToolTipText(this OutLapProp p) {
+        internal static string ToolTipText(this OutLapProp p) {
             return p switch {
                 OutLapProp.Laps => "Number of completed laps",
                 OutLapProp.LastLapTime => "Last lap time.",

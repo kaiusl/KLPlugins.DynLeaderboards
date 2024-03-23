@@ -407,25 +407,8 @@ namespace KLPlugins.DynLeaderboards {
             this.AttachDelegate($"{l.Name}.CurrentLeaderboard", () => l.CurrentLeaderboardName);
             this.AttachDelegate($"{l.Name}.FocusedPosInCurrentLeaderboard", () => l.FocusedIndex);
 
-            // Declare an action which can be called
-            this.AddAction($"{l.Name}.NextLeaderboard", (_, _) => {
-                if (l.Config.CurrentLeaderboardIdx == l.Config.Order.Count - 1) {
-                    l.Config.CurrentLeaderboardIdx = 0;
-                } else {
-                    l.Config.CurrentLeaderboardIdx++;
-                }
-                l.OnLeaderboardChange(this.Values);
-            });
-
-            // Declare an action which can be called
-            this.AddAction($"{l.Name}.PreviousLeaderboard", (_, _) => {
-                if (l.Config.CurrentLeaderboardIdx == 0) {
-                    l.Config.CurrentLeaderboardIdx = l.Config.Order.Count - 1;
-                } else {
-                    l.Config.CurrentLeaderboardIdx--;
-                }
-                l.OnLeaderboardChange(this.Values);
-            });
+            this.AddAction($"{l.Name}.NextLeaderboard", (_, _) => l.NextLeaderboard(this.Values));
+            this.AddAction($"{l.Name}.PreviousLeaderboard", (_, _) => l.PreviousLeaderboard(this.Values));
         }
 
         internal void AddNewLeaderboard(DynLeaderboardConfig s) {

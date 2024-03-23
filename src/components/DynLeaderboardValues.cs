@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 
 using GameReaderCommon;
@@ -29,10 +30,13 @@ namespace KLPlugins.DynLeaderboards {
         public string Name => this.Config.Name;
         public string CurrentLeaderboardName => this.Config.CurrentLeaderboardName;
 
+        internal DynLeaderboardConfig Config { get; set; }
+
         /// <summary>
         /// List of cars for this dynamic leaderboard in the order they are displayed.
         /// </summary>
-        public List<CarData?> Cars { get; } = new();
+        public ReadOnlyCollection<CarData?> Cars { get; }
+        private List<CarData?> _cars { get; } = new();
         /// <summary>
         /// Focused car's index in <c>this.Cars</c>.
         /// </summary>
@@ -42,6 +46,7 @@ namespace KLPlugins.DynLeaderboards {
         internal DynLeaderboard(DynLeaderboardConfig config, Values v) {
             this.Config = config;
             this.SetDynGetters(v);
+            this.Cars = this._cars.AsReadOnly();
         }
 
         internal void OnDataUpdate(Values v) {
@@ -54,7 +59,7 @@ namespace KLPlugins.DynLeaderboards {
         }
 
         private void SetDynGettersDefault() {
-            this.GetDynCar = (i) => this.Cars.ElementAtOrDefault(i);
+            this.GetDynCar = (i) => this._cars.ElementAtOrDefault(i);
             this.GetDynGapToFocused = (i) => null;
             this.GetDynGapToAhead = (i) => null;
             this.GetDynBestLapDeltaToFocusedBest = (i) => null;
@@ -102,7 +107,7 @@ namespace KLPlugins.DynLeaderboards {
 
                 case Leaderboard.RelativeOverall:
                 case Leaderboard.PartialRelativeOverall:
-                    this.GetDynCar = i => this.Cars.ElementAtOrDefault(i);
+                    this.GetDynCar = i => this._cars.ElementAtOrDefault(i);
                     this.GetDynGapToFocused = (i) => this.GetDynCar(i)?.GapToFocusedTotal;
                     this.GetDynGapToAhead = (i) => this.GetDynCar(i)?.GapToAhead;
                     this.GetDynBestLapDeltaToFocusedBest = (i) => this.GetDynCar(i)?.BestLap?.DeltaToFocusedBest;
@@ -114,7 +119,7 @@ namespace KLPlugins.DynLeaderboards {
 
                 case Leaderboard.RelativeClass:
                 case Leaderboard.PartialRelativeClass:
-                    this.GetDynCar = i => this.Cars.ElementAtOrDefault(i);
+                    this.GetDynCar = i => this._cars.ElementAtOrDefault(i);
                     this.GetDynGapToFocused = (i) => this.GetDynCar(i)?.GapToFocusedTotal;
                     this.GetDynGapToAhead = (i) => this.GetDynCar(i)?.GapToAheadInClass;
                     this.GetDynBestLapDeltaToFocusedBest = (i) => this.GetDynCar(i)?.BestLap?.DeltaToFocusedBest;
@@ -154,7 +159,7 @@ namespace KLPlugins.DynLeaderboards {
 
                 case Leaderboard.RelativeOnTrack:
                 case Leaderboard.RelativeOnTrackWoPit:
-                    this.GetDynCar = i => this.Cars.ElementAtOrDefault(i);
+                    this.GetDynCar = i => this._cars.ElementAtOrDefault(i);
                     this.GetDynGapToFocused = (i) => this.GetDynCar(i)?.GapToFocusedOnTrack;
                     this.GetDynGapToAhead = (i) => this.GetDynCar(i)?.GapToAheadOnTrack;
                     this.GetDynBestLapDeltaToFocusedBest = (i) => this.GetDynCar(i)?.BestLap?.DeltaToFocusedBest;
@@ -174,7 +179,7 @@ namespace KLPlugins.DynLeaderboards {
         private void SetCars(Values v) {
             if (v.FocusedCar == null) return;
 
-            this.Cars.Clear();
+            this._cars.Clear();
             switch (this.Config.CurrentLeaderboard()) {
                 case Leaderboard.Overall:
                     this.FocusedIndex = v.FocusedCar.IndexOverall;
@@ -217,19 +222,19 @@ namespace KLPlugins.DynLeaderboards {
 
                         if (v.RelativeOnTrackAheadOrder.Count < relPos) {
                             for (int i = 0; i < relPos - v.RelativeOnTrackAheadOrder.Count; i++) {
-                                this.Cars.Add(null);
+                                this._cars.Add(null);
                             }
                         }
 
                         foreach (var car in v.RelativeOnTrackAheadOrder.Take(relPos).Reverse()) {
-                            this.Cars.Add(car);
+                            this._cars.Add(car);
                         }
 
-                        this.Cars.Add(v.FocusedCar);
+                        this._cars.Add(v.FocusedCar);
                         this.FocusedIndex = relPos;
 
                         foreach (var car in v.RelativeOnTrackBehindOrder.Take(relPos)) {
-                            this.Cars.Add(car);
+                            this._cars.Add(car);
                         }
                     }
                     break;
@@ -245,22 +250,22 @@ namespace KLPlugins.DynLeaderboards {
 
                         if (aheadCount < relPos) {
                             for (int i = 0; i < relPos - aheadCount; i++) {
-                                this.Cars.Add(null);
+                                this._cars.Add(null);
                             }
                         }
 
                         foreach (var car in aheadCars) {
-                            this.Cars.Add(car);
+                            this._cars.Add(car);
                         }
 
-                        this.Cars.Add(v.FocusedCar);
+                        this._cars.Add(v.FocusedCar);
                         this.FocusedIndex = relPos;
 
                         var behindCars = v.RelativeOnTrackBehindOrder
                             .Where(c => !c.IsInPitLane)
                             .Take(relPos);
                         foreach (var car in behindCars) {
-                            this.Cars.Add(car);
+                            this._cars.Add(car);
                         }
                     }
                     break;
@@ -269,25 +274,25 @@ namespace KLPlugins.DynLeaderboards {
             }
         }
 
-        private void SetCarsRelativeX(int numRelPos, List<CarData> cars, int focusedCarIndexInCars) {
+        private void SetCarsRelativeX(int numRelPos, ReadOnlyCollection<CarData> cars, int focusedCarIndexInCars) {
             this.FocusedIndex = numRelPos;
             int start = focusedCarIndexInCars - numRelPos;
             int end = start + numRelPos * 2 + 1;
 
             int i = start;
             for (; i < 0; i++) {
-                this.Cars.Add(null);
+                this._cars.Add(null);
             }
             for (; i < end; i++) {
-                this.Cars.Add(cars.ElementAtOrDefault(i));
+                this._cars.Add(cars.ElementAtOrDefault(i));
             }
         }
 
-        private void SetCarsPartialRelativeX(int numTopPos, int numRelPos, List<CarData> cars, int focusedCarIndexInCars) {
+        private void SetCarsPartialRelativeX(int numTopPos, int numRelPos, ReadOnlyCollection<CarData> cars, int focusedCarIndexInCars) {
             // Top positions are always added
             for (int i = 0; i < numTopPos; i++) {
                 var car = cars.ElementAtOrDefault(i);
-                this.Cars.Add(car);
+                this._cars.Add(car);
                 if (car != null && car.IsFocused) {
                     this.FocusedIndex = i;
                 }
@@ -306,9 +311,9 @@ namespace KLPlugins.DynLeaderboards {
 
             for (int i = start; i < end; i++) {
                 var car = cars.ElementAtOrDefault(i);
-                this.Cars.Add(car);
+                this._cars.Add(car);
                 if (car != null && car.IsFocused) {
-                    this.FocusedIndex = this.Cars.Count - 1;
+                    this.FocusedIndex = this._cars.Count - 1;
                 }
             }
         }

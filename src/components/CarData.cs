@@ -603,7 +603,7 @@ namespace KLPlugins.DynLeaderboards.Car {
         /// <returns>
         /// Value in [-0.5, 0.5].
         /// </returns>
-        public static double CalculateRelativeSplinePosition(double toPos, double fromPos) {
+        public static double CalculateRelativeSplinePosition(double fromPos, double toPos) {
             var relSplinePos = toPos - fromPos;
             if (relSplinePos > 0.5) {
                 // `to` is more than half a lap ahead, so technically it's closer from behind.

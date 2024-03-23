@@ -176,7 +176,7 @@ namespace KLPlugins.DynLeaderboards.Car {
                 this.TeamCupCategory = TeamCupCategory.Default;
             }
 
-            this.CarClassColor = values.GetTeamCupCategoryColor(this.TeamCupCategory)
+            this.TeamCupCategoryColor = values.GetTeamCupCategoryColor(this.TeamCupCategory)
                 ?? new TextBoxColor(bg: "#FFFFFF", fg: "#000000");
 
             this.UpdateIndependent(values, rawData);

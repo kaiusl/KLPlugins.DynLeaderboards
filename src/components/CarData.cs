@@ -589,7 +589,7 @@ namespace KLPlugins.DynLeaderboards.Car {
         /// <param name="otherCar"></param>
         /// <returns></returns>
         public double CalculateRelativeSplinePosition(CarData otherCar) {
-            return CalculateRelativeSplinePosition(this.SplinePosition, otherCar.SplinePosition);
+            return CalculateRelativeSplinePosition(toPos: this.SplinePosition, fromPos: otherCar.SplinePosition);
         }
 
         /// <summary>
@@ -635,11 +635,11 @@ namespace KLPlugins.DynLeaderboards.Car {
             // Freeze gaps until all is in order again, fixes gap suddenly jumping to larger values as spline positions could be out of sync
             if (trackData != null && this.OffsetLapUpdate == OffsetLapUpdateType.None) {
                 if (focusedCar != null && focusedCar.OffsetLapUpdate == OffsetLapUpdateType.None) {
-                    this.GapToFocusedOnTrack = CalculateOnTrackGap(this, focusedCar, trackData);
+                    this.GapToFocusedOnTrack = CalculateOnTrackGap(from: this, to: focusedCar, trackData);
                 }
 
                 if (carAheadOnTrack?.OffsetLapUpdate == OffsetLapUpdateType.None) {
-                    this.GapToAheadOnTrack = CalculateOnTrackGap(carAheadOnTrack, this, trackData);
+                    this.GapToAheadOnTrack = CalculateOnTrackGap(from: carAheadOnTrack, to: this, trackData);
                 }
             }
 
@@ -650,19 +650,19 @@ namespace KLPlugins.DynLeaderboards.Car {
 
                 // Freeze gaps until all is in order again, fixes gap suddenly jumping to larger values as spline positions could be out of sync
                 if (trackData != null && this.OffsetLapUpdate == OffsetLapUpdateType.None) {
-                    SetGap(this, leaderCar, leaderCar, this.GapToLeader, x => this.GapToLeader = x);
-                    SetGap(this, classLeaderCar, classLeaderCar, this.GapToClassLeader, x => this.GapToClassLeader = x);
-                    SetGap(this, cupLeaderCar, cupLeaderCar, this.GapToCupLeader, x => this.GapToCupLeader = x);
-                    SetGap(focusedCar, this, focusedCar, this.GapToFocusedTotal, x => this.GapToFocusedTotal = x);
-                    SetGap(this, carAhead, carAhead, this.GapToAhead, x => this.GapToAhead = x);
-                    SetGap(this, carAheadInClass, carAheadInClass, this.GapToAheadInClass, x => this.GapToAheadInClass = x);
-                    SetGap(this, carAheadInCup, carAheadInCup, this.GapToAheadInCup, x => this.GapToAheadInCup = x);
+                    SetGap(from: this, to: leaderCar, other: leaderCar, this.GapToLeader, x => this.GapToLeader = x);
+                    SetGap(from: this, to: classLeaderCar, other: classLeaderCar, this.GapToClassLeader, x => this.GapToClassLeader = x);
+                    SetGap(from: this, to: cupLeaderCar, other: cupLeaderCar, this.GapToCupLeader, x => this.GapToCupLeader = x);
+                    SetGap(from: focusedCar, to: this, other: focusedCar, this.GapToFocusedTotal, x => this.GapToFocusedTotal = x);
+                    SetGap(from: this, to: carAhead, other: carAhead, this.GapToAhead, x => this.GapToAhead = x);
+                    SetGap(from: this, to: carAheadInClass, other: carAheadInClass, this.GapToAheadInClass, x => this.GapToAheadInClass = x);
+                    SetGap(from: this, to: carAheadInCup, other: carAheadInCup, this.GapToAheadInCup, x => this.GapToAheadInCup = x);
 
                     void SetGap(CarData? from, CarData? to, CarData? other, TimeSpan? currentGap, Action<TimeSpan?> setGap) {
                         if (from == null || to == null) {
                             setGap(null);
                         } else if (other?.OffsetLapUpdate == OffsetLapUpdateType.None) {
-                            setGap(CalculateGap(from, to, trackData));
+                            setGap(CalculateGap(from: from, to: to, trackData));
                         }
                     }
 
@@ -775,9 +775,9 @@ namespace KLPlugins.DynLeaderboards.Car {
                 // At least one toInterp or fromInterp must be not null, because of the above check
                 (LapInterpolator interp, var cls) = fromInterp != null ? (toInterp!, to.CarClass) : (fromInterp!, from.CarClass);
                 if (distBetween > 0) { // `to` is ahead of `from`
-                    gap = CalculateGapBetweenPos(from.GetSplinePosTime(cls, trackData), to.GetSplinePosTime(cls, trackData), interp.LapTime);
+                    gap = CalculateGapBetweenPos(start: from.GetSplinePosTime(cls, trackData), end: to.GetSplinePosTime(cls, trackData), lapTime: interp.LapTime);
                 } else { // `to` is behind of `from`
-                    gap = -CalculateGapBetweenPos(to.GetSplinePosTime(cls, trackData), from.GetSplinePosTime(cls, trackData), interp.LapTime);
+                    gap = -CalculateGapBetweenPos(start: to.GetSplinePosTime(cls, trackData), end: from.GetSplinePosTime(cls, trackData), lapTime: interp.LapTime);
                 }
                 return gap;
             }
@@ -794,7 +794,7 @@ namespace KLPlugins.DynLeaderboards.Car {
 
             var fromPos = from.SplinePosition;
             var toPos = to.SplinePosition;
-            var relativeSplinePos = CalculateRelativeSplinePosition(fromPos, toPos);
+            var relativeSplinePos = CalculateRelativeSplinePosition(fromPos: fromPos, toPos: toPos);
 
             // TrackData is passed from Values, Values never stores TrackData without LapInterpolators
             var toInterp = trackData.LapInterpolators?.GetValueOr(to.CarClass, null);
@@ -808,9 +808,9 @@ namespace KLPlugins.DynLeaderboards.Car {
             // At least one toInterp or fromInterp must be not null, because of the above check
             (LapInterpolator interp, var cls) = toInterp != null ? (toInterp!, to.CarClass) : (fromInterp!, from.CarClass);
             if (relativeSplinePos < 0) {
-                gap = -CalculateGapBetweenPos(from.GetSplinePosTime(cls, trackData), to.GetSplinePosTime(cls, trackData), interp.LapTime);
+                gap = -CalculateGapBetweenPos(start: from.GetSplinePosTime(cls, trackData), end: to.GetSplinePosTime(cls, trackData), lapTime: interp.LapTime);
             } else {
-                gap = CalculateGapBetweenPos(to.GetSplinePosTime(cls, trackData), from.GetSplinePosTime(cls, trackData), interp.LapTime);
+                gap = CalculateGapBetweenPos(start: to.GetSplinePosTime(cls, trackData), end: from.GetSplinePosTime(cls, trackData), lapTime: interp.LapTime);
             }
             return gap;
         }

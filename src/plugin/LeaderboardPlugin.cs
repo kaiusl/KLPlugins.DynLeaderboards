@@ -41,8 +41,8 @@ namespace KLPlugins.DynLeaderboards {
         private string? _logFileName;
         private double _dataUpdateTime = 0;
 
-        internal Values Values { get; private set; }
-        internal List<DynLeaderboard> DynLeaderboards { get; set; } = new();
+        public Values Values { get; private set; }
+        public List<DynLeaderboard> DynLeaderboards { get; set; } = new();
 #pragma warning restore CS8618
 
         /// <summary>
@@ -252,7 +252,7 @@ namespace KLPlugins.DynLeaderboards {
 
                 AddLapProp(OutLapProp.BestLapTime, () => l.GetDynCar(i)?.BestLap?.Time?.TotalSeconds);
                 AddSectors(OutLapProp.BestLapSectors, "Laps.Best.S", () => l.GetDynCar(i)?.BestLap);
-    
+
                 AddSectors(OutLapProp.BestSectors, "Laps.BestS", () => l.GetDynCar(i)?.BestSectors);
 
                 AddLapProp(OutLapProp.CurrentLapTime, () => l.GetDynCar(i)?.CurrentLapTime.TotalSeconds);

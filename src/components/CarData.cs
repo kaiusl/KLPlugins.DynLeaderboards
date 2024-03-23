@@ -38,7 +38,7 @@ namespace KLPlugins.DynLeaderboards.Car {
         public bool IsCurrentLapValid { get; private set; }
         public Lap? LastLap { get; private set; }
         public Lap? BestLap { get; private set; }
-        public Sectors BestSectors { get; private set; }
+        public Sectors BestSectors { get; } = new();
 
         public bool IsBestLapCarOverall { get; private set; }
         public bool IsBestLapCarInClass { get; private set; }
@@ -1049,6 +1049,8 @@ namespace KLPlugins.DynLeaderboards.Car {
             this.S2Time = other.S2Time;
             this.S3Time = other.S3Time;
         }
+
+        internal Sectors() { }
 
         internal void Update(SectorSplits? sectorSplits) {
             this.S1Time = sectorSplits?.GetSectorSplit(1);

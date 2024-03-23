@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -410,15 +410,15 @@ namespace KLPlugins.DynLeaderboards.Settings {
             this.Order = new List<Leaderboard>() {
                 Leaderboard.Overall,
                 Leaderboard.Class,
-                // Leaderboard.Cup,
-                // Leaderboard.PartialRelativeOverall,
-                // Leaderboard.PartialRelativeClass,
-                // Leaderboard.PartialRelativeCup,
-                // Leaderboard.RelativeOverall,
-                // Leaderboard.RelativeClass,
-                // Leaderboard.RelativeCup,
-                // Leaderboard.RelativeOnTrack,
-                // Leaderboard.RelativeOnTrackWoPit
+                Leaderboard.Cup,
+                Leaderboard.PartialRelativeOverall,
+                Leaderboard.PartialRelativeClass,
+                Leaderboard.PartialRelativeCup,
+                Leaderboard.RelativeOverall,
+                Leaderboard.RelativeClass,
+                Leaderboard.RelativeCup,
+                Leaderboard.RelativeOnTrack,
+                Leaderboard.RelativeOnTrackWoPit
             };
             this.CurrentLeaderboardName = this.Order[this._currentLeaderboardIdx].ToString();
         }

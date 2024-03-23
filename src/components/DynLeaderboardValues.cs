@@ -55,11 +55,6 @@ namespace KLPlugins.DynLeaderboards {
             this.SetCars(v);
         }
 
-        internal void OnLeaderboardChange(Values v) {
-            DynLeaderboardsPlugin.LogInfo($"OnLeaderboardChange [{this.Config.Name}]: {this.Config.CurrentLeaderboard()}");
-            this.SetDynGetters(v);
-        }
-
         private void SetDynGettersDefault() {
             this.GetDynCar = (i) => this._cars.ElementAtOrDefault(i);
             this.GetDynGapToFocused = (i) => null;
@@ -327,6 +322,29 @@ namespace KLPlugins.DynLeaderboards {
                 }
             }
             return false;
+        }
+
+        internal void NextLeaderboard(Values values) {
+            if (this.Config.CurrentLeaderboardIdx == this.Config.Order.Count - 1) {
+                this.Config.CurrentLeaderboardIdx = 0;
+            } else {
+                this.Config.CurrentLeaderboardIdx++;
+            }
+            this.OnLeaderboardChange(values);
+        }
+
+        internal void PreviousLeaderboard(Values values) {
+            if (this.Config.CurrentLeaderboardIdx == 0) {
+                this.Config.CurrentLeaderboardIdx = this.Config.Order.Count - 1;
+            } else {
+                this.Config.CurrentLeaderboardIdx--;
+            }
+            this.OnLeaderboardChange(values);
+        }
+
+        private void OnLeaderboardChange(Values v) {
+            DynLeaderboardsPlugin.LogInfo($"OnLeaderboardChange [{this.Config.Name}]: {this.Config.CurrentLeaderboard()}");
+            this.SetDynGetters(v);
         }
     }
 }

@@ -26,7 +26,8 @@ namespace KLPlugins.DynLeaderboards {
         public DynPositionDelegate GetDynPosition { get; private set; }
         public DynPositionDelegate GetDynPositionStart { get; private set; }
 
-        public DynLeaderboardConfig Config { get; private set; }
+        public string Name => this.Config.Name;
+        public string CurrentLeaderboardName => this.Config.CurrentLeaderboardName;
 
         /// <summary>
         /// List of cars for this dynamic leaderboard in the order they are displayed.

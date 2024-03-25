@@ -365,7 +365,7 @@ namespace KLPlugins.DynLeaderboards.Car {
                 this._isHasCrossedStartLineSet = true;
             }
 
-            if (!this.HasCrossedStartLine && (this._isSplinePositionReset || this.ExitedPitLane)) {
+            if (!this.HasCrossedStartLine && ((this._isSplinePositionReset && !this.JumpedToPits) || this.ExitedPitLane)) {
                 DynLeaderboardsPlugin.LogInfo($"[{this.Id}, #{this.CarNumber}] crossed the start line");
                 this.HasCrossedStartLine = true;
             }

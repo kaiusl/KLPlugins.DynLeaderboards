@@ -23,6 +23,7 @@ namespace KLPlugins.DynLeaderboards {
         public TimeSpan? MaxDriverTotalDriveTime { get; private set; }
 
         private bool _isSessionLimitSet = false;
+        private int _sessionIndex;
 
         internal Session() {
             this.Reset();
@@ -43,12 +44,25 @@ namespace KLPlugins.DynLeaderboards {
 
             this.MaxDriverStintTime = null;
             this.MaxDriverTotalDriveTime = null;
+
+            this._sessionIndex = 0;
         }
 
 
         internal void OnDataUpdate(GameData data) {
             var newSessType = SessionTypeExtensions.FromSHGameData(data);
             this.IsNewSession = newSessType != this.SessionType;
+
+            if (DynLeaderboardsPlugin.Game.IsAcc) {
+                var rawDataNew = (ACSharedMemory.ACC.Reader.ACCRawData)data.NewData.GetRawDataObject();
+
+                if (rawDataNew.Graphics.SessionIndex != this._sessionIndex) {
+                    // detects multiple following sessions which are same kind
+                    this.IsNewSession = true;
+                }
+
+                this._sessionIndex = rawDataNew.Graphics.SessionIndex;
+            }
             if (this.IsNewSession) {
                 this.Reset();
             }
@@ -69,6 +83,7 @@ namespace KLPlugins.DynLeaderboards {
             if (DynLeaderboardsPlugin.Game.IsAcc) {
                 var rawDataNew = (ACSharedMemory.ACC.Reader.ACCRawData)data.NewData.GetRawDataObject();
 
+                this._sessionIndex = rawDataNew.Graphics.SessionIndex;
                 this.TimeOfDay = TimeSpan.FromSeconds(rawDataNew.Graphics.clock);
 
                 // Set max stint times. This is only done once when we know that the session hasn't started, so that the time left shows max times.

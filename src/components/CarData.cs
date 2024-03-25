@@ -240,8 +240,14 @@ namespace KLPlugins.DynLeaderboards.Car {
             }
 
             this.IsInPitLane = this.Location.New == CarLocation.Pitlane || this.Location.New == CarLocation.PitBox;
-            this.ExitedPitLane = this.Location.New == CarLocation.Track && this.Location.Old == CarLocation.Pitlane;
-            this.EnteredPitLane = this.Location.New == CarLocation.Pitlane && this.Location.Old == CarLocation.Track;
+            this.ExitedPitLane = this.Location.New == CarLocation.Track && (this.Location.Old == CarLocation.Pitlane || this.Location.Old == CarLocation.PitBox);
+            if (this.ExitedPitLane) {
+                DynLeaderboardsPlugin.LogInfo($"Car {this.Id}, #{this.CarNumber} exited pit lane");
+            }
+            this.EnteredPitLane = (this.Location.New == CarLocation.Pitlane || this.Location.New == CarLocation.PitBox) && this.Location.Old == CarLocation.Track;
+            if (this.EnteredPitLane) {
+                DynLeaderboardsPlugin.LogInfo($"Car {this.Id}, #{this.CarNumber} entered pit lane");
+            }
             this.PitCount = this.RawDataNew.PitCount ?? 0;
             this.PitTimeLast = this.RawDataNew.PitLastDuration ?? TimeSpan.Zero;
             this.IsCurrentLapOutLap = (this.RawDataNew.PitOutAtLap ?? -1) == this.Laps.New + 1;

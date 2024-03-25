@@ -228,18 +228,15 @@ namespace KLPlugins.DynLeaderboards {
                     Debug.Assert(car.Id == opponent.Id);
                     car.UpdateIndependent(this, opponent);
 
-                    car.IsUpdated = true;
                     // Note: car.IsFinished is actually updated in car.UpdateDependsOnOthers.
                     // Thus is the player manages to finish the race and exit before the first update, we would remove them.
                     // However that is practically impossible.
-                    if (!car.IsConnected && !car.IsFinished) {
+                    if (!car.IsFinished && car.MissedUpdates > 500) {
                         this._overallOrder.Remove(car);
                         DynLeaderboardsPlugin.LogInfo($"Removed disconnected car {car.Id}, #{car.CarNumber}");
                         continue;
                     }
                 }
-
-
 
                 if (car.IsFocused) {
                     this.FocusedCar = car;
@@ -290,6 +287,9 @@ namespace KLPlugins.DynLeaderboards {
             Dictionary<CarClass, CarData> carAheadInClass = [];
             var focusedClass = this.FocusedCar?.CarClass;
             foreach (var (car, i) in this._overallOrder.WithIndex()) {
+                if (!car.IsUpdated) {
+                    car.MissedUpdates += 1;
+                }
                 car.IsUpdated = false;
 
                 car.SetOverallPosition(i + 1);

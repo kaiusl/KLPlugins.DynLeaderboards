@@ -388,21 +388,20 @@ namespace KLPlugins.DynLeaderboards {
 
                 this.AttachDelegate($"{startName}.DBG_TotalSplinePosition", () => (l.GetDynCar(i))?.TotalSplinePosition);
                 this.AttachDelegate($"{startName}.DBG_SplinePosition", () => (l.GetDynCar(i))?.SplinePosition);
+                this.AttachDelegate($"{startName}.DBG_HasCrossedStartLine", () => (l.GetDynCar(i))?.HasCrossedStartLine);
                 //this.AttachDelegate($"{startName}.DBG_Position", () => (l.GetDynCar(i))?.NewData?.Position);
                 // //this.AttachDelegate($"{startName}.DBG_TrackPosition", () => (l.GetDynCar(i))?.NewData?.TrackPosition);
                 this.AttachDelegate($"{startName}.DBG_OffsetLapUpdate", () => (l.GetDynCar(i))?.OffsetLapUpdate);
                 this.AttachDelegate($"{startName}.DBG_Laps", () => $"{(l.GetDynCar(i))?.Laps.Old} : {l.GetDynCar(i)?.Laps.New}");
                 //this.AttachDelegate($"{startName}.DBG_ID", () => (l.GetDynCar(i))?.Id);
-                this.AttachDelegate($"{startName}.DBG_SessionType", () => this.Values.Session.SessionType.ToString());
-                this.AttachDelegate($"{startName}.DBG_Session.IsLapLimited", () => this.Values.Session.IsLapLimited);
-                this.AttachDelegate($"{startName}.DBG_Session.IsTimeLimited", () => this.Values.Session.IsTimeLimited);
-                this.AttachDelegate($"{startName}.DBG_IsFirstFinished", () => this.Values.IsFirstFinished);
             };
 
 
             for (int i = 0; i < l.MaxPositions; i++) {
                 addCar(i);
             }
+
+            this.AttachDelegate($"{l.Name}.SessionPhase", () => this.Values.Session.SessionPhase);
 
             this.AttachDelegate($"{l.Name}.CurrentLeaderboard", () => l.CurrentLeaderboardName);
             this.AttachDelegate($"{l.Name}.FocusedPosInCurrentLeaderboard", () => l.FocusedIndex);

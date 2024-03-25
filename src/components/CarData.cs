@@ -113,9 +113,11 @@ namespace KLPlugins.DynLeaderboards.Car {
         private DateTime? _stintStartTime;
 
         public double MaxSpeed { get; private set; } = 0.0;
-        public bool IsConnected => this.RawDataNew.IsConnected && this.IsUpdated 
-            && (!DynLeaderboardsPlugin.Game.IsAcc || this.RawDataNew.Coordinates != null); // In ACC the cars remain in opponents list even if they disconnect, 
-                                                                                           // however, it's coordinates will be null then 
+        public bool IsConnected => this.RawDataNew.IsConnected && this.IsUpdated
+                && (!DynLeaderboardsPlugin.Game.IsAcc || this.RawDataNew.Coordinates != null); // In ACC the cars remain in opponents list even if they disconnect, 
+                                                                                               // however, it's coordinates will be null then 
+
+        internal int MissedUpdates = 0;
 
         /// <summary>
         /// Car ID.
@@ -213,6 +215,13 @@ namespace KLPlugins.DynLeaderboards.Car {
         internal void UpdateIndependent(Values values, Opponent rawData) {
             this.RawDataOld = this.RawDataNew;
             this.RawDataNew = rawData;
+            this.IsUpdated = true;
+
+            if (!this.IsConnected) {
+                this.MissedUpdates += 1;
+            } else {
+                this.MissedUpdates = 0;
+            }
 
             this.IsBestLapCarOverall = false;
             this.IsBestLapCarInClass = false;

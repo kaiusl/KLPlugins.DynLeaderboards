@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 
 using GameReaderCommon;
@@ -220,13 +220,26 @@ namespace KLPlugins.DynLeaderboards {
 
                 if (car == null) {
                     car = new CarData(this, opponent);
+                    if (!car.IsConnected) {
+                        continue;
+                    }
                     this._overallOrder.Add(car);
                 } else {
                     Debug.Assert(car.Id == opponent.Id);
                     car.UpdateIndependent(this, opponent);
+
+                    car.IsUpdated = true;
+                    // Note: car.IsFinished is actually updated in car.UpdateDependsOnOthers.
+                    // Thus is the player manages to finish the race and exit before the first update, we would remove them.
+                    // However that is practically impossible.
+                    if (!car.IsConnected && !car.IsFinished) {
+                        this._overallOrder.Remove(car);
+                        DynLeaderboardsPlugin.LogInfo($"Removed disconnected car {car.Id}, #{car.CarNumber}");
+                        continue;
+                    }
                 }
 
-                car.IsUpdated = true;
+
 
                 if (car.IsFocused) {
                     this.FocusedCar = car;
@@ -255,16 +268,6 @@ namespace KLPlugins.DynLeaderboards {
 
             this.SetOverallOrder();
 
-            // Remove cars that didn't receive update.
-            // It's OK not to receive an update if one has already finished.
-            // this.SetOverallOrder sorts such cars to the end of the list.
-            var numNotUpdated = this._overallOrder
-                .AsEnumerable()
-                .Reverse()
-                .FirstIndex(c => c.IsUpdated || c.IsFinished);
-            if (numNotUpdated > 0) {
-                this._overallOrder.RemoveRange(this._overallOrder.Count - numNotUpdated, numNotUpdated);
-            }
 
             if (!this.IsFirstFinished && this._overallOrder.Count > 0 && this.Session.SessionType == SessionType.Race) {
                 var first = this._overallOrder.First();
@@ -287,6 +290,8 @@ namespace KLPlugins.DynLeaderboards {
             Dictionary<CarClass, CarData> carAheadInClass = [];
             var focusedClass = this.FocusedCar?.CarClass;
             foreach (var (car, i) in this._overallOrder.WithIndex()) {
+                car.IsUpdated = false;
+
                 car.SetOverallPosition(i + 1);
 
                 if (!classPositions.ContainsKey(car.CarClass)) {

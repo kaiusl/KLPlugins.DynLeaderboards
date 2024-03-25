@@ -113,6 +113,9 @@ namespace KLPlugins.DynLeaderboards.Car {
         private DateTime? _stintStartTime;
 
         public double MaxSpeed { get; private set; } = 0.0;
+        public bool IsConnected => this.RawDataNew.IsConnected && this.IsUpdated 
+            && (!DynLeaderboardsPlugin.Game.IsAcc || this.RawDataNew.Coordinates != null); // In ACC the cars remain in opponents list even if they disconnect, 
+                                                                                           // however, it's coordinates will be null then 
 
         /// <summary>
         /// Car ID.
@@ -125,7 +128,7 @@ namespace KLPlugins.DynLeaderboards.Car {
         /// <summary>
         /// Has this car received the update in latest data update.
         /// </summary>
-        internal bool IsUpdated { get; set; }
+        internal bool IsUpdated { get; set; } = true;
 
         internal Opponent RawDataNew;
         internal Opponent RawDataOld;

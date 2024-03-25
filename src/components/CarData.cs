@@ -348,7 +348,7 @@ namespace KLPlugins.DynLeaderboards.Car {
             if ((sessionPhase == SessionPhase.PreSession || sessionPhase == SessionPhase.PreFormation)
                 && !this._isHasCrossedStartLineSet
                 && this.HasCrossedStartLine
-                && this.SplinePosition > 0.5
+                && (this.SplinePosition > 0.5 || this.IsInPitLane)
                 && this.Laps.New == 0
             ) {
                 //DynLeaderboardsPlugin.LogInfo($"[{this.Id}] has not crossed the start line");

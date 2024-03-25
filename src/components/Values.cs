@@ -232,8 +232,6 @@ namespace KLPlugins.DynLeaderboards {
                     // Thus is the player manages to finish the race and exit before the first update, we would remove them.
                     // However that is practically impossible.
                     if (!car.IsFinished && car.MissedUpdates > 500) {
-                        this._overallOrder.Remove(car);
-                        DynLeaderboardsPlugin.LogInfo($"Removed disconnected car {car.Id}, #{car.CarNumber}");
                         continue;
                     }
                 }
@@ -263,6 +261,14 @@ namespace KLPlugins.DynLeaderboards {
                 }
             }
 
+            for (int i = this._overallOrder.Count - 1; i >= 0; i--) {
+                var car = this._overallOrder[i];
+                if (!car.IsFinished && car.MissedUpdates > 500) {
+                    this._overallOrder.RemoveAt(i);
+                    DynLeaderboardsPlugin.LogInfo($"Removed disconnected car {car.Id}, #{car.CarNumber}");
+                }
+            }
+
             this.SetOverallOrder();
 
 
@@ -289,7 +295,7 @@ namespace KLPlugins.DynLeaderboards {
             foreach (var (car, i) in this._overallOrder.WithIndex()) {
                 if (!car.IsUpdated) {
                     car.MissedUpdates += 1;
-                    DynLeaderboardsPlugin.LogInfo($"Car [{car.Id}, #{car.CarNumber}] missed update: {car.MissedUpdates}");
+                    //DynLeaderboardsPlugin.LogInfo($"Car [{car.Id}, #{car.CarNumber}] missed update: {car.MissedUpdates}");
                 }
                 car.IsUpdated = false;
 

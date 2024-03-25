@@ -1042,6 +1042,18 @@ namespace KLPlugins.DynLeaderboards.Car {
             this.S1Time = sectorTimes?.GetSectorSplit(1);
             this.S2Time = sectorTimes?.GetSectorSplit(2);
             this.S3Time = sectorTimes?.GetSectorSplit(3);
+
+            if (this.S1Time == TimeSpan.Zero) {
+                this.S1Time = null;
+            }
+
+            if (this.S2Time == TimeSpan.Zero) {
+                this.S2Time = null;
+            }
+
+            if (this.S3Time == TimeSpan.Zero) {
+                this.S3Time = null;
+            }
         }
 
         internal Sectors(Sectors other) {
@@ -1056,6 +1068,18 @@ namespace KLPlugins.DynLeaderboards.Car {
             this.S1Time = sectorSplits?.GetSectorSplit(1);
             this.S2Time = sectorSplits?.GetSectorSplit(2);
             this.S3Time = sectorSplits?.GetSectorSplit(3);
+
+            if (this.S1Time == TimeSpan.Zero) {
+                this.S1Time = null;
+            }
+
+            if (this.S2Time == TimeSpan.Zero) {
+                this.S2Time = null;
+            }
+
+            if (this.S3Time == TimeSpan.Zero) {
+                this.S3Time = null;
+            }
         }
     }
 
@@ -1071,6 +1095,10 @@ namespace KLPlugins.DynLeaderboards.Car {
 
         internal LapBasic(SectorTimes? sectorTimes, TimeSpan lapTime, int lapNumber, Driver driver) : base(sectorTimes) {
             this.Time = sectorTimes?.GetLapTime() ?? lapTime;
+
+            if (this.Time == TimeSpan.Zero) {
+                this.Time = null;
+            }
 
             this.LapNumber = lapNumber;
             this.Driver = driver;
@@ -1120,6 +1148,10 @@ namespace KLPlugins.DynLeaderboards.Car {
 
         internal Lap(SectorTimes? sectorTimes, TimeSpan? lapTime, int lapNumber, Driver driver) : base(sectorTimes) {
             this.Time = sectorTimes?.GetLapTime() ?? lapTime;
+
+            if (this.Time == TimeSpan.Zero) {
+                this.Time = null;
+            }
 
             this.LapNumber = lapNumber;
             this.Driver = driver;

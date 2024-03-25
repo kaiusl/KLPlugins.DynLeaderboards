@@ -333,12 +333,12 @@ namespace KLPlugins.DynLeaderboards.Car {
                 && this.Location.Old == CarLocation.Track
                 && this.IsInPitLane
             ) {
-                DynLeaderboardsPlugin.LogInfo($"[{this.Id}] jumped to pits");
+                DynLeaderboardsPlugin.LogInfo($"[{this.Id}, #{this.CarNumber}] jumped to pits");
                 this.JumpedToPits = true;
             }
 
             if (this.JumpedToPits && !this.IsInPitLane) {
-                DynLeaderboardsPlugin.LogInfo($"[{this.Id}] jumped to pits cleared.");
+                DynLeaderboardsPlugin.LogInfo($"[{this.Id}, #{this.CarNumber}] jumped to pits cleared.");
                 this.JumpedToPits = false;
             }
         }
@@ -351,13 +351,13 @@ namespace KLPlugins.DynLeaderboards.Car {
                 && (this.SplinePosition > 0.5 || this.IsInPitLane)
                 && this.Laps.New == 0
             ) {
-                //DynLeaderboardsPlugin.LogInfo($"[{this.Id}] has not crossed the start line");
+                DynLeaderboardsPlugin.LogInfo($"[{this.Id}, #{this.CarNumber}] has not crossed the start line");
                 this.HasCrossedStartLine = false;
                 this._isHasCrossedStartLineSet = true;
             }
 
             if (!this.HasCrossedStartLine && (this._isSplinePositionReset || this.ExitedPitLane)) {
-                //DynLeaderboardsPlugin.LogInfo($"[{this.Id}] crossed the start line");
+                DynLeaderboardsPlugin.LogInfo($"[{this.Id}, #{this.CarNumber}] crossed the start line");
                 this.HasCrossedStartLine = true;
             }
         }

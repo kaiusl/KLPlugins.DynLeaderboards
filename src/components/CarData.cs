@@ -345,7 +345,7 @@ namespace KLPlugins.DynLeaderboards.Car {
 
         private void CheckForCrossingStartLine(SessionPhase sessionPhase) {
             // Initial update before the start of the race
-            if (sessionPhase == SessionPhase.PreSession
+            if ((sessionPhase == SessionPhase.PreSession || sessionPhase == SessionPhase.PreFormation)
                 && !this._isHasCrossedStartLineSet
                 && this.HasCrossedStartLine
                 && this.SplinePosition > 0.5

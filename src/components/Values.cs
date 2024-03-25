@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 
 using GameReaderCommon;
@@ -352,15 +352,6 @@ namespace KLPlugins.DynLeaderboards {
                         return -1;
                     } else if (b.HasCrossedStartLine && !a.HasCrossedStartLine) {
                         return 1;
-                    }
-
-                    // Sort cars that didn't receive an update to the end, so we can easily remove them.
-                    // It's OK for car to not receive an update after they have finished,
-                    // it means they left but we want to keep them around
-                    if (!a.IsUpdated && !a.IsFinished && (b.IsUpdated || b.IsFinished)) {
-                        return 1;
-                    } else if (!b.IsUpdated && !b.IsFinished && (a.IsUpdated || a.IsFinished)) {
-                        return -1;
                     }
 
                     // Always compare by laps first

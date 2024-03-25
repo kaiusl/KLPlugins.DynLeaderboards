@@ -289,6 +289,7 @@ namespace KLPlugins.DynLeaderboards {
             foreach (var (car, i) in this._overallOrder.WithIndex()) {
                 if (!car.IsUpdated) {
                     car.MissedUpdates += 1;
+                    DynLeaderboardsPlugin.LogInfo($"Car [{car.Id}, #{car.CarNumber}] missed update: {car.MissedUpdates}");
                 }
                 car.IsUpdated = false;
 

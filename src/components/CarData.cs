@@ -256,31 +256,26 @@ namespace KLPlugins.DynLeaderboards.Car {
                 currentDriver.TotalLaps += 1;
             }
 
-            if (this.RawDataNew.LastLapTime != this.RawDataOld.LastLapTime) {
+            if (this.LastLap == null || this.RawDataNew.LastLapTime != this.LastLap?.Time) {
                 // Lap time end position may be offset with lap or spline position reset point.
-                this.LastLap = new Lap(this.RawDataNew.LastLapSectorTimes, this.Laps.New, this.CurrentDriver!) {
+                this.LastLap = new Lap(this.RawDataNew.LastLapSectorTimes, this.RawDataNew.LastLapTime, this.Laps.New, this.CurrentDriver!) {
                     IsValid = this.IsCurrentLapValid,
                     IsOutLap = this.IsCurrentLapOutLap,
                     IsInLap = this.IsCurrentLapInLap,
                 };
+
                 //DynLeaderboardsPlugin.LogInfo($"[{this.Id}] new last lap: {this.LastLap.Time}");
 
-                var maybeBestLap = this.RawDataNew.BestLapSectorTimes;
-                if (maybeBestLap != null) {
-                    Debug.Assert(this.CurrentDriver != null, "Current driver shouldn't be null since someone had to finish this lap.");
-                    var currentDriver = this.CurrentDriver!;
-                    var maybeBestLapTime = maybeBestLap.GetLapTime();
-                    if (this.BestLap?.Time == null || (maybeBestLapTime != null && maybeBestLapTime < this.BestLap.Time)) {
-                        this.BestLap = new Lap(maybeBestLap!, this.Laps.New, this.CurrentDriver!);
-                        currentDriver.BestLap = this.BestLap.ToBasic(); // If it's car's best lap, it must also be the drivers
-                        //DynLeaderboardsPlugin.LogInfo($"[{this.Id}] best lap: {this.BestLap.Time}");
-                    } else if (currentDriver!.BestLap == null || (maybeBestLapTime != null && maybeBestLapTime < currentDriver.BestLap.Time)) {
-                        currentDriver!.BestLap = new LapBasic(maybeBestLap!, this.Laps.New, currentDriver!);
-                        //DynLeaderboardsPlugin.LogInfo($"[{this.Id}] best lap for driver '{currentDriver.FullName}': {this.BestLap.Time}");
-                    }
+                if (this.IsCurrentLapValid && (this.CurrentDriver?.BestLap?.Time == null || this.LastLap.Time < this.CurrentDriver!.BestLap!.Time)) {
+                    this.CurrentDriver!.BestLap = this.LastLap.ToBasic();
                 }
 
                 this.BestSectors.Update(this.RawDataNew.BestSectorSplits);
+            }
+
+            if (this.BestLap == null || this.RawDataNew.BestLapTime != this.BestLap?.Time) {
+                this.BestLap = new Lap(this.RawDataNew.BestLapSectorTimes, this.RawDataNew.BestLapTime, this.Laps.New, this.CurrentDriver!);
+                this.CurrentDriver!.BestLap = this.BestLap.ToBasic(); // If it's car's best lap, it must also be the driver
             }
 
             if (values.Session.IsRace) {
@@ -1074,8 +1069,8 @@ namespace KLPlugins.DynLeaderboards.Car {
         public int LapNumber { get; private set; }
         public Driver Driver { get; private set; }
 
-        internal LapBasic(SectorTimes? sectorTimes, int lapNumber, Driver driver) : base(sectorTimes) {
-            this.Time = sectorTimes?.GetLapTime();
+        internal LapBasic(SectorTimes? sectorTimes, TimeSpan lapTime, int lapNumber, Driver driver) : base(sectorTimes) {
+            this.Time = sectorTimes?.GetLapTime() ?? lapTime;
 
             this.LapNumber = lapNumber;
             this.Driver = driver;
@@ -1123,8 +1118,8 @@ namespace KLPlugins.DynLeaderboards.Car {
         public TimeSpan? DeltaToAheadInClassLast { get; private set; }
         public TimeSpan? DeltaToAheadInCupLast { get; private set; }
 
-        internal Lap(SectorTimes? sectorTimes, int lapNumber, Driver driver) : base(sectorTimes) {
-            this.Time = sectorTimes?.GetLapTime();
+        internal Lap(SectorTimes? sectorTimes, TimeSpan? lapTime, int lapNumber, Driver driver) : base(sectorTimes) {
+            this.Time = sectorTimes?.GetLapTime() ?? lapTime;
 
             this.LapNumber = lapNumber;
             this.Driver = driver;

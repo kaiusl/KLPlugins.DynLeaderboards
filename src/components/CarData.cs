@@ -263,7 +263,7 @@ namespace KLPlugins.DynLeaderboards.Car {
                     IsOutLap = this.IsCurrentLapOutLap,
                     IsInLap = this.IsCurrentLapInLap,
                 };
-                DynLeaderboardsPlugin.LogInfo($"[{this.Id}] new last lap: {this.LastLap.Time}");
+                //DynLeaderboardsPlugin.LogInfo($"[{this.Id}] new last lap: {this.LastLap.Time}");
 
                 var maybeBestLap = this.RawDataNew.BestLapSectorTimes;
                 if (maybeBestLap != null) {
@@ -273,10 +273,10 @@ namespace KLPlugins.DynLeaderboards.Car {
                     if (this.BestLap?.Time == null || (maybeBestLapTime != null && maybeBestLapTime < this.BestLap.Time)) {
                         this.BestLap = new Lap(maybeBestLap!, this.Laps.New, this.CurrentDriver!);
                         currentDriver.BestLap = this.BestLap.ToBasic(); // If it's car's best lap, it must also be the drivers
-                        DynLeaderboardsPlugin.LogInfo($"[{this.Id}] best lap: {this.BestLap.Time}");
+                        //DynLeaderboardsPlugin.LogInfo($"[{this.Id}] best lap: {this.BestLap.Time}");
                     } else if (currentDriver!.BestLap == null || (maybeBestLapTime != null && maybeBestLapTime < currentDriver.BestLap.Time)) {
                         currentDriver!.BestLap = new LapBasic(maybeBestLap!, this.Laps.New, currentDriver!);
-                        DynLeaderboardsPlugin.LogInfo($"[{this.Id}] best lap for driver '{currentDriver.FullName}': {this.BestLap.Time}");
+                        //DynLeaderboardsPlugin.LogInfo($"[{this.Id}] best lap for driver '{currentDriver.FullName}': {this.BestLap.Time}");
                     }
                 }
 
@@ -353,13 +353,13 @@ namespace KLPlugins.DynLeaderboards.Car {
                 && this.SplinePosition > 0.5
                 && this.Laps.New == 0
             ) {
-                DynLeaderboardsPlugin.LogInfo($"[{this.Id}] has not crossed the start line");
+                //DynLeaderboardsPlugin.LogInfo($"[{this.Id}] has not crossed the start line");
                 this.HasCrossedStartLine = false;
                 this._isHasCrossedStartLineSet = true;
             }
 
             if (!this.HasCrossedStartLine && (this._isSplinePositionReset || this.ExitedPitLane)) {
-                DynLeaderboardsPlugin.LogInfo($"[{this.Id}] crossed the start line");
+                //DynLeaderboardsPlugin.LogInfo($"[{this.Id}] crossed the start line");
                 this.HasCrossedStartLine = true;
             }
         }
@@ -372,7 +372,7 @@ namespace KLPlugins.DynLeaderboards.Car {
             ) {
                 this.OffsetLapUpdate = OffsetLapUpdateType.LapBeforeSpline;
                 this._lapAtOffsetLapUpdate = this.Laps.New;
-                DynLeaderboardsPlugin.LogInfo($"Offset lap update [{this.Id}]: {this.OffsetLapUpdate}: sp={this.SplinePosition}, oldLap={this.Laps.Old}, newLap={this.Laps.New}");
+                //DynLeaderboardsPlugin.LogInfo($"Offset lap update [{this.Id}]: {this.OffsetLapUpdate}: sp={this.SplinePosition}, oldLap={this.Laps.Old}, newLap={this.Laps.New}");
             } else if (this.OffsetLapUpdate == OffsetLapUpdateType.None
                             && this._isSplinePositionReset
                             && this.Laps.New != this._lapAtOffsetLapUpdate // Remove double detection with above
@@ -381,21 +381,21 @@ namespace KLPlugins.DynLeaderboards.Car {
                 ) {
                 this.OffsetLapUpdate = OffsetLapUpdateType.SplineBeforeLap;
                 this._lapAtOffsetLapUpdate = this.Laps.New;
-                DynLeaderboardsPlugin.LogInfo($"Offset lap update [{this.Id}]: {this.OffsetLapUpdate}: sp={this.SplinePosition}, oldLap={this.Laps.Old}, newLap={this.Laps.New}");
+                //DynLeaderboardsPlugin.LogInfo($"Offset lap update [{this.Id}]: {this.OffsetLapUpdate}: sp={this.SplinePosition}, oldLap={this.Laps.Old}, newLap={this.Laps.New}");
             }
 
             if (this.OffsetLapUpdate == OffsetLapUpdateType.LapBeforeSpline) {
                 if (this.SplinePosition < 0.9) {
                     this.OffsetLapUpdate = OffsetLapUpdateType.None;
                     this._lapAtOffsetLapUpdate = -1;
-                    DynLeaderboardsPlugin.LogInfo($"Offset lap update fixed [{this.Id}]: {this.OffsetLapUpdate}: sp={this.SplinePosition}, oldLap={this.Laps.Old}, newLap={this.Laps.New}");
+                    //DynLeaderboardsPlugin.LogInfo($"Offset lap update fixed [{this.Id}]: {this.OffsetLapUpdate}: sp={this.SplinePosition}, oldLap={this.Laps.Old}, newLap={this.Laps.New}");
                 }
             } else if (this.OffsetLapUpdate == OffsetLapUpdateType.SplineBeforeLap) {
                 if (this.Laps.New != this._lapAtOffsetLapUpdate || (this.SplinePosition > 0.025 && this.SplinePosition < 0.9)) {
                     // Second condition is a fallback in case the lap actually shouldn't have been updated (eg at the start line, jumped to pits and then crossed the line in the pits)
                     this.OffsetLapUpdate = OffsetLapUpdateType.None;
                     this._lapAtOffsetLapUpdate = -1;
-                    DynLeaderboardsPlugin.LogInfo($"Offset lap update fixed [{this.Id}]: {this.OffsetLapUpdate}: sp={this.SplinePosition}, oldLap={this.Laps.Old}, newLap={this.Laps.New}");
+                    //DynLeaderboardsPlugin.LogInfo($"Offset lap update fixed [{this.Id}]: {this.OffsetLapUpdate}: sp={this.SplinePosition}, oldLap={this.Laps.Old}, newLap={this.Laps.New}");
                 }
             }
         }

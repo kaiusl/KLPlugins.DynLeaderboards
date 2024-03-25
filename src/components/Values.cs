@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 
 using GameReaderCommon;
@@ -219,10 +219,10 @@ namespace KLPlugins.DynLeaderboards {
                 }
 
                 if (car == null) {
-                    car = new CarData(this, opponent);
-                    if (!car.IsConnected) {
+                    if (!opponent.IsConnected || (DynLeaderboardsPlugin.Game.IsAcc && opponent.Coordinates == null)) {
                         continue;
                     }
+                    car = new CarData(this, opponent);
                     this._overallOrder.Add(car);
                 } else {
                     Debug.Assert(car.Id == opponent.Id);

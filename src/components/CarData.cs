@@ -257,12 +257,10 @@ namespace KLPlugins.DynLeaderboards.Car {
             }
             this.EnteredPitLane = this.Location.New.IsInPits() && this.Location.Old == CarLocation.Track;
             if (this.EnteredPitLane) {
+                this.IsCurrentLapInLap = true;
                 DynLeaderboardsPlugin.LogInfo($"Car {this.Id}, #{this.CarNumber} entered pits");
             }
             this.PitCount = this.RawDataNew.PitCount ?? 0;
-            this.PitTimeLast = this.RawDataNew.PitLastDuration ?? TimeSpan.Zero;
-            this.IsCurrentLapOutLap = (this.RawDataNew.PitOutAtLap ?? -1) == this.Laps.New + 1;
-            this.IsCurrentLapInLap = (this.RawDataNew.PitEnterAtLap ?? -1) == this.Laps.New + 1;
 
             this.PositionInClassStart = this.RawDataNew.StartPositionClass;
             this.PositionOverallStart = this.RawDataNew.StartPosition;
@@ -431,7 +429,8 @@ namespace KLPlugins.DynLeaderboards.Car {
             // Pit ended
             if (pitEntryTime != null && this.ExitedPitLane) {
                 this.IsCurrentLapOutLap = true;
-                this.TotalPitTime += this.PitTimeLast ?? TimeSpan.Zero;
+                this.PitTimeLast = DateTime.Now - pitEntryTime;
+                this.TotalPitTime += this.PitTimeLast.Value;
                 this.PitTimeCurrent = null;
             }
 

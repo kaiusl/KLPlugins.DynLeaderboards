@@ -231,22 +231,33 @@ namespace KLPlugins.DynLeaderboards.Car {
             this.Laps.Update((this.RawDataNew.CurrentLap ?? 1) - 1);
             this.IsNewLap = this.Laps.New > this.Laps.Old;
 
-            if (this.RawDataNew.IsCarInPit) {
-                this.Location.Update(CarLocation.PitBox);
-            } else if (this.RawDataNew.IsCarInPitLane) {
-                this.Location.Update(CarLocation.Pitlane);
+            if (DynLeaderboardsPlugin.Game.IsAcc) {
+                var accRawData = (ACSharedMemory.Models.ACCOpponent)rawData;
+                var location = accRawData.ExtraData.CarLocation;
+                var newLocation = location switch {
+                    CarLocationEnum.Track or CarLocationEnum.PitEntry or CarLocationEnum.PitExit => CarLocation.Track,
+                    CarLocationEnum.Pitlane => CarLocation.Pitlane,
+                    _ => CarLocation.NONE,
+                };
+                this.Location.Update(newLocation);
             } else {
-                this.Location.Update(CarLocation.Track);
+                if (this.RawDataNew.IsCarInPit) {
+                    this.Location.Update(CarLocation.PitBox);
+                } else if (this.RawDataNew.IsCarInPitLane) {
+                    this.Location.Update(CarLocation.Pitlane);
+                } else {
+                    this.Location.Update(CarLocation.Track);
+                }
             }
 
-            this.IsInPitLane = this.Location.New == CarLocation.Pitlane || this.Location.New == CarLocation.PitBox;
-            this.ExitedPitLane = this.Location.New == CarLocation.Track && (this.Location.Old == CarLocation.Pitlane || this.Location.Old == CarLocation.PitBox);
+            this.IsInPitLane = this.Location.New.IsInPits();
+            this.ExitedPitLane = this.Location.New == CarLocation.Track && this.Location.Old.IsInPits();
             if (this.ExitedPitLane) {
-                DynLeaderboardsPlugin.LogInfo($"Car {this.Id}, #{this.CarNumber} exited pit lane");
+                DynLeaderboardsPlugin.LogInfo($"Car {this.Id}, #{this.CarNumber} exited pits");
             }
-            this.EnteredPitLane = (this.Location.New == CarLocation.Pitlane || this.Location.New == CarLocation.PitBox) && this.Location.Old == CarLocation.Track;
+            this.EnteredPitLane = this.Location.New.IsInPits() && this.Location.Old == CarLocation.Track;
             if (this.EnteredPitLane) {
-                DynLeaderboardsPlugin.LogInfo($"Car {this.Id}, #{this.CarNumber} entered pit lane");
+                DynLeaderboardsPlugin.LogInfo($"Car {this.Id}, #{this.CarNumber} entered pits");
             }
             this.PitCount = this.RawDataNew.PitCount ?? 0;
             this.PitTimeLast = this.RawDataNew.PitLastDuration ?? TimeSpan.Zero;
@@ -373,7 +384,7 @@ namespace KLPlugins.DynLeaderboards.Car {
                 this._isHasCrossedStartLineSet = true;
             }
 
-            if (!this.HasCrossedStartLine && ((this._isSplinePositionReset && !this.JumpedToPits) || this.ExitedPitLane)) {
+            if (!this.HasCrossedStartLine && ((this.SplinePosition < 0.5 && !this.JumpedToPits) || this.ExitedPitLane)) {
                 DynLeaderboardsPlugin.LogInfo($"[{this.Id}, #{this.CarNumber}] crossed the start line");
                 this.HasCrossedStartLine = true;
             }
@@ -1275,6 +1286,12 @@ namespace KLPlugins.DynLeaderboards.Car {
         Track = 1,
         Pitlane = 2,
         PitBox = 3,
+    }
+
+    public static class CarLocationExt {
+        public static bool IsInPits(this CarLocation location) {
+            return location == CarLocation.Pitlane || location == CarLocation.PitBox;
+        }
     }
 
     public enum RelativeLapDiff {

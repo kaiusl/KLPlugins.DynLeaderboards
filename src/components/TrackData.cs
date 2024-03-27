@@ -14,8 +14,6 @@ using MathNet.Numerics.Interpolation;
 
 using Newtonsoft.Json;
 
-using Xceed.Wpf.Toolkit.Core.Converters;
-
 namespace KLPlugins.DynLeaderboards.Track {
     internal class LapInterpolator {
         internal TimeSpan LapTime { get; }
@@ -107,17 +105,55 @@ namespace KLPlugins.DynLeaderboards.Track {
             // Default lap_data files have 200 data points
             var pos = new List<double>(200);
             var time = new List<double>(200);
-            foreach (var l in File.ReadLines(fname)) {
+            pos.Add(0.0);
+            time.Add(0.0);
+
+            var lines = File.ReadAllLines(fname);
+            var i = 0;
+            // Find first point where spline position is < 0.1.
+            // On some tracks there may be an offset and the data starts at 0.9x or something.
+            // That is wrong pos to start. We use this.SplinePosOffset to correct it but it's not perfect, 
+            // or it may be missing where it's needed.
+            for (; i < lines.Length;) {
+                var l = lines[i];
+                if (l == "") {
+                    continue;
+                }
+
+                var splits = l.Split(';');
+                double p = float.Parse(splits[0]) + this.SplinePosOffset;
+                if (p > 1.0) {
+                    p -= 1.0;
+                }
+
+                if (p < 0.1) {
+                    break;
+                } else {
+                    i++;
+                }
+            }
+
+            for (; i < lines.Length; i++) {
+                var l = lines[i];
                 if (l == "") {
                     continue;
                 }
                 // Data order: splinePositions, lap time in ms, speed in kmh
                 var splits = l.Split(';');
                 double p = float.Parse(splits[0]) + this.SplinePosOffset;
+                if (p > 1.0) {
+                    p -= 1.0;
+                }
+                if (p < pos.Last()) {
+                    // pos needs to increasing for the linear interpolator to properly work
+                    break;
+                }
+
                 var t = double.Parse(splits[1]);
                 pos.Add(p);
                 time.Add(t);
             }
+
             return new Tuple<List<double>, List<double>>(pos, time);
         }
     }

@@ -457,8 +457,16 @@ namespace KLPlugins.DynLeaderboards {
                         return 0;
                     }
 
+                    var aPos = a.RawDataNew.Position;
+                    var bPos = b.RawDataNew.Position;
+                    if (aPos == bPos) {
+                        // if aPos == bPos, one cad probably left but maybe not. 
+                        // Use old position to keep the order stable and not cause flickering.
+                        return a.PositionOverall.CompareTo(b.PositionOverall);
+                    }
+
                     // Need to use RawDataNew.Position because the CarData.PositionOverall is updated based of the result of this sort
-                    return a.RawDataNew.Position.CompareTo(b.RawDataNew.Position);
+                    return aPos.CompareTo(bPos);
                 }
 
                 this._overallOrder.Sort(cmp);

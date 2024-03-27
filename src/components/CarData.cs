@@ -259,7 +259,6 @@ namespace KLPlugins.DynLeaderboards.Car {
             }
             this.EnteredPitLane = this.Location.New.IsInPits() && this.Location.Old == CarLocation.Track;
             if (this.EnteredPitLane) {
-                this.IsCurrentLapInLap = true;
                 DynLeaderboardsPlugin.LogInfo($"Car {this.Id}, #{this.CarNumber} entered pits");
             }
             this.PitCount = this.RawDataNew.PitCount ?? 0;
@@ -277,6 +276,10 @@ namespace KLPlugins.DynLeaderboards.Car {
             this.MaxSpeed = Math.Max(this.MaxSpeed, this.RawDataNew.Speed ?? 0.0);
 
             this.UpdateDrivers(values, rawData);
+
+            if (!this.RawDataNew.LapValid) {
+                this.IsCurrentLapValid = false;
+            }
 
             if (this.IsNewLap) {
                 Debug.Assert(this.CurrentDriver != null, "Current driver shouldn't be null since someone had to finish this lap.");
@@ -303,6 +306,10 @@ namespace KLPlugins.DynLeaderboards.Car {
                 }
 
                 this.BestSectors.Update(this.RawDataNew.BestSectorSplits);
+
+                this.IsCurrentLapValid = !this.IsInPitLane; // if we cross the line in pitlane, new lap is invalid
+                this.IsCurrentLapOutLap = this.IsInPitLane; // also it will be an outlap
+                this.IsCurrentLapInLap = false;
             }
 
             if (
@@ -442,11 +449,14 @@ namespace KLPlugins.DynLeaderboards.Car {
                 || (this.PitEntryTime == null && this.IsInPitLane) // We join/start SimHub mid session
             ) {
                 this.PitEntryTime = DateTime.Now;
+                this.IsCurrentLapInLap = true;
+                this.IsCurrentLapValid = false;
             }
 
             // Pit ended
             if (this.PitEntryTime != null && (this.ExitedPitLane || !this.IsInPitLane)) {
                 this.IsCurrentLapOutLap = true;
+                this.IsCurrentLapValid = false;
                 this.PitTimeLast = DateTime.Now - this.PitEntryTime;
                 this.TotalPitTime += this.PitTimeLast.Value;
                 this.PitTimeCurrent = null;

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 
 namespace KLPlugins.DynLeaderboards.Settings {
 
@@ -325,15 +325,15 @@ RelativeOnTrack -> overall position",
 
         internal static string ToolTipText(this OutGapProp p) {
             return p switch {
-                OutGapProp.GapToLeader => "Total gap to the leader.",
-                OutGapProp.GapToClassLeader => "Total gap to the class leader.",
-                OutGapProp.GapToCupLeader => "Total gap to the cup leader.",
-                OutGapProp.GapToFocusedTotal => "Total gap to the focused car.",
-                OutGapProp.GapToFocusedOnTrack => "On track gap to the focused car.",
-                OutGapProp.GapToAheadOverall => "Total gap to the car ahead in overall.",
-                OutGapProp.GapToAheadInClass => "Total gap to the car ahead in class.",
-                OutGapProp.GapToAheadInCup => "Total gap to the car ahead in cup.",
-                OutGapProp.GapToAheadOnTrack => "Relative on track gap to car ahead.",
+                OutGapProp.GapToLeader => "Total gap to the leader. Always positive.",
+                OutGapProp.GapToClassLeader => "Total gap to the class leader. Always positive.",
+                OutGapProp.GapToCupLeader => "Total gap to the cup leader. Always Positive.",
+                OutGapProp.GapToFocusedTotal => "Total gap to the focused car. The gap is positive if the car is ahead of the focused car. Negative if the car is behind.",
+                OutGapProp.GapToFocusedOnTrack => "On track gap to the focused car. The gap is positive if the car is ahead of the focused car. Negative if the car is behind.",
+                OutGapProp.GapToAheadOverall => "Total gap to the car ahead in overall. Always positive.",
+                OutGapProp.GapToAheadInClass => "Total gap to the car ahead in class. Always positive.",
+                OutGapProp.GapToAheadInCup => "Total gap to the car ahead in cup. Always positive.",
+                OutGapProp.GapToAheadOnTrack => "Relative on track gap to car ahead. Always positive.",
                 OutGapProp.DynamicGapToFocused => @"Gap that changes based of currently displayed dynamic leaderboard.
 Overall -> gap to leader,
 Class -> gap to class leader,

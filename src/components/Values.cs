@@ -328,7 +328,8 @@ namespace KLPlugins.DynLeaderboards {
                     focusedCar: this.FocusedCar,
                     carAhead: this.FocusedCar != null ? this._overallOrder.ElementAtOrDefault(this.FocusedCar.IndexOverall - 1) : null,
                     carAheadInClass: carAheadInClass.GetValueOr(car.CarClass, null),
-                    carAheadInCup: null // TODO: store car ahead in each cup
+                    carAheadInCup: null, // TODO: store car ahead in each cup,
+                    carAheadOnTrack: this.GetCarAheadOnTrack(car)
                 );
 
                 if (car.IsFocused) {
@@ -346,6 +347,24 @@ namespace KLPlugins.DynLeaderboards {
                 this._relativeOnTrackAheadOrder.Sort((c1, c2) => c1.RelativeSplinePositionToFocusedCar.CompareTo(c2.RelativeSplinePositionToFocusedCar));
                 this._relativeOnTrackBehindOrder.Sort((c1, c2) => c2.RelativeSplinePositionToFocusedCar.CompareTo(c1.RelativeSplinePositionToFocusedCar));
             }
+        }
+
+        private CarData? GetCarAheadOnTrack(CarData c) {
+            var thisPos = c.SplinePosition;
+
+            // Closest car ahead is the one with smallest positive relative spline position.
+            CarData? closestCar = null;
+            double relsplinepos = double.MaxValue;
+            foreach (var car in this._overallOrder) {
+                var carPos = car.SplinePosition;
+
+                var pos = CarData.CalculateRelativeSplinePosition(toPos: carPos, fromPos: thisPos);
+                if (pos > 0 && pos < relsplinepos) {
+                    closestCar = car;
+                    relsplinepos = (double)pos;
+                }
+            }
+            return closestCar;
         }
 
         void SetStartingOrder() {

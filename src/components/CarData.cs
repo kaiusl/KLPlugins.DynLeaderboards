@@ -284,7 +284,11 @@ namespace KLPlugins.DynLeaderboards.Car {
                 currentDriver.TotalLaps += 1;
             }
 
-            if (this.LastLap == null || this.RawDataNew.LastLapTime != this.LastLap?.Time) {
+            if (
+                this.RawDataNew.LastLapTime != null
+                 && this.RawDataNew.LastLapTime != TimeSpan.Zero
+                 && (this.LastLap == null || this.RawDataNew.LastLapTime != this.LastLap?.Time)
+            ) {
                 // Lap time end position may be offset with lap or spline position reset point.
                 this.LastLap = new Lap(this.RawDataNew.LastLapSectorTimes, this.RawDataNew.LastLapTime, this.Laps.New, this.CurrentDriver!) {
                     IsValid = this.IsCurrentLapValid,
@@ -301,7 +305,12 @@ namespace KLPlugins.DynLeaderboards.Car {
                 this.BestSectors.Update(this.RawDataNew.BestSectorSplits);
             }
 
-            if (this.BestLap == null || this.RawDataNew.BestLapTime != this.BestLap?.Time) {
+            if (
+                this.RawDataNew.BestLapTime != null
+                && this.RawDataNew.BestLapTime != TimeSpan.Zero
+                && (this.BestLap == null || this.RawDataNew.BestLapTime != this.BestLap?.Time)
+                && this.LastLap?.IsValid == true
+            ) {
                 this.BestLap = new Lap(this.RawDataNew.BestLapSectorTimes, this.RawDataNew.BestLapTime, this.Laps.New, this.CurrentDriver!);
                 this.CurrentDriver!.BestLap = this.BestLap.ToBasic(); // If it's car's best lap, it must also be the driver
             }

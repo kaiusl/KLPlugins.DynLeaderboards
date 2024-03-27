@@ -262,9 +262,6 @@ namespace KLPlugins.DynLeaderboards.Car {
             }
             this.PitCount = this.RawDataNew.PitCount ?? 0;
 
-            this.PositionInClassStart = this.RawDataNew.StartPositionClass;
-            this.PositionOverallStart = this.RawDataNew.StartPosition;
-
             var newSplinePos = this.RawDataNew.TrackPositionPercent ?? throw new System.Exception("TrackPositionPercent is null");
             newSplinePos += values.TrackData!.SplinePosOffset;
             if (newSplinePos > 1) {
@@ -467,6 +464,17 @@ namespace KLPlugins.DynLeaderboards.Car {
             if (this._stintStartTime != null) {
                 this.CurrentStintTime = DateTime.Now - this._stintStartTime;
             }
+        }
+
+        /// <summary>
+        /// Sets starting positions for this car.
+        /// </summary>
+        /// <param name="overall"></param>
+        /// <param name="inClass"></param>
+        internal void SetStartingPositions(int overall, int inClass) {
+            this.PositionOverallStart = overall;
+            this.PositionInClassStart = inClass;
+            //this.StartPosInCup = inCup;
         }
 
         /// <summary>

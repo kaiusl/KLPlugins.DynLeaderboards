@@ -127,6 +127,7 @@ namespace KLPlugins.DynLeaderboards {
         }
 
         internal bool IsFirstFinished { get; private set; } = false;
+        private bool _startingPositionsSet = false;
 
         internal Values() {
             _carInfos = ReadCarInfos();
@@ -138,6 +139,8 @@ namespace KLPlugins.DynLeaderboards {
             this.ClassOrder = this._classOrder.AsReadOnly();
             this.RelativeOnTrackAheadOrder = this._relativeOnTrackAheadOrder.AsReadOnly();
             this.RelativeOnTrackBehindOrder = this._relativeOnTrackBehindOrder.AsReadOnly();
+
+            this.Reset();
         }
 
         internal void UpdateCarInfos() {
@@ -159,6 +162,7 @@ namespace KLPlugins.DynLeaderboards {
             this._relativeOnTrackBehindOrder.Clear();
             this.FocusedCar = null;
             this.IsFirstFinished = false;
+            this._startingPositionsSet = false;
         }
 
         #region IDisposable Support
@@ -269,6 +273,9 @@ namespace KLPlugins.DynLeaderboards {
                 }
             }
 
+            if (!this._startingPositionsSet && this.Session.IsRace && this._overallOrder.Count != 0) {
+                this.SetStartingOrder();
+            }
             this.SetOverallOrder();
 
 
@@ -339,6 +346,24 @@ namespace KLPlugins.DynLeaderboards {
                 this._relativeOnTrackAheadOrder.Sort((c1, c2) => c1.RelativeSplinePositionToFocusedCar.CompareTo(c2.RelativeSplinePositionToFocusedCar));
                 this._relativeOnTrackBehindOrder.Sort((c1, c2) => c2.RelativeSplinePositionToFocusedCar.CompareTo(c1.RelativeSplinePositionToFocusedCar));
             }
+        }
+
+        void SetStartingOrder() {
+            // This method is called after we have checked that all cars have NewData
+            this._overallOrder.Sort((a, b) => a.RawDataNew.Position.CompareTo(b.RawDataNew.Position)); // Spline position may give wrong results if cars are sitting on the grid, thus NewData.Position
+
+            var classPositions = new Dictionary<CarClass, int>(0); // Keep track of what class position are we at the moment
+            //var cupPositions = new Dictionary<CarClass, EnumMap<TeamCupCategory, int>>((_) => new(0));  // Keep track of what cup position are we at the moment
+            foreach (var (car, i) in this._overallOrder.WithIndex()) {
+                var thisClass = car.CarClass;
+                if (!classPositions.ContainsKey(thisClass)) {
+                    classPositions.Add(thisClass, 0);
+                }
+                var classPos = ++classPositions[thisClass];
+                //var cupPos = ++cupPositions[thisClass][thisCar.TeamCupCategory];
+                car.SetStartingPositions(i + 1, classPos);
+            }
+            this._startingPositionsSet = true;
         }
 
         private void SetOverallOrder() {

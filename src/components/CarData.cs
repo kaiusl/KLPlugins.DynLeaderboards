@@ -494,7 +494,8 @@ namespace KLPlugins.DynLeaderboards.Car {
             CarData cupLeaderCar,
             CarData? carAhead,
             CarData? carAheadInClass,
-            CarData? carAheadInCup
+            CarData? carAheadInCup,
+            CarData? carAheadOnTrack
         ) {
             if (overallBestLapCar == this) {
                 this.IsBestLapCarOverall = true;
@@ -508,7 +509,7 @@ namespace KLPlugins.DynLeaderboards.Car {
                 this.GapToFocusedTotal = TimeSpan.Zero;
                 this.RelativeOnTrackLapDiff = RelativeLapDiff.SAME_LAP;
             } else if (focusedCar != null) {
-                this.RelativeSplinePositionToFocusedCar = this.CalculateRelativeSplinePosition(focusedCar);
+                this.RelativeSplinePositionToFocusedCar = this.CalculateRelativeSplinePositionFrom(focusedCar);
             }
 
             if (values.IsFirstFinished && this.IsNewLap) {
@@ -552,7 +553,7 @@ namespace KLPlugins.DynLeaderboards.Car {
                 carAhead: carAhead,
                 carAheadInClass: carAheadInClass,
                 carAheadInCup: carAheadInCup,
-                carAheadOnTrack: carAhead,
+                carAheadOnTrack: carAheadOnTrack,
                 trackData: values.TrackData,
                 session: values.Session
             );
@@ -616,7 +617,7 @@ namespace KLPlugins.DynLeaderboards.Car {
         }
 
         /// <summary>
-        /// Calculates relative spline position from `this` to <paramref name="otherCar"/>.
+        /// Calculates relative spline position from <paramref name="otherCar"/> to `this`.
         ///
         /// Car will be shown ahead if it's ahead by less than half a lap, otherwise it's behind.
         /// If result is positive then `this` is ahead of <paramref name="otherCar"/>, if negative it's behind.
@@ -626,7 +627,7 @@ namespace KLPlugins.DynLeaderboards.Car {
         /// </returns>
         /// <param name="otherCar"></param>
         /// <returns></returns>
-        public double CalculateRelativeSplinePosition(CarData otherCar) {
+        public double CalculateRelativeSplinePositionFrom(CarData otherCar) {
             return CalculateRelativeSplinePosition(toPos: this.SplinePosition, fromPos: otherCar.SplinePosition);
         }
 

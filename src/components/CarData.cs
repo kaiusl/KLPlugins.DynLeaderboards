@@ -672,11 +672,15 @@ namespace KLPlugins.DynLeaderboards.Car {
 
             // Freeze gaps until all is in order again, fixes gap suddenly jumping to larger values as spline positions could be out of sync
             if (trackData != null && this.OffsetLapUpdate == OffsetLapUpdateType.None) {
-                if (focusedCar != null && focusedCar.OffsetLapUpdate == OffsetLapUpdateType.None) {
+                if (focusedCar == null) {
+                    this.GapToFocusedTotal = null;
+                } else if (focusedCar.OffsetLapUpdate == OffsetLapUpdateType.None) {
                     this.GapToFocusedOnTrack = CalculateOnTrackGap(from: this, to: focusedCar, trackData);
                 }
 
-                if (carAheadOnTrack?.OffsetLapUpdate == OffsetLapUpdateType.None) {
+                if (carAheadOnTrack == null) {
+                    this.GapToAheadOnTrack = null;
+                } else if (carAheadOnTrack.OffsetLapUpdate == OffsetLapUpdateType.None) {
                     this.GapToAheadOnTrack = CalculateOnTrackGap(from: carAheadOnTrack, to: this, trackData);
                 }
             }

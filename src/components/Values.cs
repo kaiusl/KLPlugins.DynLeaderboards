@@ -326,7 +326,7 @@ namespace KLPlugins.DynLeaderboards {
                     classLeaderCar: classLeaders[car.CarClass], // If we get there, the leader must be present
                     cupLeaderCar: null, // TODO: store all cup leader cars
                     focusedCar: this.FocusedCar,
-                    carAhead: this.FocusedCar != null ? this._overallOrder.ElementAtOrDefault(this.FocusedCar.IndexOverall - 1) : null,
+                    carAhead: i > 0 ? this._overallOrder[i - 1] : null,
                     carAheadInClass: carAheadInClass.GetValueOr(car.CarClass, null),
                     carAheadInCup: null, // TODO: store car ahead in each cup,
                     carAheadOnTrack: this.GetCarAheadOnTrack(car)

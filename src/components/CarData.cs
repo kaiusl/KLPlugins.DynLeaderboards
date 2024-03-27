@@ -839,7 +839,7 @@ namespace KLPlugins.DynLeaderboards.Car {
             var fromInterp = trackData.LapInterpolators?.GetValueOr(from.CarClass, null);
             if (toInterp == null && fromInterp == null) {
                 // lap data is not available, use naive distance based calculation
-                return CalculateNaiveGap(relativeSplinePos, trackData);
+                return -CalculateNaiveGap(relativeSplinePos, trackData);
             }
 
             TimeSpan? gap;

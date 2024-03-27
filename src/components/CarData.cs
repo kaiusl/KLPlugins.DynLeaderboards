@@ -141,6 +141,8 @@ namespace KLPlugins.DynLeaderboards.Car {
             SplineBeforeLap = 2
         }
         internal OffsetLapUpdateType OffsetLapUpdate { get; private set; } = OffsetLapUpdateType.None;
+        public DateTime? PitEntryTime { get; private set; }
+
         private int _lapAtOffsetLapUpdate = -1;
         private bool _isSplinePositionReset = false;
 
@@ -422,17 +424,28 @@ namespace KLPlugins.DynLeaderboards.Car {
         }
 
         private void UpdatePitInfo() {
-            var pitEntryTime = this.RawDataNew.PitEnterAtTime;
-            // Pit ended
-            if (pitEntryTime != null && this.ExitedPitLane) {
-                this.IsCurrentLapOutLap = true;
-                this.PitTimeLast = DateTime.Now - pitEntryTime;
-                this.TotalPitTime += this.PitTimeLast.Value;
-                this.PitTimeCurrent = null;
+            // TODO: using DateTime.now for timers if OK for online races where the time doesn't stop.
+            //       However in SP races when the player pauses the game, usually the time also stops.
+            //       Thus the calculated pitstop time would be longer than it actually was.
+
+            if (this.EnteredPitLane
+                || (this.IsInPitLane && this.PitEntryTime == null)
+                || (this.PitEntryTime == null && this.IsInPitLane) // We join/start SimHub mid session
+            ) {
+                this.PitEntryTime = DateTime.Now;
             }
 
-            if (pitEntryTime != null) {
-                var time = DateTime.Now - pitEntryTime;
+            // Pit ended
+            if (this.PitEntryTime != null && (this.ExitedPitLane || !this.IsInPitLane)) {
+                this.IsCurrentLapOutLap = true;
+                this.PitTimeLast = DateTime.Now - this.PitEntryTime;
+                this.TotalPitTime += this.PitTimeLast.Value;
+                this.PitTimeCurrent = null;
+                this.PitEntryTime = null;
+            }
+
+            if (this.PitEntryTime != null) {
+                var time = DateTime.Now - this.PitEntryTime;
                 this.PitTimeCurrent = time;
             }
         }

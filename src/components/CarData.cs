@@ -277,8 +277,15 @@ namespace KLPlugins.DynLeaderboards.Car {
 
             this.UpdateDrivers(values, rawData);
 
-            if (!this.RawDataNew.LapValid) {
-                this.IsCurrentLapValid = false;
+            if (this.IsCurrentLapValid) {
+                if (!this.RawDataNew.LapValid) {
+                    this.IsCurrentLapValid = false;
+                } else if (DynLeaderboardsPlugin.Game.IsAcc) {
+                    var accRawData = (ACSharedMemory.Models.ACCOpponent)rawData;
+                    if (!accRawData.ExtraData.CurrentLap.IsValidForBest) {
+                        this.IsCurrentLapValid = false;
+                    }
+                }
             }
 
             if (this.IsNewLap) {

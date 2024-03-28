@@ -339,10 +339,10 @@ namespace KLPlugins.DynLeaderboards.Car {
                  // Sometimes LastLapTime and LastLapSectorTimes may differ very slightly. Check for both. If both are different then it's new lap.
                  && (
                     this.LastLap == null
-                    || (this.RawDataNew.LastLapTime != this.LastLap?.Time && this.RawDataNew.LastLapSectorTimes.GetLapTime() != this.LastLap?.Time)
-                    || this.RawDataNew.LastLapSectorTimes.GetSectorSplit(1) != this.LastLap?.S1Time
-                    || this.RawDataNew.LastLapSectorTimes.GetSectorSplit(2) != this.LastLap?.S2Time
-                    || this.RawDataNew.LastLapSectorTimes.GetSectorSplit(3) != this.LastLap?.S3Time
+                    || (this.RawDataNew.LastLapTime != this.LastLap?.Time && this.RawDataNew.LastLapSectorTimes?.GetLapTime() != this.LastLap?.Time)
+                    || this.RawDataNew.LastLapSectorTimes?.GetSectorSplit(1) != this.LastLap?.S1Time
+                    || this.RawDataNew.LastLapSectorTimes?.GetSectorSplit(2) != this.LastLap?.S2Time
+                    || this.RawDataNew.LastLapSectorTimes?.GetSectorSplit(3) != this.LastLap?.S3Time
                 )
             ) {
                 // Lap time end position may be offset with lap or spline position reset point.

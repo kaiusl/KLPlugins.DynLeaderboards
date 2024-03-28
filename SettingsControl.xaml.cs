@@ -915,7 +915,7 @@ namespace KLPlugins.DynLeaderboards.Settings {
 
                 var sp = this.CreatePropertyToggleRow(
                     v.ToString(),
-                    v.ToString(),
+                    v.ToPropName(),
                     this.CurrentDynLeaderboardSettings.OutDriverProps.Includes(v),
                     (sender, e) => this.CurrentDynLeaderboardSettings.OutDriverProps.Combine(v),
                     (sender, e) => this.CurrentDynLeaderboardSettings.OutDriverProps.Remove(v),

@@ -1506,8 +1506,12 @@ namespace KLPlugins.DynLeaderboards.Car {
     }
 
     [TypeConverter(typeof(CarClassTypeConverter))]
-    public readonly struct CarClass(string cls) {
-        private string _cls { get; } = cls;
+    public readonly record struct CarClass {
+        private readonly string _cls;
+
+        public CarClass(string cls) {
+            this._cls = cls;
+        }
 
         public static CarClass Default = new("");
 
@@ -1520,22 +1524,6 @@ namespace KLPlugins.DynLeaderboards.Car {
 
         public string AsString() {
             return this._cls;
-        }
-
-        public static bool operator ==(CarClass obj1, CarClass obj2) {
-            return obj1._cls == obj2._cls;
-        }
-
-        public static bool operator !=(CarClass obj1, CarClass obj2) {
-            return !(obj1 == obj2);
-        }
-
-        public override bool Equals(object obj) {
-            return obj is CarClass other && this._cls == other._cls;
-        }
-
-        public override int GetHashCode() {
-            return this._cls.GetHashCode();
         }
 
         public override string ToString() {
@@ -1562,8 +1550,12 @@ namespace KLPlugins.DynLeaderboards.Car {
     }
 
     [TypeConverter(typeof(TeamCupCategoryTypeConverter))]
-    public readonly struct TeamCupCategory(string cls) {
-        private string _cls { get; } = cls;
+    public readonly record struct TeamCupCategory {
+        private readonly string _cls;
+
+        public TeamCupCategory(string cls) {
+            this._cls = cls;
+        }
 
         public static TeamCupCategory Default = new("Overall");
 
@@ -1576,22 +1568,6 @@ namespace KLPlugins.DynLeaderboards.Car {
 
         public string AsString() {
             return this._cls;
-        }
-
-        public static bool operator ==(TeamCupCategory obj1, TeamCupCategory obj2) {
-            return obj1._cls == obj2._cls;
-        }
-
-        public static bool operator !=(TeamCupCategory obj1, TeamCupCategory obj2) {
-            return !(obj1 == obj2);
-        }
-
-        public override bool Equals(object obj) {
-            return obj is TeamCupCategory other && this._cls == other._cls;
-        }
-
-        public override int GetHashCode() {
-            return this._cls.GetHashCode();
         }
 
         public override string ToString() {
@@ -1618,8 +1594,12 @@ namespace KLPlugins.DynLeaderboards.Car {
     }
 
     [TypeConverter(typeof(DriverCategoryTypeConverter))]
-    public readonly struct DriverCategory(string cls) {
-        private string _cls { get; } = cls;
+    public readonly record struct DriverCategory {
+        private readonly string _cls;
+
+        public DriverCategory(string cls) {
+            this._cls = cls;
+        }
 
         public static DriverCategory Default = new("Platinum");
 
@@ -1632,22 +1612,6 @@ namespace KLPlugins.DynLeaderboards.Car {
 
         public string AsString() {
             return this._cls;
-        }
-
-        public static bool operator ==(DriverCategory obj1, DriverCategory obj2) {
-            return obj1._cls == obj2._cls;
-        }
-
-        public static bool operator !=(DriverCategory obj1, DriverCategory obj2) {
-            return !(obj1 == obj2);
-        }
-
-        public override bool Equals(object obj) {
-            return obj is DriverCategory other && this._cls == other._cls;
-        }
-
-        public override int GetHashCode() {
-            return this._cls.GetHashCode();
         }
 
         public override string ToString() {

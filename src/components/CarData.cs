@@ -70,6 +70,7 @@ namespace KLPlugins.DynLeaderboards.Car {
         public bool ExitedPitLane { get; private set; }
         public bool EnteredPitLane { get; private set; }
         public int PitCount { get; private set; }
+        public DateTime? PitEntryTime { get; private set; }
         public TimeSpan? PitTimeLast { get; private set; }
         public TimeSpan TotalPitTime { get; private set; }
         public TimeSpan? PitTimeCurrent { get; private set; }
@@ -141,7 +142,6 @@ namespace KLPlugins.DynLeaderboards.Car {
             SplineBeforeLap = 2
         }
         internal OffsetLapUpdateType OffsetLapUpdate { get; private set; } = OffsetLapUpdateType.None;
-        public DateTime? PitEntryTime { get; private set; }
 
         private int _lapAtOffsetLapUpdate = -1;
         private bool _isSplinePositionReset = false;
@@ -156,44 +156,20 @@ namespace KLPlugins.DynLeaderboards.Car {
 
         private bool _expectingNewLap = false;
 
-        internal CarData(Values values, Opponent rawData) {
+        internal CarData(Values values, Opponent opponent) {
             this.Drivers = this._drivers.AsReadOnly();
 
-            this.RawDataOld = rawData;
-            this.RawDataNew = rawData;
+            this.RawDataOld = opponent;
+            this.RawDataNew = opponent;
 
-            var carInfo = values.GetCarInfo(this.RawDataNew.CarName);
-            if (carInfo == null) {
-                DynLeaderboardsPlugin.LogWarn($"Car info not found for {this.RawDataNew.CarName}. Static car info (like class, manufacturer etc) may be missing or incorrect.");
-            }
-            this.CarClass = carInfo?.Class ?? CarClass.TryNew(this.RawDataNew.CarClass) ?? CarClass.Default;
-            this.CarModel = carInfo?.Name ?? this.RawDataNew.CarName ?? "Unknown";
-            this.CarManufacturer = carInfo?.Manufacturer ?? GetCarManufacturer(this.CarModel);
+            this.SetStaticCarData(values, opponent);
 
-            this.CarClassColor = values.GetCarClassColor(this.CarClass)
-                ?? TextBoxColor.TryNew(bg: this.RawDataNew.CarClassColor, fg: this.RawDataNew.CarClassTextColor)
-                ?? new TextBoxColor(bg: "#FFFFFF", fg: "#000000");
-
-            this.CarNumber = this.RawDataNew.CarNumber ?? "-1";
-
-            this.TeamName = this.RawDataNew.TeamName;
             this.PositionOverall = this.RawDataNew!.Position;
             this.PositionInClass = this.RawDataNew.PositionInClass;
+            this.UpdateIndependent(values, opponent);
 
             if (DynLeaderboardsPlugin.Game.IsAcc) {
-                var accRawData = (ACSharedMemory.Models.ACCOpponent)rawData;
-                this.TeamCupCategory = ACCTeamCupCategoryToString(accRawData.ExtraData.CarEntry.CupCategory);
-            } else {
-                this.TeamCupCategory = TeamCupCategory.Default;
-            }
-
-            this.TeamCupCategoryColor = values.GetTeamCupCategoryColor(this.TeamCupCategory)
-                ?? new TextBoxColor(bg: "#FFFFFF", fg: "#000000");
-
-            this.UpdateIndependent(values, rawData);
-
-            if (DynLeaderboardsPlugin.Game.IsAcc) {
-                var accRawData = (ACSharedMemory.Models.ACCOpponent)rawData;
+                var accRawData = (ACSharedMemory.Models.ACCOpponent)opponent;
 
                 var bestLap = accRawData.ExtraData.BestSessionLap;
                 if (bestLap != null && bestLap.LaptimeMS != null && bestLap.IsValidForBest) {
@@ -206,6 +182,34 @@ namespace KLPlugins.DynLeaderboards.Car {
                     );
                 }
             }
+        }
+
+        private void SetStaticCarData(Values values, Opponent opponent) {
+            var carInfo = values.GetCarInfo(this.RawDataNew.CarName);
+            if (carInfo == null) {
+                DynLeaderboardsPlugin.LogWarn($"Car info not found for {this.RawDataNew.CarName}. Static car info (like class, manufacturer etc) may be missing or incorrect.");
+            }
+            this.CarClass = carInfo?.Class ?? CarClass.TryNew(this.RawDataNew.CarClass) ?? CarClass.Default;
+            this.CarModel = carInfo?.Name ?? this.RawDataNew.CarName ?? "Unknown";
+            this.CarManufacturer = carInfo?.Manufacturer ?? GetCarManufacturer(this.CarModel);
+
+            this.CarClassColor = values.GetCarClassColor(this.CarClass) // use our own color if possible
+                ?? TextBoxColor.TryNew(bg: this.RawDataNew.CarClassColor, fg: this.RawDataNew.CarClassTextColor) // fall back to SimHub's colors
+                ?? new TextBoxColor(bg: "#FFFFFF", fg: "#000000");
+
+            this.CarNumber = this.RawDataNew.CarNumber ?? "-1";
+
+            this.TeamName = this.RawDataNew.TeamName;
+
+            if (DynLeaderboardsPlugin.Game.IsAcc) {
+                var accRawData = (ACSharedMemory.Models.ACCOpponent)opponent;
+                this.TeamCupCategory = ACCTeamCupCategoryToString(accRawData.ExtraData.CarEntry.CupCategory);
+            } else {
+                this.TeamCupCategory = TeamCupCategory.Default;
+            }
+
+            this.TeamCupCategoryColor = values.GetTeamCupCategoryColor(this.TeamCupCategory)
+                ?? new TextBoxColor(bg: "#FFFFFF", fg: "#000000");
         }
 
         private static TeamCupCategory ACCTeamCupCategoryToString(byte cupCategory) {

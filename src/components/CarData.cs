@@ -793,16 +793,16 @@ namespace KLPlugins.DynLeaderboards.Car {
             this._splinePositionTimes.Clear();
 
             // Freeze gaps until all is in order again, fixes gap suddenly jumping to larger values as spline positions could be out of sync
-            if (trackData != null && this.OffsetLapUpdate == OffsetLapUpdateType.None) {
+            if (trackData != null) {
                 if (focusedCar == null) {
                     this.GapToFocusedTotal = null;
-                } else if (focusedCar.OffsetLapUpdate == OffsetLapUpdateType.None) {
+                } else {
                     this.GapToFocusedOnTrack = CalculateOnTrackGap(from: this, to: focusedCar, trackData);
                 }
 
                 if (carAheadOnTrack == null) {
                     this.GapToAheadOnTrack = null;
-                } else if (carAheadOnTrack.OffsetLapUpdate == OffsetLapUpdateType.None) {
+                } else {
                     this.GapToAheadOnTrack = CalculateOnTrackGap(from: carAheadOnTrack, to: this, trackData);
                 }
             }
@@ -948,11 +948,7 @@ namespace KLPlugins.DynLeaderboards.Car {
         }
 
         public static TimeSpan? CalculateOnTrackGap(CarData from, CarData to, TrackData trackData) {
-            if (from.Id == to.Id
-                 || from.OffsetLapUpdate != OffsetLapUpdateType.None
-                 || to.OffsetLapUpdate != OffsetLapUpdateType.None
-                 || trackData == null
-             ) {
+            if (from.Id == to.Id || trackData == null) {
                 return null;
             }
 

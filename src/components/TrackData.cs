@@ -13,7 +13,6 @@ using KLPlugins.DynLeaderboards.Settings;
 using MathNet.Numerics.Interpolation;
 
 using Newtonsoft.Json;
-
 namespace KLPlugins.DynLeaderboards.Track {
     internal class LapInterpolator {
         internal TimeSpan LapTime { get; }
@@ -144,7 +143,7 @@ namespace KLPlugins.DynLeaderboards.Track {
                 if (p > 1.0) {
                     p -= 1.0;
                 }
-                if (p < pos.Last()) {
+                if (p < pos.Last() || p > 1.0) {
                     // pos needs to increasing for the linear interpolator to properly work
                     break;
                 }
@@ -152,6 +151,19 @@ namespace KLPlugins.DynLeaderboards.Track {
                 var t = double.Parse(splits[1]);
                 pos.Add(p);
                 time.Add(t);
+            }
+
+            // Extrapolate so that last point is at 1.0
+            if (pos.Last() != 1.0) {
+                var x0 = pos[pos.Count - 2];
+                var x1 = pos.Last();
+
+                var y0 = time[pos.Count - 2];
+                var y1 = time.Last();
+
+                pos.Add(1.0);
+                var slope = (y1 - y0) / (x1 - x0);
+                time.Add(y0 + (1.0 - x0) * slope);
             }
 
             return new Tuple<List<double>, List<double>>(pos, time);

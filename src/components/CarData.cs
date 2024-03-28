@@ -229,6 +229,13 @@ namespace KLPlugins.DynLeaderboards.Car {
         /// </summary>
         /// <param name="rawData"></param>
         internal void UpdateIndependent(Values values, Opponent rawData) {
+            // Clear old data
+
+            // Needs to be cleared before UpdateDependsOnOthers, 
+            // so that none of the cars have old data in it when we set gaps
+            this._splinePositionTimes.Clear();
+
+            // Actual update
             this.IsConnected = rawData.IsConnected
                 && (!DynLeaderboardsPlugin.Game.IsAcc || rawData.Coordinates != null); // In ACC the cars remain in opponents list even if they disconnect, 
                                                                                        // however, it's coordinates will be null then 
@@ -789,9 +796,6 @@ namespace KLPlugins.DynLeaderboards.Car {
             TrackData? trackData,
             Session session
         ) {
-
-            this._splinePositionTimes.Clear();
-
             // Freeze gaps until all is in order again, fixes gap suddenly jumping to larger values as spline positions could be out of sync
             if (trackData != null) {
                 if (focusedCar == null) {

@@ -190,6 +190,21 @@ namespace KLPlugins.DynLeaderboards.Car {
                 ?? new TextBoxColor(bg: "#FFFFFF", fg: "#000000");
 
             this.UpdateIndependent(values, rawData);
+
+            if (DynLeaderboardsPlugin.Game.IsAcc) {
+                var accRawData = (ACSharedMemory.Models.ACCOpponent)rawData;
+
+                var bestLap = accRawData.ExtraData.BestSessionLap;
+                if (bestLap != null && bestLap.LaptimeMS != null && bestLap.IsValidForBest) {
+                    var driverRaw = accRawData.ExtraData.CarEntry.Drivers[bestLap.DriverIndex];
+                    var driver = this.Drivers.First(d => d.FirstName == driverRaw.FirstName && d.LastName == driverRaw.LastName);
+                    this.BestLap = new Lap(
+                        bestLap,
+                        this.Laps.New - 1, // We don't know the exact number, but say it was last lap
+                        driver
+                    );
+                }
+            }
         }
 
         private static TeamCupCategory ACCTeamCupCategoryToString(byte cupCategory) {
@@ -1137,6 +1152,12 @@ namespace KLPlugins.DynLeaderboards.Car {
             }
         }
 
+        internal Sectors(TimeSpan? S1, TimeSpan? S2, TimeSpan? S3) {
+            this.S1Time = S1;
+            this.S2Time = S2;
+            this.S3Time = S3;
+        }
+
         internal Sectors(Sectors other) {
             this.S1Time = other.S1Time;
             this.S2Time = other.S2Time;
@@ -1229,6 +1250,25 @@ namespace KLPlugins.DynLeaderboards.Car {
 
         internal Lap(SectorTimes? sectorTimes, TimeSpan? lapTime, int lapNumber, Driver driver) : base(sectorTimes) {
             this.Time = sectorTimes?.GetLapTime() ?? lapTime;
+
+            if (this.Time == TimeSpan.Zero) {
+                this.Time = null;
+            }
+
+            this.LapNumber = lapNumber;
+            this.Driver = driver;
+        }
+
+
+        internal Lap(ksBroadcastingNetwork.Structs.LapInfo lap, int lapNumber, Driver driver)
+            : base(
+                S1: lap.Splits?[0] != null ? TimeSpan.FromMilliseconds(lap.Splits[0]!.Value) : null,
+                S2: lap.Splits?[1] != null ? TimeSpan.FromMilliseconds(lap.Splits[1]!.Value) : null,
+                S3: lap.Splits?[2] != null ? TimeSpan.FromMilliseconds(lap.Splits[2]!.Value) : null
+        ) {
+            if (lap.LaptimeMS != null) {
+                this.Time = TimeSpan.FromMilliseconds(lap.LaptimeMS.Value);
+            }
 
             if (this.Time == TimeSpan.Zero) {
                 this.Time = null;

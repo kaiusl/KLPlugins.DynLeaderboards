@@ -323,8 +323,13 @@ namespace KLPlugins.DynLeaderboards.Car {
 
                 //DynLeaderboardsPlugin.LogInfo($"[{this.Id}] new last lap: {this.LastLap.Time}");
 
-                if (this.IsCurrentLapValid && (this.CurrentDriver?.BestLap?.Time == null || this.LastLap.Time < this.CurrentDriver!.BestLap!.Time)) {
-                    this.CurrentDriver!.BestLap = this.LastLap.ToBasic();
+                if (this.LastLap.Time != null && this.LastLap.IsValid) {
+                    if (this.BestLap == null || this.LastLap.Time < this.BestLap?.Time) {
+                        this.BestLap = this.LastLap;
+                        this.CurrentDriver!.BestLap = this.BestLap.ToBasic(); // If it's car's best lap, it must also be the drivers
+                    } else if (this.CurrentDriver?.BestLap?.Time == null || this.LastLap.Time < this.CurrentDriver!.BestLap!.Time) {
+                        this.CurrentDriver!.BestLap = this.LastLap!.ToBasic();
+                    }
                 }
 
                 this.BestSectors.Update(this.RawDataNew.BestSectorSplits);

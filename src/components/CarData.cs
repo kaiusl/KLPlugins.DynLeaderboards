@@ -249,6 +249,62 @@ namespace KLPlugins.DynLeaderboards.Car {
             this.Laps.Update((this.RawDataNew.CurrentLap ?? 1) - 1);
             this.IsNewLap = this.Laps.New > this.Laps.Old;
 
+            this.SetCarLocation(rawData);
+            this.UpdatePitInfo();
+            this.SetSplinePositions(values);
+            this.MaxSpeed = Math.Max(this.MaxSpeed, this.RawDataNew.Speed ?? 0.0);
+            this.UpdateDrivers(values, rawData);
+
+            if (this.IsCurrentLapValid) {
+                this.CheckIfLapInvalidated(rawData);
+            }
+
+            if (this.IsNewLap) {
+                Debug.Assert(this.CurrentDriver != null, "Current driver shouldn't be null since someone had to finish this lap.");
+                var currentDriver = this.CurrentDriver!;
+                currentDriver.TotalLaps += 1;
+                this._expectingNewLap = true;
+            }
+
+            this.UpdateLapTimes();
+
+            if (values.Session.IsRace) {
+                this.HandleJumpToPits(values.Session.SessionType);
+                this.CheckForCrossingStartLine(values.Session.SessionPhase);
+            }
+
+            this.UpdateStintInfo(values.Session);
+            this.HandleOffsetLapUpdates();
+        }
+
+        private void CheckIfLapInvalidated(Opponent rawData) {
+            if (!this.RawDataNew.LapValid) {
+                this.IsCurrentLapValid = false;
+            } else if (DynLeaderboardsPlugin.Game.IsAcc) {
+                var accRawData = (ACSharedMemory.Models.ACCOpponent)rawData;
+                if (!accRawData.ExtraData.CurrentLap.IsValidForBest) {
+                    this.IsCurrentLapValid = false;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Requires that this.Laps is already updated.
+        /// </summary>
+        /// <param name="values"></param>
+        /// <exception cref="System.Exception"></exception>
+        private void SetSplinePositions(Values values) {
+            var newSplinePos = this.RawDataNew.TrackPositionPercent ?? throw new System.Exception("TrackPositionPercent is null");
+            newSplinePos += values.TrackData!.SplinePosOffset;
+            if (newSplinePos > 1) {
+                newSplinePos -= 1;
+            }
+            this._isSplinePositionReset = newSplinePos < 0.1 && this.SplinePosition > 0.9;
+            this.SplinePosition = newSplinePos;
+            this.TotalSplinePosition = this.Laps.New + this.SplinePosition;
+        }
+
+        private void SetCarLocation(Opponent rawData) {
             if (DynLeaderboardsPlugin.Game.IsAcc) {
                 var accRawData = (ACSharedMemory.Models.ACCOpponent)rawData;
                 var location = accRawData.ExtraData.CarLocation;
@@ -267,49 +323,13 @@ namespace KLPlugins.DynLeaderboards.Car {
                     this.Location.Update(CarLocation.Track);
                 }
             }
+        }
 
-            this.IsInPitLane = this.Location.New.IsInPits();
-            this.ExitedPitLane = this.Location.New == CarLocation.Track && this.Location.Old.IsInPits();
-            if (this.ExitedPitLane) {
-                DynLeaderboardsPlugin.LogInfo($"Car {this.Id}, #{this.CarNumber} exited pits");
-            }
-            this.EnteredPitLane = this.Location.New.IsInPits() && this.Location.Old == CarLocation.Track;
-            if (this.EnteredPitLane) {
-                DynLeaderboardsPlugin.LogInfo($"Car {this.Id}, #{this.CarNumber} entered pits");
-            }
-            this.PitCount = this.RawDataNew.PitCount ?? 0;
-
-            var newSplinePos = this.RawDataNew.TrackPositionPercent ?? throw new System.Exception("TrackPositionPercent is null");
-            newSplinePos += values.TrackData!.SplinePosOffset;
-            if (newSplinePos > 1) {
-                newSplinePos -= 1;
-            }
-            this._isSplinePositionReset = newSplinePos < 0.1 && this.SplinePosition > 0.9;
-            this.SplinePosition = newSplinePos;
-            this.TotalSplinePosition = this.Laps.New + this.SplinePosition;
-
+        /// <summary>
+        /// Requires that this._expectingNewLap is set in this update
+        /// </summary>
+        private void UpdateLapTimes() {
             this.CurrentLapTime = this.RawDataNew.CurrentLapTime ?? TimeSpan.Zero;
-            this.MaxSpeed = Math.Max(this.MaxSpeed, this.RawDataNew.Speed ?? 0.0);
-
-            this.UpdateDrivers(values, rawData);
-
-            if (this.IsCurrentLapValid) {
-                if (!this.RawDataNew.LapValid) {
-                    this.IsCurrentLapValid = false;
-                } else if (DynLeaderboardsPlugin.Game.IsAcc) {
-                    var accRawData = (ACSharedMemory.Models.ACCOpponent)rawData;
-                    if (!accRawData.ExtraData.CurrentLap.IsValidForBest) {
-                        this.IsCurrentLapValid = false;
-                    }
-                }
-            }
-
-            if (this.IsNewLap) {
-                Debug.Assert(this.CurrentDriver != null, "Current driver shouldn't be null since someone had to finish this lap.");
-                var currentDriver = this.CurrentDriver!;
-                currentDriver.TotalLaps += 1;
-                this._expectingNewLap = true;
-            }
 
             // Need to check for new lap time separately since lap update and lap time update may not be in perfect sync
             if (
@@ -350,16 +370,6 @@ namespace KLPlugins.DynLeaderboards.Car {
                 this.IsCurrentLapInLap = false;
                 this._expectingNewLap = false;
             }
-
-            if (values.Session.IsRace) {
-                this.HandleJumpToPits(values.Session.SessionType);
-                this.CheckForCrossingStartLine(values.Session.SessionPhase);
-            }
-
-            this.UpdatePitInfo();
-            this.UpdateStintInfo(values.Session);
-
-            this.HandleOffsetLapUpdates();
         }
 
         private void UpdateDrivers(Values values, Opponent rawData) {
@@ -397,6 +407,14 @@ namespace KLPlugins.DynLeaderboards.Car {
             }
         }
 
+        /// <summary>
+        /// Requires that
+        ///     * this.IsFinished
+        ///     * this.Location
+        ///     * this.IsInPitLane
+        /// are already updated
+        /// </summary>
+        /// <param name="sessionType"></param>
         private void HandleJumpToPits(SessionType sessionType) {
             Debug.Assert(sessionType == SessionType.Race);
             if (!this.IsFinished // It's okay to jump to the pits after finishing
@@ -413,6 +431,16 @@ namespace KLPlugins.DynLeaderboards.Car {
             }
         }
 
+        /// <summary>
+        /// Requires that
+        ///     * this.SplinePosition
+        ///     * this.IsInPitLane
+        ///     * this.ExitedPitlane
+        ///     * this.Laps
+        ///     * this.JumpedToPits
+        /// are already updated
+        /// </summary>
+        /// <param name="sessionPhase"></param>
         private void CheckForCrossingStartLine(SessionPhase sessionPhase) {
             // Initial update before the start of the race
             if ((sessionPhase == SessionPhase.PreSession || sessionPhase == SessionPhase.PreFormation)
@@ -432,6 +460,14 @@ namespace KLPlugins.DynLeaderboards.Car {
             }
         }
 
+        /// <summary>
+        /// Requires that
+        ///     * this.IsNewLap
+        ///     * this.SplinePosition
+        ///     * this.Laps
+        ///     * this.HasCrossedStartLine
+        /// are already updated
+        /// </summary>
         private void HandleOffsetLapUpdates() {
             // Check for offset lap update
             if (this.OffsetLapUpdate == OffsetLapUpdateType.None
@@ -468,7 +504,22 @@ namespace KLPlugins.DynLeaderboards.Car {
             }
         }
 
+        /// <summary>
+        /// Requires that this.Location is already updated
+        /// </summary>
         private void UpdatePitInfo() {
+            this.IsInPitLane = this.Location.New.IsInPits();
+            this.ExitedPitLane = this.Location.New == CarLocation.Track && this.Location.Old.IsInPits();
+            if (this.ExitedPitLane) {
+                DynLeaderboardsPlugin.LogInfo($"Car {this.Id}, #{this.CarNumber} exited pits");
+            }
+            this.EnteredPitLane = this.Location.New.IsInPits() && this.Location.Old == CarLocation.Track;
+            if (this.EnteredPitLane) {
+                DynLeaderboardsPlugin.LogInfo($"Car {this.Id}, #{this.CarNumber} entered pits");
+            }
+            this.PitCount = this.RawDataNew.PitCount ?? 0;
+
+
             // TODO: using DateTime.now for timers if OK for online races where the time doesn't stop.
             //       However in SP races when the player pauses the game, usually the time also stops.
             //       Thus the calculated pitstop time would be longer than it actually was.
@@ -498,6 +549,15 @@ namespace KLPlugins.DynLeaderboards.Car {
             }
         }
 
+        /// <summary>
+        /// Requires that 
+        ///     * this.IsNewLap
+        ///     * this.ExitedPitLane
+        ///     * this.EnteredPitLane
+        ///     * this.Location
+        /// are updated
+        /// </summary>
+        /// <param name="session"></param>
         private void UpdateStintInfo(Session session) {
             if (this.IsNewLap && this.CurrentStintLaps != null) {
                 this.CurrentStintLaps++;

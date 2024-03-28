@@ -1278,8 +1278,8 @@ namespace KLPlugins.DynLeaderboards.Car {
         public int LapNumber { get; private set; }
         public Driver Driver { get; private set; }
 
-        internal LapBasic(SectorTimes? sectorTimes, TimeSpan lapTime, int lapNumber, Driver driver) : base(sectorTimes) {
-            this.Time = sectorTimes?.GetLapTime() ?? lapTime;
+        internal LapBasic(SectorTimes? sectorTimes, TimeSpan? lapTime, int lapNumber, Driver driver) : base(sectorTimes) {
+            this.Time = lapTime ?? sectorTimes?.GetLapTime();
 
             if (this.Time == TimeSpan.Zero) {
                 this.Time = null;
@@ -1332,7 +1332,7 @@ namespace KLPlugins.DynLeaderboards.Car {
         public TimeSpan? DeltaToAheadInCupLast { get; private set; }
 
         internal Lap(SectorTimes? sectorTimes, TimeSpan? lapTime, int lapNumber, Driver driver) : base(sectorTimes) {
-            this.Time = sectorTimes?.GetLapTime() ?? lapTime;
+            this.Time = lapTime ?? sectorTimes?.GetLapTime();
 
             if (this.Time == TimeSpan.Zero) {
                 this.Time = null;

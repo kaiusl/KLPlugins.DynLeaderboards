@@ -1348,6 +1348,10 @@ namespace KLPlugins.DynLeaderboards.Car {
 
             this.LapNumber = lapNumber;
             this.Driver = driver;
+
+            this.IsValid = lap.IsValidForBest;
+            this.IsOutLap = lap.Type == LapType.Outlap;
+            this.IsInLap = lap.Type == LapType.Inlap;
         }
 
         public LapBasic ToBasic() {

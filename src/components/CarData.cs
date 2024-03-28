@@ -320,13 +320,12 @@ namespace KLPlugins.DynLeaderboards.Car {
             }
 
             if (
-                this.RawDataNew.BestLapTime != null
-                && this.RawDataNew.BestLapTime != TimeSpan.Zero
-                && (this.BestLap == null || this.RawDataNew.BestLapTime != this.BestLap?.Time)
+                this.LastLap?.Time != null
                 && this.LastLap?.IsValid == true
+                && (this.BestLap == null || this.LastLap.Time < this.BestLap?.Time)
             ) {
-                this.BestLap = new Lap(this.RawDataNew.BestLapSectorTimes, this.RawDataNew.BestLapTime, this.Laps.New, this.CurrentDriver!);
-                this.CurrentDriver!.BestLap = this.BestLap.ToBasic(); // If it's car's best lap, it must also be the driver
+                this.BestLap = this.LastLap;
+                this.CurrentDriver!.BestLap = this.BestLap.ToBasic(); // If it's car's best lap, it must also be the drivers
             }
 
             if (values.Session.IsRace) {

@@ -379,9 +379,9 @@ namespace KLPlugins.DynLeaderboards.Car {
                 if (this.LastLap.Time != null && this.LastLap.IsValid) {
                     if (this.BestLap == null || this.LastLap.Time < this.BestLap?.Time) {
                         this.BestLap = this.LastLap;
-                        this.CurrentDriver!.BestLap = this.BestLap.ToBasic(); // If it's car's best lap, it must also be the drivers
+                        this.CurrentDriver!.BestLap = this.BestLap; // If it's car's best lap, it must also be the drivers
                     } else if (this.CurrentDriver?.BestLap?.Time == null || this.LastLap.Time < this.CurrentDriver!.BestLap!.Time) {
-                        this.CurrentDriver!.BestLap = this.LastLap!.ToBasic();
+                        this.CurrentDriver!.BestLap = this.LastLap;
                     }
                 }
 
@@ -1289,61 +1289,7 @@ namespace KLPlugins.DynLeaderboards.Car {
             this.Driver = driver;
         }
 
-        internal LapBasic(Lap lap) : base(lap) {
-            this.Time = lap.Time;
-            this.LapNumber = lap.LapNumber;
-            this.Driver = lap.Driver;
-            this.IsOutLap = lap.IsOutLap;
-            this.IsInLap = lap.IsInLap;
-            this.IsValid = lap.IsValid;
-        }
-    }
-
-    public class Lap : Sectors {
-        public TimeSpan? Time { get; private set; }
-
-        public bool IsOutLap { get; internal set; } = false;
-        public bool IsInLap { get; internal set; } = false;
-        public bool IsValid { get; internal set; } = true;
-
-        public int LapNumber { get; private set; }
-        public Driver Driver { get; private set; }
-
-
-        public TimeSpan? DeltaToOwnBest { get; private set; }
-
-        public TimeSpan? DeltaToOverallBest { get; private set; }
-        public TimeSpan? DeltaToClassBest { get; private set; }
-        public TimeSpan? DeltaToCupBest { get; private set; }
-        public TimeSpan? DeltaToLeaderBest { get; private set; }
-        public TimeSpan? DeltaToClassLeaderBest { get; private set; }
-        public TimeSpan? DeltaToCupLeaderBest { get; private set; }
-        public TimeSpan? DeltaToFocusedBest { get; private set; }
-        public TimeSpan? DeltaToAheadBest { get; private set; }
-        public TimeSpan? DeltaToAheadInClassBest { get; private set; }
-        public TimeSpan? DeltaToAheadInCupBest { get; private set; }
-
-        public TimeSpan? DeltaToLeaderLast { get; private set; }
-        public TimeSpan? DeltaToClassLeaderLast { get; private set; }
-        public TimeSpan? DeltaToCupLeaderLast { get; private set; }
-        public TimeSpan? DeltaToFocusedLast { get; private set; }
-        public TimeSpan? DeltaToAheadLast { get; private set; }
-        public TimeSpan? DeltaToAheadInClassLast { get; private set; }
-        public TimeSpan? DeltaToAheadInCupLast { get; private set; }
-
-        internal Lap(SectorTimes? sectorTimes, TimeSpan? lapTime, int lapNumber, Driver driver) : base(sectorTimes) {
-            this.Time = lapTime ?? sectorTimes?.GetLapTime();
-
-            if (this.Time == TimeSpan.Zero) {
-                this.Time = null;
-            }
-
-            this.LapNumber = lapNumber;
-            this.Driver = driver;
-        }
-
-
-        internal Lap(ksBroadcastingNetwork.Structs.LapInfo lap, int lapNumber, Driver driver)
+        internal LapBasic(ksBroadcastingNetwork.Structs.LapInfo lap, int lapNumber, Driver driver)
             : base(
                 S1: lap.Splits?[0] != null ? TimeSpan.FromMilliseconds(lap.Splits[0]!.Value) : null,
                 S2: lap.Splits?[1] != null ? TimeSpan.FromMilliseconds(lap.Splits[1]!.Value) : null,
@@ -1365,9 +1311,42 @@ namespace KLPlugins.DynLeaderboards.Car {
             this.IsInLap = lap.Type == LapType.Inlap;
         }
 
-        public LapBasic ToBasic() {
-            return new LapBasic(this);
+        internal LapBasic(Lap lap) : base(lap) {
+            this.Time = lap.Time;
+            this.LapNumber = lap.LapNumber;
+            this.Driver = lap.Driver;
+            this.IsOutLap = lap.IsOutLap;
+            this.IsInLap = lap.IsInLap;
+            this.IsValid = lap.IsValid;
         }
+    }
+
+    public class Lap : LapBasic {
+        public TimeSpan? DeltaToOwnBest { get; private set; }
+
+        public TimeSpan? DeltaToOverallBest { get; private set; }
+        public TimeSpan? DeltaToClassBest { get; private set; }
+        public TimeSpan? DeltaToCupBest { get; private set; }
+        public TimeSpan? DeltaToLeaderBest { get; private set; }
+        public TimeSpan? DeltaToClassLeaderBest { get; private set; }
+        public TimeSpan? DeltaToCupLeaderBest { get; private set; }
+        public TimeSpan? DeltaToFocusedBest { get; private set; }
+        public TimeSpan? DeltaToAheadBest { get; private set; }
+        public TimeSpan? DeltaToAheadInClassBest { get; private set; }
+        public TimeSpan? DeltaToAheadInCupBest { get; private set; }
+
+        public TimeSpan? DeltaToLeaderLast { get; private set; }
+        public TimeSpan? DeltaToClassLeaderLast { get; private set; }
+        public TimeSpan? DeltaToCupLeaderLast { get; private set; }
+        public TimeSpan? DeltaToFocusedLast { get; private set; }
+        public TimeSpan? DeltaToAheadLast { get; private set; }
+        public TimeSpan? DeltaToAheadInClassLast { get; private set; }
+        public TimeSpan? DeltaToAheadInCupLast { get; private set; }
+
+        internal Lap(SectorTimes? sectorTimes, TimeSpan? lapTime, int lapNumber, Driver driver) : base(sectorTimes, lapTime, lapNumber, driver) { }
+
+
+        internal Lap(ksBroadcastingNetwork.Structs.LapInfo lap, int lapNumber, Driver driver) : base(lap, lapNumber, driver) { }
 
         internal void CalculateDeltas(
             CarData thisCar,

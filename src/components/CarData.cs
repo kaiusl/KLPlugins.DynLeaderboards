@@ -171,6 +171,17 @@ namespace KLPlugins.DynLeaderboards.Car {
             if (DynLeaderboardsPlugin.Game.IsAcc) {
                 var accRawData = (ACSharedMemory.Models.ACCOpponent)opponent;
 
+                var lastLap = accRawData.ExtraData.LastLap;
+                if (lastLap != null && lastLap.LaptimeMS != null && lastLap.IsValidForBest) {
+                    var driverRaw = accRawData.ExtraData.CarEntry.Drivers[lastLap.DriverIndex];
+                    var driver = this.Drivers.First(d => d.FirstName == driverRaw.FirstName && d.LastName == driverRaw.LastName);
+                    this.LastLap = new Lap(
+                        lastLap,
+                        this.Laps.New - 1,
+                        driver
+                    );
+                }
+
                 var bestLap = accRawData.ExtraData.BestSessionLap;
                 if (bestLap != null && bestLap.LaptimeMS != null && bestLap.IsValidForBest) {
                     var driverRaw = accRawData.ExtraData.CarEntry.Drivers[bestLap.DriverIndex];

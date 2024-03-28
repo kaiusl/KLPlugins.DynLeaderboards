@@ -202,7 +202,7 @@ namespace KLPlugins.DynLeaderboards {
 
                 void AddDriverProp<T>(OutDriverProp prop, string driverId, Func<T> valueProvider) {
                     if (l.Config.OutDriverProps.Includes(prop)) {
-                        this.AttachDelegate($"{startName}.{driverId}.{prop}", valueProvider);
+                        this.AttachDelegate($"{startName}.{driverId}.{prop.ToPropName()}", valueProvider);
                     }
                 }
 
@@ -281,7 +281,8 @@ namespace KLPlugins.DynLeaderboards {
                         var car = l.GetDynCar(i);
                         return car?.Drivers.ElementAtOrDefault(j).GetTotalDrivingTime(j == 0, car.CurrentStintTime).TotalSeconds;
                     });
-                    AddDriverProp(OutDriverProp.CategoryColor, driverId, () => l.GetDynCar(i)?.Drivers.ElementAtOrDefault(j)?.CategoryColor);
+                    AddDriverProp(OutDriverProp.CategoryColor, driverId, () => l.GetDynCar(i)?.Drivers.ElementAtOrDefault(j)?.CategoryColor.Bg);
+                    AddDriverProp(OutDriverProp.CategoryColorText, driverId, () => l.GetDynCar(i)?.Drivers.ElementAtOrDefault(j)?.CategoryColor.Fg);
                 }
 
                 if (l.Config.NumDrivers > 0) {

@@ -17,6 +17,7 @@ namespace KLPlugins.DynLeaderboards.Settings {
         TotalDrivingTime = 1 << 10,
         BestLapTime = 1 << 11,
         CategoryColor = 1 << 12,
+        CategoryColorText = 1 << 13
     }
 
     internal static class OutDriverPropExtensions {
@@ -45,8 +46,28 @@ namespace KLPlugins.DynLeaderboards.Settings {
                 OutDriverProp.TotalLaps,
                 OutDriverProp.TotalDrivingTime,
                 OutDriverProp.BestLapTime,
-                OutDriverProp.CategoryColor
+                OutDriverProp.CategoryColor,
+                OutDriverProp.CategoryColorText
              };
+        }
+
+
+        internal static string ToPropName(this OutDriverProp p) {
+            return p switch {
+                OutDriverProp.FirstName => "FirstName",
+                OutDriverProp.LastName => "LastName",
+                OutDriverProp.ShortName => "ShortName",
+                OutDriverProp.FullName => "FullName",
+                OutDriverProp.InitialPlusLastName => "InitialPlusLastName",
+                OutDriverProp.Nationality => "Nationality",
+                OutDriverProp.Category => "Category",
+                OutDriverProp.TotalLaps => "TotalLaps",
+                OutDriverProp.TotalDrivingTime => "TotalDrivingTime",
+                OutDriverProp.BestLapTime => "BestLapTime",
+                OutDriverProp.CategoryColor => "Category.Color",
+                OutDriverProp.CategoryColorText => "Category.TextColor",
+                _ => throw new ArgumentOutOfRangeException($"Invalid enum variant {p}"),
+            };
         }
 
         internal static string ToolTipText(this OutDriverProp p) {
@@ -62,7 +83,8 @@ namespace KLPlugins.DynLeaderboards.Settings {
                 OutDriverProp.TotalLaps => "Total number of completed laps",
                 OutDriverProp.TotalDrivingTime => "Total driving time in seconds",
                 OutDriverProp.BestLapTime => "Best lap time in seconds",
-                OutDriverProp.CategoryColor => "Color for driver category",
+                OutDriverProp.CategoryColor => "Background color for driver category",
+                OutDriverProp.CategoryColorText => "Text color for driver category",
                 _ => throw new ArgumentOutOfRangeException($"Invalid enum variant {p}"),
             };
         }

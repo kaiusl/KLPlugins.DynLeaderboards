@@ -26,10 +26,12 @@ namespace KLPlugins.DynLeaderboards {
 
         public ReadOnlyCollection<CarData> OverallOrder { get; }
         public ReadOnlyCollection<CarData> ClassOrder { get; }
+        public ReadOnlyCollection<CarData> CupOrder { get; }
         public ReadOnlyCollection<CarData> RelativeOnTrackAheadOrder { get; }
         public ReadOnlyCollection<CarData> RelativeOnTrackBehindOrder { get; }
         private List<CarData> _overallOrder { get; } = new();
         private List<CarData> _classOrder { get; } = new();
+        private List<CarData> _cupOrder { get; } = new();
         private List<CarData> _relativeOnTrackAheadOrder { get; } = new();
         private List<CarData> _relativeOnTrackBehindOrder { get; } = new();
         public CarData? FocusedCar { get; private set; } = null;
@@ -137,6 +139,7 @@ namespace KLPlugins.DynLeaderboards {
 
             this.OverallOrder = this._overallOrder.AsReadOnly();
             this.ClassOrder = this._classOrder.AsReadOnly();
+            this.CupOrder = this._cupOrder.AsReadOnly();
             this.RelativeOnTrackAheadOrder = this._relativeOnTrackAheadOrder.AsReadOnly();
             this.RelativeOnTrackBehindOrder = this._relativeOnTrackBehindOrder.AsReadOnly();
 
@@ -158,6 +161,7 @@ namespace KLPlugins.DynLeaderboards {
             this.Booleans.Reset();
             this._overallOrder.Clear();
             this._classOrder.Clear();
+            this._cupOrder.Clear();
             this._relativeOnTrackAheadOrder.Clear();
             this._relativeOnTrackBehindOrder.Clear();
             this.FocusedCar = null;
@@ -210,6 +214,7 @@ namespace KLPlugins.DynLeaderboards {
             IEnumerable<(Opponent, int)> cars = data.NewData.Opponents.WithIndex();
 
             Dictionary<CarClass, CarData> classBestLapCars = [];
+            Dictionary<(CarClass, TeamCupCategory), CarData> cupBestLapCars = [];
             CarData? overallBestLapCar = null;
             foreach (var (opponent, i) in cars) {
                 if (DynLeaderboardsPlugin.Game.IsAcc && opponent.Id == "Me") {
@@ -256,6 +261,16 @@ namespace KLPlugins.DynLeaderboards {
                         }
                     }
 
+                    if (!cupBestLapCars.ContainsKey((car.CarClass, car.TeamCupCategory))) {
+                        cupBestLapCars[(car.CarClass, car.TeamCupCategory)] = car;
+                    } else {
+                        var currentClassBestLap = cupBestLapCars[(car.CarClass, car.TeamCupCategory)].BestLap!.Time!; // If it's in the dict, it cannot be null
+
+                        if (car.BestLap.Time < currentClassBestLap) {
+                            cupBestLapCars[(car.CarClass, car.TeamCupCategory)] = car;
+                        }
+                    }
+
                     if (
                         overallBestLapCar == null
                         || car.BestLap.Time < overallBestLapCar.BestLap!.Time! // If it's set, it cannot be null
@@ -293,12 +308,17 @@ namespace KLPlugins.DynLeaderboards {
             }
 
             this._classOrder.Clear();
+            this._cupOrder.Clear();
             this._relativeOnTrackAheadOrder.Clear();
             this._relativeOnTrackBehindOrder.Clear();
             Dictionary<CarClass, int> classPositions = [];
             Dictionary<CarClass, CarData> classLeaders = [];
             Dictionary<CarClass, CarData> carAheadInClass = [];
+            Dictionary<(CarClass, TeamCupCategory), int> cupPositions = [];
+            Dictionary<(CarClass, TeamCupCategory), CarData> cupLeaders = [];
+            Dictionary<(CarClass, TeamCupCategory), CarData> carAheadInCup = [];
             var focusedClass = this.FocusedCar?.CarClass;
+            var focusedCup = this.FocusedCar?.TeamCupCategory;
             foreach (var (car, i) in this._overallOrder.WithIndex()) {
                 if (!car.IsUpdated) {
                     car.MissedUpdates += 1;
@@ -312,23 +332,31 @@ namespace KLPlugins.DynLeaderboards {
                     classPositions.Add(car.CarClass, 1);
                     classLeaders.Add(car.CarClass, car);
                 }
+                if (!cupPositions.ContainsKey((car.CarClass, car.TeamCupCategory))) {
+                    cupPositions.Add((car.CarClass, car.TeamCupCategory), 1);
+                    cupLeaders.Add((car.CarClass, car.TeamCupCategory), car);
+                }
                 car.SetClassPosition(classPositions[car.CarClass]++);
+                car.SetCupPosition(cupPositions[(car.CarClass, car.TeamCupCategory)]++);
                 if (focusedClass != null && car.CarClass == focusedClass) {
                     this._classOrder.Add(car);
+                    if (focusedCup != null && car.TeamCupCategory == focusedCup) {
+                        this._cupOrder.Add(car);
+                    }
                 }
 
                 car.UpdateDependsOnOthers(
                     values: this,
                     overallBestLapCar: overallBestLapCar,
                     classBestLapCar: classBestLapCars.GetValueOr(car.CarClass, null),
-                    cupBestLapCar: null, // TODO
+                    cupBestLapCar: cupBestLapCars.GetValueOr((car.CarClass, car.TeamCupCategory), null),
                     leaderCar: this._overallOrder.First(), // If we get there, there must be at least on car
                     classLeaderCar: classLeaders[car.CarClass], // If we get there, the leader must be present
-                    cupLeaderCar: null, // TODO: store all cup leader cars
+                    cupLeaderCar: cupLeaders[(car.CarClass, car.TeamCupCategory)], // If we get there, the leader must be present
                     focusedCar: this.FocusedCar,
                     carAhead: i > 0 ? this._overallOrder[i - 1] : null,
                     carAheadInClass: carAheadInClass.GetValueOr(car.CarClass, null),
-                    carAheadInCup: null, // TODO: store car ahead in each cup,
+                    carAheadInCup: carAheadInCup.GetValueOr((car.CarClass, car.TeamCupCategory), null),
                     carAheadOnTrack: this.GetCarAheadOnTrack(car)
                 );
 
@@ -341,6 +369,7 @@ namespace KLPlugins.DynLeaderboards {
                 }
 
                 carAheadInClass[car.CarClass] = car;
+                carAheadInCup[(car.CarClass, car.TeamCupCategory)] = car;
             }
 
             if (this.FocusedCar != null) {
@@ -371,16 +400,20 @@ namespace KLPlugins.DynLeaderboards {
             // This method is called after we have checked that all cars have NewData
             this._overallOrder.Sort((a, b) => a.RawDataNew.Position.CompareTo(b.RawDataNew.Position)); // Spline position may give wrong results if cars are sitting on the grid, thus NewData.Position
 
-            var classPositions = new Dictionary<CarClass, int>(0); // Keep track of what class position are we at the moment
-            //var cupPositions = new Dictionary<CarClass, EnumMap<TeamCupCategory, int>>((_) => new(0));  // Keep track of what cup position are we at the moment
+            var classPositions = new Dictionary<CarClass, int>(1); // Keep track of what class position are we at the moment
+            var cupPositions = new Dictionary<(CarClass, TeamCupCategory), int>(1); // Keep track of what cup position are we at the moment
             foreach (var (car, i) in this._overallOrder.WithIndex()) {
                 var thisClass = car.CarClass;
+                var thisCup = car.TeamCupCategory;
                 if (!classPositions.ContainsKey(thisClass)) {
                     classPositions.Add(thisClass, 0);
                 }
+                if (!cupPositions.ContainsKey((thisClass, thisCup))) {
+                    cupPositions.Add((thisClass, thisCup), 0);
+                }
                 var classPos = ++classPositions[thisClass];
-                //var cupPos = ++cupPositions[thisClass][thisCar.TeamCupCategory];
-                car.SetStartingPositions(i + 1, classPos);
+                var cupPos = ++cupPositions[(thisClass, thisCup)];
+                car.SetStartingPositions(i + 1, classPos, cupPos);
             }
             this._startingPositionsSet = true;
         }

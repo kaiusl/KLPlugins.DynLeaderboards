@@ -325,10 +325,10 @@ namespace KLPlugins.DynLeaderboards {
 
                 // //// Positions
                 AddPosProp(OutPosProp.ClassPosition, () => l.GetDynCar(i)?.PositionInClass);
-                // AddPosProp(OutPosProp.CupPosition, () => l.GetDynCar(i)?.InCupPos);
+                AddPosProp(OutPosProp.CupPosition, () => l.GetDynCar(i)?.PositionInCup);
                 AddPosProp(OutPosProp.OverallPosition, () => l.GetDynCar(i)?.PositionOverall);
                 AddPosProp(OutPosProp.ClassPositionStart, () => l.GetDynCar(i)?.PositionInClassStart);
-                // AddPosProp(OutPosProp.CupPositionStart, () => l.GetDynCar(i)?.StartPosInCup);
+                AddPosProp(OutPosProp.CupPositionStart, () => l.GetDynCar(i)?.PositionInCupStart);
                 AddPosProp(OutPosProp.OverallPositionStart, () => l.GetDynCar(i)?.PositionOverallStart);
 
                 AddPosProp(OutPosProp.DynamicPosition, () => l.GetDynPosition(i));
@@ -384,7 +384,7 @@ namespace KLPlugins.DynLeaderboards {
                 AddProp(OutCarProp.IsFocused, () => (l.GetDynCar(i)?.IsFocused ?? false).ToInt());
                 AddProp(OutCarProp.IsOverallBestLapCar, () => (l.GetDynCar(i)?.IsBestLapCarOverall ?? false).ToInt());
                 AddProp(OutCarProp.IsClassBestLapCar, () => (l.GetDynCar(i)?.IsBestLapCarInClass ?? false).ToInt());
-                // AddProp(OutCarProp.IsCupBestLapCar, () => (l.GetDynCar(i)?.IsCupBestLapCar ?? false) ? 1 : 0);
+                AddProp(OutCarProp.IsCupBestLapCar, () => (l.GetDynCar(i)?.IsBestLapCarInCup ?? false) ? 1 : 0);
                 AddProp(OutCarProp.RelativeOnTrackLapDiff, () => (int?)l.GetDynCar(i)?.RelativeOnTrackLapDiff ?? 0);
 
                 this.AttachDelegate($"{startName}.DBG_TotalSplinePosition", () => (l.GetDynCar(i))?.TotalSplinePosition);

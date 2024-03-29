@@ -399,7 +399,14 @@ namespace KLPlugins.DynLeaderboards.Car {
                     )
                 ) {
                     // Lap time end position may be offset with lap or spline position reset point.
-                    this.LastLap = new Lap(accRawData.ExtraData.LastLap!, this.Laps.New, this.CurrentDriver!);
+                    this.LastLap = new Lap(
+                        accRawData.ExtraData.LastLap!,
+                        this.Laps.New,
+                        this.CurrentDriver!,
+                        isValid: this._isLastLapValid,
+                        isInLap: this._isLastLapInLap,
+                        isOutLap: this._isLastLapOutLap
+                    );
 
                     var bestLap = accRawData.ExtraData.BestSessionLap;
                     if (bestLap != null) {
@@ -1392,6 +1399,19 @@ namespace KLPlugins.DynLeaderboards.Car {
             this.IsInLap = lap.Type == LapType.Inlap;
         }
 
+        internal LapBasic(
+            ksBroadcastingNetwork.Structs.LapInfo lap,
+            int lapNumber,
+            Driver driver,
+            bool isValid,
+            bool isOutLap,
+            bool isInLap
+        ) : this(lap, lapNumber, driver) {
+            this.IsValid &= isValid;
+            this.IsOutLap |= isOutLap;
+            this.IsInLap |= isInLap;
+        }
+
         internal LapBasic(Lap lap) : base(lap) {
             this.Time = lap.Time;
             this.LapNumber = lap.LapNumber;
@@ -1425,9 +1445,9 @@ namespace KLPlugins.DynLeaderboards.Car {
         public TimeSpan? DeltaToAheadInCupLast { get; private set; }
 
         internal Lap(SectorTimes? sectorTimes, TimeSpan? lapTime, int lapNumber, Driver driver) : base(sectorTimes, lapTime, lapNumber, driver) { }
-
-
         internal Lap(ksBroadcastingNetwork.Structs.LapInfo lap, int lapNumber, Driver driver) : base(lap, lapNumber, driver) { }
+        internal Lap(ksBroadcastingNetwork.Structs.LapInfo lap, int lapNumber, Driver driver, bool isValid, bool isOutLap, bool isInLap)
+            : base(lap, lapNumber, driver, isValid: isValid, isOutLap: isOutLap, isInLap: isInLap) { }
 
         internal void CalculateDeltas(
             CarData thisCar,

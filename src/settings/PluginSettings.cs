@@ -9,31 +9,31 @@ using Newtonsoft.Json.Linq;
 
 namespace KLPlugins.DynLeaderboards.Settings {
     internal class PluginSettings {
-        public int Version { get; set; } = 2;
-        public string AccDataLocation { get; set; }
-        public string? AcRootLocation { get; set; }
-        public bool Log { get; set; }
-        public int BroadcastDataUpdateRateMs { get; set; }
-        public OutGeneralProp OutGeneralProps = OutGeneralProp.None;
+        [JsonProperty] public int Version { get; set; } = 2;
+        [JsonProperty] public string AccDataLocation { get; set; }
+        [JsonProperty] public string? AcRootLocation { get; set; }
+        [JsonProperty] public bool Log { get; set; }
+        [JsonProperty] public int BroadcastDataUpdateRateMs { get; set; }
+        [JsonProperty] public OutGeneralProp OutGeneralProps = OutGeneralProp.None;
+        [JsonProperty] public bool Include_ST21_In_GT2 { get; set; }
+        [JsonProperty] public bool Include_CHL_In_GT2 { get; set; }
 
-        internal const int currentSettingsVersion = 2;
-        internal List<DynLeaderboardConfig> DynLeaderboardConfigs { get; set; } = new List<DynLeaderboardConfig>();
-        public bool Include_ST21_In_GT2 { get; set; }
-        public bool Include_CHL_In_GT2 { get; set; }
+        [JsonIgnore] internal const int currentSettingsVersion = 2;
+        [JsonIgnore] internal List<DynLeaderboardConfig> DynLeaderboardConfigs { get; set; } = [];
 
-        internal const string PluginDataDir = "PluginsData\\KLPlugins\\DynLeaderboards";
-        internal const string PluginDataDirBase = PluginDataDir + "\\base";
-        internal const string PluginDataDirOverrides = PluginDataDir + "\\overrides";
-        internal const string LeaderboardConfigsDataDir = PluginDataDir + "\\leaderboardConfigs";
-        internal const string LeaderboardConfigsDataBackupDir = LeaderboardConfigsDataDir + "\\b";
-        private static readonly string _defAccDataLocation = "C:\\Users\\" + Environment.UserName + "\\Documents\\Assetto Corsa Competizione";
+        [JsonIgnore] internal const string PluginDataDir = "PluginsData\\KLPlugins\\DynLeaderboards";
+        [JsonIgnore] internal const string PluginDataDirBase = PluginDataDir + "\\base";
+        [JsonIgnore] internal const string PluginDataDirOverrides = PluginDataDir + "\\overrides";
+        [JsonIgnore] internal const string LeaderboardConfigsDataDir = PluginDataDir + "\\leaderboardConfigs";
+        [JsonIgnore] internal const string LeaderboardConfigsDataBackupDir = LeaderboardConfigsDataDir + "\\b";
+        [JsonIgnore] private static readonly string _defAccDataLocation = "C:\\Users\\" + Environment.UserName + "\\Documents\\Assetto Corsa Competizione";
         private delegate JObject Migration(JObject o);
 
         internal PluginSettings() {
             this.AccDataLocation = _defAccDataLocation;
             this.Log = false;
             this.BroadcastDataUpdateRateMs = 500;
-            this.DynLeaderboardConfigs = new List<DynLeaderboardConfig>();
+            this.DynLeaderboardConfigs = [];
             this.Include_CHL_In_GT2 = false;
             this.Include_ST21_In_GT2 = false;
             this.SaveDynLeaderboardConfigs();
@@ -336,11 +336,12 @@ namespace KLPlugins.DynLeaderboards.Settings {
     }
 
     internal class DynLeaderboardConfig {
-        internal const int currentConfigVersion = 2;
+        [JsonIgnore] internal const int currentConfigVersion = 2;
 
-        public int Version { get; set; } = 2;
+        [JsonProperty] public int Version { get; set; } = 2;
 
-        private string _name = "";
+        [JsonIgnore] private string _name = "";
+        [JsonProperty]
         public string Name {
             get => this._name;
             set {
@@ -350,44 +351,47 @@ namespace KLPlugins.DynLeaderboards.Settings {
             }
         }
 
+        [JsonProperty]
         public OutCarProp OutCarProps = OutCarProp.CarNumber
-            | OutCarProp.CarClass
-            | OutCarProp.IsFinished
-            | OutCarProp.CarClassColor
-            | OutCarProp.TeamCupCategoryColor
-            | OutCarProp.TeamCupCategoryTextColor
-            | OutCarProp.RelativeOnTrackLapDiff;
+             | OutCarProp.CarClass
+             | OutCarProp.IsFinished
+             | OutCarProp.CarClassColor
+             | OutCarProp.TeamCupCategoryColor
+             | OutCarProp.TeamCupCategoryTextColor
+             | OutCarProp.RelativeOnTrackLapDiff;
 
-        public OutPitProp OutPitProps = OutPitProp.IsInPitLane;
-        public OutPosProp OutPosProps = OutPosProp.DynamicPosition;
-        public OutGapProp OutGapProps = OutGapProp.DynamicGapToFocused;
-        public OutStintProp OutStintProps = OutStintProp.None;
-        public OutDriverProp OutDriverProps = OutDriverProp.InitialPlusLastName;
+        [JsonProperty] public OutPitProp OutPitProps = OutPitProp.IsInPitLane;
+        [JsonProperty] public OutPosProp OutPosProps = OutPosProp.DynamicPosition;
+        [JsonProperty] public OutGapProp OutGapProps = OutGapProp.DynamicGapToFocused;
+        [JsonProperty] public OutStintProp OutStintProps = OutStintProp.None;
+        [JsonProperty] public OutDriverProp OutDriverProps = OutDriverProp.InitialPlusLastName;
 
+        [JsonProperty]
         public OutLapProp OutLapProps = OutLapProp.Laps
-            | OutLapProp.LastLapTime
-            | OutLapProp.BestLapTime
-            | OutLapProp.DynamicBestLapDeltaToFocusedBest
-            | OutLapProp.DynamicLastLapDeltaToFocusedLast;
+             | OutLapProp.LastLapTime
+             | OutLapProp.BestLapTime
+             | OutLapProp.DynamicBestLapDeltaToFocusedBest
+             | OutLapProp.DynamicLastLapDeltaToFocusedLast;
 
-        public int NumOverallPos { get; set; } = 16;
-        public int NumClassPos { get; set; } = 16;
-        public int NumCupPos { get; set; } = 16;
-        public int NumOnTrackRelativePos { get; set; } = 5;
-        public int NumOverallRelativePos { get; set; } = 5;
-        public int NumClassRelativePos { get; set; } = 5;
+        [JsonProperty] public int NumOverallPos { get; set; } = 16;
+        [JsonProperty] public int NumClassPos { get; set; } = 16;
+        [JsonProperty] public int NumCupPos { get; set; } = 16;
+        [JsonProperty] public int NumOnTrackRelativePos { get; set; } = 5;
+        [JsonProperty] public int NumOverallRelativePos { get; set; } = 5;
+        [JsonProperty] public int NumClassRelativePos { get; set; } = 5;
 
-        public int NumCupRelativePos { get; set; } = 5;
-        public int NumDrivers { get; set; } = 1;
-        public int PartialRelativeOverallNumOverallPos { get; set; } = 5;
-        public int PartialRelativeOverallNumRelativePos { get; set; } = 5;
-        public int PartialRelativeClassNumClassPos { get; set; } = 5;
-        public int PartialRelativeClassNumRelativePos { get; set; } = 5;
-        public int PartialRelativeCupNumCupPos { get; set; } = 5;
-        public int PartialRelativeCupNumRelativePos { get; set; } = 5;
+        [JsonProperty] public int NumCupRelativePos { get; set; } = 5;
+        [JsonProperty] public int NumDrivers { get; set; } = 1;
+        [JsonProperty] public int PartialRelativeOverallNumOverallPos { get; set; } = 5;
+        [JsonProperty] public int PartialRelativeOverallNumRelativePos { get; set; } = 5;
+        [JsonProperty] public int PartialRelativeClassNumClassPos { get; set; } = 5;
+        [JsonProperty] public int PartialRelativeClassNumRelativePos { get; set; } = 5;
+        [JsonProperty] public int PartialRelativeCupNumCupPos { get; set; } = 5;
+        [JsonProperty] public int PartialRelativeCupNumRelativePos { get; set; } = 5;
 
-        public List<Leaderboard> Order { get; set; } = new List<Leaderboard>();
+        [JsonProperty] public List<Leaderboard> Order { get; set; } = new List<Leaderboard>();
 
+        [JsonProperty]
         public int CurrentLeaderboardIdx {
             get => this._currentLeaderboardIdx;
             set {
@@ -395,9 +399,9 @@ namespace KLPlugins.DynLeaderboards.Settings {
                 this.CurrentLeaderboardName = this.CurrentLeaderboard().ToString();
             }
         }
-        private int _currentLeaderboardIdx = 0;
-        internal string CurrentLeaderboardName = "";
-        public bool IsEnabled { get; set; } = true;
+        [JsonIgnore] private int _currentLeaderboardIdx = 0;
+        [JsonIgnore] internal string CurrentLeaderboardName = "";
+        [JsonProperty] public bool IsEnabled { get; set; } = true;
 
         public Leaderboard CurrentLeaderboard() {
             return this.Order.ElementAtOrDefault(this.CurrentLeaderboardIdx);
@@ -407,7 +411,7 @@ namespace KLPlugins.DynLeaderboards.Settings {
 
         internal DynLeaderboardConfig(string name) {
             this.Name = name;
-            this.Order = new List<Leaderboard>() {
+            this.Order = [
                 Leaderboard.Overall,
                 Leaderboard.Class,
                 Leaderboard.Cup,
@@ -419,7 +423,7 @@ namespace KLPlugins.DynLeaderboards.Settings {
                 Leaderboard.RelativeCup,
                 Leaderboard.RelativeOnTrack,
                 Leaderboard.RelativeOnTrackWoPit
-            };
+            ];
             this.CurrentLeaderboardName = this.Order[this._currentLeaderboardIdx].ToString();
         }
 

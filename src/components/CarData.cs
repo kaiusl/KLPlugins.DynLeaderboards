@@ -360,46 +360,96 @@ namespace KLPlugins.DynLeaderboards.Car {
         /// Requires that this._expectingNewLap is set in this update
         /// </summary>
         private void UpdateLapTimes() {
-            this.CurrentLapTime = this.RawDataNew.CurrentLapTime ?? TimeSpan.Zero;
+            if (DynLeaderboardsPlugin.Game.IsAcc) {
+                // Special case ACC lap time updates.
+                // This fixes a bug where in qualy/practice session joining mid session misses lap invalidation.
+                // Thus possibly setting invalid lap as best lap. The order remains correct (it's set by the position received from ACC)
+                // but an invalid lap is shown as a lap.
+                // Since the order is supposed to be based on the best lap, this could show weird discrepancy between position and lap time.
 
-            // Need to check for new lap time separately since lap update and lap time update may not be in perfect sync
-            if (
-                this._expectingNewLap // GetLapTime, GetSectorSplit are relatively expensive and we don't need to check it every update
-                && this.RawDataNew.LastLapTime != null
-                 && this.RawDataNew.LastLapTime != TimeSpan.Zero
-                 // Sometimes LastLapTime and LastLapSectorTimes may differ very slightly. Check for both. If both are different then it's new lap.
-                 && (
-                    this.LastLap == null
-                    || (this.RawDataNew.LastLapTime != this.LastLap?.Time && this.RawDataNew.LastLapSectorTimes?.GetLapTime() != this.LastLap?.Time)
-                    || this.RawDataNew.LastLapSectorTimes?.GetSectorSplit(1) != this.LastLap?.S1Time
-                    || this.RawDataNew.LastLapSectorTimes?.GetSectorSplit(2) != this.LastLap?.S2Time
-                    || this.RawDataNew.LastLapSectorTimes?.GetSectorSplit(3) != this.LastLap?.S3Time
-                )
-            ) {
-                // Lap time end position may be offset with lap or spline position reset point.
-                this.LastLap = new Lap(this.RawDataNew.LastLapSectorTimes, this.RawDataNew.LastLapTime, this.Laps.New, this.CurrentDriver!) {
-                    IsValid = this.IsCurrentLapValid,
-                    IsOutLap = this.IsCurrentLapOutLap,
-                    IsInLap = this.IsCurrentLapInLap,
-                };
+                var accRawData = (ACSharedMemory.Models.ACCOpponent)this.RawDataNew;
 
-                //DynLeaderboardsPlugin.LogInfo($"[{this.Id}, #{this.CarNumber}] new last lap: {this.LastLap.Time}");
+                this.CurrentLapTime = accRawData.ExtraData.CurrentLap.LaptimeMS != null
+                    ? TimeSpan.FromMilliseconds(accRawData.ExtraData.CurrentLap.LaptimeMS.Value)
+                    : TimeSpan.Zero;
 
-                if (this.LastLap.Time != null && this.LastLap.IsValid) {
-                    if (this.BestLap == null || this.LastLap.Time < this.BestLap?.Time) {
-                        this.BestLap = this.LastLap;
-                        this.CurrentDriver!.BestLap = this.BestLap; // If it's car's best lap, it must also be the drivers
-                    } else if (this.CurrentDriver?.BestLap?.Time == null || this.LastLap.Time < this.CurrentDriver!.BestLap!.Time) {
-                        this.CurrentDriver!.BestLap = this.LastLap;
+                // Need to check for new lap time separately since lap update and lap time update may not be in perfect sync
+                var lastLap = accRawData.ExtraData.LastLap;
+                if (
+                    this._expectingNewLap // GetLapTime, GetSectorSplit are relatively expensive and we don't need to check it every update
+                    && lastLap != null
+                    && lastLap.LaptimeMS != null
+                    && lastLap.LaptimeMS != 0
+                    && (
+                        this.LastLap == null
+                        || (lastLap.LaptimeMS != this.LastLap?.Time?.TotalMilliseconds)
+                        || lastLap.Splits.ElementAtOr(0, null) != this.LastLap?.S1Time?.TotalMilliseconds
+                        || lastLap.Splits.ElementAtOr(1, null) != this.LastLap?.S2Time?.TotalMilliseconds
+                        || lastLap.Splits.ElementAtOr(2, null) != this.LastLap?.S3Time?.TotalMilliseconds
+                    )
+                ) {
+                    // Lap time end position may be offset with lap or spline position reset point.
+                    this.LastLap = new Lap(accRawData.ExtraData.LastLap!, this.Laps.New, this.CurrentDriver!);
+
+                    var bestLap = accRawData.ExtraData.BestSessionLap;
+                    if (bestLap != null) {
+                        if (this.BestLap?.Time == null || (bestLap.LaptimeMS ?? int.MaxValue) < this.BestLap.Time.Value.TotalMilliseconds) {
+                            this.BestLap = new Lap(bestLap!, this.Laps.New, this.CurrentDriver!);
+                            this.CurrentDriver!.BestLap = this.BestLap; // If it's car's best lap, it must also be the drivers
+                        } else if (this.CurrentDriver?.BestLap?.Time == null || (bestLap.LaptimeMS ?? int.MaxValue) < this.CurrentDriver!.BestLap!.Time.Value.TotalMilliseconds) {
+                            this.CurrentDriver!.BestLap = new LapBasic(bestLap!, this.Laps.New, this.CurrentDriver!);
+                        }
                     }
+
+                    this.BestSectors.Update(lastLap);
+
+                    this.IsCurrentLapValid = !this.IsInPitLane; // if we cross the line in pitlane, new lap is invalid
+                    this.IsCurrentLapOutLap = this.IsInPitLane; // also it will be an outlap
+                    this.IsCurrentLapInLap = false;
+                    this._expectingNewLap = false;
                 }
+            } else {
+                this.CurrentLapTime = this.RawDataNew.CurrentLapTime ?? TimeSpan.Zero;
 
-                this.BestSectors.Update(this.RawDataNew.BestSectorSplits);
+                // Need to check for new lap time separately since lap update and lap time update may not be in perfect sync
+                if (
+                    this._expectingNewLap // GetLapTime, GetSectorSplit are relatively expensive and we don't need to check it every update
+                    && this.RawDataNew.LastLapTime != null
+                     && this.RawDataNew.LastLapTime != TimeSpan.Zero
+                     // Sometimes LastLapTime and LastLapSectorTimes may differ very slightly. Check for both. If both are different then it's new lap.
+                     && (
+                        this.LastLap == null
+                        || (this.RawDataNew.LastLapTime != this.LastLap?.Time && this.RawDataNew.LastLapSectorTimes?.GetLapTime() != this.LastLap?.Time)
+                        || this.RawDataNew.LastLapSectorTimes?.GetSectorSplit(1) != this.LastLap?.S1Time
+                        || this.RawDataNew.LastLapSectorTimes?.GetSectorSplit(2) != this.LastLap?.S2Time
+                        || this.RawDataNew.LastLapSectorTimes?.GetSectorSplit(3) != this.LastLap?.S3Time
+                    )
+                ) {
+                    // Lap time end position may be offset with lap or spline position reset point.
+                    this.LastLap = new Lap(this.RawDataNew.LastLapSectorTimes, this.RawDataNew.LastLapTime, this.Laps.New, this.CurrentDriver!) {
+                        IsValid = this.IsCurrentLapValid,
+                        IsOutLap = this.IsCurrentLapOutLap,
+                        IsInLap = this.IsCurrentLapInLap,
+                    };
 
-                this.IsCurrentLapValid = !this.IsInPitLane; // if we cross the line in pitlane, new lap is invalid
-                this.IsCurrentLapOutLap = this.IsInPitLane; // also it will be an outlap
-                this.IsCurrentLapInLap = false;
-                this._expectingNewLap = false;
+                    //DynLeaderboardsPlugin.LogInfo($"[{this.Id}, #{this.CarNumber}] new last lap: {this.LastLap.Time}");
+
+                    if (this.LastLap.Time != null && this.LastLap.IsValid) {
+                        if (this.BestLap == null || this.LastLap.Time < this.BestLap?.Time) {
+                            this.BestLap = this.LastLap;
+                            this.CurrentDriver!.BestLap = this.BestLap; // If it's car's best lap, it must also be the drivers
+                        } else if (this.CurrentDriver?.BestLap?.Time == null || this.LastLap.Time < this.CurrentDriver!.BestLap!.Time) {
+                            this.CurrentDriver!.BestLap = this.LastLap;
+                        }
+                    }
+
+                    this.BestSectors.Update(this.RawDataNew.BestSectorSplits);
+
+                    this.IsCurrentLapValid = !this.IsInPitLane; // if we cross the line in pitlane, new lap is invalid
+                    this.IsCurrentLapOutLap = this.IsInPitLane; // also it will be an outlap
+                    this.IsCurrentLapInLap = false;
+                    this._expectingNewLap = false;
+                }
             }
         }
 
@@ -1285,6 +1335,15 @@ namespace KLPlugins.DynLeaderboards.Car {
             if (this.S3Time == TimeSpan.Zero) {
                 this.S3Time = null;
             }
+        }
+
+        internal void Update(ksBroadcastingNetwork.Structs.LapInfo lap) {
+            var s1 = lap.Splits.ElementAtOr(0, null);
+            var s2 = lap.Splits.ElementAtOr(1, null);
+            var s3 = lap.Splits.ElementAtOr(2, null);
+            this.S1Time = s1 != null && s1 != 0 ?  TimeSpan.FromMilliseconds(s1.Value) : null;
+            this.S2Time = s2 != null && s2 != 0 ? TimeSpan.FromMilliseconds(s2.Value) : null;
+            this.S3Time = s3 != null && s3 != 0 ? TimeSpan.FromMilliseconds(s3.Value) : null;
         }
     }
 

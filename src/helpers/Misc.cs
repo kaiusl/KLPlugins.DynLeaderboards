@@ -134,6 +134,14 @@ namespace KLPlugins.DynLeaderboards.Helpers {
             list.RemoveAt(from);
             list.Insert(to, item);
         }
+
+        internal static T? ElementAtOr<T>(this List<T> list, int index, T? defValue) {
+            if (index < 0 || index >= list.Count) {
+                return defValue;
+            }
+
+            return list[index];
+        }
     }
 
     internal static class DictExtensions {

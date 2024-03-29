@@ -140,15 +140,23 @@ namespace KLPlugins.DynLeaderboards.Track {
                 // Data order: splinePositions, lap time in ms, speed in kmh
                 var splits = l.Split(';');
                 double p = float.Parse(splits[0]) + this.SplinePosOffset;
+                var t = double.Parse(splits[1]);
+
                 if (p > 1.0) {
                     p -= 1.0;
                 }
+
+                if (p == pos.Last() || t == time.Last()) {
+                    // Interpolator expects increasing set of values. 
+                    // If two consecutive values are the same, the interpolator can return double.NaN.
+                    continue;
+                }
+
                 if (p < pos.Last() || p > 1.0) {
                     // pos needs to increasing for the linear interpolator to properly work
                     break;
                 }
 
-                var t = double.Parse(splits[1]);
                 pos.Add(p);
                 time.Add(t);
             }
@@ -165,6 +173,8 @@ namespace KLPlugins.DynLeaderboards.Track {
                 var slope = (y1 - y0) / (x1 - x0);
                 time.Add(y0 + (1.0 - x0) * slope);
             }
+
+            //DynLeaderboardsPlugin.LogInfo($"Read {pos.Count} points from {fname}. pos={pos.ToJson()}, time={time.ToJson()}");
 
             return new Tuple<List<double>, List<double>>(pos, time);
         }

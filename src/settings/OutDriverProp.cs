@@ -16,8 +16,9 @@ namespace KLPlugins.DynLeaderboards.Settings {
         TotalLaps = 1 << 9,
         TotalDrivingTime = 1 << 10,
         BestLapTime = 1 << 11,
-        CategoryColor = 1 << 12,
-        CategoryColorText = 1 << 13
+        CategoryColorDeprecated = 1 << 12,
+        CategoryColorText = 1 << 13,
+        CategoryColor = 1 << 14,
     }
 
     internal static class OutDriverPropExtensions {
@@ -46,6 +47,7 @@ namespace KLPlugins.DynLeaderboards.Settings {
                 OutDriverProp.TotalLaps,
                 OutDriverProp.TotalDrivingTime,
                 OutDriverProp.BestLapTime,
+                OutDriverProp.CategoryColorDeprecated,
                 OutDriverProp.CategoryColor,
                 OutDriverProp.CategoryColorText
              };
@@ -64,6 +66,7 @@ namespace KLPlugins.DynLeaderboards.Settings {
                 OutDriverProp.TotalLaps => "TotalLaps",
                 OutDriverProp.TotalDrivingTime => "TotalDrivingTime",
                 OutDriverProp.BestLapTime => "BestLapTime",
+                OutDriverProp.CategoryColorDeprecated => "CategoryColor",
                 OutDriverProp.CategoryColor => "Category.Color",
                 OutDriverProp.CategoryColorText => "Category.TextColor",
                 _ => throw new ArgumentOutOfRangeException($"Invalid enum variant {p}"),
@@ -77,12 +80,13 @@ namespace KLPlugins.DynLeaderboards.Settings {
                 OutDriverProp.LastName => "Last name (Fghij)",
                 OutDriverProp.ShortName => "Short name (AFG)",
                 OutDriverProp.FullName => "Full name (Abcde Fghij)",
-                OutDriverProp.InitialPlusLastName => "Initial + first name (A. Fghij)",
+                OutDriverProp.InitialPlusLastName => "Initial + last name (A. Fghij)",
                 OutDriverProp.Nationality => "Nationality",
                 OutDriverProp.Category => "Driver category (Platinum, Gold, Silver, Bronze)",
                 OutDriverProp.TotalLaps => "Total number of completed laps",
                 OutDriverProp.TotalDrivingTime => "Total driving time in seconds",
                 OutDriverProp.BestLapTime => "Best lap time in seconds",
+                OutDriverProp.CategoryColorDeprecated => "DEPRECATED. Use Category.Color instead.",
                 OutDriverProp.CategoryColor => "Background color for driver category",
                 OutDriverProp.CategoryColorText => "Text color for driver category",
                 _ => throw new ArgumentOutOfRangeException($"Invalid enum variant {p}"),

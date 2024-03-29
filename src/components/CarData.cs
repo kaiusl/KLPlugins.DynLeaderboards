@@ -37,6 +37,9 @@ namespace KLPlugins.DynLeaderboards.Car {
         public bool IsCurrentLapOutLap { get; private set; }
         public bool IsCurrentLapInLap { get; private set; }
         public bool IsCurrentLapValid { get; private set; }
+        private bool _isLastLapOutLap { get; set; }
+        private bool _isLastLapInLap { get; set; }
+        private bool _isLastLapValid { get; set; }
         public Lap? LastLap { get; private set; }
         public Lap? BestLap { get; private set; }
         public Sectors BestSectors { get; } = new();
@@ -286,15 +289,22 @@ namespace KLPlugins.DynLeaderboards.Car {
             this.MaxSpeed = Math.Max(this.MaxSpeed, this.RawDataNew.Speed ?? 0.0);
             this.UpdateDrivers(values, rawData);
 
-            if (this.IsCurrentLapValid) {
-                this.CheckIfLapInvalidated(rawData);
-            }
-
             if (this.IsNewLap) {
                 Debug.Assert(this.CurrentDriver != null, "Current driver shouldn't be null since someone had to finish this lap.");
                 var currentDriver = this.CurrentDriver!;
                 currentDriver.TotalLaps += 1;
                 this._expectingNewLap = true;
+                this._isLastLapInLap = this.IsCurrentLapInLap;
+                this._isLastLapOutLap = this.IsCurrentLapOutLap;
+                this._isLastLapValid = this.IsCurrentLapValid;
+
+                this.IsCurrentLapValid = !this.IsInPitLane; // if we cross the line in pitlane, new lap is invalid
+                this.IsCurrentLapOutLap = this.IsInPitLane; // also it will be an outlap
+                this.IsCurrentLapInLap = false;
+            }
+
+            if (this.IsCurrentLapValid) {
+                this.CheckIfLapInvalidated(rawData);
             }
 
             this.UpdateLapTimes();
@@ -313,7 +323,7 @@ namespace KLPlugins.DynLeaderboards.Car {
                 this.IsCurrentLapValid = false;
             } else if (DynLeaderboardsPlugin.Game.IsAcc) {
                 var accRawData = (ACSharedMemory.Models.ACCOpponent)rawData;
-                if (!accRawData.ExtraData.CurrentLap.IsValidForBest) {
+                if (!accRawData.ExtraData.CurrentLap.IsValidForBest || accRawData.ExtraData.CurrentLap.IsInvalid) {
                     this.IsCurrentLapValid = false;
                 }
             }
@@ -402,10 +412,6 @@ namespace KLPlugins.DynLeaderboards.Car {
                     }
 
                     this.BestSectors.Update(lastLap);
-
-                    this.IsCurrentLapValid = !this.IsInPitLane; // if we cross the line in pitlane, new lap is invalid
-                    this.IsCurrentLapOutLap = this.IsInPitLane; // also it will be an outlap
-                    this.IsCurrentLapInLap = false;
                     this._expectingNewLap = false;
                 }
             } else {
@@ -427,9 +433,9 @@ namespace KLPlugins.DynLeaderboards.Car {
                 ) {
                     // Lap time end position may be offset with lap or spline position reset point.
                     this.LastLap = new Lap(this.RawDataNew.LastLapSectorTimes, this.RawDataNew.LastLapTime, this.Laps.New, this.CurrentDriver!) {
-                        IsValid = this.IsCurrentLapValid,
-                        IsOutLap = this.IsCurrentLapOutLap,
-                        IsInLap = this.IsCurrentLapInLap,
+                        IsValid = this._isLastLapValid,
+                        IsOutLap = this._isLastLapOutLap,
+                        IsInLap = this._isLastLapInLap,
                     };
 
                     //DynLeaderboardsPlugin.LogInfo($"[{this.Id}, #{this.CarNumber}] new last lap: {this.LastLap.Time}");
@@ -444,10 +450,6 @@ namespace KLPlugins.DynLeaderboards.Car {
                     }
 
                     this.BestSectors.Update(this.RawDataNew.BestSectorSplits);
-
-                    this.IsCurrentLapValid = !this.IsInPitLane; // if we cross the line in pitlane, new lap is invalid
-                    this.IsCurrentLapOutLap = this.IsInPitLane; // also it will be an outlap
-                    this.IsCurrentLapInLap = false;
                     this._expectingNewLap = false;
                 }
             }
@@ -1341,7 +1343,7 @@ namespace KLPlugins.DynLeaderboards.Car {
             var s1 = lap.Splits.ElementAtOr(0, null);
             var s2 = lap.Splits.ElementAtOr(1, null);
             var s3 = lap.Splits.ElementAtOr(2, null);
-            this.S1Time = s1 != null && s1 != 0 ?  TimeSpan.FromMilliseconds(s1.Value) : null;
+            this.S1Time = s1 != null && s1 != 0 ? TimeSpan.FromMilliseconds(s1.Value) : null;
             this.S2Time = s2 != null && s2 != 0 ? TimeSpan.FromMilliseconds(s2.Value) : null;
             this.S3Time = s3 != null && s3 != 0 ? TimeSpan.FromMilliseconds(s3.Value) : null;
         }

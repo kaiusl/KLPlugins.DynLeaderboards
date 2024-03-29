@@ -167,6 +167,10 @@ namespace KLPlugins.DynLeaderboards.Car {
 
             this.SetStaticCarData(values, opponent);
 
+            // First lap in hotlap or hotstint is also a valid lap. 
+            this.IsCurrentLapValid = values.Session.SessionType == SessionType.Hotlap
+                || values.Session.SessionType == SessionType.Hotstint;
+
             this.PositionOverall = this.RawDataNew!.Position;
             this.PositionInClass = this.RawDataNew.PositionInClass;
             this.PositionInCup = this.PositionInClass;

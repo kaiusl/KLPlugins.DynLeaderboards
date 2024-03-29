@@ -281,6 +281,7 @@ namespace KLPlugins.DynLeaderboards {
                         var car = l.GetDynCar(i);
                         return car?.Drivers.ElementAtOrDefault(j).GetTotalDrivingTime(j == 0, car.CurrentStintTime).TotalSeconds;
                     });
+                    AddDriverProp(OutDriverProp.CategoryColorDeprecated, driverId, () => l.GetDynCar(i)?.Drivers.ElementAtOrDefault(j)?.CategoryColor.Bg);
                     AddDriverProp(OutDriverProp.CategoryColor, driverId, () => l.GetDynCar(i)?.Drivers.ElementAtOrDefault(j)?.CategoryColor.Bg);
                     AddDriverProp(OutDriverProp.CategoryColorText, driverId, () => l.GetDynCar(i)?.Drivers.ElementAtOrDefault(j)?.CategoryColor.Fg);
                 }

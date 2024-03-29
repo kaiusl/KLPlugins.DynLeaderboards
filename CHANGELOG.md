@@ -6,6 +6,33 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Added
+
+- Support other games, not only ACC.
+- New car specific properties:
+  - `Driver.Category.Color`
+  - `Driver.Category.TextColor`
+  - `Car.Class.TextColor`
+- New general properties:
+  - `Color.Class.<class>.Text`
+  - `Color.DriverCategory.<category>.Text`
+- New config files:
+  - to edit static car info like class and manufacturer.
+  - to edit car class, driver category and team cup category color
+
+### Changed
+
+- Rewrite internals using the data provided by SimHub. 
+  Our own connection to ACC is completely removed (at least for now).
+- Deprecate `Driver.CategoryColor` property in favour of `Driver.Category.Color` 
+  which matches the names of other similar properties.
+
+### Removed
+
+- Option to change class, cup and driver colors in the SimHub
+  settings menu. For now these colors can be edited from config files.
+  Graphical setting menu is planned but not done yet.
+
 ## [1.4.5] - 2024-05-07
 
 - Support Ford Mustang GT3 which was added in ACC v1.10.2.

@@ -90,17 +90,16 @@ namespace KLPlugins.DynLeaderboards {
                     this.GetDynPositionStart = (i) => this.GetDynCar(i)?.PositionInClassStart;
                     break;
 
-                // case Leaderboard.Cup:
-                //     this.GetDynCar = (i) => v.GetCar(i, v.PosInCupCarsIdxs);
-                //     this.GetFocusedCarIdxInDynLeaderboard = () => v.FocusedCarPosInCupCarsIdxs;
-                //     this.GetDynGapToFocused = (i) => this.GetDynCar(i)?.GapToCupLeader;
-                //     this.GetDynGapToAhead = (i) => this.GetDynCar(i)?.GapToAheadInCup;
-                //     this.GetDynBestLapDeltaToFocusedBest = (i) => this.GetDynCar(i)?.BestLapDeltaToCupLeaderBest;
-                //     this.GetDynLastLapDeltaToFocusedBest = (i) => this.GetDynCar(i)?.LastLapDeltaToCupLeaderBest;
-                //     this.GetDynLastLapDeltaToFocusedLast = (i) => this.GetDynCar(i)?.LastLapDeltaToCupLeaderLast;
-                //     this.GetDynPosition = (i) => this.GetDynCar(i)?.InCupPos;
-                //     this.GetDynPositionStart = (i) => this.GetDynCar(i)?.StartPosInCup;
-                //     break;
+                case Leaderboard.Cup:
+                    this.GetDynCar = (i) => v.CupOrder.ElementAtOrDefault(i);
+                    this.GetDynGapToFocused = (i) => this.GetDynCar(i)?.GapToCupLeader;
+                    this.GetDynGapToAhead = (i) => this.GetDynCar(i)?.GapToAheadInCup;
+                    this.GetDynBestLapDeltaToFocusedBest = (i) => this.GetDynCar(i)?.BestLap?.DeltaToCupLeaderBest;
+                    this.GetDynLastLapDeltaToFocusedBest = (i) => this.GetDynCar(i)?.LastLap?.DeltaToCupLeaderBest;
+                    this.GetDynLastLapDeltaToFocusedLast = (i) => this.GetDynCar(i)?.LastLap?.DeltaToCupLeaderLast;
+                    this.GetDynPosition = (i) => this.GetDynCar(i)?.PositionInCup;
+                    this.GetDynPositionStart = (i) => this.GetDynCar(i)?.PositionInCupStart;
+                    break;
 
                 case Leaderboard.RelativeOverall:
                 case Leaderboard.PartialRelativeOverall:
@@ -126,33 +125,17 @@ namespace KLPlugins.DynLeaderboards {
                     this.GetDynPositionStart = (i) => this.GetDynCar(i)?.PositionInClassStart;
                     break;
 
-                // case Leaderboard.RelativeCup:
-                //     this._relativeCupCarsIdxs ??= new int?[this.Settings.NumCupRelativePos * 2 + 1];
-
-                //     this.GetDynCar = (i) => v.GetCar(i, this._relativeCupCarsIdxs);
-                //     this.GetFocusedCarIdxInDynLeaderboard = () => this.Settings.NumCupRelativePos;
-                //     this.GetDynGapToFocused = (i) => this.GetDynCar(i)?.GapToFocusedTotal;
-                //     this.GetDynGapToAhead = (i) => this.GetDynCar(i)?.GapToAheadInCup;
-                //     this.GetDynBestLapDeltaToFocusedBest = (i) => this.GetDynCar(i)?.BestLapDeltaToFocusedBest;
-                //     this.GetDynLastLapDeltaToFocusedBest = (i) => this.GetDynCar(i)?.LastLapDeltaToFocusedBest;
-                //     this.GetDynLastLapDeltaToFocusedLast = (i) => this.GetDynCar(i)?.LastLapDeltaToFocusedLast;
-                //     this.GetDynPosition = (i) => this.GetDynCar(i)?.InCupPos;
-                //     this.GetDynPositionStart = (i) => this.GetDynCar(i)?.StartPosInCup;
-                //     break;
-
-                // case Leaderboard.PartialRelativeCup:
-                //     this._partialRelativeCupCarsIdxs ??= new int?[this.Settings.PartialRelativeCupNumCupPos + this.Settings.PartialRelativeCupNumRelativePos * 2 + 1];
-
-                //     this.GetDynCar = (i) => v.GetCar(i, this._partialRelativeCupCarsIdxs);
-                //     this.GetFocusedCarIdxInDynLeaderboard = () => this._focusedCarPosInPartialRelativeCupCarsIdxs;
-                //     this.GetDynGapToFocused = (i) => this.GetDynCar(i)?.GapToFocusedTotal;
-                //     this.GetDynGapToAhead = (i) => this.GetDynCar(i)?.GapToAheadInCup;
-                //     this.GetDynBestLapDeltaToFocusedBest = (i) => this.GetDynCar(i)?.BestLapDeltaToFocusedBest;
-                //     this.GetDynLastLapDeltaToFocusedBest = (i) => this.GetDynCar(i)?.LastLapDeltaToFocusedBest;
-                //     this.GetDynLastLapDeltaToFocusedLast = (i) => this.GetDynCar(i)?.LastLapDeltaToFocusedLast;
-                //     this.GetDynPosition = (i) => this.GetDynCar(i)?.InCupPos;
-                //     this.GetDynPositionStart = (i) => this.GetDynCar(i)?.StartPosInCup;
-                //     break;
+                case Leaderboard.RelativeCup:
+                case Leaderboard.PartialRelativeCup:
+                    this.GetDynCar = (i) => this._cars.ElementAtOrDefault(i);
+                    this.GetDynGapToFocused = (i) => this.GetDynCar(i)?.GapToFocusedTotal;
+                    this.GetDynGapToAhead = (i) => this.GetDynCar(i)?.GapToAheadInCup;
+                    this.GetDynBestLapDeltaToFocusedBest = (i) => this.GetDynCar(i)?.BestLap?.DeltaToFocusedBest;
+                    this.GetDynLastLapDeltaToFocusedBest = (i) => this.GetDynCar(i)?.LastLap?.DeltaToFocusedBest;
+                    this.GetDynLastLapDeltaToFocusedLast = (i) => this.GetDynCar(i)?.LastLap?.DeltaToFocusedLast;
+                    this.GetDynPosition = (i) => this.GetDynCar(i)?.PositionInCup;
+                    this.GetDynPositionStart = (i) => this.GetDynCar(i)?.PositionInCupStart;
+                    break;
 
                 case Leaderboard.RelativeOnTrack:
                 case Leaderboard.RelativeOnTrackWoPit:
@@ -184,6 +167,9 @@ namespace KLPlugins.DynLeaderboards {
                 case Leaderboard.Class:
                     this.FocusedIndex = v.FocusedCar.IndexClass;
                     break;
+                case Leaderboard.Cup:
+                    this.FocusedIndex = v.FocusedCar.IndexCup;
+                    break;
                 case Leaderboard.RelativeOverall:
                     this.SetCarsRelativeX(
                         numRelPos: this.Config.NumOverallRelativePos,
@@ -196,6 +182,13 @@ namespace KLPlugins.DynLeaderboards {
                         numRelPos: this.Config.NumClassRelativePos,
                         cars: v.ClassOrder,
                         focusedCarIndexInCars: v.FocusedCar.IndexClass
+                    );
+                    break;
+                case Leaderboard.RelativeCup:
+                    this.SetCarsRelativeX(
+                        numRelPos: this.Config.NumCupRelativePos,
+                        cars: v.CupOrder,
+                        focusedCarIndexInCars: v.FocusedCar.IndexCup
                     );
                     break;
                 case Leaderboard.PartialRelativeOverall:
@@ -212,6 +205,14 @@ namespace KLPlugins.DynLeaderboards {
                         numRelPos: this.Config.PartialRelativeClassNumRelativePos,
                         cars: v.ClassOrder,
                         focusedCarIndexInCars: v.FocusedCar.IndexClass
+                    );
+                    break;
+                case Leaderboard.PartialRelativeCup:
+                    this.SetCarsPartialRelativeX(
+                        numTopPos: this.Config.PartialRelativeCupNumCupPos,
+                        numRelPos: this.Config.PartialRelativeCupNumRelativePos,
+                        cars: v.CupOrder,
+                        focusedCarIndexInCars: v.FocusedCar.IndexCup
                     );
                     break;
                 case Leaderboard.RelativeOnTrack: {

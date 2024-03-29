@@ -43,6 +43,7 @@ namespace KLPlugins.DynLeaderboards.Car {
 
         public bool IsBestLapCarOverall { get; private set; }
         public bool IsBestLapCarInClass { get; private set; }
+        public bool IsBestLapCarInCup { get; private set; }
 
         public bool IsFocused => this.RawDataNew.IsPlayer;
 
@@ -55,8 +56,10 @@ namespace KLPlugins.DynLeaderboards.Car {
 
         public int PositionOverall { get; private set; }
         public int PositionInClass { get; private set; }
+        public int PositionInCup { get; private set; }
         public int? PositionOverallStart { get; private set; }
         public int? PositionInClassStart { get; private set; }
+        public int? PositionInCupStart { get; private set; }
         /// <summary>
         /// Index of this car in Values.OverallOrder.
         /// </summary>
@@ -65,7 +68,7 @@ namespace KLPlugins.DynLeaderboards.Car {
         /// Index of this car in Values.ClassOrder.
         /// </summary>
         public int IndexClass { get; private set; }
-
+        public int IndexCup { get; private set; }
         public bool IsInPitLane { get; private set; }
         public bool ExitedPitLane { get; private set; }
         public bool EnteredPitLane { get; private set; }
@@ -166,6 +169,7 @@ namespace KLPlugins.DynLeaderboards.Car {
 
             this.PositionOverall = this.RawDataNew!.Position;
             this.PositionInClass = this.RawDataNew.PositionInClass;
+            this.PositionInCup = this.PositionInClass;
             this.UpdateIndependent(values, opponent);
 
             if (DynLeaderboardsPlugin.Game.IsAcc) {
@@ -267,6 +271,7 @@ namespace KLPlugins.DynLeaderboards.Car {
 
             this.IsBestLapCarOverall = false;
             this.IsBestLapCarInClass = false;
+            this.IsBestLapCarInCup = false;
 
             this.Laps.Update((this.RawDataNew.CurrentLap ?? 1) - 1);
             this.IsNewLap = this.Laps.New > this.Laps.Old;
@@ -614,10 +619,10 @@ namespace KLPlugins.DynLeaderboards.Car {
         /// </summary>
         /// <param name="overall"></param>
         /// <param name="inClass"></param>
-        internal void SetStartingPositions(int overall, int inClass) {
+        internal void SetStartingPositions(int overall, int inClass, int inCup) {
             this.PositionOverallStart = overall;
             this.PositionInClassStart = inClass;
-            //this.StartPosInCup = inCup;
+            this.PositionInCupStart = inCup;
         }
 
         /// <summary>
@@ -643,8 +648,12 @@ namespace KLPlugins.DynLeaderboards.Car {
             if (overallBestLapCar == this) {
                 this.IsBestLapCarOverall = true;
                 this.IsBestLapCarInClass = true;
+                this.IsBestLapCarInCup = true;
             } else if (classBestLapCar == this) {
                 this.IsBestLapCarInClass = true;
+                this.IsBestLapCarInCup = true;
+            } else if (cupBestLapCar == this) {
+                this.IsBestLapCarInCup = true;
             }
 
             if (this.IsFocused) {
@@ -714,6 +723,13 @@ namespace KLPlugins.DynLeaderboards.Car {
             Debug.Assert(cls > 0);
             this.PositionInClass = cls;
             this.IndexClass = cls - 1;
+        }
+
+
+        internal void SetCupPosition(int cup) {
+            Debug.Assert(cup > 0);
+            this.PositionInCup = cup;
+            this.IndexCup = cup - 1;
         }
 
         private void SetRelLapDiff(CarData focusedCar) {

@@ -179,11 +179,15 @@ namespace KLPlugins.DynLeaderboards.Car {
             this.PositionInCup = this.PositionInClass;
             this.UpdateIndependent(values, opponent);
 
+            this.CheckGameLapTimes(opponent);
+        }
+
+        private void CheckGameLapTimes(Opponent opponent) {
             if (DynLeaderboardsPlugin.Game.IsAcc) {
                 var accRawData = (ACSharedMemory.Models.ACCOpponent)opponent;
 
                 var lastLap = accRawData.ExtraData.LastLap;
-                if (lastLap != null && lastLap.LaptimeMS != null && lastLap.IsValidForBest) {
+                if (lastLap != null && lastLap.LaptimeMS != null) {
                     var driverRaw = accRawData.ExtraData.CarEntry.Drivers[lastLap.DriverIndex];
                     var driver = this.Drivers.First(d => d.FirstName == driverRaw.FirstName && d.LastName == driverRaw.LastName);
                     this.LastLap = new Lap(

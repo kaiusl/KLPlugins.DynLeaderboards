@@ -231,6 +231,12 @@ namespace KLPlugins.DynLeaderboards {
 
             IEnumerable<(Opponent, int)> cars = data.NewData.Opponents.WithIndex();
 
+            string? focusedCarId = null;
+            if (DynLeaderboardsPlugin.Game.IsAcc) {
+                var accRawData = (ACSharedMemory.ACC.Reader.ACCRawData)data.NewData.GetRawDataObject();
+                focusedCarId = accRawData.Realtime?.FocusedCarIndex.ToString();
+            }
+
             CarData? overallBestLapCar = null;
             foreach (var (opponent, i) in cars) {
                 if (DynLeaderboardsPlugin.Game.IsAcc && opponent.Id == "Me") {
@@ -247,11 +253,11 @@ namespace KLPlugins.DynLeaderboards {
                     if (!opponent.IsConnected || (DynLeaderboardsPlugin.Game.IsAcc && opponent.Coordinates == null)) {
                         continue;
                     }
-                    car = new CarData(this, opponent);
+                    car = new CarData(this, focusedCarId, opponent);
                     this._overallOrder.Add(car);
                 } else {
                     Debug.Assert(car.Id == opponent.Id);
-                    car.UpdateIndependent(this, opponent);
+                    car.UpdateIndependent(this, focusedCarId, opponent);
 
                     // Note: car.IsFinished is actually updated in car.UpdateDependsOnOthers.
                     // Thus is the player manages to finish the race and exit before the first update, we would remove them.

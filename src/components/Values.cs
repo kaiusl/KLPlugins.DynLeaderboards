@@ -471,6 +471,10 @@ namespace KLPlugins.DynLeaderboards {
                             // Both cars have finished
                             var aFTime = a.FinishTime == null ? long.MaxValue : a.FinishTime.Value.Ticks;
                             var bFTime = b.FinishTime == null ? long.MaxValue : b.FinishTime.Value.Ticks;
+
+                            if (aFTime == bFTime) {
+                                return a.RawDataNew.Position.CompareTo(b.RawDataNew.Position);
+                            }
                             return aFTime.CompareTo(bFTime);
                         }
                     }

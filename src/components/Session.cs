@@ -239,6 +239,25 @@ namespace KLPlugins.DynLeaderboards {
                     ksBroadcastingNetwork.SessionPhase.ResultUI => SessionPhase.ResultUI,
                     _ => throw new System.Exception($"Unknown session phase {accData.Realtime.Phase}"),
                 };
+            } else if (DynLeaderboardsPlugin.Game.IsRf2) {
+                var rf2Data = (RfactorReader.RF2.WrapV2)data.NewData.GetRawDataObject();
+
+                var phase = rf2Data.Data.mGamePhase switch {
+                    0 => SessionPhase.Starting,
+                    1 or 2 => SessionPhase.PreFormation,
+                    3 => SessionPhase.FormationLap,
+                    4 => SessionPhase.PreSession,
+                    5 => SessionPhase.Session,
+                    6 => SessionPhase.Session, // actually FCY or safety car
+                    7 => SessionPhase.Session, // described as session stopped, not sure what it means
+                    8 => SessionPhase.SessionOver,
+                    9 => SessionPhase.Unknown, // it's possible but don't know that it means
+                    _ => SessionPhase.Unknown
+                };
+                if (phase == SessionPhase.Unknown) {
+                    DynLeaderboardsPlugin.LogWarn($"Unknown session phase {rf2Data.Data.mGamePhase}");
+                }
+                return phase;
             } else {
                 // TODO: Figure out how to detect these in other games
                 return SessionPhase.Unknown;

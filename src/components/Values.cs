@@ -44,7 +44,7 @@ namespace KLPlugins.DynLeaderboards {
         /// <param name="carName">Car name returned by Opponent.CarName</param>
         /// <returns></returns>
         internal CarInfo? GetCarInfo(string carName) {
-            return _carInfos.GetValueOr(carName, null);
+            return this._carInfos.GetValueOr(carName, null);
         }
 
         private static Dictionary<string, CarInfo> ReadCarInfos() {
@@ -84,23 +84,23 @@ namespace KLPlugins.DynLeaderboards {
 
         private readonly TextBoxColors<CarClass> _carClassColors;
         internal TextBoxColor? GetCarClassColor(CarClass carClass) {
-            return _carClassColors.Get(carClass);
+            return this._carClassColors.Get(carClass);
         }
-        internal IEnumerable<KeyValuePair<CarClass, TextBoxColor>> CarClassColors => _carClassColors.GetEnumerable();
+        internal IEnumerable<KeyValuePair<CarClass, TextBoxColor>> CarClassColors => this._carClassColors.GetEnumerable();
 
 
         private readonly TextBoxColors<TeamCupCategory> _teamCupCategoryColors;
         internal TextBoxColor? GetTeamCupCategoryColor(TeamCupCategory teamCupCategory) {
-            return _teamCupCategoryColors.Get(teamCupCategory);
+            return this._teamCupCategoryColors.Get(teamCupCategory);
         }
-        internal IEnumerable<KeyValuePair<TeamCupCategory, TextBoxColor>> TeamCupCategoryColors => _teamCupCategoryColors.GetEnumerable();
+        internal IEnumerable<KeyValuePair<TeamCupCategory, TextBoxColor>> TeamCupCategoryColors => this._teamCupCategoryColors.GetEnumerable();
 
 
         private readonly TextBoxColors<DriverCategory> _driverCategoryColors;
         internal TextBoxColor? GetDriverCategoryColor(DriverCategory teamCupCategory) {
-            return _driverCategoryColors.Get(teamCupCategory);
+            return this._driverCategoryColors.Get(teamCupCategory);
         }
-        internal IEnumerable<KeyValuePair<DriverCategory, TextBoxColor>> DriverCategoryColors => _driverCategoryColors.GetEnumerable();
+        internal IEnumerable<KeyValuePair<DriverCategory, TextBoxColor>> DriverCategoryColors => this._driverCategoryColors.GetEnumerable();
 
         private static TextBoxColors<K> ReadTextBoxColors<K>(string fileName) {
             var pathEnd = $"\\{fileName}";
@@ -132,10 +132,10 @@ namespace KLPlugins.DynLeaderboards {
         private bool _startingPositionsSet = false;
 
         internal Values() {
-            _carInfos = ReadCarInfos();
-            _carClassColors = ReadTextBoxColors<CarClass>("CarClassColors.json");
-            _teamCupCategoryColors = ReadTextBoxColors<TeamCupCategory>("TeamCupCategoryColors.json");
-            _driverCategoryColors = ReadTextBoxColors<DriverCategory>("DriverCategoryColors.json");
+            this._carInfos = ReadCarInfos();
+            this._carClassColors = ReadTextBoxColors<CarClass>("CarClassColors.json");
+            this._teamCupCategoryColors = ReadTextBoxColors<TeamCupCategory>("TeamCupCategoryColors.json");
+            this._driverCategoryColors = ReadTextBoxColors<DriverCategory>("DriverCategoryColors.json");
 
             this.OverallOrder = this._overallOrder.AsReadOnly();
             this.ClassOrder = this._classOrder.AsReadOnly();
@@ -147,7 +147,7 @@ namespace KLPlugins.DynLeaderboards {
         }
 
         internal void UpdateCarInfos() {
-            _carInfos = ReadCarInfos();
+            this._carInfos = ReadCarInfos();
         }
 
         internal void Reset() {
@@ -210,11 +210,27 @@ namespace KLPlugins.DynLeaderboards {
             this.UpdateCars(data);
         }
 
+        // Temporary dicts used in UpdateCars. Don't allocate new one at each update, just clear them.
+        private readonly Dictionary<CarClass, CarData> _classBestLapCars = [];
+        private readonly Dictionary<(CarClass, TeamCupCategory), CarData> _cupBestLapCars = [];
+        private readonly Dictionary<CarClass, int> _classPositions = [];
+        private readonly Dictionary<CarClass, CarData> _classLeaders = [];
+        private readonly Dictionary<CarClass, CarData> _carAheadInClass = [];
+        private readonly Dictionary<(CarClass, TeamCupCategory), int> _cupPositions = [];
+        private readonly Dictionary<(CarClass, TeamCupCategory), CarData> _cupLeaders = [];
+        private readonly Dictionary<(CarClass, TeamCupCategory), CarData> _carAheadInCup = [];
         private void UpdateCars(GameData data) {
+            this._classBestLapCars.Clear();
+            this._cupBestLapCars.Clear();
+            this._classPositions.Clear();
+            this._classLeaders.Clear();
+            this._carAheadInClass.Clear();
+            this._cupPositions.Clear();
+            this._cupLeaders.Clear();
+            this._carAheadInCup.Clear();
+
             IEnumerable<(Opponent, int)> cars = data.NewData.Opponents.WithIndex();
 
-            Dictionary<CarClass, CarData> classBestLapCars = [];
-            Dictionary<(CarClass, TeamCupCategory), CarData> cupBestLapCars = [];
             CarData? overallBestLapCar = null;
             foreach (var (opponent, i) in cars) {
                 if (DynLeaderboardsPlugin.Game.IsAcc && opponent.Id == "Me") {
@@ -251,23 +267,23 @@ namespace KLPlugins.DynLeaderboards {
 
 
                 if (car.BestLap?.Time != null) {
-                    if (!classBestLapCars.ContainsKey(car.CarClass)) {
-                        classBestLapCars[car.CarClass] = car;
+                    if (!this._classBestLapCars.ContainsKey(car.CarClass)) {
+                        this._classBestLapCars[car.CarClass] = car;
                     } else {
-                        var currentClassBestLap = classBestLapCars[car.CarClass].BestLap!.Time!; // If it's in the dict, it cannot be null
+                        var currentClassBestLap = this._classBestLapCars[car.CarClass].BestLap!.Time!; // If it's in the dict, it cannot be null
 
                         if (car.BestLap.Time < currentClassBestLap) {
-                            classBestLapCars[car.CarClass] = car;
+                            this._classBestLapCars[car.CarClass] = car;
                         }
                     }
 
-                    if (!cupBestLapCars.ContainsKey((car.CarClass, car.TeamCupCategory))) {
-                        cupBestLapCars[(car.CarClass, car.TeamCupCategory)] = car;
+                    if (!this._cupBestLapCars.ContainsKey((car.CarClass, car.TeamCupCategory))) {
+                        this._cupBestLapCars[(car.CarClass, car.TeamCupCategory)] = car;
                     } else {
-                        var currentClassBestLap = cupBestLapCars[(car.CarClass, car.TeamCupCategory)].BestLap!.Time!; // If it's in the dict, it cannot be null
+                        var currentClassBestLap = this._cupBestLapCars[(car.CarClass, car.TeamCupCategory)].BestLap!.Time!; // If it's in the dict, it cannot be null
 
                         if (car.BestLap.Time < currentClassBestLap) {
-                            cupBestLapCars[(car.CarClass, car.TeamCupCategory)] = car;
+                            this._cupBestLapCars[(car.CarClass, car.TeamCupCategory)] = car;
                         }
                     }
 
@@ -311,12 +327,6 @@ namespace KLPlugins.DynLeaderboards {
             this._cupOrder.Clear();
             this._relativeOnTrackAheadOrder.Clear();
             this._relativeOnTrackBehindOrder.Clear();
-            Dictionary<CarClass, int> classPositions = [];
-            Dictionary<CarClass, CarData> classLeaders = [];
-            Dictionary<CarClass, CarData> carAheadInClass = [];
-            Dictionary<(CarClass, TeamCupCategory), int> cupPositions = [];
-            Dictionary<(CarClass, TeamCupCategory), CarData> cupLeaders = [];
-            Dictionary<(CarClass, TeamCupCategory), CarData> carAheadInCup = [];
             var focusedClass = this.FocusedCar?.CarClass;
             var focusedCup = this.FocusedCar?.TeamCupCategory;
             foreach (var (car, i) in this._overallOrder.WithIndex()) {
@@ -328,16 +338,16 @@ namespace KLPlugins.DynLeaderboards {
 
                 car.SetOverallPosition(i + 1);
 
-                if (!classPositions.ContainsKey(car.CarClass)) {
-                    classPositions.Add(car.CarClass, 1);
-                    classLeaders.Add(car.CarClass, car);
+                if (!this._classPositions.ContainsKey(car.CarClass)) {
+                    this._classPositions.Add(car.CarClass, 1);
+                    this._classLeaders.Add(car.CarClass, car);
                 }
-                if (!cupPositions.ContainsKey((car.CarClass, car.TeamCupCategory))) {
-                    cupPositions.Add((car.CarClass, car.TeamCupCategory), 1);
-                    cupLeaders.Add((car.CarClass, car.TeamCupCategory), car);
+                if (!this._cupPositions.ContainsKey((car.CarClass, car.TeamCupCategory))) {
+                    this._cupPositions.Add((car.CarClass, car.TeamCupCategory), 1);
+                    this._cupLeaders.Add((car.CarClass, car.TeamCupCategory), car);
                 }
-                car.SetClassPosition(classPositions[car.CarClass]++);
-                car.SetCupPosition(cupPositions[(car.CarClass, car.TeamCupCategory)]++);
+                car.SetClassPosition(this._classPositions[car.CarClass]++);
+                car.SetCupPosition(this._cupPositions[(car.CarClass, car.TeamCupCategory)]++);
                 if (focusedClass != null && car.CarClass == focusedClass) {
                     this._classOrder.Add(car);
                     if (focusedCup != null && car.TeamCupCategory == focusedCup) {
@@ -348,15 +358,15 @@ namespace KLPlugins.DynLeaderboards {
                 car.UpdateDependsOnOthers(
                     values: this,
                     overallBestLapCar: overallBestLapCar,
-                    classBestLapCar: classBestLapCars.GetValueOr(car.CarClass, null),
-                    cupBestLapCar: cupBestLapCars.GetValueOr((car.CarClass, car.TeamCupCategory), null),
+                    classBestLapCar: this._classBestLapCars.GetValueOr(car.CarClass, null),
+                    cupBestLapCar: this._cupBestLapCars.GetValueOr((car.CarClass, car.TeamCupCategory), null),
                     leaderCar: this._overallOrder.First(), // If we get there, there must be at least on car
-                    classLeaderCar: classLeaders[car.CarClass], // If we get there, the leader must be present
-                    cupLeaderCar: cupLeaders[(car.CarClass, car.TeamCupCategory)], // If we get there, the leader must be present
+                    classLeaderCar: this._classLeaders[car.CarClass], // If we get there, the leader must be present
+                    cupLeaderCar: this._cupLeaders[(car.CarClass, car.TeamCupCategory)], // If we get there, the leader must be present
                     focusedCar: this.FocusedCar,
                     carAhead: i > 0 ? this._overallOrder[i - 1] : null,
-                    carAheadInClass: carAheadInClass.GetValueOr(car.CarClass, null),
-                    carAheadInCup: carAheadInCup.GetValueOr((car.CarClass, car.TeamCupCategory), null),
+                    carAheadInClass: this._carAheadInClass.GetValueOr(car.CarClass, null),
+                    carAheadInCup: this._carAheadInCup.GetValueOr((car.CarClass, car.TeamCupCategory), null),
                     carAheadOnTrack: this.GetCarAheadOnTrack(car)
                 );
 
@@ -368,8 +378,8 @@ namespace KLPlugins.DynLeaderboards {
                     this._relativeOnTrackBehindOrder.Add(car);
                 }
 
-                carAheadInClass[car.CarClass] = car;
-                carAheadInCup[(car.CarClass, car.TeamCupCategory)] = car;
+                this._carAheadInClass[car.CarClass] = car;
+                this._carAheadInCup[(car.CarClass, car.TeamCupCategory)] = car;
             }
 
             if (this.FocusedCar != null) {

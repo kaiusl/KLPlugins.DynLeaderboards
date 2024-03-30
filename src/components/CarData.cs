@@ -48,7 +48,7 @@ namespace KLPlugins.DynLeaderboards.Car {
         public bool IsBestLapCarInClass { get; private set; }
         public bool IsBestLapCarInCup { get; private set; }
 
-        public bool IsFocused => this.RawData.IsPlayer;
+        public bool IsFocused { get; private set; }
 
         /// <summary>
         /// List of all drivers. Current driver is always the first.
@@ -161,7 +161,7 @@ namespace KLPlugins.DynLeaderboards.Car {
 
         private bool _expectingNewLap = false;
 
-        internal CarData(Values values, Opponent opponent) {
+        internal CarData(Values values, string? focusedCarId, Opponent opponent) {
             this.Drivers = this._drivers.AsReadOnly();
 
             this.RawData = opponent;
@@ -175,7 +175,7 @@ namespace KLPlugins.DynLeaderboards.Car {
             this.PositionOverall = this.RawData!.Position;
             this.PositionInClass = this.RawData.PositionInClass;
             this.PositionInCup = this.PositionInClass;
-            this.UpdateIndependent(values, opponent);
+            this.UpdateIndependent(values, focusedCarId, opponent);
 
             this.CheckGameLapTimes(opponent);
         }
@@ -332,7 +332,7 @@ namespace KLPlugins.DynLeaderboards.Car {
         /// Update data that is independent of other cars data.
         /// </summary>
         /// <param name="rawData"></param>
-        internal void UpdateIndependent(Values values, Opponent rawData) {
+        internal void UpdateIndependent(Values values, string? focusedCarId, Opponent rawData) {
             // Clear old data
 
             // Needs to be cleared before UpdateDependsOnOthers, 
@@ -351,6 +351,12 @@ namespace KLPlugins.DynLeaderboards.Car {
 
             this.RawData = rawData;
             this.IsUpdated = true;
+
+            if (DynLeaderboardsPlugin.Game.IsAcc && focusedCarId != null) {
+                this.IsFocused = this.Id == focusedCarId;
+            } else {
+                this.IsFocused = this.RawData.IsPlayer;
+            }
 
 
             this.IsBestLapCarOverall = false;

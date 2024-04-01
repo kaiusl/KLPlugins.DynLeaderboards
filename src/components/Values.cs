@@ -196,13 +196,18 @@ namespace KLPlugins.DynLeaderboards {
         internal void OnDataUpdate(PluginManager _, GameData data) {
             this.Session.OnDataUpdate(data);
 
-            if (this.Booleans.NewData.IsNewEvent || this.Session.IsNewSession) {
+            if (this.Booleans.NewData.IsNewEvent || this.Session.IsNewSession || this.TrackData?.PrettyName != data.NewData.TrackName) {
                 DynLeaderboardsPlugin.LogInfo($"newEvent={this.Booleans.NewData.IsNewEvent}, newSession={this.Session.IsNewSession}");
                 this.ResetWithoutSession();
                 this.Booleans.OnNewEvent(this.Session.SessionType);
                 this.TrackData = new TrackData(data);
 
-                DynLeaderboardsPlugin.LogInfo($"Track set to: id={this.TrackData.Id}, name={this.TrackData.PrettyName}");
+                DynLeaderboardsPlugin.LogInfo($"Track set to: id={this.TrackData.Id}, name={this.TrackData.PrettyName}, len={this.TrackData.LengthMeters}");
+            }
+
+            if (this.TrackData != null && this.TrackData.LengthMeters == 0) {
+                // In ACC sometimes the track length is not immediately available, and is 0.
+                this.TrackData?.SetLength(data);
             }
 
             this.Booleans.OnDataUpdate(data, this);

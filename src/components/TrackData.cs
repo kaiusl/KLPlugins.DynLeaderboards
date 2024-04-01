@@ -31,7 +31,7 @@ namespace KLPlugins.DynLeaderboards.Track {
     public class TrackData {
         public string PrettyName { get; }
         public string Id { get; }
-        public double LengthMeters { get; }
+        public double LengthMeters { get; private set; }
         public double SplinePosOffset { get; }
         internal Dictionary<CarClass, LapInterpolator> LapInterpolators = [];
         private static Dictionary<string, double>? _splinePosOffsets = null;
@@ -43,6 +43,10 @@ namespace KLPlugins.DynLeaderboards.Track {
             this.SplinePosOffset = _splinePosOffsets?.GetValueOr(this.Id, 0.0) ?? 0.0;
 
             this.CreateInterpolators();
+        }
+
+        internal void SetLength(GameData data) {
+            this.LengthMeters = data.NewData.TrackLength;
         }
 
         internal static void OnPluginInit(string gameName) {

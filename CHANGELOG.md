@@ -6,6 +6,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+## [1.4.1] - 2024-04-02
+
+### Fixed
+
+- Workaround for missing N24 track data
+
+### Added
+
+- N24 lap data for gap calculation
+
 ## [1.4.0] - 2024-01-25
 
 ### Fixed

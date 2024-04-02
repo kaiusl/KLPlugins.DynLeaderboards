@@ -15,6 +15,7 @@
             ],
             "group": {
                 "kind": "build",
+                "isDefault": true
             },
             "presentation": {
                 "reveal": "silent"
@@ -31,10 +32,7 @@
                 "/consoleloggerparameters:NoSummary",
                 "/p:configuration=Timings"
             ],
-            "group": {
-                "kind": "build",
-                "isDefault": true
-            },
+            "group": "build",
             "presentation": {
                 "reveal": "silent"
             },

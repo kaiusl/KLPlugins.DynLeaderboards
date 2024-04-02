@@ -39,6 +39,13 @@ namespace KLPlugins.DynLeaderboards.Track {
             this.SplinePosOffset = this.Id.SplinePosOffset();
         }
 
+        internal TrackData(string name, TrackType id, float lengthMeters) {
+            this.Name = name;
+            this.Id = id;
+            this.LengthMeters = lengthMeters;
+            this.SplinePosOffset = this.Id.SplinePosOffset();
+        }
+
         /// <summary>
         /// Read default lap data for calculation of gaps.
         /// </summary>

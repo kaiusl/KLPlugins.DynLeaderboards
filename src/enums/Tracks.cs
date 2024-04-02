@@ -25,8 +25,9 @@
         WatkinsGlen = 23,
         Valencia = 24,
         RedBullRing = 25,
+        Nurburgring24h = 26,
 
-        Unknown = 26
+        Unknown = 27
     }
 
     internal static class TrackExtensions {

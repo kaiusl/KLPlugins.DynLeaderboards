@@ -206,6 +206,11 @@ namespace KLPlugins.DynLeaderboards {
         internal void OnDataUpdate(PluginManager _, GameData data) {
             this.RawData = (ACCRawData)data.NewData.GetRawDataObject();
             this.SessionTimeRemaining = this.RawData.Graphics.SessionTimeLeft / 1000.0f;
+
+            if (this.TrackData == null && this.RawData.StaticInfo.Track == "nurburgring_24h" && data.NewData.TrackLength != 0) {
+                var trackData = new TrackData(data.NewData.TrackName, TrackType.Nurburgring24h, (float)data.NewData.TrackLength);
+                this.OnTrackDataUpdate("Values", trackData);
+            }
         }
 
         internal void OnGameStateChanged(bool running, PluginManager _) {

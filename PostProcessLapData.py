@@ -56,6 +56,9 @@ def CreateUsableDataFromRawData(fname, pos_delta):
 
 for file in onlyfiles:
     try:
-        CreateUsableDataFromRawData(file, 0.005)
+        pos_delta = 0.005
+        if "Nurburgring24h" in file: 
+            pos_delta = 0.002
+        CreateUsableDataFromRawData(file, pos_delta)
     except Exception as err:
         print(f"ERROR: Failed to process file {file}.\nMSG: {err}\n")

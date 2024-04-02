@@ -279,7 +279,7 @@ namespace KLPlugins.DynLeaderboards {
                     AddDriverProp(OutDriverProp.TotalDrivingTime, driverId, () => {
                         // We cannot pre calculate the total driving time because in some games (ACC) the current driver updates at first sector split.
                         var car = l.GetDynCar(i);
-                        return car?.Drivers.ElementAtOrDefault(j).GetTotalDrivingTime(j == 0, car.CurrentStintTime).TotalSeconds;
+                        return car?.Drivers.ElementAtOrDefault(j)?.GetTotalDrivingTime(j == 0, car.CurrentStintTime).TotalSeconds;
                     });
                     AddDriverProp(OutDriverProp.CategoryColorDeprecated, driverId, () => l.GetDynCar(i)?.Drivers.ElementAtOrDefault(j)?.CategoryColor.Bg);
                     AddDriverProp(OutDriverProp.CategoryColor, driverId, () => l.GetDynCar(i)?.Drivers.ElementAtOrDefault(j)?.CategoryColor.Bg);

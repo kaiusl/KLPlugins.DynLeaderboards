@@ -11,7 +11,7 @@
         public const string IracingName = "IRacing";
         public const string R3eName = "RRRE";
         public const string AMS2Name = "Automobilista2";
-        public const string LMUName = "LeMansUltimate";
+        public const string LMUName = "LMU";
 
         public bool IsAc { get; } = false;
         public bool IsAcc { get; } = false;

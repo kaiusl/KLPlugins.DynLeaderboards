@@ -276,7 +276,6 @@ namespace KLPlugins.DynLeaderboards {
                     this.FocusedCar = car;
                 }
 
-
                 if (car.BestLap?.Time != null) {
                     if (!this._classBestLapCars.ContainsKey(car.CarClass)) {
                         this._classBestLapCars[car.CarClass] = car;
@@ -291,9 +290,9 @@ namespace KLPlugins.DynLeaderboards {
                     if (!this._cupBestLapCars.ContainsKey((car.CarClass, car.TeamCupCategory))) {
                         this._cupBestLapCars[(car.CarClass, car.TeamCupCategory)] = car;
                     } else {
-                        var currentClassBestLap = this._cupBestLapCars[(car.CarClass, car.TeamCupCategory)].BestLap!.Time!; // If it's in the dict, it cannot be null
+                        var currentCupBestLap = this._cupBestLapCars[(car.CarClass, car.TeamCupCategory)].BestLap!.Time!; // If it's in the dict, it cannot be null
 
-                        if (car.BestLap.Time < currentClassBestLap) {
+                        if (car.BestLap.Time < currentCupBestLap) {
                             this._cupBestLapCars[(car.CarClass, car.TeamCupCategory)] = car;
                         }
                     }

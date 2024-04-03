@@ -347,8 +347,6 @@ namespace KLPlugins.DynLeaderboards {
                 }
                 car.IsUpdated = false;
 
-                car.SetOverallPosition(i + 1);
-
                 if (!this._classPositions.ContainsKey(car.CarClass)) {
                     this._classPositions.Add(car.CarClass, 1);
                     this._classLeaders.Add(car.CarClass, car);
@@ -357,8 +355,6 @@ namespace KLPlugins.DynLeaderboards {
                     this._cupPositions.Add((car.CarClass, car.TeamCupCategory), 1);
                     this._cupLeaders.Add((car.CarClass, car.TeamCupCategory), car);
                 }
-                car.SetClassPosition(this._classPositions[car.CarClass]++);
-                car.SetCupPosition(this._cupPositions[(car.CarClass, car.TeamCupCategory)]++);
                 if (focusedClass != null && car.CarClass == focusedClass) {
                     this._classOrder.Add(car);
                     if (focusedCup != null && car.TeamCupCategory == focusedCup) {
@@ -378,7 +374,10 @@ namespace KLPlugins.DynLeaderboards {
                     carAhead: i > 0 ? this._overallOrder[i - 1] : null,
                     carAheadInClass: this._carAheadInClass.GetValueOr(car.CarClass, null),
                     carAheadInCup: this._carAheadInCup.GetValueOr((car.CarClass, car.TeamCupCategory), null),
-                    carAheadOnTrack: this.GetCarAheadOnTrack(car)
+                    carAheadOnTrack: this.GetCarAheadOnTrack(car),
+                    overallPosition: i + 1,
+                    classPosition: this._classPositions[car.CarClass]++,
+                    cupPosition: this._cupPositions[(car.CarClass, car.TeamCupCategory)]++
                 );
 
                 if (car.IsFocused) {

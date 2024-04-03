@@ -789,8 +789,23 @@ namespace KLPlugins.DynLeaderboards.Car {
             CarData? carAhead,
             CarData? carAheadInClass,
             CarData? carAheadInCup,
-            CarData? carAheadOnTrack
+            CarData? carAheadOnTrack,
+            int overallPosition,
+            int classPosition,
+            int cupPosition
         ) {
+            Debug.Assert(overallPosition > 0);
+            Debug.Assert(classPosition > 0);
+            Debug.Assert(cupPosition > 0);
+
+            this.PositionOverall = overallPosition;
+            this.PositionInClass = classPosition;
+            this.PositionInCup = cupPosition;
+
+            this.IndexOverall = overallPosition - 1;
+            this.IndexClass = classPosition - 1;
+            this.IndexCup = cupPosition - 1;
+
             if (overallBestLapCar == this) {
                 this.IsBestLapCarOverall = true;
                 this.IsBestLapCarInClass = true;
@@ -856,26 +871,6 @@ namespace KLPlugins.DynLeaderboards.Car {
                 session: values.Session
             );
 
-        }
-
-        internal void SetOverallPosition(int overall) {
-            Debug.Assert(overall > 0);
-            this.PositionOverall = overall;
-            this.IndexOverall = overall - 1;
-        }
-
-
-        internal void SetClassPosition(int cls) {
-            Debug.Assert(cls > 0);
-            this.PositionInClass = cls;
-            this.IndexClass = cls - 1;
-        }
-
-
-        internal void SetCupPosition(int cup) {
-            Debug.Assert(cup > 0);
-            this.PositionInCup = cup;
-            this.IndexCup = cup - 1;
         }
 
         private void SetRelLapDiff(CarData focusedCar) {

@@ -196,24 +196,11 @@
                 <styles:SHSectionTitle Text="EXPOSED PROPERTIES" />
                 <StackPanel x:Name="OtherProperties_StackPanel">
                 </StackPanel>
-
-                <styles:SHSectionTitle Text="COLORS" />
-                    <!-- Class colors -->
-                <styles:SHSmallTitle>Car class</styles:SHSmallTitle>
-                <StackPanel x:Name="ClassColors_StackPanel" />
-
-                <!-- Team cup colors -->
-                <styles:SHSmallTitle>Team cup category</styles:SHSmallTitle>
-                <StackPanel x:Name="TeamCupColors_StackPanel" />
-
-                <!-- Driver category colors -->
-                <styles:SHSmallTitle>Driver category</styles:SHSmallTitle>
-                <StackPanel x:Name="DriverCategoryColors_StackPanel" />
-
+                    
                 <styles:SHSectionTitle Text="MISC" />
                 <!-- Class colors -->
                 <StackPanel Orientation="Horizontal">
-                        <styles:SHSmallTitle ToolTip="Read the car UI info directly from ACs car files and update this plugins look up files with that data. Note that this overwrites the base data, all user overrides will still work as expected.">Update base AC car info: </styles:SHSmallTitle>
+                        <styles:SHSmallTitle ToolTip="Read the car UI info directly from ACs car files and update this plugins look up files with that data. That data is used to get car class, manufacturer and more. Note that this overwrites the base data, all user overrides will still work as expected.">Update base AC car info: </styles:SHSmallTitle>
                         <styles:SHButtonPrimary Click="UpdateACCarInfos_Button_Click">Update</styles:SHButtonPrimary>
                     </StackPanel>
 

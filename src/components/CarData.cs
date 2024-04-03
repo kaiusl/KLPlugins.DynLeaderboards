@@ -205,59 +205,58 @@ namespace KLPlugins.DynLeaderboards.Car {
                     );
                     driver.BestLap = this.BestLap;
                 }
-            } else if (DynLeaderboardsPlugin.Game.IsRf2OrLMU) {
-                if (opponent.ExtraData.ElementAtOr(0, null) is CrewChiefV4.rFactor2_V2.rFactor2Data.rF2VehicleScoring rf2RawData) {
-                    {
-                        // Rf2 raw values are -1 if lap time is missing
-                        var bestLapTime = rf2RawData.mBestLapTime;
-                        var bestLapS1 = rf2RawData.mBestLapSector1;
-                        var bestLapS2 = rf2RawData.mBestLapSector2 - (bestLapS1 > 0 ? bestLapS1 : 0);
-                        var bestLapS3 = bestLapTime - (rf2RawData.mBestLapSector2 > 0 ? rf2RawData.mBestLapSector2 : 0);
+            } else if (DynLeaderboardsPlugin.Game.IsRf2OrLMU
+                && opponent.ExtraData.ElementAtOr(0, null) is CrewChiefV4.rFactor2_V2.rFactor2Data.rF2VehicleScoring rf2RawData) {
+                {
+                    // Rf2 raw values are -1 if lap time is missing
+                    var bestLapTime = rf2RawData.mBestLapTime;
+                    var bestLapS1 = rf2RawData.mBestLapSector1;
+                    var bestLapS2 = rf2RawData.mBestLapSector2 - (bestLapS1 > 0 ? bestLapS1 : 0);
+                    var bestLapS3 = bestLapTime - (rf2RawData.mBestLapSector2 > 0 ? rf2RawData.mBestLapSector2 : 0);
 
-                        // Only add sector times if all of them are known, this avoid weird sector times
-                        if (bestLapS1 <= 0 || bestLapS2 <= 0 || bestLapS3 <= 0) {
-                            bestLapS1 = -1;
-                            bestLapS2 = -1;
-                            bestLapS3 = -1;
-                        }
-
-                        if (bestLapTime > 0) {
-                            this.BestLap = new Lap(
-                                lapTime: TimeSpan.FromSeconds(bestLapTime),
-                                s1: bestLapS1 > 0 ? TimeSpan.FromSeconds(bestLapS1) : null,
-                                s2: bestLapS2 > 0 ? TimeSpan.FromSeconds(bestLapS2) : null,
-                                s3: bestLapS3 > 0 ? TimeSpan.FromSeconds(bestLapS3) : null,
-                                this.Laps.New - 1,
-                                this.CurrentDriver! // it's our best guess
-                            );
-                            this.CurrentDriver!.BestLap = this.BestLap;
-                        }
+                    // Only add sector times if all of them are known, this avoid weird sector times
+                    if (bestLapS1 <= 0 || bestLapS2 <= 0 || bestLapS3 <= 0) {
+                        bestLapS1 = -1;
+                        bestLapS2 = -1;
+                        bestLapS3 = -1;
                     }
-                    {
-                        var lastLapTime = rf2RawData.mLastLapTime;
-                        var lastLapS1 = rf2RawData.mLastSector1;
-                        var lastLapS2 = rf2RawData.mLastSector2 - (lastLapS1 > 0 ? lastLapS1 : 0);
-                        var lastLapS3 = lastLapTime - (rf2RawData.mLastSector2 > 0 ? rf2RawData.mLastSector2 : 0);
 
-                        if (lastLapS1 <= 0 || lastLapS2 <= 0 || lastLapS3 <= 0) {
-                            lastLapS1 = -1;
-                            lastLapS2 = -1;
-                            lastLapS3 = -1;
-                        }
+                    if (bestLapTime > 0) {
+                        this.BestLap = new Lap(
+                            lapTime: TimeSpan.FromSeconds(bestLapTime),
+                            s1: bestLapS1 > 0 ? TimeSpan.FromSeconds(bestLapS1) : null,
+                            s2: bestLapS2 > 0 ? TimeSpan.FromSeconds(bestLapS2) : null,
+                            s3: bestLapS3 > 0 ? TimeSpan.FromSeconds(bestLapS3) : null,
+                            this.Laps.New - 1,
+                            this.CurrentDriver! // it's our best guess
+                        );
+                        this.CurrentDriver!.BestLap = this.BestLap;
+                    }
+                }
+                {
+                    var lastLapTime = rf2RawData.mLastLapTime;
+                    var lastLapS1 = rf2RawData.mLastSector1;
+                    var lastLapS2 = rf2RawData.mLastSector2 - (lastLapS1 > 0 ? lastLapS1 : 0);
+                    var lastLapS3 = lastLapTime - (rf2RawData.mLastSector2 > 0 ? rf2RawData.mLastSector2 : 0);
 
-                        if (lastLapTime > 0) {
-                            this.LastLap = new Lap(
-                                lapTime: TimeSpan.FromSeconds(lastLapTime),
-                                s1: lastLapS1 > 0 ? TimeSpan.FromSeconds(lastLapS1) : null,
-                                s2: lastLapS2 > 0 ? TimeSpan.FromSeconds(lastLapS2) : null,
-                                s3: lastLapS3 > 0 ? TimeSpan.FromSeconds(lastLapS3) : null,
-                                this.Laps.New - 1,
-                                this.CurrentDriver!
-                            );
-                        } else if (this.BestLap != null) {
-                            // sometimes last lap can be missing, but best lap is not. In that case, use best lap for consistent lap times.
-                            this.LastLap = this.BestLap;
-                        }
+                    if (lastLapS1 <= 0 || lastLapS2 <= 0 || lastLapS3 <= 0) {
+                        lastLapS1 = -1;
+                        lastLapS2 = -1;
+                        lastLapS3 = -1;
+                    }
+
+                    if (lastLapTime > 0) {
+                        this.LastLap = new Lap(
+                            lapTime: TimeSpan.FromSeconds(lastLapTime),
+                            s1: lastLapS1 > 0 ? TimeSpan.FromSeconds(lastLapS1) : null,
+                            s2: lastLapS2 > 0 ? TimeSpan.FromSeconds(lastLapS2) : null,
+                            s3: lastLapS3 > 0 ? TimeSpan.FromSeconds(lastLapS3) : null,
+                            this.Laps.New - 1,
+                            this.CurrentDriver!
+                        );
+                    } else if (this.BestLap != null) {
+                        // sometimes last lap can be missing, but best lap is not. In that case, use best lap for consistent lap times.
+                        this.LastLap = this.BestLap;
                     }
                 }
             } else {

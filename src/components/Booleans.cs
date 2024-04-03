@@ -1,6 +1,5 @@
 using GameReaderCommon;
 
-
 namespace KLPlugins.DynLeaderboards {
 
     /// <summary>
@@ -52,7 +51,6 @@ namespace KLPlugins.DynLeaderboards {
             this.IsNewEvent = false;
         }
     }
-
 
     /// <summary>
     /// Hold current and previous boolean values 

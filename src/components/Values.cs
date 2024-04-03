@@ -88,13 +88,11 @@ namespace KLPlugins.DynLeaderboards {
         }
         internal IEnumerable<KeyValuePair<CarClass, TextBoxColor>> CarClassColors => this._carClassColors.GetEnumerable();
 
-
         private readonly TextBoxColors<TeamCupCategory> _teamCupCategoryColors;
         internal TextBoxColor? GetTeamCupCategoryColor(TeamCupCategory teamCupCategory) {
             return this._teamCupCategoryColors.Get(teamCupCategory);
         }
         internal IEnumerable<KeyValuePair<TeamCupCategory, TextBoxColor>> TeamCupCategoryColors => this._teamCupCategoryColors.GetEnumerable();
-
 
         private readonly TextBoxColors<DriverCategory> _driverCategoryColors;
         internal TextBoxColor? GetDriverCategoryColor(DriverCategory teamCupCategory) {
@@ -318,7 +316,6 @@ namespace KLPlugins.DynLeaderboards {
                 this.SetStartingOrder();
             }
             this.SetOverallOrder();
-
 
             if (!this.IsFirstFinished && this._overallOrder.Count > 0 && this.Session.SessionType == SessionType.Race) {
                 var first = this._overallOrder.First();

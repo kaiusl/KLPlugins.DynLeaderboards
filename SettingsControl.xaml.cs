@@ -102,7 +102,6 @@ namespace KLPlugins.DynLeaderboards.Settings {
             DynLeaderboardsPlugin.Settings.Log = !DynLeaderboardsPlugin.Settings.Log;
         }
 
-
         private void IncludeST21InGT2_ToggleButton_Click(object sender, RoutedEventArgs e) {
             DynLeaderboardsPlugin.Settings.Include_ST21_In_GT2 = !DynLeaderboardsPlugin.Settings.Include_ST21_In_GT2;
         }

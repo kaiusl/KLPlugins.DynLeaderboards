@@ -53,7 +53,6 @@ namespace KLPlugins.DynLeaderboards.Settings {
         CurrentLapIsInLap = 1L << 37,
         LastLapIsInLap = 1L << 38,
 
-
         BestLapDeltaToCupBest = 1L << 39,
         BestLapDeltaToCupLeaderBest = 1L << 40,
         BestLapDeltaToAheadInCupBest = 1L << 41,

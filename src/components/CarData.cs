@@ -205,7 +205,7 @@ namespace KLPlugins.DynLeaderboards.Car {
                     );
                     driver.BestLap = this.BestLap;
                 }
-            } else if (DynLeaderboardsPlugin.Game.IsRf2) {
+            } else if (DynLeaderboardsPlugin.Game.IsRf2OrLMU) {
                 if (opponent.ExtraData.ElementAtOr(0, null) is CrewChiefV4.rFactor2_V2.rFactor2Data.rF2VehicleScoring rf2RawData) {
                     {
                         // Rf2 raw values are -1 if lap time is missing
@@ -451,7 +451,7 @@ namespace KLPlugins.DynLeaderboards.Car {
         /// Requires that this._expectingNewLap is set in this update
         /// </summary>
         private void UpdateLapTimes() {
-            if (DynLeaderboardsPlugin.Game.IsRf2
+            if (DynLeaderboardsPlugin.Game.IsRf2OrLMU
                 && this.RawData.ExtraData.ElementAtOr(0, null) is CrewChiefV4.rFactor2_V2.rFactor2Data.rF2VehicleScoring rf2RawData
                 && rf2RawData.mTimeIntoLap > 0 // fall back to SimHub's if rf2 doesn't report current lap time (it's -1 if missing)
             ) {

@@ -235,7 +235,7 @@ namespace KLPlugins.DynLeaderboards {
                     ksBroadcastingNetwork.SessionPhase.ResultUI => SessionPhase.ResultUI,
                     _ => throw new System.Exception($"Unknown session phase {accData.Realtime.Phase}"),
                 };
-            } else if (DynLeaderboardsPlugin.Game.IsRf2) {
+            } else if (DynLeaderboardsPlugin.Game.IsRf2OrLMU) {
                 var rf2Data = (RfactorReader.RF2.WrapV2)data.NewData.GetRawDataObject();
 
                 var phase = rf2Data.Data.mGamePhase switch {

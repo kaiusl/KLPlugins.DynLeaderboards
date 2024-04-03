@@ -21,6 +21,7 @@
         public bool IsAMS2 { get; } = false;
         public bool IsF120XX { get; } = false;
         public bool IsLMU { get; } = false;
+        public bool IsRf2OrLMU { get; } = false;
         public bool IsUnknown { get; } = false;
         public string Name { get; }
 
@@ -58,6 +59,8 @@
                     this.IsUnknown = true;
                     break;
             }
+
+            this.IsRf2OrLMU = this.IsRf2 || this.IsLMU;
         }
     }
 }

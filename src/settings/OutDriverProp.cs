@@ -53,7 +53,6 @@ namespace KLPlugins.DynLeaderboards.Settings {
              };
         }
 
-
         internal static string ToPropName(this OutDriverProp p) {
             return p switch {
                 OutDriverProp.FirstName => "FirstName",

@@ -44,7 +44,6 @@ namespace KLPlugins.DynLeaderboards {
         /// </summary>
         public int FocusedIndex = -1;
 
-
         internal DynLeaderboard(DynLeaderboardConfig config, Values v) {
             this.Config = config;
             this.SetDynGetters(v);
@@ -154,7 +153,6 @@ namespace KLPlugins.DynLeaderboards {
                     break;
             }
         }
-
 
         private void SetCars(Values v) {
             if (v.FocusedCar == null) return;

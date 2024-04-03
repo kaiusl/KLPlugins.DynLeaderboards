@@ -81,7 +81,6 @@ namespace KLPlugins.DynLeaderboards.Car {
         public TimeSpan TotalPitTime { get; private set; }
         public TimeSpan? PitTimeCurrent { get; private set; }
 
-
         public TimeSpan? GapToLeader { get; private set; }
         public TimeSpan? GapToClassLeader { get; private set; }
         public TimeSpan? GapToFocusedTotal { get; private set; }
@@ -357,7 +356,6 @@ namespace KLPlugins.DynLeaderboards.Car {
             } else {
                 this.IsFocused = this.RawData.IsPlayer;
             }
-
 
             this.IsBestLapCarOverall = false;
             this.IsBestLapCarInClass = false;
@@ -694,7 +692,6 @@ namespace KLPlugins.DynLeaderboards.Car {
                 DynLeaderboardsPlugin.LogInfo($"Car {this.Id}, #{this.CarNumber} entered pits");
             }
             this.PitCount = this.RawData.PitCount ?? 0;
-
 
             // TODO: using DateTime.now for timers if OK for online races where the time doesn't stop.
             //       However in SP races when the player pauses the game, usually the time also stops.
@@ -1371,7 +1368,6 @@ namespace KLPlugins.DynLeaderboards.Car {
         }
     }
 
-
     public class Sectors {
         public TimeSpan? S1Time { get; private set; }
         public TimeSpan? S2Time { get; private set; }
@@ -1645,7 +1641,6 @@ namespace KLPlugins.DynLeaderboards.Car {
         SAME_LAP = 0,
         BEHIND = -1
     }
-
 
     public class NewOld<T> {
         public T New { get; private set; }

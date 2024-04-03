@@ -398,7 +398,6 @@ namespace KLPlugins.DynLeaderboards {
                 //this.AttachDelegate($"{startName}.DBG_ID", () => (l.GetDynCar(i))?.Id);
             };
 
-
             for (int i = 0; i < l.MaxPositions; i++) {
                 addCar(i);
             }
@@ -417,7 +416,6 @@ namespace KLPlugins.DynLeaderboards {
             this.DynLeaderboards.Add(new DynLeaderboard(s, this.Values));
             Settings.SaveDynLeaderboardConfigs();
         }
-
 
         internal void RemoveLeaderboardAt(int i) {
             Settings.RemoveLeaderboardAt(i);

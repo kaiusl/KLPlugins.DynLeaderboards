@@ -48,7 +48,6 @@ namespace KLPlugins.DynLeaderboards {
             this._sessionIndex = 0;
         }
 
-
         internal void OnDataUpdate(GameData data) {
             var newSessType = SessionTypeExtensions.FromSHGameData(data);
             this.IsNewSession = newSessType != this.SessionType;
@@ -114,7 +113,6 @@ namespace KLPlugins.DynLeaderboards {
         Unknown
     }
 
-
     public enum SessionPhase {
         Unknown = 0,
         Starting = 1,
@@ -162,7 +160,6 @@ namespace KLPlugins.DynLeaderboards {
             return FromString(data.NewData.SessionTypeName);
         }
 
-
         private static SessionType FromString(string s) {
             if (DynLeaderboardsPlugin.Game.IsAcc) {
                 switch (s.ToLower()) {
@@ -174,7 +171,6 @@ namespace KLPlugins.DynLeaderboards {
                         break;
                 }
             }
-
 
             return s.ToLower() switch {
                 "practice"

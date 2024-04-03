@@ -132,7 +132,6 @@ namespace KLPlugins.DynLeaderboards.Settings {
             return max;
         }
 
-
         public int GetMaxNumCupPos() {
             int max = 0;
             if (this.DynLeaderboardConfigs.Count > 0) {
@@ -331,7 +330,6 @@ namespace KLPlugins.DynLeaderboards.Settings {
 
             return o;
         }
-
 
     }
 

@@ -453,6 +453,15 @@ namespace KLPlugins.DynLeaderboards.Car {
         /// Requires that this._expectingNewLap is set in this update
         /// </summary>
         private void UpdateLapTimes() {
+            if (DynLeaderboardsPlugin.Game.IsRf2
+                && this.RawData.ExtraData.ElementAtOr(0, null) is CrewChiefV4.rFactor2_V2.rFactor2Data.rF2VehicleScoring rf2RawData
+                && rf2RawData.mTimeIntoLap > 0 // fall back to SimHub's if rf2 doesn't report current lap time (it's -1 if missing)
+            ) {
+                this.CurrentLapTime = TimeSpan.FromSeconds(rf2RawData.mTimeIntoLap);
+            } else {
+                this.CurrentLapTime = this.RawData.CurrentLapTime ?? TimeSpan.Zero;
+            }
+
             if (DynLeaderboardsPlugin.Game.IsAcc) {
                 // Special case ACC lap time updates.
                 // This fixes a bug where in qualy/practice session joining mid session misses lap invalidation.
@@ -461,10 +470,6 @@ namespace KLPlugins.DynLeaderboards.Car {
                 // Since the order is supposed to be based on the best lap, this could show weird discrepancy between position and lap time.
 
                 var accRawData = (ACSharedMemory.Models.ACCOpponent)this.RawData;
-
-                this.CurrentLapTime = accRawData.ExtraData.CurrentLap.LaptimeMS != null
-                    ? TimeSpan.FromMilliseconds(accRawData.ExtraData.CurrentLap.LaptimeMS.Value)
-                    : TimeSpan.Zero;
 
                 // Need to check for new lap time separately since lap update and lap time update may not be in perfect sync
                 var lastLap = accRawData.ExtraData.LastLap;
@@ -505,8 +510,6 @@ namespace KLPlugins.DynLeaderboards.Car {
                     this._expectingNewLap = false;
                 }
             } else {
-                this.CurrentLapTime = this.RawData.CurrentLapTime ?? TimeSpan.Zero;
-
                 // Need to check for new lap time separately since lap update and lap time update may not be in perfect sync
                 if (
                     this._expectingNewLap // GetLapTime, GetSectorSplit are relatively expensive and we don't need to check it every update

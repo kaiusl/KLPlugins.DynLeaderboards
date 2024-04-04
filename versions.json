@@ -3,10 +3,10 @@
     "version": "1.4.x",
     "title": "1.4.x",
     "aliases": [
-      "stable",
-      "e",
+      "latest",
       "stabl",
-      "latest"
+      "e",
+      "stable"
     ]
   }
 ]

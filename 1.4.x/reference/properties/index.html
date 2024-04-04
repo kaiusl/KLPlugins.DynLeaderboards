@@ -1,0 +1,1269 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      
+        <link rel="prev" href="../leaderboards/">
+      
+      
+        <link rel="next" href="../../about/">
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.5.17">
+    
+    
+      
+        <title>Available properties - Dynamic Leaderboards Plugin for SimHub</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.bcfcd587.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.06af60db.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../stylesheets/extra.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="dark" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#general" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+      <div data-md-color-scheme="default" data-md-component="outdated" hidden>
+        
+      </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="Dynamic Leaderboards Plugin for SimHub" class="md-header__button md-logo" aria-label="Dynamic Leaderboards Plugin for SimHub" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Dynamic Leaderboards Plugin for SimHub
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Available properties
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="dark" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m17.75 4.09-2.53 1.94.91 3.06-2.63-1.81-2.63 1.81.91-3.06-2.53-1.94L12.44 4l1.06-3 1.06 3 3.19.09m3.5 6.91-1.64 1.25.59 1.98-1.7-1.17-1.7 1.17.59-1.98L15.75 11l2.06-.05L18.5 9l.69 1.95 2.06.05m-2.28 4.95c.83-.08 1.72 1.1 1.19 1.85-.32.45-.66.87-1.08 1.27C15.17 23 8.84 23 4.94 19.07c-3.91-3.9-3.91-10.24 0-14.14.4-.4.82-.76 1.27-1.08.75-.53 1.93.36 1.85 1.19-.27 2.86.69 5.83 2.89 8.02a9.96 9.96 0 0 0 8.02 2.89m-1.64 2.02a12.08 12.08 0 0 1-7.8-3.47c-2.17-2.19-3.33-5-3.49-7.82-2.81 3.14-2.7 7.96.31 10.98 3.02 3.01 7.84 3.12 10.98.31Z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="light" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0-7 2.39 3.42C13.65 5.15 12.84 5 12 5c-.84 0-1.65.15-2.39.42L12 2M3.34 7l4.16-.35A7.2 7.2 0 0 0 5.94 8.5c-.44.74-.69 1.5-.83 2.29L3.34 7m.02 10 1.76-3.77a7.131 7.131 0 0 0 2.38 4.14L3.36 17M20.65 7l-1.77 3.79a7.023 7.023 0 0 0-2.38-4.15l4.15.36m-.01 10-4.14.36c.59-.51 1.12-1.14 1.54-1.86.42-.73.69-1.5.83-2.29L20.64 17M12 22l-2.41-3.44c.74.27 1.55.44 2.41.44.82 0 1.63-.17 2.37-.44L12 22Z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var media,input,key,value,palette=__md_get("__palette");if(palette&&palette.color){"(prefers-color-scheme)"===palette.color.media&&(media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']"),palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent"));for([key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/kaiusl/KLPlugins.DynLeaderboards" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.5.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    KLPlugins.DynLeaderboards
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+    
+      
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../user_guide/getting_started/" class="md-tabs__link">
+          
+  
+  User guide
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../leaderboards/" class="md-tabs__link">
+          
+  
+  Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../about/" class="md-tabs__link">
+          
+  
+  About
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+    
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Dynamic Leaderboards Plugin for SimHub" class="md-nav__button md-logo" aria-label="Dynamic Leaderboards Plugin for SimHub" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    Dynamic Leaderboards Plugin for SimHub
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/kaiusl/KLPlugins.DynLeaderboards" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.5.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    KLPlugins.DynLeaderboards
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Home
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+    <a href="../../user_guide/getting_started/" class="md-nav__link">
+      
+  
+  <span class="md-ellipsis">
+    User guide
+  </span>
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  <span class="md-ellipsis">
+    Reference
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            Reference
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../leaderboards/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Available leaderboards
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    Available properties
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  <span class="md-ellipsis">
+    Available properties
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#general" class="md-nav__link">
+    <span class="md-ellipsis">
+      General
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#for-each-dynamic-leaderboard" class="md-nav__link">
+    <span class="md-ellipsis">
+      For each dynamic leaderboard
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="For each dynamic leaderboard">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#for-each-car" class="md-nav__link">
+    <span class="md-ellipsis">
+      For each car
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="For each car">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#car-info" class="md-nav__link">
+    <span class="md-ellipsis">
+      Car info
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#team-info" class="md-nav__link">
+    <span class="md-ellipsis">
+      Team info
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#lap-info" class="md-nav__link">
+    <span class="md-ellipsis">
+      Lap info
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#gaps" class="md-nav__link">
+    <span class="md-ellipsis">
+      Gaps
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#positions" class="md-nav__link">
+    <span class="md-ellipsis">
+      Positions
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#stint-info" class="md-nav__link">
+    <span class="md-ellipsis">
+      Stint info
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pit-info" class="md-nav__link">
+    <span class="md-ellipsis">
+      Pit info
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#misc" class="md-nav__link">
+    <span class="md-ellipsis">
+      Misc
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#for-each-driver" class="md-nav__link">
+    <span class="md-ellipsis">
+      For each driver
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+    <a href="../../about/" class="md-nav__link">
+      
+  
+  <span class="md-ellipsis">
+    About
+  </span>
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#general" class="md-nav__link">
+    <span class="md-ellipsis">
+      General
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#for-each-dynamic-leaderboard" class="md-nav__link">
+    <span class="md-ellipsis">
+      For each dynamic leaderboard
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="For each dynamic leaderboard">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#for-each-car" class="md-nav__link">
+    <span class="md-ellipsis">
+      For each car
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="For each car">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#car-info" class="md-nav__link">
+    <span class="md-ellipsis">
+      Car info
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#team-info" class="md-nav__link">
+    <span class="md-ellipsis">
+      Team info
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#lap-info" class="md-nav__link">
+    <span class="md-ellipsis">
+      Lap info
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#gaps" class="md-nav__link">
+    <span class="md-ellipsis">
+      Gaps
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#positions" class="md-nav__link">
+    <span class="md-ellipsis">
+      Positions
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#stint-info" class="md-nav__link">
+    <span class="md-ellipsis">
+      Stint info
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pit-info" class="md-nav__link">
+    <span class="md-ellipsis">
+      Pit info
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#misc" class="md-nav__link">
+    <span class="md-ellipsis">
+      Misc
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#for-each-driver" class="md-nav__link">
+    <span class="md-ellipsis">
+      For each driver
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+  
+  
+
+
+  <h1>Available properties</h1>
+
+<h2 id="general">General</h2>
+<p>These properties are available as <code>DynLeaderboardsPlugin.&lt;property name&gt;</code>, 
+for example <code>DynLeaderboardsPlugin.Color.Class.GT3</code>.</p>
+<div class="props">
+<dl>
+<dt><strong><code>SessionPhase</code></strong></dt>
+<dd>Session phase.</dd>
+<dt><strong><code>MaxStintTime</code></strong></dt>
+<dd>Maximum driver stint time.</dd>
+<dt><strong><code>MaxDriveTime</code></strong></dt>
+<dd>Maximum total driving time for driver for player car. This can be different for other teams if they have different 
+  number of drivers.</dd>
+<dt><strong><code>Color.Class.&lt;class&gt;</code></strong></dt>
+<dd>Color for car class.  &lt;class&gt; can be <code>GT3</code>, <code>GT4</code>, <code>CUP17</code>, <code>CUP21</code>, <code>ST15</code>, <code>ST21</code>, <code>CHL</code>, <code>TCX</code>.</dd>
+<dt><strong><code>Color.Cup.&lt;cup category&gt;</code></strong></dt>
+<dd>Main color for team cup category. &lt;cup category&gt; can be <code>Overall</code>, <code>Silver</code>, <code>ProAm</code>, <code>Am</code>, <code>National</code>.</dd>
+<dt><strong><code>Color.Cup.&lt;cup category&gt;.Text</code></strong></dt>
+<dd>Secondary color for team cup category. &lt;cup category&gt; can be <code>Overall</code>, <code>Silver</code>, <code>ProAm</code>, <code>Am</code>, <code>National</code>.</dd>
+<dt><strong><code>Color.DriverCategory.&lt;category&gt;</code></strong></dt>
+<dd>Color for driver category. &lt;categort&gt; can be <code>Platinum</code>, <code>Gold</code>, <code>Silver</code>, <code>Bronze</code>.</dd>
+</dl>
+</div>
+<h2 id="for-each-dynamic-leaderboard">For each dynamic leaderboard</h2>
+<p>These properties are available as <code>DynLeaderboardsPlugin.&lt;leaderboard name&gt;.&lt;property name&gt;</code>, 
+for example <code>DynLeaderboardsPlugin.Dynamic.CurrentLeaderboard</code>.</p>
+<div class="props">
+<dl>
+<dt><strong><code>CurrentLeaderboard</code></strong></dt>
+<dd>Name of the currently selected leaderboard. Is one of (<code>Overall</code>, <code>Class</code>, <code>RelativeOverall</code>, <code>RelativeClass</code>,
+  <code>PartialRelativeOverall</code>, <code>PartialRelativeClass</code>, <code>RelativeOnTrack</code>).
+  See <a href="../leaderboards/">Leaderboards</a> for more info about what each type means.</dd>
+<dt><strong><code>FocusedPosInCurrentLeaderboard</code></strong></dt>
+<dd>Integer that shows the position of focused car in currently selected leaderboard. Note that it is 0 based like an 
+  index to array positions.</dd>
+</dl>
+</div>
+<h3 id="for-each-car">For each car</h3>
+<p>These properties are available as <code>DynLeaderboardsPlugin.&lt;leaderboard name&gt;.&lt;position&gt;.&lt;property name&gt;</code>, 
+for example <code>DynLeaderboardsPlugin.Dynamic.5.Car.Number</code>.</p>
+<h4 id="car-info">Car info</h4>
+<div class="props">
+<dl>
+<dt><strong><code>Car.Number</code></strong></dt>
+<dd>Car number.</dd>
+<dt><strong><code>Car.Model</code></strong></dt>
+<dd>Car model name.</dd>
+<dt><strong><code>Car.Manufacturer</code></strong></dt>
+<dd>Car manufacturer.</dd>
+<dt><strong><code>Car.Class</code></strong></dt>
+<dd>Car class. Is one of (<code>GT3</code>, <code>GT4</code>, <code>CUP17</code>, <code>CUP21</code>, <code>ST15</code>, <code>ST21</code>, <code>CHL</code>, <code>TCX</code>).</dd>
+<dt><strong><code>Car.Class.Color</code></strong></dt>
+<dd>Car class color.</dd>
+</dl>
+</div>
+<h4 id="team-info">Team info</h4>
+<div class="props">
+<dl>
+<dt><strong><code>Team.Name</code></strong></dt>
+<dd>Team name.</dd>
+<dt><strong><code>Team.CupCategory</code></strong></dt>
+<dd>Team cup category. Is one of (<code>Overall</code>, <code>Silver</code>, <code>ProAm</code>, <code>Am</code>, <code>National</code>).</dd>
+<dt><strong><code>Team.CupCategory.Color</code></strong></dt>
+<dd>Team cup category main color. My intention was to use as background color.</dd>
+<dt><strong><code>Team.CupCategory.TextColor</code></strong></dt>
+<dd>Team cup category secondary color. My intention was to use as text color.</dd>
+</dl>
+</div>
+<h4 id="lap-info">Lap info</h4>
+<div class="props">
+<dl>
+<dt><strong><code>Laps.Count</code></strong></dt>
+<dd>Number of completed laps.</dd>
+<dt><strong><code>Laps.Last.Time</code></strong></dt>
+<dd>Last lap time.</dd>
+<dt><strong><code>Laps.Last.&lt;sector&gt;</code></strong></dt>
+<dd>Last lap sector time. &lt;sector&gt; can be <code>S1</code>, <code>S2</code>, <code>S3</code>.</dd>
+<dt><strong><code>Laps.Last.IsValid</code></strong></dt>
+<dd>Was last lap valid?</dd>
+<dt><strong><code>Laps.Last.IsOutLap</code></strong></dt>
+<dd>Was last lap an out lap?</dd>
+<dt><strong><code>Laps.Last.IsInLap</code></strong></dt>
+<dd>Was last lap an in lap?</dd>
+<dt><strong><code>Laps.Best.Time</code></strong></dt>
+<dd>Best lap time.</dd>
+<dt><strong><code>Laps.Best.&lt;sector&gt;</code></strong></dt>
+<dd>Best lap sector time. &lt;sector&gt; can be <code>S1</code>, <code>S2</code>, <code>S3</code></dd>
+<dt><strong><code>Laps.Current.Time</code></strong></dt>
+<dd>Current lap time.</dd>
+<dt><strong><code>Laps.Current.IsValid</code></strong></dt>
+<dd>Is current lap valid?</dd>
+<dt><strong><code>Laps.Current.IsOutLap</code></strong></dt>
+<dd>Is current lap an out lap?</dd>
+<dt><strong><code>Laps.Current.IsInLap</code></strong></dt>
+<dd>Is current lap an in lap?</dd>
+<dt><strong><code>Best&lt;sector&gt;</code></strong></dt>
+<dd>Best sector time. &lt;sector&gt; can be <code>S1</code>, <code>S2</code>, <code>S3</code></dd>
+</dl>
+<p><strong><em>Deltas</em></strong></p>
+<p><em>Best to best</em></p>
+<dl>
+<dt><strong><code>Laps.Best.Delta.ToOverallBest</code></strong></dt>
+<dd>Best lap delta to overall best lap.</dd>
+<dt><strong><code>Laps.Best.Delta.ToClassBest</code></strong></dt>
+<dd>Best lap delta to class best lap.</dd>
+<dt><strong><code>Laps.Best.Delta.ToCupBest</code></strong></dt>
+<dd>Best lap delta to cup best lap.</dd>
+<dt><strong><code>Laps.Best.Delta.ToLeaderBest</code></strong></dt>
+<dd>Best lap delta to leader's best lap.</dd>
+<dt><strong><code>Laps.Best.Delta.ToClassLeaderBest</code></strong></dt>
+<dd>Best lap delta to class leader's best lap.</dd>
+<dt><strong><code>Laps.Best.Delta.ToCupLeaderBest</code></strong></dt>
+<dd>Best lap delta to cup leader's best lap.</dd>
+<dt><strong><code>Laps.Best.Delta.ToFocusedBest</code></strong></dt>
+<dd>Best lap delta to focused car's best lap.</dd>
+<dt><strong><code>Laps.Best.Delta.ToAheadBest</code></strong></dt>
+<dd>Best lap delta to ahead car's best lap.</dd>
+<dt><strong><code>Laps.Best.Delta.ToAheadInClassBest</code></strong></dt>
+<dd>Best lap delta to class ahead car's best lap.</dd>
+<dt><strong><code>Laps.Best.Delta.ToAheadInCupBest</code></strong></dt>
+<dd>Best lap delta to cup ahead car's best lap.</dd>
+</dl>
+<p><em>Last to best</em>                                 </p>
+<dl>
+<dt><strong><code>Laps.Last.Delta.ToOverallBest</code></strong></dt>
+<dd>Last lap delta to overall best lap.</dd>
+<dt><strong><code>Laps.Last.Delta.ToClassBest</code></strong></dt>
+<dd>Last lap delta to class best lap.</dd>
+<dt><strong><code>Laps.Last.Delta.ToCupBest</code></strong></dt>
+<dd>Last lap delta to cup best lap.</dd>
+<dt><strong><code>Laps.Last.Delta.ToLeaderBest</code></strong></dt>
+<dd>Last lap delta to leader's best lap.</dd>
+<dt><strong><code>Laps.Last.Delta.ToClassLeaderBest</code></strong></dt>
+<dd>Last lap delta to class leader's best lap.</dd>
+<dt><strong><code>Laps.Last.Delta.ToCupLeaderBest</code></strong></dt>
+<dd>Last lap delta to cup leader's best lap.</dd>
+<dt><strong><code>Laps.Last.Delta.ToFocusedBest</code></strong></dt>
+<dd>Last lap delta to focused car's best lap.</dd>
+<dt><strong><code>Laps.Last.Delta.ToAheadBest</code></strong></dt>
+<dd>Last lap delta to ahead car's best lap.</dd>
+<dt><strong><code>Laps.Last.Delta.ToAheadInClassBest</code></strong></dt>
+<dd>Last lap delta to class ahead car's best lap.</dd>
+<dt><strong><code>Laps.Last.Delta.ToAheadInCupBest</code></strong></dt>
+<dd>Last lap delta to cup ahead car's best lap.</dd>
+<dt><strong><code>Laps.Last.Delta.ToOwnBest</code></strong></dt>
+<dd>Last lap delta to own best lap.</dd>
+</dl>
+<p><em>Last to last</em>                             </p>
+<dl>
+<dt><strong><code>Laps.Last.Delta.ToLeaderLast</code></strong></dt>
+<dd>Last lap delta to leader's last lap.</dd>
+<dt><strong><code>Laps.Last.Delta.ToClassLeaderLast</code></strong></dt>
+<dd>Last lap delta to class leader's last lap.</dd>
+<dt><strong><code>Laps.Last.Delta.ToCupLeaderLast</code></strong></dt>
+<dd>Last lap delta to cup leader's last lap.</dd>
+<dt><strong><code>Laps.Last.Delta.ToFocusedLast</code></strong></dt>
+<dd>Last lap delta to focused car's last lap.</dd>
+<dt><strong><code>Laps.Last.Delta.ToAheadLast</code></strong></dt>
+<dd>Last lap delta to ahead car's last lap.</dd>
+<dt><strong><code>Laps.Last.Delta.ToAheadInClassLast</code></strong></dt>
+<dd>Last lap delta to class ahead car's last lap.</dd>
+<dt><strong><code>Laps.Last.Delta.ToAheadInCupLast</code></strong></dt>
+<dd>Last lap delta to cup ahead car's last lap.</dd>
+</dl>
+<p><em>Dynamic</em>                                  </p>
+<dl>
+<dt><strong><code>Laps.Best.Delta.Dynamic.ToFocusedBest</code></strong></dt>
+<dd>
+<p>Best lap delta to the car's best based on currently displayed leaderboard.</p>
+<ul>
+<li><code>Overall</code> -&gt; Best lap delta to leader's best lap.</li>
+<li><code>Class</code> -&gt; Best lap delta to class leader's best lap.</li>
+<li><code>Cup</code> -&gt; Best lap delta to cup leader's best lap.</li>
+<li>for any relative leaderboard it's delta to focused car's best lap.</li>
+</ul>
+</dd>
+<dt><strong><code>Laps.Last.Delta.Dynamic.ToFocusedBest</code></strong></dt>
+<dd>Same as above but last lap delta to other car's best lap.</dd>
+<dt><strong><code>Laps.Last.Delta.Dynamic.ToFocusedLast</code></strong></dt>
+<dd>Same as above but last lap delta to other car's last lap.</dd>
+</dl>
+</div>
+<h4 id="gaps">Gaps</h4>
+<div class="props">
+<dl>
+<dt><strong><code>Gap.ToOverallLeader</code></strong></dt>
+<dd>Total gap to the leader.                                                     </dd>
+<dt><strong><code>Gap.ToClassLeader</code></strong></dt>
+<dd>Total gap to the class leader.                                               </dd>
+<dt><strong><code>Gap.ToCupLeader</code></strong></dt>
+<dd>Total gap to the cup leader.                                                 </dd>
+<dt><strong><code>Gap.ToFocused.Total</code></strong></dt>
+<dd>Total gap to the focused car.                                                </dd>
+<dt><strong><code>Gap.ToFocused.OnTrack</code></strong></dt>
+<dd>Relative on track gap to the focused car.                                    </dd>
+<dt><strong><code>Gap.ToAhead.Overall</code></strong></dt>
+<dd>Total gap to the car ahead in overall order.                                 </dd>
+<dt><strong><code>Gap.ToAhead.Class</code></strong></dt>
+<dd>Total gap to the car ahead in class.                                         </dd>
+<dt><strong><code>Gap.ToAhead.Cup</code></strong></dt>
+<dd>Total gap to the car ahead in cup.                                           </dd>
+<dt><strong><code>Gap.ToAhead.OnTrack</code></strong></dt>
+<dd>Relative gap to the car ahead on track.                                      </dd>
+<dt><strong><code>Gap.Dynamic.ToFocused</code></strong></dt>
+<dd>
+<p>Gap that changes based on the currently selected dynamic leaderboard.</p>
+<ul>
+<li><code>Overall</code> -&gt; Total gap to the leader.</li>
+<li><code>Class</code> -&gt; Total gap to the class leader.</li>
+<li><code>Cup</code> -&gt; Total gap to the cup leader.</li>
+<li><code>(Partial)RelativeOverall</code>, <code>(Partial)RelativeClass</code>, <code>(Partial)RelativeCup</code> -&gt; Total gap to the focused car.</li>
+<li><code>RelativeOnTrack</code> -&gt; Relative on track gap to the focused car.</li>
+</ul>
+</dd>
+<dt><strong><code>Gap.Dynamic.ToAhead</code></strong></dt>
+<dd>
+<p>Gap to the car ahead that changes based on the currently selected dynamic leaderboard.</p>
+<ul>
+<li><code>(Partial)(Relative)Overall</code> -&gt; Total gap to the car ahead in overall order.</li>
+<li><code>(Partial)(Relative)Class</code> -&gt; Total gap to the car ahead in class.</li>
+<li><code>(Partial)(Relative)Cup</code> -&gt; Total gap to the car ahead in cup.</li>
+<li><code>RelativeOnTrack</code> -&gt; Relative gap to the car ahead on track.</li>
+</ul>
+</dd>
+</dl>
+</div>
+<h4 id="positions">Positions</h4>
+<div class="props">
+<dl>
+<dt><strong><code>Position.Overall</code></strong></dt>
+<dd>Current overall position.</dd>
+<dt><strong><code>Position.Overall.Start</code></strong></dt>
+<dd>Overall position at the race start.</dd>
+<dt><strong><code>Position.Class</code></strong></dt>
+<dd>Current class position.</dd>
+<dt><strong><code>Position.Class.Start</code></strong></dt>
+<dd>Class position at the race start.</dd>
+<dt><strong><code>Position.Cup</code></strong></dt>
+<dd>Current cup position.</dd>
+<dt><strong><code>Position.Cup.Start</code></strong></dt>
+<dd>Cup position at the race start.</dd>
+</dl>
+</div>
+<h4 id="stint-info">Stint info</h4>
+<div class="props">
+<dl>
+<dt><strong><code>Stint.Current.Time</code></strong></dt>
+<dd>Current stint time.</dd>
+<dt><strong><code>Stint.Current.Laps</code></strong></dt>
+<dd>Number of laps completed in current stint.</dd>
+<dt><strong><code>Stint.Last.Time</code></strong></dt>
+<dd>Last stint time.</dd>
+<dt><strong><code>Stint.Last.Laps</code></strong></dt>
+<dd>Number of laps completed in last stint.</dd>
+</dl>
+</div>
+<h4 id="pit-info">Pit info</h4>
+<div class="props">
+<dl>
+<dt><strong><code>Pit.IsIn</code></strong></dt>
+<dd>Is the car in pit lane?</dd>
+<dt><strong><code>Pit.Count</code></strong></dt>
+<dd>Number of pitstops.</dd>
+<dt><strong><code>Pit.Time.Total</code></strong></dt>
+<dd>Total time spent in pits.</dd>
+<dt><strong><code>Pit.Time.Last</code></strong></dt>
+<dd>Last pit time.</dd>
+<dt><strong><code>Pit.Time.Current</code></strong></dt>
+<dd>Current time in pits.</dd>
+</dl>
+</div>
+<p>Note that pit time counts time from the start of pitlane to the end, not just the stationary time in pit box.</p>
+<h4 id="misc">Misc</h4>
+<div class="props">
+<dl>
+<dt><strong><code>IsFinished</code></strong></dt>
+<dd>Is the car finished?</dd>
+<dt><strong><code>MaxSpeed</code></strong></dt>
+<dd>Maximum speed in this session.</dd>
+<dt><strong><code>IsFocused</code></strong></dt>
+<dd>Is this the focusd car?</dd>
+<dt><strong><code>IsOverallBestLapCar</code></strong></dt>
+<dd>Is this the car that has overall best lap?</dd>
+<dt><strong><code>IsClassBestLapCar</code></strong></dt>
+<dd>Is this the car that has class best lap?</dd>
+<dt><strong><code>IsCupBestLapCar</code></strong></dt>
+<dd>Is this the car that has cup best lap?</dd>
+<dt><strong><code>RelativeOnTrackLapDiff</code></strong></dt>
+<dd>
+<p>Show if this car is ahead or behind by one lap (or more) of the focused car in relative on track leaderboard.</p>
+<ul>
+<li><code>1</code> -&gt; ahead</li>
+<li><code>0</code> -&gt; same lap</li>
+<li><code>-1</code> -&gt; behind</li>
+</ul>
+</dd>
+</dl>
+</div>
+<h4 id="for-each-driver">For each driver</h4>
+<p><code>DynLeaderboardsPlugin.&lt;leaderboard name&gt;.&lt;position&gt;.Driver.&lt;driver number&gt;.&lt;property name&gt;</code>, 
+for example <code>DynLeaderboardsPlugin.Dynamic.5.Driver.1.FirstName</code>.</p>
+<div class="props">
+<dl>
+<dt><strong><code>FirstName</code></strong></dt>
+<dd>First name (Abcde)</dd>
+<dt><strong><code>LastName</code></strong></dt>
+<dd>Last name (Fghij)</dd>
+<dt><strong><code>ShortName</code></strong></dt>
+<dd>Short name (AFG)</dd>
+<dt><strong><code>FullName</code></strong></dt>
+<dd>Full name (Abcde Fghij)</dd>
+<dt><strong><code>InitialPlusLastName</code></strong></dt>
+<dd>Initial + last name (A. Fghij)</dd>
+<dt><strong><code>Nationality</code></strong></dt>
+<dd>Nationality</dd>
+<dt><strong><code>Category</code></strong></dt>
+<dd>Driver category. Is one of (<code>Platinum</code>, <code>Gold</code>, <code>Silver</code>, <code>Bronze</code>)</dd>
+<dt><strong><code>TotalLaps</code></strong></dt>
+<dd>Total number of completed laps.</dd>
+<dt><strong><code>TotalDrivingTime</code></strong></dt>
+<dd>Total driving time.</dd>
+<dt><strong><code>BestLapTime</code></strong></dt>
+<dd>Best lap time.</dd>
+<dt><strong><code>CategoryColor</code></strong></dt>
+<dd>Color for driver category.</dd>
+</dl>
+</div>
+
+
+
+
+
+
+
+  
+    
+  
+  
+
+
+  <aside class="md-source-file">
+    
+      
+  <span class="md-source-file__fact">
+    <span class="md-icon" title="Last update">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1-2.1-2M12.5 7v5.2l4 2.4-1 1L11 13V7h1.5M11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2v1.8Z"/></svg>
+    </span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">April 4, 2024</span>
+  </span>
+
+    
+    
+    
+    
+  </aside>
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12Z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    <script id="__config" type="application/json">{"base": "../..", "features": ["navigation.sections", "navigation.tabs", "navigation.tabs.sticky", "navigation.prune", "navigation.top", "toc.follow", "content.code.copy", "content.tooltips", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.b8dbb3d2.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"default": "stable", "provider": "mike"}}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.1e8ae164.min.js"></script>
+      
+    
+  </body>
+</html>

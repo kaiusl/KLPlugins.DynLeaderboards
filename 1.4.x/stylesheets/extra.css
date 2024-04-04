@@ -1,0 +1,100 @@
+.md-grid {
+    max-width: 1440px;
+}
+
+.md-typeset {
+    font-size: .7rem;
+}
+
+.md-nav {
+    font-size: .65rem;
+}
+
+.md-version {
+    font-size: .65rem;
+}
+
+/* Block to list SimHub properties */
+div.props {
+    border-left: .1rem solid var(--md-default-fg-color--lightest);
+    padding-left: .6rem;
+    margin-bottom: 1em;
+    margin-top: 1em;
+    color: var(--md-default-fg-color--light);
+    margin-left: 0;
+    margin-right: 0;
+}
+
+[data-md-color-scheme="dark"] {
+    --md-primary-fg-color: #0a77c5;
+    --md-primary-fg-color--light: #40aefd;
+    --md-primary-fg-color--dark: #324454;
+    --md-accent-fg-color: #6dbaf2;
+    --md-accent-fg-color--transparent: #0a77c51a;
+
+    --md-default-fg-color: #d1d5eb;
+    --md-default-fg-color--light: #acafbf;
+    --md-default-fg-color--lighter: #737580;
+    --md-default-fg-color--lightest: #353842;
+    --md-default-bg-color: #23252c;
+    --md-default-bg-color--light: #2f313a;
+    --md-default-bg-color--lighter: #292b33;
+    --md-default-bg-color--lightest: #1d1f24;
+    --md-code-fg-color: var(--md-default-fg-color--light);
+    --md-code-bg-color: var(--md-default-bg-color--lighter);
+    --md-code-hl-color: #0a77c5;
+    --md-code-hl-color--light: #0a77c51a;
+    --md-code-hl-number-color: #e6b583;
+    --md-code-hl-special-color: #69edab;
+    --md-code-hl-function-color: #6dbaf2;
+    --md-code-hl-constant-color: #d1d5eb;
+    --md-code-hl-keyword-color: #6dbaf2;
+    --md-code-hl-string-color: #e6b583;
+    --md-code-hl-name-color: var(--md-code-fg-color);
+    --md-code-hl-operator-color: var(--md-code-fg-color);
+    --md-code-hl-punctuation-color: var(--md-code-fg-color);
+    --md-code-hl-comment-color: #737580;
+    --md-code-hl-generic-color: var(--md-code-fg-color);
+    --md-code-hl-variable-color: var(--md-code-fg-color);
+    --md-typeset-color: var(--md-default-fg-color);
+    --md-typeset-a-color: var(--md-primary-fg-color--light);
+    --md-typeset-kbd-color: var(--md-default-bg-color--lighter);
+    --md-typeset-kbd-accent-color: #353842;
+    --md-typeset-kbd-border-color: #1d1f24;
+    --md-typeset-mark-color: #0a77c5;
+    --md-typeset-table-color: #353842;
+    --md-typeset-table-color--light: #292b33;
+    --md-admonition-fg-color: var(--md-default-fg-color);
+    --md-admonition-bg-color: var(--md-default-bg-color);
+    --md-footer-bg-color: #23252c;
+    --md-footer-bg-color--dark: #1d1f24;
+    --md-shadow-z1: 0 0.2rem 0.5rem #0000000d, 0 0 0.05rem #0000001a;
+    --md-shadow-z2: 0 0.2rem 0.5rem #00000040, 0 0 0.05rem #00000040;
+    --md-shadow-z3: 0 0.2rem 0.5rem #0006, 0 0 0.05rem #00000059;
+    color-scheme: dark;
+}
+
+
+[data-md-color-scheme="light"] {
+    --md-primary-fg-color: #0a77c5;
+    --md-primary-fg-color--light: #3e96d4;
+    --md-primary-fg-color--dark: #324454;
+    --md-accent-fg-color: #6dbaf2;
+    --md-accent-fg-color--transparent: #0a77c51a;
+
+    --md-code-hl-number-color: #df9355;
+    --md-code-hl-special-color: #69edab;
+    --md-code-hl-function-color: #0a77c5;
+    --md-code-hl-constant-color: #1d1f24;
+    --md-code-hl-keyword-color: #0a77c5;
+    --md-code-hl-string-color: #df9355;
+    --md-code-hl-name-color: var(--md-code-fg-color);
+    --md-code-hl-operator-color: var(--md-code-fg-color);
+    --md-code-hl-punctuation-color: var(--md-code-fg-color);
+    --md-code-hl-comment-color: #737580;
+    --md-code-hl-generic-color: var(--md-code-fg-color);
+    --md-code-hl-variable-color: var(--md-code-fg-color);
+
+    --md-typeset-a-color: var(--md-primary-fg-color--light);
+    color-scheme: light;
+}

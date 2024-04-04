@@ -78,7 +78,7 @@
                     </TextBlock>
 
                     <TextBlock>
-                    <Span xml:space="preserve"><Run> For more information you can also see: </Run><Hyperlink RequestNavigate="Hyperlink_RequestNavigate" NavigateUri="https://github.com/kaiusl/KLPlugins.DynLeaderboards">KLPlugins.DynLeaderboards</Hyperlink></Span>
+                    <Span xml:space="preserve">For more information you can also see <Hyperlink RequestNavigate="Hyperlink_RequestNavigate" NavigateUri="https://github.com/kaiusl/KLPlugins.DynLeaderboards">the repository</Hyperlink> or <Hyperlink RequestNavigate="Hyperlink_RequestNavigate" NavigateUri="https://kaiusl.github.io/KLPlugins.DynLeaderboards/stable/">the docs</Hyperlink>.</Span>
                     </TextBlock>
 
                     <!-- ACC Config location -->

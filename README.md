@@ -8,14 +8,14 @@ The reason for this plugin is that I found myself creating effectively the same 
 - Connect directly to ACC broadcasting server to have most control and try to provide reliable results.
 - Provide a way to switch between leaderboard types on a single dash screen with a single click.
     - Also provide gaps and lap deltas that change based on currently selected leaderboard.
-- Provide more leaderboard types ([see here](https://github.com/kaiusl/KLPlugins.DynLeaderboards/wiki/Available-leaderboard-types)).
-- Calculate bunch of new properties ([see here](https://github.com/kaiusl/KLPlugins.DynLeaderboards/wiki/Available-properties#properties-listed) or download the plugin as they are also mostly listen under the settings tab).
+- Provide more leaderboard types ([see here](https://kaiusl.github.io/KLPlugins.DynLeaderboards/stable/reference/leaderboards/)).
+- Calculate bunch of new properties ([see here](https://kaiusl.github.io/KLPlugins.DynLeaderboards/stable/reference/properties/) or download the plugin as they are also mostly listen under the settings tab).
 - More stable calculation of gaps between the cars (no more gap changing by 1s depending if you are in the corner or straights).
 
 ## Getting started
 
-* Download the latest release from [Racedepartment](https://www.racedepartment.com/downloads/acc-simhub-dynamic-leaderboards-plugin.50424/) or [here](https://github.com/kaiusl/KLPlugins.Leaderboard/releases)
-* To install provided dashboard run  "AccDynLeaderboard_v8.simhubdash".
+* Download the latest release from [OverTake](https://www.overtake.gg/downloads/acc-simhub-dynamic-leaderboards-plugin.50424/) or [here](https://github.com/kaiusl/KLPlugins.Leaderboard/releases)
+* To install provided dashboard run "AccDynLeaderboard_v8.simhubdash".
 * Copy all the files from folder "SimHub" to the SimHub root
 * Open SimHub and enable the plugin
 * Check plugin settings for correct "ACC configuration location" under "General settings".  If it's background is green, then we found needed files, if it's red there's something wrong with the location. We need to find the file "...\Documents\Assetto Corsa Competizione\Config\broadcasting.json". It is used to read information needed to connct to ACC broadcasting client.
@@ -27,9 +27,9 @@ The reason for this plugin is that I found myself creating effectively the same 
 * Now the AccDynLeaderboard dash should work.
 * For best experience start SimHub before joining the session, but it should work other way too.
  
-## More detailed information
+## More information
 
-Head over to the [wiki](https://github.com/kaiusl/KLPlugins.DynLeaderboards/wiki). It describes all available options, [properties](https://github.com/kaiusl/KLPlugins.DynLeaderboards/wiki/Available-properties), [how to use](https://github.com/kaiusl/KLPlugins.DynLeaderboards/wiki/Usage), [configure](https://github.com/kaiusl/KLPlugins.DynLeaderboards/wiki/Usage#configuration) and [troubleshoot known issues](https://github.com/kaiusl/KLPlugins.DynLeaderboards/wiki/Troubleshooting).
+Head over to the [docs](https://kaiusl.github.io/KLPlugins.DynLeaderboards/stable/). It describes all available options, [properties](https://kaiusl.github.io/KLPlugins.DynLeaderboards/stable/reference/properties/), [how to use](https://kaiusl.github.io/KLPlugins.DynLeaderboards/stable/user_guide/getting_started/), [configure](https://kaiusl.github.io/KLPlugins.DynLeaderboards/stable/user_guide/config/) and [troubleshoot known issues](https://kaiusl.github.io/KLPlugins.DynLeaderboards/stable/user_guide/troubleshooting/).
 
 ### SimHub and ACC version
 

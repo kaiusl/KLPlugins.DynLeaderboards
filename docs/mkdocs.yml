@@ -1,0 +1,79 @@
+site_name: Dynamic Leaderboards Plugin for SimHub
+nav:
+  - 'Home': 'index.md'
+  - 'User guide': 
+    - 'Getting started': 'user_guide/getting_started.md'
+    - 'Configuration': 'user_guide/config.md'
+    - 'Creating custom leaderboard': 'user_guide/creating_dyn_leaderboard.md'
+    - 'Troubleshooting': 'user_guide/troubleshooting.md'
+  - 'Reference': 
+    - 'Available leaderboards': 'reference/leaderboards.md'
+    - 'Available properties': 'reference/properties.md'
+  - 'About': 
+    - 'Links': 'about/index.md'
+
+site_url: https://kaiusl.github.io/KLPlugins.DynLeaderboards/
+repo_url: https://github.com/kaiusl/KLPlugins.DynLeaderboards
+repo_name: KLPlugins.DynLeaderboards
+
+extra_css:
+  - stylesheets/extra.css
+
+plugins:
+  - git-revision-date-localized:
+      fallback_to_build_date: true
+  - search
+
+extra:
+  version:
+    provider: mike
+    default: 'stable'
+
+watch:
+  - includes
+
+markdown_extensions:
+  - abbr
+  - def_list
+  - md_in_html
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      use_pygments: true
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
+      slugify: !!python/object/apply:pymdownx.slugs.slugify
+        kwds:
+          case: lower
+  - pymdownx.snippets:
+      check_paths: true
+      auto_append:
+      - includes/abbreviations.md
+
+theme:
+  name: 'material'
+  palette: 
+    - media: "(prefers-color-scheme: dark)"
+      scheme: dark
+      toggle:
+        icon: material/weather-night
+        name: Switch to light mode
+    - media: "(prefers-color-scheme: light)"
+      scheme: light
+      toggle:
+        icon: material/weather-sunny
+        name: Switch to dark mode
+  features:
+    - navigation.sections
+    - navigation.tabs
+    - navigation.tabs.sticky
+    - navigation.prune
+    - navigation.top
+    - toc.follow
+    - content.code.copy
+    - content.tooltips
+    - search.suggest
+    - search.highlight

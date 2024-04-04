@@ -6,9 +6,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+## [1.4.2] - 2024-04-04
+
 ### Added
 
-- New docs site at [docs](https://kaiusl.github.io/KLPlugins.DynLeaderboards/stable/). 
+- New docs site [
+Dynamic Leaderboards Plugin for SimHub](https://kaiusl.github.io/KLPlugins.DynLeaderboards/stable/).
+
+### Changed
+
+- Updated links to point to new docs site.
 
 ## [1.4.1] - 2024-04-02
 
@@ -222,7 +229,8 @@ excludes all the cars in the pitlane which are not on the same lap as the focuse
 ## [1.0.0] - 2022-04-19
 - Initial public release
 
-[Unreleased]: https://github.com/kaiusl/KLPlugins.Leaderboard/compare/v1.4.1...HEAD
+[Unreleased]: https://github.com/kaiusl/KLPlugins.Leaderboard/compare/v1.4.2...HEAD
+[1.4.2]: https://github.com/kaiusl/KLPlugins.Leaderboard/releases/tag/v1.4.2
 [1.4.1]: https://github.com/kaiusl/KLPlugins.Leaderboard/releases/tag/v1.4.1
 [1.4.0]: https://github.com/kaiusl/KLPlugins.Leaderboard/releases/tag/v1.4.0
 [1.3.3]: https://github.com/kaiusl/KLPlugins.Leaderboard/releases/tag/v1.3.3

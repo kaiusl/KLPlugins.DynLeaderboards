@@ -415,10 +415,23 @@ namespace KLPlugins.DynLeaderboards.Car {
         private void CheckIfLapInvalidated(Opponent rawData) {
             if (!this.RawData.LapValid) {
                 this.IsCurrentLapValid = false;
-            } else if (DynLeaderboardsPlugin.Game.IsAcc) {
+                return;
+            }
+
+            if (DynLeaderboardsPlugin.Game.IsAcc) {
                 var accRawData = (ACSharedMemory.Models.ACCOpponent)rawData;
                 if (!accRawData.ExtraData.CurrentLap.IsValidForBest || accRawData.ExtraData.CurrentLap.IsInvalid) {
                     this.IsCurrentLapValid = false;
+                }
+            } else if (DynLeaderboardsPlugin.Game.IsRf2) {
+                // Rf2 doesn't directly export lap validity. But when one exceeds track limits the current sector times are 
+                // set to -1.0. We cannot immediately detect the cut in the first sector, but as soon as we reach the 
+                // 2nd sector we can detect it, when current sector 1 time is still -1.0.
+                if (rawData.ExtraData.First() is CrewChiefV4.rFactor2_V2.rFactor2Data.rF2VehicleScoring rf2RawData) {
+                    var curSector = rf2RawData.mSector;
+                    if ((curSector == 2 || curSector == 0) && rf2RawData.mCurSector1 == -1.0) {
+                        this.IsCurrentLapValid = false;
+                    }
                 }
             }
         }
@@ -722,10 +735,10 @@ namespace KLPlugins.DynLeaderboards.Car {
             //       However in SP races when the player pauses the game, usually the time also stops.
             //       Thus the calculated pitstop time would be longer than it actually was.
 
-            var isSession = sessionPhase >= SessionPhase.Session 
+            var isSession = sessionPhase >= SessionPhase.Session
                 || sessionPhase == SessionPhase.Unknown; // For games that don't support SessionPhase
             if (isSession // Don't start pit time counter if the session hasn't started
-                && (this.EnteredPitLane 
+                && (this.EnteredPitLane
                     || (this.IsInPitLane && this.PitEntryTime == null)
                     || (this.PitEntryTime == null && this.IsInPitLane) // We join/start SimHub mid session
                 )

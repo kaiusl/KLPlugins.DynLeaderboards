@@ -478,6 +478,8 @@ namespace KLPlugins.DynLeaderboards.Car {
         /// Requires that this._expectingNewLap is set in this update
         /// </summary>
         private void UpdateLapTimes(TrackData? track) {
+
+            var prevCurrentLapTime = this.CurrentLapTime;
             if (DynLeaderboardsPlugin.Game.IsRf2OrLMU
                 && this.RawData.ExtraData.ElementAtOr(0, null) is CrewChiefV4.rFactor2_V2.rFactor2Data.rF2VehicleScoring rf2RawData
                 && rf2RawData.mTimeIntoLap > 0 // fall back to SimHub's if rf2 doesn't report current lap time (it's -1 if missing)
@@ -487,7 +489,24 @@ namespace KLPlugins.DynLeaderboards.Car {
                 this.CurrentLapTime = this.RawData.CurrentLapTime ?? TimeSpan.Zero;
             }
 
-            if (DynLeaderboardsPlugin.Game.IsAcc) {
+            // Add the last current lap time as last lap for rF2 if last lap vas invalid. In such case rF2 doesn't provide last lap times
+            // and we need to manually calculate it.
+            //
+            // TODO: this doesn't add sector times, we can potentially calculate those as well
+            if (DynLeaderboardsPlugin.Game.IsRf2OrLMU
+                && this._expectingNewLap
+                && !this._isLastLapValid
+                && prevCurrentLapTime > this.CurrentLapTime // CurrentLapTime has reset
+                && this.RawData.ExtraData.ElementAtOr(0, null) is CrewChiefV4.rFactor2_V2.rFactor2Data.rF2VehicleScoring rf2RawData2
+                && rf2RawData2.mLastSector1 == -1.0 // make sure to only use this method if invalid lap was due to lap cut in which case last lap/sector times are -1
+            ) {
+                this.LastLap = new Lap(null, prevCurrentLapTime, this.Laps.New, this.CurrentDriver!) {
+                    IsValid = this._isLastLapValid,
+                    IsOutLap = this._isLastLapOutLap,
+                    IsInLap = this._isLastLapInLap,
+                };
+                this._expectingNewLap = false;
+            } else if (DynLeaderboardsPlugin.Game.IsAcc) {
                 // Special case ACC lap time updates.
                 // This fixes a bug where in qualy/practice session joining mid session misses lap invalidation.
                 // Thus possibly setting invalid lap as best lap. The order remains correct (it's set by the position received from ACC)

@@ -247,7 +247,7 @@ namespace KLPlugins.DynLeaderboards {
                     6 => SessionPhase.Session, // actually FCY or safety car
                     7 => SessionPhase.Session, // described as session stopped, not sure what it means
                     8 => SessionPhase.SessionOver,
-                    9 => SessionPhase.Unknown, // it's possible but don't know that it means
+                    9 => SessionPhase.Starting, // it's possible but don't know what it means exactly but it happens at race starts
                     _ => SessionPhase.Unknown
                 };
                 if (phase == SessionPhase.Unknown) {

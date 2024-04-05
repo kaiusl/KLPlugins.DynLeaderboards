@@ -95,6 +95,7 @@ namespace KLPlugins.DynLeaderboards.Car {
         /// In range <c>[0, 1]</c>.
         /// </summary>
         public double SplinePosition { get; private set; }
+        private double _prevSplinePosition { get; set; }
 
         /// <summary>
         /// <c>&gt; 0</c> if ahead, <c>&lt; 0</c> if behind. Is in range <c>[-0.5, 0.5]</c>.
@@ -159,6 +160,8 @@ namespace KLPlugins.DynLeaderboards.Car {
         private Dictionary<CarClass, TimeSpan?> _splinePositionTimes = [];
 
         private bool _expectingNewLap = false;
+
+        private bool _took_ACC_N24_short_lap = false;
 
         internal CarData(Values values, string? focusedCarId, Opponent opponent) {
             this.Drivers = this._drivers.AsReadOnly();
@@ -383,11 +386,22 @@ namespace KLPlugins.DynLeaderboards.Car {
                 this.IsCurrentLapInLap = false;
             }
 
+            // ACC N24 lap validity needs to be reset after the car took short lap
+            if (this._took_ACC_N24_short_lap && this._isSplinePositionReset) {
+                this.IsCurrentLapValid = !this.IsInPitLane; // if we cross the line in pitlane, new lap is invalid
+                this.IsCurrentLapOutLap = this.IsInPitLane; // also it will be an outlap
+                this.IsCurrentLapInLap = false;
+
+                this._took_ACC_N24_short_lap = false;
+
+                DynLeaderboardsPlugin.LogInfo($"Car {this.Id}, #{this.CarNumber} lap validity reset after short lap.");
+            }
+
             if (this.IsCurrentLapValid) {
                 this.CheckIfLapInvalidated(rawData);
             }
 
-            this.UpdateLapTimes();
+            this.UpdateLapTimes(values.TrackData);
 
             if (values.Session.IsRace) {
                 this.HandleJumpToPits(values.Session.SessionType);
@@ -421,6 +435,7 @@ namespace KLPlugins.DynLeaderboards.Car {
                 newSplinePos -= 1;
             }
             this._isSplinePositionReset = newSplinePos < 0.1 && this.SplinePosition > 0.9;
+            this._prevSplinePosition = this.SplinePosition;
             this.SplinePosition = newSplinePos;
             this.TotalSplinePosition = this.Laps.New + this.SplinePosition;
         }
@@ -449,7 +464,7 @@ namespace KLPlugins.DynLeaderboards.Car {
         /// <summary>
         /// Requires that this._expectingNewLap is set in this update
         /// </summary>
-        private void UpdateLapTimes() {
+        private void UpdateLapTimes(TrackData? track) {
             if (DynLeaderboardsPlugin.Game.IsRf2OrLMU
                 && this.RawData.ExtraData.ElementAtOr(0, null) is CrewChiefV4.rFactor2_V2.rFactor2Data.rF2VehicleScoring rf2RawData
                 && rf2RawData.mTimeIntoLap > 0 // fall back to SimHub's if rf2 doesn't report current lap time (it's -1 if missing)
@@ -467,6 +482,17 @@ namespace KLPlugins.DynLeaderboards.Car {
                 // Since the order is supposed to be based on the best lap, this could show weird discrepancy between position and lap time.
 
                 var accRawData = (ACSharedMemory.Models.ACCOpponent)this.RawData;
+
+                // Detect if the car took short lap on N24 layout. This is needed because the next time the car crosses the start line they start a new valid lap.
+                // This would remain undetected otherwise and that lap remains invalid.
+                if (
+                    track != null && track.Id == "nurburgring_24h"
+                    && this.SplinePosition > 0.99 && this._prevSplinePosition < 0.2 // on N24 short lap the spline position jumps from ~0.166 to ~0.996
+                    && this.Location.Old == CarLocation.Track && this.Location.New == CarLocation.Track // exclude jump to pits
+                ) {
+                    this._took_ACC_N24_short_lap = true;
+                    DynLeaderboardsPlugin.LogInfo($"Car {this.Id}, #{this.CarNumber} took short lap on N24.");
+                }
 
                 // Need to check for new lap time separately since lap update and lap time update may not be in perfect sync
                 var lastLap = accRawData.ExtraData.LastLap;

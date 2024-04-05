@@ -367,7 +367,7 @@ namespace KLPlugins.DynLeaderboards.Car {
             this.IsNewLap = this.Laps.New > this.Laps.Old;
 
             this.SetCarLocation(rawData);
-            this.UpdatePitInfo();
+            this.UpdatePitInfo(values.Session.SessionPhase);
             this.SetSplinePositions(values);
             this.MaxSpeed = Math.Max(this.MaxSpeed, this.RawData.Speed ?? 0.0);
             this.UpdateDrivers(values, rawData);
@@ -706,7 +706,7 @@ namespace KLPlugins.DynLeaderboards.Car {
         /// <summary>
         /// Requires that this.Location is already updated
         /// </summary>
-        private void UpdatePitInfo() {
+        private void UpdatePitInfo(SessionPhase sessionPhase) {
             this.IsInPitLane = this.Location.New.IsInPits();
             this.ExitedPitLane = this.Location.New == CarLocation.Track && this.Location.Old.IsInPits();
             if (this.ExitedPitLane) {
@@ -722,9 +722,13 @@ namespace KLPlugins.DynLeaderboards.Car {
             //       However in SP races when the player pauses the game, usually the time also stops.
             //       Thus the calculated pitstop time would be longer than it actually was.
 
-            if (this.EnteredPitLane
-                || (this.IsInPitLane && this.PitEntryTime == null)
-                || (this.PitEntryTime == null && this.IsInPitLane) // We join/start SimHub mid session
+            var isSession = sessionPhase >= SessionPhase.Session 
+                || sessionPhase == SessionPhase.Unknown; // For games that don't support SessionPhase
+            if (isSession // Don't start pit time counter if the session hasn't started
+                && (this.EnteredPitLane 
+                    || (this.IsInPitLane && this.PitEntryTime == null)
+                    || (this.PitEntryTime == null && this.IsInPitLane) // We join/start SimHub mid session
+                )
             ) {
                 this.PitEntryTime = DateTime.Now;
                 this.IsCurrentLapInLap = true;

@@ -79,7 +79,13 @@ namespace KLPlugins.DynLeaderboards {
                 }
             }
 
-            return carInfos ?? [];
+            carInfos ??= [];
+
+            foreach (var kv in carInfos) {
+                kv.Value.FinalizeData();
+            }
+
+            return carInfos;
         }
 
         private readonly TextBoxColors<CarClass> _carClassColors;

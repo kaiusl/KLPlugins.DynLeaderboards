@@ -1743,6 +1743,23 @@ namespace KLPlugins.DynLeaderboards.Car {
                 this.Class = other.Class;
             }
         }
+
+        /// <summary>
+        /// Finalizes the data by removing "SimHub" keys which user provides to indicate that we want to fall back to SimHub data.
+        /// Internally that is represented as null.
+        /// </summary>
+        internal void FinalizeData() {
+            const string KW_FALLBACK_TO_SIMHUB_DATA = "simhub";
+            if (this.Name != null && this.Name.Equals(KW_FALLBACK_TO_SIMHUB_DATA, StringComparison.OrdinalIgnoreCase)) {
+                this.Name = null;
+            }
+            if (this.Manufacturer != null && this.Manufacturer.Equals(KW_FALLBACK_TO_SIMHUB_DATA, StringComparison.OrdinalIgnoreCase)) {
+                this.Manufacturer = null;
+            }
+            if (this.Class != null && this.Class.Value.AsString().Equals(KW_FALLBACK_TO_SIMHUB_DATA, StringComparison.OrdinalIgnoreCase)) {
+                this.Class = null;
+            }
+        }
     }
 
     [TypeConverter(typeof(CarClassTypeConverter))]

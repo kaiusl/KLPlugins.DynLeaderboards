@@ -14,6 +14,7 @@ using System.IO;
 using Newtonsoft.Json;
 using KLPlugins.DynLeaderboards.Settings;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 
 namespace KLPlugins.DynLeaderboards {
     /// <summary>
@@ -127,9 +128,12 @@ namespace KLPlugins.DynLeaderboards {
                 }
             }
 
-            DynLeaderboardsPlugin.LogInfo($"Read text box colors from '{fileName}': {colors?.Debug(pretty: true)}");
+            colors ??= new();
+            colors.FinalizeData();
 
-            return colors ?? new();
+            DynLeaderboardsPlugin.LogInfo($"Read text box colors from '{fileName}': {colors.Debug(pretty: true)}");
+
+            return colors;
         }
 
         internal bool IsFirstFinished { get; private set; } = false;
@@ -541,6 +545,7 @@ namespace KLPlugins.DynLeaderboards {
 
     }
 
+    [TypeConverter(typeof(TextBoxColorTypeConverter))]
     public class TextBoxColor {
         public string Fg { get; }
         public string Bg { get; }
@@ -559,8 +564,30 @@ namespace KLPlugins.DynLeaderboards {
         }
     }
 
+    internal class TextBoxColorTypeConverter : TypeConverter {
+        public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType) {
+            return sourceType == typeof(string);
+        }
+
+        public override object ConvertFrom(ITypeDescriptorContext context, System.Globalization.CultureInfo culture, object value) {
+            // simhub is a special case, it means to fall back to simhub colors
+            if (value is string str && str.Equals("simhub", StringComparison.OrdinalIgnoreCase)) {
+                return new TextBoxColor(fg: "simhub", bg: "simhub");
+            }
+            throw new NotSupportedException();
+        }
+
+        public override bool CanConvertTo(ITypeDescriptorContext context, Type destinationType) {
+            return false;
+        }
+
+        public override object? ConvertTo(ITypeDescriptorContext context, System.Globalization.CultureInfo culture, object value, Type destinationType) {
+            throw new NotImplementedException();
+        }
+    }
+
     internal class TextBoxColors<K> {
-        private Dictionary<K, TextBoxColor> _colors { get; }
+        private Dictionary<K, TextBoxColor> _colors { get; set; }
 
         [JsonConstructor]
         internal TextBoxColors(Dictionary<K, TextBoxColor>? global, Dictionary<string, Dictionary<K, TextBoxColor>>? game_overrides) {
@@ -579,6 +606,12 @@ namespace KLPlugins.DynLeaderboards {
 
         internal TextBoxColor? Get(K key) {
             return this._colors.GetValueOr(key, null);
+        }
+
+        internal void FinalizeData() {
+            this._colors = this._colors
+                .Where(kvp => kvp.Value.Bg != "simhub" && kvp.Value.Fg != "simhub")
+                .ToDictionary(kvp => kvp.Key, kvp => kvp.Value!);
         }
 
         internal void Merge(TextBoxColors<K> other) {

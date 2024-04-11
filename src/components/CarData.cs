@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -295,6 +295,13 @@ namespace KLPlugins.DynLeaderboards.Car {
 
             if (this._isNewLap) {
                 this.CurrentDriver.OnLapFinished(this.NewData.LastLap);
+            }
+
+            // Sometimes a last lap is not registered. 
+            // This also means that lap counter is not incremented.
+            // However we'd still like to reset the lap flags.
+            // We can do that by detecting if current lap time resets.
+            if (this._isNewLap || this.OldData.CurrentLap.Laptime > this.NewData.CurrentLap.Laptime) {
                 this.IsLastLapOutLap = this.IsCurrentLapOutLap;
                 this.IsCurrentLapOutLap = false;
                 this.IsLastLapInLap = this.IsCurrentLapInLap;

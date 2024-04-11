@@ -804,7 +804,7 @@ namespace KLPlugins.DynLeaderboards {
                 return;
             }
 
-            car.OnRealtimeCarUpdate(update, this.RealtimeData);
+            car.OnRealtimeCarUpdate(update, this.RealtimeData, this.TrackData);
             this._lastUpdateCarIds.Add(car.CarIndex);
         }
 

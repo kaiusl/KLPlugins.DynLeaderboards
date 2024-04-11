@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -308,10 +308,13 @@ namespace KLPlugins.DynLeaderboards.Car {
                 this.IsCurrentLapInLap = false;
             }
 
-            if (this._exitedPitlane) {
+            // ACC's CurrentLap.Type can only be one of the variants.
+            // However it's perfectly fine to have an outlap and an inlap at the same time.
+            // Below we make the flags persistent.
+            if (!this.IsCurrentLapOutLap && (this._exitedPitlane || this.NewData.CurrentLap.Type == LapType.Outlap)) {
                 this.IsCurrentLapOutLap = true;
             }
-            if (this._enteredPitlane) {
+            if (!this.IsCurrentLapInLap && (this._enteredPitlane || this.NewData.CurrentLap.Type == LapType.Inlap)) {
                 this.IsCurrentLapInLap = true;
             }
 

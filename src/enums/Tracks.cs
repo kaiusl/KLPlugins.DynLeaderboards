@@ -24,8 +24,8 @@
         Indianapolis = 22,
         WatkinsGlen = 23,
         Valencia = 24,
-        RedBullRing = 25,
-        Nurburgring24h = 26,
+        RedBullRing = 26,
+        Nurburgring24h = 25,
 
         Unknown = 27
     }

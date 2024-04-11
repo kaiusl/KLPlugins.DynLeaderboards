@@ -131,13 +131,14 @@ namespace KLPlugins.DynLeaderboards.Car {
         /// In ACC single player its number from 0.
         /// In ACC multiplayer its number from 1000.
         /// </summary>
-        internal string Id => this.RawData.Id;
+        internal string Id => this.RawDataNew.Id;
         /// <summary>
         /// Has this car received the update in latest data update.
         /// </summary>
         internal bool IsUpdated { get; set; } = true;
 
-        internal Opponent RawData;
+        internal Opponent RawDataNew;
+        internal Opponent RawDataOld;
 
         // In some games the spline position and the lap counter reset at different locations.
         // Since we use total spline position to order the cars on track, we need them to be in sync
@@ -166,7 +167,8 @@ namespace KLPlugins.DynLeaderboards.Car {
         internal CarData(Values values, string? focusedCarId, Opponent opponent) {
             this.Drivers = this._drivers.AsReadOnly();
 
-            this.RawData = opponent;
+            this.RawDataNew = opponent;
+            this.RawDataOld = opponent;
 
             this.SetStaticCarData(values, opponent);
 
@@ -174,8 +176,8 @@ namespace KLPlugins.DynLeaderboards.Car {
             this.IsCurrentLapValid = values.Session.SessionType == SessionType.Hotlap
                 || values.Session.SessionType == SessionType.Hotstint;
 
-            this.PositionOverall = this.RawData!.Position;
-            this.PositionInClass = this.RawData.PositionInClass;
+            this.PositionOverall = this.RawDataNew!.Position;
+            this.PositionInClass = this.RawDataNew.PositionInClass;
             this.PositionInCup = this.PositionInClass;
             this.UpdateIndependent(values, focusedCarId, opponent);
 
@@ -286,21 +288,21 @@ namespace KLPlugins.DynLeaderboards.Car {
         }
 
         private void SetStaticCarData(Values values, Opponent opponent) {
-            var carInfo = values.GetCarInfo(this.RawData.CarName);
+            var carInfo = values.GetCarInfo(this.RawDataNew.CarName);
             if (carInfo == null) {
-                DynLeaderboardsPlugin.LogWarn($"Car info not found for {this.RawData.CarName}. Static car info (like class, manufacturer etc) may be missing or incorrect.");
+                DynLeaderboardsPlugin.LogWarn($"Car info not found for {this.RawDataNew.CarName}. Static car info (like class, manufacturer etc) may be missing or incorrect.");
             }
-            this.CarClass = carInfo?.Class ?? CarClass.TryNew(this.RawData.CarClass) ?? CarClass.Default;
-            this.CarModel = carInfo?.Name ?? this.RawData.CarName ?? "Unknown";
+            this.CarClass = carInfo?.Class ?? CarClass.TryNew(this.RawDataNew.CarClass) ?? CarClass.Default;
+            this.CarModel = carInfo?.Name ?? this.RawDataNew.CarName ?? "Unknown";
             this.CarManufacturer = carInfo?.Manufacturer ?? GetCarManufacturer(this.CarModel);
 
             this.CarClassColor = values.GetCarClassColor(this.CarClass) // use our own color if possible
-                ?? TextBoxColor.TryNew(bg: this.RawData.CarClassColor, fg: this.RawData.CarClassTextColor) // fall back to SimHub's colors
+                ?? TextBoxColor.TryNew(bg: this.RawDataNew.CarClassColor, fg: this.RawDataNew.CarClassTextColor) // fall back to SimHub's colors
                 ?? new TextBoxColor(bg: "#FFFFFF", fg: "#000000");
 
-            this.CarNumber = this.RawData.CarNumber ?? "-1";
+            this.CarNumber = this.RawDataNew.CarNumber ?? "-1";
 
-            this.TeamName = this.RawData.TeamName;
+            this.TeamName = this.RawDataNew.TeamName;
 
             if (DynLeaderboardsPlugin.Game.IsAcc) {
                 var accRawData = (ACSharedMemory.Models.ACCOpponent)opponent;
@@ -350,26 +352,27 @@ namespace KLPlugins.DynLeaderboards.Car {
                 this.MissedUpdates = 0;
             }
 
-            this.RawData = rawData;
+            this.RawDataOld = this.RawDataNew;
+            this.RawDataNew = rawData;
             this.IsUpdated = true;
 
             if (DynLeaderboardsPlugin.Game.IsAcc && focusedCarId != null) {
                 this.IsFocused = this.Id == focusedCarId;
             } else {
-                this.IsFocused = this.RawData.IsPlayer;
+                this.IsFocused = this.RawDataNew.IsPlayer;
             }
 
             this.IsBestLapCarOverall = false;
             this.IsBestLapCarInClass = false;
             this.IsBestLapCarInCup = false;
 
-            this.Laps.Update((this.RawData.CurrentLap ?? 1) - 1);
+            this.Laps.Update((this.RawDataNew.CurrentLap ?? 1) - 1);
             this.IsNewLap = this.Laps.New > this.Laps.Old;
 
             this.SetCarLocation(rawData);
             this.UpdatePitInfo(values.Session.SessionPhase);
             this.SetSplinePositions(values);
-            this.MaxSpeed = Math.Max(this.MaxSpeed, this.RawData.Speed ?? 0.0);
+            this.MaxSpeed = Math.Max(this.MaxSpeed, this.RawDataNew.Speed ?? 0.0);
             this.UpdateDrivers(values, rawData);
 
             if (this.IsNewLap) {
@@ -386,16 +389,43 @@ namespace KLPlugins.DynLeaderboards.Car {
                 this.IsCurrentLapInLap = false;
             }
 
-            // ACC N24 lap validity needs to be reset after the car took short lap
-            if (this._took_ACC_N24_short_lap && this._isSplinePositionReset) {
-                this.IsCurrentLapValid = !this.IsInPitLane; // if we cross the line in pitlane, new lap is invalid
-                this.IsCurrentLapOutLap = this.IsInPitLane; // also it will be an outlap
-                this.IsCurrentLapInLap = false;
 
-                this._took_ACC_N24_short_lap = false;
+            if (DynLeaderboardsPlugin.Game.IsAcc) {
+                var rawDataNew = (ACSharedMemory.Models.ACCOpponent)this.RawDataNew;
+                var rawDataOld = (ACSharedMemory.Models.ACCOpponent)this.RawDataOld;
 
-                DynLeaderboardsPlugin.LogInfo($"Car {this.Id}, #{this.CarNumber} lap validity reset after short lap.");
+                // ACC N24 lap validity needs to be reset after the car took short lap
+                if (this._took_ACC_N24_short_lap && this._isSplinePositionReset) {
+                    this.IsCurrentLapValid = !this.IsInPitLane; // if we cross the line in pitlane, new lap is invalid
+                    this.IsCurrentLapOutLap = this.IsInPitLane; // also it will be an outlap
+                    this.IsCurrentLapInLap = false;
+
+                    this._took_ACC_N24_short_lap = false;
+
+                    DynLeaderboardsPlugin.LogInfo($"Car {this.Id}, #{this.CarNumber} lap validity reset after short lap.");
+                }
+
+                if (!this.IsNewLap && rawDataNew.ExtraData.CurrentLap.LaptimeMS < rawDataOld.ExtraData.CurrentLap.LaptimeMS) {
+                    this._isLastLapInLap = this.IsCurrentLapInLap;
+                    this._isLastLapOutLap = this.IsCurrentLapOutLap;
+                    this._isLastLapValid = this.IsCurrentLapValid;
+
+                    this.IsCurrentLapValid = !this.IsInPitLane; // if we cross the line in pitlane, new lap is invalid
+                    this.IsCurrentLapOutLap = this.IsInPitLane; // also it will be an outlap
+                    this.IsCurrentLapInLap = false;
+                }
+
+                if (!this.IsCurrentLapOutLap && rawDataNew.ExtraData.CurrentLap.Type == LapType.Outlap) {
+                    this.IsCurrentLapOutLap = true;
+                }
+
+                if (!this.IsCurrentLapInLap && rawDataNew.ExtraData.CurrentLap.Type == LapType.Inlap) {
+                    this.IsCurrentLapInLap = true;
+                }
             }
+
+
+
 
             if (this.IsCurrentLapValid) {
                 this.CheckIfLapInvalidated(rawData);
@@ -413,7 +443,7 @@ namespace KLPlugins.DynLeaderboards.Car {
         }
 
         private void CheckIfLapInvalidated(Opponent rawData) {
-            if (!this.RawData.LapValid) {
+            if (!this.RawDataNew.LapValid) {
                 this.IsCurrentLapValid = false;
                 return;
             }
@@ -442,7 +472,7 @@ namespace KLPlugins.DynLeaderboards.Car {
         /// <param name="values"></param>
         /// <exception cref="System.Exception"></exception>
         private void SetSplinePositions(Values values) {
-            var newSplinePos = this.RawData.TrackPositionPercent ?? throw new System.Exception("TrackPositionPercent is null");
+            var newSplinePos = this.RawDataNew.TrackPositionPercent ?? throw new System.Exception("TrackPositionPercent is null");
             newSplinePos += values.TrackData!.SplinePosOffset;
             if (newSplinePos > 1) {
                 newSplinePos -= 1;
@@ -464,9 +494,9 @@ namespace KLPlugins.DynLeaderboards.Car {
                 };
                 this.Location.Update(newLocation);
             } else {
-                if (this.RawData.IsCarInPit) {
+                if (this.RawDataNew.IsCarInPit) {
                     this.Location.Update(CarLocation.PitBox);
-                } else if (this.RawData.IsCarInPitLane) {
+                } else if (this.RawDataNew.IsCarInPitLane) {
                     this.Location.Update(CarLocation.Pitlane);
                 } else {
                     this.Location.Update(CarLocation.Track);
@@ -481,12 +511,12 @@ namespace KLPlugins.DynLeaderboards.Car {
 
             var prevCurrentLapTime = this.CurrentLapTime;
             if (DynLeaderboardsPlugin.Game.IsRf2OrLMU
-                && this.RawData.ExtraData.ElementAtOr(0, null) is CrewChiefV4.rFactor2_V2.rFactor2Data.rF2VehicleScoring rf2RawData
+                && this.RawDataNew.ExtraData.ElementAtOr(0, null) is CrewChiefV4.rFactor2_V2.rFactor2Data.rF2VehicleScoring rf2RawData
                 && rf2RawData.mTimeIntoLap > 0 // fall back to SimHub's if rf2 doesn't report current lap time (it's -1 if missing)
             ) {
                 this.CurrentLapTime = TimeSpan.FromSeconds(rf2RawData.mTimeIntoLap);
             } else {
-                this.CurrentLapTime = this.RawData.CurrentLapTime ?? TimeSpan.Zero;
+                this.CurrentLapTime = this.RawDataNew.CurrentLapTime ?? TimeSpan.Zero;
             }
 
             // Add the last current lap time as last lap for rF2 if last lap vas invalid. In such case rF2 doesn't provide last lap times
@@ -497,7 +527,7 @@ namespace KLPlugins.DynLeaderboards.Car {
                 && this._expectingNewLap
                 && !this._isLastLapValid
                 && prevCurrentLapTime > this.CurrentLapTime // CurrentLapTime has reset
-                && this.RawData.ExtraData.ElementAtOr(0, null) is CrewChiefV4.rFactor2_V2.rFactor2Data.rF2VehicleScoring rf2RawData2
+                && this.RawDataNew.ExtraData.ElementAtOr(0, null) is CrewChiefV4.rFactor2_V2.rFactor2Data.rF2VehicleScoring rf2RawData2
                 && rf2RawData2.mLastSector1 == -1.0 // make sure to only use this method if invalid lap was due to lap cut in which case last lap/sector times are -1
             ) {
                 this.LastLap = new Lap(null, prevCurrentLapTime, this.Laps.New, this.CurrentDriver!) {
@@ -513,7 +543,7 @@ namespace KLPlugins.DynLeaderboards.Car {
                 // but an invalid lap is shown as a lap.
                 // Since the order is supposed to be based on the best lap, this could show weird discrepancy between position and lap time.
 
-                var accRawData = (ACSharedMemory.Models.ACCOpponent)this.RawData;
+                var accRawData = (ACSharedMemory.Models.ACCOpponent)this.RawDataNew;
 
                 // Detect if the car took short lap on N24 layout. This is needed because the next time the car crosses the start line they start a new valid lap.
                 // This would remain undetected otherwise and that lap remains invalid.
@@ -568,19 +598,19 @@ namespace KLPlugins.DynLeaderboards.Car {
                 // Need to check for new lap time separately since lap update and lap time update may not be in perfect sync
                 if (
                     this._expectingNewLap // GetLapTime, GetSectorSplit are relatively expensive and we don't need to check it every update
-                    && this.RawData.LastLapTime != null
-                     && this.RawData.LastLapTime != TimeSpan.Zero
+                    && this.RawDataNew.LastLapTime != null
+                     && this.RawDataNew.LastLapTime != TimeSpan.Zero
                      // Sometimes LastLapTime and LastLapSectorTimes may differ very slightly. Check for both. If both are different then it's new lap.
                      && (
                         this.LastLap == null
-                        || (this.RawData.LastLapTime != this.LastLap?.Time && this.RawData.LastLapSectorTimes?.GetLapTime() != this.LastLap?.Time)
-                        || this.RawData.LastLapSectorTimes?.GetSectorSplit(1) != this.LastLap?.S1Time
-                        || this.RawData.LastLapSectorTimes?.GetSectorSplit(2) != this.LastLap?.S2Time
-                        || this.RawData.LastLapSectorTimes?.GetSectorSplit(3) != this.LastLap?.S3Time
+                        || (this.RawDataNew.LastLapTime != this.LastLap?.Time && this.RawDataNew.LastLapSectorTimes?.GetLapTime() != this.LastLap?.Time)
+                        || this.RawDataNew.LastLapSectorTimes?.GetSectorSplit(1) != this.LastLap?.S1Time
+                        || this.RawDataNew.LastLapSectorTimes?.GetSectorSplit(2) != this.LastLap?.S2Time
+                        || this.RawDataNew.LastLapSectorTimes?.GetSectorSplit(3) != this.LastLap?.S3Time
                     )
                 ) {
                     // Lap time end position may be offset with lap or spline position reset point.
-                    this.LastLap = new Lap(this.RawData.LastLapSectorTimes, this.RawData.LastLapTime, this.Laps.New, this.CurrentDriver!) {
+                    this.LastLap = new Lap(this.RawDataNew.LastLapSectorTimes, this.RawDataNew.LastLapTime, this.Laps.New, this.CurrentDriver!) {
                         IsValid = this._isLastLapValid,
                         IsOutLap = this._isLastLapOutLap,
                         IsInLap = this._isLastLapInLap,
@@ -597,7 +627,7 @@ namespace KLPlugins.DynLeaderboards.Car {
                         }
                     }
 
-                    this.BestSectors.Update(this.RawData.BestSectorSplits);
+                    this.BestSectors.Update(this.RawDataNew.BestSectorSplits);
                     this._expectingNewLap = false;
                 }
             }
@@ -626,11 +656,11 @@ namespace KLPlugins.DynLeaderboards.Car {
                     }
                 }
             } else {
-                var currentDriverIndex = this._drivers.FindIndex(d => d.FullName == this.RawData.Name);
+                var currentDriverIndex = this._drivers.FindIndex(d => d.FullName == this.RawDataNew.Name);
                 if (currentDriverIndex == 0) {
                     // OK, current driver is already first in list
                 } else if (currentDriverIndex == -1) {
-                    this._drivers.Insert(0, new Driver(values, this.RawData));
+                    this._drivers.Insert(0, new Driver(values, this.RawDataNew));
                 } else {
                     // move current driver to the front
                     this._drivers.MoveElementAt(currentDriverIndex, 0);
@@ -748,7 +778,7 @@ namespace KLPlugins.DynLeaderboards.Car {
             if (this.EnteredPitLane) {
                 DynLeaderboardsPlugin.LogInfo($"Car {this.Id}, #{this.CarNumber} entered pits");
             }
-            this.PitCount = this.RawData.PitCount ?? 0;
+            this.PitCount = this.RawDataNew.PitCount ?? 0;
 
             // TODO: using DateTime.now for timers if OK for online races where the time doesn't stop.
             //       However in SP races when the player pauses the game, usually the time also stops.

@@ -424,7 +424,7 @@ namespace KLPlugins.DynLeaderboards {
 
         void SetStartingOrder() {
             // This method is called after we have checked that all cars have NewData
-            this._overallOrder.Sort((a, b) => a.RawData.Position.CompareTo(b.RawData.Position)); // Spline position may give wrong results if cars are sitting on the grid, thus NewData.Position
+            this._overallOrder.Sort((a, b) => a.RawDataNew.Position.CompareTo(b.RawDataNew.Position)); // Spline position may give wrong results if cars are sitting on the grid, thus NewData.Position
 
             var classPositions = new Dictionary<CarClass, int>(1); // Keep track of what class position are we at the moment
             var cupPositions = new Dictionary<(CarClass, TeamCupCategory), int>(1); // Keep track of what cup position are we at the moment
@@ -499,7 +499,7 @@ namespace KLPlugins.DynLeaderboards {
                             var bFTime = b.FinishTime == null ? long.MaxValue : b.FinishTime.Value.Ticks;
 
                             if (aFTime == bFTime) {
-                                return a.RawData.Position.CompareTo(b.RawData.Position);
+                                return a.RawDataNew.Position.CompareTo(b.RawDataNew.Position);
                             }
                             return aFTime.CompareTo(bFTime);
                         }
@@ -520,8 +520,8 @@ namespace KLPlugins.DynLeaderboards {
                         return 0;
                     }
 
-                    var aPos = a.RawData.Position;
-                    var bPos = b.RawData.Position;
+                    var aPos = a.RawDataNew.Position;
+                    var bPos = b.RawDataNew.Position;
                     if (aPos == bPos) {
                         // if aPos == bPos, one cad probably left but maybe not. 
                         // Use old position to keep the order stable and not cause flickering.

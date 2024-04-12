@@ -295,16 +295,16 @@ namespace KLPlugins.DynLeaderboards.Car {
 
             if (this._isNewLap) {
                 this.CurrentDriver.OnLapFinished(this.NewData.LastLap);
-            }
-
-            // Sometimes a last lap is not registered. 
-            // This also means that lap counter is not incremented.
-            // However we'd still like to reset the lap flags.
-            // We can do that by detecting if current lap time resets.
-            if (this._isNewLap || this.OldData.CurrentLap.Laptime > this.NewData.CurrentLap.Laptime) {
                 this.IsLastLapOutLap = this.IsCurrentLapOutLap;
                 this.IsCurrentLapOutLap = false;
                 this.IsLastLapInLap = this.IsCurrentLapInLap;
+                this.IsCurrentLapInLap = false;
+            } else if (this.OldData.CurrentLap.Laptime > this.NewData.CurrentLap.Laptime) {
+                // Sometimes a last lap is not registered. (Happens in non race sessions if the car is ahead of the start line)
+                // This also means that lap counter is not incremented.
+                // However we'd still like to reset the lap flags.
+                // We can do that by detecting if current lap time resets.
+                this.IsCurrentLapOutLap = false;
                 this.IsCurrentLapInLap = false;
             }
 

@@ -6,6 +6,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Fixed
+
+- N24 wrong track id
+- Improve detection of in/out laps
+- First hotlap wrongly shown as out lap (in/out lap flags were sometimes not reset after actual out lap)
+
 ## [1.4.2] - 2024-04-04
 
 ### Added

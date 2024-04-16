@@ -233,7 +233,7 @@ namespace KLPlugins.DynLeaderboards.Car {
         /// </summary>
         /// <param name="update"></param>
         /// <param name="realtimeData"></param>
-        internal void OnRealtimeCarUpdate(RealtimeCarUpdate update, RealtimeData realtimeData, TrackData? track) {
+        internal void OnRealtimeCarUpdate(RealtimeCarUpdate update, RealtimeData realtimeData) {
             // If the race is finished we don't care about any of the realtime updates anymore.
             // We have set finished positions in ´OnRealtimeUpdate´ and that's really all that matters
             //if (IsFinished) return;
@@ -248,27 +248,6 @@ namespace KLPlugins.DynLeaderboards.Car {
             this._isSplinePositionReset = this.OldData.SplinePosition > 0.9 && this.NewData.SplinePosition < 0.1;
             this._enteredPitlane = !this.OldData.IsInPitlane && this.NewData.IsInPitlane;
             this._exitedPitlane = this.OldData.IsInPitlane && !this.NewData.IsInPitlane;
-
-            if (track != null && track.Id == TrackType.Nurburgring24h && !realtimeData.IsRace && realtimeData.NewData.SessionType != RaceSessionType.Hotstint) {
-                // Detect if the car took short lap on N24 layout. This is needed because the next time the car crosses the start line they start a new valid lap.
-                // This would remain undetected otherwise and that lap remains invalid.
-                if (this.NewData.SplinePosition > 0.99 && this.OldData.SplinePosition < 0.2 // on N24 short lap the spline position jumps from ~0.166 to ~0.996
-                    && this.OldData.CarLocation == CarLocationEnum.Track && this.NewData.CarLocation == CarLocationEnum.Track // exclude jump to pits
-                ) {
-                    this._took_ACC_N24_short_lap = true;
-                    //DynLeaderboardsPlugin.LogInfo($"Car {this.NewData.CarId}, #{this.RaceNumber} took short lap on N24.");
-                }
-
-                // ACC N24 lap validity needs to be reset after the car took short lap
-                if (this._took_ACC_N24_short_lap && this._isSplinePositionReset) {
-                    this.IsCurrentLapOutLap = this.NewData.CarLocation == CarLocationEnum.Pitlane; // also it will be an outlap
-                    this.IsCurrentLapInLap = false;
-
-                    this._took_ACC_N24_short_lap = false;
-
-                    //DynLeaderboardsPlugin.LogInfo($"Car {this.NewData.CarId}, #{this.RaceNumber} lap validity reset after short lap.");
-                }
-            }
 
             if (realtimeData.IsRace) {
                 HandleOffsetLapUpdates();

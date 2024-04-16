@@ -6,11 +6,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+## [1.4.3] - 2024-04-16
+
 ### Fixed
 
 - N24 wrong track id
 - Improve detection of in/out laps
 - First hotlap wrongly shown as out lap (in/out lap flags were sometimes not reset after actual out lap)
+- N24 short lap didn't start a new flying lap in non-race sessions
 
 ## [1.4.2] - 2024-04-04
 
@@ -235,7 +238,8 @@ excludes all the cars in the pitlane which are not on the same lap as the focuse
 ## [1.0.0] - 2022-04-19
 - Initial public release
 
-[Unreleased]: https://github.com/kaiusl/KLPlugins.Leaderboard/compare/v1.4.2...HEAD
+[Unreleased]: https://github.com/kaiusl/KLPlugins.Leaderboard/compare/v1.4.3...HEAD
+[1.4.3]: https://github.com/kaiusl/KLPlugins.Leaderboard/releases/tag/v1.4.3
 [1.4.2]: https://github.com/kaiusl/KLPlugins.Leaderboard/releases/tag/v1.4.2
 [1.4.1]: https://github.com/kaiusl/KLPlugins.Leaderboard/releases/tag/v1.4.1
 [1.4.0]: https://github.com/kaiusl/KLPlugins.Leaderboard/releases/tag/v1.4.0

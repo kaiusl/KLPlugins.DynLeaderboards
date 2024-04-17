@@ -17,6 +17,139 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 
 namespace KLPlugins.DynLeaderboards {
+
+    internal class CarInfo {
+
+        internal class Inner {
+            [JsonProperty] public string? Name { get; set; }
+            [JsonProperty] public string? Manufacturer { get; set; }
+            [JsonProperty] public CarClass? Class { get; set; }
+
+            [JsonConstructor]
+            internal Inner(string? name, string? manufacturer, CarClass? cls) {
+                this.Name = name;
+                this.Manufacturer = manufacturer;
+                this.Class = cls;
+            }
+
+            internal Inner() { }
+        }
+
+        [JsonProperty("Base")]
+        private Inner? _base;
+        [JsonProperty("Overrides")]
+        private Inner? _overrides;
+        [JsonProperty] public bool IsNameEnabled { get; private set; } = true;
+        [JsonProperty] public bool IsClassEnabled { get; private set; } = true;
+
+        [JsonConstructor]
+        internal CarInfo(Inner? @base, Inner? overrides = null, bool? isNameEnabled = null, bool? isClassEnabled = null) {
+            this._base = @base;
+            this._overrides = overrides;
+            if (isNameEnabled != null) {
+                this.IsNameEnabled = isNameEnabled.Value;
+            }
+
+            if (isClassEnabled != null) {
+                this.IsClassEnabled = isClassEnabled.Value;
+            }
+        }
+
+        internal CarInfo(string? name, string? manufacturer, CarClass? cls) : this(new Inner(name, manufacturer, cls)) { }
+
+        public string Debug() {
+            return $"CarInfo: base: {JsonConvert.SerializeObject(this._base)}, overrides: {JsonConvert.SerializeObject(this._overrides)}";
+        }
+
+        public void Reset() {
+            this._overrides = null;
+            this.IsNameEnabled = true;
+            this.IsClassEnabled = true;
+        }
+
+        public string? BaseName() {
+            return this._base?.Name;
+        }
+
+        public string? Name() {
+            if (!this.IsNameEnabled) {
+                return null;
+            }
+
+            return this._overrides?.Name ?? this._base?.Name;
+        }
+
+        public void SetName(string name) {
+            this._overrides ??= new();
+            this._overrides.Name = name;
+        }
+
+        public void ResetName() {
+            if (this._overrides != null) {
+                this._overrides.Name = null;
+            }
+        }
+
+        public void DisableName() {
+            this.IsNameEnabled = false;
+        }
+
+        public void EnableName() {
+            this.IsNameEnabled = true;
+        }
+
+        public string? BaseManufacturer() {
+            return this._base?.Manufacturer;
+        }
+
+        public string? Manufacturer() {
+            return this._overrides?.Manufacturer ?? this._base?.Manufacturer;
+        }
+
+        public void SetManufacturer(string manufacturer) {
+            this._overrides ??= new();
+            this._overrides.Manufacturer = manufacturer;
+        }
+
+        public void ResetManufacturer() {
+            if (this._overrides != null) {
+                this._overrides.Manufacturer = null;
+            }
+        }
+
+        public CarClass? BaseClass() {
+            return this._base?.Class;
+        }
+
+        public CarClass? Class() {
+            if (!this.IsClassEnabled) {
+                return null;
+            }
+
+            return this._overrides?.Class ?? this._base?.Class;
+        }
+
+        public void SetClass(CarClass cls) {
+            this._overrides ??= new();
+            this._overrides.Class = cls;
+        }
+
+        public void ResetClass() {
+            if (this._overrides != null) {
+                this._overrides.Class = null;
+            }
+        }
+
+        public void DisableClass() {
+            this.IsClassEnabled = false;
+        }
+
+        public void EnableClass() {
+            this.IsClassEnabled = true;
+        }
+    }
+
+
     /// <summary>
     /// Storage and calculation of new properties
     /// </summary>
@@ -47,46 +180,32 @@ namespace KLPlugins.DynLeaderboards {
         internal CarInfo? GetCarInfo(string carName) {
             return this._carInfos.GetValueOr(carName, null);
         }
+        internal IEnumerable<KeyValuePair<string, CarInfo>> CarInfos => this._carInfos;
 
         private static Dictionary<string, CarInfo> ReadCarInfos() {
-            var pathEnd = $"\\{DynLeaderboardsPlugin.Game.Name}\\CarInfos.json";
-            var basePath = PluginSettings.PluginDataDirBase + pathEnd;
-            var overridesPath = PluginSettings.PluginDataDirOverrides + pathEnd;
+            var path = $"{PluginSettings.PluginDataDir}\\{DynLeaderboardsPlugin.Game.Name}\\CarInfos.json";
 
             Dictionary<string, CarInfo>? carInfos = null;
-            var baseExists = File.Exists(basePath);
-            if (DynLeaderboardsPlugin.Game.IsAc && !baseExists) {
+            var dataExists = File.Exists(path);
+            if (DynLeaderboardsPlugin.Game.IsAc && !dataExists) {
                 DynLeaderboardsPlugin.UpdateACCarInfos();
             }
 
-            if (File.Exists(basePath)) {
-                carInfos = JsonConvert.DeserializeObject<Dictionary<string, CarInfo>>(File.ReadAllText(basePath));
-            }
-
-            if (File.Exists(overridesPath)) {
-                var overrides = JsonConvert.DeserializeObject<Dictionary<string, CarInfo>>(File.ReadAllText(overridesPath));
-                if (carInfos != null) {
-                    if (overrides != null) {
-                        foreach (var kvp in overrides) {
-                            if (carInfos.ContainsKey(kvp.Key)) {
-                                carInfos[kvp.Key].Merge(kvp.Value);
-                            } else {
-                                carInfos.Add(kvp.Key, kvp.Value);
-                            }
-                        }
-                    }
-                } else {
-                    carInfos = overrides;
-                }
+            if (File.Exists(path)) {
+                carInfos = JsonConvert.DeserializeObject<Dictionary<string, CarInfo>>(File.ReadAllText(path));
             }
 
             carInfos ??= [];
 
-            foreach (var kv in carInfos) {
-                kv.Value.FinalizeData();
-            }
+            DynLeaderboardsPlugin.LogInfo($"CarInfos: {carInfos.Count}");
+
 
             return carInfos;
+        }
+
+        private void WriteCarInfos() {
+            var path = $"{PluginSettings.PluginDataDir}\\{DynLeaderboardsPlugin.Game.Name}\\CarInfos.json";
+            File.WriteAllText(path, JsonConvert.SerializeObject(this._carInfos, Formatting.Indented));
         }
 
         private readonly TextBoxColors<CarClass> _carClassColors;
@@ -131,7 +250,7 @@ namespace KLPlugins.DynLeaderboards {
             colors ??= new();
             colors.FinalizeData();
 
-            DynLeaderboardsPlugin.LogInfo($"Read text box colors from '{fileName}': {colors.Debug(pretty: true)}");
+            // DynLeaderboardsPlugin.LogInfo($"Read text box colors from '{fileName}': {colors.Debug(pretty: true)}");
 
             return colors;
         }
@@ -189,6 +308,7 @@ namespace KLPlugins.DynLeaderboards {
         protected virtual void Dispose(bool disposing) {
             if (!this._isDisposed) {
                 if (disposing) {
+                    this.WriteCarInfos();
                     DynLeaderboardsPlugin.LogInfo("Disposed");
                 }
 

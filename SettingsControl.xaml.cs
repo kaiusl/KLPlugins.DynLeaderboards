@@ -1,18 +1,34 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.Common;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Media;
+using System.Xml.Linq;
+
+using KLPlugins.DynLeaderboards.Car;
+using KLPlugins.DynLeaderboards.Helpers;
 
 using MahApps.Metro.Controls;
 
 using SimHub.Plugins.Styles;
 
-using Xceed.Wpf.Toolkit;
-
 namespace KLPlugins.DynLeaderboards.Settings {
+
+    class CarSettingsListBoxItem : ListBoxItem {
+
+        public string Key { get; set; }
+        public CarInfo CarInfo { get; set; }
+
+        public CarSettingsListBoxItem(string key, CarInfo car) : base() {
+            this.CarInfo = car;
+            this.Key = key;
+
+            this.Content = key;
+        }
+    }
 
     public partial class SettingsControl : UserControl {
         internal DynLeaderboardsPlugin Plugin { get; }
@@ -52,6 +68,251 @@ namespace KLPlugins.DynLeaderboards.Settings {
             this.Logging_ToggleButton.IsChecked = this.Settings.Log;
             this.IncludeST21InGT2_ToggleButton.IsChecked = this.Settings.Include_ST21_In_GT2;
             this.IncludeCHLInGT2_ToggleButton.IsChecked = this.Settings.Include_CHL_In_GT2;
+
+            this.SetCarSettingsCarsList();
+        }
+
+        void SetCarSettingsCarsList() {
+            SHListBox list = this.CarSettingsCarsList_SHListBox;
+            list.Items.Clear();
+
+            foreach (var c in this.Plugin.Values.CarInfos) {
+                var item = new CarSettingsListBoxItem(c.Key, c.Value);
+                list.Items.Add(item);
+            }
+
+            list.SelectedIndex = 0;
+            list.Items.SortDescriptions.Add(new System.ComponentModel.SortDescription("Content", System.ComponentModel.ListSortDirection.Ascending));
+
+            list.SelectionChanged += (sender, _) => {
+                var item = (CarSettingsListBoxItem)((ListBox)sender).SelectedItem;
+                this.SetCarSettingsDetails(item.Key, item.CarInfo);
+            };
+
+            var first = this.Plugin.Values.CarInfos.FirstOr(null);
+
+            if (first != null) {
+                this.SetCarSettingsDetails(first.Value.Key, first.Value.Value);
+            }
+        }
+
+        void SetCarSettingsDetails(string key, CarInfo car) {
+            var sp = this.CarSettings_StackPanel;
+            sp.Children.Clear();
+
+            var g1 = new Grid() {
+                Margin = new Thickness(0, 5, 10, 5)
+            };
+            g1.ColumnDefinitions.Add(new ColumnDefinition() { Width = new GridLength(1, GridUnitType.Star) });
+            g1.ColumnDefinitions.Add(new ColumnDefinition() { Width = new GridLength(1, GridUnitType.Auto) });
+
+            var carTitle = new SHSubSectionTitle() { Margin = new Thickness(10, 10, 10, 10), FontSize = 20, Content = key };
+            Grid.SetColumn(carTitle, 0);
+            Grid.SetRow(carTitle, 0);
+            g1.Children.Add(carTitle);
+
+            var allResetButton = new SHButtonPrimary() {
+                Padding = new Thickness(5),
+                Margin = new Thickness(5, 0, 5, 0),
+                Height = 26,
+                Content = "Reset"
+            };
+            Grid.SetColumn(allResetButton, 1);
+            Grid.SetRow(allResetButton, 0);
+            g1.Children.Add(allResetButton);
+
+            sp.Children.Add(g1);
+
+            var g2 = new Grid() {
+                Margin = new Thickness(10, 5, 10, 5)
+            };
+            g2.ColumnDefinitions.Add(new ColumnDefinition() { Width = new GridLength(1, GridUnitType.Auto) });
+            g2.ColumnDefinitions.Add(new ColumnDefinition() { Width = new GridLength(1, GridUnitType.Auto) });
+            g2.ColumnDefinitions.Add(new ColumnDefinition() { Width = new GridLength(1, GridUnitType.Star) });
+            g2.ColumnDefinitions.Add(new ColumnDefinition() { Width = new GridLength(1, GridUnitType.Auto) });
+
+            g2.RowDefinitions.Add(new RowDefinition() { Height = new GridLength(1, GridUnitType.Auto) });
+            g2.RowDefinitions.Add(new RowDefinition() { Height = new GridLength(1, GridUnitType.Auto) });
+            g2.RowDefinitions.Add(new RowDefinition() { Height = new GridLength(1, GridUnitType.Auto) });
+            g2.RowDefinitions.Add(new RowDefinition() { Height = new GridLength(1, GridUnitType.Auto) });
+
+            const double disabledOpacity = 0.25;
+
+            TextBlock CreateLabelTextBox(string label, bool isEnabled, int row) {
+                var block = new TextBlock() {
+                    Text = label,
+                    Padding = new Thickness(0, 0, 10, 0),
+                    IsEnabled = isEnabled,
+                    Opacity = isEnabled ? 1.0 : disabledOpacity
+                };
+                Grid.SetRow(block, row);
+                Grid.SetColumn(block, 1);
+
+                return block;
+            }
+
+            TextBox CreateEditTextBox(string? text, bool isEnabled, int row) {
+                var textBox = new TextBox() {
+                    Margin = new Thickness(0, 5, 0, 5),
+                    Text = text ?? "",
+                    IsEnabled = isEnabled,
+                    Opacity = isEnabled ? 1 : disabledOpacity
+                };
+                Grid.SetColumn(textBox, 2);
+                Grid.SetRow(textBox, row);
+
+                return textBox;
+            }
+
+            SHButtonSecondary CreateResetButton(bool isEnabled, int row) {
+                var button = new SHButtonSecondary() {
+                    Padding = new Thickness(5),
+                    Margin = new Thickness(5),
+                    Content = "Reset",
+                    IsEnabled = isEnabled,
+                    Opacity = isEnabled ? 1.0 : disabledOpacity
+                };
+                Grid.SetColumn(button, 3);
+                Grid.SetRow(button, row);
+
+                return button;
+            }
+
+            SHToggleButton CreateToggle(bool isEnabled, int row, string tooltip) {
+                var toggle = new SHToggleButton() {
+                    IsChecked = isEnabled,
+                    ToolTip = tooltip
+                };
+                Grid.SetColumn(toggle, 0);
+                Grid.SetRow(toggle, row);
+                return toggle;
+            }
+
+
+            // Name row
+
+            var isEnabled = car.IsNameEnabled;
+            var row = 0;
+
+            var nameToggle = CreateToggle(
+                isEnabled,
+                row,
+                "Enable this car name override. If disabled, the plugin will use the name provided by SimHub."
+            );
+            g2.Children.Add(nameToggle);
+
+            var nameLabel = CreateLabelTextBox("Name", isEnabled, row);
+            g2.Children.Add(nameLabel);
+
+            var nameTextBox = CreateEditTextBox(car.Name(), isEnabled, row);
+            nameTextBox.TextChanged += (sender, b) => car.SetName(nameTextBox.Text);
+            g2.Children.Add(nameTextBox);
+
+            var nameResetButton = CreateResetButton(isEnabled, row);
+            nameResetButton.Click += (sender, b) => {
+                // Set the text before resetting, because it will trigger the TextChanged event and calls car.SetName
+                nameTextBox.Text = car.BaseName();
+                car.ResetName();
+            };
+            g2.Children.Add(nameResetButton);
+
+            nameToggle.Checked += (sender, b) => {
+                car.EnableName();
+                nameLabel.IsEnabled = true;
+                nameLabel.Opacity = 1;
+                nameTextBox.IsEnabled = true;
+                nameTextBox.Opacity = 1;
+                nameResetButton.IsEnabled = true;
+                nameResetButton.Opacity = 1;
+            };
+            nameToggle.Unchecked += (sender, b) => {
+                car.DisableName();
+                nameLabel.IsEnabled = false;
+                nameLabel.Opacity = disabledOpacity;
+                nameTextBox.IsEnabled = false;
+                nameTextBox.Opacity = disabledOpacity;
+                nameResetButton.IsEnabled = false;
+                nameResetButton.Opacity = disabledOpacity;
+            };
+
+
+            // Manufacturer row
+
+            row = 1;
+            isEnabled = true;
+
+            var manufacturerLabel = CreateLabelTextBox("Manufacturer", isEnabled, row);
+            g2.Children.Add(manufacturerLabel);
+
+            var manufacturerTextBox = CreateEditTextBox(car.Manufacturer(), isEnabled, row);
+            manufacturerTextBox.TextChanged += (sender, b) => car.SetManufacturer(manufacturerTextBox.Text);
+            g2.Children.Add(manufacturerTextBox);
+
+            var manufacturerResetButton = CreateResetButton(isEnabled, row);
+            manufacturerResetButton.Click += (sender, b) => {
+                manufacturerTextBox.Text = car.BaseManufacturer(); // Must be set before resetting
+                car.ResetManufacturer();
+            };
+            g2.Children.Add(manufacturerResetButton);
+
+            sp.Children.Add(g2);
+
+
+            // Class row
+
+            isEnabled = car.IsClassEnabled;
+            row = 2;
+
+            var classToggle = CreateToggle(
+                isEnabled,
+                row,
+                "Enable this car class override. If disabled, the plugin will use the class provided by SimHub."
+            );
+            g2.Children.Add(classToggle);
+
+            var classLabel = CreateLabelTextBox("Class", isEnabled, row);
+            g2.Children.Add(classLabel);
+
+            var classTextBox = CreateEditTextBox(car.Class()?.AsString(), isEnabled, row);
+            classTextBox.TextChanged += (sender, b) => car.SetClass(new CarClass(classTextBox.Text));
+            g2.Children.Add(classTextBox);
+
+            var classResetButton = CreateResetButton(isEnabled, row);
+            classResetButton.Click += (sender, b) => {
+                classTextBox.Text = car.BaseClass()?.AsString(); // Must be set before resetting
+                car.ResetClass();
+            };
+            g2.Children.Add(classResetButton);
+
+            classToggle.Checked += (sender, b) => {
+                car.EnableClass();
+                classLabel.IsEnabled = true;
+                classLabel.Opacity = 1;
+                classTextBox.IsEnabled = true;
+                classTextBox.Opacity = 1;
+                classResetButton.IsEnabled = true;
+                classResetButton.Opacity = 1;
+            };
+            classToggle.Unchecked += (sender, b) => {
+                car.DisableClass();
+                classLabel.IsEnabled = false;
+                classLabel.Opacity = disabledOpacity;
+                classTextBox.IsEnabled = false;
+                classTextBox.Opacity = disabledOpacity;
+                classResetButton.IsEnabled = false;
+                classResetButton.Opacity = disabledOpacity;
+            };
+
+
+            allResetButton.Click += (sender, b) => {
+                nameTextBox.Text = car.BaseName();
+                manufacturerTextBox.Text = car.BaseManufacturer();
+                classTextBox.Text = car.BaseClass()?.AsString();
+                // Reset after setting text, because it will trigger the TextChanged event and calls car.Set which will set overrides
+                car.Reset();
+                classToggle.IsChecked = car.IsClassEnabled;
+                nameToggle.IsChecked = car.IsNameEnabled;
+            };
         }
 
         #region General settings
@@ -78,7 +339,7 @@ namespace KLPlugins.DynLeaderboards.Settings {
                 this.OtherProperties_StackPanel.Children.Add(this.CreateToggleSeparator());
             }
         }
-            
+
 
         private void AccDataLocation_TextChanged(object sender, TextChangedEventArgs e) {
             var success = DynLeaderboardsPlugin.Settings.SetAccDataLocation(this.AccDataLocation_TextBox.Text);

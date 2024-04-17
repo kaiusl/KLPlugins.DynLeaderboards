@@ -288,9 +288,9 @@ namespace KLPlugins.DynLeaderboards.Car {
             if (carInfo == null) {
                 DynLeaderboardsPlugin.LogWarn($"Car info not found for {this.RawDataNew.CarName}. Static car info (like class, manufacturer etc) may be missing or incorrect.");
             }
-            this.CarClass = carInfo?.Class ?? CarClass.TryNew(this.RawDataNew.CarClass) ?? CarClass.Default;
-            this.CarModel = carInfo?.Name ?? this.RawDataNew.CarName ?? "Unknown";
-            this.CarManufacturer = carInfo?.Manufacturer ?? GetCarManufacturer(this.CarModel);
+            this.CarClass = carInfo?.Class() ?? CarClass.TryNew(this.RawDataNew.CarClass) ?? CarClass.Default;
+            this.CarModel = carInfo?.Name() ?? this.RawDataNew.CarName ?? "Unknown";
+            this.CarManufacturer = carInfo?.Manufacturer() ?? GetCarManufacturer(this.CarModel);
 
             this.CarClassColor = values.GetCarClassColor(this.CarClass) // use our own color if possible
                 ?? TextBoxColor.TryNew(bg: this.RawDataNew.CarClassColor, fg: this.RawDataNew.CarClassTextColor) // fall back to SimHub's colors
@@ -1714,50 +1714,6 @@ namespace KLPlugins.DynLeaderboards.Car {
         internal void Update(T data) {
             this.Old = this.New;
             this.New = data;
-        }
-    }
-
-    internal class CarInfo {
-        public string? Name { get; private set; }
-        public string? Manufacturer { get; private set; }
-        public CarClass? Class { get; private set; }
-
-        [JsonConstructor]
-        public CarInfo(string? name, string? manufacturer, CarClass? @class) {
-            this.Name = name;
-            this.Manufacturer = manufacturer;
-            this.Class = @class;
-        }
-
-        public void Merge(CarInfo other) {
-            if (other.Name != null) {
-                this.Name = other.Name;
-            }
-
-            if (other.Manufacturer != null) {
-                this.Manufacturer = other.Manufacturer;
-            }
-
-            if (other.Class != null) {
-                this.Class = other.Class;
-            }
-        }
-
-        /// <summary>
-        /// Finalizes the data by removing "SimHub" keys which user provides to indicate that we want to fall back to SimHub data.
-        /// Internally that is represented as null.
-        /// </summary>
-        internal void FinalizeData() {
-            const string KW_FALLBACK_TO_SIMHUB_DATA = "simhub";
-            if (this.Name != null && this.Name.Equals(KW_FALLBACK_TO_SIMHUB_DATA, StringComparison.OrdinalIgnoreCase)) {
-                this.Name = null;
-            }
-            if (this.Manufacturer != null && this.Manufacturer.Equals(KW_FALLBACK_TO_SIMHUB_DATA, StringComparison.OrdinalIgnoreCase)) {
-                this.Manufacturer = null;
-            }
-            if (this.Class != null && this.Class.Value.AsString().Equals(KW_FALLBACK_TO_SIMHUB_DATA, StringComparison.OrdinalIgnoreCase)) {
-                this.Class = null;
-            }
         }
     }
 

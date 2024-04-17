@@ -292,10 +292,10 @@ namespace KLPlugins.DynLeaderboards.Car {
             this.CarModel = carInfo?.Name() ?? this.RawDataNew.CarName ?? "Unknown";
             this.CarManufacturer = carInfo?.Manufacturer() ?? GetCarManufacturer(this.CarModel);
 
-            var color = values.CarClassColors.GetValueOr(this.CarClass, null);
+            var color = values.CarClassColors.Get(this.CarClass);
             this.CarClassColor = new TextBoxColorInner(
-                fg: color?.Foreground() ?? this.RawDataNew.CarClassTextColor ?? "#FFFFFF",
-                bg: color?.Background() ?? this.RawDataNew.CarClassColor ?? "#000000"
+                fg: color.Foreground() ?? this.RawDataNew.CarClassTextColor ?? "#FFFFFF",
+                bg: color.Background() ?? this.RawDataNew.CarClassColor ?? "#000000"
             );
 
             this.CarNumber = this.RawDataNew.CarNumber ?? "-1";
@@ -309,10 +309,10 @@ namespace KLPlugins.DynLeaderboards.Car {
                 this.TeamCupCategory = TeamCupCategory.Default;
             }
 
-            var cupColor = values.TeamCupCategoryColors.GetValueOr(this.TeamCupCategory, null);
+            var cupColor = values.TeamCupCategoryColors.Get(this.TeamCupCategory);
             this.TeamCupCategoryColor = new TextBoxColorInner(
-                fg: cupColor?.Foreground() ?? "#FFFFFF",
-                bg: cupColor?.Background() ?? "#000000"
+                fg: cupColor.Foreground() ?? "#FFFFFF",
+                bg: cupColor.Background() ?? "#000000"
             );
         }
 
@@ -1287,10 +1287,10 @@ namespace KLPlugins.DynLeaderboards.Car {
             this.ShortName = o.Initials;
             this.InitialPlusLastName = o.ShortName;
 
-            var col = v.DriverCategoryColors.GetValueOr(this.Category, null);
+            var col = v.DriverCategoryColors.Get(this.Category);
             this.CategoryColor = new TextBoxColorInner(
-                fg: col?.Foreground() ?? "#FFFFFF",
-                bg: col?.Background() ?? "#000000"
+                fg: col.Foreground() ?? "#FFFFFF",
+                bg: col.Background() ?? "#000000"
             );
         }
 
@@ -1305,10 +1305,10 @@ namespace KLPlugins.DynLeaderboards.Car {
             this.InitialPlusLastName = this.CreateInitialPlusLastNameACC();
             this.Initials = this.CreateInitialsACC();
 
-            var col = v.DriverCategoryColors.GetValueOr(this.Category, null);
+            var col = v.DriverCategoryColors.Get(this.Category);
             this.CategoryColor = new TextBoxColorInner(
-                fg: col?.Foreground() ?? "#FFFFFF",
-                bg: col?.Background() ?? "#000000"
+                fg: col.Foreground() ?? "#FFFFFF",
+                bg: col.Background() ?? "#000000"
             );
         }
 
@@ -1727,7 +1727,7 @@ namespace KLPlugins.DynLeaderboards.Car {
     }
 
     [TypeConverter(typeof(CarClassTypeConverter))]
-    public readonly record struct CarClass {
+    public readonly record struct CarClass : IComparable<CarClass> {
         private readonly string _cls;
 
         public CarClass(string cls) {
@@ -1750,6 +1750,10 @@ namespace KLPlugins.DynLeaderboards.Car {
         public override string ToString() {
             return this._cls.ToString();
         }
+
+        public int CompareTo(CarClass other) {
+            return this._cls.CompareTo(other._cls);
+        }
     }
 
     internal class CarClassTypeConverter : TypeConverter {
@@ -1771,7 +1775,7 @@ namespace KLPlugins.DynLeaderboards.Car {
     }
 
     [TypeConverter(typeof(TeamCupCategoryTypeConverter))]
-    public readonly record struct TeamCupCategory {
+    public readonly record struct TeamCupCategory : IComparable<TeamCupCategory> {
         private readonly string _cls;
 
         public TeamCupCategory(string cls) {
@@ -1794,6 +1798,10 @@ namespace KLPlugins.DynLeaderboards.Car {
         public override string ToString() {
             return this._cls.ToString();
         }
+
+        public int CompareTo(TeamCupCategory other) {
+            return this._cls.CompareTo(other._cls);
+        }
     }
 
     internal class TeamCupCategoryTypeConverter : TypeConverter {
@@ -1815,7 +1823,7 @@ namespace KLPlugins.DynLeaderboards.Car {
     }
 
     [TypeConverter(typeof(DriverCategoryTypeConverter))]
-    public readonly record struct DriverCategory {
+    public readonly record struct DriverCategory : IComparable<DriverCategory> {
         private readonly string _cls;
 
         public DriverCategory(string cls) {
@@ -1837,6 +1845,10 @@ namespace KLPlugins.DynLeaderboards.Car {
 
         public override string ToString() {
             return this._cls.ToString();
+        }
+
+        public int CompareTo(DriverCategory other) {
+            return this._cls.CompareTo(other._cls);
         }
     }
 

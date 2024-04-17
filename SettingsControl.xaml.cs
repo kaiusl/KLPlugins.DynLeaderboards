@@ -490,7 +490,7 @@ namespace KLPlugins.DynLeaderboards.Settings {
             }
 
 
-            void AddColors<K>(string title, string kind, Dictionary<K, TextBoxColor> colors, Func<K, string> keyToString) {
+            void AddColors<K>(string title, string kind, TextBoxColors<K> colors, Func<K, string> keyToString) {
                 sp.Children.Add(new SHSectionTitle() { Text = title });
 
                 var gameSpecificGrid = CreateColorsGrid(kind);

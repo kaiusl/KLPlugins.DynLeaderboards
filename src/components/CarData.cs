@@ -285,12 +285,9 @@ namespace KLPlugins.DynLeaderboards.Car {
 
         private void SetStaticCarData(Values values, Opponent opponent) {
             var carInfo = values.GetCarInfo(this.RawDataNew.CarName);
-            if (carInfo == null) {
-                DynLeaderboardsPlugin.LogWarn($"Car info not found for {this.RawDataNew.CarName}. Static car info (like class, manufacturer etc) may be missing or incorrect.");
-            }
-            this.CarClass = carInfo?.Class() ?? CarClass.TryNew(this.RawDataNew.CarClass) ?? CarClass.Default;
-            this.CarModel = carInfo?.Name() ?? this.RawDataNew.CarName ?? "Unknown";
-            this.CarManufacturer = carInfo?.Manufacturer() ?? GetCarManufacturer(this.CarModel);
+            this.CarClass = carInfo.Class() ?? CarClass.TryNew(this.RawDataNew.CarClass) ?? CarClass.Default;
+            this.CarModel = carInfo.Name() ?? this.RawDataNew.CarName ?? "Unknown";
+            this.CarManufacturer = carInfo.Manufacturer() ?? GetCarManufacturer(this.CarModel);
 
             var color = values.CarClassColors.Get(this.CarClass);
             this.CarClassColor = new TextBoxColorInner(

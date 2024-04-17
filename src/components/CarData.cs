@@ -170,9 +170,7 @@ namespace KLPlugins.DynLeaderboards.Car {
 
             this.SetStaticCarData(values, opponent);
 
-            // First lap in hotlap or hotstint is also a valid lap. 
-            this.IsCurrentLapValid = values.Session.SessionType == SessionType.Hotlap
-                || values.Session.SessionType == SessionType.Hotstint;
+            this.IsCurrentLapValid = true;
 
             this.PositionOverall = this.RawDataNew!.Position;
             this.PositionInClass = this.RawDataNew.PositionInClass;
@@ -382,8 +380,8 @@ namespace KLPlugins.DynLeaderboards.Car {
                 this._isLastLapOutLap = this.IsCurrentLapOutLap;
                 this._isLastLapValid = this.IsCurrentLapValid;
 
-                this.IsCurrentLapValid = !this.IsInPitLane; // if we cross the line in pitlane, new lap is invalid
-                this.IsCurrentLapOutLap = this.IsInPitLane; // also it will be an outlap
+                this.IsCurrentLapValid = true; // if we cross the line in pitlane, new lap is invalid
+                this.IsCurrentLapOutLap = false; // also it will be an outlap
                 this.IsCurrentLapInLap = false;
             }
 
@@ -397,8 +395,8 @@ namespace KLPlugins.DynLeaderboards.Car {
                     this._isLastLapOutLap = this.IsCurrentLapOutLap;
                     this._isLastLapValid = this.IsCurrentLapValid;
 
-                    this.IsCurrentLapValid = !this.IsInPitLane; // if we cross the line in pitlane, new lap is invalid
-                    this.IsCurrentLapOutLap = this.IsInPitLane; // also it will be an outlap
+                    this.IsCurrentLapValid = true; // if we cross the line in pitlane, new lap is invalid
+                    this.IsCurrentLapOutLap = false; // also it will be an outlap
                     this.IsCurrentLapInLap = false;
                 }
 
@@ -528,7 +526,7 @@ namespace KLPlugins.DynLeaderboards.Car {
                 // Since the order is supposed to be based on the best lap, this could show weird discrepancy between position and lap time.
 
                 var accRawData = (ACSharedMemory.Models.ACCOpponent)this.RawDataNew;
-                
+
                 // Need to check for new lap time separately since lap update and lap time update may not be in perfect sync
                 var lastLap = accRawData.ExtraData.LastLap;
                 if (
@@ -767,13 +765,11 @@ namespace KLPlugins.DynLeaderboards.Car {
             ) {
                 this.PitEntryTime = DateTime.Now;
                 this.IsCurrentLapInLap = true;
-                this.IsCurrentLapValid = false;
             }
 
             // Pit ended
             if (this.PitEntryTime != null && (this.ExitedPitLane || !this.IsInPitLane)) {
                 this.IsCurrentLapOutLap = true;
-                this.IsCurrentLapValid = false;
                 this.PitTimeLast = DateTime.Now - this.PitEntryTime;
                 this.TotalPitTime += this.PitTimeLast.Value;
                 this.PitTimeCurrent = null;

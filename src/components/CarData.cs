@@ -17,7 +17,7 @@ using Newtonsoft.Json;
 namespace KLPlugins.DynLeaderboards.Car {
     public class CarData {
         public CarClass CarClass { get; private set; }
-        public TextBoxColor CarClassColor { get; private set; }
+        public TextBoxColorInner CarClassColor { get; private set; }
 
         public string CarNumber { get; private set; } // string because 001 and 1 could be different numbers in some games
         /// <summary>
@@ -27,7 +27,7 @@ namespace KLPlugins.DynLeaderboards.Car {
         public string CarManufacturer { get; private set; }
         public string? TeamName { get; private set; }
         public TeamCupCategory TeamCupCategory { get; private set; }
-        public TextBoxColor TeamCupCategoryColor { get; private set; }
+        public TextBoxColorInner TeamCupCategoryColor { get; private set; }
 
         public NewOld<CarLocation> Location { get; } = new(CarLocation.NONE);
 
@@ -292,9 +292,11 @@ namespace KLPlugins.DynLeaderboards.Car {
             this.CarModel = carInfo?.Name() ?? this.RawDataNew.CarName ?? "Unknown";
             this.CarManufacturer = carInfo?.Manufacturer() ?? GetCarManufacturer(this.CarModel);
 
-            this.CarClassColor = values.GetCarClassColor(this.CarClass) // use our own color if possible
-                ?? TextBoxColor.TryNew(bg: this.RawDataNew.CarClassColor, fg: this.RawDataNew.CarClassTextColor) // fall back to SimHub's colors
-                ?? new TextBoxColor(bg: "#FFFFFF", fg: "#000000");
+            var color = values.CarClassColors.GetValueOr(this.CarClass, null);
+            this.CarClassColor = new TextBoxColorInner(
+                fg: color?.Foreground() ?? this.RawDataNew.CarClassTextColor ?? "#FFFFFF",
+                bg: color?.Background() ?? this.RawDataNew.CarClassColor ?? "#000000"
+            );
 
             this.CarNumber = this.RawDataNew.CarNumber ?? "-1";
 
@@ -307,8 +309,11 @@ namespace KLPlugins.DynLeaderboards.Car {
                 this.TeamCupCategory = TeamCupCategory.Default;
             }
 
-            this.TeamCupCategoryColor = values.GetTeamCupCategoryColor(this.TeamCupCategory)
-                ?? new TextBoxColor(bg: "#FFFFFF", fg: "#000000");
+            var cupColor = values.TeamCupCategoryColors.GetValueOr(this.TeamCupCategory, null);
+            this.TeamCupCategoryColor = new TextBoxColorInner(
+                fg: cupColor?.Foreground() ?? "#FFFFFF",
+                bg: cupColor?.Background() ?? "#000000"
+            );
         }
 
         private static TeamCupCategory ACCTeamCupCategoryToString(byte cupCategory) {
@@ -1273,7 +1278,7 @@ namespace KLPlugins.DynLeaderboards.Car {
         public string Nationality { get; private set; } = "Unknown";
         public int TotalLaps { get; internal set; } = 0;
         public LapBasic? BestLap { get; internal set; } = null;
-        public TextBoxColor CategoryColor { get; private set; }
+        public TextBoxColorInner CategoryColor { get; private set; }
 
         private TimeSpan _totalDrivingTime;
 
@@ -1282,7 +1287,11 @@ namespace KLPlugins.DynLeaderboards.Car {
             this.ShortName = o.Initials;
             this.InitialPlusLastName = o.ShortName;
 
-            this.CategoryColor = v.GetDriverCategoryColor(this.Category) ?? DefCategoryColor();
+            var col = v.DriverCategoryColors.GetValueOr(this.Category, null);
+            this.CategoryColor = new TextBoxColorInner(
+                fg: col?.Foreground() ?? "#FFFFFF",
+                bg: col?.Background() ?? "#000000"
+            );
         }
 
         internal Driver(Values v, ksBroadcastingNetwork.Structs.DriverInfo driver) {
@@ -1296,11 +1305,11 @@ namespace KLPlugins.DynLeaderboards.Car {
             this.InitialPlusLastName = this.CreateInitialPlusLastNameACC();
             this.Initials = this.CreateInitialsACC();
 
-            this.CategoryColor = v.GetDriverCategoryColor(this.Category) ?? DefCategoryColor();
-        }
-
-        private static TextBoxColor DefCategoryColor() {
-            return new TextBoxColor(fg: "#FFFFFF", bg: "#000000");
+            var col = v.DriverCategoryColors.GetValueOr(this.Category, null);
+            this.CategoryColor = new TextBoxColorInner(
+                fg: col?.Foreground() ?? "#FFFFFF",
+                bg: col?.Background() ?? "#000000"
+            );
         }
 
         internal void OnStintEnd(TimeSpan lastStintTime) {

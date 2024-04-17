@@ -18,6 +18,95 @@ using System.ComponentModel;
 
 namespace KLPlugins.DynLeaderboards {
 
+    internal class TextBoxColor {
+        [JsonProperty("base")] internal TextBoxColorInner? _base { get; private set; }
+        [JsonProperty("overrides")] internal TextBoxColorInner? _overrides { get; private set; }
+
+        [JsonProperty] public bool IsEnabled { get; private set; } = true;
+
+        internal TextBoxColor(TextBoxColorInner @base) {
+            this._base = @base;
+        }
+
+        internal TextBoxColor() { }
+
+        internal void SetOverrides(TextBoxColorInner? overrides) {
+            this._overrides = overrides;
+        }
+
+
+        public void Reset() {
+            this._overrides = null;
+            this.IsEnabled = true;
+        }
+
+        public void Enable() {
+            this.IsEnabled = true;
+        }
+
+        public void Disable() {
+            this.IsEnabled = false;
+        }
+
+        public string? Foreground() {
+            if (!this.IsEnabled) {
+                return null;
+            }
+
+            return this._overrides?.Fg ?? this._base?.Fg;
+        }
+
+        public string? ForegroundDontCheckEnabled() {
+            return this._overrides?.Fg ?? this._base?.Fg;
+        }
+
+        public string? BaseForeground() {
+            return this._base?.Fg;
+        }
+
+        public void SetForeground(string fg) {
+            this._overrides ??= new();
+            this._overrides.Fg = fg;
+        }
+
+        public void ResetForeground() {
+            if (this._overrides != null) {
+                this._overrides.Fg = null;
+            }
+        }
+
+        public string? Background() {
+            if (!this.IsEnabled) {
+                return null;
+            }
+
+            return this._overrides?.Bg ?? this._base?.Bg;
+        }
+
+        public string? BackgroundDontCheckEnabled() {
+            return this._overrides?.Bg ?? this._base?.Bg;
+        }
+
+        public string? BaseBackground() {
+            return this._base?.Bg;
+        }
+
+        public void SetBackground(string bg) {
+            this._overrides ??= new();
+            this._overrides.Bg = bg;
+        }
+
+        public void ResetBackground() {
+            if (this._overrides != null) {
+                this._overrides.Bg = null;
+            }
+        }
+
+        public TextBoxColorInner? Get() {
+            return new TextBoxColorInner(fg: this.Foreground(), bg: this.Background());
+        }
+    }
+
     internal class CarInfo {
 
         internal class Inner {
@@ -149,7 +238,6 @@ namespace KLPlugins.DynLeaderboards {
         }
     }
 
-
     /// <summary>
     /// Storage and calculation of new properties
     /// </summary>
@@ -208,61 +296,76 @@ namespace KLPlugins.DynLeaderboards {
             File.WriteAllText(path, JsonConvert.SerializeObject(this._carInfos, Formatting.Indented));
         }
 
-        private readonly TextBoxColors<CarClass> _carClassColors;
-        internal TextBoxColor? GetCarClassColor(CarClass carClass) {
-            return this._carClassColors.Get(carClass);
-        }
-        internal IEnumerable<KeyValuePair<CarClass, TextBoxColor>> CarClassColors => this._carClassColors.GetEnumerable();
+        internal Dictionary<CarClass, TextBoxColor> CarClassColors { get; }
+        internal Dictionary<TeamCupCategory, TextBoxColor> TeamCupCategoryColors { get; }
+        internal Dictionary<DriverCategory, TextBoxColor> DriverCategoryColors { get; }
 
-        private readonly TextBoxColors<TeamCupCategory> _teamCupCategoryColors;
-        internal TextBoxColor? GetTeamCupCategoryColor(TeamCupCategory teamCupCategory) {
-            return this._teamCupCategoryColors.Get(teamCupCategory);
-        }
-        internal IEnumerable<KeyValuePair<TeamCupCategory, TextBoxColor>> TeamCupCategoryColors => this._teamCupCategoryColors.GetEnumerable();
+        private static Dictionary<K, TextBoxColor> ReadTextBoxColors<K>(string fileName) {
+            var basesPath = $"{PluginSettings.PluginDataDir}\\{DynLeaderboardsPlugin.Game.Name}\\{fileName}.base.json";
+            var overrridesPath = $"{PluginSettings.PluginDataDir}\\{DynLeaderboardsPlugin.Game.Name}\\{fileName}.json";
 
-        private readonly TextBoxColors<DriverCategory> _driverCategoryColors;
-        internal TextBoxColor? GetDriverCategoryColor(DriverCategory teamCupCategory) {
-            return this._driverCategoryColors.Get(teamCupCategory);
-        }
-        internal IEnumerable<KeyValuePair<DriverCategory, TextBoxColor>> DriverCategoryColors => this._driverCategoryColors.GetEnumerable();
-
-        private static TextBoxColors<K> ReadTextBoxColors<K>(string fileName) {
-            var pathEnd = $"\\{fileName}";
-            var basePath = PluginSettings.PluginDataDirBase + pathEnd;
-            var overridesPath = PluginSettings.PluginDataDirOverrides + pathEnd;
-
-            TextBoxColors<K>? colors = null;
-            if (File.Exists(basePath)) {
-                colors = JsonConvert.DeserializeObject<TextBoxColors<K>>(File.ReadAllText(basePath));
+            Dictionary<K, TextBoxColorInner>? bases = null;
+            Dictionary<K, (bool, TextBoxColorInner?)>? overrides = null;
+            if (File.Exists(basesPath)) {
+                bases = JsonConvert.DeserializeObject<Dictionary<K, TextBoxColorInner>>(File.ReadAllText(basesPath));
             }
 
-            if (File.Exists(overridesPath)) {
-                var overrides = JsonConvert.DeserializeObject<TextBoxColors<K>>(File.ReadAllText(overridesPath));
-                if (colors != null) {
-                    if (overrides != null) {
-                        colors.Merge(overrides);
-                    }
-                } else {
-                    colors = overrides;
+            if (File.Exists(overrridesPath)) {
+                overrides = JsonConvert.DeserializeObject<Dictionary<K, (bool, TextBoxColorInner?)>>(File.ReadAllText(overrridesPath));
+            }
+
+            var colors = new Dictionary<K, TextBoxColor>();
+            if (bases != null) {
+                foreach (var kv in bases) {
+                    var color = new TextBoxColor(kv.Value);
+                    colors[kv.Key] = color;
                 }
             }
 
-            colors ??= new();
-            colors.FinalizeData();
+            if (overrides != null) {
+                foreach (var kv in overrides) {
+                    if (!colors.ContainsKey(kv.Key)) {
+                        colors[kv.Key] = new TextBoxColor();
+                    }
 
-            // DynLeaderboardsPlugin.LogInfo($"Read text box colors from '{fileName}': {colors.Debug(pretty: true)}");
+                    var color = colors[kv.Key];
+                    if (kv.Value.Item1) {
+                        color.Enable();
+                    } else {
+                        color.Disable();
+                    }
+
+                    color.SetOverrides(kv.Value.Item2);
+                }
+            }
 
             return colors;
         }
+        private static void WriteTextBoxColors<K>(Dictionary<K, TextBoxColor> colors, string fileName) {
+            string? overrridesPath = $"{PluginSettings.PluginDataDir}\\{DynLeaderboardsPlugin.Game.Name}\\{fileName}.json";
+
+            var overrides = new Dictionary<K, (bool, TextBoxColorInner?)>();
+
+            foreach (var kv in colors) {
+                overrides[kv.Key] = (kv.Value.IsEnabled, kv.Value._overrides);
+            }
+
+            File.WriteAllText(overrridesPath, JsonConvert.SerializeObject(overrides, Formatting.Indented));
+        }
+
 
         internal bool IsFirstFinished { get; private set; } = false;
         private bool _startingPositionsSet = false;
 
+        private const string _carClassColorsJsonName = "CarClassColors";
+        private const string _teamCupCategoryColorsJsonName = "TeamCupCategoryColors";
+        private const string _driverCategoryColorsJsonName = "DriverCategoryColors";
+
         internal Values() {
             this._carInfos = ReadCarInfos();
-            this._carClassColors = ReadTextBoxColors<CarClass>("CarClassColors.json");
-            this._teamCupCategoryColors = ReadTextBoxColors<TeamCupCategory>("TeamCupCategoryColors.json");
-            this._driverCategoryColors = ReadTextBoxColors<DriverCategory>("DriverCategoryColors.json");
+            this.CarClassColors = ReadTextBoxColors<CarClass>(_carClassColorsJsonName);
+            this.TeamCupCategoryColors = ReadTextBoxColors<TeamCupCategory>(_teamCupCategoryColorsJsonName);
+            this.DriverCategoryColors = ReadTextBoxColors<DriverCategory>(_driverCategoryColorsJsonName);
 
             this.OverallOrder = this._overallOrder.AsReadOnly();
             this.ClassOrder = this._classOrder.AsReadOnly();
@@ -309,6 +412,9 @@ namespace KLPlugins.DynLeaderboards {
             if (!this._isDisposed) {
                 if (disposing) {
                     this.WriteCarInfos();
+                    WriteTextBoxColors(this.CarClassColors, _carClassColorsJsonName);
+                    WriteTextBoxColors(this.TeamCupCategoryColors, _teamCupCategoryColorsJsonName);
+                    WriteTextBoxColors(this.DriverCategoryColors, _driverCategoryColorsJsonName);
                     DynLeaderboardsPlugin.LogInfo("Disposed");
                 }
 
@@ -666,22 +772,24 @@ namespace KLPlugins.DynLeaderboards {
     }
 
     [TypeConverter(typeof(TextBoxColorTypeConverter))]
-    public class TextBoxColor {
-        public string Fg { get; }
-        public string Bg { get; }
+    public class TextBoxColorInner {
+        [JsonProperty] public string? Fg { get; internal set; }
+        [JsonProperty] public string? Bg { get; internal set; }
 
         [JsonConstructor]
-        public TextBoxColor(string fg, string bg) {
+        internal TextBoxColorInner(string? fg, string? bg) {
             this.Fg = fg;
             this.Bg = bg;
         }
 
-        public static TextBoxColor? TryNew(string? fg, string? bg) {
-            if (fg == null || bg == null) {
-                return null;
-            }
-            return new TextBoxColor(fg: fg, bg: bg);
-        }
+        internal TextBoxColorInner() { }
+
+        // public static TextBoxColor? TryNew(string? fg, string? bg) {
+        //     if (fg == null || bg == null) {
+        //         return null;
+        //     }
+        //     return new TextBoxColor(fg: fg, bg: bg);
+        // }
     }
 
     internal class TextBoxColorTypeConverter : TypeConverter {
@@ -692,7 +800,7 @@ namespace KLPlugins.DynLeaderboards {
         public override object ConvertFrom(ITypeDescriptorContext context, System.Globalization.CultureInfo culture, object value) {
             // simhub is a special case, it means to fall back to simhub colors
             if (value is string str && str.Equals("simhub", StringComparison.OrdinalIgnoreCase)) {
-                return new TextBoxColor(fg: "simhub", bg: "simhub");
+                return new TextBoxColorInner(fg: "simhub", bg: "simhub");
             }
             throw new NotSupportedException();
         }
@@ -704,53 +812,5 @@ namespace KLPlugins.DynLeaderboards {
         public override object? ConvertTo(ITypeDescriptorContext context, System.Globalization.CultureInfo culture, object value, Type destinationType) {
             throw new NotImplementedException();
         }
-    }
-
-    internal class TextBoxColors<K> {
-        private Dictionary<K, TextBoxColor> _colors { get; set; }
-
-        [JsonConstructor]
-        internal TextBoxColors(Dictionary<K, TextBoxColor>? global, Dictionary<string, Dictionary<K, TextBoxColor>>? game_overrides) {
-            this._colors = global ?? [];
-            var overrides = game_overrides?.GetValueOr(DynLeaderboardsPlugin.Game.Name, null);
-            if (overrides != null) {
-                foreach (var kvp in overrides) {
-                    this._colors[kvp.Key] = kvp.Value;
-                }
-            }
-        }
-
-        internal TextBoxColors() {
-            this._colors = [];
-        }
-
-        internal TextBoxColor? Get(K key) {
-            return this._colors.GetValueOr(key, null);
-        }
-
-        internal void FinalizeData() {
-            this._colors = this._colors
-                .Where(kvp => kvp.Value.Bg != "simhub" && kvp.Value.Fg != "simhub")
-                .ToDictionary(kvp => kvp.Key, kvp => kvp.Value!);
-        }
-
-        internal void Merge(TextBoxColors<K> other) {
-            this._colors.Merge(other._colors);
-        }
-
-        internal string Debug(bool pretty = false) {
-            if (pretty) {
-                return JsonConvert.SerializeObject(this._colors, Formatting.Indented);
-            } else {
-                return JsonConvert.SerializeObject(this._colors);
-            }
-        }
-
-        // We cannot easily implement IEnumerable because it messes up deserialization from JSON.
-        // However for our purposes this is enough.
-        internal IEnumerable<KeyValuePair<K, TextBoxColor>> GetEnumerable() {
-            return this._colors;
-        }
-
     }
 }

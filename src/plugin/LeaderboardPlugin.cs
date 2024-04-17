@@ -159,34 +159,34 @@ namespace KLPlugins.DynLeaderboards {
 
             if (Settings.OutGeneralProps.Includes(OutGeneralProp.CarClassColors)) {
                 foreach (var kv in this.Values.CarClassColors) {
-                    this.AttachDelegate($"Color.Class.{kv.Key}", () => kv.Value.Bg);
+                    this.AttachDelegate($"Color.Class.{kv.Key}", () => kv.Value.Background());
                 }
             }
             if (Settings.OutGeneralProps.Includes(OutGeneralProp.CarClassColors)) {
                 foreach (var kv in this.Values.CarClassColors) {
-                    this.AttachDelegate($"Color.Class.{kv.Key}.Text", () => kv.Value.Fg);
+                    this.AttachDelegate($"Color.Class.{kv.Key}.Text", () => kv.Value.Foreground());
                 }
             }
 
             if (Settings.OutGeneralProps.Includes(OutGeneralProp.TeamCupColors)) {
                 foreach (var kv in this.Values.TeamCupCategoryColors) {
-                    this.AttachDelegate($"Color.Cup.{kv.Key}", () => kv.Value.Bg);
+                    this.AttachDelegate($"Color.Cup.{kv.Key}", () => kv.Value.Background());
                 }
             }
             if (Settings.OutGeneralProps.Includes(OutGeneralProp.TeamCupTextColors)) {
                 foreach (var kv in this.Values.TeamCupCategoryColors) {
-                    this.AttachDelegate($"Color.Cup.{kv.Key}.Text", () => kv.Value.Fg);
+                    this.AttachDelegate($"Color.Cup.{kv.Key}.Text", () => kv.Value.Foreground());
                 }
             }
 
             if (Settings.OutGeneralProps.Includes(OutGeneralProp.DriverCategoryColors)) {
                 foreach (var kv in this.Values.DriverCategoryColors) {
-                    this.AttachDelegate($"Color.DriverCategory.{kv.Key}", () => kv.Value.Bg);
+                    this.AttachDelegate($"Color.DriverCategory.{kv.Key}", () => kv.Value.Background());
                 }
             }
             if (Settings.OutGeneralProps.Includes(OutGeneralProp.DriverCategoryTextColors)) {
                 foreach (var kv in this.Values.DriverCategoryColors) {
-                    this.AttachDelegate($"Color.DriverCategory.{kv.Key}.Text", () => kv.Value.Fg);
+                    this.AttachDelegate($"Color.DriverCategory.{kv.Key}.Text", () => kv.Value.Foreground());
                 }
             }
         }

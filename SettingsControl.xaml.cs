@@ -15,6 +15,8 @@ using MahApps.Metro.Controls;
 
 using SimHub.Plugins.Styles;
 
+using Xceed.Wpf.Toolkit;
+
 namespace KLPlugins.DynLeaderboards.Settings {
 
     class CarSettingsListBoxItem : ListBoxItem {
@@ -70,6 +72,7 @@ namespace KLPlugins.DynLeaderboards.Settings {
             this.IncludeCHLInGT2_ToggleButton.IsChecked = this.Settings.Include_CHL_In_GT2;
 
             this.SetCarSettingsCarsList();
+            this.AddClassColors();
         }
 
         void SetCarSettingsCarsList() {
@@ -313,6 +316,199 @@ namespace KLPlugins.DynLeaderboards.Settings {
                 classToggle.IsChecked = car.IsClassEnabled;
                 nameToggle.IsChecked = car.IsNameEnabled;
             };
+        }
+
+        private void AddClassColors() {
+            StackPanel sp = this.Colors_StackPanel;
+            sp.Children.Clear();
+
+            Grid CreateColorsGrid(string kind) {
+                var grid = new Grid();
+
+                grid.ColumnDefinitions.Add(new ColumnDefinition() { Width = new GridLength(1, GridUnitType.Auto) });
+                grid.ColumnDefinitions.Add(new ColumnDefinition() { Width = new GridLength(1, GridUnitType.Auto), MinWidth = 75 });
+                grid.ColumnDefinitions.Add(new ColumnDefinition() { Width = new GridLength(1, GridUnitType.Auto) });
+                grid.ColumnDefinitions.Add(new ColumnDefinition() { Width = new GridLength(1, GridUnitType.Auto) });
+                grid.ColumnDefinitions.Add(new ColumnDefinition() { Width = new GridLength(1, GridUnitType.Auto) });
+                grid.ColumnDefinitions.Add(new ColumnDefinition() { Width = new GridLength(1, GridUnitType.Auto) });
+
+                grid.RowDefinitions.Add(new RowDefinition() { Height = new GridLength(1, GridUnitType.Auto) });
+
+                // Labels row
+
+                TextBlock CreateLabel(string label, int col) {
+                    var t = new TextBlock() {
+                        Opacity = 0.75,
+                        Margin = new Thickness(10, 0, 10, 5),
+                        Text = label
+                    };
+                    Grid.SetColumn(t, col);
+                    Grid.SetRow(t, 0);
+
+                    return t;
+                }
+                grid.Children.Add(CreateLabel("Enabled", 0));
+                grid.Children.Add(CreateLabel(kind, 1));
+                grid.Children.Add(CreateLabel("Background", 2));
+                grid.Children.Add(CreateLabel("Foreground", 4));
+
+                return grid;
+            }
+
+            void CreateRow(Grid grid, int row, string name, TextBoxColor colors) {
+                const float disabledOpacity = 0.25f;
+                var isEnabled = colors.IsEnabled;
+                var opacity = isEnabled ? 1.0 : disabledOpacity;
+
+                var enabledToggle = new SHToggleButton() {
+                    Margin = new Thickness(10, 0, 0, 0),
+                    IsChecked = isEnabled
+                };
+                Grid.SetColumn(enabledToggle, 0);
+                Grid.SetRow(enabledToggle, row);
+                grid.Children.Add(enabledToggle);
+
+                const string DEF_FOREGROUND = "#FFFFFF";
+                const string DEF_BACKGROUND = "#000000";
+
+                var currentBgColor = WindowsMediaColorExtensions.FromHex(colors.BackgroundDontCheckEnabled() ?? DEF_BACKGROUND);
+                var currentFgColor = WindowsMediaColorExtensions.FromHex(colors.ForegroundDontCheckEnabled() ?? DEF_FOREGROUND);
+
+                var classBox = new Border() {
+                    CornerRadius = new CornerRadius(5),
+                    Background = new SolidColorBrush(currentBgColor),
+                    Height = 25,
+                    Margin = new Thickness(0, 0, 15, 0),
+                    Opacity = opacity,
+                    IsEnabled = isEnabled
+                };
+                Grid.SetColumn(classBox, 1);
+                Grid.SetRow(classBox, row);
+
+                var classText = new TextBlock() {
+                    Padding = new Thickness(0, 0, 5, 0),
+                    Foreground = new SolidColorBrush(currentFgColor),
+                    FontWeight = FontWeights.Bold,
+                    HorizontalAlignment = HorizontalAlignment.Center,
+                    Text = name
+                };
+                classBox.Child = classText;
+
+                grid.Children.Add(classBox);
+
+
+                var bgPicker = new ColorPicker() {
+                    Width = 100,
+                    Height = 20,
+                    Margin = new Thickness(5, 0, 5, 0),
+                    SelectedColor = currentBgColor,
+                    Opacity = opacity,
+                    IsEnabled = isEnabled
+                };
+                Grid.SetColumn(bgPicker, 2);
+                Grid.SetRow(bgPicker, row);
+                bgPicker.SelectedColorChanged += (sender, e) => {
+                    colors.SetBackground(bgPicker.SelectedColor.ToString());
+                    classBox.Background = new SolidColorBrush(bgPicker.SelectedColor.Value);
+                };
+                grid.Children.Add(bgPicker);
+
+                var bgResetButton = new SHButtonSecondary() {
+                    Padding = new Thickness(5),
+                    Margin = new Thickness(5, 5, 15, 5),
+                    Content = "Reset",
+                    Opacity = opacity,
+                    IsEnabled = isEnabled
+                };
+                Grid.SetColumn(bgResetButton, 3);
+                Grid.SetRow(bgResetButton, row);
+                bgResetButton.Click += (sender, e) => {
+                    bgPicker.SelectedColor = WindowsMediaColorExtensions.FromHex(colors.BaseBackground() ?? DEF_BACKGROUND);
+                    colors.ResetBackground();
+                };
+                grid.Children.Add(bgResetButton);
+
+                var fgPicker = new ColorPicker() {
+                    Width = 100,
+                    Height = 20,
+                    Margin = new Thickness(5, 0, 5, 0),
+                    SelectedColor = currentFgColor,
+                    Opacity = opacity,
+                    IsEnabled = isEnabled
+                };
+                Grid.SetColumn(fgPicker, 4);
+                Grid.SetRow(fgPicker, row);
+                fgPicker.SelectedColorChanged += (sender, e) => {
+                    colors.SetForeground(fgPicker.SelectedColor.ToString());
+                    classText.Foreground = new SolidColorBrush(fgPicker.SelectedColor.Value);
+                };
+                grid.Children.Add(fgPicker);
+
+                var fgResetButton = new SHButtonSecondary() {
+                    Padding = new Thickness(5),
+                    Margin = new Thickness(5, 5, 15, 5),
+                    Content = "Reset",
+                    Opacity = opacity,
+                    IsEnabled = isEnabled
+                };
+                Grid.SetColumn(fgResetButton, 5);
+                Grid.SetRow(fgResetButton, row);
+                fgResetButton.Click += (sender, e) => {
+                    fgPicker.SelectedColor = WindowsMediaColorExtensions.FromHex(colors.BaseForeground() ?? DEF_FOREGROUND);
+                    colors.ResetForeground();
+                };
+                grid.Children.Add(fgResetButton);
+
+                enabledToggle.Checked += (sender, e) => {
+                    colors.Enable();
+                    classBox.IsEnabled = true;
+                    classBox.Opacity = 1.0;
+                    bgPicker.IsEnabled = true;
+                    bgPicker.Opacity = 1.0;
+                    bgResetButton.IsEnabled = true;
+                    bgResetButton.Opacity = 1.0;
+                    fgPicker.IsEnabled = true;
+                    fgPicker.Opacity = 1.0;
+                    fgResetButton.IsEnabled = true;
+                    fgResetButton.Opacity = 1.0;
+                };
+
+                enabledToggle.Unchecked += (sender, e) => {
+                    var opacity = disabledOpacity;
+                    colors.Disable();
+                    classBox.IsEnabled = false;
+                    classBox.Opacity = opacity;
+                    bgPicker.IsEnabled = false;
+                    bgPicker.Opacity = opacity;
+                    bgResetButton.IsEnabled = false;
+                    bgResetButton.Opacity = opacity;
+                    fgPicker.IsEnabled = false;
+                    fgPicker.Opacity = opacity;
+                    fgResetButton.IsEnabled = false;
+                    fgResetButton.Opacity = opacity;
+                };
+            }
+
+
+            void AddColors<K>(string title, string kind, Dictionary<K, TextBoxColor> colors, Func<K, string> keyToString) {
+                sp.Children.Add(new SHSectionTitle() { Text = title });
+
+                var gameSpecificGrid = CreateColorsGrid(kind);
+                sp.Children.Add(gameSpecificGrid);
+
+                foreach (var (cls, i) in colors.WithIndex() ?? []) {
+                    gameSpecificGrid.RowDefinitions.Add(new RowDefinition() { Height = new GridLength(1, GridUnitType.Auto) });
+                    CreateRow(gameSpecificGrid, i + 1, keyToString(cls.Key), cls.Value);
+                }
+            }
+
+            AddColors("Car class colors", "Class", this.Plugin.Values.CarClassColors, k => k.AsString());
+            sp.Children.Add(new SHSectionSeparator());
+            AddColors("Team cup category colors", "Category", this.Plugin.Values.TeamCupCategoryColors, k => k.AsString());
+            sp.Children.Add(new SHSectionSeparator());
+            AddColors("Driver category colors", "Category", this.Plugin.Values.DriverCategoryColors, k => k.AsString());
+
+
         }
 
         #region General settings

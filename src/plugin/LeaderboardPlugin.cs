@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -436,6 +436,10 @@ namespace KLPlugins.DynLeaderboards {
         }
 
         internal static void UpdateACCarInfos() {
+            if (Settings.AcRootLocation == null) {
+                return;
+            }
+
             var carsFolder = Path.Combine(Settings.AcRootLocation, "content", "cars");
             if (!Directory.Exists(carsFolder)) {
                 return;

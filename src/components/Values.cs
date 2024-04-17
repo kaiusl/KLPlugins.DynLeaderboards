@@ -178,6 +178,7 @@ namespace KLPlugins.DynLeaderboards {
         }
 
         internal CarInfo(string? name, string? manufacturer, CarClass? cls) : this(new Inner(name, manufacturer, cls)) { }
+        internal CarInfo() : this(new Inner()) { }
 
         public string Debug() {
             return $"CarInfo: base: {JsonConvert.SerializeObject(this._base)}, overrides: {JsonConvert.SerializeObject(this._overrides)}";
@@ -298,8 +299,15 @@ namespace KLPlugins.DynLeaderboards {
         /// </summary>
         /// <param name="carName">Car name returned by Opponent.CarName</param>
         /// <returns></returns>
-        internal CarInfo? GetCarInfo(string carName) {
-            return this._carInfos.GetValueOr(carName, null);
+        internal CarInfo GetCarInfo(string carName) {
+            if (!this._carInfos.ContainsKey(carName)) {
+                var c = new CarInfo();
+                c.DisableClass();
+                c.DisableName();
+                this._carInfos[carName] = c;
+            }
+
+            return this._carInfos[carName];
         }
         internal IEnumerable<KeyValuePair<string, CarInfo>> CarInfos => this._carInfos;
 

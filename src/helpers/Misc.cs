@@ -126,6 +126,14 @@ namespace KLPlugins.DynLeaderboards.Helpers {
 
             return -1;
         }
+
+        internal static T? FirstOr<T>(this IEnumerable<T> enumerable, T? defValue) where T: struct {
+            try {
+                return enumerable.First();
+            } catch {
+                return defValue;
+            }
+        }
     }
 
     internal static class ListExtensions {

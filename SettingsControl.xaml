@@ -378,5 +378,186 @@
                 </StackPanel>
             </ScrollViewer>
         </styles:SHTabItem>
+
+        <styles:SHTabItem Header="Car settings">
+            <DockPanel>
+                <Grid
+                        DockPanel.Dock="Top"
+                        Margin="20,5,20,0"
+                        >
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="auto" />
+                        <ColumnDefinition Width="auto" />
+                    </Grid.ColumnDefinitions>
+
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="auto" />
+                        <RowDefinition Height="auto" />
+                        <RowDefinition Height="auto" />
+                    </Grid.RowDefinitions>
+
+                    <TextBlock
+                            Grid.Row="0"
+                            Grid.Column="0"
+                            >Use SimHub names</TextBlock>
+                    <styles:SHToggleButton
+                            Grid.Row="0"
+                            Grid.Column="1"
+                            ></styles:SHToggleButton>
+                    <TextBlock
+                            Grid.Row="1"
+                            Grid.Column="0"
+                            >Use SimHub classes</TextBlock>
+                    <styles:SHToggleButton
+                            Grid.Row="1"
+                            Grid.Column="1"
+                            ></styles:SHToggleButton>
+                </Grid>
+
+                <styles:SHSectionSeparator DockPanel.Dock="Top" />
+
+                <Grid DockPanel.Dock="Top">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="3*" />
+                    </Grid.ColumnDefinitions>
+                    <styles:SHListBox
+                            Grid.Column="0"
+                            x:Name="CarSettingsCarsList_SHListBox"
+                            Margin="20,5,0,5"
+                            >
+                        <ListBoxItem>Test Item</ListBoxItem>
+                        <ListBoxItem>Test Ite2m</ListBoxItem>
+                        <ListBoxItem>Test Ite2m</ListBoxItem>
+                        <ListBoxItem>Test Ite2m</ListBoxItem>
+                    </styles:SHListBox>
+
+                    <Border
+                            Grid.Column="1"
+                            CornerRadius="10"
+                            Background="#2f2f2f"
+                            Margin="10,5,10,5"
+                            >
+
+                        <StackPanel
+                                Grid.Column="1"
+                                x:Name="CarSettings_StackPanel"
+                                >
+
+                            <Grid Margin = "0,5,10,5" >
+                                <Grid.ColumnDefinitions >
+                                    <ColumnDefinition Width = "*" />
+                                    <ColumnDefinition Width = "auto" />
+                                </Grid.ColumnDefinitions>
+
+                                <styles:SHSubSectionTitle
+                                        Grid.Column = "0"
+                                        Margin = "10,10,10,10"
+                                        FontSize = "20"
+                                        x:Name = "CarSettingsCurrentCarName_SHSubSectionTitle"
+                                        >CAR
+                                    NAME</styles:SHSubSectionTitle >
+                                <styles:SHButtonPrimary
+                                        Grid.Column = "1"
+                                        Padding = "5"
+                                        Margin = "5,0,5,0"
+                                        Height = "26"
+                                        >Reset</styles:SHButtonPrimary >
+                            </Grid >
+
+                            <Grid Margin = "10,5,10,5" >
+                                <Grid.ColumnDefinitions >
+                                    <ColumnDefinition Width="auto" />
+                                    <ColumnDefinition Width = "auto" />
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width = "auto" />
+                                </Grid.ColumnDefinitions >
+
+                                <Grid.RowDefinitions >
+                                    <RowDefinition Height="auto" />
+                                    <RowDefinition Height = "auto" />
+                                    <RowDefinition Height="auto" />
+                                    <RowDefinition Height = "auto" />
+                                </Grid.RowDefinitions >
+
+                                <styles:SHToggleCheckbox
+                                        Grid.Row="0"
+                                        IsChecked= "True"
+                                        ToolTip= "Enable this car name override. If disabled, the plugin will use the name provided by SimHub."
+                                        />
+                                <TextBlock
+                                        Grid.Column= "1"
+                                        Grid.Row= "0"
+                                        Padding= "0,0,10,0"
+                                        >
+                                    Name</TextBlock >
+                                <TextBox
+                                        Grid.Column= "2"
+                                        Grid.Row= "0"
+                                        Margin= "0,5,0,5"
+                                        x:Name= "CarSettings_StackPanel_CarName_TextBox"
+                                        />
+                                <styles:SHButtonSecondary
+                                        Grid.Column= "3"
+                                        Grid.Row= "0"
+                                        Padding= "5"
+                                        Margin= "5"
+                                        >Reset</styles:SHButtonSecondary>
+
+
+                                <TextBlock
+                                        Grid.Column= "1"
+                                        Grid.Row= "1"
+                                        Padding= "0,0,10,0"
+                                        >
+                                    Manufacturer</TextBlock >
+                                <TextBox
+                                        Grid.Column= "2"
+                                        Grid.Row= "1"
+                                        Margin= "0,5,0,5"
+                                        x:Name= "CarSettings_StackPanel_CarManufacturer_TextBox"
+                                        />
+                                <styles:SHButtonSecondary
+                                        Grid.Column= "3"
+                                        Grid.Row= "1"
+                                        Padding= "5"
+                                        Margin= "5"
+                                        >Reset</styles:SHButtonSecondary>
+
+                                <styles:SHToggleCheckbox
+                                        Grid.Row= "2"
+                                        IsChecked= "True"
+                                        ToolTip= "Enable this car's class override. If disabled, the plugin will use the n provided by SimHub."
+                                        />
+                                <TextBlock
+                                        Grid.Column= "1"
+                                        Grid.Row= "2"
+                                        Padding= "0,0,10,0"
+                                        >
+                                    Class</TextBlock >
+                                <TextBox
+                                        Grid.Column= "2"
+                                        Grid.Row= "2"
+                                        Margin= "0,5,0,5"
+                                        x:Name= "CarSettings_StackPanel_CarClass_TextBox"
+                                        />
+                                <styles:SHButtonSecondary
+                                        Grid.Column= "3"
+                                        Grid.Row= "2"
+                                        Padding= "5"
+                                        Margin= "5"
+                                        >Reset</styles:SHButtonSecondary>
+                            </Grid>
+
+                        </StackPanel>
+
+                    </Border>
+                </Grid>
+
+            </DockPanel>
+
+
+        </styles:SHTabItem>
+        
     </styles:SHTabControl>
 </UserControl>

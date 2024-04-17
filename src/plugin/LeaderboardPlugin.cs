@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -441,7 +441,7 @@ namespace KLPlugins.DynLeaderboards {
                 return;
             }
 
-            Dictionary<string, CarInfo> carInfos = [];
+            Dictionary<string, CarInfo.Inner> carInfos = [];
             foreach (var carFolderPath in Directory.GetDirectories(carsFolder)) {
                 var carId = Path.GetFileName(carFolderPath);
                 var uiInfoFilePath = Path.Combine(carFolderPath, "ui", "ui_car.json");
@@ -473,12 +473,12 @@ namespace KLPlugins.DynLeaderboards {
                     }
                 }
 
-                carInfos[carId] = new CarInfo(uiInfo.Name, uiInfo.Brand, new CarClass(cls));
+                carInfos[carId] = new CarInfo.Inner(uiInfo.Name, uiInfo.Brand, new CarClass(cls));
                 LogInfo($"Read AC car info from '{uiInfoFilePath}': {JsonConvert.SerializeObject(carInfos[carId])}");
             }
 
             if (carInfos.Count != 0) {
-                var outPath = Path.Combine(PluginSettings.PluginDataDirBase, Game.AcName, "CarInfos.json");
+                var outPath = Path.Combine(PluginSettings.PluginDataDirBase, Game.AcName, "CarInfos.base.json");
                 File.WriteAllText(outPath, JsonConvert.SerializeObject(carInfos, Formatting.Indented));
             }
         }

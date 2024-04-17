@@ -127,7 +127,7 @@ namespace KLPlugins.DynLeaderboards.Helpers {
             return -1;
         }
 
-        internal static T? FirstOr<T>(this IEnumerable<T> enumerable, T? defValue) where T: struct {
+        internal static T? FirstOr<T>(this IEnumerable<T> enumerable, T? defValue) where T : struct {
             try {
                 return enumerable.First();
             } catch {
@@ -169,6 +169,36 @@ namespace KLPlugins.DynLeaderboards.Helpers {
             foreach (var kv in other) {
                 dict[kv.Key] = kv.Value;
             }
+        }
+    }
+
+    internal static class WindowsMediaColorExtensions {
+        internal static System.Windows.Media.Color FromHex(string hex) {
+            if (hex.Length != 7 && hex.Length != 9) {
+                throw new ArgumentException("Hex string must be 7 or 9 characters long", nameof(hex));
+            }
+
+            if (hex[0] != '#') {
+                throw new ArgumentException("Hex string must start with #", nameof(hex));
+            }
+
+            if (hex.Length == 7) {
+                return System.Windows.Media.Color.FromArgb(
+                 255,
+                 Convert.ToByte(hex.Substring(1, 2), 16),
+                 Convert.ToByte(hex.Substring(3, 2), 16),
+                 Convert.ToByte(hex.Substring(5, 2), 16)
+             );
+            } else {
+                return System.Windows.Media.Color.FromArgb(
+                Convert.ToByte(hex.Substring(1, 2), 16),
+                Convert.ToByte(hex.Substring(3, 2), 16),
+                Convert.ToByte(hex.Substring(5, 2), 16),
+                Convert.ToByte(hex.Substring(7, 2), 16)
+                );
+            }
+
+
         }
     }
 

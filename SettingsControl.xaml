@@ -9,7 +9,8 @@
              xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
              xmlns:ui="clr-namespace:SimHub.Plugins.UI;assembly=SimHub.Plugins"
              xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
-             d:DesignHeight="1200" d:DesignWidth="800">
+             d:DesignHeight="1200"
+             d:DesignWidth="800">
 
     <UserControl.Resources>
         <!-- Limit tooltip width. -->
@@ -18,39 +19,53 @@
                 <Style TargetType="ContentPresenter">
                     <Style.Resources>
                         <Style TargetType="TextBlock">
-                            <Setter Property="TextWrapping" Value="Wrap" />
+                            <Setter Property="TextWrapping"
+                                    Value="Wrap" />
                         </Style>
                     </Style.Resources>
                 </Style>
             </Style.Resources>
-            <Setter Property="MaxWidth" Value="300" />
+            <Setter Property="MaxWidth"
+                    Value="300" />
         </Style>
 
         <!-- Default toggle button style -->
         <Style TargetType="styles:SHToggleButton">
-            <Setter Property="Width" Value="75" />
-            <Setter Property="Height" Value="20" />
+            <Setter Property="Width"
+                    Value="75" />
+            <Setter Property="Height"
+                    Value="20" />
         </Style>
 
         <!-- Default text block style -->
         <Style TargetType="TextBlock">
-            <Setter Property="FontSize" Value="13" />
-            <Setter Property="Margin" Value="5,5,0,5" />
-            <Setter Property="VerticalAlignment" Value="Center" />
-            <Setter Property="HorizontalAlignment" Value="Left" />
-            <Setter Property="TextWrapping" Value="Wrap" />
+            <Setter Property="FontSize"
+                    Value="13" />
+            <Setter Property="Margin"
+                    Value="5,5,0,5" />
+            <Setter Property="VerticalAlignment"
+                    Value="Center" />
+            <Setter Property="HorizontalAlignment"
+                    Value="Left" />
+            <Setter Property="TextWrapping"
+                    Value="Wrap" />
         </Style>
 
         <!-- Default section style -->
         <Style TargetType="styles:SHSectionTitle">
-            <Setter Property="FontSize" Value="20" />
+            <Setter Property="FontSize"
+                    Value="20" />
         </Style>
 
         <!-- Row separator -->
-        <Style x:Key="RowSep" TargetType="Separator">
-            <Setter Property="Background" Value="LightGray" />
-            <Setter Property="Height" Value="1" />
-            <Setter Property="Margin" Value="0,0,20,0" />
+        <Style x:Key="RowSep"
+               TargetType="Separator">
+            <Setter Property="Background"
+                    Value="LightGray" />
+            <Setter Property="Height"
+                    Value="1" />
+            <Setter Property="Margin"
+                    Value="0,0,20,0" />
         </Style>
     </UserControl.Resources>
 
@@ -58,46 +73,59 @@
 
         <styles:SHTabItem Header="General settings">
             <ScrollViewer>
-                <StackPanel x:Name="GenSettings_StackPanel" Margin="20,0,20,0">
-                <StackPanel.Resources>
+                <StackPanel x:Name="GenSettings_StackPanel"
+                            Margin="20,0,20,0">
+                    <StackPanel.Resources>
 
-                    <Style x:Key="Description" TargetType="TextBlock">
-                        <Setter Property="HorizontalAlignment" Value="Left" />
-                        <Setter Property="VerticalAlignment" Value="Center" />
-                        <Setter Property="TextWrapping" Value="Wrap" />
-                    </Style>
+                        <Style x:Key="Description"
+                               TargetType="TextBlock">
+                            <Setter Property="HorizontalAlignment"
+                                    Value="Left" />
+                            <Setter Property="VerticalAlignment"
+                                    Value="Center" />
+                            <Setter Property="TextWrapping"
+                                    Value="Wrap" />
+                        </Style>
 
-                    <Style TargetType="Separator">
-                        <Setter Property="Background" Value="LightGray" />
-                        <Setter Property="Height" Value="1" />
-                        <Setter Property="Margin" Value="0,0,20,0" />
-                    </Style>
-                </StackPanel.Resources>
+                        <Style TargetType="Separator">
+                            <Setter Property="Background"
+                                    Value="LightGray" />
+                            <Setter Property="Height"
+                                    Value="1" />
+                            <Setter Property="Margin"
+                                    Value="0,0,20,0" />
+                        </Style>
+                    </StackPanel.Resources>
 
-                    <TextBlock MaxWidth="750" TextWrapping="Wrap">These settings are global to the whole plugin. <Bold>For the changes to take effect you need to restart SimHub</Bold>.
+                    <TextBlock MaxWidth="750"
+                               TextWrapping="Wrap">These settings are global to the whole plugin. <Bold>For the changes to take effect you need to restart SimHub</Bold>.
                     </TextBlock>
 
                     <TextBlock>
-                    <Span xml:space="preserve">For more information you can also see <Hyperlink RequestNavigate="Hyperlink_RequestNavigate" NavigateUri="https://github.com/kaiusl/KLPlugins.DynLeaderboards">the repository</Hyperlink> or <Hyperlink RequestNavigate="Hyperlink_RequestNavigate" NavigateUri="https://kaiusl.github.io/KLPlugins.DynLeaderboards/stable/">the docs</Hyperlink>.</Span>
+                    <Span xml:space="preserve">For more information you can also see <Hyperlink RequestNavigate="Hyperlink_RequestNavigate"
+                                                                                                NavigateUri="https://github.com/kaiusl/KLPlugins.DynLeaderboards">the repository</Hyperlink> or <Hyperlink RequestNavigate="Hyperlink_RequestNavigate"
+                                                                                                                                                                                                           NavigateUri="https://kaiusl.github.io/KLPlugins.DynLeaderboards/stable/">the docs</Hyperlink>.</Span>
                     </TextBlock>
 
                     <!-- ACC Config location -->
 
-                <Grid ToolTip="Location of ACC configuration folder. That is where for example ..\Config\broadcasting.json is located.">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition MaxWidth="500" />
-                        <ColumnDefinition MinWidth="300" />
-                    </Grid.ColumnDefinitions>
-                    <Grid.RowDefinitions>
-                        <RowDefinition MinHeight="35" />
-                    </Grid.RowDefinitions>
+                    <Grid ToolTip="Location of ACC configuration folder. That is where for example ..\Config\broadcasting.json is located.">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition MaxWidth="500" />
+                            <ColumnDefinition MinWidth="300" />
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition MinHeight="35" />
+                        </Grid.RowDefinitions>
 
-                    <TextBlock Grid.Column="0" Style="{StaticResource Description}">ACC configuration location:</TextBlock>
-                    <TextBox Grid.Column="1" x:Name="AccDataLocation_TextBox"
-                             Height="25"
-                             HorizontalAlignment="Left"
-                             VerticalAlignment="Center"
-                             TextChanged="AccDataLocation_TextChanged" />
+                        <TextBlock Grid.Column="0"
+                                   Style="{StaticResource Description}">ACC configuration location:</TextBlock>
+                        <TextBox Grid.Column="1"
+                                 x:Name="AccDataLocation_TextBox"
+                                 Height="25"
+                                 HorizontalAlignment="Left"
+                                 VerticalAlignment="Center"
+                                 TextChanged="AccDataLocation_TextChanged" />
                     </Grid>
 
                     <Grid ToolTip="Location of AC root folder. That is where for example ..\content\cars is located.">
@@ -109,98 +137,114 @@
                             <RowDefinition MinHeight="35" />
                         </Grid.RowDefinitions>
 
-                        <TextBlock Grid.Column="0" Style="{StaticResource Description}">AC root location:</TextBlock>
-                        <TextBox Grid.Column="1" x:Name="AcRootLocation_TextBox"
-                            Height="25"
-                            HorizontalAlignment="Left"
-                            VerticalAlignment="Center"
-                            TextChanged="AcRootLocation_TextChanged" />
+                        <TextBlock Grid.Column="0"
+                                   Style="{StaticResource Description}">AC root location:</TextBlock>
+                        <TextBox Grid.Column="1"
+                                 x:Name="AcRootLocation_TextBox"
+                                 Height="25"
+                                 HorizontalAlignment="Left"
+                                 VerticalAlignment="Center"
+                                 TextChanged="AcRootLocation_TextChanged" />
                     </Grid>
 
                     <Separator />
 
-                <!-- Update interval -->
+                    <!-- Update interval -->
 
-                <Grid ToolTip="Sets the update interval of data from ACC. As leaderboard data doesn't change that fast something around 100-500ms should work very well.">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition MaxWidth="500" />
-                        <ColumnDefinition MinWidth="100" />
-                    </Grid.ColumnDefinitions>
-                    <Grid.RowDefinitions>
-                        <RowDefinition MinHeight="35" />
-                    </Grid.RowDefinitions>
-                    <TextBlock Grid.Column="0" Text="Data update interval: " Style="{StaticResource Description}" />
-                    <mah:NumericUpDown x:Name="UpdateInterval_NumericUpDown" Grid.Column="1"
-                                       HasDecimals="False"
-                                       Width="100"
-                                       Minimum="10" Maximum="1000" Interval="10"
-                                       VerticalAlignment="Center"
-                                       HorizontalAlignment="Left"
-                                       StringFormat="0ms"
-                                       ValueChanged="NumericUpDown_ValueChanged" />
-                </Grid>
-                <Separator />
-
-                <!-- Enable logging -->
-
-                <Grid ToolTip="Enable or disable information logging. Errors will still be logged.">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition MaxWidth="500" />
-                        <ColumnDefinition MinWidth="100" />
-                    </Grid.ColumnDefinitions>
-                    <Grid.RowDefinitions>
-                        <RowDefinition MinHeight="35" />
-                    </Grid.RowDefinitions>
-
-                    <TextBlock Grid.Column="0" Text="Log info: " Style="{StaticResource Description}" />
-                    <styles:SHToggleButton Grid.Column="1" x:Name="Logging_ToggleButton"
-                                           HorizontalAlignment="Left"
+                    <Grid ToolTip="Sets the update interval of data from ACC. As leaderboard data doesn't change that fast something around 100-500ms should work very well.">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition MaxWidth="500" />
+                            <ColumnDefinition MinWidth="100" />
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition MinHeight="35" />
+                        </Grid.RowDefinitions>
+                        <TextBlock Grid.Column="0"
+                                   Text="Data update interval: "
+                                   Style="{StaticResource Description}" />
+                        <mah:NumericUpDown x:Name="UpdateInterval_NumericUpDown"
+                                           Grid.Column="1"
+                                           HasDecimals="False"
+                                           Width="100"
+                                           Minimum="10"
+                                           Maximum="1000"
+                                           Interval="10"
                                            VerticalAlignment="Center"
-                                           Click="Logging_ToggleButton_Click" />
-                </Grid>
-
-                <Grid ToolTip="Include Lamborghini Huracan ST EVO2 in GT2 class.">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition MaxWidth="500" />
-                        <ColumnDefinition MinWidth="100" />
-                    </Grid.ColumnDefinitions>
-                    <Grid.RowDefinitions>
-                        <RowDefinition MinHeight="35" />
-                    </Grid.RowDefinitions>
-
-                    <TextBlock Grid.Column="0" Text="Include ST21 class in GT2 class: " Style="{StaticResource Description}" />
-                    <styles:SHToggleButton Grid.Column="1" x:Name="IncludeST21InGT2_ToggleButton"
                                            HorizontalAlignment="Left"
-                                           VerticalAlignment="Center"
-                                           Click="IncludeST21InGT2_ToggleButton_Click" />
-                </Grid>
+                                           StringFormat="0ms"
+                                           ValueChanged="NumericUpDown_ValueChanged" />
+                    </Grid>
+                    <Separator />
 
-                <Grid ToolTip="Include Ferrari 488 Challenge Evo in GT2 class.">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition MaxWidth="500" />
-                        <ColumnDefinition MinWidth="100" />
-                    </Grid.ColumnDefinitions>
-                    <Grid.RowDefinitions>
-                        <RowDefinition MinHeight="35" />
-                    </Grid.RowDefinitions>
+                    <!-- Enable logging -->
 
-                    <TextBlock Grid.Column="0" Text="Include CHL class in GT2 class: " Style="{StaticResource Description}" />
-                    <styles:SHToggleButton Grid.Column="1" x:Name="IncludeCHLInGT2_ToggleButton"
-                                           HorizontalAlignment="Left"
-                                           VerticalAlignment="Center"
-                                           Click="IncludeCHLInGT2_ToggleButton_Click" />
-                </Grid>
-                
-                <Separator />
+                    <Grid ToolTip="Enable or disable information logging. Errors will still be logged.">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition MaxWidth="500" />
+                            <ColumnDefinition MinWidth="100" />
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition MinHeight="35" />
+                        </Grid.RowDefinitions>
 
-                <styles:SHSectionTitle Text="EXPOSED PROPERTIES" />
-                <StackPanel x:Name="OtherProperties_StackPanel">
-                </StackPanel>
-                    
-                <styles:SHSectionTitle Text="MISC" />
-                <!-- Class colors -->
-                <StackPanel Orientation="Horizontal">
-                        <styles:SHSmallTitle ToolTip="Read the car UI info directly from ACs car files and update this plugins look up files with that data. That data is used to get car class, manufacturer and more. Note that this overwrites the base data, all user overrides will still work as expected.">Update base AC car info: </styles:SHSmallTitle>
+                        <TextBlock Grid.Column="0"
+                                   Text="Log info: "
+                                   Style="{StaticResource Description}" />
+                        <styles:SHToggleButton Grid.Column="1"
+                                               x:Name="Logging_ToggleButton"
+                                               HorizontalAlignment="Left"
+                                               VerticalAlignment="Center"
+                                               Click="Logging_ToggleButton_Click" />
+                    </Grid>
+
+                    <Grid ToolTip="Include Lamborghini Huracan ST EVO2 in GT2 class.">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition MaxWidth="500" />
+                            <ColumnDefinition MinWidth="100" />
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition MinHeight="35" />
+                        </Grid.RowDefinitions>
+
+                        <TextBlock Grid.Column="0"
+                                   Text="Include ST21 class in GT2 class: "
+                                   Style="{StaticResource Description}" />
+                        <styles:SHToggleButton Grid.Column="1"
+                                               x:Name="IncludeST21InGT2_ToggleButton"
+                                               HorizontalAlignment="Left"
+                                               VerticalAlignment="Center"
+                                               Click="IncludeST21InGT2_ToggleButton_Click" />
+                    </Grid>
+
+                    <Grid ToolTip="Include Ferrari 488 Challenge Evo in GT2 class.">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition MaxWidth="500" />
+                            <ColumnDefinition MinWidth="100" />
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition MinHeight="35" />
+                        </Grid.RowDefinitions>
+
+                        <TextBlock Grid.Column="0"
+                                   Text="Include CHL class in GT2 class: "
+                                   Style="{StaticResource Description}" />
+                        <styles:SHToggleButton Grid.Column="1"
+                                               x:Name="IncludeCHLInGT2_ToggleButton"
+                                               HorizontalAlignment="Left"
+                                               VerticalAlignment="Center"
+                                               Click="IncludeCHLInGT2_ToggleButton_Click" />
+                    </Grid>
+
+                    <Separator />
+
+                    <styles:SHSectionTitle Text="EXPOSED PROPERTIES" />
+                    <StackPanel x:Name="OtherProperties_StackPanel">
+                    </StackPanel>
+
+                    <styles:SHSectionTitle Text="MISC" />
+                    <!-- Class colors -->
+                    <StackPanel Orientation="Horizontal">
+                        <styles:SHSmallTitle ToolTip="Read the car UI info directly from ACs car files and update this plugins look up files with that data. That data is used to get car class, manufacturer and more. Note that this overwrites the base data, all user overrides will still work as expected.">Update base AC car info:</styles:SHSmallTitle>
                         <styles:SHButtonPrimary Click="UpdateACCarInfos_Button_Click">Update</styles:SHButtonPrimary>
                     </StackPanel>
 
@@ -216,41 +260,61 @@
                 <StackPanel>
                     <StackPanel.Resources>
 
-                        <Style x:Key="Description" TargetType="TextBlock">
-                            <Setter Property="HorizontalAlignment" Value="Left" />
-                            <Setter Property="VerticalAlignment" Value="Center" />
-                            <Setter Property="TextWrapping" Value="Wrap" />
-                            <Setter Property="Width" Value="200" />
-                            <Setter Property="Margin" Value="3,3,3,3" />
+                        <Style x:Key="Description"
+                               TargetType="TextBlock">
+                            <Setter Property="HorizontalAlignment"
+                                    Value="Left" />
+                            <Setter Property="VerticalAlignment"
+                                    Value="Center" />
+                            <Setter Property="TextWrapping"
+                                    Value="Wrap" />
+                            <Setter Property="Width"
+                                    Value="200" />
+                            <Setter Property="Margin"
+                                    Value="3,3,3,3" />
                         </Style>
 
-                        <Style x:Key="NumPos" TargetType="mah:NumericUpDown">
-                            <Setter Property="HorizontalAlignment" Value="Left" />
-                            <Setter Property="VerticalAlignment" Value="Center" />
-                            <Setter Property="Height" Value="25" />
-                            <Setter Property="Width" Value="100" />
-                            <Setter Property="HasDecimals" Value="False" />
-                            <Setter Property="Minimum" Value="0" />
-                            <Setter Property="Maximum" Value="100" />
-                            <Setter Property="Interval" Value="1" />
-                            <Setter Property="Margin" Value="3,3,3,3" />
+                        <Style x:Key="NumPos"
+                               TargetType="mah:NumericUpDown">
+                            <Setter Property="HorizontalAlignment"
+                                    Value="Left" />
+                            <Setter Property="VerticalAlignment"
+                                    Value="Center" />
+                            <Setter Property="Height"
+                                    Value="25" />
+                            <Setter Property="Width"
+                                    Value="100" />
+                            <Setter Property="HasDecimals"
+                                    Value="False" />
+                            <Setter Property="Minimum"
+                                    Value="0" />
+                            <Setter Property="Maximum"
+                                    Value="100" />
+                            <Setter Property="Interval"
+                                    Value="1" />
+                            <Setter Property="Margin"
+                                    Value="3,3,3,3" />
                         </Style>
                     </StackPanel.Resources>
 
-                    <TextBlock MaxWidth="750" TextWrapping="Wrap">Here you can customize the functionality of your dynamic leaderboards. <Bold>For the changes to take effect you need to restart SimHub</Bold>.
+                    <TextBlock MaxWidth="750"
+                               TextWrapping="Wrap">Here you can customize the functionality of your dynamic leaderboards. <Bold>For the changes to take effect you need to restart SimHub</Bold>.
                         <LineBreak /><LineBreak />
                         First, you can add multiple dynamic leaderboards and change their names in the dropdown list below.
                         <LineBreak /><Bold>Make sure to assign buttons in "Controls and events" for each dynamic leaderboard's "NextLeaderboard" and "PreviousLeaderboard" events.</Bold>
                         For mapping to controller inputs you need to enable "Controllers input" plugin and to keyboard inputs "Keyboard Input" plugin.
                         Note that if you add multiple dynamic leaderboards, you need to add mappings for each leaderboard. It can be the same button for all of them.
-                        </TextBlock>
+                    </TextBlock>
 
                     <styles:SHSectionTitle>DYNAMIC LEADERBOARDS</styles:SHSectionTitle>
                     <Expander Header="More information">
-                        <TextBlock x:Name="DynLeaderboardPropertyAccess_TextBlock" MaxWidth="750" TextWrapping="Wrap" />
+                        <TextBlock x:Name="DynLeaderboardPropertyAccess_TextBlock"
+                                   MaxWidth="750"
+                                   TextWrapping="Wrap" />
                     </Expander>
 
-                    <StackPanel x:Name="DynLeaderboardsList_StackPanel" Orientation="Horizontal">
+                    <StackPanel x:Name="DynLeaderboardsList_StackPanel"
+                                Orientation="Horizontal">
                         <ComboBox x:Name="SelectDynLeaderboard_ComboBox"
                                   Margin="5,5,5,5"
                                   HorizontalAlignment="Left"
@@ -278,33 +342,63 @@
                     <Expander Header="More information">
                         <StackPanel>
 
-                            <TextBlock MaxWidth="750" TextWrapping="Wrap">You can enable/disable specific leaderboards and choose the order in which they appear. You don't need to restart SimHub after you change the rotation.</TextBlock>
-                            <TextBlock MaxWidth="750" TextWrapping="Wrap">Available leaderboard types are.</TextBlock>
-                            <TextBlock MaxWidth="750" TextWrapping="Wrap" Padding="10,0,0,0">Overall leaderboards - `N` top positions. There are two types:</TextBlock>
-                            <TextBlock MaxWidth="750" TextWrapping="Wrap" Padding="20,0,0,0">* Overall - In overall order</TextBlock>
-                            <TextBlock MaxWidth="750" TextWrapping="Wrap" Padding="20,0,0,0">* Class - In the order of focused car's class</TextBlock>
-                            <TextBlock MaxWidth="750" TextWrapping="Wrap" Padding="10,0,0,0">Relative leaderboards - `2N + 1` relative positions to the focused car. There are three types:</TextBlock>
-                            <TextBlock MaxWidth="750" TextWrapping="Wrap" Padding="20,0,0,0">* RelativeOverall - In overall order</TextBlock>
-                            <TextBlock MaxWidth="750" TextWrapping="Wrap" Padding="20,0,0,0">* RelativeClass - In the order of focused car's class</TextBlock>
-                            <TextBlock MaxWidth="750" TextWrapping="Wrap" Padding="20,0,0,0">* RelativeOnTrack - In the relative track order</TextBlock>
-                            <TextBlock MaxWidth="750" TextWrapping="Wrap" Padding="20,0,0,0">* RelativeOnTrackWoPit - Same as RelativeOnTrack but without the cars in the pitlane which are not on the same lap as the focused car</TextBlock>
-                            <TextBlock MaxWidth="750" TextWrapping="Wrap" Padding="10,0,0,0">Partial relative leaderboards - `N` top positions and `2M + 1` relative positions. If the focused car is inside the first `N + M + 1` positions the order will be just as the overall leaderboard. There are two types:</TextBlock>
-                            <TextBlock MaxWidth="750" TextWrapping="Wrap" Padding="20,0,0,0">* PartialRelativeOverall - In overall order</TextBlock>
-                            <TextBlock MaxWidth="750" TextWrapping="Wrap" Padding="20,0,0,0">* PartialRelativeClass - In the order of focused car's class</TextBlock>
+                            <TextBlock MaxWidth="750"
+                                       TextWrapping="Wrap">You can enable/disable specific leaderboards and choose the order in which they appear. You don't need to restart SimHub after you change the rotation.</TextBlock>
+                            <TextBlock MaxWidth="750"
+                                       TextWrapping="Wrap">Available leaderboard types are.</TextBlock>
+                            <TextBlock MaxWidth="750"
+                                       TextWrapping="Wrap"
+                                       Padding="10,0,0,0">Overall leaderboards - `N` top positions. There are two types:</TextBlock>
+                            <TextBlock MaxWidth="750"
+                                       TextWrapping="Wrap"
+                                       Padding="20,0,0,0">* Overall - In overall order</TextBlock>
+                            <TextBlock MaxWidth="750"
+                                       TextWrapping="Wrap"
+                                       Padding="20,0,0,0">* Class - In the order of focused car's class</TextBlock>
+                            <TextBlock MaxWidth="750"
+                                       TextWrapping="Wrap"
+                                       Padding="10,0,0,0">Relative leaderboards - `2N + 1` relative positions to the focused car. There are three types:</TextBlock>
+                            <TextBlock MaxWidth="750"
+                                       TextWrapping="Wrap"
+                                       Padding="20,0,0,0">* RelativeOverall - In overall order</TextBlock>
+                            <TextBlock MaxWidth="750"
+                                       TextWrapping="Wrap"
+                                       Padding="20,0,0,0">* RelativeClass - In the order of focused car's class</TextBlock>
+                            <TextBlock MaxWidth="750"
+                                       TextWrapping="Wrap"
+                                       Padding="20,0,0,0">* RelativeOnTrack - In the relative track order</TextBlock>
+                            <TextBlock MaxWidth="750"
+                                       TextWrapping="Wrap"
+                                       Padding="20,0,0,0">* RelativeOnTrackWoPit - Same as RelativeOnTrack but without the cars in the pitlane which are not on the same lap as the focused car</TextBlock>
+                            <TextBlock MaxWidth="750"
+                                       TextWrapping="Wrap"
+                                       Padding="10,0,0,0">Partial relative leaderboards - `N` top positions and `2M + 1` relative positions. If the focused car is inside the first `N + M + 1` positions the order will be just as the overall leaderboard. There are two types:</TextBlock>
+                            <TextBlock MaxWidth="750"
+                                       TextWrapping="Wrap"
+                                       Padding="20,0,0,0">* PartialRelativeOverall - In overall order</TextBlock>
+                            <TextBlock MaxWidth="750"
+                                       TextWrapping="Wrap"
+                                       Padding="20,0,0,0">* PartialRelativeClass - In the order of focused car's class</TextBlock>
                         </StackPanel>
                     </Expander>
                     <StackPanel Orientation="Horizontal">
-                        <styles:SHButtonSecondary Click="DynLeaderboard_ListView_Up" ToolTip="Move currently selected leaderboard one position up.">Up</styles:SHButtonSecondary>
-                        <styles:SHButtonSecondary Click="DynLeaderboard_ListView_Down" ToolTip="Move currently selected leaderboard one position down.">Down</styles:SHButtonSecondary>
+                        <styles:SHButtonSecondary Click="DynLeaderboard_ListView_Up"
+                                                  ToolTip="Move currently selected leaderboard one position up.">Up</styles:SHButtonSecondary>
+                        <styles:SHButtonSecondary Click="DynLeaderboard_ListView_Down"
+                                                  ToolTip="Move currently selected leaderboard one position down.">Down</styles:SHButtonSecondary>
                     </StackPanel>
 
-                    <ListView x:Name="DynLeaderboards_ListView" Margin="10,10,0,13" HorizontalAlignment="Left" VerticalAlignment="Top" />
+                    <ListView x:Name="DynLeaderboards_ListView"
+                              Margin="10,10,0,13"
+                              HorizontalAlignment="Left"
+                              VerticalAlignment="Top" />
 
                     <Separator Margin="0,15,0,1" />
                     <Separator Margin="0,1,0,10" />
                     <styles:SHSectionTitle>NUMBER OF POSITIONS</styles:SHSectionTitle>
                     <Expander Header="More information">
-                        <TextBlock TextWrapping="Wrap" MaxWidth="750">Couple of notes. <LineBreak />
+                        <TextBlock TextWrapping="Wrap"
+                                   MaxWidth="750">Couple of notes. <LineBreak />
                         * For relative positions we set the number of positions shown ahead and behind.
                         That is if set to 5 for example, we show 5 cars ahead and 5 car behind.
                         <LineBreak />
@@ -321,18 +415,26 @@
                     <styles:SHSectionTitle Text="PROPERTIES FOR EACH CAR" />
                     <Expander Header="More information">
                         <StackPanel>
-                            <TextBlock x:Name="EnablePropertiesDescription_TextBlock" Width="600" TextWrapping="Wrap" />
-                            <TextBlock MaxWidth="750" TextWrapping="Wrap" Padding="0,0,0,0">* Default value if property is not available is null. This happens if session is not started yet, there are fewer cars/drivers in session than positions available for leaderboard or no lap time is available.
+                            <TextBlock x:Name="EnablePropertiesDescription_TextBlock"
+                                       Width="600"
+                                       TextWrapping="Wrap" />
+                            <TextBlock MaxWidth="750"
+                                       TextWrapping="Wrap"
+                                       Padding="0,0,0,0">* Default value if property is not available is null. This happens if session is not started yet, there are fewer cars/drivers in session than positions available for leaderboard or no lap time is available.
                         <LineBreak />* First driver is always current driver.
                         <LineBreak />* All times and gaps are given in seconds.</TextBlock>
-                            <TextBlock MaxWidth="750" TextWrapping="Wrap" Padding="0,0,0,0">
+                            <TextBlock MaxWidth="750"
+                                       TextWrapping="Wrap"
+                                       Padding="0,0,0,0">
                         * In relative leaderboards positive gap means the car is ahead of the car that we are comparing to, negative gap means behind.
                         In overall leaderboards the gap is always positive as we are comparing to the overall/class leader and no one can be ahead of them.
                         <LineBreak /><LineBreak />
                         * If the gap is larger than 1 lap, only lap part of the gap is shown. To differentiate between gap in seconds and full laps we add 100 000 to the gap if it's larger than 1 lap. In dash you can show the gap then as follows
                         <LineBreak />``javascript
                             </TextBlock>
-                            <TextBlock MaxWidth="750" TextWrapping="Wrap" Padding="20,0,0,0">
+                            <TextBlock MaxWidth="750"
+                                       TextWrapping="Wrap"
+                                       Padding="20,0,0,0">
                         var v = $prop('DynLeaderboardsPlugin.Dynamic.' + repeatindex() + '.Gap.Dynamic.ToFocused')
 	                    <LineBreak />if (v == null) { return '' }
 	                    <LineBreak />// No gap can realistically be 50000 seconds without being more than a lap
@@ -340,7 +442,9 @@
 	                    <LineBreak />if (v > 50000) { return format(v - 100000, '0', true) + 'L' }
 	                    <LineBreak />return format(v, '0.0', true)
                             </TextBlock>
-                            <TextBlock MaxWidth="750" TextWrapping="Wrap" Padding="0,0,0,0">
+                            <TextBlock MaxWidth="750"
+                                       TextWrapping="Wrap"
+                                       Padding="0,0,0,0">
                         ```
                             </TextBlock>
                         </StackPanel>
@@ -372,7 +476,9 @@
                     <Separator Margin="0,1,0,10" />
                     <styles:SHSectionTitle Text="PROPERTIES FOR EACH DRIVER" />
                     <Expander Header="More information">
-                        <TextBlock x:Name="ExposedDriverProps_TextBlock" MaxWidth="750" TextWrapping="Wrap" />
+                        <TextBlock x:Name="ExposedDriverProps_TextBlock"
+                                   MaxWidth="750"
+                                   TextWrapping="Wrap" />
                     </Expander>
                     <StackPanel x:Name="ExposedDriverProperties_StackPanel" />
                 </StackPanel>
@@ -381,10 +487,8 @@
 
         <styles:SHTabItem Header="Car settings">
             <DockPanel>
-                <Grid
-                        DockPanel.Dock="Top"
-                        Margin="20,5,20,0"
-                        >
+                <Grid DockPanel.Dock="Top"
+                      Margin="20,5,20,0">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="auto" />
                         <ColumnDefinition Width="auto" />
@@ -396,22 +500,14 @@
                         <RowDefinition Height="auto" />
                     </Grid.RowDefinitions>
 
-                    <TextBlock
-                            Grid.Row="0"
-                            Grid.Column="0"
-                            >Use SimHub names</TextBlock>
-                    <styles:SHToggleButton
-                            Grid.Row="0"
-                            Grid.Column="1"
-                            ></styles:SHToggleButton>
-                    <TextBlock
-                            Grid.Row="1"
-                            Grid.Column="0"
-                            >Use SimHub classes</TextBlock>
-                    <styles:SHToggleButton
-                            Grid.Row="1"
-                            Grid.Column="1"
-                            ></styles:SHToggleButton>
+                    <TextBlock Grid.Row="0"
+                               Grid.Column="0">Use SimHub names</TextBlock>
+                    <styles:SHToggleButton Grid.Row="0"
+                                           Grid.Column="1"></styles:SHToggleButton>
+                    <TextBlock Grid.Row="1"
+                               Grid.Column="0">Use SimHub classes</TextBlock>
+                    <styles:SHToggleButton Grid.Row="1"
+                                           Grid.Column="1"></styles:SHToggleButton>
                 </Grid>
 
                 <styles:SHSectionSeparator DockPanel.Dock="Top" />
@@ -421,132 +517,100 @@
                         <ColumnDefinition Width="*" />
                         <ColumnDefinition Width="3*" />
                     </Grid.ColumnDefinitions>
-                    <styles:SHListBox
-                            Grid.Column="0"
-                            x:Name="CarSettingsCarsList_SHListBox"
-                            Margin="20,5,0,5"
-                            >
+                    <styles:SHListBox Grid.Column="0"
+                                      x:Name="CarSettingsCarsList_SHListBox"
+                                      Margin="20,5,0,5">
                         <ListBoxItem>Test Item</ListBoxItem>
                         <ListBoxItem>Test Ite2m</ListBoxItem>
                         <ListBoxItem>Test Ite2m</ListBoxItem>
                         <ListBoxItem>Test Ite2m</ListBoxItem>
                     </styles:SHListBox>
 
-                    <Border
-                            Grid.Column="1"
+                    <Border Grid.Column="1"
                             CornerRadius="10"
                             Background="#2f2f2f"
-                            Margin="10,5,10,5"
-                            >
+                            Margin="10,5,10,5">
 
-                        <StackPanel
-                                Grid.Column="1"
-                                x:Name="CarSettings_StackPanel"
-                                >
+                        <StackPanel Grid.Column="1"
+                                    x:Name="CarSettings_StackPanel">
 
-                            <Grid Margin = "0,5,10,5" >
-                                <Grid.ColumnDefinitions >
-                                    <ColumnDefinition Width = "*" />
-                                    <ColumnDefinition Width = "auto" />
+                            <Grid Margin="0,5,10,5">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="auto" />
                                 </Grid.ColumnDefinitions>
 
-                                <styles:SHSubSectionTitle
-                                        Grid.Column = "0"
-                                        Margin = "10,10,10,10"
-                                        FontSize = "20"
-                                        x:Name = "CarSettingsCurrentCarName_SHSubSectionTitle"
-                                        >CAR
+                                <styles:SHSubSectionTitle Grid.Column="0"
+                                                          Margin="10,10,10,10"
+                                                          FontSize="20"
+                                                          x:Name="CarSettingsCurrentCarName_SHSubSectionTitle">CAR
                                     NAME</styles:SHSubSectionTitle >
-                                <styles:SHButtonPrimary
-                                        Grid.Column = "1"
-                                        Padding = "5"
-                                        Margin = "5,0,5,0"
-                                        Height = "26"
-                                        >Reset</styles:SHButtonPrimary >
+                                <styles:SHButtonPrimary Grid.Column="1"
+                                                        Padding="5"
+                                                        Margin="5,0,5,0"
+                                                        Height="26">Reset</styles:SHButtonPrimary >
                             </Grid >
 
-                            <Grid Margin = "10,5,10,5" >
-                                <Grid.ColumnDefinitions >
+                            <Grid Margin="10,5,10,5">
+                                <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="auto" />
-                                    <ColumnDefinition Width = "auto" />
+                                    <ColumnDefinition Width="auto" />
                                     <ColumnDefinition Width="*" />
-                                    <ColumnDefinition Width = "auto" />
+                                    <ColumnDefinition Width="auto" />
                                 </Grid.ColumnDefinitions >
 
-                                <Grid.RowDefinitions >
+                                <Grid.RowDefinitions>
                                     <RowDefinition Height="auto" />
-                                    <RowDefinition Height = "auto" />
                                     <RowDefinition Height="auto" />
-                                    <RowDefinition Height = "auto" />
+                                    <RowDefinition Height="auto" />
+                                    <RowDefinition Height="auto" />
                                 </Grid.RowDefinitions >
 
-                                <styles:SHToggleCheckbox
-                                        Grid.Row="0"
-                                        IsChecked= "True"
-                                        ToolTip= "Enable this car name override. If disabled, the plugin will use the name provided by SimHub."
-                                        />
-                                <TextBlock
-                                        Grid.Column= "1"
-                                        Grid.Row= "0"
-                                        Padding= "0,0,10,0"
-                                        >
+                                <styles:SHToggleCheckbox Grid.Row="0"
+                                                         IsChecked="True"
+                                                         ToolTip="Enable this car name override. If disabled, the plugin will use the name provided by SimHub." />
+                                <TextBlock Grid.Column="1"
+                                           Grid.Row="0"
+                                           Padding="0,0,10,0">
                                     Name</TextBlock >
-                                <TextBox
-                                        Grid.Column= "2"
-                                        Grid.Row= "0"
-                                        Margin= "0,5,0,5"
-                                        x:Name= "CarSettings_StackPanel_CarName_TextBox"
-                                        />
-                                <styles:SHButtonSecondary
-                                        Grid.Column= "3"
-                                        Grid.Row= "0"
-                                        Padding= "5"
-                                        Margin= "5"
-                                        >Reset</styles:SHButtonSecondary>
+                                <TextBox Grid.Column="2"
+                                         Grid.Row="0"
+                                         Margin="0,5,0,5"
+                                         x:Name="CarSettings_StackPanel_CarName_TextBox" />
+                                <styles:SHButtonSecondary Grid.Column="3"
+                                                          Grid.Row="0"
+                                                          Padding="5"
+                                                          Margin="5">Reset</styles:SHButtonSecondary>
 
 
-                                <TextBlock
-                                        Grid.Column= "1"
-                                        Grid.Row= "1"
-                                        Padding= "0,0,10,0"
-                                        >
+                                <TextBlock Grid.Column="1"
+                                           Grid.Row="1"
+                                           Padding="0,0,10,0">
                                     Manufacturer</TextBlock >
-                                <TextBox
-                                        Grid.Column= "2"
-                                        Grid.Row= "1"
-                                        Margin= "0,5,0,5"
-                                        x:Name= "CarSettings_StackPanel_CarManufacturer_TextBox"
-                                        />
-                                <styles:SHButtonSecondary
-                                        Grid.Column= "3"
-                                        Grid.Row= "1"
-                                        Padding= "5"
-                                        Margin= "5"
-                                        >Reset</styles:SHButtonSecondary>
+                                <TextBox Grid.Column="2"
+                                         Grid.Row="1"
+                                         Margin="0,5,0,5"
+                                         x:Name="CarSettings_StackPanel_CarManufacturer_TextBox" />
+                                <styles:SHButtonSecondary Grid.Column="3"
+                                                          Grid.Row="1"
+                                                          Padding="5"
+                                                          Margin="5">Reset</styles:SHButtonSecondary>
 
-                                <styles:SHToggleCheckbox
-                                        Grid.Row= "2"
-                                        IsChecked= "True"
-                                        ToolTip= "Enable this car's class override. If disabled, the plugin will use the n provided by SimHub."
-                                        />
-                                <TextBlock
-                                        Grid.Column= "1"
-                                        Grid.Row= "2"
-                                        Padding= "0,0,10,0"
-                                        >
+                                <styles:SHToggleCheckbox Grid.Row="2"
+                                                         IsChecked="True"
+                                                         ToolTip="Enable this car's class override. If disabled, the plugin will use the n provided by SimHub." />
+                                <TextBlock Grid.Column="1"
+                                           Grid.Row="2"
+                                           Padding="0,0,10,0">
                                     Class</TextBlock >
-                                <TextBox
-                                        Grid.Column= "2"
-                                        Grid.Row= "2"
-                                        Margin= "0,5,0,5"
-                                        x:Name= "CarSettings_StackPanel_CarClass_TextBox"
-                                        />
-                                <styles:SHButtonSecondary
-                                        Grid.Column= "3"
-                                        Grid.Row= "2"
-                                        Padding= "5"
-                                        Margin= "5"
-                                        >Reset</styles:SHButtonSecondary>
+                                <TextBox Grid.Column="2"
+                                         Grid.Row="2"
+                                         Margin="0,5,0,5"
+                                         x:Name="CarSettings_StackPanel_CarClass_TextBox" />
+                                <styles:SHButtonSecondary Grid.Column="3"
+                                                          Grid.Row="2"
+                                                          Padding="5"
+                                                          Margin="5">Reset</styles:SHButtonSecondary>
                             </Grid>
 
                         </StackPanel>
@@ -558,6 +622,13 @@
 
 
         </styles:SHTabItem>
-        
+
+        <styles:SHTabItem Header="Colors">
+            <ScrollViewer>
+                <StackPanel Margin="20"
+                            x:Name="Colors_StackPanel" />
+            </ScrollViewer>
+
+        </styles:SHTabItem>
     </styles:SHTabControl>
 </UserControl>

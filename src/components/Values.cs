@@ -15,6 +15,7 @@ using Newtonsoft.Json;
 using KLPlugins.DynLeaderboards.Settings;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Collections;
 
 namespace KLPlugins.DynLeaderboards {
 
@@ -104,6 +105,38 @@ namespace KLPlugins.DynLeaderboards {
 
         public TextBoxColorInner? Get() {
             return new TextBoxColorInner(fg: this.Foreground(), bg: this.Background());
+        }
+    }
+
+    internal class TextBoxColors<K> : IEnumerable<KeyValuePair<K, TextBoxColor>> {
+        private readonly SortedDictionary<K, TextBoxColor> _colors = new();
+
+
+        internal TextBoxColor this[K key] {
+            get => this._colors[key];
+            set => this._colors[key] = value;
+        }
+
+        internal bool ContainsKey(K key) {
+            return this._colors.ContainsKey(key);
+        }
+
+        public TextBoxColor Get(K key) {
+            if (!this._colors.ContainsKey(key)) {
+                var c = new TextBoxColor();
+                c.Disable();
+                this._colors[key] = c;
+            }
+
+            return this._colors[key];
+        }
+
+        public IEnumerator<KeyValuePair<K, TextBoxColor>> GetEnumerator() {
+            return this._colors.GetEnumerator();
+        }
+
+        IEnumerator IEnumerable.GetEnumerator() {
+            return this._colors.GetEnumerator();
         }
     }
 
@@ -296,11 +329,11 @@ namespace KLPlugins.DynLeaderboards {
             File.WriteAllText(path, JsonConvert.SerializeObject(this._carInfos, Formatting.Indented));
         }
 
-        internal Dictionary<CarClass, TextBoxColor> CarClassColors { get; }
-        internal Dictionary<TeamCupCategory, TextBoxColor> TeamCupCategoryColors { get; }
-        internal Dictionary<DriverCategory, TextBoxColor> DriverCategoryColors { get; }
+        internal TextBoxColors<CarClass> CarClassColors { get; }
+        internal TextBoxColors<TeamCupCategory> TeamCupCategoryColors { get; }
+        internal TextBoxColors<DriverCategory> DriverCategoryColors { get; }
 
-        private static Dictionary<K, TextBoxColor> ReadTextBoxColors<K>(string fileName) {
+        private static TextBoxColors<K> ReadTextBoxColors<K>(string fileName) {
             var basesPath = $"{PluginSettings.PluginDataDir}\\{DynLeaderboardsPlugin.Game.Name}\\{fileName}.base.json";
             var overrridesPath = $"{PluginSettings.PluginDataDir}\\{DynLeaderboardsPlugin.Game.Name}\\{fileName}.json";
 
@@ -314,7 +347,7 @@ namespace KLPlugins.DynLeaderboards {
                 overrides = JsonConvert.DeserializeObject<Dictionary<K, (bool, TextBoxColorInner?)>>(File.ReadAllText(overrridesPath));
             }
 
-            var colors = new Dictionary<K, TextBoxColor>();
+            var colors = new TextBoxColors<K>();
             if (bases != null) {
                 foreach (var kv in bases) {
                     var color = new TextBoxColor(kv.Value);
@@ -341,7 +374,7 @@ namespace KLPlugins.DynLeaderboards {
 
             return colors;
         }
-        private static void WriteTextBoxColors<K>(Dictionary<K, TextBoxColor> colors, string fileName) {
+        private static void WriteTextBoxColors<K>(TextBoxColors<K> colors, string fileName) {
             string? overrridesPath = $"{PluginSettings.PluginDataDir}\\{DynLeaderboardsPlugin.Game.Name}\\{fileName}.json";
 
             var overrides = new Dictionary<K, (bool, TextBoxColorInner?)>();

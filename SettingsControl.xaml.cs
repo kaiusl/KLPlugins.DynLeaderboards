@@ -76,6 +76,7 @@ namespace KLPlugins.DynLeaderboards.Settings {
         }
 
         void SetCarSettingsCarsList() {
+
             SHListBox list = this.CarSettingsCarsList_SHListBox;
             list.Items.Clear();
 
@@ -88,14 +89,20 @@ namespace KLPlugins.DynLeaderboards.Settings {
             list.Items.SortDescriptions.Add(new System.ComponentModel.SortDescription("Content", System.ComponentModel.ListSortDirection.Ascending));
 
             list.SelectionChanged += (sender, _) => {
-                var item = (CarSettingsListBoxItem)((ListBox)sender).SelectedItem;
-                this.SetCarSettingsDetails(item.Key, item.CarInfo);
+                var item = (CarSettingsListBoxItem?)((ListBox)sender).SelectedItem;
+                if (item != null) {
+                    this.SetCarSettingsDetails(item.Key, item.CarInfo);
+                } else {
+                    ((StackPanel)this.CarSettings_StackPanel).Children.Clear();
+                }
             };
 
             var first = this.Plugin.Values.CarInfos.FirstOr(null);
 
             if (first != null) {
                 this.SetCarSettingsDetails(first.Value.Key, first.Value.Value);
+            } else {
+                ((StackPanel)this.CarSettings_StackPanel).Children.Clear();
             }
         }
 
@@ -321,6 +328,17 @@ namespace KLPlugins.DynLeaderboards.Settings {
         private void AddClassColors() {
             StackPanel sp = this.Colors_StackPanel;
             sp.Children.Clear();
+
+            var refreshButton = new SHButtonPrimary() {
+                Content = "Refresh",
+                ToolTip = "Refresh colors. This will check if new classes or categories have been added and will add them here for customization.",
+                MaxWidth = 100,
+                HorizontalAlignment = HorizontalAlignment.Right
+            };
+            refreshButton.Click += (sender, e) => {
+                this.AddClassColors();
+            };
+            sp.Children.Add(refreshButton);
 
             Grid CreateColorsGrid(string kind) {
                 var grid = new Grid();
@@ -1383,6 +1401,10 @@ namespace KLPlugins.DynLeaderboards.Settings {
         private void UpdateACCarInfos_Button_Click(object sender, RoutedEventArgs e) {
             DynLeaderboardsPlugin.UpdateACCarInfos();
             this.Plugin.Values.UpdateCarInfos();
+        }
+
+        private void CarSettingsRefresh_Button_Click(object sender, RoutedEventArgs e) {
+            this.SetCarSettingsCarsList();
         }
     }
 }

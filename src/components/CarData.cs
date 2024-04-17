@@ -162,8 +162,6 @@ namespace KLPlugins.DynLeaderboards.Car {
 
         private bool _expectingNewLap = false;
 
-        private bool _took_ACC_N24_short_lap = false;
-
         internal CarData(Values values, string? focusedCarId, Opponent opponent) {
             this.Drivers = this._drivers.AsReadOnly();
 
@@ -394,17 +392,6 @@ namespace KLPlugins.DynLeaderboards.Car {
                 var rawDataNew = (ACSharedMemory.Models.ACCOpponent)this.RawDataNew;
                 var rawDataOld = (ACSharedMemory.Models.ACCOpponent)this.RawDataOld;
 
-                // ACC N24 lap validity needs to be reset after the car took short lap
-                if (this._took_ACC_N24_short_lap && this._isSplinePositionReset) {
-                    this.IsCurrentLapValid = !this.IsInPitLane; // if we cross the line in pitlane, new lap is invalid
-                    this.IsCurrentLapOutLap = this.IsInPitLane; // also it will be an outlap
-                    this.IsCurrentLapInLap = false;
-
-                    this._took_ACC_N24_short_lap = false;
-
-                    DynLeaderboardsPlugin.LogInfo($"Car {this.Id}, #{this.CarNumber} lap validity reset after short lap.");
-                }
-
                 if (!this.IsNewLap && rawDataNew.ExtraData.CurrentLap.LaptimeMS < rawDataOld.ExtraData.CurrentLap.LaptimeMS) {
                     this._isLastLapInLap = this.IsCurrentLapInLap;
                     this._isLastLapOutLap = this.IsCurrentLapOutLap;
@@ -423,9 +410,6 @@ namespace KLPlugins.DynLeaderboards.Car {
                     this.IsCurrentLapInLap = true;
                 }
             }
-
-
-
 
             if (this.IsCurrentLapValid) {
                 this.CheckIfLapInvalidated(rawData);
@@ -544,18 +528,7 @@ namespace KLPlugins.DynLeaderboards.Car {
                 // Since the order is supposed to be based on the best lap, this could show weird discrepancy between position and lap time.
 
                 var accRawData = (ACSharedMemory.Models.ACCOpponent)this.RawDataNew;
-
-                // Detect if the car took short lap on N24 layout. This is needed because the next time the car crosses the start line they start a new valid lap.
-                // This would remain undetected otherwise and that lap remains invalid.
-                if (
-                    track != null && track.Id == "nurburgring_24h"
-                    && this.SplinePosition > 0.99 && this._prevSplinePosition < 0.2 // on N24 short lap the spline position jumps from ~0.166 to ~0.996
-                    && this.Location.Old == CarLocation.Track && this.Location.New == CarLocation.Track // exclude jump to pits
-                ) {
-                    this._took_ACC_N24_short_lap = true;
-                    DynLeaderboardsPlugin.LogInfo($"Car {this.Id}, #{this.CarNumber} took short lap on N24.");
-                }
-
+                
                 // Need to check for new lap time separately since lap update and lap time update may not be in perfect sync
                 var lastLap = accRawData.ExtraData.LastLap;
                 if (

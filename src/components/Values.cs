@@ -533,6 +533,7 @@ namespace KLPlugins.DynLeaderboards {
                     WriteTextBoxColors(this.CarClassColors, _carClassColorsJsonName);
                     WriteTextBoxColors(this.TeamCupCategoryColors, _teamCupCategoryColorsJsonName);
                     WriteTextBoxColors(this.DriverCategoryColors, _driverCategoryColorsJsonName);
+                    this.TrackData?.Dispose();
                     DynLeaderboardsPlugin.LogInfo("Disposed");
                 }
 
@@ -552,6 +553,7 @@ namespace KLPlugins.DynLeaderboards {
                 DynLeaderboardsPlugin.LogInfo($"newEvent={this.Booleans.NewData.IsNewEvent}, newSession={this.Session.IsNewSession}");
                 this.ResetWithoutSession();
                 this.Booleans.OnNewEvent(this.Session.SessionType);
+                this.TrackData?.Dispose();
                 this.TrackData = new TrackData(data);
 
                 DynLeaderboardsPlugin.LogInfo($"Track set to: id={this.TrackData.Id}, name={this.TrackData.PrettyName}, len={this.TrackData.LengthMeters}");

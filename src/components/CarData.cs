@@ -163,7 +163,8 @@ namespace KLPlugins.DynLeaderboards.Car {
 
         private bool _expectingNewLap = false;
 
-        internal List<(double, TimeSpan)> LapData { get; } = new();
+        internal List<double> LapDataPos { get; } = [];
+        internal List<double> LapDataTime { get; } = [];
         internal bool LapDataValidForSave { get; private set; } = false;
 
         internal CarData(Values values, string? focusedCarId, Opponent opponent) {
@@ -438,34 +439,40 @@ namespace KLPlugins.DynLeaderboards.Car {
             }
 
             if (this.RawDataOld.CurrentLapTime > this.RawDataNew.CurrentLapTime) {
-                if (this.LapDataValidForSave && this.LapData.Count != 0) {
+                if (this.LapDataValidForSave && this.LapDataPos.Count != 0) {
 
                     // Add last point
                     var pos = this.RawDataOld.TrackPositionPercent;
-                    var time = this.RawDataOld.CurrentLapTime;
+                    var time = this.RawDataOld.CurrentLapTime?.TotalSeconds;
                     if (pos != null && time != null) {
-                        var (lastPos, lastTime) = this.LapData.Last();
-                        if (lastPos != pos.Value && (time.Value.TotalMilliseconds - lastTime.TotalMilliseconds) > PluginSettings.LapDataTimeDelayMs) {
-                            this.LapData.Add((pos.Value, time.Value));
+                        var lastPos = this.LapDataPos.Last();
+                        var lastTime = this.LapDataTime.Last();
+                        if (lastPos != pos.Value && (time.Value - lastTime) > PluginSettings.LapDataTimeDelaySec) {
+                            this.LapDataPos.Add(pos.Value);
+                            this.LapDataTime.Add(time.Value);
                         }
                     }
 
-                    values.TrackData?.OnLapFinished(this.CarClass, this.LapData);
+                    values.TrackData?.OnLapFinished(this.CarClass, this.LapDataPos.AsReadOnly(), this.LapDataTime.AsReadOnly());
                 }
 
                 this.LapDataValidForSave = true;
-                this.LapData.Clear();
+                this.LapDataPos.Clear();
+                this.LapDataTime.Clear();
             }
 
             var rawPos = this.RawDataNew.TrackPositionPercent;
             var rawTime = this.RawDataNew.CurrentLapTime;
             if (this.LapDataValidForSave && rawPos != null && rawTime != null) {
-                if (this.LapData.Count == 0) {
-                    this.LapData.Add((rawPos.Value, rawTime.Value));
+                if (this.LapDataPos.Count == 0) {
+                    this.LapDataPos.Add(rawPos.Value);
+                    this.LapDataTime.Add(rawTime.Value.TotalSeconds);
                 } else {
-                    var (lastPos, lastTime) = this.LapData.Last();
-                    if (lastPos != rawPos.Value && (rawTime.Value.TotalMilliseconds - lastTime.TotalMilliseconds) > PluginSettings.LapDataTimeDelayMs) {
-                        this.LapData.Add((rawPos.Value, rawTime.Value));
+                    var lastPos = this.LapDataPos.Last();
+                    var lastTime = this.LapDataTime.Last();
+                    if (lastPos != rawPos.Value && (rawTime.Value.TotalSeconds - lastTime) > PluginSettings.LapDataTimeDelaySec) {
+                        this.LapDataPos.Add(rawPos.Value);
+                        this.LapDataTime.Add(rawTime.Value.TotalSeconds);
                     }
                 }
             }

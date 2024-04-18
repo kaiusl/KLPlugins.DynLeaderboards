@@ -85,7 +85,7 @@ namespace KLPlugins.DynLeaderboards {
                 }
             }
 
-            this.Values.Dispose();
+            this.Values?.Dispose();
             if (_logWriter != null) {
                 _logWriter.Dispose();
                 _logWriter = null;

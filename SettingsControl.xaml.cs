@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Data.Common;
 using System.Linq;
 using System.Windows;
@@ -8,12 +9,16 @@ using System.Windows.Data;
 using System.Windows.Media;
 using System.Xml.Linq;
 
+using AcTools.Utils.Helpers;
+
 using KLPlugins.DynLeaderboards.Car;
 using KLPlugins.DynLeaderboards.Helpers;
 
 using MahApps.Metro.Controls;
 
 using SimHub.Plugins.Styles;
+
+using WoteverCommon.WPF;
 
 using Xceed.Wpf.Toolkit;
 
@@ -106,7 +111,25 @@ namespace KLPlugins.DynLeaderboards.Settings {
             }
         }
 
+        private ObservableCollection<string> _carClasses = new();
         void SetCarSettingsDetails(string key, OverridableCarInfo car) {
+            // Go through all cars and check for class colors. 
+            // If there are new classes then trying to Values.CarClassColors.Get will add them to the dictionary.
+            foreach (var c in this.Plugin.Values.CarInfos) {
+                var cls = c.Value.ClassDontCheckEnabled();
+                if (cls != null) {
+                    var _ = this.Plugin.Values.CarClassColors.Get(cls.Value);
+                }
+            }
+
+            foreach (var c in this.Plugin.Values.CarClassColors) {
+                if (!this._carClasses.Contains(c.Key.AsString())) {
+                    this._carClasses.Add(c.Key.AsString());
+                }
+            }
+
+            this._carClasses.Sort();
+
             var sp = this.CarSettings_StackPanel;
             sp.Children.Clear();
 
@@ -283,13 +306,36 @@ namespace KLPlugins.DynLeaderboards.Settings {
             var classLabel = CreateLabelTextBox("Class", isEnabled, row);
             g2.Children.Add(classLabel);
 
-            var classTextBox = CreateEditTextBox(car.ClassDontCheckEnabled()?.AsString(), isEnabled, row);
-            classTextBox.TextChanged += (sender, b) => car.SetClass(new CarClass(classTextBox.Text));
-            g2.Children.Add(classTextBox);
+            var classComboBox = new ComboBox() {
+                IsReadOnly = false,
+                IsEditable = true,
+                ItemsSource = this._carClasses,
+                SelectedItem = car.ClassDontCheckEnabled()?.AsString(),
+                IsEnabled = isEnabled,
+                Opacity = isEnabled ? 1.0 : disabledOpacity
+            };
+
+            Grid.SetColumn(classComboBox, 2);
+            Grid.SetRow(classComboBox, row);
+            classComboBox.LostFocus += (sender, b) => {
+                var cls = (string?)classComboBox.Text;
+
+                DynLeaderboardsPlugin.LogInfo("Selected class: " + cls);
+                if (cls != null && cls != "") {
+                    if (!this._carClasses.Contains(cls)) {
+                        this._carClasses.Add(cls);
+                        this._carClasses.Sort();
+                    }
+                    car.SetClass(new CarClass(cls));
+                } else {
+                    car.ResetClass();
+                }
+            };
+            g2.Children.Add(classComboBox);
 
             var classResetButton = CreateResetButton(isEnabled, row);
             classResetButton.Click += (sender, b) => {
-                classTextBox.Text = car.BaseClass()?.AsString(); // Must be set before resetting
+                classComboBox.SelectedItem = car.BaseClass()?.AsString(); // Must be set before resetting
                 car.ResetClass();
             };
             g2.Children.Add(classResetButton);
@@ -298,8 +344,8 @@ namespace KLPlugins.DynLeaderboards.Settings {
                 car.EnableClass();
                 classLabel.IsEnabled = true;
                 classLabel.Opacity = 1;
-                classTextBox.IsEnabled = true;
-                classTextBox.Opacity = 1;
+                classComboBox.IsEnabled = true;
+                classComboBox.Opacity = 1;
                 classResetButton.IsEnabled = true;
                 classResetButton.Opacity = 1;
             };
@@ -307,8 +353,8 @@ namespace KLPlugins.DynLeaderboards.Settings {
                 car.DisableClass();
                 classLabel.IsEnabled = false;
                 classLabel.Opacity = disabledOpacity;
-                classTextBox.IsEnabled = false;
-                classTextBox.Opacity = disabledOpacity;
+                classComboBox.IsEnabled = false;
+                classComboBox.Opacity = disabledOpacity;
                 classResetButton.IsEnabled = false;
                 classResetButton.Opacity = disabledOpacity;
             };
@@ -317,7 +363,7 @@ namespace KLPlugins.DynLeaderboards.Settings {
             allResetButton.Click += (sender, b) => {
                 nameTextBox.Text = car.BaseName();
                 manufacturerTextBox.Text = car.BaseManufacturer();
-                classTextBox.Text = car.BaseClass()?.AsString();
+                classComboBox.SelectedItem = car.BaseClass()?.AsString();
                 // Reset after setting text, because it will trigger the TextChanged event and calls car.Set which will set overrides
                 car.Reset();
                 classToggle.IsChecked = car.IsClassEnabled;
@@ -332,7 +378,7 @@ namespace KLPlugins.DynLeaderboards.Settings {
             // Go through all cars and check for class colors. 
             // If there are new classes then trying to Values.CarClassColors.Get will add them to the dictionary.
             foreach (var car in this.Plugin.Values.CarInfos) {
-                var cls = car.Value.Class();
+                var cls = car.Value.ClassDontCheckEnabled();
                 if (cls != null) {
                     var _ = this.Plugin.Values.CarClassColors.Get(cls.Value);
                 }

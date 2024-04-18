@@ -485,7 +485,7 @@ namespace KLPlugins.DynLeaderboards {
             }
 
             if (carInfos.Count != 0) {
-                var outPath = Path.Combine(PluginSettings.PluginDataDirBase, Game.AcName, "CarInfos.base.json");
+                var outPath = Path.Combine(PluginSettings.PluginDataDir, Game.AcName, "CarInfos.base.json");
                 File.WriteAllText(outPath, JsonConvert.SerializeObject(carInfos, Formatting.Indented));
             }
         }

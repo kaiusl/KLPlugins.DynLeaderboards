@@ -1,0 +1,22 @@
+{
+  "Overall": {
+    "Fg": "#000000",
+    "Bg": "#FFFFFF"
+  },
+  "ProAm": {
+    "Fg": "#FFFFFF",
+    "Bg": "#000000"
+  },
+  "Am": {
+    "Fg": "#000000",
+    "Bg": "#E80000"
+  },
+  "Silver": {
+    "Fg": "#FFFFFF",
+    "Bg": "#666666"
+  },
+  "National": {
+    "Fg": "#FFFFFF",
+    "Bg": "#008F4B"
+  }
+}

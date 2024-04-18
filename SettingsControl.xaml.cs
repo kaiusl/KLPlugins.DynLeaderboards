@@ -77,10 +77,28 @@ namespace KLPlugins.DynLeaderboards.Settings {
             this.IncludeCHLInGT2_ToggleButton.IsChecked = this.Settings.Include_CHL_In_GT2;
 
             this.SetCarSettingsCarsList();
-            this.AddClassColors();
+            this.AddColors();
         }
 
+
+        private ObservableCollection<string> _carClasses = new();
         void SetCarSettingsCarsList() {
+            // Go through all cars and check for class colors. 
+            // If there are new classes then trying to Values.CarClassColors.Get will add them to the dictionary.
+            foreach (var c in this.Plugin.Values.CarInfos) {
+                var cls = c.Value.ClassDontCheckEnabled();
+                if (cls != null) {
+                    var _ = this.Plugin.Values.CarClassColors.Get(cls.Value);
+                }
+            }
+
+            foreach (var c in this.Plugin.Values.CarClassColors) {
+                if (!this._carClasses.Contains(c.Key.AsString())) {
+                    this._carClasses.Add(c.Key.AsString());
+                }
+            }
+
+            this._carClasses.Sort();
 
             SHListBox list = this.CarSettingsCarsList_SHListBox;
             list.Items.Clear();
@@ -111,25 +129,7 @@ namespace KLPlugins.DynLeaderboards.Settings {
             }
         }
 
-        private ObservableCollection<string> _carClasses = new();
         void SetCarSettingsDetails(string key, OverridableCarInfo car) {
-            // Go through all cars and check for class colors. 
-            // If there are new classes then trying to Values.CarClassColors.Get will add them to the dictionary.
-            foreach (var c in this.Plugin.Values.CarInfos) {
-                var cls = c.Value.ClassDontCheckEnabled();
-                if (cls != null) {
-                    var _ = this.Plugin.Values.CarClassColors.Get(cls.Value);
-                }
-            }
-
-            foreach (var c in this.Plugin.Values.CarClassColors) {
-                if (!this._carClasses.Contains(c.Key.AsString())) {
-                    this._carClasses.Add(c.Key.AsString());
-                }
-            }
-
-            this._carClasses.Sort();
-
             var sp = this.CarSettings_StackPanel;
             sp.Children.Clear();
 
@@ -137,6 +137,7 @@ namespace KLPlugins.DynLeaderboards.Settings {
                 Margin = new Thickness(0, 5, 10, 5)
             };
             g1.ColumnDefinitions.Add(new ColumnDefinition() { Width = new GridLength(1, GridUnitType.Star) });
+            g1.ColumnDefinitions.Add(new ColumnDefinition() { Width = new GridLength(1, GridUnitType.Auto) });
             g1.ColumnDefinitions.Add(new ColumnDefinition() { Width = new GridLength(1, GridUnitType.Auto) });
 
             var carTitle = new SHSubSectionTitle() { Margin = new Thickness(10, 10, 10, 10), FontSize = 20, Content = key };
@@ -153,8 +154,22 @@ namespace KLPlugins.DynLeaderboards.Settings {
             Grid.SetColumn(allResetButton, 1);
             Grid.SetRow(allResetButton, 0);
             g1.Children.Add(allResetButton);
-
             sp.Children.Add(g1);
+
+            var deleteButton = new SHButtonPrimary() {
+                Padding = new Thickness(5),
+                Margin = new Thickness(5, 0, 5, 0),
+                Height = 26,
+                Content = "Remove",
+                ToolTip = "Removes the selected car. Note that if the car has base data, it will only be reset and disabled but not completely deleted."
+            };
+            Grid.SetColumn(deleteButton, 2);
+            Grid.SetRow(deleteButton, 0);
+            deleteButton.Click += (sender, e) => {
+                this.Plugin.Values.CarInfos.Remove(key);
+                this.SetCarSettingsCarsList();
+            };
+            g1.Children.Add(deleteButton);
 
             var g2 = new Grid() {
                 Margin = new Thickness(10, 5, 10, 5)
@@ -244,7 +259,12 @@ namespace KLPlugins.DynLeaderboards.Settings {
             var nameResetButton = CreateResetButton(isEnabled, row);
             nameResetButton.Click += (sender, b) => {
                 // Set the text before resetting, because it will trigger the TextChanged event and calls car.SetName
-                nameTextBox.Text = car.BaseName();
+                var name = car.BaseName();
+                if (name == null) {
+                    nameToggle.IsChecked = false;
+                } else {
+                    nameTextBox.Text = name;
+                }
                 car.ResetName();
             };
             g2.Children.Add(nameResetButton);
@@ -283,7 +303,10 @@ namespace KLPlugins.DynLeaderboards.Settings {
 
             var manufacturerResetButton = CreateResetButton(isEnabled, row);
             manufacturerResetButton.Click += (sender, b) => {
-                manufacturerTextBox.Text = car.BaseManufacturer(); // Must be set before resetting
+                var m = car.BaseManufacturer();
+                if (m != null) {
+                    manufacturerTextBox.Text = m; // Must be set before resetting
+                }
                 car.ResetManufacturer();
             };
             g2.Children.Add(manufacturerResetButton);
@@ -334,7 +357,12 @@ namespace KLPlugins.DynLeaderboards.Settings {
 
             var classResetButton = CreateResetButton(isEnabled, row);
             classResetButton.Click += (sender, b) => {
-                classComboBox.SelectedItem = car.BaseClass()?.AsString(); // Must be set before resetting
+                var cls = car.BaseClass()?.AsString();
+                if (cls == null) {
+                    classToggle.IsChecked = false;
+                } else {
+                    classComboBox.SelectedItem = cls; // Must be set before resetting
+                }
                 car.ResetClass();
             };
             g2.Children.Add(classResetButton);
@@ -360,9 +388,25 @@ namespace KLPlugins.DynLeaderboards.Settings {
 
 
             allResetButton.Click += (sender, b) => {
-                nameTextBox.Text = car.BaseName();
-                manufacturerTextBox.Text = car.BaseManufacturer();
-                classComboBox.SelectedItem = car.BaseClass()?.AsString();
+                var name = car.BaseName();
+                if (name == null) {
+                    nameToggle.IsChecked = false;
+                } else {
+                    nameTextBox.Text = name;
+                }
+
+                var m = car.BaseManufacturer();
+                if (m != null) {
+                    manufacturerTextBox.Text = m; // Must be set before resetting
+                }
+                car.ResetManufacturer();
+
+                var cls = car.BaseClass()?.AsString();
+                if (cls == null) {
+                    classToggle.IsChecked = false;
+                } else {
+                    classComboBox.SelectedItem = cls; // Must be set before resetting
+                }
                 // Reset after setting text, because it will trigger the TextChanged event and calls car.Set which will set overrides
                 car.Reset();
                 classToggle.IsChecked = car.IsClassEnabled;
@@ -370,7 +414,7 @@ namespace KLPlugins.DynLeaderboards.Settings {
             };
         }
 
-        private void AddClassColors() {
+        private void AddColors() {
             StackPanel sp = this.Colors_StackPanel;
             sp.Children.Clear();
 
@@ -390,7 +434,7 @@ namespace KLPlugins.DynLeaderboards.Settings {
                 HorizontalAlignment = HorizontalAlignment.Right
             };
             refreshButton.Click += (sender, e) => {
-                this.AddClassColors();
+                this.AddColors();
             };
             sp.Children.Add(refreshButton);
 
@@ -399,6 +443,7 @@ namespace KLPlugins.DynLeaderboards.Settings {
 
                 grid.ColumnDefinitions.Add(new ColumnDefinition() { Width = new GridLength(1, GridUnitType.Auto) });
                 grid.ColumnDefinitions.Add(new ColumnDefinition() { Width = new GridLength(1, GridUnitType.Auto), MinWidth = 75 });
+                grid.ColumnDefinitions.Add(new ColumnDefinition() { Width = new GridLength(1, GridUnitType.Auto) });
                 grid.ColumnDefinitions.Add(new ColumnDefinition() { Width = new GridLength(1, GridUnitType.Auto) });
                 grid.ColumnDefinitions.Add(new ColumnDefinition() { Width = new GridLength(1, GridUnitType.Auto) });
                 grid.ColumnDefinitions.Add(new ColumnDefinition() { Width = new GridLength(1, GridUnitType.Auto) });
@@ -427,9 +472,9 @@ namespace KLPlugins.DynLeaderboards.Settings {
                 return grid;
             }
 
-            void CreateRow(Grid grid, int row, string name, OverridableTextBoxColor colors) {
+            void CreateRow<K>(Grid grid, int row, K name, Func<K, string> nameToString, OverridableTextBoxColor color, TextBoxColors<K> colors) {
                 const float disabledOpacity = 0.25f;
-                var isEnabled = colors.IsEnabled;
+                var isEnabled = color.IsEnabled;
                 var opacity = isEnabled ? 1.0 : disabledOpacity;
 
                 var enabledToggle = new SHToggleButton() {
@@ -443,8 +488,8 @@ namespace KLPlugins.DynLeaderboards.Settings {
                 const string DEF_FOREGROUND = "#FFFFFF";
                 const string DEF_BACKGROUND = "#000000";
 
-                var currentBgColor = WindowsMediaColorExtensions.FromHex(colors.BackgroundDontCheckEnabled() ?? DEF_BACKGROUND);
-                var currentFgColor = WindowsMediaColorExtensions.FromHex(colors.ForegroundDontCheckEnabled() ?? DEF_FOREGROUND);
+                var currentBgColor = WindowsMediaColorExtensions.FromHex(color.BackgroundDontCheckEnabled() ?? DEF_BACKGROUND);
+                var currentFgColor = WindowsMediaColorExtensions.FromHex(color.ForegroundDontCheckEnabled() ?? DEF_FOREGROUND);
 
                 var classBox = new Border() {
                     CornerRadius = new CornerRadius(5),
@@ -462,7 +507,7 @@ namespace KLPlugins.DynLeaderboards.Settings {
                     Foreground = new SolidColorBrush(currentFgColor),
                     FontWeight = FontWeights.Bold,
                     HorizontalAlignment = HorizontalAlignment.Center,
-                    Text = name
+                    Text = nameToString(name)
                 };
                 classBox.Child = classText;
 
@@ -480,7 +525,7 @@ namespace KLPlugins.DynLeaderboards.Settings {
                 Grid.SetColumn(bgPicker, 2);
                 Grid.SetRow(bgPicker, row);
                 bgPicker.SelectedColorChanged += (sender, e) => {
-                    colors.SetBackground(bgPicker.SelectedColor.ToString());
+                    color.SetBackground(bgPicker.SelectedColor.ToString());
                     classBox.Background = new SolidColorBrush(bgPicker.SelectedColor.Value);
                 };
                 grid.Children.Add(bgPicker);
@@ -495,8 +540,8 @@ namespace KLPlugins.DynLeaderboards.Settings {
                 Grid.SetColumn(bgResetButton, 3);
                 Grid.SetRow(bgResetButton, row);
                 bgResetButton.Click += (sender, e) => {
-                    bgPicker.SelectedColor = WindowsMediaColorExtensions.FromHex(colors.BaseBackground() ?? DEF_BACKGROUND);
-                    colors.ResetBackground();
+                    bgPicker.SelectedColor = WindowsMediaColorExtensions.FromHex(color.BaseBackground() ?? DEF_BACKGROUND);
+                    color.ResetBackground();
                 };
                 grid.Children.Add(bgResetButton);
 
@@ -511,7 +556,7 @@ namespace KLPlugins.DynLeaderboards.Settings {
                 Grid.SetColumn(fgPicker, 4);
                 Grid.SetRow(fgPicker, row);
                 fgPicker.SelectedColorChanged += (sender, e) => {
-                    colors.SetForeground(fgPicker.SelectedColor.ToString());
+                    color.SetForeground(fgPicker.SelectedColor.ToString());
                     classText.Foreground = new SolidColorBrush(fgPicker.SelectedColor.Value);
                 };
                 grid.Children.Add(fgPicker);
@@ -526,13 +571,27 @@ namespace KLPlugins.DynLeaderboards.Settings {
                 Grid.SetColumn(fgResetButton, 5);
                 Grid.SetRow(fgResetButton, row);
                 fgResetButton.Click += (sender, e) => {
-                    fgPicker.SelectedColor = WindowsMediaColorExtensions.FromHex(colors.BaseForeground() ?? DEF_FOREGROUND);
-                    colors.ResetForeground();
+                    fgPicker.SelectedColor = WindowsMediaColorExtensions.FromHex(color.BaseForeground() ?? DEF_FOREGROUND);
+                    color.ResetForeground();
                 };
                 grid.Children.Add(fgResetButton);
 
+                var deleteButton = new SHButtonPrimary() {
+                    Padding = new Thickness(5),
+                    Margin = new Thickness(5, 5, 15, 5),
+                    Content = "Remove",
+                    ToolTip = "Removes the selected color. Note if the color has base data or there is an existing car with this class, the color will only be reset and disabled but not completely deleted."
+                };
+                Grid.SetColumn(deleteButton, 6);
+                Grid.SetRow(deleteButton, row);
+                deleteButton.Click += (sender, e) => {
+                    colors.Remove(name);
+                    this.AddColors();
+                };
+                grid.Children.Add(deleteButton);
+
                 enabledToggle.Checked += (sender, e) => {
-                    colors.Enable();
+                    color.Enable();
                     classBox.IsEnabled = true;
                     classBox.Opacity = 1.0;
                     bgPicker.IsEnabled = true;
@@ -547,7 +606,7 @@ namespace KLPlugins.DynLeaderboards.Settings {
 
                 enabledToggle.Unchecked += (sender, e) => {
                     var opacity = disabledOpacity;
-                    colors.Disable();
+                    color.Disable();
                     classBox.IsEnabled = false;
                     classBox.Opacity = opacity;
                     bgPicker.IsEnabled = false;
@@ -570,7 +629,7 @@ namespace KLPlugins.DynLeaderboards.Settings {
 
                 foreach (var (cls, i) in colors.WithIndex() ?? []) {
                     gameSpecificGrid.RowDefinitions.Add(new RowDefinition() { Height = new GridLength(1, GridUnitType.Auto) });
-                    CreateRow(gameSpecificGrid, i + 1, keyToString(cls.Key), cls.Value);
+                    CreateRow(gameSpecificGrid, i + 1, cls.Key, keyToString, cls.Value, colors);
                 }
             }
 

@@ -320,7 +320,6 @@ namespace KLPlugins.DynLeaderboards.Settings {
             classComboBox.LostFocus += (sender, b) => {
                 var cls = (string?)classComboBox.Text;
 
-                DynLeaderboardsPlugin.LogInfo("Selected class: " + cls);
                 if (cls != null && cls != "") {
                     if (!this._carClasses.Contains(cls)) {
                         this._carClasses.Add(cls);

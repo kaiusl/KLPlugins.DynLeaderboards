@@ -186,14 +186,16 @@ namespace KLPlugins.DynLeaderboards {
                 var c = new OverridableCarInfo();
                 c.DisableClass();
                 c.DisableName();
-                c.SetName(key);
-                c.SetManufacturer(key.Split(' ').First());
-                c.SetClass(carClass);
 
                 this._infos[key] = c;
             }
 
-            return this._infos[key];
+            var info = this._infos[key];
+            info.TrySetBaseClass(carClass);
+            info.TrySetBaseName(key);
+            info.TrySetBaseManufacturer(key.Split(' ').First());
+
+            return info;
         }
 
         public IEnumerator<KeyValuePair<string, OverridableCarInfo>> GetEnumerator() {
@@ -228,20 +230,28 @@ namespace KLPlugins.DynLeaderboards {
             return new CarInfos(infos);
         }
 
-        internal void WriteToJson(string path) {
+        internal void WriteToJson(string path, string derivedPath) {
+            var bases = new Dictionary<string, CarInfo>();
+            foreach (var kv in this._infos) {
+                if (kv.Value.Base != null) {
+                    bases[kv.Key] = kv.Value.Base;
+                }
+            }
+            File.WriteAllText(derivedPath, JsonConvert.SerializeObject(bases, Formatting.Indented));
+
             File.WriteAllText(path, JsonConvert.SerializeObject(this._infos, Formatting.Indented));
         }
     }
 
     internal class OverridableCarInfo {
-        [JsonIgnore] private CarInfo? _base;
+        [JsonIgnore] internal CarInfo? Base { get; private set; }
         [JsonProperty("Overrides")] internal CarInfo? Overrides { get; private set; }
         [JsonProperty] internal bool IsNameEnabled { get; private set; } = true;
         [JsonProperty] internal bool IsClassEnabled { get; private set; } = true;
 
         [JsonConstructor]
         internal OverridableCarInfo(CarInfo? @base, CarInfo? overrides = null, bool? isNameEnabled = null, bool? isClassEnabled = null) {
-            this._base = @base;
+            this.Base = @base;
             this.Overrides = overrides;
             if (isNameEnabled != null) {
                 this.IsNameEnabled = isNameEnabled.Value;
@@ -256,7 +266,7 @@ namespace KLPlugins.DynLeaderboards {
         internal OverridableCarInfo() : this(new CarInfo()) { }
 
         internal string Debug() {
-            return $"CarInfo: base: {JsonConvert.SerializeObject(this._base)}, overrides: {JsonConvert.SerializeObject(this.Overrides)}";
+            return $"CarInfo: base: {JsonConvert.SerializeObject(this.Base)}, overrides: {JsonConvert.SerializeObject(this.Overrides)}";
         }
 
         internal void SetOverrides(CarInfo? overrides) {
@@ -264,7 +274,7 @@ namespace KLPlugins.DynLeaderboards {
         }
 
         internal void SetBase(CarInfo? @base) {
-            this._base = @base;
+            this.Base = @base;
         }
 
         internal void Reset() {
@@ -274,7 +284,7 @@ namespace KLPlugins.DynLeaderboards {
         }
 
         internal string? BaseName() {
-            return this._base?.Name;
+            return this.Base?.Name;
         }
 
         internal string? Name() {
@@ -282,17 +292,22 @@ namespace KLPlugins.DynLeaderboards {
                 return null;
             }
 
-            return this.Overrides?.Name ?? this._base?.Name;
+            return this.Overrides?.Name ?? this.Base?.Name;
         }
 
         internal string? NameDontCheckEnabled() {
-            return this.Overrides?.Name ?? this._base?.Name;
+            return this.Overrides?.Name ?? this.Base?.Name;
         }
 
 
         internal void SetName(string name) {
             this.Overrides ??= new();
             this.Overrides.Name = name;
+        }
+
+        internal void TrySetBaseName(string name) {
+            this.Base ??= new();
+            this.Base.Name ??= name;
         }
 
         internal void ResetName() {
@@ -310,16 +325,21 @@ namespace KLPlugins.DynLeaderboards {
         }
 
         internal string? BaseManufacturer() {
-            return this._base?.Manufacturer;
+            return this.Base?.Manufacturer;
         }
 
         internal string? Manufacturer() {
-            return this.Overrides?.Manufacturer ?? this._base?.Manufacturer;
+            return this.Overrides?.Manufacturer ?? this.Base?.Manufacturer;
         }
 
         internal void SetManufacturer(string manufacturer) {
             this.Overrides ??= new();
             this.Overrides.Manufacturer = manufacturer;
+        }
+
+        internal void TrySetBaseManufacturer(string manufacturer) {
+            this.Base ??= new();
+            this.Base.Manufacturer ??= manufacturer;
         }
 
         internal void ResetManufacturer() {
@@ -329,7 +349,7 @@ namespace KLPlugins.DynLeaderboards {
         }
 
         internal CarClass? BaseClass() {
-            return this._base?.Class;
+            return this.Base?.Class;
         }
 
         internal CarClass? Class() {
@@ -337,16 +357,21 @@ namespace KLPlugins.DynLeaderboards {
                 return null;
             }
 
-            return this.Overrides?.Class ?? this._base?.Class;
+            return this.Overrides?.Class ?? this.Base?.Class;
         }
 
         internal CarClass? ClassDontCheckEnabled() {
-            return this.Overrides?.Class ?? this._base?.Class;
+            return this.Overrides?.Class ?? this.Base?.Class;
         }
 
         internal void SetClass(CarClass cls) {
             this.Overrides ??= new();
             this.Overrides.Class = cls;
+        }
+
+        internal void TrySetBaseClass(CarClass cls) {
+            this.Base ??= new();
+            this.Base.Class ??= cls;
         }
 
         internal void ResetClass() {
@@ -406,8 +431,12 @@ namespace KLPlugins.DynLeaderboards {
             return $"{PluginSettings.PluginDataDir}\\{DynLeaderboardsPlugin.Game.Name}\\{_CAR_INFOS_FILENAME}.json";
         }
 
+        private static string CarInfosBasePath() {
+            return $"{PluginSettings.PluginDataDir}\\{DynLeaderboardsPlugin.Game.Name}\\{_CAR_INFOS_FILENAME}.base.json";
+        }
+
         private static CarInfos ReadCarInfos() {
-            var basesPath = $"{PluginSettings.PluginDataDir}\\{DynLeaderboardsPlugin.Game.Name}\\{_CAR_INFOS_FILENAME}.base.json";
+            var basesPath = CarInfosBasePath();
             var path = CarInfosPath();
             return CarInfos.ReadFromJson(basePath: basesPath, path: path);
         }
@@ -418,7 +447,7 @@ namespace KLPlugins.DynLeaderboards {
             if (!Directory.Exists(dirPath)) {
                 Directory.CreateDirectory(dirPath);
             }
-            this.CarInfos.WriteToJson(path);
+            this.CarInfos.WriteToJson(path: path, derivedPath: CarInfosBasePath());
         }
 
         internal TextBoxColors<CarClass> CarClassColors { get; }

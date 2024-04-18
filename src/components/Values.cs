@@ -35,6 +35,20 @@ namespace KLPlugins.DynLeaderboards {
             return this._colors[key];
         }
 
+        internal void Remove(K key) {
+            if (!this._colors.ContainsKey(key)) {
+                return;
+            }
+
+            var c = this._colors[key];
+            if (c.HasBase()) {
+                c.Reset();
+                c.Disable();
+            } else {
+                this._colors.Remove(key);
+            }
+        }
+
         public IEnumerator<KeyValuePair<K, OverridableTextBoxColor>> GetEnumerator() {
             return this._colors.GetEnumerator();
         }
@@ -92,6 +106,9 @@ namespace KLPlugins.DynLeaderboards {
             this._base = @base;
         }
 
+        internal bool HasBase() {
+            return this._base != null;
+        }
 
         internal void Reset() {
             this._overrides = null;
@@ -186,16 +203,29 @@ namespace KLPlugins.DynLeaderboards {
                 var c = new OverridableCarInfo();
                 c.DisableClass();
                 c.DisableName();
+                c.SetClass(carClass);
+                c.SetName(key);
+                c.SetManufacturer(key.Split(' ').First());
 
                 this._infos[key] = c;
             }
 
-            var info = this._infos[key];
-            info.TrySetBaseClass(carClass);
-            info.TrySetBaseName(key);
-            info.TrySetBaseManufacturer(key.Split(' ').First());
+            return this._infos[key];
+        }
 
-            return info;
+        internal void Remove(string key) {
+            if (!this._infos.ContainsKey(key)) {
+                return;
+            }
+
+            var c = this._infos[key];
+            if (c.Base != null) {
+                c.Reset();
+                c.DisableName();
+                c.DisableClass();
+            } else {
+                this._infos.Remove(key);
+            }
         }
 
         public IEnumerator<KeyValuePair<string, OverridableCarInfo>> GetEnumerator() {
@@ -231,14 +261,6 @@ namespace KLPlugins.DynLeaderboards {
         }
 
         internal void WriteToJson(string path, string derivedPath) {
-            var bases = new Dictionary<string, CarInfo>();
-            foreach (var kv in this._infos) {
-                if (kv.Value.Base != null) {
-                    bases[kv.Key] = kv.Value.Base;
-                }
-            }
-            File.WriteAllText(derivedPath, JsonConvert.SerializeObject(bases, Formatting.Indented));
-
             File.WriteAllText(path, JsonConvert.SerializeObject(this._infos, Formatting.Indented));
         }
     }
@@ -278,9 +300,11 @@ namespace KLPlugins.DynLeaderboards {
         }
 
         internal void Reset() {
-            this.Overrides = null;
             this.IsNameEnabled = true;
             this.IsClassEnabled = true;
+            this.ResetName();
+            this.ResetClass();
+            this.ResetManufacturer();
         }
 
         internal string? BaseName() {
@@ -305,15 +329,13 @@ namespace KLPlugins.DynLeaderboards {
             this.Overrides.Name = name;
         }
 
-        internal void TrySetBaseName(string name) {
-            this.Base ??= new();
-            this.Base.Name ??= name;
-        }
-
         internal void ResetName() {
-            if (this.Overrides != null) {
+            if (this.Base?.Name == null) {
+                this.IsNameEnabled = false;
+            } else if (this.Overrides != null) {
                 this.Overrides.Name = null;
             }
+
         }
 
         internal void DisableName() {
@@ -337,13 +359,11 @@ namespace KLPlugins.DynLeaderboards {
             this.Overrides.Manufacturer = manufacturer;
         }
 
-        internal void TrySetBaseManufacturer(string manufacturer) {
-            this.Base ??= new();
-            this.Base.Manufacturer ??= manufacturer;
-        }
 
         internal void ResetManufacturer() {
-            if (this.Overrides != null) {
+            if (this.Base?.Manufacturer == null) {
+                // do nothing
+            } else if (this.Overrides != null) {
                 this.Overrides.Manufacturer = null;
             }
         }
@@ -369,13 +389,10 @@ namespace KLPlugins.DynLeaderboards {
             this.Overrides.Class = cls;
         }
 
-        internal void TrySetBaseClass(CarClass cls) {
-            this.Base ??= new();
-            this.Base.Class ??= cls;
-        }
-
         internal void ResetClass() {
-            if (this.Overrides != null) {
+            if (this.Base?.Class == null) {
+                this.IsClassEnabled = false;
+            } else if (this.Overrides != null) {
                 this.Overrides.Class = null;
             }
         }

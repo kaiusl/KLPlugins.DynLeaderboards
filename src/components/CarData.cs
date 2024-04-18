@@ -8,6 +8,7 @@ using System.Linq;
 using GameReaderCommon;
 
 using KLPlugins.DynLeaderboards.Helpers;
+using KLPlugins.DynLeaderboards.Settings;
 using KLPlugins.DynLeaderboards.Track;
 
 using ksBroadcastingNetwork;
@@ -161,6 +162,9 @@ namespace KLPlugins.DynLeaderboards.Car {
         private Dictionary<CarClass, TimeSpan?> _splinePositionTimes = [];
 
         private bool _expectingNewLap = false;
+
+        internal List<(double, TimeSpan)> LapData { get; } = new();
+        internal bool LapDataValidForSave { get; private set; } = false;
 
         internal CarData(Values values, string? focusedCarId, Opponent opponent) {
             this.Drivers = this._drivers.AsReadOnly();
@@ -392,7 +396,6 @@ namespace KLPlugins.DynLeaderboards.Car {
                 this.IsCurrentLapInLap = false;
             }
 
-
             if (DynLeaderboardsPlugin.Game.IsAcc) {
                 var rawDataNew = (ACSharedMemory.Models.ACCOpponent)this.RawDataNew;
                 var rawDataOld = (ACSharedMemory.Models.ACCOpponent)this.RawDataOld;
@@ -429,6 +432,43 @@ namespace KLPlugins.DynLeaderboards.Car {
 
             this.UpdateStintInfo(values.Session);
             this.HandleOffsetLapUpdates();
+
+            if (this.LapDataValidForSave && (this.IsCurrentLapInLap || this.IsCurrentLapOutLap || !this.IsCurrentLapValid || this.IsInPitLane)) {
+                this.LapDataValidForSave = false;
+            }
+
+            if (this.RawDataOld.CurrentLapTime > this.RawDataNew.CurrentLapTime) {
+                if (this.LapDataValidForSave && this.LapData.Count != 0) {
+
+                    // Add last point
+                    var pos = this.RawDataOld.TrackPositionPercent;
+                    var time = this.RawDataOld.CurrentLapTime;
+                    if (pos != null && time != null) {
+                        var (lastPos, lastTime) = this.LapData.Last();
+                        if (lastPos != pos.Value && (time.Value.TotalMilliseconds - lastTime.TotalMilliseconds) > PluginSettings.LapDataTimeDelayMs) {
+                            this.LapData.Add((pos.Value, time.Value));
+                        }
+                    }
+
+                    values.TrackData?.OnLapFinished(this.CarClass, this.LapData);
+                }
+
+                this.LapDataValidForSave = true;
+                this.LapData.Clear();
+            }
+
+            var rawPos = this.RawDataNew.TrackPositionPercent;
+            var rawTime = this.RawDataNew.CurrentLapTime;
+            if (this.LapDataValidForSave && rawPos != null && rawTime != null) {
+                if (this.LapData.Count == 0) {
+                    this.LapData.Add((rawPos.Value, rawTime.Value));
+                } else {
+                    var (lastPos, lastTime) = this.LapData.Last();
+                    if (lastPos != rawPos.Value && (rawTime.Value.TotalMilliseconds - lastTime.TotalMilliseconds) > PluginSettings.LapDataTimeDelayMs) {
+                        this.LapData.Add((rawPos.Value, rawTime.Value));
+                    }
+                }
+            }
         }
 
         private void CheckIfLapInvalidated(Opponent rawData) {

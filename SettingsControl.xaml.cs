@@ -373,7 +373,7 @@ namespace KLPlugins.DynLeaderboards.Settings {
                 return grid;
             }
 
-            void CreateRow(Grid grid, int row, string name, TextBoxColor colors) {
+            void CreateRow(Grid grid, int row, string name, OverridableTextBoxColor colors) {
                 const float disabledOpacity = 0.25f;
                 var isEnabled = colors.IsEnabled;
                 var opacity = isEnabled ? 1.0 : disabledOpacity;

@@ -17,7 +17,7 @@ using Newtonsoft.Json;
 namespace KLPlugins.DynLeaderboards.Car {
     public class CarData {
         public CarClass CarClass { get; private set; }
-        public TextBoxColorInner CarClassColor { get; private set; }
+        public TextBoxColor CarClassColor { get; private set; }
 
         public string CarNumber { get; private set; } // string because 001 and 1 could be different numbers in some games
         /// <summary>
@@ -27,7 +27,7 @@ namespace KLPlugins.DynLeaderboards.Car {
         public string CarManufacturer { get; private set; }
         public string? TeamName { get; private set; }
         public TeamCupCategory TeamCupCategory { get; private set; }
-        public TextBoxColorInner TeamCupCategoryColor { get; private set; }
+        public TextBoxColor TeamCupCategoryColor { get; private set; }
 
         public NewOld<CarLocation> Location { get; } = new(CarLocation.NONE);
 
@@ -290,7 +290,7 @@ namespace KLPlugins.DynLeaderboards.Car {
             this.CarManufacturer = carInfo.Manufacturer() ?? GetCarManufacturer(this.CarModel);
 
             var color = values.CarClassColors.Get(this.CarClass);
-            this.CarClassColor = new TextBoxColorInner(
+            this.CarClassColor = new TextBoxColor(
                 fg: color.Foreground() ?? this.RawDataNew.CarClassTextColor ?? "#FFFFFF",
                 bg: color.Background() ?? this.RawDataNew.CarClassColor ?? "#000000"
             );
@@ -307,7 +307,7 @@ namespace KLPlugins.DynLeaderboards.Car {
             }
 
             var cupColor = values.TeamCupCategoryColors.Get(this.TeamCupCategory);
-            this.TeamCupCategoryColor = new TextBoxColorInner(
+            this.TeamCupCategoryColor = new TextBoxColor(
                 fg: cupColor.Foreground() ?? "#FFFFFF",
                 bg: cupColor.Background() ?? "#000000"
             );
@@ -1275,7 +1275,7 @@ namespace KLPlugins.DynLeaderboards.Car {
         public string Nationality { get; private set; } = "Unknown";
         public int TotalLaps { get; internal set; } = 0;
         public LapBasic? BestLap { get; internal set; } = null;
-        public TextBoxColorInner CategoryColor { get; private set; }
+        public TextBoxColor CategoryColor { get; private set; }
 
         private TimeSpan _totalDrivingTime;
 
@@ -1285,7 +1285,7 @@ namespace KLPlugins.DynLeaderboards.Car {
             this.InitialPlusLastName = o.ShortName;
 
             var col = v.DriverCategoryColors.Get(this.Category);
-            this.CategoryColor = new TextBoxColorInner(
+            this.CategoryColor = new TextBoxColor(
                 fg: col.Foreground() ?? "#FFFFFF",
                 bg: col.Background() ?? "#000000"
             );
@@ -1303,7 +1303,7 @@ namespace KLPlugins.DynLeaderboards.Car {
             this.Initials = this.CreateInitialsACC();
 
             var col = v.DriverCategoryColors.Get(this.Category);
-            this.CategoryColor = new TextBoxColorInner(
+            this.CategoryColor = new TextBoxColor(
                 fg: col.Foreground() ?? "#FFFFFF",
                 bg: col.Background() ?? "#000000"
             );

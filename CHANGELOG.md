@@ -8,17 +8,20 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Added
 
-- Support other games, not only ACC.
+- Support for other games, not only ACC.
+    - Currently tested with AC, ACC, RF2 and R3E.
+    - Other games should work as the plugin relies on the data provided by SimHub
+      but they haven't been tested if any special handling is needed.
 - New car specific properties:
-  - `Driver.Category.Color`
-  - `Driver.Category.TextColor`
-  - `Car.Class.TextColor`
+    - `Driver.Category.Color`
+    - `Driver.Category.TextColor`
+    - `Car.Class.TextColor`
 - New general properties:
-  - `Color.Class.<class>.Text`
-  - `Color.DriverCategory.<category>.Text`
-- New config files:
-  - to edit static car info like class and manufacturer.
-  - to edit car class, driver category and team cup category color
+    - `Color.Class.<class>.Text`
+    - `Color.DriverCategory.<category>.Text`
+- New config UI to edit car settings (name, manufacturer and class).
+- Automatically generate lap data for gap calculation.
+- Read AC car info from AC files.
 
 ### Changed
 
@@ -26,12 +29,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   Our own connection to ACC is completely removed (at least for now).
 - Deprecate `Driver.CategoryColor` property in favour of `Driver.Category.Color` 
   which matches the names of other similar properties.
+- New config UI to edit class, team cup and driver category colors.
 
 ### Removed
 
-- Option to change class, cup and driver colors in the SimHub
-  settings menu. For now these colors can be edited from config files.
-  Graphical setting menu is planned but not done yet.
+- Pregenerated lap data files since they are not needed anymore.
+
+### Fixed
+
+- Possible `NullReferenceException` while disposing `Values`.
+- Don't overwrite log files when a game in changed within SimHub.
 
 ## [1.4.5] - 2024-05-07
 

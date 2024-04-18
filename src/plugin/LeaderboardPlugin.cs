@@ -113,6 +113,9 @@ namespace KLPlugins.DynLeaderboards {
         public void Init(PluginManager pm) {
             PreJit(); // Performance is important while in game, prejit methods at startup, to avoid doing that mid races
 
+            // Create new log file at game change
+            PluginStartTime = $"{DateTime.Now:dd-MM-yyyy_HH-mm-ss}";
+
             PluginSettings.Migrate(); // migrate settings before reading them properly
             Settings = this.ReadCommonSettings("GeneralSettings", () => new PluginSettings());
             this.InitLogging(); // needs to know if logging is enabled, but we want to do it as soon as possible, eg right after reading settings

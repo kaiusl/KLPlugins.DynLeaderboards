@@ -22,9 +22,9 @@ namespace KLPlugins.DynLeaderboards.Settings {
     class CarSettingsListBoxItem : ListBoxItem {
 
         public string Key { get; set; }
-        public CarInfo CarInfo { get; set; }
+        public OverridableCarInfo CarInfo { get; set; }
 
-        public CarSettingsListBoxItem(string key, CarInfo car) : base() {
+        public CarSettingsListBoxItem(string key, OverridableCarInfo car) : base() {
             this.CarInfo = car;
             this.Key = key;
 
@@ -106,7 +106,7 @@ namespace KLPlugins.DynLeaderboards.Settings {
             }
         }
 
-        void SetCarSettingsDetails(string key, CarInfo car) {
+        void SetCarSettingsDetails(string key, OverridableCarInfo car) {
             var sp = this.CarSettings_StackPanel;
             sp.Children.Clear();
 
@@ -214,7 +214,7 @@ namespace KLPlugins.DynLeaderboards.Settings {
             var nameLabel = CreateLabelTextBox("Name", isEnabled, row);
             g2.Children.Add(nameLabel);
 
-            var nameTextBox = CreateEditTextBox(car.Name(), isEnabled, row);
+            var nameTextBox = CreateEditTextBox(car.NameDontCheckEnabled(), isEnabled, row);
             nameTextBox.TextChanged += (sender, b) => car.SetName(nameTextBox.Text);
             g2.Children.Add(nameTextBox);
 
@@ -283,7 +283,7 @@ namespace KLPlugins.DynLeaderboards.Settings {
             var classLabel = CreateLabelTextBox("Class", isEnabled, row);
             g2.Children.Add(classLabel);
 
-            var classTextBox = CreateEditTextBox(car.Class()?.AsString(), isEnabled, row);
+            var classTextBox = CreateEditTextBox(car.ClassDontCheckEnabled()?.AsString(), isEnabled, row);
             classTextBox.TextChanged += (sender, b) => car.SetClass(new CarClass(classTextBox.Text));
             g2.Children.Add(classTextBox);
 

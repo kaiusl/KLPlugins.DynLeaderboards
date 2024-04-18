@@ -445,7 +445,7 @@ namespace KLPlugins.DynLeaderboards {
                 return;
             }
 
-            Dictionary<string, CarInfo.Inner> carInfos = [];
+            Dictionary<string, CarInfo> carInfos = [];
             foreach (var carFolderPath in Directory.GetDirectories(carsFolder)) {
                 var carId = Path.GetFileName(carFolderPath);
                 var uiInfoFilePath = Path.Combine(carFolderPath, "ui", "ui_car.json");
@@ -477,7 +477,7 @@ namespace KLPlugins.DynLeaderboards {
                     }
                 }
 
-                carInfos[carId] = new CarInfo.Inner(uiInfo.Name, uiInfo.Brand, new CarClass(cls));
+                carInfos[carId] = new CarInfo(uiInfo.Name, uiInfo.Brand, new CarClass(cls));
                 LogInfo($"Read AC car info from '{uiInfoFilePath}': {JsonConvert.SerializeObject(carInfos[carId])}");
             }
 

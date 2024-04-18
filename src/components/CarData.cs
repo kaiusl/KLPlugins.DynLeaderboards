@@ -284,10 +284,15 @@ namespace KLPlugins.DynLeaderboards.Car {
         }
 
         private void SetStaticCarData(Values values, Opponent opponent) {
-            var carInfo = values.GetCarInfo(this.RawDataNew.CarName);
-            this.CarClass = carInfo.Class() ?? CarClass.TryNew(this.RawDataNew.CarClass) ?? CarClass.Default;
-            this.CarModel = carInfo.Name() ?? this.RawDataNew.CarName ?? "Unknown";
-            this.CarManufacturer = carInfo.Manufacturer() ?? GetCarManufacturer(this.CarModel);
+            var rawClass = CarClass.TryNew(this.RawDataNew.CarClass) ?? CarClass.Default;
+            OverridableCarInfo? carInfo = null;
+            if (this.RawDataNew.CarName != null) {
+                carInfo = values.CarInfos.Get(this.RawDataNew.CarName, rawClass);
+            }
+
+            this.CarClass = carInfo?.Class() ?? rawClass;
+            this.CarModel = carInfo?.Name() ?? this.RawDataNew.CarName ?? "Unknown";
+            this.CarManufacturer = carInfo?.Manufacturer() ?? GetCarManufacturer(this.CarModel);
 
             var color = values.CarClassColors.Get(this.CarClass);
             this.CarClassColor = new TextBoxColor(
@@ -324,9 +329,9 @@ namespace KLPlugins.DynLeaderboards.Car {
             };
         }
 
-        private static string GetCarManufacturer(string carModel) {
+        private static string GetCarManufacturer(string? carModel) {
             // TODO: read from LUTs
-            return carModel.Split(' ')[0];
+            return carModel?.Split(' ')[0] ?? "Unknown";
         }
 
         /// <summary>

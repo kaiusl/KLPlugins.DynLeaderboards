@@ -182,7 +182,7 @@ namespace KLPlugins.DynLeaderboards.Track {
 
         internal TrackData(GameData data) {
             this.PrettyName = data.NewData.TrackName;
-            this.Id = data.NewData.TrackId;
+            this.Id = data.NewData.TrackCode;
             this.LengthMeters = data.NewData.TrackLength;
             this.SplinePosOffset = _splinePosOffsets?.GetValueOr(this.Id, 0.0) ?? 0.0;
 

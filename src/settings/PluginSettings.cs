@@ -24,7 +24,7 @@ namespace KLPlugins.DynLeaderboards.Settings {
         [JsonIgnore] internal const string PluginDataDir = "PluginsData\\KLPlugins\\DynLeaderboards";
         [JsonIgnore] internal const string LeaderboardConfigsDataDir = PluginDataDir + "\\leaderboardConfigs";
         [JsonIgnore] internal const string LeaderboardConfigsDataBackupDir = LeaderboardConfigsDataDir + "\\b";
-        [JsonIgnore] internal const int LapDataTimeDelayMs = 500;
+        [JsonIgnore] internal const double LapDataTimeDelaySec = 0.5;
         [JsonIgnore] private static readonly string _defAccDataLocation = "C:\\Users\\" + Environment.UserName + "\\Documents\\Assetto Corsa Competizione";
         private delegate JObject Migration(JObject o);
 

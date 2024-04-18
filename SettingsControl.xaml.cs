@@ -329,6 +329,15 @@ namespace KLPlugins.DynLeaderboards.Settings {
             StackPanel sp = this.Colors_StackPanel;
             sp.Children.Clear();
 
+            // Go through all cars and check for class colors. 
+            // If there are new classes then trying to Values.CarClassColors.Get will add them to the dictionary.
+            foreach (var car in this.Plugin.Values.CarInfos) {
+                var cls = car.Value.Class();
+                if (cls != null) {
+                    var _ = this.Plugin.Values.CarClassColors.Get(cls.Value);
+                }
+            }
+
             var refreshButton = new SHButtonPrimary() {
                 Content = "Refresh",
                 ToolTip = "Refresh colors. This will check if new classes or categories have been added and will add them here for customization.",

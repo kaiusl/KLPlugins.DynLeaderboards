@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -51,6 +51,58 @@ namespace KLPlugins.DynLeaderboards.Track {
 
         internal static void OnPluginInit(string gameName) {
             _splinePosOffsets = ReadSplinePosOffsets(gameName);
+        }
+
+        internal void OnLapFinished(CarClass cls, List<(double, TimeSpan)> lapData) {
+            if (lapData.Count == 0) {
+                return;
+            }
+
+            var newLapTime = lapData.Last().Item2;
+            var newLapLastPos = lapData.Last().Item1;
+
+            var current = this.LapInterpolators.GetValueOr(cls, null);
+            if (current == null || current.Interpolate(newLapLastPos) > newLapTime) {
+                // Save new lap
+
+                var sw = new Stopwatch();
+                sw.Start();
+
+                var txt = "";
+                foreach (var (splinePos, lapTime) in lapData) {
+                    txt += splinePos + ";" + lapTime.TotalSeconds + "\n";
+                }
+                var path = $"{PluginSettings.PluginDataDir}\\{DynLeaderboardsPlugin.Game.Name}\\laps_data\\{this.Id}_{cls}.txt";
+
+                var dirPath = Path.GetDirectoryName(path);
+                if (!Directory.Exists(dirPath)) {
+                    Directory.CreateDirectory(dirPath);
+                }
+
+                // Create backups of current files
+                if (File.Exists($"{path}.10.bak")) {
+                    File.Delete($"{path}.10.bak");
+                }
+
+                if (File.Exists(path)) {
+                    for (var i = 9; i > 0; i--) {
+                        var bakpath = $"{path}.{i}.bak";
+                        if (File.Exists(bakpath)) {
+                            File.Move(bakpath, $"{path}.{i + 1}.bak");
+                        }
+                    }
+
+                    File.Move(path, $"{path}.1.bak");
+                }
+
+                File.WriteAllText(path, txt);
+
+                this.AddLapInterpolator(path, cls);
+
+                sw.Stop();
+
+                DynLeaderboardsPlugin.LogInfo($"Saved new best lap for {cls}: {newLapTime} (to {path}). Took {sw.ElapsedMilliseconds}ms");
+            }
         }
 
         private static Dictionary<string, double>? ReadSplinePosOffsets(string gameName) {

@@ -527,11 +527,8 @@ namespace KLPlugins.DynLeaderboards.Settings {
                 Grid.SetRow(enabledToggle, row);
                 grid.Children.Add(enabledToggle);
 
-                const string DEF_FOREGROUND = "#FFFFFF";
-                const string DEF_BACKGROUND = "#000000";
-
-                var currentBgColor = WindowsMediaColorExtensions.FromHex(color.BackgroundDontCheckEnabled() ?? DEF_BACKGROUND);
-                var currentFgColor = WindowsMediaColorExtensions.FromHex(color.ForegroundDontCheckEnabled() ?? DEF_FOREGROUND);
+                var currentBgColor = WindowsMediaColorExtensions.FromHex(color.BackgroundDontCheckEnabled() ?? OverridableTextBoxColor.DEF_BG);
+                var currentFgColor = WindowsMediaColorExtensions.FromHex(color.ForegroundDontCheckEnabled() ?? OverridableTextBoxColor.DEF_FG);
 
                 var classBox = new Border() {
                     CornerRadius = new CornerRadius(5),
@@ -582,7 +579,7 @@ namespace KLPlugins.DynLeaderboards.Settings {
                 Grid.SetColumn(bgResetButton, 3);
                 Grid.SetRow(bgResetButton, row);
                 bgResetButton.Click += (sender, e) => {
-                    bgPicker.SelectedColor = WindowsMediaColorExtensions.FromHex(color.BaseBackground() ?? DEF_BACKGROUND);
+                    bgPicker.SelectedColor = WindowsMediaColorExtensions.FromHex(color.BaseBackground() ?? OverridableTextBoxColor.DEF_BG);
                     color.ResetBackground();
                 };
                 grid.Children.Add(bgResetButton);
@@ -613,7 +610,7 @@ namespace KLPlugins.DynLeaderboards.Settings {
                 Grid.SetColumn(fgResetButton, 5);
                 Grid.SetRow(fgResetButton, row);
                 fgResetButton.Click += (sender, e) => {
-                    fgPicker.SelectedColor = WindowsMediaColorExtensions.FromHex(color.BaseForeground() ?? DEF_FOREGROUND);
+                    fgPicker.SelectedColor = WindowsMediaColorExtensions.FromHex(color.BaseForeground() ?? OverridableTextBoxColor.DEF_FG);
                     color.ResetForeground();
                 };
                 grid.Children.Add(fgResetButton);

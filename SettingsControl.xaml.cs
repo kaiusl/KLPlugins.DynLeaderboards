@@ -71,12 +71,9 @@ namespace KLPlugins.DynLeaderboards.Settings {
             // Set current values for other settings
             this.AccDataLocation_TextBox.Text = this.Settings.AccDataLocation;
             this.AcRootLocation_TextBox.Text = this.Settings.AcRootLocation ?? "TODO";
-            this.UpdateInterval_NumericUpDown.Value = this.Settings.BroadcastDataUpdateRateMs;
             this.AccDataLocation_TextBox.Background = this.Settings.IsAccDataLocationValid() ? Brushes.ForestGreen : Brushes.Crimson;
             this.AcRootLocation_TextBox.Background = this.Settings.IsAcRootLocationValid() ? Brushes.ForestGreen : Brushes.Crimson;
             this.Logging_ToggleButton.IsChecked = this.Settings.Log;
-            this.IncludeST21InGT2_ToggleButton.IsChecked = this.Settings.Include_ST21_In_GT2;
-            this.IncludeCHLInGT2_ToggleButton.IsChecked = this.Settings.Include_CHL_In_GT2;
 
             this.SetCarSettingsTab();
             this.AddColors();
@@ -1791,7 +1788,7 @@ namespace KLPlugins.DynLeaderboards.Settings {
         /// </summary>
         private Separator CreateToggleSeparator() {
             var s = new Separator {
-                Background = Brushes.LightGray,
+                Background = Brushes.DimGray,
                 Height = 1,
                 Margin = new Thickness(25, 0, 25, 0)
             };

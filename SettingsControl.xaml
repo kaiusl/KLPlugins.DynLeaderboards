@@ -27,6 +27,10 @@
             </Style.Resources>
             <Setter Property="MaxWidth"
                     Value="300" />
+            <Setter Property="Background"
+                    Value="#373737" />
+            <Setter Property="Foreground"
+                    Value="#F0F0F0" />
         </Style>
 
         <!-- Default toggle button style -->

@@ -19,13 +19,13 @@ using KLPlugins.DynLeaderboards.Helpers;
 using MahApps.Metro.Controls;
 
 using SimHub.Plugins.Styles;
+using SimHub.Plugins.UI;
 
 using WoteverCommon.WPF;
 
 using Xceed.Wpf.Toolkit;
 
 namespace KLPlugins.DynLeaderboards.Settings {
-
     class CarSettingsListBoxItem : ListBoxItem {
 
         public string Key { get; set; }
@@ -81,6 +81,7 @@ namespace KLPlugins.DynLeaderboards.Settings {
             this.SetCarSettingsTab();
             this.AddColors();
         }
+
 
         void SetCarSettingsTab() {
             DockPanel dp = this.CarSettings_DockPanel;
@@ -138,12 +139,28 @@ namespace KLPlugins.DynLeaderboards.Settings {
             var resetMenuResetAll = new MenuItem() {
                 Header = "Reset all",
             };
+
+            async void DoOnConfirmation(Action action) {
+                var dialogWindow = new ConfimDialog("Are you sure?", "All custom overrides will be lost.");
+                var res = await dialogWindow.ShowDialogWindowAsync(this);
+
+                switch (res) {
+                    case System.Windows.Forms.DialogResult.Yes:
+                        action();
+                        break;
+                    default:
+                        break;
+
+                };
+            }
             resetMenu.Items.Add(resetMenuResetAll);
             resetMenuResetAll.Click += (sender, e) => {
-                foreach (var c in this.Plugin.Values.CarInfos) {
-                    c.Value.Reset();
-                }
-                this.SetCarSettingsCarsList();
+                DoOnConfirmation(() => {
+                    foreach (var c in this.Plugin.Values.CarInfos) {
+                        c.Value.Reset();
+                    }
+                    this.SetCarSettingsCarsList();
+                });
             };
 
             var resetMenuResetNames = new MenuItem() {
@@ -151,10 +168,12 @@ namespace KLPlugins.DynLeaderboards.Settings {
             };
             resetMenu.Items.Add(resetMenuResetNames);
             resetMenuResetNames.Click += (sender, e) => {
-                foreach (var c in this.Plugin.Values.CarInfos) {
-                    c.Value.ResetName();
-                }
-                this.SetCarSettingsCarsList();
+                DoOnConfirmation(() => {
+                    foreach (var c in this.Plugin.Values.CarInfos) {
+                        c.Value.ResetName();
+                    }
+                    this.SetCarSettingsCarsList();
+                });
             };
 
             var resetMenuResetManufacturers = new MenuItem() {
@@ -162,10 +181,12 @@ namespace KLPlugins.DynLeaderboards.Settings {
             };
             resetMenu.Items.Add(resetMenuResetManufacturers);
             resetMenuResetManufacturers.Click += (sender, e) => {
-                foreach (var c in this.Plugin.Values.CarInfos) {
-                    c.Value.ResetManufacturer();
-                }
-                this.SetCarSettingsCarsList();
+                DoOnConfirmation(() => {
+                    foreach (var c in this.Plugin.Values.CarInfos) {
+                        c.Value.ResetManufacturer();
+                    }
+                    this.SetCarSettingsCarsList();
+                });
             };
 
             var resetMenuResetClasses = new MenuItem() {
@@ -173,24 +194,42 @@ namespace KLPlugins.DynLeaderboards.Settings {
             };
             resetMenu.Items.Add(resetMenuResetClasses);
             resetMenuResetClasses.Click += (sender, e) => {
-                foreach (var c in this.Plugin.Values.CarInfos) {
-                    c.Value.ResetClass();
-                }
-                this.SetCarSettingsCarsList();
+                DoOnConfirmation(() => {
+                    foreach (var c in this.Plugin.Values.CarInfos) {
+                        c.Value.ResetClass();
+                    }
+                    this.SetCarSettingsCarsList();
+                });
             };
 
             var disableMenu = CreateTopLevelMenuItem("Disable", true);
             menu.Items.Add(disableMenu);
+
+            var disableAll = new MenuItem() {
+                Header = "Disable all",
+            };
+            disableMenu.Items.Add(disableAll);
+            disableAll.Click += (sender, e) => {
+                DoOnConfirmation(() => {
+                    foreach (var c in this.Plugin.Values.CarInfos) {
+                        c.Value.DisableName();
+                        c.Value.DisableClass();
+                    }
+                    this.SetCarSettingsCarsList();
+                });
+            };
 
             var disableAllNames = new MenuItem() {
                 Header = "Disable all names",
             };
             disableMenu.Items.Add(disableAllNames);
             disableAllNames.Click += (sender, e) => {
-                foreach (var c in this.Plugin.Values.CarInfos) {
-                    c.Value.DisableName();
-                }
-                this.SetCarSettingsCarsList();
+                DoOnConfirmation(() => {
+                    foreach (var c in this.Plugin.Values.CarInfos) {
+                        c.Value.DisableName();
+                    }
+                    this.SetCarSettingsCarsList();
+                });
             };
 
             var disableAllClasses = new MenuItem() {
@@ -198,24 +237,42 @@ namespace KLPlugins.DynLeaderboards.Settings {
             };
             disableMenu.Items.Add(disableAllClasses);
             disableAllClasses.Click += (sender, e) => {
-                foreach (var c in this.Plugin.Values.CarInfos) {
-                    c.Value.DisableClass();
-                }
-                this.SetCarSettingsCarsList();
+                DoOnConfirmation(() => {
+                    foreach (var c in this.Plugin.Values.CarInfos) {
+                        c.Value.DisableClass();
+                    }
+                    this.SetCarSettingsCarsList();
+                });
             };
 
             var enableMenu = CreateTopLevelMenuItem("Enable", true);
             menu.Items.Add(enableMenu);
+
+            var enableAll = new MenuItem() {
+                Header = "Enable all",
+            };
+            enableMenu.Items.Add(enableAll);
+            enableAll.Click += (sender, e) => {
+                DoOnConfirmation(() => {
+                    foreach (var c in this.Plugin.Values.CarInfos) {
+                        c.Value.EnableName();
+                        c.Value.EnableClass();
+                    }
+                    this.SetCarSettingsCarsList();
+                });
+            };
 
             var enableAllNames = new MenuItem() {
                 Header = "Enable all names",
             };
             enableMenu.Items.Add(enableAllNames);
             enableAllNames.Click += (sender, e) => {
-                foreach (var c in this.Plugin.Values.CarInfos) {
-                    c.Value.EnableName();
-                }
-                this.SetCarSettingsCarsList();
+                DoOnConfirmation(() => {
+                    foreach (var c in this.Plugin.Values.CarInfos) {
+                        c.Value.EnableName();
+                    }
+                    this.SetCarSettingsCarsList();
+                });
             };
 
             var enableAllClasses = new MenuItem() {
@@ -223,20 +280,24 @@ namespace KLPlugins.DynLeaderboards.Settings {
             };
             enableMenu.Items.Add(enableAllClasses);
             enableAllClasses.Click += (sender, e) => {
-                foreach (var c in this.Plugin.Values.CarInfos) {
-                    c.Value.EnableClass();
-                }
-                this.SetCarSettingsCarsList();
+                DoOnConfirmation(() => {
+                    foreach (var c in this.Plugin.Values.CarInfos) {
+                        c.Value.EnableClass();
+                    }
+                    this.SetCarSettingsCarsList();
+                });
             };
 
             var deletaAllBtn = CreateTopLevelMenuItem("Delete all");
             deletaAllBtn.ToolTip = "Delete all cars from the settings file. Note that if the car has base data it will be reset and disabled, but not completely deleted.";
             deletaAllBtn.Click += (sender, e) => {
-                var cars = this.Plugin.Values.CarInfos.Select(kv => kv.Key).ToList();
-                foreach (var c in cars) {
-                    this.Plugin.Values.CarInfos.Remove(c);
-                }
-                this.SetCarSettingsCarsList();
+                DoOnConfirmation(() => {
+                    var cars = this.Plugin.Values.CarInfos.Select(kv => kv.Key).ToList();
+                    foreach (var c in cars) {
+                        this.Plugin.Values.CarInfos.Remove(c);
+                    }
+                    this.SetCarSettingsCarsList();
+                });
             };
             menu.Items.Add(deletaAllBtn);
 

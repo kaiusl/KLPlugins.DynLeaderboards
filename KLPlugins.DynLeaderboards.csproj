@@ -112,6 +112,10 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ConfimDialog.xaml.cs">
+      <DependentUpon>ConfimDialog.xaml</DependentUpon>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Compile>
     <Compile Include="src\components\CarData.cs" />
     <Compile Include="src\components\DynLeaderboardValues.cs" />
     <Compile Include="src\components\Game.cs" />
@@ -138,6 +142,11 @@
     <Compile Include="src\components\Values.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Page Include="ConfimDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Page>
     <Page Include="Properties\DesignTimeResources.xaml" Condition="'$(DesignTime)'=='true' OR ('$(SolutionPath)'!='' AND Exists('$(SolutionPath)') AND '$(BuildingInsideVisualStudio)'!='true' AND '$(BuildingInsideExpressionBlend)'!='true')">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

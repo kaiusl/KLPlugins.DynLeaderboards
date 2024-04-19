@@ -82,30 +82,40 @@ namespace KLPlugins.DynLeaderboards.Settings {
 
 
         private ObservableCollection<string> _carClasses = new();
+        private ObservableCollection<string> _manufacturers = new();
         void SetCarSettingsCarsList() {
+            SHListBox list = this.CarSettingsCarsList_SHListBox;
+            list.Items.Clear();
+
             // Go through all cars and check for class colors. 
             // If there are new classes then trying to Values.CarClassColors.Get will add them to the dictionary.
+            this._manufacturers.Clear();
             foreach (var c in this.Plugin.Values.CarInfos) {
+                var item = new CarSettingsListBoxItem(c.Key, c.Value);
+                list.Items.Add(item);
+
                 var cls = c.Value.ClassDontCheckEnabled();
                 if (cls != null) {
                     var _ = this.Plugin.Values.CarClassColors.Get(cls.Value);
                 }
-            }
 
+                var manufacturer = c.Value.Manufacturer();
+                if (manufacturer != null && !this._manufacturers.Contains(manufacturer)) {
+                    this._manufacturers.Add(manufacturer);
+                }
+
+                manufacturer = c.Value.BaseManufacturer();
+                if (manufacturer != null && !this._manufacturers.Contains(manufacturer)) {
+                    this._manufacturers.Add(manufacturer);
+                }
+            }
+            //this._manufacturers.Sort((a, b) => string.Compare(a, b, StringComparison.OrdinalIgnoreCase));
+
+            this._carClasses.Clear();
             foreach (var c in this.Plugin.Values.CarClassColors) {
                 if (!this._carClasses.Contains(c.Key.AsString())) {
                     this._carClasses.Add(c.Key.AsString());
                 }
-            }
-
-            this._carClasses.Sort();
-
-            SHListBox list = this.CarSettingsCarsList_SHListBox;
-            list.Items.Clear();
-
-            foreach (var c in this.Plugin.Values.CarInfos) {
-                var item = new CarSettingsListBoxItem(c.Key, c.Value);
-                list.Items.Add(item);
             }
 
             list.SelectedIndex = 0;
@@ -297,15 +307,37 @@ namespace KLPlugins.DynLeaderboards.Settings {
             var manufacturerLabel = CreateLabelTextBox("Manufacturer", isEnabled, row);
             g2.Children.Add(manufacturerLabel);
 
-            var manufacturerTextBox = CreateEditTextBox(car.Manufacturer(), isEnabled, row);
-            manufacturerTextBox.TextChanged += (sender, b) => car.SetManufacturer(manufacturerTextBox.Text);
-            g2.Children.Add(manufacturerTextBox);
+            var manufacturerComboBox = new ComboBox() {
+                IsReadOnly = false,
+                IsEditable = true,
+                ItemsSource = this._manufacturers.Sort(),
+                SelectedItem = car.Manufacturer(),
+                IsEnabled = isEnabled,
+                Opacity = isEnabled ? 1.0 : disabledOpacity,
+                ShouldPreserveUserEnteredPrefix = true,
+                IsTextSearchCaseSensitive = true
+            };
+
+            Grid.SetColumn(manufacturerComboBox, 2);
+            Grid.SetRow(manufacturerComboBox, row);
+            manufacturerComboBox.LostFocus += (sender, b) => {
+                var manufacturer = (string?)manufacturerComboBox.Text;
+
+                if (manufacturer != null) {
+                    if (!this._manufacturers.Contains(manufacturer)) {
+                        this._manufacturers.Add(manufacturer);
+                        manufacturerComboBox.ItemsSource = this._manufacturers.Sort();
+                    }
+                    car.SetManufacturer(manufacturer);
+                }
+            };
+            g2.Children.Add(manufacturerComboBox);
 
             var manufacturerResetButton = CreateResetButton(isEnabled, row);
             manufacturerResetButton.Click += (sender, b) => {
                 var m = car.BaseManufacturer();
                 if (m != null) {
-                    manufacturerTextBox.Text = m; // Must be set before resetting
+                    manufacturerComboBox.SelectedItem = m; // Must be set before resetting
                 }
                 car.ResetManufacturer();
             };
@@ -332,10 +364,12 @@ namespace KLPlugins.DynLeaderboards.Settings {
             var classComboBox = new ComboBox() {
                 IsReadOnly = false,
                 IsEditable = true,
-                ItemsSource = this._carClasses,
+                ItemsSource = this._carClasses.Sort(),
                 SelectedItem = car.ClassDontCheckEnabled()?.AsString(),
                 IsEnabled = isEnabled,
-                Opacity = isEnabled ? 1.0 : disabledOpacity
+                Opacity = isEnabled ? 1.0 : disabledOpacity,
+                ShouldPreserveUserEnteredPrefix = true,
+                IsTextSearchCaseSensitive = true
             };
 
             Grid.SetColumn(classComboBox, 2);
@@ -346,7 +380,7 @@ namespace KLPlugins.DynLeaderboards.Settings {
                 if (cls != null) {
                     if (!this._carClasses.Contains(cls)) {
                         this._carClasses.Add(cls);
-                        this._carClasses.Sort();
+                        classComboBox.ItemsSource = this._carClasses.Sort();
                     }
                     car.SetClass(new CarClass(cls));
                 }
@@ -395,7 +429,7 @@ namespace KLPlugins.DynLeaderboards.Settings {
 
                 var m = car.BaseManufacturer();
                 if (m != null) {
-                    manufacturerTextBox.Text = m; // Must be set before resetting
+                    manufacturerComboBox.SelectedItem = m; // Must be set before resetting
                 }
                 car.ResetManufacturer();
 

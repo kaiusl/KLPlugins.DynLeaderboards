@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Data.Common;
+using System.Globalization;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
@@ -307,10 +309,15 @@ namespace KLPlugins.DynLeaderboards.Settings {
             var manufacturerLabel = CreateLabelTextBox("Manufacturer", isEnabled, row);
             g2.Children.Add(manufacturerLabel);
 
+            var manufacturersView = new ListCollectionView(this._manufacturers) {
+                IsLiveSorting = true,
+                CustomSort = new CaseInsensitiveComparer(CultureInfo.InvariantCulture)
+            };
+
             var manufacturerComboBox = new ComboBox() {
                 IsReadOnly = false,
                 IsEditable = true,
-                ItemsSource = this._manufacturers.Sort(),
+                ItemsSource = manufacturersView,
                 SelectedItem = car.Manufacturer(),
                 IsEnabled = isEnabled,
                 Opacity = isEnabled ? 1.0 : disabledOpacity,
@@ -326,7 +333,6 @@ namespace KLPlugins.DynLeaderboards.Settings {
                 if (manufacturer != null) {
                     if (!this._manufacturers.Contains(manufacturer)) {
                         this._manufacturers.Add(manufacturer);
-                        manufacturerComboBox.ItemsSource = this._manufacturers.Sort();
                     }
                     car.SetManufacturer(manufacturer);
                 }
@@ -361,10 +367,15 @@ namespace KLPlugins.DynLeaderboards.Settings {
             var classLabel = CreateLabelTextBox("Class", isEnabled, row);
             g2.Children.Add(classLabel);
 
+            var classesView = new ListCollectionView(this._carClasses) {
+                IsLiveSorting = true,
+                CustomSort = new CaseInsensitiveComparer(CultureInfo.InvariantCulture)
+            };
+
             var classComboBox = new ComboBox() {
                 IsReadOnly = false,
                 IsEditable = true,
-                ItemsSource = this._carClasses.Sort(),
+                ItemsSource = classesView,
                 SelectedItem = car.ClassDontCheckEnabled()?.AsString(),
                 IsEnabled = isEnabled,
                 Opacity = isEnabled ? 1.0 : disabledOpacity,
@@ -380,7 +391,6 @@ namespace KLPlugins.DynLeaderboards.Settings {
                 if (cls != null) {
                     if (!this._carClasses.Contains(cls)) {
                         this._carClasses.Add(cls);
-                        classComboBox.ItemsSource = this._carClasses.Sort();
                     }
                     car.SetClass(new CarClass(cls));
                 }

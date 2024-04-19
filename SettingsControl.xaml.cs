@@ -1874,6 +1874,7 @@ namespace KLPlugins.DynLeaderboards.Settings {
         private void UpdateACCarInfos_Button_Click(object sender, RoutedEventArgs e) {
             DynLeaderboardsPlugin.UpdateACCarInfos();
             this.Plugin.Values.UpdateCarInfos();
+            this.SetCarSettingsCarsList();
         }
 
         private void CarSettingsRefresh_Button_Click(object sender, RoutedEventArgs e) {

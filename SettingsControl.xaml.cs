@@ -78,8 +78,185 @@ namespace KLPlugins.DynLeaderboards.Settings {
             this.IncludeST21InGT2_ToggleButton.IsChecked = this.Settings.Include_ST21_In_GT2;
             this.IncludeCHLInGT2_ToggleButton.IsChecked = this.Settings.Include_CHL_In_GT2;
 
-            this.SetCarSettingsCarsList();
+            this.SetCarSettingsTab();
             this.AddColors();
+        }
+
+        void SetCarSettingsTab() {
+            DockPanel dp = this.CarSettings_DockPanel;
+
+            var menuItemColor = new SolidColorBrush(WindowsMediaColorExtensions.FromHex("#373737"));
+
+            var menu = new Menu();
+            DockPanel.SetDock(menu, Dock.Top);
+            dp.Children.Insert(0, menu);
+
+            Border CreateTopLevelMenuButton(string label, bool isDropDown = false) {
+                UIElement child = new TextBlock() { Text = label, HorizontalAlignment = HorizontalAlignment.Center, FontWeight = FontWeights.Medium };
+                if (isDropDown) {
+                    var sp = new StackPanel() {
+                        Orientation = Orientation.Horizontal,
+                        Margin = new Thickness(0),
+                    };
+
+                    sp.Children.Add(child);
+
+                    var arrow = new TextBlock() {
+                        Text = "▼",
+                        Foreground = Brushes.DarkGray,
+                        FontWeight = FontWeights.UltraLight,
+                        Margin = new Thickness(5, 0, 0, 0),
+                        Padding = new Thickness(0),
+                        FontSize = 8
+                    };
+                    sp.Children.Add(arrow);
+
+                    sp.ToolTip = "Click to expand";
+
+                    child = sp;
+                }
+
+                var rb = new Border {
+                    Child = child,
+                    Style = (Style)this.FindResource("MenuItem_SHSecondaryButtonLike"),
+                    Padding = new Thickness(5, 1, isDropDown ? 3 : 10, 1)
+                };
+                return rb;
+            }
+
+            MenuItem CreateTopLevelMenuItem(string label, bool isDropDown = false) {
+                return new MenuItem() {
+                    Header = CreateTopLevelMenuButton(label, isDropDown),
+                    Margin = new Thickness(5, 1, 5, 1),
+                    Padding = new Thickness(0)
+                };
+            }
+
+            var resetMenu = CreateTopLevelMenuItem("Reset", true);
+            menu.Items.Add(resetMenu);
+
+            var resetMenuResetAll = new MenuItem() {
+                Header = "Reset all",
+            };
+            resetMenu.Items.Add(resetMenuResetAll);
+            resetMenuResetAll.Click += (sender, e) => {
+                foreach (var c in this.Plugin.Values.CarInfos) {
+                    c.Value.Reset();
+                }
+                this.SetCarSettingsCarsList();
+            };
+
+            var resetMenuResetNames = new MenuItem() {
+                Header = "Reset all names",
+            };
+            resetMenu.Items.Add(resetMenuResetNames);
+            resetMenuResetNames.Click += (sender, e) => {
+                foreach (var c in this.Plugin.Values.CarInfos) {
+                    c.Value.ResetName();
+                }
+                this.SetCarSettingsCarsList();
+            };
+
+            var resetMenuResetManufacturers = new MenuItem() {
+                Header = "Reset all manufacturers"
+            };
+            resetMenu.Items.Add(resetMenuResetManufacturers);
+            resetMenuResetManufacturers.Click += (sender, e) => {
+                foreach (var c in this.Plugin.Values.CarInfos) {
+                    c.Value.ResetManufacturer();
+                }
+                this.SetCarSettingsCarsList();
+            };
+
+            var resetMenuResetClasses = new MenuItem() {
+                Header = "Reset all classes",
+            };
+            resetMenu.Items.Add(resetMenuResetClasses);
+            resetMenuResetClasses.Click += (sender, e) => {
+                foreach (var c in this.Plugin.Values.CarInfos) {
+                    c.Value.ResetClass();
+                }
+                this.SetCarSettingsCarsList();
+            };
+
+            var disableMenu = CreateTopLevelMenuItem("Disable", true);
+            menu.Items.Add(disableMenu);
+
+            var disableAllNames = new MenuItem() {
+                Header = "Disable all names",
+            };
+            disableMenu.Items.Add(disableAllNames);
+            disableAllNames.Click += (sender, e) => {
+                foreach (var c in this.Plugin.Values.CarInfos) {
+                    c.Value.DisableName();
+                }
+                this.SetCarSettingsCarsList();
+            };
+
+            var disableAllClasses = new MenuItem() {
+                Header = "Disable all classes",
+            };
+            disableMenu.Items.Add(disableAllClasses);
+            disableAllClasses.Click += (sender, e) => {
+                foreach (var c in this.Plugin.Values.CarInfos) {
+                    c.Value.DisableClass();
+                }
+                this.SetCarSettingsCarsList();
+            };
+
+            var enableMenu = CreateTopLevelMenuItem("Enable", true);
+            menu.Items.Add(enableMenu);
+
+            var enableAllNames = new MenuItem() {
+                Header = "Enable all names",
+            };
+            enableMenu.Items.Add(enableAllNames);
+            enableAllNames.Click += (sender, e) => {
+                foreach (var c in this.Plugin.Values.CarInfos) {
+                    c.Value.EnableName();
+                }
+                this.SetCarSettingsCarsList();
+            };
+
+            var enableAllClasses = new MenuItem() {
+                Header = "Enable all classes",
+            };
+            enableMenu.Items.Add(enableAllClasses);
+            enableAllClasses.Click += (sender, e) => {
+                foreach (var c in this.Plugin.Values.CarInfos) {
+                    c.Value.EnableClass();
+                }
+                this.SetCarSettingsCarsList();
+            };
+
+            var deletaAllBtn = CreateTopLevelMenuItem("Delete all");
+            deletaAllBtn.ToolTip = "Delete all cars from the settings file. Note that if the car has base data it will be reset and disabled, but not completely deleted.";
+            deletaAllBtn.Click += (sender, e) => {
+                var cars = this.Plugin.Values.CarInfos.Select(kv => kv.Key).ToList();
+                foreach (var c in cars) {
+                    this.Plugin.Values.CarInfos.Remove(c);
+                }
+                this.SetCarSettingsCarsList();
+            };
+            menu.Items.Add(deletaAllBtn);
+
+            if (DynLeaderboardsPlugin.Game.IsAc) {
+                var updateACCarsBtn = CreateTopLevelMenuItem("Update base info");
+                updateACCarsBtn.ToolTip = """
+                    Read the car UI info directly from ACs car files and update this plugins look up files with that data. 
+                    That data is used to get car class, manufacturer and more.
+                    Note that this overwrites the base data, all user overrides will still work as expected.
+                    """;
+                updateACCarsBtn.Click += this.UpdateACCarInfos_Button_Click;
+                menu.Items.Add(updateACCarsBtn);
+            }
+
+            var refreshBtn = CreateTopLevelMenuItem("Refresh");
+            refreshBtn.ToolTip = "Refresh cars list. This will check if new cars have been added and will add them here for customization.";
+            refreshBtn.Click += this.CarSettingsRefresh_Button_Click;
+            menu.Items.Add(refreshBtn);
+
+            this.SetCarSettingsCarsList();
         }
 
 

@@ -93,8 +93,26 @@
             <Setter Property="DropDownBorderBrush"
                     Value="#101010" />
         </Style>
-    </UserControl.Resources>
 
+        <Style TargetType="Border"
+               x:Key="MenuItem_SHSecondaryButtonLike">
+            <Setter Property="Background"
+                    Value="#373737" />
+            <Setter Property="CornerRadius"
+                    Value="5" />
+            <Setter Property="Padding"
+                    Value="5,0,10,0" />
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver"
+                         Value="True">
+                    <Setter Property="Background"
+                            Value="#454545" />
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+
+    </UserControl.Resources>
     <styles:SHTabControl>
 
         <styles:SHTabItem Header="General settings">
@@ -512,38 +530,7 @@
         </styles:SHTabItem>
 
         <styles:SHTabItem Header="Car settings">
-            <DockPanel>
-                <styles:SHButtonPrimary DockPanel.Dock="Top"
-                                        Margin="20,5,20,0"
-                                        MaxWidth="100"
-                                        HorizontalAlignment="Right"
-                                        ToolTip="Refresh cars list. This will check if new cars have been added and will add them here for customization."
-                                        Click="CarSettingsRefresh_Button_Click">Refresh</styles:SHButtonPrimary>
-                
-                
-                
-                <Grid DockPanel.Dock="Top"
-                      Margin="20,5,20,0">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="auto" />
-                        <ColumnDefinition Width="auto" />
-                    </Grid.ColumnDefinitions>
-
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="auto" />
-                        <RowDefinition Height="auto" />
-                        <RowDefinition Height="auto" />
-                    </Grid.RowDefinitions>
-
-                    <TextBlock Grid.Row="0"
-                               Grid.Column="0">Use SimHub names</TextBlock>
-                    <styles:SHToggleButton Grid.Row="0"
-                                           Grid.Column="1"></styles:SHToggleButton>
-                    <TextBlock Grid.Row="1"
-                               Grid.Column="0">Use SimHub classes</TextBlock>
-                    <styles:SHToggleButton Grid.Row="1"
-                                           Grid.Column="1"></styles:SHToggleButton>
-                </Grid>
+            <DockPanel x:Name="CarSettings_DockPanel">
 
                 <styles:SHSectionSeparator DockPanel.Dock="Top" />
 

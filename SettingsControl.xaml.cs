@@ -284,8 +284,8 @@ namespace KLPlugins.DynLeaderboards.Settings {
                 });
             };
 
-            var deletaAllBtn = this.CreateTopLevelMenuItem("Delete all");
-            deletaAllBtn.ToolTip = "Delete all cars from the settings file. Note that if the car has base data it will be reset and disabled, but not completely deleted.";
+            var deletaAllBtn = this.CreateTopLevelMenuItem("Remove all");
+            deletaAllBtn.ToolTip = "Remove all cars from the settings file. Note that if the car has base data it will be reset and disabled, but not completely deleted.";
             deletaAllBtn.Click += (sender, e) => {
                 this.DoOnConfirmation(() => {
                     var cars = this.Plugin.Values.CarInfos.Select(kv => kv.Key).ToList();
@@ -762,8 +762,8 @@ namespace KLPlugins.DynLeaderboards.Settings {
                 });
             };
 
-            var deletaAllBtn = this.CreateTopLevelMenuItem("Delete all");
-            deletaAllBtn.ToolTip = "Delete all colors from the settings file. Note that if the color has base data or it's assigned to any car, it will be reset and disabled, but not completely deleted.";
+            var deletaAllBtn = this.CreateTopLevelMenuItem("Remove all");
+            deletaAllBtn.ToolTip = "Remove all colors from the settings file. Note that if the color has base data or it's assigned to any car, it will be reset and disabled, but not completely deleted.";
             deletaAllBtn.Click += (sender, e) => {
                 this.DoOnConfirmation(() => {
                     var cars = colors.Select(kv => kv.Key).ToList();

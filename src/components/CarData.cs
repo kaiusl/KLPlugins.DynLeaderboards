@@ -301,8 +301,8 @@ namespace KLPlugins.DynLeaderboards.Car {
 
             var color = values.CarClassColors.Get(this.CarClass);
             this.CarClassColor = new TextBoxColor(
-                fg: color.Foreground() ?? this.RawDataNew.CarClassTextColor ?? "#FFFFFF",
-                bg: color.Background() ?? this.RawDataNew.CarClassColor ?? "#000000"
+                fg: color.Foreground() ?? this.RawDataNew.CarClassTextColor ?? OverridableTextBoxColor.DEF_FG,
+                bg: color.Background() ?? this.RawDataNew.CarClassColor ?? OverridableTextBoxColor.DEF_BG
             );
 
             this.CarNumber = this.RawDataNew.CarNumber ?? "-1";
@@ -318,8 +318,8 @@ namespace KLPlugins.DynLeaderboards.Car {
 
             var cupColor = values.TeamCupCategoryColors.Get(this.TeamCupCategory);
             this.TeamCupCategoryColor = new TextBoxColor(
-                fg: cupColor.Foreground() ?? "#FFFFFF",
-                bg: cupColor.Background() ?? "#000000"
+                fg: cupColor.Foreground() ?? OverridableTextBoxColor.DEF_FG,
+                bg: cupColor.Background() ?? OverridableTextBoxColor.DEF_BG
             );
         }
 
@@ -1338,8 +1338,8 @@ namespace KLPlugins.DynLeaderboards.Car {
 
             var col = v.DriverCategoryColors.Get(this.Category);
             this.CategoryColor = new TextBoxColor(
-                fg: col.Foreground() ?? "#FFFFFF",
-                bg: col.Background() ?? "#000000"
+                fg: col.Foreground() ?? OverridableTextBoxColor.DEF_FG,
+                bg: col.Background() ?? OverridableTextBoxColor.DEF_BG
             );
         }
 
@@ -1356,8 +1356,8 @@ namespace KLPlugins.DynLeaderboards.Car {
 
             var col = v.DriverCategoryColors.Get(this.Category);
             this.CategoryColor = new TextBoxColor(
-                fg: col.Foreground() ?? "#FFFFFF",
-                bg: col.Background() ?? "#000000"
+                fg: col.Foreground() ?? OverridableTextBoxColor.DEF_FG,
+                bg: col.Background() ?? OverridableTextBoxColor.DEF_BG
             );
         }
 

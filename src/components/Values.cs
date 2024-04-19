@@ -87,6 +87,9 @@ namespace KLPlugins.DynLeaderboards {
     }
 
     internal class OverridableTextBoxColor {
+        [JsonIgnore] internal const string DEF_FG = "#FFFFFF";
+        [JsonIgnore] internal const string DEF_BG = "#000000";
+
         [JsonIgnore] private TextBoxColor? _base;
         [JsonProperty("overrides")] private TextBoxColor? _overrides;
 
@@ -128,15 +131,15 @@ namespace KLPlugins.DynLeaderboards {
                 return null;
             }
 
-            return this._overrides?.Fg ?? this._base?.Fg;
+            return this._overrides?.Fg ?? this._base?.Fg ?? DEF_FG;
         }
 
-        internal string? ForegroundDontCheckEnabled() {
-            return this._overrides?.Fg ?? this._base?.Fg;
+        internal string ForegroundDontCheckEnabled() {
+            return this._overrides?.Fg ?? this._base?.Fg ?? DEF_FG;
         }
 
-        internal string? BaseForeground() {
-            return this._base?.Fg;
+        internal string BaseForeground() {
+            return this._base?.Fg ?? DEF_FG;
         }
 
         internal void SetForeground(string fg) {
@@ -155,15 +158,15 @@ namespace KLPlugins.DynLeaderboards {
                 return null;
             }
 
-            return this._overrides?.Bg ?? this._base?.Bg;
+            return this._overrides?.Bg ?? this._base?.Bg ?? DEF_BG;
         }
 
-        internal string? BackgroundDontCheckEnabled() {
-            return this._overrides?.Bg ?? this._base?.Bg;
+        internal string BackgroundDontCheckEnabled() {
+            return this._overrides?.Bg ?? this._base?.Bg ?? DEF_BG;
         }
 
-        internal string? BaseBackground() {
-            return this._base?.Bg;
+        internal string BaseBackground() {
+            return this._base?.Bg ?? DEF_BG;
         }
 
         internal void SetBackground(string bg) {

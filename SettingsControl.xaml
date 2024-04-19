@@ -193,32 +193,6 @@
 
                     <Separator />
 
-                    <!-- Update interval -->
-
-                    <Grid ToolTip="Sets the update interval of data from ACC. As leaderboard data doesn't change that fast something around 100-500ms should work very well.">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition MaxWidth="500" />
-                            <ColumnDefinition MinWidth="100" />
-                        </Grid.ColumnDefinitions>
-                        <Grid.RowDefinitions>
-                            <RowDefinition MinHeight="35" />
-                        </Grid.RowDefinitions>
-                        <TextBlock Grid.Column="0"
-                                   Text="Data update interval: "
-                                   Style="{StaticResource Description}" />
-                        <mah:NumericUpDown x:Name="UpdateInterval_NumericUpDown"
-                                           Grid.Column="1"
-                                           HasDecimals="False"
-                                           Width="100"
-                                           Minimum="10"
-                                           Maximum="1000"
-                                           Interval="10"
-                                           VerticalAlignment="Center"
-                                           HorizontalAlignment="Left"
-                                           StringFormat="0ms"
-                                           ValueChanged="NumericUpDown_ValueChanged" />
-                    </Grid>
-                    <Separator />
 
                     <!-- Enable logging -->
 
@@ -240,58 +214,11 @@
                                                VerticalAlignment="Center"
                                                Click="Logging_ToggleButton_Click" />
                     </Grid>
-
-                    <Grid ToolTip="Include Lamborghini Huracan ST EVO2 in GT2 class.">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition MaxWidth="500" />
-                            <ColumnDefinition MinWidth="100" />
-                        </Grid.ColumnDefinitions>
-                        <Grid.RowDefinitions>
-                            <RowDefinition MinHeight="35" />
-                        </Grid.RowDefinitions>
-
-                        <TextBlock Grid.Column="0"
-                                   Text="Include ST21 class in GT2 class: "
-                                   Style="{StaticResource Description}" />
-                        <styles:SHToggleButton Grid.Column="1"
-                                               x:Name="IncludeST21InGT2_ToggleButton"
-                                               HorizontalAlignment="Left"
-                                               VerticalAlignment="Center"
-                                               Click="IncludeST21InGT2_ToggleButton_Click" />
-                    </Grid>
-
-                    <Grid ToolTip="Include Ferrari 488 Challenge Evo in GT2 class.">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition MaxWidth="500" />
-                            <ColumnDefinition MinWidth="100" />
-                        </Grid.ColumnDefinitions>
-                        <Grid.RowDefinitions>
-                            <RowDefinition MinHeight="35" />
-                        </Grid.RowDefinitions>
-
-                        <TextBlock Grid.Column="0"
-                                   Text="Include CHL class in GT2 class: "
-                                   Style="{StaticResource Description}" />
-                        <styles:SHToggleButton Grid.Column="1"
-                                               x:Name="IncludeCHLInGT2_ToggleButton"
-                                               HorizontalAlignment="Left"
-                                               VerticalAlignment="Center"
-                                               Click="IncludeCHLInGT2_ToggleButton_Click" />
-                    </Grid>
-
                     <Separator />
 
                     <styles:SHSectionTitle Text="EXPOSED PROPERTIES" />
                     <StackPanel x:Name="OtherProperties_StackPanel">
                     </StackPanel>
-
-                    <styles:SHSectionTitle Text="MISC" />
-                    <!-- Class colors -->
-                    <StackPanel Orientation="Horizontal">
-                        <styles:SHSmallTitle ToolTip="Read the car UI info directly from ACs car files and update this plugins look up files with that data. That data is used to get car class, manufacturer and more. Note that this overwrites the base data, all user overrides will still work as expected.">Update base AC car info:</styles:SHSmallTitle>
-                        <styles:SHButtonPrimary Click="UpdateACCarInfos_Button_Click">Update</styles:SHButtonPrimary>
-                    </StackPanel>
-
 
                 </StackPanel>
             </ScrollViewer>

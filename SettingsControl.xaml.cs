@@ -389,7 +389,7 @@ namespace KLPlugins.DynLeaderboards.Settings {
             g1.ColumnDefinitions.Add(new ColumnDefinition() { Width = new GridLength(1, GridUnitType.Auto) });
             g1.ColumnDefinitions.Add(new ColumnDefinition() { Width = new GridLength(1, GridUnitType.Auto) });
 
-            var carTitle = new SHSubSectionTitle() { Margin = new Thickness(10, 10, 10, 10), FontSize = 20, Content = key };
+            var carTitle = new SHSectionTitle() { Margin = new Thickness(10, 10, 10, 10), FontSize = 20, Text = key };
             Grid.SetColumn(carTitle, 0);
             Grid.SetRow(carTitle, 0);
             g1.Children.Add(carTitle);

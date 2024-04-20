@@ -95,7 +95,7 @@
         </Style>
 
         <Style TargetType="Border"
-               x:Key="MenuItem_SHSecondaryButtonLike">
+               x:Key="ButtonMenuItem_Border">
             <Setter Property="Background"
                     Value="#373737" />
             <Setter Property="CornerRadius"
@@ -111,6 +111,60 @@
             </Style.Triggers>
         </Style>
 
+        <Style TargetType="{x:Type local:ButtonMenuItem}">
+            <Setter Property="Margin"
+                    Value="5,1,5,1" />
+            <Setter Property="Padding"
+                    Value="0" />
+
+            <Setter Property="HeaderTemplate">
+                <Setter.Value>
+                    <DataTemplate>
+                        <Border Style="{StaticResource ButtonMenuItem_Border}"
+                                Padding="7.5,2,7.5,2">
+                            <TextBlock Text="{Binding}"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center"
+                                       FontWeight="Medium" />
+                        </Border>
+                    </DataTemplate>
+                </Setter.Value>
+            </Setter>
+
+            <Style.Triggers>
+                <Trigger Property="ShowDropDown"
+                         Value="True">
+
+                    <Setter Property="HeaderTemplate">
+                        <Setter.Value>
+                            <DataTemplate>
+                                <Border Style="{StaticResource ButtonMenuItem_Border}"
+                                        Padding="7.5,2,7.5,2">
+                                    <StackPanel Orientation="Horizontal"
+                                                Margin="0"
+                                                ToolTip="Click to expand">
+                                        <TextBlock Text="{Binding}"
+                                                   HorizontalAlignment="Center"
+                                                   VerticalAlignment="Center"
+                                                   FontWeight="Medium" />
+                                        <TextBlock Text="▼"
+                                                   HorizontalAlignment="Right"
+                                                   VerticalAlignment="Center"
+                                                   FontWeight="UltraLight"
+                                                   Foreground="DarkGray"
+                                                   Padding="0"
+                                                   Margin="10,0,0,0"
+                                                   FontSize="8" />
+                                    </StackPanel>
+
+                                </Border>
+                            </DataTemplate>
+                        </Setter.Value>
+                    </Setter>
+                </Trigger>
+
+            </Style.Triggers>
+        </Style>
 
     </UserControl.Resources>
     <styles:SHTabControl>
@@ -574,8 +628,159 @@
 
         <styles:SHTabItem Header="Colors">
             <ScrollViewer>
-                <StackPanel Margin="20"
-                            x:Name="Colors_StackPanel" />
+                <StackPanel Margin="20">
+                    <StackPanel.Resources>
+                        <Style TargetType="{x:Type Menu}"
+                               BasedOn="{StaticResource {x:Type Menu}}">
+                            <Setter Property="Margin"
+                                    Value="0,0,0,10" />
+                        </Style>
+                    </StackPanel.Resources>
+
+                    <styles:SHSectionTitle>Car class colors</styles:SHSectionTitle>
+
+                    <Menu x:Name="ColorsTab_CarClassColors_Menu">
+                        <!--<local:ButtonMenuItem Header="Reset"
+                                              ShowDropDown="True" />
+
+                        <local:ButtonMenuItem Header="Disable"
+                                              ShowDropDown="True" />
+
+                        <local:ButtonMenuItem Header="Enable"
+                                              ShowDropDown="True" />-->
+                    </Menu>
+
+                    <Grid x:Name="ColorsTab_CarClassColors_Grid">
+                        <!--<Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="auto" />
+                            <ColumnDefinition Width="auto"
+                                              MinWidth="75" />
+                            <ColumnDefinition Width="auto" />
+                            <ColumnDefinition Width="auto" />
+                            <ColumnDefinition Width="auto" />
+                            <ColumnDefinition Width="auto" />
+                            <ColumnDefinition Width="auto" />
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="auto" />
+                            <RowDefinition Height="auto" />
+                        </Grid.RowDefinitions>
+
+                        <Grid.Resources>
+                            <Style TargetType="{x:Type TextBlock}"
+                                   BasedOn="{StaticResource {x:Type TextBlock}}"
+                                   x:Key="Grid_Label">
+                                <Setter Property="Opacity"
+                                        Value="0.75" />
+                                <Setter Property="Margin"
+                                        Value="10,0,10,5" />
+                            </Style>
+                        </Grid.Resources>
+
+                        <TextBlock Grid.Row="0"
+                                   Grid.Column="0"
+                                   Style="{StaticResource Grid_Label}">Enabled</TextBlock>
+                        <TextBlock Grid.Row="0"
+                                   Grid.Column="1"
+                                   Style="{StaticResource Grid_Label}">Class</TextBlock>
+                        <TextBlock Grid.Row="0"
+                                   Grid.Column="2"
+                                   Style="{StaticResource Grid_Label}">Background</TextBlock>
+                        <TextBlock Grid.Row="0"
+                                   Grid.Column="4"
+                                   Style="{StaticResource Grid_Label}">Foreground</TextBlock>
+
+                        <styles:SHToggleButton Grid.Row="1"
+                                               Grid.Column="0"
+                                               IsChecked="True"
+                                               Margin="10,0,0,0" />
+
+                        <Border Grid.Row="1"
+                                Grid.Column="1"
+                                CornerRadius="5"
+                                Background="red"
+                                Height="25"
+                                Margin="0,0,15,0">
+                            <TextBlock Padding="0,0,5,0"
+                                       Foreground="Black"
+                                       FontWeight="Bold"
+                                       HorizontalAlignment="Center">
+                                GT3
+                            </TextBlock>
+                        </Border>
+
+                        <xctk:ColorPicker Grid.Row="1"
+                                          Grid.Column="2"
+                                          Width="100"
+                                          Height="20"
+                                          Margin="5,0,5,0"
+                                          SelectedColor="red">
+
+                        </xctk:ColorPicker>
+
+                        <styles:SHButtonSecondary Grid.Row="1"
+                                                  Grid.Column="3"
+                                                  Padding="5"
+                                                  Margin="5,5,15,5">Reset</styles:SHButtonSecondary>
+
+                        <xctk:ColorPicker Grid.Row="1"
+                                          Grid.Column="4"
+                                          Width="100"
+                                          Height="20"
+                                          Margin="5,0,5,0"
+                                          SelectedColor="Black">
+
+                        </xctk:ColorPicker>
+
+                        <styles:SHButtonSecondary Grid.Row="1"
+                                                  Grid.Column="5"
+                                                  Padding="5"
+                                                  Margin="5,5,15,5">Reset</styles:SHButtonSecondary>
+
+
+                        <styles:SHButtonPrimary Grid.Row="1"
+                                                Grid.Column="6"
+                                                Padding="5"
+                                                Margin="5,5,15,5">Delete</styles:SHButtonPrimary>-->
+
+                    </Grid>
+
+
+
+                    <styles:SHSectionSeparator />
+                    <styles:SHSectionTitle>Team cup category colors</styles:SHSectionTitle>
+
+                    <Menu x:Name="ColorsTab_TeamCupCategoryColors_Menu">
+                        <!--<local:ButtonMenuItem Header="Reset"
+                                              ShowDropDown="True" />
+
+                        <local:ButtonMenuItem Header="Disable"
+                                              ShowDropDown="True" />
+
+                        <local:ButtonMenuItem Header="Enable"
+                                              ShowDropDown="True" />-->
+                    </Menu>
+
+                    <Grid x:Name="ColorsTab_TeamCupCategoryColors_Grid"></Grid>
+
+                    <styles:SHSectionSeparator />
+                    <styles:SHSectionTitle>Driver category colors</styles:SHSectionTitle>
+
+                    <Menu x:Name="ColorsTab_DriverCategoryColors_Menu">
+                        <!--<local:ButtonMenuItem Header="Reset"
+                                              ShowDropDown="True" />
+
+                        <local:ButtonMenuItem Header="Disable"
+                                              ShowDropDown="True" />
+
+                        <local:ButtonMenuItem Header="Enable"
+                                              ShowDropDown="True" />-->
+                    </Menu>
+
+                    <Grid x:Name="ColorsTab_DriverCategoryColors_Grid"></Grid>
+
+
+                </StackPanel>
             </ScrollViewer>
 
         </styles:SHTabItem>

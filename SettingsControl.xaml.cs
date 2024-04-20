@@ -26,7 +26,17 @@ using WoteverCommon.WPF;
 using Xceed.Wpf.Toolkit;
 
 namespace KLPlugins.DynLeaderboards.Settings {
-    class CarSettingsListBoxItem : ListBoxItem {
+    public class ButtonMenuItem : MenuItem {
+        public bool ShowDropDown {
+            get => (bool)this.GetValue(ShowDropDownProperty);
+            set => this.SetValue(ShowDropDownProperty, value);
+        }
+        public static readonly DependencyProperty ShowDropDownProperty =
+                DependencyProperty.RegisterAttached("ShowDropDown", typeof(bool), typeof(ButtonMenuItem), new PropertyMetadata(false));
+    }
+
+
+    internal class CarSettingsListBoxItem : ListBoxItem {
 
         public string Key { get; set; }
         public OverridableCarInfo CarInfo { get; set; }
@@ -79,48 +89,6 @@ namespace KLPlugins.DynLeaderboards.Settings {
             this.AddColors();
         }
 
-
-        Border CreateTopLevelMenuButton(string label, bool isDropDown = false) {
-            UIElement child = new TextBlock() { Text = label, HorizontalAlignment = HorizontalAlignment.Center, FontWeight = FontWeights.Medium };
-            if (isDropDown) {
-                var sp = new StackPanel() {
-                    Orientation = Orientation.Horizontal,
-                    Margin = new Thickness(0),
-                };
-
-                sp.Children.Add(child);
-
-                var arrow = new TextBlock() {
-                    Text = "▼",
-                    Foreground = Brushes.DarkGray,
-                    FontWeight = FontWeights.UltraLight,
-                    Margin = new Thickness(5, 0, 0, 0),
-                    Padding = new Thickness(0),
-                    FontSize = 8
-                };
-                sp.Children.Add(arrow);
-
-                sp.ToolTip = "Click to expand";
-
-                child = sp;
-            }
-
-            var rb = new Border {
-                Child = child,
-                Style = (Style)this.FindResource("MenuItem_SHSecondaryButtonLike"),
-                Padding = new Thickness(5, 1, isDropDown ? 3 : 10, 1)
-            };
-            return rb;
-        }
-
-        MenuItem CreateTopLevelMenuItem(string label, bool isDropDown = false) {
-            return new MenuItem() {
-                Header = this.CreateTopLevelMenuButton(label, isDropDown),
-                Margin = new Thickness(5, 1, 5, 1),
-                Padding = new Thickness(0)
-            };
-        }
-
         async void DoOnConfirmation(Action action) {
             var dialogWindow = new ConfimDialog("Are you sure?", "All custom overrides will be lost.");
             var res = await dialogWindow.ShowDialogWindowAsync(this);
@@ -142,7 +110,10 @@ namespace KLPlugins.DynLeaderboards.Settings {
             DockPanel.SetDock(menu, Dock.Top);
             dp.Children.Insert(0, menu);
 
-            var resetMenu = this.CreateTopLevelMenuItem("Reset", true);
+            var resetMenu = new ButtonMenuItem() {
+                Header = "Reset",
+                ShowDropDown = true,
+            };
             menu.Items.Add(resetMenu);
 
             var resetMenuResetAll = new MenuItem() {
@@ -198,7 +169,10 @@ namespace KLPlugins.DynLeaderboards.Settings {
                 });
             };
 
-            var disableMenu = this.CreateTopLevelMenuItem("Disable", true);
+            var disableMenu = new ButtonMenuItem() {
+                Header = "Disable",
+                ShowDropDown = true,
+            };
             menu.Items.Add(disableMenu);
 
             var disableAll = new MenuItem() {
@@ -241,7 +215,10 @@ namespace KLPlugins.DynLeaderboards.Settings {
                 });
             };
 
-            var enableMenu = this.CreateTopLevelMenuItem("Enable", true);
+            var enableMenu = new ButtonMenuItem() {
+                Header = "Enable",
+                ShowDropDown = true,
+            };
             menu.Items.Add(enableMenu);
 
             var enableAll = new MenuItem() {
@@ -284,7 +261,9 @@ namespace KLPlugins.DynLeaderboards.Settings {
                 });
             };
 
-            var deletaAllBtn = this.CreateTopLevelMenuItem("Remove all");
+            var deletaAllBtn = new ButtonMenuItem() {
+                Header = "Remove all"
+            };
             deletaAllBtn.ToolTip = "Remove all cars from the settings file. Note that if the car has base data it will be reset and disabled, but not completely deleted.";
             deletaAllBtn.Click += (sender, e) => {
                 this.DoOnConfirmation(() => {
@@ -298,7 +277,9 @@ namespace KLPlugins.DynLeaderboards.Settings {
             menu.Items.Add(deletaAllBtn);
 
             if (DynLeaderboardsPlugin.Game.IsAc) {
-                var updateACCarsBtn = this.CreateTopLevelMenuItem("Update base info");
+                var updateACCarsBtn = new ButtonMenuItem() {
+                    Header = "Update base info"
+                };
                 updateACCarsBtn.ToolTip = """
                     Read the car UI info directly from ACs car files and update this plugins look up files with that data. 
                     That data is used to get car class, manufacturer and more.
@@ -308,7 +289,9 @@ namespace KLPlugins.DynLeaderboards.Settings {
                 menu.Items.Add(updateACCarsBtn);
             }
 
-            var refreshBtn = this.CreateTopLevelMenuItem("Refresh");
+            var refreshBtn = new ButtonMenuItem() {
+                Header = "Refresh"
+            };
             refreshBtn.ToolTip = "Refresh cars list. This will check if new cars have been added and will add them here for customization.";
             refreshBtn.Click += this.CarSettingsRefresh_Button_Click;
             menu.Items.Add(refreshBtn);
@@ -690,13 +673,11 @@ namespace KLPlugins.DynLeaderboards.Settings {
             };
         }
 
-        private void AddColorsMenuItems<K>(StackPanel sp, TextBoxColors<K> colors) {
-            var menu = new Menu() {
-                Margin = new Thickness(5, 5, 5, 10)
+        private void AddColorsMenuItems<K>(Menu menu, TextBoxColors<K> colors, Action refreshColors) {
+            var resetMenu = new ButtonMenuItem() {
+                Header = "Reset",
+                ShowDropDown = true,
             };
-            sp.Children.Add(menu);
-
-            var resetMenu = this.CreateTopLevelMenuItem("Reset", true);
             menu.Items.Add(resetMenu);
 
             var resetMenuResetAll = new MenuItem() {
@@ -709,7 +690,7 @@ namespace KLPlugins.DynLeaderboards.Settings {
                     foreach (var c in colors) {
                         c.Value.Reset();
                     }
-                    this.AddColors();
+                    refreshColors();
                 });
             };
 
@@ -722,7 +703,7 @@ namespace KLPlugins.DynLeaderboards.Settings {
                     foreach (var c in colors) {
                         c.Value.ResetForeground();
                     }
-                    this.AddColors();
+                    refreshColors();
                 });
             };
 
@@ -735,11 +716,13 @@ namespace KLPlugins.DynLeaderboards.Settings {
                     foreach (var c in colors) {
                         c.Value.ResetBackground();
                     }
-                    this.AddColors();
+                    refreshColors();
                 });
             };
 
-            var disableMenu = this.CreateTopLevelMenuItem("Disable all");
+            var disableMenu = new ButtonMenuItem() {
+                Header = "Disable all",
+            };
             menu.Items.Add(disableMenu);
 
             disableMenu.Click += (sender, e) => {
@@ -747,22 +730,26 @@ namespace KLPlugins.DynLeaderboards.Settings {
                     foreach (var c in colors) {
                         c.Value.Disable();
                     }
-                    this.AddColors();
+                    refreshColors();
                 });
             };
 
-            var enableMenu = this.CreateTopLevelMenuItem("Enable all");
+            var enableMenu = new ButtonMenuItem() {
+                Header = "Enable all",
+            };
             menu.Items.Add(enableMenu);
             enableMenu.Click += (sender, e) => {
                 this.DoOnConfirmation(() => {
                     foreach (var c in colors) {
                         c.Value.Enable();
                     }
-                    this.AddColors();
+                    refreshColors();
                 });
             };
 
-            var deletaAllBtn = this.CreateTopLevelMenuItem("Remove all");
+            var deletaAllBtn = new ButtonMenuItem() {
+                Header = "Remove all",
+            };
             deletaAllBtn.ToolTip = "Remove all colors from the settings file. Note that if the color has base data or it's assigned to any car, it will be reset and disabled, but not completely deleted.";
             deletaAllBtn.Click += (sender, e) => {
                 this.DoOnConfirmation(() => {
@@ -770,46 +757,24 @@ namespace KLPlugins.DynLeaderboards.Settings {
                     foreach (var c in cars) {
                         colors.Remove(c);
                     }
-                    this.AddColors();
+                    refreshColors();
                 });
             };
             menu.Items.Add(deletaAllBtn);
 
-            var refreshBtn = this.CreateTopLevelMenuItem("Refresh");
+            var refreshBtn = new ButtonMenuItem() {
+                Header = "Refresh",
+            };
             refreshBtn.ToolTip = "Refresh colors. This will check if new classes or categories have been added and will add them here for customization.";
             refreshBtn.Click += (sender, e) => {
-                this.AddColors();
+                refreshColors();
             };
             menu.Items.Add(refreshBtn);
         }
 
         private void AddColors() {
-            StackPanel sp = this.Colors_StackPanel;
-            sp.Children.Clear();
-
-            // Go through all cars and check for class colors. 
-            // If there are new classes then trying to Values.CarClassColors.Get will add them to the dictionary.
-            foreach (var car in this.Plugin.Values.CarInfos) {
-                var cls = car.Value.ClassDontCheckEnabled();
-                if (cls != null) {
-                    var _ = this.Plugin.Values.CarClassColors.Get(cls.Value);
-                }
-            }
-
-            Grid CreateColorsGrid(string kind) {
-                var grid = new Grid();
-
-                grid.ColumnDefinitions.Add(new ColumnDefinition() { Width = new GridLength(1, GridUnitType.Auto) });
-                grid.ColumnDefinitions.Add(new ColumnDefinition() { Width = new GridLength(1, GridUnitType.Auto), MinWidth = 75 });
-                grid.ColumnDefinitions.Add(new ColumnDefinition() { Width = new GridLength(1, GridUnitType.Auto) });
-                grid.ColumnDefinitions.Add(new ColumnDefinition() { Width = new GridLength(1, GridUnitType.Auto) });
-                grid.ColumnDefinitions.Add(new ColumnDefinition() { Width = new GridLength(1, GridUnitType.Auto) });
-                grid.ColumnDefinitions.Add(new ColumnDefinition() { Width = new GridLength(1, GridUnitType.Auto) });
-                grid.ColumnDefinitions.Add(new ColumnDefinition() { Width = new GridLength(1, GridUnitType.Auto) });
-
+            void CreateLabelRow(Grid grid, string kind) {
                 grid.RowDefinitions.Add(new RowDefinition() { Height = new GridLength(1, GridUnitType.Auto) });
-
-                // Labels row
 
                 TextBlock CreateLabel(string label, int col) {
                     var t = new TextBlock() {
@@ -826,11 +791,11 @@ namespace KLPlugins.DynLeaderboards.Settings {
                 grid.Children.Add(CreateLabel(kind, 1));
                 grid.Children.Add(CreateLabel("Background", 2));
                 grid.Children.Add(CreateLabel("Foreground", 4));
-
-                return grid;
             }
 
-            void CreateRow<K>(Grid grid, int row, K name, Func<K, string> nameToString, OverridableTextBoxColor color, TextBoxColors<K> colors) {
+            void CreateColorRow<K>(Grid grid, int row, K name, Func<K, string> nameToString, OverridableTextBoxColor color, TextBoxColors<K> colors, Action refreshColors) {
+                grid.RowDefinitions.Add(new RowDefinition() { Height = new GridLength(1, GridUnitType.Auto) });
+
                 const float disabledOpacity = 0.25f;
                 var isEnabled = color.IsEnabled;
                 var opacity = isEnabled ? 1.0 : disabledOpacity;
@@ -941,7 +906,7 @@ namespace KLPlugins.DynLeaderboards.Settings {
                 Grid.SetRow(deleteButton, row);
                 deleteButton.Click += (sender, e) => {
                     colors.Remove(name);
-                    this.AddColors();
+                    refreshColors();
                 };
                 grid.Children.Add(deleteButton);
 
@@ -976,25 +941,60 @@ namespace KLPlugins.DynLeaderboards.Settings {
             }
 
 
-            void AddColors<K>(string title, string kind, TextBoxColors<K> colors, Func<K, string> keyToString) {
-                sp.Children.Add(new SHSectionTitle() { Text = title });
+            void AddColors<K>(Menu menu, Grid grid, string kind, TextBoxColors<K> colors, Func<K, string> keyToString, Action preRefreshColors=null) {
+                grid.ColumnDefinitions.Add(new ColumnDefinition() { Width = new GridLength(1, GridUnitType.Auto) });
+                grid.ColumnDefinitions.Add(new ColumnDefinition() { Width = new GridLength(1, GridUnitType.Auto), MinWidth = 75 });
+                grid.ColumnDefinitions.Add(new ColumnDefinition() { Width = new GridLength(1, GridUnitType.Auto) });
+                grid.ColumnDefinitions.Add(new ColumnDefinition() { Width = new GridLength(1, GridUnitType.Auto) });
+                grid.ColumnDefinitions.Add(new ColumnDefinition() { Width = new GridLength(1, GridUnitType.Auto) });
+                grid.ColumnDefinitions.Add(new ColumnDefinition() { Width = new GridLength(1, GridUnitType.Auto) });
+                grid.ColumnDefinitions.Add(new ColumnDefinition() { Width = new GridLength(1, GridUnitType.Auto) });
 
-                this.AddColorsMenuItems(sp, colors);
+                void AddGridRows() {
+                    CreateLabelRow(grid, kind);
 
-                var gameSpecificGrid = CreateColorsGrid(kind);
-                sp.Children.Add(gameSpecificGrid);
-
-                foreach (var (cls, i) in colors.WithIndex() ?? []) {
-                    gameSpecificGrid.RowDefinitions.Add(new RowDefinition() { Height = new GridLength(1, GridUnitType.Auto) });
-                    CreateRow(gameSpecificGrid, i + 1, cls.Key, keyToString, cls.Value, colors);
+                    foreach (var (cls, i) in colors.WithIndex() ?? []) {
+                        CreateColorRow(grid, i + 1, cls.Key, keyToString, cls.Value, colors, () => {
+                            grid.Children.Clear();
+                            grid.RowDefinitions.Clear();
+                            preRefreshColors?.Invoke();
+                            AddGridRows();
+                        });
+                    }
                 }
+
+                preRefreshColors?.Invoke();
+                AddGridRows();
+
+                this.AddColorsMenuItems(menu, colors, () => {
+                    grid.Children.Clear();
+                    grid.RowDefinitions.Clear();
+                    preRefreshColors?.Invoke();
+                    AddGridRows();
+                });
+    
             }
 
-            AddColors("Car class colors", "Class", this.Plugin.Values.CarClassColors, k => k.AsString());
-            sp.Children.Add(new SHSectionSeparator());
-            AddColors("Team cup category colors", "Category", this.Plugin.Values.TeamCupCategoryColors, k => k.AsString());
-            sp.Children.Add(new SHSectionSeparator());
-            AddColors("Driver category colors", "Category", this.Plugin.Values.DriverCategoryColors, k => k.AsString());
+
+            AddColors(
+                this.ColorsTab_CarClassColors_Menu,
+                this.ColorsTab_CarClassColors_Grid,
+                "Class",
+                this.Plugin.Values.CarClassColors,
+                k => k.AsString(),
+                preRefreshColors: () => {
+                    // Go through all cars and check for class colors. 
+                    // If there are new classes then trying to Values.CarClassColors.Get will add them to the dictionary.
+                    foreach (var car in this.Plugin.Values.CarInfos) {
+                        var cls = car.Value.ClassDontCheckEnabled();
+                        if (cls != null) {
+                            var _ = this.Plugin.Values.CarClassColors.Get(cls.Value);
+                        }
+                    }
+                }
+            );
+            AddColors(this.ColorsTab_TeamCupCategoryColors_Menu, this.ColorsTab_TeamCupCategoryColors_Grid, "Category", this.Plugin.Values.TeamCupCategoryColors, k => k.AsString());
+            AddColors(this.ColorsTab_DriverCategoryColors_Menu, this.ColorsTab_DriverCategoryColors_Grid, "Category", this.Plugin.Values.DriverCategoryColors, k => k.AsString());
 
 
         }

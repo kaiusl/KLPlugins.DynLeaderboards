@@ -94,6 +94,7 @@
                     Value="#101010" />
         </Style>
 
+        <!-- ButtonMenuItem default style -->
         <Style TargetType="Border"
                x:Key="ButtonMenuItem_Border">
             <Setter Property="Background"
@@ -166,7 +167,90 @@
             </Style.Triggers>
         </Style>
 
+        <!-- Color grid styles -->
+        <Style x:Key="ColorGrid_ColumnLabel"
+               TargetType="{x:Type TextBlock}"
+               BasedOn="{StaticResource {x:Type TextBlock}}">
+            <Setter Property="Grid.Row"
+                    Value="0" />
+            <Setter Property="Opacity"
+                    Value="0.75" />
+            <Setter Property="Margin"
+                    Value="10,0,10,5" />
+            <Setter Property="HorizontalAlignment"
+                    Value="Left" />
+        </Style>
+
+        <Style x:Key="ColorGrid_EnabledToggle"
+               TargetType="{x:Type styles:SHToggleButton}"
+               BasedOn="{StaticResource {x:Type styles:SHToggleButton}}">
+            <Setter Property="Grid.Column"
+                    Value="0" />
+            <Setter Property="Margin"
+                    Value="0,0,0,0" />
+        </Style>
+
+        <Style x:Key="ColorGrid_LabelBorder"
+               TargetType="{x:Type Border}">
+            <Setter Property="Grid.Column"
+                    Value="1" />
+            <Setter Property="CornerRadius"
+                    Value="5" />
+            <Setter Property="Height"
+                    Value="25" />
+            <Setter Property="Margin"
+                    Value="5,0,5,0" />
+        </Style>
+
+        <Style x:Key="ColorGrid_LabelText"
+               TargetType="{x:Type TextBlock}"
+               BasedOn="{StaticResource {x:Type TextBlock}}">
+            <Setter Property="Padding"
+                    Value="0,0,5,0" />
+            <Setter Property="FontWeight"
+                    Value="Bold" />
+            <Setter Property="HorizontalAlignment"
+                    Value="Center" />
+        </Style>
+
+        <Style x:Key="ColorGrid_ColorPicker"
+               TargetType="{x:Type xctk:ColorPicker}"
+               BasedOn="{StaticResource {x:Type xctk:ColorPicker}}">
+            <Setter Property="Width"
+                    Value="75" />
+            <Setter Property="Height"
+                    Value="20" />
+            <Setter Property="Margin"
+                    Value="5,0,5,0" />
+        </Style>
+
+        <Style x:Key="ColorGrid_ResetButton"
+               TargetType="styles:SHButtonSecondary"
+               BasedOn="{StaticResource {x:Type styles:SHButtonSecondary}}">
+            <Setter Property="Padding"
+                    Value="5" />
+            <Setter Property="Margin"
+                    Value="5,5,15,5" />
+            <Setter Property="Content"
+                    Value="Reset" />
+        </Style>
+
+
+        <Style x:Key="ColorGrid_RemoveButton"
+               TargetType="styles:SHButtonPrimary"
+               BasedOn="{StaticResource {x:Type styles:SHButtonPrimary}}">
+            <Setter Property="Padding"
+                    Value="5" />
+            <Setter Property="Margin"
+                    Value="5,5,15,5" />
+            <Setter Property="Content"
+                    Value="Remove" />
+            <Setter Property="ToolTip"
+                    Value="Removes the selected color. Note if the color has base data, the color will only be reset and disabled but not completely deleted." />
+        </Style>
+
     </UserControl.Resources>
+    
     <styles:SHTabControl>
 
         <styles:SHTabItem Header="General settings">
@@ -666,82 +750,52 @@
                             <RowDefinition Height="auto" />
                         </Grid.RowDefinitions>
 
-                        <Grid.Resources>
-                            <Style TargetType="{x:Type TextBlock}"
-                                   BasedOn="{StaticResource {x:Type TextBlock}}"
-                                   x:Key="Grid_Label">
-                                <Setter Property="Opacity"
-                                        Value="0.75" />
-                                <Setter Property="Margin"
-                                        Value="10,0,10,5" />
-                            </Style>
-                        </Grid.Resources>
-
-                        <TextBlock Grid.Row="0"
-                                   Grid.Column="0"
-                                   Style="{StaticResource Grid_Label}">Enabled</TextBlock>
-                        <TextBlock Grid.Row="0"
-                                   Grid.Column="1"
-                                   Style="{StaticResource Grid_Label}">Class</TextBlock>
-                        <TextBlock Grid.Row="0"
-                                   Grid.Column="2"
-                                   Style="{StaticResource Grid_Label}">Background</TextBlock>
-                        <TextBlock Grid.Row="0"
-                                   Grid.Column="4"
-                                   Style="{StaticResource Grid_Label}">Foreground</TextBlock>
+                        <TextBlock Grid.Column="0"
+                                   Style="{StaticResource ColorGrid_ColumnLabel}">Enabled</TextBlock>
+                        <TextBlock Grid.Column="1"
+                                   Style="{StaticResource ColorGrid_ColumnLabel}">Class</TextBlock>
+                        <TextBlock Grid.Column="2"
+                                   Style="{StaticResource ColorGrid_ColumnLabel}">Background</TextBlock>
+                        <TextBlock Grid.Column="4"
+                                   Style="{StaticResource ColorGrid_ColumnLabel}">Foreground</TextBlock>
 
                         <styles:SHToggleButton Grid.Row="1"
-                                               Grid.Column="0"
                                                IsChecked="True"
-                                               Margin="10,0,0,0" />
+                                               Style="{StaticResource ColorGrid_EnabledToggle}" />
 
                         <Border Grid.Row="1"
-                                Grid.Column="1"
-                                CornerRadius="5"
                                 Background="red"
-                                Height="25"
-                                Margin="0,0,15,0">
-                            <TextBlock Padding="0,0,5,0"
-                                       Foreground="Black"
-                                       FontWeight="Bold"
-                                       HorizontalAlignment="Center">
-                                GT3
-                            </TextBlock>
+                                Style="{StaticResource ColorGrid_LabelBorder}">
+                            <TextBlock Foreground="Black"
+                                       Style="{StaticResource ColorGrid_LabelText}">GT3</TextBlock>
                         </Border>
 
                         <xctk:ColorPicker Grid.Row="1"
                                           Grid.Column="2"
-                                          Width="100"
-                                          Height="20"
-                                          Margin="5,0,5,0"
-                                          SelectedColor="red">
+                                          SelectedColor="red"
+                                          Style="{StaticResource ColorGrid_ColorPicker}" />
 
-                        </xctk:ColorPicker>
+
 
                         <styles:SHButtonSecondary Grid.Row="1"
                                                   Grid.Column="3"
-                                                  Padding="5"
-                                                  Margin="5,5,15,5">Reset</styles:SHButtonSecondary>
+                                                  Style="{StaticResource ColorGrid_ResetButton}" />
 
                         <xctk:ColorPicker Grid.Row="1"
                                           Grid.Column="4"
-                                          Width="100"
-                                          Height="20"
-                                          Margin="5,0,5,0"
-                                          SelectedColor="Black">
+                                          SelectedColor="Black"
+                                          Style="{StaticResource ColorGrid_ColorPicker}" />
 
-                        </xctk:ColorPicker>
+
 
                         <styles:SHButtonSecondary Grid.Row="1"
                                                   Grid.Column="5"
-                                                  Padding="5"
-                                                  Margin="5,5,15,5">Reset</styles:SHButtonSecondary>
+                                                  Style="{StaticResource ColorGrid_ResetButton}" />
 
 
                         <styles:SHButtonPrimary Grid.Row="1"
                                                 Grid.Column="6"
-                                                Padding="5"
-                                                Margin="5,5,15,5">Delete</styles:SHButtonPrimary>-->
+                                                Style="{StaticResource ColorGrid_RemoveButton}" />-->
 
                     </Grid>
 

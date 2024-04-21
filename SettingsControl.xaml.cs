@@ -7,6 +7,7 @@ using System.Globalization;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
 using System.Windows.Data;
 using System.Windows.Media;
 using System.Xml.Linq;
@@ -21,6 +22,7 @@ using MahApps.Metro.Controls;
 using SimHub.Plugins.Styles;
 using SimHub.Plugins.UI;
 
+using WoteverCommon;
 using WoteverCommon.WPF;
 
 using Xceed.Wpf.Toolkit;
@@ -673,7 +675,7 @@ namespace KLPlugins.DynLeaderboards.Settings {
             };
         }
 
-        private void AddColorsMenuItems<K>(Menu menu, TextBoxColors<K> colors, Action refreshColors) {
+        private void AddColorsMenuItems<K>(Menu menu, TextBoxColors<K> colors, Dictionary<K, ColorRow<K>> rows, Action refreshColors) {
             var resetMenu = new ButtonMenuItem() {
                 Header = "Reset",
                 ShowDropDown = true,
@@ -687,10 +689,9 @@ namespace KLPlugins.DynLeaderboards.Settings {
             resetMenu.Items.Add(resetMenuResetAll);
             resetMenuResetAll.Click += (sender, e) => {
                 this.DoOnConfirmation(() => {
-                    foreach (var c in colors) {
+                    foreach (var c in rows) {
                         c.Value.Reset();
                     }
-                    refreshColors();
                 });
             };
 
@@ -700,10 +701,9 @@ namespace KLPlugins.DynLeaderboards.Settings {
             resetMenu.Items.Add(resetMenuResetNames);
             resetMenuResetNames.Click += (sender, e) => {
                 this.DoOnConfirmation(() => {
-                    foreach (var c in colors) {
+                    foreach (var c in rows) {
                         c.Value.ResetForeground();
                     }
-                    refreshColors();
                 });
             };
 
@@ -713,10 +713,9 @@ namespace KLPlugins.DynLeaderboards.Settings {
             resetMenu.Items.Add(resetMenuResetClasses);
             resetMenuResetClasses.Click += (sender, e) => {
                 this.DoOnConfirmation(() => {
-                    foreach (var c in colors) {
+                    foreach (var c in rows) {
                         c.Value.ResetBackground();
                     }
-                    refreshColors();
                 });
             };
 
@@ -727,10 +726,9 @@ namespace KLPlugins.DynLeaderboards.Settings {
 
             disableMenu.Click += (sender, e) => {
                 this.DoOnConfirmation(() => {
-                    foreach (var c in colors) {
+                    foreach (var c in rows) {
                         c.Value.Disable();
                     }
-                    refreshColors();
                 });
             };
 
@@ -740,10 +738,9 @@ namespace KLPlugins.DynLeaderboards.Settings {
             menu.Items.Add(enableMenu);
             enableMenu.Click += (sender, e) => {
                 this.DoOnConfirmation(() => {
-                    foreach (var c in colors) {
+                    foreach (var c in rows) {
                         c.Value.Enable();
                     }
-                    refreshColors();
                 });
             };
 
@@ -754,10 +751,9 @@ namespace KLPlugins.DynLeaderboards.Settings {
             deletaAllBtn.Click += (sender, e) => {
                 this.DoOnConfirmation(() => {
                     var cars = colors.Select(kv => kv.Key).ToList();
-                    foreach (var c in cars) {
-                        colors.Remove(c);
+                    foreach (var c in rows) {
+                        c.Value.RemoveButton.RaiseEvent(new RoutedEventArgs(ButtonBase.ClickEvent));
                     }
-                    refreshColors();
                 });
             };
             menu.Items.Add(deletaAllBtn);
@@ -772,18 +768,194 @@ namespace KLPlugins.DynLeaderboards.Settings {
             menu.Items.Add(refreshBtn);
         }
 
+
+        internal class ColorRow<K> {
+            internal K Key { get; }
+            internal string KeyAsString { get; }
+            internal OverridableTextBoxColor Color { get; }
+            internal SHToggleButton EnabledToggle { get; }
+            internal Border ClassBox { get; }
+            internal TextBlock ClassText { get; }
+            internal ColorPicker BgColorPicker { get; }
+            internal SHButtonSecondary BgResetButton { get; }
+            internal ColorPicker FgColorPicker { get; }
+            internal SHButtonSecondary FgResetButton { get; }
+            internal SHButtonPrimary RemoveButton { get; }
+
+            internal ColorRow(K key, string keyAsString, OverridableTextBoxColor color, Func<string, object> findResource) {
+                this.Key = key;
+                this.KeyAsString = keyAsString;
+                this.Color = color;
+
+
+                const float disabledOpacity = 0.25f;
+                var isEnabled = color.IsEnabled;
+                var opacity = isEnabled ? 1.0 : disabledOpacity;
+
+                this.EnabledToggle = new SHToggleButton() {
+                    IsChecked = isEnabled,
+                    Style = (Style)findResource("ColorGrid_EnabledToggle")
+                };
+
+                var currentBgColor = WindowsMediaColorExtensions.FromHex(color.BackgroundDontCheckEnabled() ?? OverridableTextBoxColor.DEF_BG);
+                var currentFgColor = WindowsMediaColorExtensions.FromHex(color.ForegroundDontCheckEnabled() ?? OverridableTextBoxColor.DEF_FG);
+
+                this.ClassBox = new Border() {
+                    Background = new SolidColorBrush(currentBgColor),
+                    Opacity = opacity,
+                    IsEnabled = isEnabled,
+                    Style = (Style)findResource("ColorGrid_LabelBorder"),
+                };
+                Grid.SetColumn(this.ClassBox, 1);
+
+                this.ClassText = new TextBlock() {
+                    Foreground = new SolidColorBrush(currentFgColor),
+                    Text = this.KeyAsString,
+                    Style = (Style)findResource("ColorGrid_LabelText")
+                };
+                this.ClassBox.Child = this.ClassText;
+
+                this.BgColorPicker = new ColorPicker() {
+                    SelectedColor = currentBgColor,
+                    Opacity = opacity,
+                    IsEnabled = isEnabled,
+                    Style = (Style)findResource("ColorGrid_ColorPicker"),
+                };
+                Grid.SetColumn(this.BgColorPicker, 2);
+                this.BgColorPicker.SelectedColorChanged += (sender, e) => {
+                    this.Color.SetBackground(this.BgColorPicker.SelectedColor.ToString());
+                    this.ClassBox.Background = new SolidColorBrush(this.BgColorPicker.SelectedColor.Value);
+                };
+
+                this.BgResetButton = new SHButtonSecondary() {
+                    Opacity = opacity,
+                    IsEnabled = isEnabled,
+                    Style = (Style)findResource("ColorGrid_ResetButton"),
+                };
+                Grid.SetColumn(this.BgResetButton, 3);
+                this.BgResetButton.Click += (sender, e) => this.ResetBackground();
+
+                this.FgColorPicker = new ColorPicker() {
+                    SelectedColor = currentFgColor,
+                    Opacity = opacity,
+                    IsEnabled = isEnabled,
+                    Style = (Style)findResource("ColorGrid_ColorPicker"),
+                };
+                Grid.SetColumn(this.FgColorPicker, 4);
+                this.FgColorPicker.SelectedColorChanged += (sender, e) => {
+                    this.Color.SetForeground(this.FgColorPicker.SelectedColor.ToString());
+                    this.ClassText.Foreground = new SolidColorBrush(this.FgColorPicker.SelectedColor.Value);
+                };
+
+                this.FgResetButton = new SHButtonSecondary() {
+                    Opacity = opacity,
+                    IsEnabled = isEnabled,
+                    Style = (Style)findResource("ColorGrid_ResetButton"),
+                };
+                Grid.SetColumn(this.FgResetButton, 5);
+                this.FgResetButton.Click += (sender, e) => this.ResetForeground();
+
+                this.RemoveButton = new SHButtonPrimary() {
+                    Style = (Style)findResource("ColorGrid_RemoveButton"),
+                };
+                Grid.SetColumn(this.RemoveButton, 6);
+
+                this.EnabledToggle.Checked += (sender, e) => {
+                    this.Color.Enable();
+                    this.ClassBox.IsEnabled = true;
+                    this.ClassBox.Opacity = 1.0;
+                    this.BgColorPicker.IsEnabled = true;
+                    this.BgColorPicker.Opacity = 1.0;
+                    this.BgResetButton.IsEnabled = true;
+                    this.BgResetButton.Opacity = 1.0;
+                    this.FgColorPicker.IsEnabled = true;
+                    this.FgColorPicker.Opacity = 1.0;
+                    this.FgResetButton.IsEnabled = true;
+                    this.FgResetButton.Opacity = 1.0;
+                };
+
+                this.EnabledToggle.Unchecked += (sender, e) => {
+                    var opacity = disabledOpacity;
+                    this.Color.Disable();
+                    this.ClassBox.IsEnabled = false;
+                    this.ClassBox.Opacity = opacity;
+                    this.BgColorPicker.IsEnabled = false;
+                    this.BgColorPicker.Opacity = opacity;
+                    this.BgResetButton.IsEnabled = false;
+                    this.BgResetButton.Opacity = opacity;
+                    this.FgColorPicker.IsEnabled = false;
+                    this.FgColorPicker.Opacity = opacity;
+                    this.FgResetButton.IsEnabled = false;
+                    this.FgResetButton.Opacity = opacity;
+                };
+            }
+
+            internal void AddToGrid(Grid grid, int row) {
+                Grid.SetRow(this.EnabledToggle, row);
+                Grid.SetRow(this.ClassBox, row);
+                Grid.SetRow(this.BgColorPicker, row);
+                Grid.SetRow(this.BgResetButton, row);
+                Grid.SetRow(this.FgColorPicker, row);
+                Grid.SetRow(this.FgResetButton, row);
+                Grid.SetRow(this.RemoveButton, row);
+
+                grid.Children.Add(this.EnabledToggle);
+                grid.Children.Add(this.ClassBox);
+                grid.Children.Add(this.BgColorPicker);
+                grid.Children.Add(this.BgResetButton);
+                grid.Children.Add(this.FgColorPicker);
+                grid.Children.Add(this.FgResetButton);
+                grid.Children.Add(this.RemoveButton);
+            }
+
+            internal void RemoveFromGrid(Grid grid) {
+                grid.Children.Remove(this.EnabledToggle);
+                grid.Children.Remove(this.ClassBox);
+                grid.Children.Remove(this.BgColorPicker);
+                grid.Children.Remove(this.BgResetButton);
+                grid.Children.Remove(this.FgColorPicker);
+                grid.Children.Remove(this.FgResetButton);
+                grid.Children.Remove(this.RemoveButton);
+            }
+
+            internal void Reset() {
+                this.ResetForeground();
+                this.ResetBackground();
+            }
+
+            internal void Disable() {
+                this.EnabledToggle.IsChecked = false;
+            }
+
+            internal void Enable() {
+                this.EnabledToggle.IsChecked = true;
+            }
+
+            internal void ResetForeground() {
+                this.FgColorPicker.SelectedColor = WindowsMediaColorExtensions.FromHex(this.Color.BaseForeground() ?? OverridableTextBoxColor.DEF_FG);
+                this.Color.ResetForeground();
+            }
+
+            internal void ResetBackground() {
+                this.BgColorPicker.SelectedColor = WindowsMediaColorExtensions.FromHex(this.Color.BaseBackground() ?? OverridableTextBoxColor.DEF_BG);
+                this.Color.ResetBackground();
+            }
+        }
+
+
+        private Dictionary<CarClass, ColorRow<CarClass>> _classColorRows = new();
+        private Dictionary<TeamCupCategory, ColorRow<TeamCupCategory>> _teamCupCategoryColorRows = new();
+        private Dictionary<DriverCategory, ColorRow<DriverCategory>> _driverCategoryColorRows = new();
         private void AddColors() {
             void CreateLabelRow(Grid grid, string kind) {
                 grid.RowDefinitions.Add(new RowDefinition() { Height = new GridLength(1, GridUnitType.Auto) });
 
                 TextBlock CreateLabel(string label, int col) {
                     var t = new TextBlock() {
-                        Opacity = 0.75,
-                        Margin = new Thickness(10, 0, 10, 5),
-                        Text = label
+                        Text = label,
+                        Style = (Style)this.FindResource("ColorGrid_ColumnLabel")
                     };
                     Grid.SetColumn(t, col);
-                    Grid.SetRow(t, 0);
 
                     return t;
                 }
@@ -793,155 +965,16 @@ namespace KLPlugins.DynLeaderboards.Settings {
                 grid.Children.Add(CreateLabel("Foreground", 4));
             }
 
-            void CreateColorRow<K>(Grid grid, int row, K name, Func<K, string> nameToString, OverridableTextBoxColor color, TextBoxColors<K> colors, Action refreshColors) {
-                grid.RowDefinitions.Add(new RowDefinition() { Height = new GridLength(1, GridUnitType.Auto) });
 
-                const float disabledOpacity = 0.25f;
-                var isEnabled = color.IsEnabled;
-                var opacity = isEnabled ? 1.0 : disabledOpacity;
-
-                var enabledToggle = new SHToggleButton() {
-                    Margin = new Thickness(10, 0, 0, 0),
-                    IsChecked = isEnabled
-                };
-                Grid.SetColumn(enabledToggle, 0);
-                Grid.SetRow(enabledToggle, row);
-                grid.Children.Add(enabledToggle);
-
-                var currentBgColor = WindowsMediaColorExtensions.FromHex(color.BackgroundDontCheckEnabled() ?? OverridableTextBoxColor.DEF_BG);
-                var currentFgColor = WindowsMediaColorExtensions.FromHex(color.ForegroundDontCheckEnabled() ?? OverridableTextBoxColor.DEF_FG);
-
-                var classBox = new Border() {
-                    CornerRadius = new CornerRadius(5),
-                    Background = new SolidColorBrush(currentBgColor),
-                    Height = 25,
-                    Margin = new Thickness(0, 0, 15, 0),
-                    Opacity = opacity,
-                    IsEnabled = isEnabled
-                };
-                Grid.SetColumn(classBox, 1);
-                Grid.SetRow(classBox, row);
-
-                var classText = new TextBlock() {
-                    Padding = new Thickness(0, 0, 5, 0),
-                    Foreground = new SolidColorBrush(currentFgColor),
-                    FontWeight = FontWeights.Bold,
-                    HorizontalAlignment = HorizontalAlignment.Center,
-                    Text = nameToString(name)
-                };
-                classBox.Child = classText;
-
-                grid.Children.Add(classBox);
-
-
-                var bgPicker = new ColorPicker() {
-                    Width = 100,
-                    Height = 20,
-                    Margin = new Thickness(5, 0, 5, 0),
-                    SelectedColor = currentBgColor,
-                    Opacity = opacity,
-                    IsEnabled = isEnabled
-                };
-                Grid.SetColumn(bgPicker, 2);
-                Grid.SetRow(bgPicker, row);
-                bgPicker.SelectedColorChanged += (sender, e) => {
-                    color.SetBackground(bgPicker.SelectedColor.ToString());
-                    classBox.Background = new SolidColorBrush(bgPicker.SelectedColor.Value);
-                };
-                grid.Children.Add(bgPicker);
-
-                var bgResetButton = new SHButtonSecondary() {
-                    Padding = new Thickness(5),
-                    Margin = new Thickness(5, 5, 15, 5),
-                    Content = "Reset",
-                    Opacity = opacity,
-                    IsEnabled = isEnabled
-                };
-                Grid.SetColumn(bgResetButton, 3);
-                Grid.SetRow(bgResetButton, row);
-                bgResetButton.Click += (sender, e) => {
-                    bgPicker.SelectedColor = WindowsMediaColorExtensions.FromHex(color.BaseBackground() ?? OverridableTextBoxColor.DEF_BG);
-                    color.ResetBackground();
-                };
-                grid.Children.Add(bgResetButton);
-
-                var fgPicker = new ColorPicker() {
-                    Width = 100,
-                    Height = 20,
-                    Margin = new Thickness(5, 0, 5, 0),
-                    SelectedColor = currentFgColor,
-                    Opacity = opacity,
-                    IsEnabled = isEnabled
-                };
-                Grid.SetColumn(fgPicker, 4);
-                Grid.SetRow(fgPicker, row);
-                fgPicker.SelectedColorChanged += (sender, e) => {
-                    color.SetForeground(fgPicker.SelectedColor.ToString());
-                    classText.Foreground = new SolidColorBrush(fgPicker.SelectedColor.Value);
-                };
-                grid.Children.Add(fgPicker);
-
-                var fgResetButton = new SHButtonSecondary() {
-                    Padding = new Thickness(5),
-                    Margin = new Thickness(5, 5, 15, 5),
-                    Content = "Reset",
-                    Opacity = opacity,
-                    IsEnabled = isEnabled
-                };
-                Grid.SetColumn(fgResetButton, 5);
-                Grid.SetRow(fgResetButton, row);
-                fgResetButton.Click += (sender, e) => {
-                    fgPicker.SelectedColor = WindowsMediaColorExtensions.FromHex(color.BaseForeground() ?? OverridableTextBoxColor.DEF_FG);
-                    color.ResetForeground();
-                };
-                grid.Children.Add(fgResetButton);
-
-                var deleteButton = new SHButtonPrimary() {
-                    Padding = new Thickness(5),
-                    Margin = new Thickness(5, 5, 15, 5),
-                    Content = "Remove",
-                    ToolTip = "Removes the selected color. Note if the color has base data or there is an existing car with this class, the color will only be reset and disabled but not completely deleted."
-                };
-                Grid.SetColumn(deleteButton, 6);
-                Grid.SetRow(deleteButton, row);
-                deleteButton.Click += (sender, e) => {
-                    colors.Remove(name);
-                    refreshColors();
-                };
-                grid.Children.Add(deleteButton);
-
-                enabledToggle.Checked += (sender, e) => {
-                    color.Enable();
-                    classBox.IsEnabled = true;
-                    classBox.Opacity = 1.0;
-                    bgPicker.IsEnabled = true;
-                    bgPicker.Opacity = 1.0;
-                    bgResetButton.IsEnabled = true;
-                    bgResetButton.Opacity = 1.0;
-                    fgPicker.IsEnabled = true;
-                    fgPicker.Opacity = 1.0;
-                    fgResetButton.IsEnabled = true;
-                    fgResetButton.Opacity = 1.0;
-                };
-
-                enabledToggle.Unchecked += (sender, e) => {
-                    var opacity = disabledOpacity;
-                    color.Disable();
-                    classBox.IsEnabled = false;
-                    classBox.Opacity = opacity;
-                    bgPicker.IsEnabled = false;
-                    bgPicker.Opacity = opacity;
-                    bgResetButton.IsEnabled = false;
-                    bgResetButton.Opacity = opacity;
-                    fgPicker.IsEnabled = false;
-                    fgPicker.Opacity = opacity;
-                    fgResetButton.IsEnabled = false;
-                    fgResetButton.Opacity = opacity;
-                };
-            }
-
-
-            void AddColors<K>(Menu menu, Grid grid, string kind, TextBoxColors<K> colors, Func<K, string> keyToString, Action preRefreshColors=null) {
+            void AddColors<K>(
+                Grid grid,
+                Menu menu,
+                string kind,
+                TextBoxColors<K> allColors,
+                Dictionary<K, ColorRow<K>> rows,
+                Func<K, OverridableTextBoxColor, ColorRow<K>> createNewRow,
+                Action? preRefreshColors = null
+            ) {
                 grid.ColumnDefinitions.Add(new ColumnDefinition() { Width = new GridLength(1, GridUnitType.Auto) });
                 grid.ColumnDefinitions.Add(new ColumnDefinition() { Width = new GridLength(1, GridUnitType.Auto), MinWidth = 75 });
                 grid.ColumnDefinitions.Add(new ColumnDefinition() { Width = new GridLength(1, GridUnitType.Auto) });
@@ -949,42 +982,66 @@ namespace KLPlugins.DynLeaderboards.Settings {
                 grid.ColumnDefinitions.Add(new ColumnDefinition() { Width = new GridLength(1, GridUnitType.Auto) });
                 grid.ColumnDefinitions.Add(new ColumnDefinition() { Width = new GridLength(1, GridUnitType.Auto) });
                 grid.ColumnDefinitions.Add(new ColumnDefinition() { Width = new GridLength(1, GridUnitType.Auto) });
+                CreateLabelRow(grid, kind);
 
-                void AddGridRows() {
-                    CreateLabelRow(grid, kind);
-
-                    foreach (var (cls, i) in colors.WithIndex() ?? []) {
-                        CreateColorRow(grid, i + 1, cls.Key, keyToString, cls.Value, colors, () => {
-                            grid.Children.Clear();
-                            grid.RowDefinitions.Clear();
-                            preRefreshColors?.Invoke();
-                            AddGridRows();
-                        });
-                    }
+                foreach (var (cls, i) in allColors.WithIndex() ?? []) {
+                    grid.RowDefinitions.Add(new RowDefinition() { Height = new GridLength(1, GridUnitType.Auto) });
+                    var row = createNewRow(cls.Key, cls.Value);
+                    rows[cls.Key] = row;
+                    row.AddToGrid(grid, i + 1);
                 }
 
-                preRefreshColors?.Invoke();
-                AddGridRows();
-
-                this.AddColorsMenuItems(menu, colors, () => {
+                this.AddColorsMenuItems(menu, allColors, rows, () => {
                     grid.Children.Clear();
                     grid.RowDefinitions.Clear();
+
+                    CreateLabelRow(grid, kind);
+
                     preRefreshColors?.Invoke();
-                    AddGridRows();
+
+                    foreach (var (cls, i) in allColors.WithIndex() ?? []) {
+                        grid.RowDefinitions.Add(new RowDefinition() { Height = new GridLength(1, GridUnitType.Auto) });
+                        ColorRow<K> row;
+                        if (!rows.ContainsKey(cls.Key)) {
+                            row = createNewRow(cls.Key, cls.Value);
+                            rows[cls.Key] = row;
+                        } else {
+                            row = rows[cls.Key];
+                        }
+
+                        row.AddToGrid(grid, i + 1);
+                    }
                 });
-    
             }
 
-
-            AddColors(
+            var allClassColors = this.Plugin.Values.CarClassColors;
+            var grid = this.ColorsTab_CarClassColors_Grid;
+            AddColors<CarClass>(
+                grid,
                 this.ColorsTab_CarClassColors_Menu,
-                this.ColorsTab_CarClassColors_Grid,
                 "Class",
-                this.Plugin.Values.CarClassColors,
-                k => k.AsString(),
-                preRefreshColors: () => {
-                    // Go through all cars and check for class colors. 
-                    // If there are new classes then trying to Values.CarClassColors.Get will add them to the dictionary.
+                allClassColors,
+                this._classColorRows,
+                (cls, color) => {
+                    var row = new ColorRow<CarClass>(cls, cls.AsString(), color, this.FindResource);
+                    row.RemoveButton.Click += (sender, e) => {
+                        if (!allClassColors.ContainsKey(row.Key)) {
+                            row.RemoveFromGrid(grid);
+                            return;
+                        }
+
+                        var c = allClassColors.Get(row.Key);
+                        if (c.HasBase() || this.Plugin.Values.CarInfos.ContainsClass(cls)) {
+                            row.Reset();
+                            row.Disable();
+                        } else {
+                            allClassColors.Remove(row.Key);
+                            row.RemoveFromGrid(grid);
+                        }
+                    };
+                    return row;
+                },
+                () => {
                     foreach (var car in this.Plugin.Values.CarInfos) {
                         var cls = car.Value.ClassDontCheckEnabled();
                         if (cls != null) {
@@ -993,8 +1050,51 @@ namespace KLPlugins.DynLeaderboards.Settings {
                     }
                 }
             );
-            AddColors(this.ColorsTab_TeamCupCategoryColors_Menu, this.ColorsTab_TeamCupCategoryColors_Grid, "Category", this.Plugin.Values.TeamCupCategoryColors, k => k.AsString());
-            AddColors(this.ColorsTab_DriverCategoryColors_Menu, this.ColorsTab_DriverCategoryColors_Grid, "Category", this.Plugin.Values.DriverCategoryColors, k => k.AsString());
+
+            void AddColorsSimple<K>(Grid grid, Menu menu, string kind, TextBoxColors<K> allColors, Dictionary<K, ColorRow<K>> rows) {
+                AddColors<K>(
+                    grid,
+                    menu,
+                    kind,
+                    allColors,
+                    rows,
+                    (cls, color) => {
+                        var row = new ColorRow<K>(cls, cls.ToString(), color, this.FindResource);
+                        row.RemoveButton.Click += (sender, e) => {
+                            if (!allColors.ContainsKey(row.Key)) {
+                                row.RemoveFromGrid(grid);
+                                return;
+                            }
+
+                            var c = allColors.Get(row.Key);
+                            if (c.HasBase()) {
+                                row.Reset();
+                                row.Disable();
+                            } else {
+                                allColors.Remove(row.Key);
+                                row.RemoveFromGrid(grid);
+                            }
+                        };
+                        return row;
+                    }
+                );
+            }
+
+            AddColorsSimple<TeamCupCategory>(
+                this.ColorsTab_TeamCupCategoryColors_Grid,
+                this.ColorsTab_TeamCupCategoryColors_Menu,
+                "Category",
+                this.Plugin.Values.TeamCupCategoryColors,
+                this._teamCupCategoryColorRows
+            );
+
+            AddColorsSimple<DriverCategory>(
+                this.ColorsTab_DriverCategoryColors_Grid,
+                this.ColorsTab_DriverCategoryColors_Menu,
+                "Category",
+            this.Plugin.Values.DriverCategoryColors,
+                this._driverCategoryColorRows
+            );
 
 
         }

@@ -35,18 +35,17 @@ namespace KLPlugins.DynLeaderboards {
             return this._colors[key];
         }
 
+        internal bool ContainsKey(K key) {
+            return this._colors.ContainsKey(key);
+        }
+
         internal void Remove(K key) {
             if (!this._colors.ContainsKey(key)) {
                 return;
             }
 
-            var c = this._colors[key];
-            if (c.HasBase()) {
-                c.Reset();
-                c.Disable();
-            } else {
-                this._colors.Remove(key);
-            }
+
+            this._colors.Remove(key);
         }
 
         public IEnumerator<KeyValuePair<K, OverridableTextBoxColor>> GetEnumerator() {
@@ -229,6 +228,16 @@ namespace KLPlugins.DynLeaderboards {
             } else {
                 this._infos.Remove(key);
             }
+        }
+
+        internal bool ContainsClass(CarClass cls) {
+            foreach (var kv in this._infos) {
+                if (kv.Value.ClassDontCheckEnabled() == cls) {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         public IEnumerator<KeyValuePair<string, OverridableCarInfo>> GetEnumerator() {

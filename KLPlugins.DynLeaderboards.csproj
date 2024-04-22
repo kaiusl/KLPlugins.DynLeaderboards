@@ -112,7 +112,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ConfimDialog.xaml.cs">
+    <Compile Include="src\settings\ui\ConfimDialog.xaml.cs">
       <DependentUpon>ConfimDialog.xaml</DependentUpon>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Compile>
@@ -136,13 +136,13 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
-    <Compile Include="SettingsControl.xaml.cs">
+    <Compile Include="src\settings\ui\SettingsControl.xaml.cs">
       <DependentUpon>SettingsControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="src\components\Values.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Page Include="ConfimDialog.xaml">
+    <Page Include="src\settings\ui\ConfimDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
@@ -152,14 +152,12 @@
       <Generator>MSBuild:Compile</Generator>
       <ContainsDesignTimeResources>true</ContainsDesignTimeResources>
     </Page>
-    <Page Include="SettingsControl.xaml">
+    <Page Include="src\settings\ui\SettingsControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="DashPerf.png" />
-    <Content Include="ExportPerf.png" />
     <Content Include="sdkmenuicon.png" />
   </ItemGroup>
   <ItemGroup>

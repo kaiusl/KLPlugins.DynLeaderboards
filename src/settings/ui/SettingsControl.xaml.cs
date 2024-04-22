@@ -108,9 +108,7 @@ namespace KLPlugins.DynLeaderboards.Settings {
         void SetCarSettingsTab() {
             DockPanel dp = this.CarSettings_DockPanel;
 
-            var menu = new Menu();
-            DockPanel.SetDock(menu, Dock.Top);
-            dp.Children.Insert(0, menu);
+            var menu = this.CarSettingsTab_Menu;
 
             var resetMenu = new ButtonMenuItem() {
                 Header = "Reset",

@@ -595,18 +595,26 @@
         </styles:SHTabItem>
 
         <styles:SHTabItem Header="Car settings">
-            <DockPanel x:Name="CarSettings_DockPanel">
+            <DockPanel x:Name="CarSettings_DockPanel" Margin="0,5,0,5">
+
+                <Menu DockPanel.Dock="Top" x:Name="CarSettingsTab_Menu" Margin="15,0,20,0">
+                    <local:ButtonMenuItem Header="Reset" ShowDropDown="True" />
+                    <local:ButtonMenuItem Header="Disable"
+                                          ShowDropDown="True" />
+                    <local:ButtonMenuItem Header="Refresh" />
+                </Menu>
 
                 <styles:SHSectionSeparator DockPanel.Dock="Top" />
 
-                <Grid DockPanel.Dock="Top">
+                <Grid DockPanel.Dock="Top" Margin="20,0,20,0">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*" />
                         <ColumnDefinition Width="3*" />
                     </Grid.ColumnDefinitions>
+                    
                     <styles:SHListBox Grid.Column="0"
                                       x:Name="CarSettingsCarsList_SHListBox"
-                                      Margin="20,5,0,5">
+                                      Margin="0,5,0,5">
                         <ListBoxItem>Test Item</ListBoxItem>
                         <ListBoxItem>Test Ite2m</ListBoxItem>
                         <ListBoxItem>Test Ite2m</ListBoxItem>
@@ -616,10 +624,9 @@
                     <Border Grid.Column="1"
                             CornerRadius="10"
                             Background="#2f2f2f"
-                            Margin="10,5,10,5">
+                            Margin="10,5,5,5">
 
-                        <StackPanel Grid.Column="1"
-                                    x:Name="CarSettings_StackPanel">
+                        <StackPanel x:Name="CarSettings_StackPanel">
 
                             <Grid Margin="0,5,10,5">
                                 <Grid.ColumnDefinitions>

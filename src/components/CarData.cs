@@ -15,6 +15,8 @@ using ksBroadcastingNetwork;
 
 using Newtonsoft.Json;
 
+using PCarsSharedMemory.AMS2.Models;
+
 namespace KLPlugins.DynLeaderboards.Car {
     public class CarData {
         public CarClass CarClass { get; private set; }
@@ -167,7 +169,7 @@ namespace KLPlugins.DynLeaderboards.Car {
         internal List<double> LapDataTime { get; } = [];
         internal bool LapDataValidForSave { get; private set; } = false;
 
-        internal CarData(Values values, string? focusedCarId, Opponent opponent) {
+        internal CarData(Values values, string? focusedCarId, Opponent opponent, GameData gameData) {
             this.Drivers = this._drivers.AsReadOnly();
 
             this.RawDataNew = opponent;
@@ -180,7 +182,7 @@ namespace KLPlugins.DynLeaderboards.Car {
             this.PositionOverall = this.RawDataNew!.Position;
             this.PositionInClass = this.RawDataNew.PositionInClass;
             this.PositionInCup = this.PositionInClass;
-            this.UpdateIndependent(values, focusedCarId, opponent);
+            this.UpdateIndependent(values, focusedCarId, opponent, gameData);
 
             this.CheckGameLapTimes(opponent);
         }
@@ -339,11 +341,14 @@ namespace KLPlugins.DynLeaderboards.Car {
             return carModel?.Split(' ')[0] ?? "Unknown";
         }
 
+        internal AMS2RawOpponentData? RawAMS2DataNew { get; private set; }
+        internal AMS2RawOpponentData? RawAMS2DataOld { get; private set; }
+
         /// <summary>
         /// Update data that is independent of other cars data.
         /// </summary>
         /// <param name="rawData"></param>
-        internal void UpdateIndependent(Values values, string? focusedCarId, Opponent rawData) {
+        internal void UpdateIndependent(Values values, string? focusedCarId, Opponent rawData, GameData gameData) {
             // Clear old data
 
             // Needs to be cleared before UpdateDependsOnOthers, 
@@ -363,6 +368,33 @@ namespace KLPlugins.DynLeaderboards.Car {
             this.RawDataOld = this.RawDataNew;
             this.RawDataNew = rawData;
             this.IsUpdated = true;
+
+            if (DynLeaderboardsPlugin.Game.IsAMS2) {
+                this.RawAMS2DataOld = this.RawAMS2DataNew;
+
+                if (gameData.NewData.GetRawDataObject() is AMS2APIStruct rawAMS2data) {
+                    var index = -1;
+                    for (int i = 0; i < rawAMS2data.mNumParticipants; i++) {
+                        var participantData = rawAMS2data.mParticipantData[i];
+                        var name = PC2Helper.getNameFromBytes(participantData.mName);
+                        if (name == this.Id) {
+                            index = i;
+                            break;
+                        }
+                    }
+
+                    if (index != -1) {
+                        this.RawAMS2DataNew = new AMS2RawOpponentData(
+                            raceState: Convert.ToInt32(rawAMS2data.mRaceStates[index]),
+                            isCurrentLapInvalidated: Convert.ToBoolean(rawAMS2data.mLapsInvalidated[index])
+                        );
+                    } else {
+                        this.RawAMS2DataNew = null;
+                    }
+                }
+            }
+
+
 
             if (DynLeaderboardsPlugin.Game.IsAcc && focusedCarId != null) {
                 this.IsFocused = this.Id == focusedCarId;
@@ -508,6 +540,12 @@ namespace KLPlugins.DynLeaderboards.Car {
                 if (rawData.ExtraData.First() is CrewChiefV4.rFactor2_V2.rFactor2Data.rF2VehicleScoring rf2RawData) {
                     var curSector = rf2RawData.mSector;
                     if ((curSector == 2 || curSector == 0) && rf2RawData.mCurSector1 == -1.0) {
+                        this.IsCurrentLapValid = false;
+                    }
+                }
+            } else if (DynLeaderboardsPlugin.Game.IsAMS2) {
+                if (this.RawAMS2DataNew != null) {
+                    if (this.RawAMS2DataNew.IsCurrentLapInvalidated) {
                         this.IsCurrentLapValid = false;
                     }
                 }
@@ -1928,5 +1966,16 @@ namespace KLPlugins.DynLeaderboards.Car {
         public override object ConvertTo(ITypeDescriptorContext context, System.Globalization.CultureInfo culture, object value, Type destinationType) {
             return ((DriverCategory)value).AsString();
         }
+    }
+}
+
+
+internal class AMS2RawOpponentData {
+    public int RaceState { get; private set; }
+    public bool IsCurrentLapInvalidated { get; private set; }
+
+    public AMS2RawOpponentData(int raceState, bool isCurrentLapInvalidated) {
+        this.RaceState = raceState;
+        this.IsCurrentLapInvalidated = isCurrentLapInvalidated;
     }
 }

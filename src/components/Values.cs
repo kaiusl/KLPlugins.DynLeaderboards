@@ -627,7 +627,9 @@ namespace KLPlugins.DynLeaderboards {
 
             CarData? overallBestLapCar = null;
             foreach (var (opponent, i) in cars) {
-                if (DynLeaderboardsPlugin.Game.IsAcc && opponent.Id == "Me") {
+                if ((DynLeaderboardsPlugin.Game.IsAcc && opponent.Id == "Me")
+                    || (DynLeaderboardsPlugin.Game.IsAMS2 && opponent.Id == "Safety Car  (AI)")
+                ) {
                     continue;
                 }
 

@@ -443,7 +443,9 @@ namespace KLPlugins.DynLeaderboards.Car {
             }
 
             this.UpdateStintInfo(values.Session);
-            this.HandleOffsetLapUpdates();
+            if (!DynLeaderboardsPlugin.Game.IsAMS2) {
+                this.HandleOffsetLapUpdates();
+            }
 
             if (this.LapDataValidForSave && (this.IsCurrentLapInLap || this.IsCurrentLapOutLap || !this.IsCurrentLapValid || this.IsInPitLane)) {
                 this.LapDataValidForSave = false;

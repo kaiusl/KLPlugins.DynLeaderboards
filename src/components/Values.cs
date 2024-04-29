@@ -576,6 +576,8 @@ namespace KLPlugins.DynLeaderboards {
         }
 
         #endregion IDisposable Support
+
+        private int _skipCarUpdatesCount = 0;
         internal void OnDataUpdate(PluginManager _, GameData data) {
             this.Session.OnDataUpdate(data);
 
@@ -585,6 +587,7 @@ namespace KLPlugins.DynLeaderboards {
                 this.Booleans.OnNewEvent(this.Session.SessionType);
                 this.TrackData?.Dispose();
                 this.TrackData = new TrackData(data);
+                this._skipCarUpdatesCount = 0;
 
                 DynLeaderboardsPlugin.LogInfo($"Track set to: id={this.TrackData.Id}, name={this.TrackData.PrettyName}, len={this.TrackData.LengthMeters}");
             }
@@ -596,7 +599,13 @@ namespace KLPlugins.DynLeaderboards {
 
             this.Booleans.OnDataUpdate(data, this);
 
-            this.UpdateCars(data);
+            // Skip car updates for few updated after new session so that everything from the SimHub's side would be reset
+            // Atm this is important in AMS2, so that old session data doesn't leak into new session
+            if (this._skipCarUpdatesCount > 100) {
+                this.UpdateCars(data);
+            } else {
+                this._skipCarUpdatesCount++;
+            }
         }
 
         // Temporary dicts used in UpdateCars. Don't allocate new one at each update, just clear them.
@@ -885,12 +894,12 @@ namespace KLPlugins.DynLeaderboards {
 
                     if (DynLeaderboardsPlugin.Game.IsAMS2) {
                         // Spline pos == 0.0 if race has not started, race state is 1 if that's the case, use games positions
-                        if (gameData.NewData.GetRawDataObject() is AMS2APIStruct rawAMS2Data) { 
+                        if (gameData.NewData.GetRawDataObject() is AMS2APIStruct rawAMS2Data) {
                             // If using AMS2 shared memory data, UDP data is not supported atm
                             if (rawAMS2Data.mRaceState < 2) {
                                 return a.RawDataNew!.Position.CompareTo(b.RawDataNew!.Position);
                             }
-                        } 
+                        }
 
 
                         // cars that didn't finish (DQ, DNS, DNF) should always be at the end

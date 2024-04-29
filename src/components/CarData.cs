@@ -265,28 +265,27 @@ namespace KLPlugins.DynLeaderboards.Car {
                         this.LastLap = this.BestLap;
                     }
                 }
-            }
-            //else {
-            //    var lastLap = opponent.LastLapSectorTimes;
-            //    if (opponent.LastLapTime != null) {
-            //        this.LastLap = new Lap(
-            //            lastLap,
-            //            opponent.LastLapTime,
-            //            this.Laps.New - 1,
-            //            this.CurrentDriver!
-            //        );
-            //    }
+            } else {
+                var lastLap = opponent.LastLapSectorTimes;
+                if (lastLap != null) {
+                    this.LastLap = new Lap(
+                        lastLap,
+                        opponent.LastLapTime,
+                        this.Laps.New - 1,
+                        this.CurrentDriver!
+                    );
+                }
 
-            //    var bestLap = opponent.BestLapSectorTimes;
-            //    if (opponent.BestLapTime != null) {
-            //        this.BestLap = new Lap(
-            //            bestLap,
-            //            opponent.BestLapTime,
-            //            this.Laps.New - 1,
-            //            this.CurrentDriver!
-            //        );
-            //    }
-            //}
+                var bestLap = opponent.BestLapSectorTimes;
+                if (bestLap != null) {
+                    this.BestLap = new Lap(
+                        bestLap,
+                        opponent.BestLapTime,
+                        this.Laps.New - 1,
+                        this.CurrentDriver!
+                    );
+                }
+            }
         }
 
         private void SetStaticCarData(Values values, Opponent opponent) {

@@ -418,6 +418,16 @@ namespace KLPlugins.DynLeaderboards.Car {
                 if (!this.IsCurrentLapInLap && rawDataNew.ExtraData.CurrentLap.Type == LapType.Inlap) {
                     this.IsCurrentLapInLap = true;
                 }
+            } else if (DynLeaderboardsPlugin.Game.IsAMS2) {
+                if (!this.IsNewLap && (this.RawDataNew.CurrentLapTime == null || this.RawDataNew.CurrentLapTime < this.RawDataOld.CurrentLapTime)) {
+                    this._isLastLapInLap = this.IsCurrentLapInLap;
+                    this._isLastLapOutLap = this.IsCurrentLapOutLap;
+                    this._isLastLapValid = this.IsCurrentLapValid;
+
+                    this.IsCurrentLapValid = true; // if we cross the line in pitlane, new lap is invalid
+                    this.IsCurrentLapOutLap = false; // also it will be an outlap
+                    this.IsCurrentLapInLap = false;
+                }
             }
 
             if (this.IsCurrentLapValid) {

@@ -885,10 +885,13 @@ namespace KLPlugins.DynLeaderboards {
 
                     if (DynLeaderboardsPlugin.Game.IsAMS2) {
                         // Spline pos == 0.0 if race has not started, race state is 1 if that's the case, use games positions
-                        var rawAMS2Data = (AMS2APIStruct)gameData.NewData.GetRawDataObject();
-                        if (rawAMS2Data.mRaceState < 2) {
-                            return a.RawDataNew!.Position.CompareTo(b.RawDataNew!.Position);
-                        }
+                        if (gameData.NewData.GetRawDataObject() is AMS2APIStruct rawAMS2Data) { 
+                            // If using AMS2 shared memory data, UDP data is not supported atm
+                            if (rawAMS2Data.mRaceState < 2) {
+                                return a.RawDataNew!.Position.CompareTo(b.RawDataNew!.Position);
+                            }
+                        } 
+
 
                         // cars that didn't finish (DQ, DNS, DNF) should always be at the end
                         var aDidNotFinish = a.RawDataNew?.DidNotFinish ?? false;

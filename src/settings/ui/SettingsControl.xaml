@@ -598,10 +598,10 @@
             <DockPanel x:Name="CarSettings_DockPanel" Margin="0,5,0,5">
 
                 <Menu DockPanel.Dock="Top" x:Name="CarSettingsTab_Menu" Margin="15,0,20,0">
-                    <local:ButtonMenuItem Header="Reset" ShowDropDown="True" />
+                    <!--<local:ButtonMenuItem Header="Reset" ShowDropDown="True" />
                     <local:ButtonMenuItem Header="Disable"
                                           ShowDropDown="True" />
-                    <local:ButtonMenuItem Header="Refresh" />
+                    <local:ButtonMenuItem Header="Refresh" />-->
                 </Menu>
 
                 <styles:SHSectionSeparator DockPanel.Dock="Top" />

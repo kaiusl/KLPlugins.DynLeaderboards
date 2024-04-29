@@ -16,6 +16,7 @@ using KLPlugins.DynLeaderboards.Settings;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Collections;
+using PCarsSharedMemory.AMS2.Models;
 
 namespace KLPlugins.DynLeaderboards {
     internal class TextBoxColors<K> : IEnumerable<KeyValuePair<K, OverridableTextBoxColor>> {
@@ -702,7 +703,7 @@ namespace KLPlugins.DynLeaderboards {
             if (!this._startingPositionsSet && this.Session.IsRace && this._overallOrder.Count != 0) {
                 this.SetStartingOrder();
             }
-            this.SetOverallOrder();
+            this.SetOverallOrder(data);
 
             if (!this.IsFirstFinished && this._overallOrder.Count > 0 && this.Session.SessionType == SessionType.Race) {
                 var first = this._overallOrder.First();
@@ -821,7 +822,7 @@ namespace KLPlugins.DynLeaderboards {
             this._startingPositionsSet = true;
         }
 
-        private void SetOverallOrder() {
+        private void SetOverallOrder(GameData gameData) {
             // Sort cars in overall position order
             if (this.Session.SessionType == SessionType.Race) {
                 // In race use TotalSplinePosition (splinePosition + laps) which updates real time.
@@ -879,6 +880,27 @@ namespace KLPlugins.DynLeaderboards {
                                 return a.RawDataNew.Position.CompareTo(b.RawDataNew.Position);
                             }
                             return aFTime.CompareTo(bFTime);
+                        }
+                    }
+
+                    if (DynLeaderboardsPlugin.Game.IsAMS2) {
+                        // Spline pos == 0.0 if race has not started, race state is 1 if that's the case, use games positions
+                        var rawAMS2Data = (AMS2APIStruct)gameData.NewData.GetRawDataObject();
+                        if (rawAMS2Data.mRaceState < 2) {
+                            return a.RawDataNew!.Position.CompareTo(b.RawDataNew!.Position);
+                        }
+
+                        // cars that didn't finish (DQ, DNS, DNF) should always be at the end
+                        var aDidNotFinish = a.RawDataNew?.DidNotFinish ?? false;
+                        var bDidNotFinish = b.RawDataNew?.DidNotFinish ?? false;
+                        if (aDidNotFinish || bDidNotFinish) {
+                            if (aDidNotFinish && bDidNotFinish) {
+                                return a.RawDataNew!.Position.CompareTo(b.RawDataNew!.Position);
+                            } else if (aDidNotFinish) {
+                                return 1;
+                            } else {
+                                return -1;
+                            }
                         }
                     }
 

@@ -173,23 +173,23 @@ namespace KLPlugins.DynLeaderboards {
 
             if (Settings.OutGeneralProps.Includes(OutGeneralProp.TeamCupColors)) {
                 foreach (var kv in this.Values.TeamCupCategoryColors) {
-                    this.AttachDelegate($"Color.Cup.{kv.Key}", () => kv.Value.Background());
+                    this.AttachDelegate($"Color.Cup.{kv.Key}", () => kv.Value.Background() ?? "#000000");
                 }
             }
             if (Settings.OutGeneralProps.Includes(OutGeneralProp.TeamCupTextColors)) {
                 foreach (var kv in this.Values.TeamCupCategoryColors) {
-                    this.AttachDelegate($"Color.Cup.{kv.Key}.Text", () => kv.Value.Foreground());
+                    this.AttachDelegate($"Color.Cup.{kv.Key}.Text", () => kv.Value.Foreground() ?? "#FFFFFF");
                 }
             }
 
             if (Settings.OutGeneralProps.Includes(OutGeneralProp.DriverCategoryColors)) {
                 foreach (var kv in this.Values.DriverCategoryColors) {
-                    this.AttachDelegate($"Color.DriverCategory.{kv.Key}", () => kv.Value.Background());
+                    this.AttachDelegate($"Color.DriverCategory.{kv.Key}", () => kv.Value.Background() ?? "#000000");
                 }
             }
             if (Settings.OutGeneralProps.Includes(OutGeneralProp.DriverCategoryTextColors)) {
                 foreach (var kv in this.Values.DriverCategoryColors) {
-                    this.AttachDelegate($"Color.DriverCategory.{kv.Key}.Text", () => kv.Value.Foreground());
+                    this.AttachDelegate($"Color.DriverCategory.{kv.Key}.Text", () => kv.Value.Foreground() ?? "#FFFFFF");
                 }
             }
         }

@@ -653,11 +653,11 @@ namespace KLPlugins.DynLeaderboards {
                     if (!opponent.IsConnected || (DynLeaderboardsPlugin.Game.IsAcc && opponent.Coordinates == null)) {
                         continue;
                     }
-                    car = new CarData(this, focusedCarId, opponent);
+                    car = new CarData(this, focusedCarId, opponent, data);
                     this._overallOrder.Add(car);
                 } else {
                     Debug.Assert(car.Id == opponent.Id);
-                    car.UpdateIndependent(this, focusedCarId, opponent);
+                    car.UpdateIndependent(this, focusedCarId, opponent, data);
 
                     // Note: car.IsFinished is actually updated in car.UpdateDependsOnOthers.
                     // Thus is the player manages to finish the race and exit before the first update, we would remove them.

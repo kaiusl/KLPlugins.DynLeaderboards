@@ -6,6 +6,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+## [1.4.4] - 2024-04-30
+
+### Fixed
+
+- Missing properties after a fresh install on first SimHub start.
+
 ## [1.4.3] - 2024-04-16
 
 ### Fixed
@@ -238,7 +244,8 @@ excludes all the cars in the pitlane which are not on the same lap as the focuse
 ## [1.0.0] - 2022-04-19
 - Initial public release
 
-[Unreleased]: https://github.com/kaiusl/KLPlugins.Leaderboard/compare/v1.4.3...HEAD
+[Unreleased]: https://github.com/kaiusl/KLPlugins.Leaderboard/compare/v1.4.4...HEAD
+[1.4.4]: https://github.com/kaiusl/KLPlugins.Leaderboard/releases/tag/v1.4.4
 [1.4.3]: https://github.com/kaiusl/KLPlugins.Leaderboard/releases/tag/v1.4.3
 [1.4.2]: https://github.com/kaiusl/KLPlugins.Leaderboard/releases/tag/v1.4.2
 [1.4.1]: https://github.com/kaiusl/KLPlugins.Leaderboard/releases/tag/v1.4.1

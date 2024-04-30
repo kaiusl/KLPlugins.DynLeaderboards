@@ -482,7 +482,9 @@ namespace KLPlugins.DynLeaderboards.Car {
                 this.LapDataValidForSave = false;
             }
 
-            if (this.RawDataOld.CurrentLapTime > this.RawDataNew.CurrentLapTime) {
+            if (this.RawDataOld.CurrentLapTime > this.RawDataNew.CurrentLapTime 
+                || (DynLeaderboardsPlugin.Game.IsAMS2 && this.RawDataOld.CurrentLapTime != null && this.RawDataNew.CurrentLapTime == null)
+            ) {
                 if (this.LapDataValidForSave && this.LapDataPos.Count != 0) {
 
                     // Add last point

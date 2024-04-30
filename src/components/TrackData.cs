@@ -205,17 +205,41 @@ namespace KLPlugins.DynLeaderboards.Track {
         }
 
         internal void OnLapFinished(CarClass cls, ReadOnlyCollection<double> lapDataPos, ReadOnlyCollection<double> lapDataTime) {
-            if (lapDataPos.Count == 0) {
+            if (lapDataPos.Count < 20 || lapDataTime.Count != lapDataPos.Count) {
                 return;
             }
 
-            var newLapTime = lapDataTime.Last();
-            var newLapLastPos = lapDataPos.Last();
+            var firstPosRaw = lapDataPos.First();
+            var firstPos = firstPosRaw + this.SplinePosOffset;
+            if (firstPos >= 1) {
+                firstPos -= 1;
+            }
 
-            var current = this.LapInterpolators.GetValueOr(cls, null);
-            if (current == null || current.Interpolate(newLapLastPos).TotalSeconds > newLapTime) {
-                this.AddLapInterpolator(rawPos: lapDataPos, rawTime: lapDataTime, cls);
-                DynLeaderboardsPlugin.LogInfo($"Saved new best lap for {cls}: {newLapTime}.");
+            var lastPosRaw = lapDataPos.Last();
+            var lastPos = lastPosRaw + this.SplinePosOffset;
+            if (lastPos > 1) {
+                lastPos -= 1;
+            }
+
+#if DEBUG
+            var path = $"{PluginSettings.PluginDataDir}\\{DynLeaderboardsPlugin.Game.Name}\\laps_data_summary\\{this.Id}.txt";
+            Directory.CreateDirectory(Path.GetDirectoryName(path));
+            File.AppendAllText(path, $"{firstPosRaw:F5};{lastPosRaw:F5};{lapDataTime.First():F3};{lapDataTime.Last():F3};{cls.AsString()}\n");
+#endif
+
+            if (firstPos < 0.05 && lastPos > 0.95 && firstPos < PluginSettings.LapDataTimeDelaySec * 5) {
+                var newLapTime = lapDataTime.Last();
+                var newLapLastPos = lapDataPos.Last();
+
+                var current = this.LapInterpolators.GetValueOr(cls, null);
+                if (current == null || current.Interpolate(newLapLastPos).TotalSeconds > newLapTime) {
+                    this.AddLapInterpolator(rawPos: lapDataPos, rawTime: lapDataTime, cls);
+                    DynLeaderboardsPlugin.LogInfo($"Saved new best lap for {cls}: {newLapTime}.");
+                }
+            } else if (firstPosRaw > lastPosRaw) {
+                DynLeaderboardsPlugin.LogWarn($"Possible missing lap offset detected: {this.Id} - {cls}. FirstPos: {firstPosRaw}({firstPos}), LastPos: {lastPosRaw}({lastPos}). Suggested lap position offset is {1 - firstPosRaw}.");
+            } else {
+                DynLeaderboardsPlugin.LogInfo($"Collected invalid lap data for {this.Id} - {cls}. FirstPos: {firstPosRaw}({firstPos}), LastPos: {lastPosRaw}({lastPos}).");
             }
         }
 

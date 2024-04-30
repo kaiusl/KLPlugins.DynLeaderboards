@@ -349,6 +349,10 @@ namespace KLPlugins.DynLeaderboards.Car {
         /// </summary>
         /// <param name="rawData"></param>
         internal void UpdateIndependent(Values values, string? focusedCarId, Opponent rawData, GameData gameData) {
+            if (rawData.TrackPositionPercent == null) {
+                // This happens occasionally. Just wait for the next update.
+                return;
+            }
             // Clear old data
 
             // Needs to be cleared before UpdateDependsOnOthers, 

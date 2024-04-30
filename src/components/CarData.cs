@@ -565,7 +565,7 @@ namespace KLPlugins.DynLeaderboards.Car {
         /// <exception cref="System.Exception"></exception>
         private void SetSplinePositions(Values values) {
             var newSplinePos = this.RawDataNew.TrackPositionPercent ?? throw new System.Exception("TrackPositionPercent is null");
-            newSplinePos += values.TrackData!.SplinePosOffset;
+            newSplinePos += values.TrackData!.SplinePosOffset.Value;
             if (newSplinePos > 1) {
                 newSplinePos -= 1;
             }

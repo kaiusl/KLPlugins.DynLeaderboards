@@ -165,6 +165,14 @@ namespace KLPlugins.DynLeaderboards.Helpers {
             return defValue;
         }
 
+        internal static V GetOrAddValue<K, V>(this Dictionary<K, V> dict, K key, V defValue) {
+            if (!dict.ContainsKey(key)) {
+                dict[key] = defValue;
+            }
+
+            return dict[key];
+        }
+
         internal static void Merge<K, V>(this Dictionary<K, V> dict, Dictionary<K, V> other) {
             foreach (var kv in other) {
                 dict[kv.Key] = kv.Value;

@@ -150,11 +150,11 @@ namespace KLPlugins.DynLeaderboards {
             LogInfo("Starting plugin");
 
             GameDataPath = $@"{Settings.PluginDataLocation}\{gameName}";
+            // _values is needed by SettingsControl on first time initialization, even if the game is not ACC
+            this._values = new Values();
             if (Settings.DynLeaderboardConfigs.Count == 0) {
                 this.AddNewLeaderboard(new DynLeaderboardConfig("Dynamic"));
             }
-            // _values is needed by SettingsControl on first time initialization, even if the game is not ACC
-            this._values = new Values();
             if (!Game.IsAcc) {
                 return;
             }

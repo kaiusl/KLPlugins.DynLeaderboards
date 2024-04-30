@@ -129,6 +129,9 @@ namespace KLPlugins.DynLeaderboards {
             TrackData.OnPluginInit(gameName);
 
             this.Values = new Values();
+            if (Settings.DynLeaderboardConfigs.Count == 0) {
+                this.AddNewLeaderboard(new DynLeaderboardConfig("Dynamic"));
+            }
 
             foreach (var config in Settings.DynLeaderboardConfigs) {
                 if (config.IsEnabled) {

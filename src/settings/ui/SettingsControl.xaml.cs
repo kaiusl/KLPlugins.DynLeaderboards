@@ -1273,8 +1273,28 @@ namespace KLPlugins.DynLeaderboards.Settings {
             this.ExposedDriverProps_TextBlock.Text = $"Properties for each driver car be accessed as \"DynLeaderboardsPlugin.{this.CurrentDynLeaderboardSettings.Name}.<pos>.Driver.<driver number>.<property name>\", for example \"DynLeaderboardsPlugin.{this.CurrentDynLeaderboardSettings.Name}.5.Driver.1.FirstName\"";
 
             this.AddDynLeaderboardToggles();
+            this.AddControlsEditors();
             this.AddNumPositionsSetters();
             this.AddPropertyToggles();
+        }
+
+        private void AddControlsEditors() {
+            var sp = this.DynamicLeaderboardsTab_Controls_StackPanel;
+            sp.Children.Clear();
+
+            var next = new ControlsEditor() {
+                FriendlyName = "Next leaderboard",
+                ActionName = $"DynLeaderboardsPlugin.{this.CurrentDynLeaderboardSettings.NextLeaderboardActionName}",
+            };
+
+            sp.Children.Add(next);
+
+            var prev = new ControlsEditor() {
+                FriendlyName = "Previous leaderboard",
+                ActionName = $"DynLeaderboardsPlugin.{this.CurrentDynLeaderboardSettings.PreviousLeaderboardActionName}",
+            };
+
+            sp.Children.Add(prev);
         }
 
         /// <summary>

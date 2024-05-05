@@ -504,6 +504,26 @@
 
                     <Separator Margin="0,15,0,1" />
                     <Separator Margin="0,1,0,10" />
+
+                    <styles:SHSectionTitle>CONTROLS</styles:SHSectionTitle>
+                    <Expander Header="More information">
+                        <TextBlock TextWrapping="Wrap"
+                                   MaxWidth="750">
+                            Here you can set the controls to change leaderboard types. Next button will move down the leaderboard rotation set above. Previous button will move up.
+                        </TextBlock>
+                    </Expander>
+
+                    <StackPanel x:Name="DynamicLeaderboardsTab_Controls_StackPanel" >
+                        <StackPanel.Resources>
+                            <Style TargetType="TextBlock">
+                            </Style>
+
+                        </StackPanel.Resources>
+                    </StackPanel>
+
+
+                    <Separator Margin="0,15,0,1" />
+                    <Separator Margin="0,1,0,10" />
                     <styles:SHSectionTitle>NUMBER OF POSITIONS</styles:SHSectionTitle>
                     <Expander Header="More information">
                         <TextBlock TextWrapping="Wrap"

@@ -22,6 +22,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - New config UI to edit car settings (name, manufacturer and class).
 - Automatically generate lap data for gap calculation.
 - Read AC car info from AC files.
+- Configuration options to set controls for "NextLeaderboard" and "PreviousLeaderboards"
+  actions directly in this plugins settings menu. 
 
 ### Changed
 

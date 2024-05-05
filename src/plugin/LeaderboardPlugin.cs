@@ -21,16 +21,16 @@ namespace KLPlugins.DynLeaderboards {
 
     [PluginDescription("")]
     [PluginAuthor("Kaius Loos")]
-    [PluginName("DynLeaderboardsPlugin")]
+    [PluginName(PluginName)]
     public class DynLeaderboardsPlugin : IPlugin, IDataPlugin, IWPFSettingsV2 {
         // The properties that compiler yells at that can be null are set in Init method.
         // For the purposes of this plugin, they are never null
 #pragma warning disable CS8618
         public PluginManager PluginManager { get; set; }
         public ImageSource PictureIcon => this.ToIcon(Properties.Resources.sdkmenuicon);
-        public string LeftMenuTitle => PluginName;
+        public string LeftMenuTitle => "Dynamic Leaderboards";
 
-        internal const string PluginName = "DynLeaderboards";
+        internal const string PluginName = "DynLeaderboardsPlugin";
         internal static PluginSettings Settings;
         internal static Game Game; // Const during the lifetime of this plugin, plugin is rebuilt at game change
         internal static string PluginStartTime = $"{DateTime.Now:dd-MM-yyyy_HH-mm-ss}";
@@ -413,8 +413,8 @@ namespace KLPlugins.DynLeaderboards {
             this.AttachDelegate($"{l.Name}.CurrentLeaderboard", () => l.CurrentLeaderboardName);
             this.AttachDelegate($"{l.Name}.FocusedPosInCurrentLeaderboard", () => l.FocusedIndex);
 
-            this.AddAction($"{l.Name}.NextLeaderboard", (_, _) => l.NextLeaderboard(this.Values));
-            this.AddAction($"{l.Name}.PreviousLeaderboard", (_, _) => l.PreviousLeaderboard(this.Values));
+            this.AddAction(l.NextLeaderboardActionNAme, (_, _) => l.NextLeaderboard(this.Values));
+            this.AddAction(l.PreviousLeaderboardActionNAme, (_, _) => l.PreviousLeaderboard(this.Values));
         }
 
         internal void AddNewLeaderboard(DynLeaderboardConfig s) {

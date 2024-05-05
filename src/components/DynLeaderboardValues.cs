@@ -29,6 +29,8 @@ namespace KLPlugins.DynLeaderboards {
 
         public string Name => this.Config.Name;
         public string CurrentLeaderboardName => this.Config.CurrentLeaderboardName;
+        public string NextLeaderboardActionNAme => this.Config.NextLeaderboardActionName;
+        public string PreviousLeaderboardActionNAme => this.Config.PreviousLeaderboardActionName;
         public int MaxPositions => this.Config.MaxPositions();
         public Leaderboard CurrentLeaderboard => this.Config.CurrentLeaderboard();
 

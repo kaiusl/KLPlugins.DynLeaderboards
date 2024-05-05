@@ -348,6 +348,9 @@ namespace KLPlugins.DynLeaderboards.Settings {
             }
         }
 
+        [JsonIgnore] public string NextLeaderboardActionName => $"{this.Name}.NextLeaderboard";
+        [JsonIgnore] public string PreviousLeaderboardActionName => $"{this.Name}.PreviousLeaderboard";
+
         [JsonProperty]
         public OutCarProp OutCarProps = OutCarProp.CarNumber
              | OutCarProp.CarClass

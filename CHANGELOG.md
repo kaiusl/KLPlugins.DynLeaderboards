@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+## [1.4.5] - 2024-05-07
+
+- Support Ford Mustang GT3 which was added in ACC v1.10.2.
+
 ## [1.4.4] - 2024-04-30
 
 ### Fixed
@@ -90,7 +94,7 @@ Dynamic Leaderboards Plugin for SimHub](https://kaiusl.github.io/KLPlugins.DynLe
 
 - Support McLaren 720S GT3 Evo which was added in ACC v1.9.3.
 
-  This also means that ACC v1.9.3 needs atleast the v1.3.2 version of this plugin to fully function properly.
+  This also means that ACC v1.9.3 needs at least the v1.3.2 version of this plugin to fully function properly.
 
 ## [1.3.1] - 2023-05-15
 
@@ -244,7 +248,8 @@ excludes all the cars in the pitlane which are not on the same lap as the focuse
 ## [1.0.0] - 2022-04-19
 - Initial public release
 
-[Unreleased]: https://github.com/kaiusl/KLPlugins.Leaderboard/compare/v1.4.4...HEAD
+[Unreleased]: https://github.com/kaiusl/KLPlugins.Leaderboard/compare/v1.4.5...HEAD
+[1.4.5]: https://github.com/kaiusl/KLPlugins.Leaderboard/releases/tag/v1.4.5
 [1.4.4]: https://github.com/kaiusl/KLPlugins.Leaderboard/releases/tag/v1.4.4
 [1.4.3]: https://github.com/kaiusl/KLPlugins.Leaderboard/releases/tag/v1.4.3
 [1.4.2]: https://github.com/kaiusl/KLPlugins.Leaderboard/releases/tag/v1.4.2

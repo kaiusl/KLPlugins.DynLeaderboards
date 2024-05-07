@@ -43,6 +43,7 @@ namespace KLPlugins.DynLeaderboards.Car {
         LamborghiniHuracanEvo2 = 33,
         Porsche992GT3R = 34,
         McLaren720SGT3Evo = 35,
+        FordMustangGT3 = 36,
 
         AlpineA110GT4 = 50,
         AMRV8VantageGT4 = 51,
@@ -127,7 +128,8 @@ namespace KLPlugins.DynLeaderboards.Car {
                 or CarType.Ferrari296GT3
                 or CarType.LamborghiniHuracanEvo2
                 or CarType.Porsche992GT3R
-                or CarType.McLaren720SGT3Evo => CarClass.GT3,
+                or CarType.McLaren720SGT3Evo
+                or CarType.FordMustangGT3 => CarClass.GT3,
 
                 CarType.Ferrari488ChallengeEvo => CarClass.CHL,
                 CarType.BMWM2CSRacing => CarClass.TCX,
@@ -222,6 +224,8 @@ namespace KLPlugins.DynLeaderboards.Car {
                 CarType.Porsche992GT3Cup => "Porsche 992 GT3 Cup",
                 CarType.LamborghiniHuracanST2015 => "Lamborghini Huracan ST",
                 CarType.LamborghiniHuracanSTEvo2 => "Lamborghini Huracan ST EVO2",
+                CarType.FordMustangGT3 => "Ford Mustang GT3",
+
                 CarType.AlpineA110GT4 => "Alpine A110 GT4",
                 CarType.AMRV8VantageGT4 => "Aston Martin V8 Vantage GT4",
                 CarType.AudiR8LMSGT4 => "Audi R8 LMS GT4",
@@ -319,6 +323,8 @@ namespace KLPlugins.DynLeaderboards.Car {
 
                 CarType.MaseratiMCGT4
                 or CarType.MaseratiMC20GT2 => "Maserati",
+
+                CarType.FordMustangGT3 => "Ford",
 
                 _ => "Unknown",
             };

@@ -1,9 +1,11 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 
 using GameReaderCommon;
 
@@ -228,7 +230,18 @@ namespace KLPlugins.DynLeaderboards.Track {
         public string Id { get; }
         public double LengthMeters { get; private set; }
         public SplinePosOffset SplinePosOffset { get; }
-        internal Dictionary<CarClass, LapInterpolator> LapInterpolators = [];
+
+        // Idea with building lap interpolators is to read and build them on another thread which
+        // adds them to this._builtLapInterpolators. On main data update thread we then check once
+        // at update start if there are any new lap interpolators and add them to this.LapInterpolators.
+        // Alternatively we could use ConcurrentDictionary for this.LapInterpolators but we need to 
+        // access it a lot per one update. So it would include a lot of unnecessary synchronizations
+        // while with current solution we only have one synchronized access.
+        internal readonly Dictionary<CarClass, LapInterpolator> LapInterpolators = [];
+        private readonly ConcurrentQueue<(CarClass, LapInterpolator)> _builtLapInterpolators = [];
+        // To avoid building same lap interpolator multiple times.
+        // IMPORTANT: it needs to be locked before use.
+        private readonly List<CarClass> _lapInterpolatorsInBuilding = [];
         private static Dictionary<string, SplinePosOffset> _splinePosOffsets = [];
 
         internal TrackData(GameData data) {
@@ -238,8 +251,6 @@ namespace KLPlugins.DynLeaderboards.Track {
             this.Id = data.NewData.TrackCode;
             this.LengthMeters = data.NewData.TrackLength;
             this.SplinePosOffset = _splinePosOffsets.GetOrAddValue(this.Id, new());
-
-            this.AddLapInterpolators();
         }
 
         internal void SetLength(GameData data) {
@@ -248,6 +259,20 @@ namespace KLPlugins.DynLeaderboards.Track {
 
         internal static void OnPluginInit(string gameName) {
             _splinePosOffsets = ReadSplinePosOffsets(gameName);
+        }
+
+        internal void OnDataUpdate() {
+            while (this._builtLapInterpolators.TryDequeue(out var kv)) {
+                if (!this.LapInterpolators.ContainsKey(kv.Item1)) {
+                    this.LapInterpolators[kv.Item1] = kv.Item2;
+
+                    DynLeaderboardsPlugin.LogInfo($"Added LapInterpolator for {kv.Item1}");
+                }
+
+                lock (this._lapInterpolatorsInBuilding) {
+                    this._lapInterpolatorsInBuilding.Remove(kv.Item1);
+                }
+            }
         }
 
         internal void Dispose() {
@@ -324,29 +349,25 @@ namespace KLPlugins.DynLeaderboards.Track {
             File.WriteAllText(path, JsonConvert.SerializeObject(_splinePosOffsets, Formatting.Indented));
         }
 
-
-        /// <summary>
-        /// Read default lap data for calculation of gaps.
-        /// </summary>
-        private void AddLapInterpolators() {
-            var lapsDataPath = $"{PluginSettings.PluginDataDir}\\{DynLeaderboardsPlugin.Game.Name}\\laps_data\\";
-            if (!Directory.Exists(lapsDataPath)) {
+        internal void BuildLapInterpolator(CarClass carClass) {
+            if (this.LapInterpolators.ContainsKey(carClass)) {
                 return;
             }
-            foreach (var path in Directory.GetFiles(lapsDataPath)) {
-                if (!path.EndsWith(".txt")) continue;
 
-                var fileName = Path.GetFileNameWithoutExtension(path);
-                if (fileName.StartsWith(this.Id)) {
-                    var carClass = new CarClass(fileName.Substring(this.Id.Length + 1));
-                    this.AddLapInterpolator(path, carClass);
-                }
-            }
+            Task.Run(() => this.BuildLapInterpolatorInner(carClass));
         }
 
-        /// Assumes that `this.LapInterpolators != null`
-        private void AddLapInterpolator(string path, CarClass carClass) {
-            this.LapInterpolators ??= [];
+        private void BuildLapInterpolatorInner(CarClass carClass) {
+            lock (this._lapInterpolatorsInBuilding) {
+                // Check and add need to behave as one operation!
+                if (this._lapInterpolatorsInBuilding.Contains(carClass)) {
+                    return;
+                } else {
+                    this._lapInterpolatorsInBuilding.Add(carClass);
+                }
+            }
+
+            var path = $"{PluginSettings.PluginDataDir}\\{DynLeaderboardsPlugin.Game.Name}\\laps_data\\{this.Id}_{carClass}.txt";
 
             if (!File.Exists(path)) {
                 DynLeaderboardsPlugin.LogInfo($"Couldn't build lap interpolator for {carClass} because no suitable track data exists.");
@@ -354,8 +375,9 @@ namespace KLPlugins.DynLeaderboards.Track {
             }
 
             try {
-                this.LapInterpolators[carClass] = new LapInterpolator(path, this.SplinePosOffset.Value);
                 DynLeaderboardsPlugin.LogInfo($"Build lap interpolator for {carClass} from file {path}");
+                var interp = new LapInterpolator(path, this.SplinePosOffset.Value);
+                this._builtLapInterpolators.Enqueue((carClass, interp));
             } catch (Exception ex) {
                 DynLeaderboardsPlugin.LogError($"Failed to read {path} with error: {ex}");
             }
@@ -367,7 +389,6 @@ namespace KLPlugins.DynLeaderboards.Track {
                 return;
             }
 
-            this.LapInterpolators ??= [];
             this.LapInterpolators[carClass] = new LapInterpolator(rawPos, rawTime, this.SplinePosOffset.Value);
         }
     }

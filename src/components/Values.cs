@@ -587,10 +587,15 @@ namespace KLPlugins.DynLeaderboards {
                 this.Booleans.OnNewEvent(this.Session.SessionType);
                 this.TrackData?.Dispose();
                 this.TrackData = new TrackData(data);
+                foreach (var car in this.OverallOrder) {
+                    this.TrackData.BuildLapInterpolator(car.CarClass);
+                }
                 this._skipCarUpdatesCount = 0;
 
                 DynLeaderboardsPlugin.LogInfo($"Track set to: id={this.TrackData.Id}, name={this.TrackData.PrettyName}, len={this.TrackData.LengthMeters}");
             }
+
+            this.TrackData?.OnDataUpdate();
 
             if (this.TrackData != null && this.TrackData.LengthMeters == 0) {
                 // In ACC sometimes the track length is not immediately available, and is 0.
@@ -655,6 +660,7 @@ namespace KLPlugins.DynLeaderboards {
                     }
                     car = new CarData(this, focusedCarId, opponent, data);
                     this._overallOrder.Add(car);
+                    this.TrackData?.BuildLapInterpolator(car.CarClass);
                 } else {
                     Debug.Assert(car.Id == opponent.Id);
                     car.UpdateIndependent(this, focusedCarId, opponent, data);

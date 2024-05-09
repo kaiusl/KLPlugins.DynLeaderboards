@@ -454,6 +454,9 @@ namespace KLPlugins.DynLeaderboards {
         private List<CarData> _relativeOnTrackBehindOrder { get; } = new();
         public CarData? FocusedCar { get; private set; } = null;
 
+        public int NumClassesInSession { get; private set; } = 0;
+        public int NumCupsInSession { get; private set; } = 0;
+
         internal CarInfos CarInfos { get; private set; }
 
         private const string _CAR_INFOS_FILENAME = "CarInfos";
@@ -545,6 +548,8 @@ namespace KLPlugins.DynLeaderboards {
             this.FocusedCar = null;
             this.IsFirstFinished = false;
             this._startingPositionsSet = false;
+            this.NumClassesInSession = 0;
+            this.NumCupsInSession = 0;
         }
 
         #region IDisposable Support
@@ -795,6 +800,9 @@ namespace KLPlugins.DynLeaderboards {
                 this._relativeOnTrackAheadOrder.Sort((c1, c2) => c1.RelativeSplinePositionToFocusedCar.CompareTo(c2.RelativeSplinePositionToFocusedCar));
                 this._relativeOnTrackBehindOrder.Sort((c1, c2) => c2.RelativeSplinePositionToFocusedCar.CompareTo(c1.RelativeSplinePositionToFocusedCar));
             }
+
+            this.NumClassesInSession = this._classPositions.Count;
+            this.NumCupsInSession = this._cupPositions.Count;
         }
 
         private CarData? GetCarAheadOnTrack(CarData c) {

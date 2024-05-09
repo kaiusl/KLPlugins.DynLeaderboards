@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -213,6 +213,14 @@ namespace KLPlugins.DynLeaderboards {
                     );
                 }
             }
+
+            if (Settings.OutGeneralProps.Includes(OutGeneralProp.NumClassesInSession)) {
+                this.AttachDelegate(OutGeneralProp.NumClassesInSession.ToPropName(), () => this.Values.NumClassesInSession);
+            }
+
+
+            if (Settings.OutGeneralProps.Includes(OutGeneralProp.NumCupsInSession)) {
+                this.AttachDelegate(OutGeneralProp.NumCupsInSession.ToPropName(), () => this.Values.NumCupsInSession);
             }
         }
 

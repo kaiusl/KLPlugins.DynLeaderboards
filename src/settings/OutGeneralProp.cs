@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 
 namespace KLPlugins.DynLeaderboards.Settings {
 
@@ -14,6 +14,8 @@ namespace KLPlugins.DynLeaderboards.Settings {
         DriverCategoryColors = 1 << 7,
         CarClassTextColors = 1 << 8,
         DriverCategoryTextColors = 1 << 9,
+        NumClassesInSession = 1 << 10,
+        NumCupsInSession = 1 << 11
     }
 
     internal static class OutGeneralPropExtensions {
@@ -35,6 +37,8 @@ namespace KLPlugins.DynLeaderboards.Settings {
                 OutGeneralProp.SessionPhase,
                 OutGeneralProp.MaxStintTime,
                 OutGeneralProp.MaxDriveTime,
+                OutGeneralProp.NumClassesInSession,
+                OutGeneralProp.NumCupsInSession,
                 OutGeneralProp.CarClassColors,
                 OutGeneralProp.CarClassTextColors,
                 OutGeneralProp.TeamCupColors,
@@ -55,6 +59,8 @@ namespace KLPlugins.DynLeaderboards.Settings {
                 OutGeneralProp.DriverCategoryColors => "Color.DriverCategory.<category>",
                 OutGeneralProp.CarClassTextColors => "Color.Class.<class>.Text",
                 OutGeneralProp.DriverCategoryTextColors => "Color.DriverCategory.<category>.Text",
+                OutGeneralProp.NumClassesInSession => "Session.NumberOfClasses",
+                OutGeneralProp.NumCupsInSession => "Session.NumberOfCups",
                 _ => throw new ArgumentOutOfRangeException("Invalid enum variant"),
             };
         }
@@ -70,6 +76,8 @@ namespace KLPlugins.DynLeaderboards.Settings {
                 OutGeneralProp.TeamCupTextColors => "Text colors for every team cup category",
                 OutGeneralProp.DriverCategoryColors => "Background color for every driver category",
                 OutGeneralProp.DriverCategoryTextColors => "Text color for every driver category",
+                OutGeneralProp.NumClassesInSession => "Number of different classes in current session.",
+                OutGeneralProp.NumCupsInSession => "Number of different cups (class and team cup category combinations) in current session.",
                 OutGeneralProp.None => "None",
                 _ => throw new ArgumentOutOfRangeException($"Invalid enum variant {p}"),
             };

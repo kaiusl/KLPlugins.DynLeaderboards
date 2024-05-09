@@ -1110,7 +1110,7 @@ namespace KLPlugins.DynLeaderboards.Settings {
 
                 var sp = this.CreatePropertyToggleRow(
                     v.ToString(),
-                    v.ToString(),
+                    v.ToPropName(),
                     DynLeaderboardsPlugin.Settings.OutGeneralProps.Includes(v),
                     (sender, e) => DynLeaderboardsPlugin.Settings.OutGeneralProps.Combine(v),
                     (sender, e) => DynLeaderboardsPlugin.Settings.OutGeneralProps.Remove(v),

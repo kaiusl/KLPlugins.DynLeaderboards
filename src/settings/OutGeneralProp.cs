@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 
 namespace KLPlugins.DynLeaderboards.Settings {
 
@@ -42,6 +42,21 @@ namespace KLPlugins.DynLeaderboards.Settings {
                 OutGeneralProp.DriverCategoryColors,
                 OutGeneralProp.DriverCategoryTextColors
              ];
+        }
+
+        internal static string ToPropName(this OutGeneralProp p) {
+            return p switch {
+                OutGeneralProp.SessionPhase => "Session.Phase",
+                OutGeneralProp.MaxStintTime => "Session.MaxStintTime",
+                OutGeneralProp.MaxDriveTime => "Session.MaxDriveTime",
+                OutGeneralProp.CarClassColors => "Color.Class.<class>",
+                OutGeneralProp.TeamCupColors => "Color.Cup.<cup>",
+                OutGeneralProp.TeamCupTextColors => "Color.Cup.<cup>.Text",
+                OutGeneralProp.DriverCategoryColors => "Color.DriverCategory.<category>",
+                OutGeneralProp.CarClassTextColors => "Color.Class.<class>.Text",
+                OutGeneralProp.DriverCategoryTextColors => "Color.DriverCategory.<category>.Text",
+                _ => throw new ArgumentOutOfRangeException("Invalid enum variant"),
+            };
         }
 
         internal static string ToolTipText(this OutGeneralProp p) {

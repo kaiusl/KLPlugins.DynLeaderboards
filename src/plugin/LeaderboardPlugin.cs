@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -152,48 +152,67 @@ namespace KLPlugins.DynLeaderboards {
 
             // Add everything else
             if (Settings.OutGeneralProps.Includes(OutGeneralProp.SessionPhase)) {
-                this.AttachDelegate("Session.Phase", () => this.Values.Session.SessionPhase.ToString());
+                this.AttachDelegate(OutGeneralProp.SessionPhase.ToPropName(), () => this.Values.Session.SessionPhase.ToString());
             }
 
             if (Settings.OutGeneralProps.Includes(OutGeneralProp.MaxStintTime)) {
-                this.AttachDelegate("Session.MaxStintTime", () => this.Values.Session.MaxDriverStintTime?.TotalSeconds);
+                this.AttachDelegate(OutGeneralProp.MaxStintTime.ToPropName(), () => this.Values.Session.MaxDriverStintTime?.TotalSeconds);
             }
 
             if (Settings.OutGeneralProps.Includes(OutGeneralProp.MaxDriveTime)) {
-                this.AttachDelegate("Session.MaxDriveTime", () => this.Values.Session.MaxDriverTotalDriveTime?.TotalSeconds);
+                this.AttachDelegate(OutGeneralProp.MaxDriveTime.ToPropName(), () => this.Values.Session.MaxDriverTotalDriveTime?.TotalSeconds);
             }
 
             if (Settings.OutGeneralProps.Includes(OutGeneralProp.CarClassColors)) {
                 foreach (var kv in this.Values.CarClassColors) {
-                    this.AttachDelegate($"Color.Class.{kv.Key}", () => kv.Value.Background());
+                    this.AttachDelegate(
+                        OutGeneralProp.CarClassColors.ToPropName().Replace("<class>", kv.Key.AsString()),
+                        () => kv.Value.Background()
+                    );
                 }
             }
             if (Settings.OutGeneralProps.Includes(OutGeneralProp.CarClassColors)) {
                 foreach (var kv in this.Values.CarClassColors) {
-                    this.AttachDelegate($"Color.Class.{kv.Key}.Text", () => kv.Value.Foreground());
+                    this.AttachDelegate(
+                        OutGeneralProp.CarClassTextColors.ToPropName().Replace("<class>", kv.Key.AsString()),
+                        () => kv.Value.Foreground()
+                    );
                 }
             }
 
             if (Settings.OutGeneralProps.Includes(OutGeneralProp.TeamCupColors)) {
                 foreach (var kv in this.Values.TeamCupCategoryColors) {
-                    this.AttachDelegate($"Color.Cup.{kv.Key}", () => kv.Value.Background() ?? "#000000");
+                    this.AttachDelegate(
+                        OutGeneralProp.TeamCupColors.ToPropName().Replace("<cup>", kv.Key.AsString()),
+                        () => kv.Value.Background() ?? "#000000"
+                    );
                 }
             }
             if (Settings.OutGeneralProps.Includes(OutGeneralProp.TeamCupTextColors)) {
                 foreach (var kv in this.Values.TeamCupCategoryColors) {
-                    this.AttachDelegate($"Color.Cup.{kv.Key}.Text", () => kv.Value.Foreground() ?? "#FFFFFF");
+                    this.AttachDelegate(
+                        OutGeneralProp.TeamCupTextColors.ToPropName().Replace("<cup>", kv.Key.AsString()),
+                        () => kv.Value.Foreground() ?? "#FFFFFF"
+                    );
                 }
             }
 
             if (Settings.OutGeneralProps.Includes(OutGeneralProp.DriverCategoryColors)) {
                 foreach (var kv in this.Values.DriverCategoryColors) {
-                    this.AttachDelegate($"Color.DriverCategory.{kv.Key}", () => kv.Value.Background() ?? "#000000");
+                    this.AttachDelegate(
+                        OutGeneralProp.DriverCategoryColors.ToPropName().Replace("<category>", kv.Key.AsString()),
+                        () => kv.Value.Background() ?? "#000000"
+                    );
                 }
             }
             if (Settings.OutGeneralProps.Includes(OutGeneralProp.DriverCategoryTextColors)) {
                 foreach (var kv in this.Values.DriverCategoryColors) {
-                    this.AttachDelegate($"Color.DriverCategory.{kv.Key}.Text", () => kv.Value.Foreground() ?? "#FFFFFF");
+                    this.AttachDelegate(
+                        OutGeneralProp.DriverCategoryTextColors.ToPropName().Replace("<category>", kv.Key.AsString()),
+                        () => kv.Value.Foreground() ?? "#FFFFFF"
+                    );
                 }
+            }
             }
         }
 

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -199,23 +199,22 @@ namespace KLPlugins.DynLeaderboards.Settings {
                 version = (int)savedSettings["Version"]!;
             }
 
-            if (version == currentSettingsVersion) {
-                return;
+            if (version != currentSettingsVersion) {
+                // Migrate step by step to current version.
+                while (version != currentSettingsVersion) {
+                    savedSettings = _migrations[$"{version}_{version + 1}"](savedSettings);
+                    version += 1;
+                }
+
+                // Save up to date setting back to the disk
+                using StreamWriter file = File.CreateText(settingsFname);
+                var serializer = new JsonSerializer {
+                    Formatting = Newtonsoft.Json.Formatting.Indented
+                };
+                serializer.Serialize(file, savedSettings);
             }
 
-            // Migrate step by step to current version.
-            while (version != currentSettingsVersion) {
-                savedSettings = _migrations[$"{version}_{version + 1}"](savedSettings);
-                version += 1;
-            }
-
-            // Save up to date setting back to the disk
-            using StreamWriter file = File.CreateText(settingsFname);
-            var serializer = new JsonSerializer {
-                Formatting = Newtonsoft.Json.Formatting.Indented
-            };
-            serializer.Serialize(file, savedSettings);
-
+            DynLeaderboardConfig.Migrate();
         }
 
         /// <summary>
@@ -290,40 +289,6 @@ namespace KLPlugins.DynLeaderboards.Settings {
             o["Version"] = 2;
             o["Include_ST21_In_GT2"] = false;
             o["Include_CHL_In_GT2"] = false;
-
-            foreach (var fileName in Directory.GetFiles(LeaderboardConfigsDataDir)) {
-                if (!File.Exists(fileName) || !fileName.EndsWith(".json")) {
-                    continue;
-                }
-
-                using StreamReader file = File.OpenText(fileName);
-                var serializer = new JsonSerializer();
-                DynLeaderboardConfig cfg;
-                try {
-                    var result = (DynLeaderboardConfig?)serializer.Deserialize(file, typeof(DynLeaderboardConfig));
-                    if (result == null) {
-                        continue;
-                    }
-                    cfg = result;
-                } catch (Exception e) {
-                    SimHub.Logging.Current.Error($"Failed to deserialize leaderboard \"{fileName}\" configuration. Error {e}.");
-                    continue;
-                }
-                file.Close();
-
-                cfg.Version = 2;
-                cfg.NumCupPos = cfg.NumClassPos;
-                cfg.NumCupRelativePos = cfg.NumClassRelativePos;
-                cfg.PartialRelativeCupNumCupPos = cfg.PartialRelativeClassNumClassPos;
-                cfg.PartialRelativeCupNumRelativePos = cfg.PartialRelativeClassNumRelativePos;
-
-                using StreamWriter fileOut = File.CreateText(fileName);
-                var serializerOut = new JsonSerializer {
-                    Formatting = Newtonsoft.Json.Formatting.Indented
-                };
-                serializerOut.Serialize(fileOut, cfg);
-
-            }
 
             SimHub.Logging.Current.Info($"Migrated settings from v1 to v2.");
 
@@ -403,6 +368,9 @@ namespace KLPlugins.DynLeaderboards.Settings {
         [JsonIgnore] internal string CurrentLeaderboardName = "";
         [JsonProperty] public bool IsEnabled { get; set; } = true;
 
+
+        private delegate JObject Migration(JObject o);
+
         public Leaderboard CurrentLeaderboard() {
             return this.Order.ElementAtOrDefault(this.CurrentLeaderboardIdx);
         }
@@ -465,5 +433,78 @@ namespace KLPlugins.DynLeaderboards.Settings {
             return this._maxPositions.Value;
         }
 
+        /// <summary>
+        /// Checks if settings version is changed since last save and migrates to current version if needed.
+        /// Old settings file is rewritten by the new one.
+        /// Should be called before reading the settings from file.
+        /// </summary>
+        internal static void Migrate() {
+            Dictionary<string, Migration> _migrations = CreateMigrationsDict();
+
+            foreach (var fileName in Directory.GetFiles(PluginSettings.LeaderboardConfigsDataDir)) {
+                if (!File.Exists(fileName) || !fileName.EndsWith(".json")) {
+                    continue;
+                }
+
+                JObject savedSettings = JObject.Parse(File.ReadAllText(fileName));
+
+                int version = 0; // If settings doesn't contain version key, it's 0
+                if (savedSettings.ContainsKey("Version")) {
+                    version = (int)savedSettings["Version"]!;
+                }
+
+                if (version == CurrentConfigVersion) {
+                    return;
+                }
+
+                // Migrate step by step to current version.
+                while (version != CurrentConfigVersion) {
+                    savedSettings = _migrations[$"{version}_{version + 1}"](savedSettings);
+                    version += 1;
+                }
+
+                // Save up to date setting back to the disk
+                using StreamWriter file = File.CreateText(fileName);
+                var serializer = new JsonSerializer {
+                    Formatting = Newtonsoft.Json.Formatting.Indented
+                };
+                serializer.Serialize(file, savedSettings);
+            }
+        }
+        /// <summary>
+        ///  Creates dictionary of migrations to be called. Key is "oldversion_newversion".
+        /// </summary>
+        /// <returns></returns>
+        private static Dictionary<string, Migration> CreateMigrationsDict() {
+            var migrations = new Dictionary<string, Migration> {
+                ["1_2"] = Mig1To2,
+            };
+
+#if DEBUG
+            for (int i = 1; i < CurrentConfigVersion; i++) {
+                Debug.Assert(migrations.ContainsKey($"{i}_{i + 1}"), $"Migration from v{i} to v{i + 1} is not set for DynLeaderboardConfig.");
+            }
+#endif
+
+            return migrations;
+        }
+
+        /// <summary>
+        /// Migration of setting from version 0 to version 1
+        /// </summary>
+        /// <param name="cfg"></param>
+        /// <returns></returns>
+        private static JObject Mig1To2(JObject cfg) {
+            cfg["Version"] = 2;
+            cfg["NumCupPos"] = cfg["NumClassPos"];
+            cfg["NumCupRelativePos"] = cfg["NumClassRelativePos"];
+            cfg["PartialRelativeCupNumCupPos"] = cfg["PartialRelativeClassNumClassPos"];
+            cfg["PartialRelativeCupNumRelativePos"] = cfg["PartialRelativeClassNumRelativePos"];
+
+
+            SimHub.Logging.Current.Info($"Migrated DynLeaderboardConfig {cfg["Name"]} from v1 to v2.");
+
+            return cfg;
+        }
     }
 }

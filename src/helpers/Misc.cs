@@ -134,6 +134,16 @@ namespace KLPlugins.DynLeaderboards.Helpers {
                 return defValue;
             }
         }
+
+        internal static bool Contains<T>(this IEnumerable<T> enumerable, Func<T, bool> predicate) {
+            foreach (var v in enumerable) {
+                if (predicate(v)) {
+                    return true;
+                }
+            }
+
+            return false;
+        }
     }
 
     internal static class ListExtensions {

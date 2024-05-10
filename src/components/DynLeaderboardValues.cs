@@ -6,7 +6,7 @@ using System.Linq;
 using GameReaderCommon;
 
 using KLPlugins.DynLeaderboards.Car;
-
+using KLPlugins.DynLeaderboards.Helpers;
 using KLPlugins.DynLeaderboards.Settings;
 
 namespace KLPlugins.DynLeaderboards {
@@ -32,7 +32,7 @@ namespace KLPlugins.DynLeaderboards {
         public string NextLeaderboardActionNAme => this.Config.NextLeaderboardActionName;
         public string PreviousLeaderboardActionNAme => this.Config.PreviousLeaderboardActionName;
         public int MaxPositions => this.Config.MaxPositions();
-        public Leaderboard CurrentLeaderboard => this.Config.CurrentLeaderboard();
+        public LeaderboardKind CurrentLeaderboard => this.Config.CurrentLeaderboard().Kind;
 
         internal DynLeaderboardConfig Config { get; set; }
 
@@ -68,8 +68,8 @@ namespace KLPlugins.DynLeaderboards {
         }
 
         private void SetDynGetters(Values v) {
-            switch (this.Config.CurrentLeaderboard()) {
-                case Leaderboard.Overall:
+            switch (this.Config.CurrentLeaderboard().Kind) {
+                case LeaderboardKind.Overall:
                     this.GetDynCar = (i) => v.OverallOrder.ElementAtOrDefault(i);
                     this.GetDynGapToFocused = (i) => this.GetDynCar(i)?.GapToLeader;
                     this.GetDynGapToAhead = (i) => this.GetDynCar(i)?.GapToAhead;
@@ -80,7 +80,7 @@ namespace KLPlugins.DynLeaderboards {
                     this.GetDynPositionStart = (i) => this.GetDynCar(i)?.PositionOverallStart;
                     break;
 
-                case Leaderboard.Class:
+                case LeaderboardKind.Class:
                     this.GetDynCar = (i) => v.ClassOrder.ElementAtOrDefault(i);
                     this.GetDynGapToFocused = (i) => this.GetDynCar(i)?.GapToClassLeader;
                     this.GetDynGapToAhead = (i) => this.GetDynCar(i)?.GapToAheadInClass;
@@ -91,7 +91,7 @@ namespace KLPlugins.DynLeaderboards {
                     this.GetDynPositionStart = (i) => this.GetDynCar(i)?.PositionInClassStart;
                     break;
 
-                case Leaderboard.Cup:
+                case LeaderboardKind.Cup:
                     this.GetDynCar = (i) => v.CupOrder.ElementAtOrDefault(i);
                     this.GetDynGapToFocused = (i) => this.GetDynCar(i)?.GapToCupLeader;
                     this.GetDynGapToAhead = (i) => this.GetDynCar(i)?.GapToAheadInCup;
@@ -102,8 +102,8 @@ namespace KLPlugins.DynLeaderboards {
                     this.GetDynPositionStart = (i) => this.GetDynCar(i)?.PositionInCupStart;
                     break;
 
-                case Leaderboard.RelativeOverall:
-                case Leaderboard.PartialRelativeOverall:
+                case LeaderboardKind.RelativeOverall:
+                case LeaderboardKind.PartialRelativeOverall:
                     this.GetDynCar = i => this._cars.ElementAtOrDefault(i);
                     this.GetDynGapToFocused = (i) => this.GetDynCar(i)?.GapToFocusedTotal;
                     this.GetDynGapToAhead = (i) => this.GetDynCar(i)?.GapToAhead;
@@ -114,8 +114,8 @@ namespace KLPlugins.DynLeaderboards {
                     this.GetDynPositionStart = (i) => this.GetDynCar(i)?.PositionOverallStart;
                     break;
 
-                case Leaderboard.RelativeClass:
-                case Leaderboard.PartialRelativeClass:
+                case LeaderboardKind.RelativeClass:
+                case LeaderboardKind.PartialRelativeClass:
                     this.GetDynCar = i => this._cars.ElementAtOrDefault(i);
                     this.GetDynGapToFocused = (i) => this.GetDynCar(i)?.GapToFocusedTotal;
                     this.GetDynGapToAhead = (i) => this.GetDynCar(i)?.GapToAheadInClass;
@@ -126,8 +126,8 @@ namespace KLPlugins.DynLeaderboards {
                     this.GetDynPositionStart = (i) => this.GetDynCar(i)?.PositionInClassStart;
                     break;
 
-                case Leaderboard.RelativeCup:
-                case Leaderboard.PartialRelativeCup:
+                case LeaderboardKind.RelativeCup:
+                case LeaderboardKind.PartialRelativeCup:
                     this.GetDynCar = (i) => this._cars.ElementAtOrDefault(i);
                     this.GetDynGapToFocused = (i) => this.GetDynCar(i)?.GapToFocusedTotal;
                     this.GetDynGapToAhead = (i) => this.GetDynCar(i)?.GapToAheadInCup;
@@ -138,8 +138,8 @@ namespace KLPlugins.DynLeaderboards {
                     this.GetDynPositionStart = (i) => this.GetDynCar(i)?.PositionInCupStart;
                     break;
 
-                case Leaderboard.RelativeOnTrack:
-                case Leaderboard.RelativeOnTrackWoPit:
+                case LeaderboardKind.RelativeOnTrack:
+                case LeaderboardKind.RelativeOnTrackWoPit:
                     this.GetDynCar = i => this._cars.ElementAtOrDefault(i);
                     this.GetDynGapToFocused = (i) => this.GetDynCar(i)?.GapToFocusedOnTrack;
                     this.GetDynGapToAhead = (i) => this.GetDynCar(i)?.GapToAheadOnTrack;
@@ -160,38 +160,38 @@ namespace KLPlugins.DynLeaderboards {
             if (v.FocusedCar == null) return;
 
             this._cars.Clear();
-            switch (this.Config.CurrentLeaderboard()) {
-                case Leaderboard.Overall:
+            switch (this.Config.CurrentLeaderboard().Kind) {
+                case LeaderboardKind.Overall:
                     this.FocusedIndex = v.FocusedCar.IndexOverall;
                     break;
-                case Leaderboard.Class:
+                case LeaderboardKind.Class:
                     this.FocusedIndex = v.FocusedCar.IndexClass;
                     break;
-                case Leaderboard.Cup:
+                case LeaderboardKind.Cup:
                     this.FocusedIndex = v.FocusedCar.IndexCup;
                     break;
-                case Leaderboard.RelativeOverall:
+                case LeaderboardKind.RelativeOverall:
                     this.SetCarsRelativeX(
                         numRelPos: this.Config.NumOverallRelativePos,
                         cars: v.OverallOrder,
                         focusedCarIndexInCars: v.FocusedCar.IndexOverall
                     );
                     break;
-                case Leaderboard.RelativeClass:
+                case LeaderboardKind.RelativeClass:
                     this.SetCarsRelativeX(
                         numRelPos: this.Config.NumClassRelativePos,
                         cars: v.ClassOrder,
                         focusedCarIndexInCars: v.FocusedCar.IndexClass
                     );
                     break;
-                case Leaderboard.RelativeCup:
+                case LeaderboardKind.RelativeCup:
                     this.SetCarsRelativeX(
                         numRelPos: this.Config.NumCupRelativePos,
                         cars: v.CupOrder,
                         focusedCarIndexInCars: v.FocusedCar.IndexCup
                     );
                     break;
-                case Leaderboard.PartialRelativeOverall:
+                case LeaderboardKind.PartialRelativeOverall:
                     this.SetCarsPartialRelativeX(
                         numTopPos: this.Config.PartialRelativeOverallNumOverallPos,
                         numRelPos: this.Config.PartialRelativeOverallNumRelativePos,
@@ -199,7 +199,7 @@ namespace KLPlugins.DynLeaderboards {
                         focusedCarIndexInCars: v.FocusedCar.IndexOverall
                     );
                     break;
-                case Leaderboard.PartialRelativeClass:
+                case LeaderboardKind.PartialRelativeClass:
                     this.SetCarsPartialRelativeX(
                         numTopPos: this.Config.PartialRelativeClassNumClassPos,
                         numRelPos: this.Config.PartialRelativeClassNumRelativePos,
@@ -207,7 +207,7 @@ namespace KLPlugins.DynLeaderboards {
                         focusedCarIndexInCars: v.FocusedCar.IndexClass
                     );
                     break;
-                case Leaderboard.PartialRelativeCup:
+                case LeaderboardKind.PartialRelativeCup:
                     this.SetCarsPartialRelativeX(
                         numTopPos: this.Config.PartialRelativeCupNumCupPos,
                         numRelPos: this.Config.PartialRelativeCupNumRelativePos,
@@ -215,7 +215,7 @@ namespace KLPlugins.DynLeaderboards {
                         focusedCarIndexInCars: v.FocusedCar.IndexCup
                     );
                     break;
-                case Leaderboard.RelativeOnTrack: {
+                case LeaderboardKind.RelativeOnTrack: {
                         var relPos = this.Config.NumOnTrackRelativePos;
 
                         if (v.RelativeOnTrackAheadOrder.Count < relPos) {
@@ -237,7 +237,7 @@ namespace KLPlugins.DynLeaderboards {
                     }
                     break;
 
-                case Leaderboard.RelativeOnTrackWoPit: {
+                case LeaderboardKind.RelativeOnTrackWoPit: {
                         var relPos = this.Config.NumOnTrackRelativePos;
 
                         var aheadCars = v.RelativeOnTrackAheadOrder
@@ -316,35 +316,57 @@ namespace KLPlugins.DynLeaderboards {
             }
         }
 
-        private bool DynLeaderboardContainsAny(params Leaderboard[] leaderboards) {
-            foreach (var v in leaderboards) {
-                if (this.Config.Order.Contains(v)) {
-                    return true;
+        internal void NextLeaderboard(Values values) {
+            var isSingleClass = values.NumClassesInSession < 2;
+            var isSingleCup = values.NumCupsInSession < 2;
+            // For loop so that we don't go into an infinite loop if all leaderboards should be excluded
+            for (int i = 0; i < this.Config.Order.Count; i++) {
+                if (this.Config.CurrentLeaderboardIdx == this.Config.Order.Count - 1) {
+                    this.Config.CurrentLeaderboardIdx = 0;
+                } else {
+                    this.Config.CurrentLeaderboardIdx++;
+                }
+
+                var currentLeaderboard = this.Config.CurrentLeaderboard();
+                if (
+                    (isSingleClass && currentLeaderboard.RemoveIfSingleClass)
+                    || (isSingleCup && currentLeaderboard.RemoveIfSingleCup)
+                ) {
+                    continue;
+                } else {
+                    break;
                 }
             }
-            return false;
-        }
 
-        internal void NextLeaderboard(Values values) {
-            if (this.Config.CurrentLeaderboardIdx == this.Config.Order.Count - 1) {
-                this.Config.CurrentLeaderboardIdx = 0;
-            } else {
-                this.Config.CurrentLeaderboardIdx++;
-            }
             this.OnLeaderboardChange(values);
         }
 
         internal void PreviousLeaderboard(Values values) {
-            if (this.Config.CurrentLeaderboardIdx == 0) {
-                this.Config.CurrentLeaderboardIdx = this.Config.Order.Count - 1;
-            } else {
-                this.Config.CurrentLeaderboardIdx--;
+            var isSingleClass = values.NumClassesInSession < 2;
+            var isSingleCup = values.NumCupsInSession < 2;
+            // For loop so that we don't go into an infinite loop if all leaderboards should be excluded
+            for (int i = 0; i < this.Config.Order.Count; i++) {
+                if (this.Config.CurrentLeaderboardIdx == 0) {
+                    this.Config.CurrentLeaderboardIdx = this.Config.Order.Count - 1;
+                } else {
+                    this.Config.CurrentLeaderboardIdx--;
+                }
+
+                var currentLeaderboard = this.Config.CurrentLeaderboard();
+                if (
+                    (isSingleClass && currentLeaderboard.RemoveIfSingleClass)
+                    || (isSingleCup && currentLeaderboard.RemoveIfSingleCup)
+                ) {
+                    continue;
+                } else {
+                    break;
+                }
             }
             this.OnLeaderboardChange(values);
         }
 
         private void OnLeaderboardChange(Values v) {
-            DynLeaderboardsPlugin.LogInfo($"OnLeaderboardChange [{this.Config.Name}]: {this.Config.CurrentLeaderboard()}");
+            DynLeaderboardsPlugin.LogInfo($"OnLeaderboardChange [{this.Config.Name}]: {this.Config.CurrentLeaderboard().Kind}");
             this.SetDynGetters(v);
         }
     }

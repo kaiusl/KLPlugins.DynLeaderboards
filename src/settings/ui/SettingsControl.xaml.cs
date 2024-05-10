@@ -1530,58 +1530,78 @@ namespace KLPlugins.DynLeaderboards.Settings {
             return sp;
         }
 
+        class DynLeaderboardsListViewItem : StackPanel {
+            internal SHToggleButton EnableToggleButton { get; private set; }
+            internal TextBlock NameTextBox { get; private set; }
+            internal SHToggleButton RemoveIfSingleClassToggleButton { get; private set; }
+            internal SHToggleButton RemoveIfSingleCupToggleButton { get; private set; }
+            internal Leaderboard Leaderboard { get; private set; }
+
+            internal DynLeaderboardsListViewItem(Leaderboard leaderboard, bool isEnabled) {
+                this.Leaderboard = leaderboard;
+
+                var hsp = new StackPanel() {
+                    Orientation = Orientation.Horizontal,
+                    ToolTip = this.Leaderboard.Kind.Tooltip()
+                };
+
+                this.EnableToggleButton = new SHToggleButton {
+                    Name = $"{this.Leaderboard.Kind}_toggle_listview",
+                    IsChecked = isEnabled
+                };
+
+                this.NameTextBox = new TextBlock {
+                    Text = this.Leaderboard.Kind.ToString(),
+                    Width = 200
+                };
+
+                this.RemoveIfSingleClassToggleButton = new SHToggleButton() {
+                    IsChecked = this.Leaderboard.RemoveIfSingleClass
+                };
+                this.RemoveIfSingleClassToggleButton.Checked += (a, b) => this.Leaderboard.RemoveIfSingleClass = true;
+                this.RemoveIfSingleClassToggleButton.Unchecked += (a, b) => this.Leaderboard.RemoveIfSingleClass = false;
+
+                this.RemoveIfSingleCupToggleButton = new SHToggleButton() {
+                    IsChecked = this.Leaderboard.RemoveIfSingleCup
+                };
+                this.RemoveIfSingleCupToggleButton.Checked += (a, b) => this.Leaderboard.RemoveIfSingleCup = true;
+                this.RemoveIfSingleCupToggleButton.Unchecked += (a, b) => this.Leaderboard.RemoveIfSingleCup = false;
+
+                hsp.Children.Add(this.EnableToggleButton);
+                hsp.Children.Add(this.NameTextBox);
+                hsp.Children.Add(this.RemoveIfSingleClassToggleButton);
+                hsp.Children.Add(this.RemoveIfSingleCupToggleButton);
+
+                this.Children.Add(hsp);
+                var sep = new Separator() {
+                    Background = Brushes.DimGray
+                };
+                this.Children.Add(sep);
+            }
+        }
+
         private void AddDynLeaderboardToggles() {
             this.DynLeaderboards_ListView.Items.Clear();
             // Add currently selected leaderboards
             foreach (var l in this.CurrentDynLeaderboardSettings.Order) {
-                var sp = new StackPanel {
-                    Orientation = Orientation.Horizontal,
-                    ToolTip = l.Tooltip()
-                };
+                var item = new DynLeaderboardsListViewItem(l, true);
+                item.EnableToggleButton.Checked += (a, b) => this.CreateDynamicLeaderboardList();
+                item.EnableToggleButton.Unchecked += (a, b) => this.CreateDynamicLeaderboardList();
 
-                var tb = new SHToggleButton {
-                    Name = $"{l}_toggle_listview",
-                    IsChecked = true
-                };
-                tb.Checked += (a, b) => this.CreateDynamicLeaderboardList();
-                tb.Unchecked += (a, b) => this.CreateDynamicLeaderboardList();
-
-                var t = new TextBlock {
-                    Text = l.ToString()
-                };
-
-                sp.Children.Add(tb);
-                sp.Children.Add(t);
-
-                this.DynLeaderboards_ListView.Items.Add(sp);
+                this.DynLeaderboards_ListView.Items.Add(item);
             }
 
             // Add all others to the end
-            foreach (var l in (Leaderboard[])Enum.GetValues(typeof(Leaderboard))) {
-                if (l == Leaderboard.None || this.CurrentDynLeaderboardSettings.Order.Contains(l)) {
+            foreach (var l in (LeaderboardKind[])Enum.GetValues(typeof(LeaderboardKind))) {
+                if (l == LeaderboardKind.None || this.CurrentDynLeaderboardSettings.Order.Contains(x => x.Kind == l)) {
                     continue;
                 }
 
-                var sp = new StackPanel {
-                    Orientation = Orientation.Horizontal
-                };
+                var item = new DynLeaderboardsListViewItem(new Leaderboard(l), false);
+                item.EnableToggleButton.Checked += (a, b) => this.CreateDynamicLeaderboardList();
+                item.EnableToggleButton.Unchecked += (a, b) => this.CreateDynamicLeaderboardList();
 
-                var tb = new SHToggleButton {
-                    Name = $"{l}_toggle_listview",
-                    IsChecked = false
-                };
-                tb.Checked += (a, b) => this.CreateDynamicLeaderboardList();
-                tb.Unchecked += (a, b) => this.CreateDynamicLeaderboardList();
-                //tb.ToolTip = tooltip;
-
-                var t = new TextBlock {
-                    Text = l.ToString()
-                };
-
-                sp.Children.Add(tb);
-                sp.Children.Add(t);
-
-                this.DynLeaderboards_ListView.Items.Add(sp);
+                this.DynLeaderboards_ListView.Items.Add(item);
             }
         }
 
@@ -1590,25 +1610,20 @@ namespace KLPlugins.DynLeaderboards.Settings {
         /// </summary>
         private void CreateDynamicLeaderboardList() {
             var selected = this.SelectDynLeaderboard_ComboBox.SelectedIndex;
-            var currentSelectedLeaderboard = this.Settings.DynLeaderboardConfigs[selected].CurrentLeaderboard();
-            this.Settings.DynLeaderboardConfigs[selected].CurrentLeaderboardIdx = 0;
-            this.Settings.DynLeaderboardConfigs[selected].Order.Clear();
+            var selectedLeaderboardConfig = this.Settings.DynLeaderboardConfigs[selected];
+            var currentSelectedLeaderboard = selectedLeaderboardConfig.CurrentLeaderboard().Kind;
+            selectedLeaderboardConfig.CurrentLeaderboardIdx = 0;
+            selectedLeaderboardConfig.Order.Clear();
             int i = 0;
             foreach (var v in this.DynLeaderboards_ListView.Items) {
-                var sp = (StackPanel)v;
-                var tb = (SHToggleButton)sp.Children[0];
-                var txt = (TextBlock)sp.Children[1];
-                if (tb.IsChecked == null || tb.IsChecked == false) {
+                var item = (DynLeaderboardsListViewItem)v;
+                if (item.EnableToggleButton.IsChecked == null || item.EnableToggleButton.IsChecked == false) {
                     continue;
                 }
 
-                if (Enum.TryParse(txt.Text, out Leaderboard variant)) {
-                    this.Settings.DynLeaderboardConfigs[selected].Order.Add(variant);
-                    if (variant == currentSelectedLeaderboard) { // Keep selected leaderboard as was, if that one was removed, set to first
-                        this.Settings.DynLeaderboardConfigs[selected].CurrentLeaderboardIdx = i;
-                    }
-
-                    i++;
+                selectedLeaderboardConfig.Order.Add(item.Leaderboard);
+                if (item.Leaderboard.Kind == currentSelectedLeaderboard) { // Keep selected leaderboard as was, if that one was removed, set to first
+                    selectedLeaderboardConfig.CurrentLeaderboardIdx = i;
                 }
             }
             //  this.Plugin.SetDynamicCarGetter(this.Settings.DynLeaderboardConfigs[selected]);

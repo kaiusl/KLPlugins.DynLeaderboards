@@ -1,5 +1,6 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -9,7 +10,7 @@ using Newtonsoft.Json.Linq;
 
 namespace KLPlugins.DynLeaderboards.Settings {
     internal class PluginSettings {
-        [JsonProperty] public int Version { get; set; } = 2;
+        [JsonProperty] public int Version { get; set; } = 3;
         [JsonProperty] public string AccDataLocation { get; set; }
         [JsonProperty] public string? AcRootLocation { get; set; }
         [JsonProperty] public bool Log { get; set; }
@@ -18,7 +19,7 @@ namespace KLPlugins.DynLeaderboards.Settings {
         [JsonProperty] public bool Include_ST21_In_GT2 { get; set; }
         [JsonProperty] public bool Include_CHL_In_GT2 { get; set; }
 
-        [JsonIgnore] internal const int currentSettingsVersion = 2;
+        [JsonIgnore] internal const int currentSettingsVersion = 3;
         [JsonIgnore] internal List<DynLeaderboardConfig> DynLeaderboardConfigs { get; set; } = [];
 
         [JsonIgnore] internal const string PluginDataDir = "PluginsData\\KLPlugins\\DynLeaderboards";
@@ -225,6 +226,7 @@ namespace KLPlugins.DynLeaderboards.Settings {
             var migrations = new Dictionary<string, Migration> {
                 ["0_1"] = Mig0To1,
                 ["1_2"] = Mig1To2,
+                ["2_3"] = Mig2To3
             };
 
 #if DEBUG
@@ -295,12 +297,30 @@ namespace KLPlugins.DynLeaderboards.Settings {
             return o;
         }
 
+        /// <summary>
+        /// Migration of setting from version 0 to version 1
+        /// </summary>
+        /// <param name="o"></param>
+        /// <returns></returns>
+        private static JObject Mig2To3(JObject o) {
+            // v2 to v3 changes:
+            // - Bump versions!
+            // - DynLeaderboardConfigs Order is of type Leaderboard and includes RemoveIfSingleClass/Cup properties,
+            //   Although the conversion is automatic since Leaderboard can be converted from LeaderboardKind/int
+            // - 
+
+            o["Version"] = 3;
+
+            SimHub.Logging.Current.Info($"Migrated settings from v2 to v3.");
+
+            return o;
+        }
     }
 
     internal class DynLeaderboardConfig {
-        [JsonIgnore] internal const int currentConfigVersion = 2;
+        [JsonIgnore] internal const int CurrentConfigVersion = 3;
 
-        [JsonProperty] public int Version { get; set; } = 2;
+        [JsonProperty] public int Version { get; set; } = 3;
 
         [JsonIgnore] private string _name = "";
         [JsonProperty]
@@ -354,7 +374,7 @@ namespace KLPlugins.DynLeaderboards.Settings {
         [JsonProperty] public int PartialRelativeCupNumCupPos { get; set; } = 5;
         [JsonProperty] public int PartialRelativeCupNumRelativePos { get; set; } = 5;
 
-        [JsonProperty] public List<Leaderboard> Order { get; set; } = new List<Leaderboard>();
+        [JsonProperty] public List<Leaderboard> Order { get; set; } = new();
 
         [JsonProperty]
         public int CurrentLeaderboardIdx {
@@ -380,17 +400,17 @@ namespace KLPlugins.DynLeaderboards.Settings {
         internal DynLeaderboardConfig(string name) {
             this.Name = name;
             this.Order = [
-                Leaderboard.Overall,
-                Leaderboard.Class,
-                Leaderboard.Cup,
-                Leaderboard.PartialRelativeOverall,
-                Leaderboard.PartialRelativeClass,
-                Leaderboard.PartialRelativeCup,
-                Leaderboard.RelativeOverall,
-                Leaderboard.RelativeClass,
-                Leaderboard.RelativeCup,
-                Leaderboard.RelativeOnTrack,
-                Leaderboard.RelativeOnTrackWoPit
+                new Leaderboard(LeaderboardKind.Overall),
+                new Leaderboard(LeaderboardKind.Class, true, true),
+                new Leaderboard(LeaderboardKind.Cup, true, true),
+                new Leaderboard(LeaderboardKind.PartialRelativeOverall),
+                new Leaderboard(LeaderboardKind.PartialRelativeClass, true, true),
+                new Leaderboard(LeaderboardKind.PartialRelativeCup, true, true),
+                new Leaderboard(LeaderboardKind.RelativeOverall),
+                new Leaderboard(LeaderboardKind.RelativeClass, true, true),
+                new Leaderboard(LeaderboardKind.RelativeCup, true, true),
+                new Leaderboard(LeaderboardKind.RelativeOnTrack),
+                new Leaderboard(LeaderboardKind.RelativeOnTrackWoPit)
             ];
             this.CurrentLeaderboardName = this.Order[this._currentLeaderboardIdx].ToString();
         }
@@ -478,6 +498,7 @@ namespace KLPlugins.DynLeaderboards.Settings {
         private static Dictionary<string, Migration> CreateMigrationsDict() {
             var migrations = new Dictionary<string, Migration> {
                 ["1_2"] = Mig1To2,
+                ["2_3"] = Mig2To3
             };
 
 #if DEBUG
@@ -505,6 +526,62 @@ namespace KLPlugins.DynLeaderboards.Settings {
             SimHub.Logging.Current.Info($"Migrated DynLeaderboardConfig {cfg["Name"]} from v1 to v2.");
 
             return cfg;
+        }
+
+        /// <summary>
+        /// Migration of setting from version 0 to version 1
+        /// </summary>
+        /// <param name="o"></param>
+        /// <returns></returns>
+        private static JObject Mig2To3(JObject cfg) {
+            // v2 to v3 changes:
+            // - Bump versions!
+            // - DynLeaderboardConfigs Order is of type Leaderboard and includes RemoveIfSingleClass/Cup properties,
+            //   Although the conversion is automatic since Leaderboard can be converted from LeaderboardKind/int
+            // - 
+
+            cfg["Version"] = 3;
+
+            SimHub.Logging.Current.Info($"Migrated DynLeaderboardConfig {cfg["Name"]} from v2 to v3.");
+
+            return cfg;
+        }
+
+    }
+
+    [TypeConverter(typeof(LeaderboardKindTypeConverter))]
+    internal class Leaderboard {
+        [JsonProperty] public LeaderboardKind Kind { get; private set; }
+        [JsonProperty] public bool RemoveIfSingleClass { get; internal set; }
+        [JsonProperty] public bool RemoveIfSingleCup { get; internal set; }
+
+        [JsonConstructor]
+        internal Leaderboard(LeaderboardKind kind, bool removeIfSingleClass, bool removeIfSingleCup) {
+            this.Kind = kind;
+            this.RemoveIfSingleClass = removeIfSingleClass;
+            this.RemoveIfSingleCup = removeIfSingleCup;
+        }
+
+        internal Leaderboard(LeaderboardKind kind) {
+            this.Kind = kind;
+        }
+    }
+
+    internal class LeaderboardKindTypeConverter : TypeConverter {
+        public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType) {
+            return sourceType == typeof(System.Int64);
+        }
+
+        public override object ConvertFrom(ITypeDescriptorContext context, System.Globalization.CultureInfo culture, object value) {
+            return new Leaderboard((LeaderboardKind)(System.Int64)value);
+        }
+
+        public override bool CanConvertTo(ITypeDescriptorContext context, Type destinationType) {
+            return false;
+        }
+
+        public override object ConvertTo(ITypeDescriptorContext context, System.Globalization.CultureInfo culture, object value, Type destinationType) {
+            return base.ConvertTo(context, culture, value, destinationType);
         }
     }
 }

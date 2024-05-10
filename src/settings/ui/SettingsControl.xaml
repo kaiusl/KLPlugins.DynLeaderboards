@@ -250,7 +250,6 @@
         </Style>
 
     </UserControl.Resources>
-    
     <styles:SHTabControl>
 
         <styles:SHTabItem Header="General settings">
@@ -452,7 +451,7 @@
                         <StackPanel>
 
                             <TextBlock MaxWidth="750"
-                                       TextWrapping="Wrap">You can enable/disable specific leaderboards and choose the order in which they appear. You don't need to restart SimHub after you change the rotation.</TextBlock>
+                                       TextWrapping="Wrap">You can enable/disable specific leaderboards and choose the order in which they appear. You don't need to restart SimHub after you change the rotation. <LineBreak /> You can also enable removing some leaderboard types if there is only a single class or cup in the session. Overall and Class/Cup leaderboards are equivalent in single class/cup sessions and thus there is really no need to scroll through all of them if you have both enabled.</TextBlock>
                             <TextBlock MaxWidth="750"
                                        TextWrapping="Wrap">Available leaderboard types are.</TextBlock>
                             <TextBlock MaxWidth="750"
@@ -495,6 +494,14 @@
                                                   ToolTip="Move currently selected leaderboard one position up.">Up</styles:SHButtonSecondary>
                         <styles:SHButtonSecondary Click="DynLeaderboard_ListView_Down"
                                                   ToolTip="Move currently selected leaderboard one position down.">Down</styles:SHButtonSecondary>
+
+                        <StackPanel Margin="200,0,5,0">
+                            <TextBlock Margin="0" 
+                                       HorizontalAlignment="Center">Remove if single</TextBlock>
+                            <TextBlock Margin="0"
+                                       Text="class      /      cup"
+                                       HorizontalAlignment="Center" />
+                        </StackPanel>
                     </StackPanel>
 
                     <ListView x:Name="DynLeaderboards_ListView"

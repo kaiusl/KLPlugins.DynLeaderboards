@@ -486,7 +486,7 @@ namespace KLPlugins.DynLeaderboards.Car {
                 this.LapDataValidForSave = false;
             }
 
-            if (this.RawDataOld.CurrentLapTime > this.RawDataNew.CurrentLapTime 
+            if (this.RawDataOld.CurrentLapTime > this.RawDataNew.CurrentLapTime
                 || (DynLeaderboardsPlugin.Game.IsAMS2 && this.RawDataOld.CurrentLapTime != null && this.RawDataNew.CurrentLapTime == null)
             ) {
                 if (this.LapDataValidForSave && this.LapDataPos.Count != 0) {
@@ -1552,7 +1552,21 @@ namespace KLPlugins.DynLeaderboards.Car {
                 NationalityEnum.Ukraine => "Ukraine",
                 NationalityEnum.Venezuela => "Venezuela",
                 NationalityEnum.Wales => "Wales",
-                _ => "Unknown"
+                NationalityEnum.Any => "Any",
+                (NationalityEnum)78 => "Iran",
+                (NationalityEnum)79 => "Bahrain",
+                (NationalityEnum)80 => "Zimbabwe",
+                (NationalityEnum)81 => "Chinese Taipei",
+                (NationalityEnum)82 => "Chile",
+                (NationalityEnum)83 => "Uruguay",
+                (NationalityEnum)84 => "Madagascar",
+                (NationalityEnum)85 => "Malta",
+                (NationalityEnum)86 => "England",
+                (NationalityEnum)87 => "Bosnia and Herzegovina",
+                (NationalityEnum)88 => "Morocco",
+                (NationalityEnum)89 => "Sri Lanka",
+
+                _ => nationality.ToString()
             };
         }
     }

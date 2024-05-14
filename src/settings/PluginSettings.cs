@@ -381,7 +381,7 @@ namespace KLPlugins.DynLeaderboards.Settings {
             get => this._currentLeaderboardIdx;
             set {
                 this._currentLeaderboardIdx = value > -1 && value < this.Order.Count ? value : 0;
-                this.CurrentLeaderboardName = this.CurrentLeaderboard().ToString();
+                this.CurrentLeaderboardName = this.CurrentLeaderboard().Kind.ToString();
             }
         }
         [JsonIgnore] private int _currentLeaderboardIdx = 0;
@@ -412,7 +412,7 @@ namespace KLPlugins.DynLeaderboards.Settings {
                 new Leaderboard(LeaderboardKind.RelativeOnTrack),
                 new Leaderboard(LeaderboardKind.RelativeOnTrackWoPit)
             ];
-            this.CurrentLeaderboardName = this.Order[this._currentLeaderboardIdx].ToString();
+            this.CurrentLeaderboardName = this.Order[this._currentLeaderboardIdx].Kind.ToString();
         }
 
         internal void Rename(string newName) {

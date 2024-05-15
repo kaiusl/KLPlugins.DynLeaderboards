@@ -254,6 +254,17 @@ namespace KLPlugins.DynLeaderboards {
                     DynLeaderboardsPlugin.LogWarn($"Unknown session phase {rf2Data.Data.mGamePhase}");
                 }
                 return phase;
+            } else if (DynLeaderboardsPlugin.Game.IsR3e) {
+                var r3eData = (R3E.Data.Shared)data.NewData.GetRawDataObject();
+                return r3eData.SessionPhase switch {
+                    -1 => SessionPhase.Unknown,
+                    1 or 2 => SessionPhase.Starting,
+                    3 => SessionPhase.FormationLap,
+                    4 => SessionPhase.PreSession,
+                    5 => SessionPhase.Session,
+                    6 => SessionPhase.SessionOver, // Checkered flag shown
+                    _ => (SessionPhase)r3eData.SessionPhase                    
+                };
             } else {
                 // TODO: Figure out how to detect these in other games
                 return SessionPhase.Unknown;

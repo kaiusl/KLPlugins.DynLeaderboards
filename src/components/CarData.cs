@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
+using System.Text;
 
 using GameReaderCommon;
 
@@ -16,6 +17,8 @@ using ksBroadcastingNetwork;
 using Newtonsoft.Json;
 
 using PCarsSharedMemory.AMS2.Models;
+
+using SimHubR3E = R3E;
 
 namespace KLPlugins.DynLeaderboards.Car {
     public class CarData {
@@ -344,6 +347,9 @@ namespace KLPlugins.DynLeaderboards.Car {
         internal AMS2RawOpponentData? RawAMS2DataNew { get; private set; }
         internal AMS2RawOpponentData? RawAMS2DataOld { get; private set; }
 
+        internal R3E.RawOpponentData? RawR3EDataNew { get; private set; }
+        internal R3E.RawOpponentData? RawR3EDataOld { get; private set; }
+
         /// <summary>
         /// Update data that is independent of other cars data.
         /// </summary>
@@ -396,9 +402,39 @@ namespace KLPlugins.DynLeaderboards.Car {
                         this.RawAMS2DataNew = null;
                     }
                 }
+            } else if (DynLeaderboardsPlugin.Game.IsR3e) {
+
+
+
+                static string? GetName(byte[] data) {
+                    if (data == null) {
+                        return null;
+                    }
+                    return (Encoding.UTF8.GetString(data) ?? "").Split(default(char))[0];
+                }
+
+                this.RawR3EDataOld = this.RawR3EDataNew;
+
+                if (gameData.NewData.GetRawDataObject() is SimHubR3E.Data.Shared rawR3Edata) {
+                    var index = -1;
+                    var name = "";
+                    SimHubR3E.Data.DriverData? participantData = null;
+                    for (int i = 0; i < rawR3Edata.NumCars; i++) {
+                        participantData = rawR3Edata.DriverData[i];
+                        name = GetName(participantData.Value.DriverInfo.Name);
+                        if (name != null && name != "" && name == this.Id) {
+                            index = i;
+                            break;
+                        }
+                    }
+
+                    if (index != -1) {
+                        this.RawR3EDataNew = new R3E.RawOpponentData(participantData!.Value.FinishStatus);
+                    } else {
+                        this.RawR3EDataNew = null;
+                    }
+                }
             }
-
-
 
             if (DynLeaderboardsPlugin.Game.IsAcc && focusedCarId != null) {
                 this.IsFocused = this.Id == focusedCarId;
@@ -2003,8 +2039,27 @@ namespace KLPlugins.DynLeaderboards.Car {
             return ((DriverCategory)value).AsString();
         }
     }
-}
 
+    namespace R3E {
+        internal enum FinishStatus {
+            Unknown = -1,
+            None = 0,
+            Finished = 1,
+            DNF = 2,
+            DNQ = 3,
+            DNS = 4,
+            DQ = 5,
+        }
+
+        internal class RawOpponentData {
+            internal FinishStatus FinishStatus { get; private set; }
+
+            internal RawOpponentData(int finishState) {
+                this.FinishStatus = (FinishStatus)finishState;
+            }
+        }
+    }
+}
 
 internal class AMS2RawOpponentData {
     public int RaceState { get; private set; }

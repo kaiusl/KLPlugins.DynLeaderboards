@@ -9,7 +9,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Added
 
 - Support for other games, not only ACC.
-    - Currently tested with AC, ACC, RF2 and R3E.
+    - Currently tested with AC, ACC, AMS2, RF2 and R3E.
     - Other games should work as the plugin relies on the data provided by SimHub
       but they haven't been tested if any special handling is needed.
 - New car specific properties:
@@ -19,11 +19,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - New general properties:
     - `Color.Class.<class>.Text`
     - `Color.DriverCategory.<category>.Text`
+    - `Session.NumberOfClasses`
+    - `Session.NumberOfCups`
 - New config UI to edit car settings (name, manufacturer and class).
-- Automatically generate lap data for gap calculation.
-- Read AC car info from AC files.
+- Option to read AC car info directly from AC files.
+- AC root location in the settings.
 - Configuration options to set controls for "NextLeaderboard" and "PreviousLeaderboards"
-  actions directly in this plugins settings menu. 
+  actions directly in this plugins settings menu.
+- Option to remove class and/or cup leaderboards from the rotation in case
+  there is only a single class or cup in the session.
 
 ### Changed
 
@@ -32,15 +36,29 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Deprecate `Driver.CategoryColor` property in favour of `Driver.Category.Color` 
   which matches the names of other similar properties.
 - New config UI to edit class, team cup and driver category colors.
+- Lap interpolators are built on need to basis to avoid unnecessary waste of 
+  resources.
+- Automatically generate lap data for gap calculation.
+- Automatically generate spline position offsets.
 
 ### Removed
 
 - Pregenerated lap data files since they are not needed anymore.
+- Option to set data update interval. The data update rate is defined by SimHub.
+  For dashboards it's recommended to set min. update intervals in the dash studio.
+- Toggle option to include ST21 and CHL (ACC) classes in GT2 class.
+  The same thing can now be achieved by changing the class of car directly.
 
 ### Fixed
 
 - Possible `NullReferenceException` while disposing `Values`.
 - Don't overwrite log files when a game in changed within SimHub.
+- Added missing ACC driver nationalities
+- Possible missing leaderboard configuration when importing configuration from 
+  older plugin version.
+- Position flickering if two cars have same finishing time.
+- On track gap had different signs when using naive and interpolator based methods.
+- Overly bright separators in settings menu.
 
 ## [1.4.5] - 2024-05-07
 

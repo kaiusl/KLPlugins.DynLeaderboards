@@ -1046,9 +1046,16 @@ namespace KLPlugins.DynLeaderboards.Car {
                 this.RelativeSplinePositionToFocusedCar = this.CalculateRelativeSplinePositionFrom(focusedCar);
             }
 
-            if (values.IsFirstFinished && this.IsNewLap) {
-                this.IsFinished = true;
-                this.FinishTime = DateTime.Now;
+            if (!this.IsFinished) {
+                if (DynLeaderboardsPlugin.Game.IsR3e) {
+                    if (this.RawR3EDataNew != null && this.RawR3EDataNew.FinishStatus == R3E.FinishStatus.Finished) {
+                        this.IsFinished = true;
+                        this.FinishTime = DateTime.Now;
+                    }
+                } else if (values.IsFirstFinished && this.IsNewLap) {
+                    this.IsFinished = true;
+                    this.FinishTime = DateTime.Now;
+                }
             }
 
             this.BestLap?.CalculateDeltas(

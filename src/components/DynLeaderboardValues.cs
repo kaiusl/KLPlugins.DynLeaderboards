@@ -3,10 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 
-using GameReaderCommon;
-
 using KLPlugins.DynLeaderboards.Car;
-using KLPlugins.DynLeaderboards.Helpers;
 using KLPlugins.DynLeaderboards.Settings;
 
 namespace KLPlugins.DynLeaderboards {

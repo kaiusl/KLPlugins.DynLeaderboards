@@ -12,12 +12,8 @@ using KLPlugins.DynLeaderboards.Helpers;
 using KLPlugins.DynLeaderboards.Settings;
 using KLPlugins.DynLeaderboards.Track;
 
-using ksBroadcastingNetwork;
-
-using Newtonsoft.Json;
-
-using PCarsSharedMemory.AMS2.Models;
-
+using SimHubACCBroadcasting = ksBroadcastingNetwork;
+using SimHubAMS2 = PCarsSharedMemory.AMS2;
 using SimHubR3E = R3E;
 
 namespace KLPlugins.DynLeaderboards.Car {
@@ -344,8 +340,8 @@ namespace KLPlugins.DynLeaderboards.Car {
             return carModel?.Split(' ')[0] ?? "Unknown";
         }
 
-        internal AMS2RawOpponentData? RawAMS2DataNew { get; private set; }
-        internal AMS2RawOpponentData? RawAMS2DataOld { get; private set; }
+        internal AMS2.RawOpponentData? RawAMS2DataNew { get; private set; }
+        internal AMS2.RawOpponentData? RawAMS2DataOld { get; private set; }
 
         internal R3E.RawOpponentData? RawR3EDataNew { get; private set; }
         internal R3E.RawOpponentData? RawR3EDataOld { get; private set; }
@@ -382,11 +378,11 @@ namespace KLPlugins.DynLeaderboards.Car {
             if (DynLeaderboardsPlugin.Game.IsAMS2) {
                 this.RawAMS2DataOld = this.RawAMS2DataNew;
 
-                if (gameData.NewData.GetRawDataObject() is AMS2APIStruct rawAMS2data) {
+                if (gameData.NewData.GetRawDataObject() is SimHubAMS2.Models.AMS2APIStruct rawAMS2data) {
                     var index = -1;
                     for (int i = 0; i < rawAMS2data.mNumParticipants; i++) {
                         var participantData = rawAMS2data.mParticipantData[i];
-                        var name = PC2Helper.getNameFromBytes(participantData.mName);
+                        var name = SimHubAMS2.Models.PC2Helper.getNameFromBytes(participantData.mName);
                         if (name == this.Id) {
                             index = i;
                             break;
@@ -394,7 +390,7 @@ namespace KLPlugins.DynLeaderboards.Car {
                     }
 
                     if (index != -1) {
-                        this.RawAMS2DataNew = new AMS2RawOpponentData(
+                        this.RawAMS2DataNew = new AMS2.RawOpponentData(
                             raceState: Convert.ToInt32(rawAMS2data.mRaceStates[index]),
                             isCurrentLapInvalidated: Convert.ToBoolean(rawAMS2data.mLapsInvalidated[index])
                         );
@@ -483,11 +479,11 @@ namespace KLPlugins.DynLeaderboards.Car {
                     this.IsCurrentLapInLap = false;
                 }
 
-                if (!this.IsCurrentLapOutLap && rawDataNew.ExtraData.CurrentLap.Type == LapType.Outlap) {
+                if (!this.IsCurrentLapOutLap && rawDataNew.ExtraData.CurrentLap.Type == SimHubACCBroadcasting.LapType.Outlap) {
                     this.IsCurrentLapOutLap = true;
                 }
 
-                if (!this.IsCurrentLapInLap && rawDataNew.ExtraData.CurrentLap.Type == LapType.Inlap) {
+                if (!this.IsCurrentLapInLap && rawDataNew.ExtraData.CurrentLap.Type == SimHubACCBroadcasting.LapType.Inlap) {
                     this.IsCurrentLapInLap = true;
                 }
             } else if (DynLeaderboardsPlugin.Game.IsAMS2) {
@@ -616,8 +612,11 @@ namespace KLPlugins.DynLeaderboards.Car {
                 var accRawData = (ACSharedMemory.Models.ACCOpponent)rawData;
                 var location = accRawData.ExtraData.CarLocation;
                 var newLocation = location switch {
-                    CarLocationEnum.Track or CarLocationEnum.PitEntry or CarLocationEnum.PitExit => CarLocation.Track,
-                    CarLocationEnum.Pitlane => CarLocation.Pitlane,
+                    SimHubACCBroadcasting.CarLocationEnum.Track
+                    or SimHubACCBroadcasting.CarLocationEnum.PitEntry
+                    or SimHubACCBroadcasting.CarLocationEnum.PitExit => CarLocation.Track,
+
+                    SimHubACCBroadcasting.CarLocationEnum.Pitlane => CarLocation.Pitlane,
                     _ => CarLocation.NONE,
                 };
                 this.Location.Update(newLocation);
@@ -1457,7 +1456,7 @@ namespace KLPlugins.DynLeaderboards.Car {
             );
         }
 
-        internal Driver(Values v, ksBroadcastingNetwork.Structs.DriverInfo driver) {
+        internal Driver(Values v, SimHubACCBroadcasting.Structs.DriverInfo driver) {
             this.FirstName = driver.FirstName;
             this.LastName = driver.LastName;
             this.ShortName = driver.ShortName;
@@ -1516,98 +1515,98 @@ namespace KLPlugins.DynLeaderboards.Car {
             };
         }
 
-        private static string ACCNationalityToPrettyString(NationalityEnum nationality) {
+        private static string ACCNationalityToPrettyString(SimHubACCBroadcasting.NationalityEnum nationality) {
             return nationality switch {
-                NationalityEnum.Italy => "Italy",
-                NationalityEnum.Germany => "Germany",
-                NationalityEnum.France => "France",
-                NationalityEnum.Spain => "Spain",
-                NationalityEnum.GreatBritain => "Great Britain",
-                NationalityEnum.Hungary => "Hungary",
-                NationalityEnum.Belgium => "Belgium",
-                NationalityEnum.Switzerland => "Switzerland",
-                NationalityEnum.Austria => "Austria",
-                NationalityEnum.Russia => "Russia",
-                NationalityEnum.Thailand => "Thailand",
-                NationalityEnum.Netherlands => "Netherlands",
-                NationalityEnum.Poland => "Poland",
-                NationalityEnum.Argentina => "Argentina",
-                NationalityEnum.Monaco => "Monaco",
-                NationalityEnum.Ireland => "Ireland",
-                NationalityEnum.Brazil => "Brazil",
-                NationalityEnum.SouthAfrica => "South Africa",
-                NationalityEnum.PuertoRico => "Puerto Rico",
-                NationalityEnum.Slovakia => "Slovakia",
-                NationalityEnum.Oman => "Oman",
-                NationalityEnum.Greece => "Greece",
-                NationalityEnum.SaudiArabia => "Saudi Arabia",
-                NationalityEnum.Norway => "Norway",
-                NationalityEnum.Turkey => "Turkey",
-                NationalityEnum.SouthKorea => "South Korea",
-                NationalityEnum.Lebanon => "Lebanon",
-                NationalityEnum.Armenia => "Armenia",
-                NationalityEnum.Mexico => "Mexico",
-                NationalityEnum.Sweden => "Sweden",
-                NationalityEnum.Finland => "Finland",
-                NationalityEnum.Denmark => "Denmark",
-                NationalityEnum.Croatia => "Croatia",
-                NationalityEnum.Canada => "Canada",
-                NationalityEnum.China => "China",
-                NationalityEnum.Portugal => "Portugal",
-                NationalityEnum.Singapore => "Singapore",
-                NationalityEnum.Indonesia => "Indonesia",
-                NationalityEnum.USA => "USA",
-                NationalityEnum.NewZealand => "New Zealand",
-                NationalityEnum.Australia => "Australia",
-                NationalityEnum.SanMarino => "San Marino",
-                NationalityEnum.UAE => "UAE",
-                NationalityEnum.Luxembourg => "Luxembourg",
-                NationalityEnum.Kuwait => "Kuwait",
-                NationalityEnum.HongKong => "Hong Kong",
-                NationalityEnum.Colombia => "Colombia",
-                NationalityEnum.Japan => "Japan",
-                NationalityEnum.Andorra => "Andorra",
-                NationalityEnum.Azerbaijan => "Azerbaijan",
-                NationalityEnum.Bulgaria => "Bulgaria",
-                NationalityEnum.Cuba => "Cuba",
-                NationalityEnum.CzechRepublic => "Czech Republic",
-                NationalityEnum.Estonia => "Estonia",
-                NationalityEnum.Georgia => "Georgia",
-                NationalityEnum.India => "India",
-                NationalityEnum.Israel => "Israel",
-                NationalityEnum.Jamaica => "Jamaica",
-                NationalityEnum.Latvia => "Latvia",
-                NationalityEnum.Lithuania => "Lithuania",
-                NationalityEnum.Macau => "Macau",
-                NationalityEnum.Malaysia => "Malaysia",
-                NationalityEnum.Nepal => "Nepal",
-                NationalityEnum.NewCaledonia => "New Caledonia",
-                NationalityEnum.Nigeria => "Nigeria",
-                NationalityEnum.NorthernIreland => "Northern Ireland",
-                NationalityEnum.PapuaNewGuinea => "Papua New Guinea",
-                NationalityEnum.Philippines => "Philippines",
-                NationalityEnum.Qatar => "Qatar",
-                NationalityEnum.Romania => "Romania",
-                NationalityEnum.Scotland => "Scotland",
-                NationalityEnum.Serbia => "Serbia",
-                NationalityEnum.Slovenia => "Slovenia",
-                NationalityEnum.Taiwan => "Taiwan",
-                NationalityEnum.Ukraine => "Ukraine",
-                NationalityEnum.Venezuela => "Venezuela",
-                NationalityEnum.Wales => "Wales",
-                NationalityEnum.Any => "Any",
-                (NationalityEnum)78 => "Iran",
-                (NationalityEnum)79 => "Bahrain",
-                (NationalityEnum)80 => "Zimbabwe",
-                (NationalityEnum)81 => "Chinese Taipei",
-                (NationalityEnum)82 => "Chile",
-                (NationalityEnum)83 => "Uruguay",
-                (NationalityEnum)84 => "Madagascar",
-                (NationalityEnum)85 => "Malta",
-                (NationalityEnum)86 => "England",
-                (NationalityEnum)87 => "Bosnia and Herzegovina",
-                (NationalityEnum)88 => "Morocco",
-                (NationalityEnum)89 => "Sri Lanka",
+                SimHubACCBroadcasting.NationalityEnum.Italy => "Italy",
+                SimHubACCBroadcasting.NationalityEnum.Germany => "Germany",
+                SimHubACCBroadcasting.NationalityEnum.France => "France",
+                SimHubACCBroadcasting.NationalityEnum.Spain => "Spain",
+                SimHubACCBroadcasting.NationalityEnum.GreatBritain => "Great Britain",
+                SimHubACCBroadcasting.NationalityEnum.Hungary => "Hungary",
+                SimHubACCBroadcasting.NationalityEnum.Belgium => "Belgium",
+                SimHubACCBroadcasting.NationalityEnum.Switzerland => "Switzerland",
+                SimHubACCBroadcasting.NationalityEnum.Austria => "Austria",
+                SimHubACCBroadcasting.NationalityEnum.Russia => "Russia",
+                SimHubACCBroadcasting.NationalityEnum.Thailand => "Thailand",
+                SimHubACCBroadcasting.NationalityEnum.Netherlands => "Netherlands",
+                SimHubACCBroadcasting.NationalityEnum.Poland => "Poland",
+                SimHubACCBroadcasting.NationalityEnum.Argentina => "Argentina",
+                SimHubACCBroadcasting.NationalityEnum.Monaco => "Monaco",
+                SimHubACCBroadcasting.NationalityEnum.Ireland => "Ireland",
+                SimHubACCBroadcasting.NationalityEnum.Brazil => "Brazil",
+                SimHubACCBroadcasting.NationalityEnum.SouthAfrica => "South Africa",
+                SimHubACCBroadcasting.NationalityEnum.PuertoRico => "Puerto Rico",
+                SimHubACCBroadcasting.NationalityEnum.Slovakia => "Slovakia",
+                SimHubACCBroadcasting.NationalityEnum.Oman => "Oman",
+                SimHubACCBroadcasting.NationalityEnum.Greece => "Greece",
+                SimHubACCBroadcasting.NationalityEnum.SaudiArabia => "Saudi Arabia",
+                SimHubACCBroadcasting.NationalityEnum.Norway => "Norway",
+                SimHubACCBroadcasting.NationalityEnum.Turkey => "Turkey",
+                SimHubACCBroadcasting.NationalityEnum.SouthKorea => "South Korea",
+                SimHubACCBroadcasting.NationalityEnum.Lebanon => "Lebanon",
+                SimHubACCBroadcasting.NationalityEnum.Armenia => "Armenia",
+                SimHubACCBroadcasting.NationalityEnum.Mexico => "Mexico",
+                SimHubACCBroadcasting.NationalityEnum.Sweden => "Sweden",
+                SimHubACCBroadcasting.NationalityEnum.Finland => "Finland",
+                SimHubACCBroadcasting.NationalityEnum.Denmark => "Denmark",
+                SimHubACCBroadcasting.NationalityEnum.Croatia => "Croatia",
+                SimHubACCBroadcasting.NationalityEnum.Canada => "Canada",
+                SimHubACCBroadcasting.NationalityEnum.China => "China",
+                SimHubACCBroadcasting.NationalityEnum.Portugal => "Portugal",
+                SimHubACCBroadcasting.NationalityEnum.Singapore => "Singapore",
+                SimHubACCBroadcasting.NationalityEnum.Indonesia => "Indonesia",
+                SimHubACCBroadcasting.NationalityEnum.USA => "USA",
+                SimHubACCBroadcasting.NationalityEnum.NewZealand => "New Zealand",
+                SimHubACCBroadcasting.NationalityEnum.Australia => "Australia",
+                SimHubACCBroadcasting.NationalityEnum.SanMarino => "San Marino",
+                SimHubACCBroadcasting.NationalityEnum.UAE => "UAE",
+                SimHubACCBroadcasting.NationalityEnum.Luxembourg => "Luxembourg",
+                SimHubACCBroadcasting.NationalityEnum.Kuwait => "Kuwait",
+                SimHubACCBroadcasting.NationalityEnum.HongKong => "Hong Kong",
+                SimHubACCBroadcasting.NationalityEnum.Colombia => "Colombia",
+                SimHubACCBroadcasting.NationalityEnum.Japan => "Japan",
+                SimHubACCBroadcasting.NationalityEnum.Andorra => "Andorra",
+                SimHubACCBroadcasting.NationalityEnum.Azerbaijan => "Azerbaijan",
+                SimHubACCBroadcasting.NationalityEnum.Bulgaria => "Bulgaria",
+                SimHubACCBroadcasting.NationalityEnum.Cuba => "Cuba",
+                SimHubACCBroadcasting.NationalityEnum.CzechRepublic => "Czech Republic",
+                SimHubACCBroadcasting.NationalityEnum.Estonia => "Estonia",
+                SimHubACCBroadcasting.NationalityEnum.Georgia => "Georgia",
+                SimHubACCBroadcasting.NationalityEnum.India => "India",
+                SimHubACCBroadcasting.NationalityEnum.Israel => "Israel",
+                SimHubACCBroadcasting.NationalityEnum.Jamaica => "Jamaica",
+                SimHubACCBroadcasting.NationalityEnum.Latvia => "Latvia",
+                SimHubACCBroadcasting.NationalityEnum.Lithuania => "Lithuania",
+                SimHubACCBroadcasting.NationalityEnum.Macau => "Macau",
+                SimHubACCBroadcasting.NationalityEnum.Malaysia => "Malaysia",
+                SimHubACCBroadcasting.NationalityEnum.Nepal => "Nepal",
+                SimHubACCBroadcasting.NationalityEnum.NewCaledonia => "New Caledonia",
+                SimHubACCBroadcasting.NationalityEnum.Nigeria => "Nigeria",
+                SimHubACCBroadcasting.NationalityEnum.NorthernIreland => "Northern Ireland",
+                SimHubACCBroadcasting.NationalityEnum.PapuaNewGuinea => "Papua New Guinea",
+                SimHubACCBroadcasting.NationalityEnum.Philippines => "Philippines",
+                SimHubACCBroadcasting.NationalityEnum.Qatar => "Qatar",
+                SimHubACCBroadcasting.NationalityEnum.Romania => "Romania",
+                SimHubACCBroadcasting.NationalityEnum.Scotland => "Scotland",
+                SimHubACCBroadcasting.NationalityEnum.Serbia => "Serbia",
+                SimHubACCBroadcasting.NationalityEnum.Slovenia => "Slovenia",
+                SimHubACCBroadcasting.NationalityEnum.Taiwan => "Taiwan",
+                SimHubACCBroadcasting.NationalityEnum.Ukraine => "Ukraine",
+                SimHubACCBroadcasting.NationalityEnum.Venezuela => "Venezuela",
+                SimHubACCBroadcasting.NationalityEnum.Wales => "Wales",
+                SimHubACCBroadcasting.NationalityEnum.Any => "Any",
+                (SimHubACCBroadcasting.NationalityEnum)78 => "Iran",
+                (SimHubACCBroadcasting.NationalityEnum)79 => "Bahrain",
+                (SimHubACCBroadcasting.NationalityEnum)80 => "Zimbabwe",
+                (SimHubACCBroadcasting.NationalityEnum)81 => "Chinese Taipei",
+                (SimHubACCBroadcasting.NationalityEnum)82 => "Chile",
+                (SimHubACCBroadcasting.NationalityEnum)83 => "Uruguay",
+                (SimHubACCBroadcasting.NationalityEnum)84 => "Madagascar",
+                (SimHubACCBroadcasting.NationalityEnum)85 => "Malta",
+                (SimHubACCBroadcasting.NationalityEnum)86 => "England",
+                (SimHubACCBroadcasting.NationalityEnum)87 => "Bosnia and Herzegovina",
+                (SimHubACCBroadcasting.NationalityEnum)88 => "Morocco",
+                (SimHubACCBroadcasting.NationalityEnum)89 => "Sri Lanka",
 
                 _ => nationality.ToString()
             };
@@ -1718,8 +1717,8 @@ namespace KLPlugins.DynLeaderboards.Car {
             this.Driver = driver;
 
             this.IsValid = lap.IsValidForBest;
-            this.IsOutLap = lap.Type == LapType.Outlap;
-            this.IsInLap = lap.Type == LapType.Inlap;
+            this.IsOutLap = lap.Type == SimHubACCBroadcasting.LapType.Outlap;
+            this.IsInLap = lap.Type == SimHubACCBroadcasting.LapType.Inlap;
         }
 
         internal LapBasic(
@@ -2048,6 +2047,8 @@ namespace KLPlugins.DynLeaderboards.Car {
     }
 
     namespace R3E {
+        // Reference https://github.com/sector3studios/r3e-api
+
         internal enum FinishStatus {
             Unknown = -1,
             None = 0,
@@ -2066,14 +2067,16 @@ namespace KLPlugins.DynLeaderboards.Car {
             }
         }
     }
-}
 
-internal class AMS2RawOpponentData {
-    public int RaceState { get; private set; }
-    public bool IsCurrentLapInvalidated { get; private set; }
+    namespace AMS2 {
+        internal class RawOpponentData {
+            public int RaceState { get; private set; }
+            public bool IsCurrentLapInvalidated { get; private set; }
 
-    public AMS2RawOpponentData(int raceState, bool isCurrentLapInvalidated) {
-        this.RaceState = raceState;
-        this.IsCurrentLapInvalidated = isCurrentLapInvalidated;
+            public RawOpponentData(int raceState, bool isCurrentLapInvalidated) {
+                this.RaceState = raceState;
+                this.IsCurrentLapInvalidated = isCurrentLapInvalidated;
+            }
+        }
     }
 }

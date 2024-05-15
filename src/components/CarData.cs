@@ -644,6 +644,11 @@ namespace KLPlugins.DynLeaderboards.Car {
                 && rf2RawData.mTimeIntoLap > 0 // fall back to SimHub's if rf2 doesn't report current lap time (it's -1 if missing)
             ) {
                 this.CurrentLapTime = TimeSpan.FromSeconds(rf2RawData.mTimeIntoLap);
+            } else if (DynLeaderboardsPlugin.Game.IsR3e
+                && (this.RawDataNew.CurrentLapTime == null || this.RawDataNew.CurrentLapTime == TimeSpan.Zero)
+                && this.RawDataNew.GuessedLapStartTime != null) {
+                // R3E sets current lap time to zero immediately after the lap is invalidated, but we can calculate it our selves
+                this.CurrentLapTime = DateTime.Now - this.RawDataNew.GuessedLapStartTime.Value;
             } else {
                 this.CurrentLapTime = this.RawDataNew.CurrentLapTime ?? TimeSpan.Zero;
             }

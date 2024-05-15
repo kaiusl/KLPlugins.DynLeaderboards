@@ -498,7 +498,7 @@ namespace KLPlugins.DynLeaderboards.Car {
                 this.CheckIfLapInvalidated(rawData);
             }
 
-            this.UpdateLapTimes(values.TrackData);
+            this.UpdateLapTimes(values.Session, values.TrackData);
 
             if (values.Session.IsRace) {
                 this.HandleJumpToPits(values.Session.SessionType);
@@ -636,7 +636,7 @@ namespace KLPlugins.DynLeaderboards.Car {
         /// <summary>
         /// Requires that this._expectingNewLap is set in this update
         /// </summary>
-        private void UpdateLapTimes(TrackData? track) {
+        private void UpdateLapTimes(Session session, TrackData? track) {
 
             var prevCurrentLapTime = this.CurrentLapTime;
             if (DynLeaderboardsPlugin.Game.IsRf2OrLMU
@@ -668,6 +668,23 @@ namespace KLPlugins.DynLeaderboards.Car {
                     IsValid = this._isLastLapValid,
                     IsOutLap = this._isLastLapOutLap,
                     IsInLap = this._isLastLapInLap,
+                };
+                this._expectingNewLap = false;
+            } else if (DynLeaderboardsPlugin.Game.IsR3e
+                && !session.IsRace
+                && !this.IsCurrentLapValid
+                && !this.IsNewLap
+                && prevCurrentLapTime > this.CurrentLapTime // CurrentLapTime has reset
+                && this.CurrentLapTime < TimeSpan.FromSeconds(1) // at invalidation point the new current lap time can be smaller than previous, due to the different methods to calculate is before and after invalidation
+            ) {
+                // In non race sessions, the last laps are not sent by R3E if they are invalid. In such case we need to manually calculate it.
+                // Note that this time reset is triggered before new lap. 
+
+                // TODO: this doesn't add sector times, we can potentially calculate those as well
+                this.LastLap = new Lap(null, prevCurrentLapTime, this.Laps.New, this.CurrentDriver!) {
+                    IsValid = this.IsCurrentLapValid,
+                    IsOutLap = this.IsCurrentLapOutLap,
+                    IsInLap = this.IsCurrentLapInLap,
                 };
                 this._expectingNewLap = false;
             } else if (DynLeaderboardsPlugin.Game.IsAcc) {

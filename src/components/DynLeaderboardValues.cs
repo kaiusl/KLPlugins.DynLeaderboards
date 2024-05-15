@@ -315,7 +315,7 @@ namespace KLPlugins.DynLeaderboards {
 
         internal void NextLeaderboard(Values values) {
             var isSingleClass = values.NumClassesInSession < 2;
-            var isSingleCup = values.NumCupsInSession < 2;
+            var isSingleCup = values.NumCupsInSession == values.NumClassesInSession;
             // For loop so that we don't go into an infinite loop if all leaderboards should be excluded
             for (int i = 0; i < this.Config.Order.Count; i++) {
                 if (this.Config.CurrentLeaderboardIdx == this.Config.Order.Count - 1) {
@@ -340,7 +340,7 @@ namespace KLPlugins.DynLeaderboards {
 
         internal void PreviousLeaderboard(Values values) {
             var isSingleClass = values.NumClassesInSession < 2;
-            var isSingleCup = values.NumCupsInSession < 2;
+            var isSingleCup = values.NumCupsInSession == values.NumClassesInSession;
             // For loop so that we don't go into an infinite loop if all leaderboards should be excluded
             for (int i = 0; i < this.Config.Order.Count; i++) {
                 if (this.Config.CurrentLeaderboardIdx == 0) {

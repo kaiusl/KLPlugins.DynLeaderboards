@@ -6,6 +6,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Breaking changes
+
+- Property `Car.Number` is now a string instead of an integer.
+
+  "01" and "1" can be different cars in some games (RF2).
+
 ### Added
 
 - Support for other games, not only ACC.

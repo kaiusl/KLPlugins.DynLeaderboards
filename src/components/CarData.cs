@@ -399,9 +399,6 @@ namespace KLPlugins.DynLeaderboards.Car {
                     }
                 }
             } else if (DynLeaderboardsPlugin.Game.IsR3e) {
-
-
-
                 static string? GetName(byte[] data) {
                     if (data == null) {
                         return null;
@@ -414,19 +411,18 @@ namespace KLPlugins.DynLeaderboards.Car {
                 if (gameData.NewData.GetRawDataObject() is SimHubR3E.Data.Shared rawR3Edata) {
                     var index = -1;
                     var name = "";
-                    SimHubR3E.Data.DriverData? participantData = null;
+                    ref readonly SimHubR3E.Data.DriverData participantData = ref rawR3Edata.DriverData[0];
                     for (int i = 0; i < rawR3Edata.NumCars; i++) {
-                        participantData = rawR3Edata.DriverData[i];
-                        name = GetName(participantData.Value.DriverInfo.Name);
+                        participantData = ref rawR3Edata.DriverData[i];
+                        name = GetName(participantData.DriverInfo.Name);
                         if (name != null && name != "" && name == this.Id) {
                             index = i;
+                            this.RawR3EDataNew = new R3E.RawOpponentData(in participantData);
                             break;
                         }
                     }
 
-                    if (index != -1) {
-                        this.RawR3EDataNew = new R3E.RawOpponentData(participantData!.Value.FinishStatus);
-                    } else {
+                    if (index == -1) {
                         this.RawR3EDataNew = null;
                     }
                 }

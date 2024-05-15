@@ -263,7 +263,7 @@ namespace KLPlugins.DynLeaderboards {
                     4 => SessionPhase.PreSession,
                     5 => SessionPhase.Session,
                     6 => SessionPhase.SessionOver, // Checkered flag shown
-                    _ => (SessionPhase)r3eData.SessionPhase                    
+                    _ => (SessionPhase)r3eData.SessionPhase
                 };
             } else {
                 // TODO: Figure out how to detect these in other games

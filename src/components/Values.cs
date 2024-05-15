@@ -1,22 +1,23 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Diagnostics;
+using System.IO;
+using System.Linq;
 
 using GameReaderCommon;
 
-using KLPlugins.DynLeaderboards.Track;
 using KLPlugins.DynLeaderboards.Car;
+using KLPlugins.DynLeaderboards.Helpers;
+using KLPlugins.DynLeaderboards.Settings;
+using KLPlugins.DynLeaderboards.Track;
+
+using Newtonsoft.Json;
 
 using SimHub.Plugins;
-using System.Linq;
-using KLPlugins.DynLeaderboards.Helpers;
-using System.Diagnostics;
-using System.IO;
-using Newtonsoft.Json;
-using KLPlugins.DynLeaderboards.Settings;
-using System.Collections.ObjectModel;
-using System.ComponentModel;
-using System.Collections;
-using PCarsSharedMemory.AMS2.Models;
+
+using SimHubAMS2 = PCarsSharedMemory.AMS2.Models;
 
 namespace KLPlugins.DynLeaderboards {
     internal class TextBoxColors<K> : IEnumerable<KeyValuePair<K, OverridableTextBoxColor>> {
@@ -908,7 +909,7 @@ namespace KLPlugins.DynLeaderboards {
 
                     if (DynLeaderboardsPlugin.Game.IsAMS2) {
                         // Spline pos == 0.0 if race has not started, race state is 1 if that's the case, use games positions
-                        if (gameData.NewData.GetRawDataObject() is AMS2APIStruct rawAMS2Data) {
+                        if (gameData.NewData.GetRawDataObject() is SimHubAMS2.AMS2APIStruct rawAMS2Data) {
                             // If using AMS2 shared memory data, UDP data is not supported atm
                             if (rawAMS2Data.mRaceState < 2) {
                                 return a.RawDataNew!.Position.CompareTo(b.RawDataNew!.Position);

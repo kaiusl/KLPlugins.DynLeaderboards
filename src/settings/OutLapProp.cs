@@ -141,7 +141,7 @@ namespace KLPlugins.DynLeaderboards.Settings {
                 OutLapProp.LastLapDeltaToAheadLast,
                 OutLapProp.LastLapDeltaToAheadInClassLast,
                 OutLapProp.LastLapDeltaToAheadInCupLast,
-                
+
                 OutLapProp.DynamicBestLapDeltaToFocusedBest,
                 OutLapProp.DynamicLastLapDeltaToFocusedBest,
                 OutLapProp.DynamicLastLapDeltaToFocusedLast,

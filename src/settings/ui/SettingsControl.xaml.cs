@@ -2,7 +2,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Data.Common;
 using System.Globalization;
 using System.Linq;
 using System.Windows;
@@ -10,7 +9,6 @@ using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Data;
 using System.Windows.Media;
-using System.Xml.Linq;
 
 using AcTools.Utils.Helpers;
 
@@ -21,9 +19,6 @@ using MahApps.Metro.Controls;
 
 using SimHub.Plugins.Styles;
 using SimHub.Plugins.UI;
-
-using WoteverCommon;
-using WoteverCommon.WPF;
 
 using Xceed.Wpf.Toolkit;
 

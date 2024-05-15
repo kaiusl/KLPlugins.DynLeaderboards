@@ -81,6 +81,9 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>C:\Program Files (x86)\SimHub\RfactorReader.dll</HintPath>
     </Reference>
+    <Reference Include="RREReader">
+      <HintPath>C:\Program Files (x86)\SimHub\RREReader.dll</HintPath>
+    </Reference>
     <Reference Include="SimHub.Logging, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>C:\Program Files (x86)\SimHub\SimHub.Logging.dll</HintPath>

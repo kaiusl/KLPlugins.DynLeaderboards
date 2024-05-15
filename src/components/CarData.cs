@@ -506,7 +506,7 @@ namespace KLPlugins.DynLeaderboards.Car {
             }
 
             this.UpdateStintInfo(values.Session);
-            if (!DynLeaderboardsPlugin.Game.IsAMS2) {
+            if (values.Session.IsRace && !DynLeaderboardsPlugin.Game.IsAMS2) {
                 this.HandleOffsetLapUpdates();
             }
 
@@ -859,7 +859,7 @@ namespace KLPlugins.DynLeaderboards.Car {
         /// <param name="sessionPhase"></param>
         private void CheckForCrossingStartLine(SessionPhase sessionPhase) {
             // Initial update before the start of the race
-            if ((sessionPhase == SessionPhase.PreSession || sessionPhase == SessionPhase.PreFormation)
+            if ((sessionPhase == SessionPhase.PreSession || sessionPhase == SessionPhase.PreFormation || sessionPhase == SessionPhase.FormationLap)
                 && !this._isHasCrossedStartLineSet
                 && this.HasCrossedStartLine
                 && (this.SplinePosition > 0.5 || this.IsInPitLane)

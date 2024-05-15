@@ -583,6 +583,12 @@ namespace KLPlugins.DynLeaderboards.Car {
                         this.IsCurrentLapValid = false;
                     }
                 }
+            } else if (DynLeaderboardsPlugin.Game.IsR3e) {
+                if (this.RawR3EDataNew != null) {
+                    if (!this.RawR3EDataNew.IsCurrentLapValid) {
+                        this.IsCurrentLapValid = false;
+                    }
+                }
             }
         }
 
@@ -2057,9 +2063,11 @@ namespace KLPlugins.DynLeaderboards.Car {
 
         internal class RawOpponentData {
             internal FinishStatus FinishStatus { get; private set; }
+            internal bool IsCurrentLapValid { get; private set; }
 
-            internal RawOpponentData(int finishState) {
-                this.FinishStatus = (FinishStatus)finishState;
+            internal RawOpponentData(ref readonly SimHubR3E.Data.DriverData data) {
+                this.FinishStatus = (FinishStatus)data.FinishStatus;
+                this.IsCurrentLapValid = data.CurrentLapValid > 0;
             }
         }
     }

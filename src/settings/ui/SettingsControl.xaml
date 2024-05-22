@@ -8,9 +8,10 @@
              mc:Ignorable="d"
              xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
              xmlns:ui="clr-namespace:SimHub.Plugins.UI;assembly=SimHub.Plugins"
+             xmlns:system="clr-namespace:System;assembly=mscorlib"
              xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
-             d:DesignHeight="1200"
-             d:DesignWidth="800">
+             d:DesignHeight="1000"
+             d:DesignWidth="1400">
 
     <UserControl.Resources>
         <!-- Limit tooltip width. -->
@@ -46,7 +47,7 @@
             <Setter Property="FontSize"
                     Value="13" />
             <Setter Property="Margin"
-                    Value="5,5,0,5" />
+                    Value="5" />
             <Setter Property="VerticalAlignment"
                     Value="Center" />
             <Setter Property="HorizontalAlignment"
@@ -249,113 +250,217 @@
                     Value="Removes the selected color. Note if the color has base data, the color will only be reset and disabled but not completely deleted." />
         </Style>
 
+        <Style TargetType="{x:Type Hyperlink}"
+               BasedOn="{StaticResource {x:Type Hyperlink}}">
+            <Setter Property="Foreground"
+                    Value="DodgerBlue" />
+            <Setter Property="TextBlock.TextDecorations"
+                    Value="None" />
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver"
+                         Value="True">
+                    <Setter Property="Foreground"
+                            Value="DeepSkyBlue" />
+                    <Setter Property="TextBlock.TextDecorations"
+                            Value="None" />
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- Converts relative docs path to full -->
+        <local:DocsPathConverter x:Key="DocsPathConverter" />
+
+        <Style TargetType="{x:Type local:DocsHyperlink}"
+               BasedOn="{StaticResource {x:Type Hyperlink}}">
+            <Setter Property="NavigateUri"
+                    Value="{Binding RelativeSource={RelativeSource Mode=Self}, Path=RelativePath, Converter={StaticResource DocsPathConverter}}" />
+        </Style>
+
+        <Style TargetType="{x:Type local:DocsHelpButton}">
+            <Setter Property="ContentTemplate">
+                <Setter.Value>
+                    <DataTemplate>
+                        <Border Background="#373737"
+                                HorizontalAlignment="Right"
+                                CornerRadius="5"
+                                Height="20"
+                                Width="20"
+                                ToolTip="View the documentation.">
+                            <TextBlock HorizontalAlignment="Center"
+                                       VerticalAlignment="Center"
+                                       Margin="0"
+                                       Padding="0"> 
+                                <local:DocsHyperlink RequestNavigate="Hyperlink_RequestNavigate"
+                                                     Style="{StaticResource {x:Type local:DocsHyperlink}}"
+                                                     RelativePath="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type local:DocsHelpButton}}, Path=RelativePath}">❓</local:DocsHyperlink>
+                            </TextBlock>
+                        </Border>
+                    </DataTemplate>
+                </Setter.Value>
+            </Setter>
+
+        </Style>
+
+        <Style TargetType="{x:Type local:SectionTitle}">
+            <!-- With help link -->
+            <Setter Property="ContentTemplate">
+                <Setter.Value>
+                    <DataTemplate>
+                        <DockPanel Margin="0">
+                            <local:SectionSeparator DockPanel.Dock="Top" />
+                            <styles:SHSectionTitle Style="{StaticResource {x:Type styles:SHSectionTitle}}"
+                                                   DockPanel.Dock="Left"
+                                                   Text="{Binding}" />
+
+                            <local:DocsHelpButton DockPanel.Dock="Right"
+                                                  Style="{StaticResource {x:Type local:DocsHelpButton}}"
+                                                  RelativePath="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type local:SectionTitle}}, Path=HelpPath}">❓</local:DocsHelpButton>
+                                                  
+                        </DockPanel>
+                    </DataTemplate>
+                </Setter.Value>
+            </Setter>
+
+
+            <!-- Without help link -->
+            <Style.Triggers>
+                <Trigger Property="HelpPath"
+                         Value="null">
+                    <Setter Property="ContentTemplate">
+                        <Setter.Value>
+                            <DataTemplate>
+                                <StackPanel Margin="0">
+                                    <local:SectionSeparator />
+                                    <styles:SHSectionTitle  Style="{StaticResource {x:Type styles:SHSectionTitle}}"
+                                                            Text="{Binding}" />
+                                </StackPanel>
+                            </DataTemplate>
+                        </Setter.Value>
+                    </Setter>
+                </Trigger>
+            </Style.Triggers>
+
+        </Style>
+
+        <Style TargetType="{x:Type local:SectionSeparator}">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate>
+                        <StackPanel Margin="0">
+
+                            <StackPanel.Resources>
+                                <Style TargetType="{x:Type Separator}">
+                                    <Setter Property="Background"
+                                            Value="DimGray" />
+                                </Style>
+                            </StackPanel.Resources>
+
+                            <Separator Margin="0,15,0,1" />
+                            <Separator Margin="0,1,0,10" />
+                        </StackPanel>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
     </UserControl.Resources>
+
+
     <styles:SHTabControl>
 
         <styles:SHTabItem Header="General settings">
             <ScrollViewer>
                 <StackPanel x:Name="GenSettings_StackPanel"
-                            Margin="20,0,20,0">
-                    <StackPanel.Resources>
+                            Margin="20">
 
-                        <Style x:Key="Description"
-                               TargetType="TextBlock">
-                            <Setter Property="HorizontalAlignment"
-                                    Value="Left" />
-                            <Setter Property="VerticalAlignment"
-                                    Value="Center" />
-                            <Setter Property="TextWrapping"
-                                    Value="Wrap" />
-                        </Style>
-
-                        <Style TargetType="Separator">
-                            <Setter Property="Background"
-                                    Value="LightGray" />
-                            <Setter Property="Height"
-                                    Value="1" />
-                            <Setter Property="Margin"
-                                    Value="0,0,20,0" />
-                        </Style>
-                    </StackPanel.Resources>
+                    <local:DocsHelpButton RelativePath="user_guide/config/#general_settings" />
 
                     <TextBlock MaxWidth="750"
                                TextWrapping="Wrap">These settings are global to the whole plugin. <Bold>For the changes to take effect you need to restart SimHub</Bold>.
                     </TextBlock>
 
-                    <TextBlock>
-                    <Span xml:space="preserve">For more information you can also see <Hyperlink RequestNavigate="Hyperlink_RequestNavigate"
-                                                                                                NavigateUri="https://github.com/kaiusl/KLPlugins.DynLeaderboards">the repository</Hyperlink> or <Hyperlink RequestNavigate="Hyperlink_RequestNavigate"
-                                                                                                                                                                                                           NavigateUri="https://kaiusl.github.io/KLPlugins.DynLeaderboards/stable/">the docs</Hyperlink>.</Span>
-                    </TextBlock>
+                    <local:SectionTitle HelpPath="user_guide/config/#paths">PATHS</local:SectionTitle>
 
-                    <!-- ACC Config location -->
+                    <Grid>
+                        <Grid.Resources>
+                            <system:String x:Key="ACC_Config_Location_Tooltip">Location of ACC configuration folder. That is where for example ..\Config\broadcasting.json is located.</system:String>
+                            <system:String x:Key="AC_Root_Location_Tooltip">Location of AC root folder. That is where for example ..\content\cars is located.</system:String>
 
-                    <Grid ToolTip="Location of ACC configuration folder. That is where for example ..\Config\broadcasting.json is located.">
+                            <Style TargetType="{x:Type TextBlock}"
+                                   x:Key="Label"
+                                   BasedOn="{StaticResource {x:Type TextBlock}}">
+                                <Setter Property="Grid.Column"
+                                        Value="0" />
+                            </Style>
+
+                            <Style TargetType="{x:Type TextBox}"
+                                   x:Key="Location"
+                                   BasedOn="{StaticResource {x:Type TextBox}}">
+                                <Setter Property="Grid.Column"
+                                        Value="1" />
+                                <Setter Property="Height"
+                                        Value="25" />
+                                <Setter Property="HorizontalAlignment"
+                                        Value="Left" />
+                                <Setter Property="VerticalAlignment"
+                                        Value="Center" />
+                            </Style>
+                        </Grid.Resources>
+
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition MaxWidth="500" />
-                            <ColumnDefinition MinWidth="300" />
+                            <ColumnDefinition MinWidth="200"
+                                              Width="auto" />
+                            <ColumnDefinition Width="auto" />
                         </Grid.ColumnDefinitions>
                         <Grid.RowDefinitions>
                             <RowDefinition MinHeight="35" />
+                            <RowDefinition MinHeight="35" />
                         </Grid.RowDefinitions>
 
-                        <TextBlock Grid.Column="0"
-                                   Style="{StaticResource Description}">ACC configuration location:</TextBlock>
-                        <TextBox Grid.Column="1"
+                        <TextBlock Style="{StaticResource Label}"
+                                   ToolTip="{StaticResource ACC_Config_Location_Tooltip}">ACC configuration location:</TextBlock>
+                        <TextBox Style="{StaticResource Location}"
+                                 ToolTip="{StaticResource ACC_Config_Location_Tooltip}"
                                  x:Name="AccDataLocation_TextBox"
-                                 Height="25"
-                                 HorizontalAlignment="Left"
-                                 VerticalAlignment="Center"
                                  TextChanged="AccDataLocation_TextChanged" />
-                    </Grid>
 
-                    <Grid ToolTip="Location of AC root folder. That is where for example ..\content\cars is located.">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition MaxWidth="500" />
-                            <ColumnDefinition MinWidth="300" />
-                        </Grid.ColumnDefinitions>
-                        <Grid.RowDefinitions>
-                            <RowDefinition MinHeight="35" />
-                        </Grid.RowDefinitions>
-
-                        <TextBlock Grid.Column="0"
-                                   Style="{StaticResource Description}">AC root location:</TextBlock>
-                        <TextBox Grid.Column="1"
+                        <TextBlock Style="{StaticResource Label}"
+                                   ToolTip="{StaticResource AC_Root_Location_Tooltip}"
+                                   Grid.Row="1">AC root location:</TextBlock>
+                        <TextBox Style="{StaticResource Location}"
+                                 ToolTip="{StaticResource AC_Root_Location_Tooltip}"
+                                 Grid.Row="1"
                                  x:Name="AcRootLocation_TextBox"
-                                 Height="25"
-                                 HorizontalAlignment="Left"
-                                 VerticalAlignment="Center"
                                  TextChanged="AcRootLocation_TextChanged" />
                     </Grid>
 
-                    <Separator />
 
+
+                    <local:SectionTitle>EXPOSED PROPERTIES</local:SectionTitle>
+                    <StackPanel x:Name="OtherProperties_StackPanel" />
+
+                    <local:SectionTitle>DEBUG</local:SectionTitle>
 
                     <!-- Enable logging -->
 
-                    <Grid ToolTip="Enable or disable information logging. Errors will still be logged.">
+                    <Grid ToolTip="Enable or disable debug information logging. Errors will always be logged.">
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition MaxWidth="500" />
-                            <ColumnDefinition MinWidth="100" />
+                            <ColumnDefinition MinWidth="200"
+                                              Width="auto" />
+                            <ColumnDefinition Width="auto" />
                         </Grid.ColumnDefinitions>
                         <Grid.RowDefinitions>
                             <RowDefinition MinHeight="35" />
                         </Grid.RowDefinitions>
 
                         <TextBlock Grid.Column="0"
-                                   Text="Log info: "
-                                   Style="{StaticResource Description}" />
+                                   Text="Log info: " />
                         <styles:SHToggleButton Grid.Column="1"
                                                x:Name="Logging_ToggleButton"
                                                HorizontalAlignment="Left"
                                                VerticalAlignment="Center"
                                                Click="Logging_ToggleButton_Click" />
                     </Grid>
-                    <Separator />
-
-                    <styles:SHSectionTitle Text="EXPOSED PROPERTIES" />
-                    <StackPanel x:Name="OtherProperties_StackPanel">
-                    </StackPanel>
 
                 </StackPanel>
             </ScrollViewer>
@@ -364,8 +469,7 @@
         <styles:SHTabItem Header="Dynamic leaderboards">
 
             <ScrollViewer>
-
-                <StackPanel>
+                <StackPanel Margin="20">
                     <StackPanel.Resources>
 
                         <Style x:Key="Description"
@@ -405,21 +509,15 @@
                         </Style>
                     </StackPanel.Resources>
 
-                    <TextBlock MaxWidth="750"
-                               TextWrapping="Wrap">Here you can customize the functionality of your dynamic leaderboards. <Bold>For the changes to take effect you need to restart SimHub</Bold>.
-                        <LineBreak /><LineBreak />
-                        First, you can add multiple dynamic leaderboards and change their names in the dropdown list below.
-                        <LineBreak /><Bold>Make sure to assign buttons in "Controls and events" for each dynamic leaderboard's "NextLeaderboard" and "PreviousLeaderboard" events.</Bold>
-                        For mapping to controller inputs you need to enable "Controllers input" plugin and to keyboard inputs "Keyboard Input" plugin.
-                        Note that if you add multiple dynamic leaderboards, you need to add mappings for each leaderboard. It can be the same button for all of them.
-                    </TextBlock>
+                    <!-- Header -->
 
-                    <styles:SHSectionTitle>DYNAMIC LEADERBOARDS</styles:SHSectionTitle>
-                    <Expander Header="More information">
-                        <TextBlock x:Name="DynLeaderboardPropertyAccess_TextBlock"
-                                   MaxWidth="750"
-                                   TextWrapping="Wrap" />
-                    </Expander>
+                    <local:DocsHelpButton RelativePath="user_guide/config/#dynamic-leaderboards" />
+
+                    <TextBlock>Here you can customize the functionality of your dynamic leaderboards. <Bold>For the changes to take effect you need to restart SimHub</Bold>.</TextBlock>
+
+                    <!-- Dynamic leaderboards -->
+
+                    <local:SectionTitle HelpPath="user_guide/config/#dynamic-leaderboards_1">DYNAMIC LEADERBOARDS</local:SectionTitle>
 
                     <StackPanel x:Name="DynLeaderboardsList_StackPanel"
                                 Orientation="Horizontal">
@@ -443,52 +541,10 @@
                         Add new leaderboard
                     </styles:SHButtonPrimary>
 
-                    <Separator Margin="0,15,0,1" />
-                    <Separator Margin="0,1,0,10" />
+                    <!-- Rotation -->
 
-                    <styles:SHSectionTitle>LEADERBOARD ROTATION</styles:SHSectionTitle>
-                    <Expander Header="More information">
-                        <StackPanel>
+                    <local:SectionTitle HelpPath="user_guide/config/#leaderboard-rotation">LEADERBOARD ROTATION</local:SectionTitle>
 
-                            <TextBlock MaxWidth="750"
-                                       TextWrapping="Wrap">You can enable/disable specific leaderboards and choose the order in which they appear. You don't need to restart SimHub after you change the rotation. <LineBreak /> You can also enable removing some leaderboard types if there is only a single class or cup in the session. Overall and Class/Cup leaderboards are equivalent in single class/cup sessions and thus there is really no need to scroll through all of them if you have both enabled.</TextBlock>
-                            <TextBlock MaxWidth="750"
-                                       TextWrapping="Wrap">Available leaderboard types are.</TextBlock>
-                            <TextBlock MaxWidth="750"
-                                       TextWrapping="Wrap"
-                                       Padding="10,0,0,0">Overall leaderboards - `N` top positions. There are two types:</TextBlock>
-                            <TextBlock MaxWidth="750"
-                                       TextWrapping="Wrap"
-                                       Padding="20,0,0,0">* Overall - In overall order</TextBlock>
-                            <TextBlock MaxWidth="750"
-                                       TextWrapping="Wrap"
-                                       Padding="20,0,0,0">* Class - In the order of focused car's class</TextBlock>
-                            <TextBlock MaxWidth="750"
-                                       TextWrapping="Wrap"
-                                       Padding="10,0,0,0">Relative leaderboards - `2N + 1` relative positions to the focused car. There are three types:</TextBlock>
-                            <TextBlock MaxWidth="750"
-                                       TextWrapping="Wrap"
-                                       Padding="20,0,0,0">* RelativeOverall - In overall order</TextBlock>
-                            <TextBlock MaxWidth="750"
-                                       TextWrapping="Wrap"
-                                       Padding="20,0,0,0">* RelativeClass - In the order of focused car's class</TextBlock>
-                            <TextBlock MaxWidth="750"
-                                       TextWrapping="Wrap"
-                                       Padding="20,0,0,0">* RelativeOnTrack - In the relative track order</TextBlock>
-                            <TextBlock MaxWidth="750"
-                                       TextWrapping="Wrap"
-                                       Padding="20,0,0,0">* RelativeOnTrackWoPit - Same as RelativeOnTrack but without the cars in the pitlane which are not on the same lap as the focused car</TextBlock>
-                            <TextBlock MaxWidth="750"
-                                       TextWrapping="Wrap"
-                                       Padding="10,0,0,0">Partial relative leaderboards - `N` top positions and `2M + 1` relative positions. If the focused car is inside the first `N + M + 1` positions the order will be just as the overall leaderboard. There are two types:</TextBlock>
-                            <TextBlock MaxWidth="750"
-                                       TextWrapping="Wrap"
-                                       Padding="20,0,0,0">* PartialRelativeOverall - In overall order</TextBlock>
-                            <TextBlock MaxWidth="750"
-                                       TextWrapping="Wrap"
-                                       Padding="20,0,0,0">* PartialRelativeClass - In the order of focused car's class</TextBlock>
-                        </StackPanel>
-                    </Expander>
                     <StackPanel Orientation="Horizontal">
                         <styles:SHButtonSecondary Click="DynLeaderboard_ListView_Up"
                                                   ToolTip="Move currently selected leaderboard one position up.">Up</styles:SHButtonSecondary>
@@ -496,7 +552,7 @@
                                                   ToolTip="Move currently selected leaderboard one position down.">Down</styles:SHButtonSecondary>
 
                         <StackPanel Margin="200,0,5,0">
-                            <TextBlock Margin="0" 
+                            <TextBlock Margin="0"
                                        HorizontalAlignment="Center">Remove if single</TextBlock>
                             <TextBlock Margin="0"
                                        Text="class      /      cup"
@@ -509,82 +565,25 @@
                               HorizontalAlignment="Left"
                               VerticalAlignment="Top" />
 
-                    <Separator Margin="0,15,0,1" />
-                    <Separator Margin="0,1,0,10" />
+                    <!-- Controls -->
 
-                    <styles:SHSectionTitle>CONTROLS</styles:SHSectionTitle>
-                    <Expander Header="More information">
-                        <TextBlock TextWrapping="Wrap"
-                                   MaxWidth="750">
-                            Here you can set the controls to change leaderboard types. Next button will move down the leaderboard rotation set above. Previous button will move up.
-                        </TextBlock>
-                    </Expander>
-
-                    <StackPanel x:Name="DynamicLeaderboardsTab_Controls_StackPanel" >
+                    <local:SectionTitle HelpPath="user_guide/config/#controls">CONTROLS</local:SectionTitle>
+                    <StackPanel x:Name="DynamicLeaderboardsTab_Controls_StackPanel">
                         <StackPanel.Resources>
                             <Style TargetType="TextBlock">
                             </Style>
-
                         </StackPanel.Resources>
                     </StackPanel>
 
+                    <!-- Number of positions -->
 
-                    <Separator Margin="0,15,0,1" />
-                    <Separator Margin="0,1,0,10" />
-                    <styles:SHSectionTitle>NUMBER OF POSITIONS</styles:SHSectionTitle>
-                    <Expander Header="More information">
-                        <TextBlock TextWrapping="Wrap"
-                                   MaxWidth="750">Couple of notes. <LineBreak />
-                        * For relative positions we set the number of positions shown ahead and behind.
-                        That is if set to 5 for example, we show 5 cars ahead and 5 car behind.
-                        <LineBreak />
-                        * The driver indices are set such that current driver is always first. If you set number of drivers to 1 then we only show current driver.
-                        </TextBlock>
-                    </Expander>
-
+                    <local:SectionTitle HelpPath="user_guide/config/#number-of-positions">NUMBER OF POSITIONS</local:SectionTitle>
                     <StackPanel x:Name="NumPositions_StackPanel" />
 
                     <!-- Properties for each car -->
 
-                    <Separator Margin="0,15,0,1" />
-                    <Separator Margin="0,1,0,10" />
-                    <styles:SHSectionTitle Text="PROPERTIES FOR EACH CAR" />
-                    <Expander Header="More information">
-                        <StackPanel>
-                            <TextBlock x:Name="EnablePropertiesDescription_TextBlock"
-                                       Width="600"
-                                       TextWrapping="Wrap" />
-                            <TextBlock MaxWidth="750"
-                                       TextWrapping="Wrap"
-                                       Padding="0,0,0,0">* Default value if property is not available is null. This happens if session is not started yet, there are fewer cars/drivers in session than positions available for leaderboard or no lap time is available.
-                        <LineBreak />* First driver is always current driver.
-                        <LineBreak />* All times and gaps are given in seconds.</TextBlock>
-                            <TextBlock MaxWidth="750"
-                                       TextWrapping="Wrap"
-                                       Padding="0,0,0,0">
-                        * In relative leaderboards positive gap means the car is ahead of the car that we are comparing to, negative gap means behind.
-                        In overall leaderboards the gap is always positive as we are comparing to the overall/class leader and no one can be ahead of them.
-                        <LineBreak /><LineBreak />
-                        * If the gap is larger than 1 lap, only lap part of the gap is shown. To differentiate between gap in seconds and full laps we add 100 000 to the gap if it's larger than 1 lap. In dash you can show the gap then as follows
-                        <LineBreak />``javascript
-                            </TextBlock>
-                            <TextBlock MaxWidth="750"
-                                       TextWrapping="Wrap"
-                                       Padding="20,0,0,0">
-                        var v = $prop('DynLeaderboardsPlugin.Dynamic.' + repeatindex() + '.Gap.Dynamic.ToFocused')
-	                    <LineBreak />if (v == null) { return '' }
-	                    <LineBreak />// No gap can realistically be 50000 seconds without being more than a lap
-	                    <LineBreak />// and you cannot realistically be more than 50000 laps behind to break following
-	                    <LineBreak />if (v > 50000) { return format(v - 100000, '0', true) + 'L' }
-	                    <LineBreak />return format(v, '0.0', true)
-                            </TextBlock>
-                            <TextBlock MaxWidth="750"
-                                       TextWrapping="Wrap"
-                                       Padding="0,0,0,0">
-                        ```
-                            </TextBlock>
-                        </StackPanel>
-                    </Expander>
+                    <local:SectionTitle HelpPath="user_guide/config/#properties-for-each-car">PROPERTIES FOR EACH CAR</local:SectionTitle>
+
                     <styles:SHSmallTitle>Car information</styles:SHSmallTitle>
                     <StackPanel x:Name="OutCarProps_StackPanel" />
 
@@ -608,23 +607,22 @@
 
                     <!-- Properties for each car -->
 
-                    <Separator Margin="0,15,0,1" />
-                    <Separator Margin="0,1,0,10" />
-                    <styles:SHSectionTitle Text="PROPERTIES FOR EACH DRIVER" />
-                    <Expander Header="More information">
-                        <TextBlock x:Name="ExposedDriverProps_TextBlock"
-                                   MaxWidth="750"
-                                   TextWrapping="Wrap" />
-                    </Expander>
+                    <local:SectionTitle HelpPath="user_guide/config/#properties-for-each-driver">PROPERTIES FOR EACH DRIVER</local:SectionTitle>
                     <StackPanel x:Name="ExposedDriverProperties_StackPanel" />
                 </StackPanel>
             </ScrollViewer>
         </styles:SHTabItem>
 
         <styles:SHTabItem Header="Car settings">
-            <DockPanel x:Name="CarSettings_DockPanel" Margin="0,5,0,5">
 
-                <Menu DockPanel.Dock="Top" x:Name="CarSettingsTab_Menu" Margin="15,0,20,0">
+            <DockPanel x:Name="CarSettings_DockPanel"
+                       Margin="20,20,34,20"> <!-- Extra margin to the right to align help button with other tabs which also have the scroll bar on the right -->
+
+                <local:DocsHelpButton DockPanel.Dock="Top"
+                                      RelativePath="user_guide/config/#car-settings" />
+
+                <Menu DockPanel.Dock="Top"
+                      x:Name="CarSettingsTab_Menu">
                     <!--<local:ButtonMenuItem Header="Reset" ShowDropDown="True" />
                     <local:ButtonMenuItem Header="Disable"
                                           ShowDropDown="True" />
@@ -633,7 +631,8 @@
 
                 <styles:SHSectionSeparator DockPanel.Dock="Top" />
 
-                <Grid DockPanel.Dock="Top" Margin="20,0,20,0">
+                <Grid DockPanel.Dock="Top"
+                      VerticalAlignment="Top">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*" />
                         <ColumnDefinition Width="3*" />
@@ -741,7 +740,6 @@
 
             </DockPanel>
 
-
         </styles:SHTabItem>
 
         <styles:SHTabItem Header="Colors">
@@ -755,7 +753,10 @@
                         </Style>
                     </StackPanel.Resources>
 
-                    <styles:SHSectionTitle>Car class colors</styles:SHSectionTitle>
+
+                    <local:DocsHelpButton RelativePath="user_guide/config/#colors" />
+
+                    <local:SectionTitle>Car class colors</local:SectionTitle>
 
                     <Menu x:Name="ColorsTab_CarClassColors_Menu">
                         <!--<local:ButtonMenuItem Header="Reset"
@@ -835,8 +836,7 @@
 
 
 
-                    <styles:SHSectionSeparator />
-                    <styles:SHSectionTitle>Team cup category colors</styles:SHSectionTitle>
+                    <local:SectionTitle>Team cup category colors</local:SectionTitle>
 
                     <Menu x:Name="ColorsTab_TeamCupCategoryColors_Menu">
                         <!--<local:ButtonMenuItem Header="Reset"
@@ -851,8 +851,7 @@
 
                     <Grid x:Name="ColorsTab_TeamCupCategoryColors_Grid"></Grid>
 
-                    <styles:SHSectionSeparator />
-                    <styles:SHSectionTitle>Driver category colors</styles:SHSectionTitle>
+                    <local:SectionTitle>Driver category colors</local:SectionTitle>
 
                     <Menu x:Name="ColorsTab_DriverCategoryColors_Menu">
                         <!--<local:ButtonMenuItem Header="Reset"
@@ -870,7 +869,6 @@
 
                 </StackPanel>
             </ScrollViewer>
-
         </styles:SHTabItem>
     </styles:SHTabControl>
 </UserControl>

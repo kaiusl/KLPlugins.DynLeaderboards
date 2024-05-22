@@ -8,6 +8,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Data;
+using System.Windows.Documents;
 using System.Windows.Media;
 
 using AcTools.Utils.Helpers;
@@ -31,6 +32,54 @@ namespace KLPlugins.DynLeaderboards.Settings {
         public static readonly DependencyProperty ShowDropDownProperty =
                 DependencyProperty.RegisterAttached("ShowDropDown", typeof(bool), typeof(ButtonMenuItem), new PropertyMetadata(false));
     }
+
+
+    public class SectionTitle : UserControl {
+
+        public string HelpPath {
+            get => (string)this.GetValue(HelpPathProperty);
+            set => this.SetValue(HelpPathProperty, value);
+        }
+        public static readonly DependencyProperty HelpPathProperty =
+                DependencyProperty.RegisterAttached("HelpPath", typeof(string), typeof(SectionTitle), new PropertyMetadata("null"));
+    }
+
+    public class DocsHyperlink : Hyperlink {
+        public string RelativePath {
+            get => (string)this.GetValue(RelativePathProperty);
+            set => this.SetValue(RelativePathProperty, value);
+        }
+        public static readonly DependencyProperty RelativePathProperty =
+                DependencyProperty.RegisterAttached("RelativePath", typeof(string), typeof(DocsHyperlink), new PropertyMetadata(""));
+    }
+
+    public class DocsHelpButton : UserControl {
+        public string RelativePath {
+            get => (string)this.GetValue(RelativePathProperty);
+            set => this.SetValue(RelativePathProperty, value);
+        }
+        public static readonly DependencyProperty RelativePathProperty =
+                DependencyProperty.RegisterAttached("RelativePath", typeof(string), typeof(DocsHelpButton), new PropertyMetadata(""));
+    }
+
+    public sealed class DocsPathConverter : IValueConverter {
+#if DOCS_DEBUG
+        public const string DOCS_ROOT = "http://127.0.0.1:8000/KLPlugins.DynLeaderboards/";
+#else
+        public const string DOCS_ROOT = "https://kaiusl.github.io/KLPlugins.DynLeaderboards/2.0.x/";
+#endif
+
+        public object? Convert(object value, Type targetType, object parameter, CultureInfo culture) {
+            try {
+                string fullPath = DOCS_ROOT + (string)value;
+                return fullPath;
+            } catch { return null; }
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) { throw new NotImplementedException(); }
+    }
+
+    public class SectionSeparator : Control { }
 
 
     internal class CarSettingsListBoxItem : ListBoxItem {
@@ -1213,9 +1262,6 @@ namespace KLPlugins.DynLeaderboards.Settings {
                 } else {
                     nameBox.Background = Brushes.Transparent;
                     nameBox.ToolTip = null;
-                    this.EnablePropertiesDescription_TextBlock.Text = $"Enable/disable properties for currently selected dynamic leaderboard. Each property can be accessed as \"DynLeaderboardsPlugin.{nameBox.Text}.<pos>.<property name>\"";
-                    this.DynLeaderboardPropertyAccess_TextBlock.Text = $"Properties for this dynamic leaderboard are accessible as \"DynLeaderboardsPlugin.{nameBox.Text}.<pos>.<property name>\", for example \"DynLeaderboardsPlugin.{nameBox.Text}.5.Car.Number\"";
-                    this.ExposedDriverProps_TextBlock.Text = $"Properties for each driver car be accessed as \"DynLeaderboardsPlugin.{nameBox.Text}.<pos>.Driver.<driver number>.<property name>\", for example \"DynLeaderboardsPlugin.{nameBox.Text}.5.Driver.1.FirstName\"";
                 }
             };
 
@@ -1258,14 +1304,6 @@ namespace KLPlugins.DynLeaderboards.Settings {
         private void AddDynLeaderboardSettings() {
             // Technically we don't need to reset all setting UI items but only bindings and values.
             // But it's not critical and this is way simpler.
-
-            this.EnablePropertiesDescription_TextBlock.Text = $"Enable/disable properties for currently selected dynamic leaderboard. Each properties car be accessed as \"DynLeaderboardsPlugin.{this.CurrentDynLeaderboardSettings.Name}.5.<property name>\"";
-            this.DynLeaderboardPropertyAccess_TextBlock.Text = "The toggle button in front of each leaderboard allows to disable calculations of given leaderboard. " +
-                "This can be useful if you have many leaderboards but only use some of them at a time. " +
-                "You can disable the ones not used at the moment in order to not waste resources. " +
-                $"\n\nProperties for each leaderboard will be accessible as \"DynLeaderboardsPlugin.{this.CurrentDynLeaderboardSettings.Name}.<pos>.<property name>\"" +
-                $"for example \"DynLeaderboardsPlugin.{this.CurrentDynLeaderboardSettings.Name}.5.Car.Number";
-            this.ExposedDriverProps_TextBlock.Text = $"Properties for each driver car be accessed as \"DynLeaderboardsPlugin.{this.CurrentDynLeaderboardSettings.Name}.<pos>.Driver.<driver number>.<property name>\", for example \"DynLeaderboardsPlugin.{this.CurrentDynLeaderboardSettings.Name}.5.Driver.1.FirstName\"";
 
             this.AddDynLeaderboardToggles();
             this.AddControlsEditors();

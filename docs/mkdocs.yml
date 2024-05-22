@@ -4,7 +4,8 @@ nav:
   - 'User guide': 
     - 'Getting started': 'user_guide/getting_started.md'
     - 'Configuration': 'user_guide/config.md'
-    - 'Creating custom leaderboard': 'user_guide/creating_dyn_leaderboard.md'
+    - 'Creating dashboards': 'user_guide/creating_dashboards.md'
+    - 'Publishing dashboards': 'user_guide/publishing_dashboards.md'
     - 'Troubleshooting': 'user_guide/troubleshooting.md'
   - 'Reference': 
     - 'Available leaderboards': 'reference/leaderboards.md'
@@ -23,6 +24,7 @@ plugins:
   - git-revision-date-localized:
       fallback_to_build_date: true
   - search
+  - macros
 
 extra:
   version:
@@ -31,11 +33,18 @@ extra:
 
 watch:
   - includes
+  - main.py
 
 markdown_extensions:
   - abbr
   - def_list
   - md_in_html
+  - admonition
+  - footnotes
+  - attr_list
+  - toc:
+      permalink: "#"
+  - pymdownx.details
   - pymdownx.highlight:
       anchor_linenums: true
       line_spans: __span
@@ -50,8 +59,9 @@ markdown_extensions:
           case: lower
   - pymdownx.snippets:
       check_paths: true
-      auto_append:
-      - includes/abbreviations.md
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji 
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
 
 theme:
   name: 'material'

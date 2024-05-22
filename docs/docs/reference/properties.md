@@ -1,30 +1,79 @@
+
+??? info "Symbols used"
+
+      {{ prop("PropertyName", "1.0.0", ["ACC", "RF2", "LMU"], defv="Default value", ty="type") }}
+      : Description.
+
+
+      **`PropertyName`**
+      : Part of the property name used to access it from SimHub. How a full property name is formed
+        is described before each section below.
+
+      `type`
+      : Corresponding C# type to this property. Note that if it is followed by `?`
+        then the property can be `null`. For example `int?`.
+
+      {{ defValueIcon }} `value`
+      : This is the value of property if it's not available. 
+        This includes cases like:
+
+        * it's not available for given game
+        * or it's not set yet 
+        * or it's a car property and there are less cars in the session
+        * or it's a driver property and there are less drivers in the car.
+
+        If this symbol is missing from the property description, then there is no default value and
+        the property is always available.
+
+      {{ versionIcon }} 1.0.0
+      : This marks the version a given property was added to the plugin.
+
+      {{ supportedGames("AC", "AMS2") }}
+      : This shows the list of games that a given property is available. In above the property is available for AC and AMS2.
+        
+        Note that this list only includes the games that the plugin has been tested with.
+
+
+
 ## General
 These properties are available as `DynLeaderboardsPlugin.<property name>`, 
 for example `DynLeaderboardsPlugin.Color.Class.GT3`.
 
 <div class="props" markdown>
 
-**`SessionPhase`**
+{{ prop("Session.Phase", "1.0.0", ["ACC", "RF2", "LMU"], defv="\"Unknown\"", ty="string") }}
 : Session phase.
 
-**`MaxStintTime`**
+{{ prop("Session.MaxStintTime", "1.0.0", ["ACC"], defv=-1.0, ty="double") }}
 : Maximum driver stint time.
 
-**`MaxDriveTime`**
+{{ prop("Session.MaxDriveTime", "1.0.0", ["ACC"], defv=-1.0, ty="double") }}
 : Maximum total driving time for driver for player car. This can be different for other teams if they have different 
   number of drivers.
 
-**`Color.Class.<class>`**
-: Color for car class.  &lt;class&gt; can be `GT3`, `GT4`, `CUP17`, `CUP21`, `ST15`, `ST21`, `CHL`, `TCX`.
+{{ prop("Session.NumberOfClasses", "2.0.0", ["all"], defv=0, ty="int") }}
+: Number of different classes in current session.
 
-**`Color.Cup.<cup category>`**
-: Main color for team cup category. &lt;cup category&gt; can be `Overall`, `Silver`, `ProAm`, `Am`, `National`.
+{{ prop("Session.NumberOfCups", "2.0.0", ["all"], defv=0, ty="int") }}
+: Number of different cups (class and team cup category combinations) in current session.
 
-**`Color.Cup.<cup category>.Text`**
-: Secondary color for team cup category. &lt;cup category&gt; can be `Overall`, `Silver`, `ProAm`, `Am`, `National`.
+{{ prop("Color.Class.<class>", "1.0.0", ["all"], ty="string") }}
+: Background color for car class.
 
-**`Color.DriverCategory.<category>`**
-: Color for driver category. &lt;categort&gt; can be `Platinum`, `Gold`, `Silver`, `Bronze`.
+{{ prop("Color.Class.<class>.Text", "2.0.0", ["all"], ty="string") }}
+: Text color for car class.
+
+{{ prop("Color.Cup.<cup category>", "1.0.0", ["all"], ty="string") }}
+: Background color for team cup category.
+
+{{ prop("Color.Cup.<cup category>.Text", "1.0.0", ["all"], ty="string") }}
+: Text color for team cup category. 
+
+{{ prop("Color.DriverCategory.<category>", "1.0.0", ["all"], ty="string") }}
+: Background color for driver category.
+
+{{ prop("Color.DriverCategory.<category>.Text", "2.0.0", ["all"], ty="string") }}
+: Text color for driver category.
 
 </div>
 
@@ -35,14 +84,15 @@ for example `DynLeaderboardsPlugin.Dynamic.CurrentLeaderboard`.
 
 <div class="props" markdown>
 
-**`CurrentLeaderboard`**
-: Name of the currently selected leaderboard. Is one of (`Overall`, `Class`, `RelativeOverall`, `RelativeClass`,
-  `PartialRelativeOverall`, `PartialRelativeClass`, `RelativeOnTrack`).
+{{ prop("Currentleaderboard", "1.0.0", ["all"], ty="string") }}
+: Name of the currently selected leaderboard. 
+  Is one of (`Overall`, `Class`, `Cup`, `RelativeOverall`, `RelativeClass`, `RelativeCup`, `PartialRelativeOverall`, `PartialRelativeClass`, `PartialRelativeCup`, 
+  `RelativeOnTrack`, `RelativeOnTrackWoPit`).
   See [Leaderboards](leaderboards.md) for more info about what each type means.
 
-**`FocusedPosInCurrentLeaderboard`**
+{{ prop("FocusedPosInCurrentLeaderboard", "1.0.0", ["all"], defv="null", ty="int?") }}
 : Integer that shows the position of focused car in currently selected leaderboard. Note that it is 0 based like an 
-  index to array positions.
+  index to array.
 
 </div>
 
@@ -55,20 +105,27 @@ for example `DynLeaderboardsPlugin.Dynamic.5.Car.Number`.
 
 <div class="props" markdown>
 
-**`Car.Number`**
+{{ prop("Car.Number", "1.0.0", ["all", "!AC", "!AMS2"], defv="null", ty="string?") }}
 : Car number.
 
-**`Car.Model`**
+      Note that it's type is `string` which is due to that a leading 0 can sometimes
+      be significant.
+      For example in RF2 "01" and "1" are both possible and different cars.
+
+{{ prop("Car.Model", "1.0.0", ["all"], defv="null", ty="string?") }}
 : Car model name.
 
-**`Car.Manufacturer`**
+{{ prop("Car.Manufacturer", "1.0.0", ["all"], defv="null", ty="string?") }}
 : Car manufacturer.
 
-**`Car.Class`**
-: Car class. Is one of (`GT3`, `GT4`, `CUP17`, `CUP21`, `ST15`, `ST21`, `CHL`, `TCX`).
+{{ prop("Car.Class", "1.0.0", ["all"], defv="null", ty="string?") }}
+: Car class.
 
-**`Car.Class.Color`**
+{{ prop("Car.Class.Color", "1.0.0", ["all"], defv="null", ty="string?") }}
 : Car class color.
+
+{{ prop("Car.Class.TextColor", "2.0.0", ["all"], defv="null", ty="string?") }}
+: Car class text color.
 
 </div>
 
@@ -76,17 +133,20 @@ for example `DynLeaderboardsPlugin.Dynamic.5.Car.Number`.
 
 <div class="props" markdown>
 
-**`Team.Name`**
+{{ prop("Team.Name", "1.0.0", ["all"], defv="null", ty="string?") }}
 : Team name.
 
-**`Team.CupCategory`**
-: Team cup category. Is one of (`Overall`, `Silver`, `ProAm`, `Am`, `National`).
+{{ prop("Team.CupCategory", "1.0.0", ["all"], defv="null", ty="string?") }}
+: Team cup category.
 
-**`Team.CupCategory.Color`**
-: Team cup category main color. My intention was to use as background color.
+      This is effectively an ACC specific property but for the sake of consistency
+      and ease of use all other games default to "`Overall`" category. 
 
-**`Team.CupCategory.TextColor`**
-:  Team cup category secondary color. My intention was to use as text color.
+{{ prop("Team.CupCategory.Color", "1.0.0", ["all"], defv="null", ty="string?") }}
+: Team cup category main color. The intention was to be used as background color.
+
+{{ prop("Team.CupCategory.TextColor", "1.0.0", ["all"], defv="null", ty="string?") }}
+:  Team cup category secondary color. The intention was to be used as text color.
 
 </div>
 
@@ -94,140 +154,164 @@ for example `DynLeaderboardsPlugin.Dynamic.5.Car.Number`.
 
 <div class="props" markdown>
 
-**`Laps.Count`**
+{{ prop("Laps.Count", "1.0.0", ["all"], defv="null", ty="int?") }}
 : Number of completed laps.
 
-**`Laps.Last.Time`**
+{{ prop("Laps.Last.Time", "1.0.0", ["all"], defv="null", ty="double?") }}
 : Last lap time.
 
-**`Laps.Last.<sector>`**
+{{ prop("Laps.Last.<sector>", "1.0.0", ["all"], defv="null", ty="double?") }}
 : Last lap sector time. &lt;sector&gt; can be `S1`, `S2`, `S3`.
 
-**`Laps.Last.IsValid`**
+{{ prop("Laps.Last.IsValid", "1.2.1", ["all"], defv="null", ty="bool?") }}
 : Was last lap valid?
 
-**`Laps.Last.IsOutLap`**
+{{ prop("Laps.Last.IsOutLap", "1.2.1", ["all"], defv="null", ty="bool?") }}
 : Was last lap an out lap?
 
-**`Laps.Last.IsInLap`**
+{{ prop("Laps.Last.IsInLap", "1.2.1", ["all"], defv="null", ty="bool?") }}
 : Was last lap an in lap?
 
-**`Laps.Best.Time`**
+{{ prop("Laps.Best.Time", "1.0.0", ["all"], defv="null", ty="double?") }}
 : Best lap time.
 
-**`Laps.Best.<sector>`**
+{{ prop("Laps.Best.<sector>", "1.0.0", ["all"], defv="null", ty="double?") }}
 : Best lap sector time. &lt;sector&gt; can be `S1`, `S2`, `S3`
 
-**`Laps.Current.Time`**
+{{ prop("Laps.Current.Time", "1.0.0", ["all"], defv="null", ty="double?") }}
 : Current lap time.
 
-**`Laps.Current.IsValid`**
+{{ prop("Laps.Current.IsValid", "1.2.1", ["all"], defv="null", ty="bool?") }}
 : Is current lap valid?
 
-**`Laps.Current.IsOutLap`**
+{{ prop("Laps.Current.IsOutLap", "1.2.1", ["all"], defv="null", ty="bool?") }}
 : Is current lap an out lap?
 
-**`Laps.Current.IsInLap`**
+{{ prop("Laps.Current.IsInLap", "1.2.1", ["all"], defv="null", ty="bool?") }}
 : Is current lap an in lap?
 
-**`Best<sector>`**
+{{ prop("Best<sector>", "1.0.0", ["all"], defv="null", ty="double?") }}
 : Best sector time. &lt;sector&gt; can be `S1`, `S2`, `S3`
 
 ***Deltas***
 
 *Best to best*
 
-**`Laps.Best.Delta.ToOverallBest`**
+{{ prop("Laps.Best.Delta.ToOverallBest", "1.0.0", ["all"], defv="null", ty="double?") }}
 : Best lap delta to overall best lap.
 
-**`Laps.Best.Delta.ToClassBest`**
+{{ prop("Laps.Best.Delta.ToClassBest", "1.0.0", ["all"], defv="null", ty="double?") }}
 : Best lap delta to class best lap.
 
-**`Laps.Best.Delta.ToCupBest`**
+{{ prop("Laps.Best.Delta.ToCupBest", "1.4.0", ["all"], defv="null", ty="double?") }}
 : Best lap delta to cup best lap.
 
-**`Laps.Best.Delta.ToLeaderBest`**
+      This is effectively an ACC specific property. In all other games it is
+      equivalent to `Laps.Best.Delta.ToClassBest`.
+
+{{ prop("Laps.Best.Delta.ToLeaderBest", "1.0.0", ["all"], defv="null", ty="double?") }}
 : Best lap delta to leader's best lap.
 
-**`Laps.Best.Delta.ToClassLeaderBest`**
+{{ prop("Laps.Best.Delta.ToClassLeaderBest", "1.0.0", ["all"], defv="null", ty="double?") }}
 : Best lap delta to class leader's best lap.
 
-**`Laps.Best.Delta.ToCupLeaderBest`**
+{{ prop("Laps.Best.Delta.ToCupLeaderBest", "1.4.0", ["all"], defv="null", ty="double?") }}
 : Best lap delta to cup leader's best lap.
 
-**`Laps.Best.Delta.ToFocusedBest`**
+      This is effectively an ACC specific property. In all other games it is
+      equivalent to `Laps.Best.Delta.ToClassLeaderBest`.
+
+{{ prop("Laps.Best.Delta.ToFocusedBest", "1.0.0", ["all"], defv="null", ty="double?") }}
 : Best lap delta to focused car's best lap.
 
-**`Laps.Best.Delta.ToAheadBest`**
+{{ prop("Laps.Best.Delta.ToAheadBest", "1.0.0", ["all"], defv="null", ty="double?") }}
 : Best lap delta to ahead car's best lap.
 
-**`Laps.Best.Delta.ToAheadInClassBest`**
+{{ prop("Laps.Best.Delta.ToAheadInClassBest", "1.0.0", ["all"], defv="null", ty="double?") }}
 : Best lap delta to class ahead car's best lap.
 
-**`Laps.Best.Delta.ToAheadInCupBest`**
+{{ prop("Laps.Best.Delta.ToAheadInCupBest", "1.4.0", ["ACC"], defv="null", ty="double?") }}
 : Best lap delta to cup ahead car's best lap.
+
+      This is effectively an ACC specific property. In all other games it is
+      equivalent to `Laps.Best.Delta.ToAheadInClassBest`.
 
 *Last to best*                                 
 
-**`Laps.Last.Delta.ToOverallBest`**
+{{ prop("Laps.Last.Delta.ToOverallBest", "1.0.0", ["all"], defv="null", ty="double?") }}
 : Last lap delta to overall best lap.
 
-**`Laps.Last.Delta.ToClassBest`**
+{{ prop("Laps.Last.Delta.ToClassBest", "1.0.0", ["all"], defv="null", ty="double?") }}
 : Last lap delta to class best lap.
 
-**`Laps.Last.Delta.ToCupBest`**
+{{ prop("Laps.Last.Delta.ToCupBest", "1.4.0", ["ACC"], defv="null", ty="double?") }}
 : Last lap delta to cup best lap.
 
-**`Laps.Last.Delta.ToLeaderBest`**
+      This is effectively an ACC specific property. In all other games it is
+      equivalent to `Laps.Last.Delta.ToClassBest`.
+
+{{ prop("Laps.Last.Delta.ToLeaderBest", "1.0.0", ["all"], defv="null", ty="double?") }}
 : Last lap delta to leader's best lap.
 
-**`Laps.Last.Delta.ToClassLeaderBest`**
+{{ prop("Laps.Last.Delta.ToClassLeaderBest", "1.0.0", ["all"], defv="null", ty="double?") }}
 : Last lap delta to class leader's best lap.
 
-**`Laps.Last.Delta.ToCupLeaderBest`**
+{{ prop("Laps.Last.Delta.ToCupLeaderBest", "1.4.0", ["ACC"], defv="null", ty="double?") }}
 : Last lap delta to cup leader's best lap.
 
-**`Laps.Last.Delta.ToFocusedBest`**
+      This is effectively an ACC specific property. In all other games it is
+      equivalent to `Laps.Last.Delta.ToCupLeaderBest`.
+
+{{ prop("Laps.Last.Delta.ToFocusedBest", "1.0.0", ["all"], defv="null", ty="double?") }}
 : Last lap delta to focused car's best lap.
 
-**`Laps.Last.Delta.ToAheadBest`**
+{{ prop("Laps.Last.Delta.ToAheadBest", "1.0.0", ["all"], defv="null", ty="double?") }}
 : Last lap delta to ahead car's best lap.
 
-**`Laps.Last.Delta.ToAheadInClassBest`**
+{{ prop("Laps.Last.Delta.ToAheadInClassBest", "1.0.0", ["all"], defv="null", ty="double?") }}
 : Last lap delta to class ahead car's best lap.
 
-**`Laps.Last.Delta.ToAheadInCupBest`**
+{{ prop("Laps.Last.Delta.ToAheadInCupBest", "1.4.0", ["ACC"], defv="null", ty="double?") }}
 : Last lap delta to cup ahead car's best lap.
 
-**`Laps.Last.Delta.ToOwnBest`**
+      This is effectively an ACC specific property. In all other games it is
+      equivalent to `Laps.Last.Delta.ToAheadInClassBest`.
+
+{{ prop("Laps.Last.Delta.ToOwnBest", "1.0.0", ["all"], defv="null", ty="double?") }}
 : Last lap delta to own best lap.
 
 *Last to last*                             
 
-**`Laps.Last.Delta.ToLeaderLast`**
+{{ prop("Laps.Last.Delta.ToLeaderLast", "1.0.0", ["all"], defv="null", ty="double?") }}
 : Last lap delta to leader's last lap.
 
-**`Laps.Last.Delta.ToClassLeaderLast`**
+{{ prop("Laps.Last.Delta.ToClassLeaderLast", "1.0.0", ["all"], defv="null", ty="double?") }}
 : Last lap delta to class leader's last lap.
 
-**`Laps.Last.Delta.ToCupLeaderLast`**
+{{ prop("Laps.Last.Delta.ToCupLeaderLast", "1.4.0", ["ACC"], defv="null", ty="double?") }}
 : Last lap delta to cup leader's last lap.
 
-**`Laps.Last.Delta.ToFocusedLast`**
+      This is effectively an ACC specific property. In all other games it is
+      equivalent to `Laps.Last.Delta.ToClassLeaderLast`.
+
+{{ prop("Laps.Last.Delta.ToFocusedLast", "1.0.0", ["all"], defv="null", ty="double?") }}
 : Last lap delta to focused car's last lap.
 
-**`Laps.Last.Delta.ToAheadLast`**
+{{ prop("Laps.Last.Delta.ToAheadLast", "1.0.0", ["all"], defv="null", ty="double?") }}
 : Last lap delta to ahead car's last lap.
 
-**`Laps.Last.Delta.ToAheadInClassLast`**
+{{ prop("Laps.Last.Delta.ToAheadInClassLast", "1.0.0", ["all"], defv="null", ty="double?") }}
 : Last lap delta to class ahead car's last lap.
 
-**`Laps.Last.Delta.ToAheadInCupLast`**
+{{ prop("Laps.Last.Delta.ToAheadInCupLast", "1.4.0", ["ACC"], defv="null", ty="double?") }}
 : Last lap delta to cup ahead car's last lap.
+
+      This is effectively an ACC specific property. In all other games it is
+      equivalent to `Laps.Last.Delta.ToAheadInClassLasts`.
 
 *Dynamic*                                  
 
-**`Laps.Best.Delta.Dynamic.ToFocusedBest`**
+{{ prop("Laps.Best.Delta.Dynamic.ToFocusedBest", "1.0.0", ["all"], defv="null", ty="double?") }}
 : Best lap delta to the car's best based on currently displayed leaderboard.
 
       * `Overall` -> Best lap delta to leader's best lap.
@@ -235,10 +319,10 @@ for example `DynLeaderboardsPlugin.Dynamic.5.Car.Number`.
       * `Cup` -> Best lap delta to cup leader's best lap.
       * for any relative leaderboard it's delta to focused car's best lap.
 
-**`Laps.Last.Delta.Dynamic.ToFocusedBest`**
+{{ prop("Laps.Last.Delta.Dynamic.ToFocusedBest", "1.0.0", ["all"], defv="null", ty="double?") }}
 : Same as above but last lap delta to other car's best lap.
 
-**`Laps.Last.Delta.Dynamic.ToFocusedLast`**
+{{ prop("Laps.Last.Delta.Dynamic.ToFocusedLast", "1.0.0", ["all"], defv="null", ty="double?") }}
 : Same as above but last lap delta to other car's last lap.
 
 </div>
@@ -247,34 +331,40 @@ for example `DynLeaderboardsPlugin.Dynamic.5.Car.Number`.
 
 <div class="props" markdown>
 
-**`Gap.ToOverallLeader`**
+{{ prop("Gap.ToOverallLeader", "1.0.0", ["all"], defv="null", ty="double?") }}
 : Total gap to the leader.                                                     
 
-**`Gap.ToClassLeader`**
-: Total gap to the class leader.                                               
+{{ prop("Gap.ToClassLeader", "1.0.0", ["all"], defv="null", ty="double?") }}
+: Total gap to the class leader.
 
-**`Gap.ToCupLeader`**
-: Total gap to the cup leader.                                                 
+{{ prop("Gap.ToCupLeader", "1.4.0", ["all"], defv="null", ty="double?") }}
+: Total gap to the cup leader.   
 
-**`Gap.ToFocused.Total`**
+      This is effectively an ACC specific property. In all other games it is
+      equivalent to `Gap.ToClassLeader`.
+
+{{ prop("Gap.ToFocused.Total", "1.0.0", ["all"], defv="null", ty="double?") }}
 : Total gap to the focused car.                                                
 
-**`Gap.ToFocused.OnTrack`**
+{{ prop("Gap.ToFocused.OnTrack", "1.0.0", ["all"], defv="null", ty="double?") }}
 : Relative on track gap to the focused car.                                    
 
-**`Gap.ToAhead.Overall`**
+{{ prop("Gap.ToAhead.Overall", "1.0.0", ["all"], defv="null", ty="double?") }}
 : Total gap to the car ahead in overall order.                                 
 
-**`Gap.ToAhead.Class`**
+{{ prop("Gap.ToAhead.Class", "1.0.0", ["all"], defv="null", ty="double?") }}
 : Total gap to the car ahead in class.                                         
 
-**`Gap.ToAhead.Cup`**
-: Total gap to the car ahead in cup.                                           
+{{ prop("Gap.ToAhead.Cup", "1.4.0", ["all"], defv="null", ty="double?") }}
+: Total gap to the car ahead in cup.        
 
-**`Gap.ToAhead.OnTrack`**
+      This is effectively an ACC specific property. In all other games it is
+      equivalent to `Gap.ToAhead.Class`.
+
+{{ prop("Gap.ToAhead.OnTrack", "1.0.0", ["all"], defv="null", ty="double?") }}
 : Relative gap to the car ahead on track.                                      
 
-**`Gap.Dynamic.ToFocused`**
+{{ prop("Gap.Dynamic.ToFocused", "1.0.0", ["all"], defv="null", ty="double?") }}
 : Gap that changes based on the currently selected dynamic leaderboard.
 
       * `Overall` -> Total gap to the leader.
@@ -283,7 +373,7 @@ for example `DynLeaderboardsPlugin.Dynamic.5.Car.Number`.
       * `(Partial)RelativeOverall`, `(Partial)RelativeClass`, `(Partial)RelativeCup` -> Total gap to the focused car.
       * `RelativeOnTrack` -> Relative on track gap to the focused car.
 
-**`Gap.Dynamic.ToAhead`**
+{{ prop("Gap.Dynamic.ToAhead", "1.0.0", ["all"], defv="null", ty="double?") }}
 : Gap to the car ahead that changes based on the currently selected dynamic leaderboard.
 
       * `(Partial)(Relative)Overall` -> Total gap to the car ahead in overall order.
@@ -297,23 +387,45 @@ for example `DynLeaderboardsPlugin.Dynamic.5.Car.Number`.
 
 <div class="props" markdown>
 
-**`Position.Overall`**
+{{ prop("Position.Overall", "1.0.0", ["all"], defv="null", ty="int?") }}
 : Current overall position.
 
-**`Position.Overall.Start`**
+{{ prop("Position.Overall.Start", "1.0.0", ["all"], defv="null", ty="int?") }}
 : Overall position at the race start.
 
-**`Position.Class`**
+{{ prop("Position.Class", "1.0.0", ["all"], defv="null", ty="int?") }}
 : Current class position.
 
-**`Position.Class.Start`**
+{{ prop("Position.Class.Start", "1.0.0", ["all"], defv="null", ty="int?") }}
 : Class position at the race start.
 
-**`Position.Cup`**
+{{ prop("Position.Cup", "1.4.0", ["ACC"], defv="null", ty="int?") }}
 : Current cup position.
 
-**`Position.Cup.Start`**
+      This is effectively an ACC specific property. In all other games it is
+      equivalent to `Position.Class`.
+
+{{ prop("Position.Cup.Start", "1.4.0", ["ACC"], defv="null", ty="int?") }}
 : Cup position at the race start.
+
+      This is effectively an ACC specific property. In all other games it is
+      equivalent to `Position.Class.Start`.
+
+{{ prop("Position.Dynamic", "1.2.0", ["all"], defv="null", ty="int?") }}
+: Position that changes based of currently displayed dynamic leaderboard.
+
+      * Any overall -> overall position
+      * Any class -> class position
+      * Any cup -> cup position,
+      * `RelativeOnTrack` -> overall position
+  
+{{ prop("Position.Dynamic.Start", "1.2.0", ["all"], defv="null", ty="int?") }}
+: Position at race start that changes based of currently displayed dynamic leaderboard.
+
+      * Any overall -> overall position
+      * Any class -> class position
+      * Any cup -> cup position,
+      * `RelativeOnTrack` -> overall position
 
 </div>
 
@@ -321,16 +433,16 @@ for example `DynLeaderboardsPlugin.Dynamic.5.Car.Number`.
 
 <div class="props" markdown>
 
-**`Stint.Current.Time`**
+{{ prop("Stint.Current.Time", "1.0.0", ["all"], defv="null", ty="double?") }}
 : Current stint time.
 
-**`Stint.Current.Laps`**
+{{ prop("Stint.Current.Laps", "1.0.0", ["all"], defv="null", ty="int?") }}
 : Number of laps completed in current stint.
 
-**`Stint.Last.Time`**
+{{ prop("Stint.Last.Time", "1.0.0", ["all"], defv="null", ty="double?") }}
 : Last stint time.
 
-**`Stint.Last.Laps`**
+{{ prop("Stint.Last.Laps", "1.0.0", ["all"], defv="null", ty="int?") }}
 : Number of laps completed in last stint.
 
 </div>
@@ -338,19 +450,19 @@ for example `DynLeaderboardsPlugin.Dynamic.5.Car.Number`.
 #### Pit info
 
 <div class="props" markdown>
-**`Pit.IsIn`**
+{{ prop("Pit.IsIn", "1.0.0", ["all"], defv="null", ty="bool?") }}
 : Is the car in pit lane?
 
-**`Pit.Count`**
+{{ prop("Pit.Count", "1.0.0", ["all"], defv="null", ty="int?") }}
 : Number of pitstops.
 
-**`Pit.Time.Total`**
+{{ prop("Pit.Time.Total", "1.0.0", ["all"], defv="null", ty="double?") }}
 : Total time spent in pits.
 
-**`Pit.Time.Last`**
+{{ prop("Pit.Time.Last", "1.0.0", ["all"], defv="null", ty="double?") }}
 : Last pit time.
 
-**`Pit.Time.Current`**
+{{ prop("Pit.Time.Current", "1.0.0", ["all"], defv="null", ty="double?") }}
 : Current time in pits.
 
 </div>
@@ -361,25 +473,28 @@ Note that pit time counts time from the start of pitlane to the end, not just th
 
 <div class="props" markdown>
 
-**`IsFinished`**
+{{ prop("IsFinished", "1.0.0", ["all"], defv="null", ty="bool?") }}
 : Is the car finished?
 
-**`MaxSpeed`**
+{{ prop("MaxSpeed", "1.0.0", ["all"], defv="null", ty="double?") }}
 : Maximum speed in this session.
 
-**`IsFocused`**
+{{ prop("IsFocused", "1.0.0", ["all"], defv="null", ty="bool?") }}
 : Is this the focusd car?
 
-**`IsOverallBestLapCar`**
+{{ prop("IsOverallBestLapCar", "1.0.0", ["all"], defv="null", ty="bool?") }}
 : Is this the car that has overall best lap?
 
-**`IsClassBestLapCar`**
+{{ prop("IsClassBestLapCar", "1.0.0", ["all"], defv="null", ty="bool?") }}
 : Is this the car that has class best lap?
 
-**`IsCupBestLapCar`**
+{{ prop("IsCupBestLapCar", "1.4.0", ["ACC"], defv="null", ty="bool?") }}
 : Is this the car that has cup best lap?
 
-**`RelativeOnTrackLapDiff`**
+      This is effectively an ACC specific property. In all other games it is
+      equivalent to `IsClassBestLapCar`.
+
+{{ prop("RelativeOnTrackLapDiff", "1.1.0", ["all"], defv="null", ty="int?") }}
 : Show if this car is ahead or behind by one lap (or more) of the focused car in relative on track leaderboard.
 
       * `1` -> ahead
@@ -394,37 +509,48 @@ for example `DynLeaderboardsPlugin.Dynamic.5.Driver.1.FirstName`.
 
 <div class="props" markdown>
 
-**`FirstName`**
+{{ prop("FirstName", "1.0.0", ["ACC"], defv="null", ty="string?") }}
 : First name (Abcde)
 
-**`LastName`**
+{{ prop("LastName", "1.0.0", ["ACC"], defv="null", ty="string?") }}
 : Last name (Fghij)
 
-**`ShortName`**
+{{ prop("ShortName", "1.0.0", ["all"], defv="null", ty="string?") }}
 : Short name (AFG)
 
-**`FullName`**
+{{ prop("FullName", "1.0.0", ["all"], defv="null", ty="string?") }}
 : Full name (Abcde Fghij)
 
-**`InitialPlusLastName`**
+{{ prop("InitialPlusLastName", "1.0.0", ["all"], defv="null", ty="string?") }}
 : Initial + last name (A. Fghij)
 
-**`Nationality`**
+{{ prop("Nationality", "1.0.0", ["ACC"], defv="null", ty="string?") }}
 : Nationality
 
-**`Category`**
-: Driver category. Is one of (`Platinum`, `Gold`, `Silver`, `Bronze`)
+{{ prop("Category", "1.0.0", ["all"], defv="null", ty="string?") }}
+: Driver category.
 
-**`TotalLaps`**
+      This is effectively an ACC specific property but for the sake of consistency
+      and ease of use all other games default to "`Platinum`" category. 
+
+{{ prop("TotalLaps", "1.0.0", ["all"], defv="null", ty="int?") }}
 : Total number of completed laps.
 
-**`TotalDrivingTime`**
+{{ prop("TotalDrivingTime", "1.0.0", ["all"], defv="null", ty="double?") }}
 : Total driving time.
 
-**`BestLapTime`**
+{{ prop("BestLapTime", "1.0.0", ["all"], defv="null", ty="double?") }}
 : Best lap time.
 
-**`CategoryColor`**
-: Color for driver category.
+{{ prop("CategoryColor", "1.0.0", ["ACC"], defv="null", ty="string?", deprecated="2.0.0", deprecatedTooltip="Use `Category.Color` instead.") }}
+: Background color for driver category.
+
+      **DEPRECATED**. Use **`Category.Color`** instead.
+
+{{ prop("Category.Color", "2.0.0", ["ACC"], defv="null", ty="string?") }}
+: Background color for driver category.
+
+{{ prop("Category.TextColor", "2.0.0", ["ACC"], defv="null", ty="string?") }}
+: Text color for driver category.
 
 </div>

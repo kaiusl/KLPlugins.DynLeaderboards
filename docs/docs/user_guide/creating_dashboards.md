@@ -1,57 +1,5 @@
-## Creating one
-
-First head over to the "Dynamic leaderboards" tab in the settings and add a new dynamic leaderboard or edit the one 
-already present. 
-You can change the name by opening the dropdown menu and writing inside the corresponding box. 
-Then all properties will be available as `DynLeaderboardsPlugin.<chosen name>.<pos>.<property name>`. 
-For example you named your dynamic leaderboard as "MyDynLeaderboard" then you can do 
-`DynLeaderboardsPlugin.MyDynLeaderboard.5.Car.Number` to get the fifth car's number in whatever leaderboard type is currently. 
-If it's overall order you get the fifth car overall, if it's on track relative leaderboard you get the car that is in 
-fifth position in that order.
-
-Next you need to set the leaderboards rotation and which ones you even want to see in your rotation. 
-Check the toggle buttons and move leaderboards up and down. 
-If there are unchecked leaderboards are simply ignored, doesn't matter in which location they are.
-
-Next section provides an option to set number of positions exported as properties. 
-The actual number of car's exported is the maximum positions needed for any leaderboard. 
-For relative leaderboards you set the number of cars shown ahead and behind the focused car. 
-Drivers are ordered such that the current driver is always the first one and if you set number of drivers to 1, 
-we only export current driver. 
-Note that you can set any of the properties to 0 to not export them.
-
-Then scroll through the properties and select all of the ones you want. 
-For dynamic leaderboard I recommend to use `...Gaps.Dynamic...` and `...Delta.Dynamic...` properties which change 
-according to the currently selected leaderboard. This way you don't need to switch between the gaps and lap deltas yourself.
-
-Final configuration step is to go to the "Controls and events" from SimHub sidebar and add mappings 
-for `DynLeaderboardsPlugin.<name>.NextLeaderboard` and `DynLeaderboardsPlugin.<name>.PreviousLeaderboard` actions. 
-As stated above for mapping to controller inputs you need to enable "Controllers input" plugin and to keyboard inputs 
-"Keyboard Input" plugin.
-
-Now restart SimHub and start create your dashboard. 
-You can use the AccDynLeaderboard as an example or modify it directly.
-
-## Publishing your dashboard
-
-So you have created your dynamic leaderboard and a custom dashboard that uses it and want to upload it. 
-Since version [1.2.0](https://github.com/kaiusl/KLPlugins.DynLeaderboards/releases/tag/v1.2.0) the leaderboard 
-configurations are saved in separate files so you could package them with your download and simplify the configuration 
-needed by the end user. 
-
-How to include?
-
-- Go to *"..\SimHub\PluginsData\KLPlugins\DynLeaderboards\leaderboardConfigs"*.
-- Pack the file with your dynamic leaderboard's name with your download.
-- The end user must copy the file back to that location and the configuration will be automatically loaded. 
-  (I suggest to include the proper folder structure inside the download).
-
-Now the only configuration needed is to assign the buttons to change leaderboard types.
-
 ## Things to know
 
-- Default value if property is not available is null. This happens if session is not started yet, there are fewer
-  cars/drivers in session than positions available for leaderboard or no lap time is available.
 - First driver is always current driver.
 - All times and gaps are given in seconds.
 - In relative leaderboards positive gap means the car is ahead of the car that we are comparing to, negative gap means behind.
@@ -107,7 +55,7 @@ var gap_to_behind = $prop('DynLeaderboardsPlugin.Dynamic.' + (repeatindex() + 1)
 // gap formatting
 ```
 
-### Properties of the cars right ahead/behind of the player
+### Properties of the cars right ahead/behind of the focused car
 
 Also see [#21](https://github.com/kaiusl/KLPlugins.DynLeaderboards/discussions/21) for more discussion.
 
@@ -156,3 +104,5 @@ if (isRelative) {
 // Same lap
 return "#FFFFFF"
 ```
+
+--8<-- "includes/abbreviations.md"

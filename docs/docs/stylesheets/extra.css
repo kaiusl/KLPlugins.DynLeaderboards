@@ -1,28 +1,30 @@
-.md-grid {
-    max-width: 1440px;
-}
+:root {
+    --col-bg-2: #1d1f24;
+    --col-bg-1: #23252c;
+    --col-bg0: #292b33;
+    --col-bg1: #2f313a;
+    --col-bg2: #353842;
 
-.md-typeset {
-    font-size: .7rem;
-}
+    --col-fg-2: #737580;
+    --col-fg-1: #9193a1;
+    --col-fg0: #acafbf;
+    --col-fg1: #bfc3d4;
+    --col-fg2: #d1d5eb;
 
-.md-nav {
-    font-size: .65rem;
-}
+    --col-red: #f28585;
+    --col-orange-dark: #df9355;
+    --col-orange: #e6b583;
+    --col-yellow: #dfd091;
+    --col-yellow-dim: #bebda2;
+    --col-blue: #6dbaf2;
+    --col-green: #77e3ac;
+    --col-purple: #c89ae1;
+    --col-cyan: #74dada;
 
-.md-version {
-    font-size: .65rem;
-}
-
-/* Block to list SimHub properties */
-div.props {
-    border-left: .1rem solid var(--md-default-fg-color--lightest);
-    padding-left: .6rem;
-    margin-bottom: 1em;
-    margin-top: 1em;
-    color: var(--md-default-fg-color--light);
-    margin-left: 0;
-    margin-right: 0;
+    --col-bright-red: #ee5c5c;
+    --col-bright-blue: #0a77c5;
+    --col-bright-green: #50e080;
+    --col-bright-yellow: #fdbc4b;
 }
 
 [data-md-color-scheme="dark"] {
@@ -72,8 +74,9 @@ div.props {
     --md-shadow-z2: 0 0.2rem 0.5rem #00000040, 0 0 0.05rem #00000040;
     --md-shadow-z3: 0 0.2rem 0.5rem #0006, 0 0 0.05rem #00000059;
     color-scheme: dark;
-}
 
+    --col-deprecated: var(--col-orange);
+}
 
 [data-md-color-scheme="light"] {
     --md-primary-fg-color: #0a77c5;
@@ -97,4 +100,126 @@ div.props {
 
     --md-typeset-a-color: var(--md-primary-fg-color--light);
     color-scheme: light;
+
+    --col-deprecated: var(--col-orange-dark);
+}
+
+.md-grid {
+    max-width: 1440px;
+}
+
+.md-typeset {
+    font-size: .7rem;
+}
+
+.md-typeset code {
+    font-size: .625rem;
+}
+
+.md-nav {
+    font-size: .65rem;
+}
+
+.md-version {
+    font-size: .65rem;
+}
+
+.md-tooltip {
+    max-width: 250px;
+}
+
+dt {
+    border-bottom: .1rem solid var(--md-default-fg-color--lightest);
+}
+
+/* Block to list SimHub properties */
+div.props {
+    border-left: .1rem solid var(--md-default-fg-color--lightest);
+    padding-left: .6rem;
+    margin-bottom: 1em;
+    margin-top: 1em;
+    color: var(--md-default-fg-color--light);
+    margin-left: 0;
+    margin-right: 0;
+}
+
+/* property names */
+.md-typeset div.props dt strong code {
+    color: var(--md-default-fg-color);
+}
+
+.md-typeset .admonition,
+.md-typeset details {
+    border-width: 0;
+    border-left-width: 4px;
+}
+
+span.version-since {
+    font-size: 0.7rem;
+    color: var(--md-typeset-a-color);
+}
+
+span.version-since.right {
+    float: right;
+
+}
+
+span.version-since:hover {
+    color: var(--md-accent-fg-color);
+}
+
+span.version-icon {
+    font-size: 90%;
+}
+
+span.pill {
+    border-radius: 0.25rem;
+    background-color: #0000;
+    border: 1px solid;
+    padding-left: 0.35em;
+    padding-right: 0.35em;
+    padding-top: 0.05em;
+    padding-bottom: 0.085em;
+    font-size: 80%;
+    font-weight: 500;
+    opacity: 90%;
+    display: inline;
+}
+
+span.pill:hover {
+    opacity: 100%;
+}
+
+span.pill.game {
+    border: none;
+    font-size: 75%;
+
+    --col: var(--md-default-fg-color--light);
+    color: var(--col);
+    background-color: color-mix(in srgb, var(--col) 15%, transparent);
+}
+
+span.pill.game:hover {
+    opacity: 100%;
+}
+
+span.pill.game.disabled {
+    color: var(--col);
+    opacity: 30%;
+}
+
+span.pill.game.disabled:hover {
+    opacity: 40%;
+}
+
+[data-md-color-scheme="light"] span.pill-deprecated {
+    border-color: color-mix(in srgb, var(--col-deprecated) 50%, transparent);
+    color: var(--col-deprecated);
+    background-color: color-mix(in srgb, var(--col-deprecated) 5%, transparent);
+}
+
+[data-md-color-scheme="dark"] span.pill-deprecated {
+    border-color: color-mix(in srgb, var(--col-deprecated) 50%, transparent);
+    color: var(--col-deprecated);
+    background-color: color-mix(in srgb, var(--col-deprecated) 10%, transparent);
 }

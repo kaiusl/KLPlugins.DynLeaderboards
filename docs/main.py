@@ -55,7 +55,7 @@ def define_env(env):
         defv = (
             ""
             if defv is None
-            else f"""<span style="float:right" title="Default value.">:material-numeric-off: `{defv}`</span>"""
+            else f"""<span style="float:right; margin-right:10px;" title="Default value.">:material-numeric-off: `{defv}`</span>"""
         )
         deprecated = (
             ""

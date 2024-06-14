@@ -27,8 +27,9 @@ It's relatively simple one and designed to be used on smartphone.
 - :material-clock-fast:{ .lg .middle } [**Getting started**](user_guide/getting_started.md)
 - :material-wrench-outline:{ .lg .middle } [**Configuration**](user_guide/config.md)
 - :material-view-dashboard-edit:{ .lg .middle } [**Create custom dashboards**](user_guide/creating_dashboards.md)
+- :material-view-dashboard:{ .lg .middle } [**Find dashboards**](community/dashes.md)
 - :simple-databricks:{ .lg .middle } [**Properties reference**](reference/properties.md)
-- :material-message-question-outline:{ .lg .middle } [**Troubleshooting**](user_guide/troubleshooting.md)
+- :material-message-question-outline:{ .lg .middle } [**Troubleshooting**](community/troubleshooting.md)
 
 </div>
 

@@ -13,6 +13,8 @@
 This plugin provides bunch of configuration options. 
 Go to the plugin settings either directly from the left main menu "Dynamic Leaderboards" item or under "Additional plugins" item go to "DynLeaderboardsPlugin" tab.
 
+Below is the documentation for all the available options.
+
 ## General settings
 
 ![Screenshot](../img/Config/GeneralSettings.png)
@@ -26,7 +28,6 @@ There are couple of paths needed for the plugin to work.
 !!! note
     These are game specific and if you don't play that specific game you can safely ignore that setting.
 
-
 If the background of text box is green then we found needed files. If it's red then there is something wrong with the location.
 
 "ACC configuration location"
@@ -36,7 +37,7 @@ If the background of text box is green then we found needed files. If it's red t
     Likely the correct location is {{ path("C:\\Users\\<user name>\\Documents\\Assetto Corsa Competizione") }}
 
 "AC root location"
-: is used to read car data. This is useful for modded cars so you don't have to manually enter all the necessary data.
+: is used to read car data. This is useful so you don't have to manually enter all the necessary data.
 
     We need to find the folder {{ path("..\\assettocorsa\\content\\cars") }}. 
     Likely the correct location is {{ path("C:\\Program Files (x86)\\Steam\\steamapps\\common\\assettocorsa") }}.
@@ -56,7 +57,7 @@ For more detailed description see [the reference](../reference/properties.md#gen
 These setting can be useful when reporting issues with the plugin.
 For normal use it's recommended to keep everything in this section disabled. 
 
-If you are experiencing issues, then see [troubleshooting](troubleshooting.md) page.
+If you are experiencing issues, then see [troubleshooting](../community/troubleshooting.md) page.
 
 ## Dynamic leaderboards
 
@@ -83,7 +84,8 @@ If it's overall order you get the fifth car overall, if it's on track relative l
 
 Here you define the specific leaderboard types that appear in the dynamic leaderboard and choose the order of appearance. 
 
-You can also enable removing some leaderboard types if there is only a single class or cup in the session. Overall and class/cup leaderboards are equivalent in a single class/cup sessions and thus there is really no need to scroll through all of them if they are all enabled.
+You can also enable removing some leaderboard types if there is only a single class or cup in the session. 
+Overall and class/cup leaderboards are equivalent in a single class/cup sessions and thus there is really no need to scroll through all of them if they are all enabled.
 
 !!! TIP 
 
@@ -101,11 +103,15 @@ which move between the leaderboards enabled in the rotation section.
 
     For mapping to controller inputs you need to enable "Controllers input" plugin and to keyboard inputs "Keyboard Input" plugin.
 
-
 #### NUMBER OF POSITIONS
 
-* For relative positions we set the number of positions shown ahead and behind. That if if set to 5 for example, we show 5 cars ahead and 5 cars behind the focused car.
-* The driver indices are set such that current driver is always first. If you set the number of drivers to 1, then we only show current driver.
+Here you can limit the number of positions exported since there is no need to export more than your leaderboard can display.
+
+For relative positions we set the number of positions shown ahead and behind. 
+That is if set to 5 for example, we show 5 cars ahead and 5 cars behind the focused car.
+
+The driver numbers are set such that current driver is always first. 
+If you set the number of drivers to 1, then we only show current driver.
   
 #### PROPERTIES FOR EACH CAR
 
@@ -117,11 +123,10 @@ For more detailed description see [the reference](../reference/properties.md#for
 
 #### PROPERTIES FOR EACH DRIVER
 
-These can be accessed as `DynLeaderboardsPlugin.<dynamic leaderboard name>.<pos>.Driver.<driver number>.<property name>`, for example `DynLeaderboardsPlugin.Dynamic.5.Driver.1.FirstName`.
+These can be accessed as `DynLeaderboardsPlugin.<dynamic leaderboard name>.<pos>.Driver.<driver number>.<property name>`. `<driver number>` starts at 1 and that always corresponds to the current driver. For example `DynLeaderboardsPlugin.Dynamic.5.Driver.1.FirstName` will get the first name of the current driver of the 5th car.
 
 The SimHub menu provides a short description for each property. 
 For more detailed description see [the reference](../reference/properties.md#for-each-driver).
-
 
 #### Closing notes
 
@@ -149,10 +154,11 @@ Note that "Manufacturer" property cannot be disabled as SimHub doesn't provide i
 By default the manufacturer is the first word of the car name but this is not perfect.
 However next two levels can fix it.
 
-* Next there is base plugin data which is either bundled by the plugin in the download or it's generated from game files.
-At the moment base data is provided for ACC (which matches v1.x data) and it can be generated for AC ([more information about it](#read-car-information)).
+* Next there is base plugin data which is either bundled by the plugin with the download or it's generated from game files.
+At the moment base data is provided for ACC (which matches v1.x data) and it can be generated for AC ([more information about it](#assetto-corsa)).
+Main reason for this middle layer is so that the the plugin could update and improve the data without deleting user overrides.
 
-* Finally a user can override any of the car settings.
+* Finally a user can override any of the car settings. These are persistent between plugin updates.
 
 !!! tip "TL;DR"
 
@@ -161,7 +167,7 @@ At the moment base data is provided for ACC (which matches v1.x data) and it can
 
 #### Reset or remove
 
-The menu also provides options to "reset" or "remove" options.
+The toolbar menu also provides options to "reset" or "remove" options.
 These two can be a bit confusing, so what's the difference.
 
 "reset"
@@ -180,30 +186,33 @@ These two can be a bit confusing, so what's the difference.
 For example since this plugin provides base data for ACC, "reset" will restore 
 the values to that base data, whereas "remove" will fall back to SimHub's data.
 Both will keep the cars listed.
+
 However for AMS2 there is no base data, so "reset" and "remove" effectively 
-do the same thing -- fall back to SimHub's data except "remove" will also
-remove the car's from the list while "reset" doesn't.
+do the same thing -- fall back to SimHub's data. 
+Only difference is that "remove" will also remove the car's from the list while "reset" doesn't.
 
 #### Assetto Corsa
    
 This plugin can read the default car information directly from AC's car files (from {{ path("..\\assettocorsa\\content\\cars\\\<car_id>\\ui\\ui_car.json")}}).
 This is useful for modded cars so you don't have to manually enter all the necessary data.
 
-For it to function you need to set correct "AC root location" under ["General settings -> PATHS"](#paths).
+For this to function properly, a correct "AC root location" needs to be set under ["General settings -> PATHS"](#paths).
 
 If the plugin detects that there is no base AC car data, it will try to automatically read it.
 However for further update you need to manually trigger the update. 
-This is so that we don't accidentally trigger and expensive update during a session when unknown car joins.
+This is so that we don't accidentally trigger an expensive update during a session when unknown car joins.
 
-To update the base info go to the plugin settings and under "Car settings" tab click "Update base info" button.
+To update the base info go to the plugin settings and under ["Car settings"](#car-settings) tab click "Update base info" button.
 <span title="Note that this button is only available when AC is the selected game.">:material-information-outline:<span>
 
-By default most AC cars have class of either "race" or "street".
-However their actual class is represented in tags as "#class" (for example "#GT3-GTE").
-Thus if the car's class if "race" or "street" the plugin will look at tags and first tag of format "#class" is used as the class.
-
-All this means that there are two ways to change car information in AC. 
+This means that there are actually two ways to change car information for AC. 
 Either from the plugin menu or by modifying AC files directly which Content Manager makes very easy.
+
+!!! Info "Classes"
+
+    By default most AC cars have class of either "race" or "street".
+    However their actual class is represented in tags as "#class" (for example "#GT3-GTE").
+    Thus if the car's class if "race" or "street" the plugin will look at tags and first tag of format "#class" is used as the class.
 
 
 ## Colors
@@ -213,14 +222,17 @@ Either from the plugin menu or by modifying AC files directly which Content Mana
 This tab allows to customize any of the colors provided by the plugin.
 This includes class, team cup category and driver category colors.
 
-Each color has background and foreground part which are also shown in a little preview box.
+Each color has background and text part which are also shown in a little preview box.
+Background color is exported simply as `Color`, for example `Car.Class.Color`. 
+Text color is exported as `TextColor`, for example `Car.Class.TextColor`.
 
-Again as with "Car settings" tab if the plugin detects new classes or categories
+Again as with ["Car settings"](#car-settings) tab if the plugin detects new classes or categories
 they will be added to the list but for now you'll need to manually refresh the 
 list by clicking the "Refresh" button.
 
-The colors also have same three level fallback system as "Car settings".
-Also "reset" and "remove" mean exact same things.
+The colors also have same [three level fallback system](#fallback-and-defaults) as ["Car settings"](#car-settings).
+Also ["reset" and "remove"](#reset-or-remove) mean exact same things.
+Base color data is provided for ACC and AMS2 to match in game class and category colors.
 
 <!-- ## Game specific config
 

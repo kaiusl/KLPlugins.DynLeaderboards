@@ -12,7 +12,7 @@
 
     | Plugin | SimHub | ACC    | AC     | AMS2    | RF2    | R3E      |
     | ------ | ------ | ------ | ------ | ------- | ------ | -------- |
-    | 2.0.0  | 9.3.0  | 1.10.2 | 1.16.4 | 1.5.6.3 | 1.1134 | 0.9.5.52 |
+    | 2.0.0  | 9.3.4  | 1.10.2 | 1.16.4 | 1.5.6.3 | 1.1134 | 0.9.5.52 |
 
 
 ## Issues
@@ -32,13 +32,14 @@ Maybe it has already been reported or even better has some solution.
 
 When reporting issues, please include as much information as possible. 
 This will help to solve any issues faster. 
+Of course not all of the item below are necessary or relevant for all issues but if you think it could be helpful please include it.
 That information includes:
 
 * Game and session info (SP or MP, practice/race etc).
 * SimHub, plugin and game versions.
 * SimHub log files from {{ path("../SimHub/Logs") }} (usually it's best to zip all of them together)
     * Basic logging information should show most direct errors 
-      however more information is logged by turning on `Log` option in the plugin settings menu. 
+      however more information is logged by turning on `Log` option in the plugin settings menu under ["General settings -> DEBUG"](../user_guide/config.md#debug). 
       If possible you could turn that on and try to reproduce the issue with it.
 * A SimHub replay displaying the issue.
 * A screenshot displaying the issue.

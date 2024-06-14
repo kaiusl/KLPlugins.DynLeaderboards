@@ -6,7 +6,10 @@ nav:
     - 'Configuration': 'user_guide/config.md'
     - 'Creating dashboards': 'user_guide/creating_dashboards.md'
     - 'Publishing dashboards': 'user_guide/publishing_dashboards.md'
-    - 'Troubleshooting': 'user_guide/troubleshooting.md'
+  - 'Community':
+    - 'Dashboards': 'community/dashes.md'
+    - 'Troubleshooting': 'community/troubleshooting.md'
+    - 'Feature requests and suggestions': 'community/requests.md'
   - 'Reference': 
     - 'Available leaderboards': 'reference/leaderboards.md'
     - 'Available properties': 'reference/properties.md'
@@ -25,6 +28,7 @@ plugins:
       fallback_to_build_date: true
   - search
   - macros
+  - offline
 
 extra:
   version:

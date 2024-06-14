@@ -20,7 +20,7 @@
 
 ## Patterns
 
-### Access properties
+#### Access properties
 
 === "Javascript"
 
@@ -34,7 +34,7 @@
     prop('DynLeaderboardsPlugin.Dynamic.' + repeatindex() + '.Laps.Last.Time')
     ```
 
-### Gap formatting
+#### Gap formatting
 
 ```javascript
 var v = $prop('DynLeaderboardsPlugin.Dynamic.' + repeatindex() + '.Gap.Dynamic.ToFocused')
@@ -45,7 +45,7 @@ if (v > 50000) { return format(v - 100000, '0', true) + 'L' }
 return format(v, '0.00', true)
 ```
 
-### Gap to behind
+#### Gap to behind
 
 The plugin provides a property for a gap to car ahead but not to the car behind. The latter is found by shifting the index by one.
 
@@ -55,7 +55,7 @@ var gap_to_behind = $prop('DynLeaderboardsPlugin.Dynamic.' + (repeatindex() + 1)
 // gap formatting
 ```
 
-### Properties of the cars right ahead/behind of the focused car
+#### Properties of the cars right ahead/behind of the focused car
 
 Also see [#21](https://github.com/kaiusl/KLPlugins.DynLeaderboards/discussions/21) for more discussion.
 
@@ -85,7 +85,7 @@ var behind = $prop('DynLeaderboardsPlugin.Dynamic.' + idx + '.Laps.Last.Time')
 // gap formatting
 ```
 
-### Color cars on different laps differently on RelativeOnTrack leaderboards
+#### Color cars on different laps differently on RelativeOnTrack leaderboards
 
 ```javascript
 var current_lb = $prop('DynLeaderboardsPlugin.Dynamic.CurrentLeaderboard')

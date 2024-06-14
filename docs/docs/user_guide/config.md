@@ -15,7 +15,7 @@ Go to the plugin settings either directly from the left main menu "Dynamic Leade
 
 ## General settings
 
-![Screenshot](../img/Config_GeneralSettings.png)
+![Screenshot](../img/Config/GeneralSettings.png)
 
 This tab includes settings that are global to the whole plugin.
 
@@ -60,7 +60,7 @@ If you are experiencing issues, then see [troubleshooting](troubleshooting.md) p
 
 ## Dynamic leaderboards
 
-![Screenshot](../img/Config_DynamicLeaderboards.png)
+![Screenshot](../img/Config/DynamicLeaderboards.png)
 
 This is the tab where you can configure all of the dynamic leaderboards.
 
@@ -130,7 +130,7 @@ If you are creating your own dashboard make sure to give [Creating dashboards](c
 
 ## Car settings
 
-![Screenshot](../img/Config_CarSettings.png)
+![Screenshot](../img/Config/CarSettings.png)
 
 This tab provides an option to change car names, manufacturers and classes. 
 All the available cars are listed on the left. 
@@ -208,7 +208,7 @@ Either from the plugin menu or by modifying AC files directly which Content Mana
 
 ## Colors
 
-![Screenshot](../img/Config_Colors.png)
+![Screenshot](../img/Config/Colors.png)
 
 This tab allows to customize any of the colors provided by the plugin.
 This includes class, team cup category and driver category colors.

@@ -47,34 +47,34 @@ will be just as the overall leaderboard. There are two types:
 ## A quick screenshot comparison of each type
 
 === "Overall"
-    ![](../img/overall.png)
+    ![](../img/LeaderboardTypes/Overall.png)
 
 === "Class"
-    ![](../img/class.png)
+    ![](../img/LeaderboardTypes/Class.png)
 
 === "Cup"
-    ![](../img/class.png)
+    ![](../img/LeaderboardTypes/Cup.png)
 
 === "RelativeOverall"
-    ![](../img/partialRelativeOverall.png)
+    ![](../img/LeaderboardTypes/RelativeOverall.png)
 
 === "RelativeClass"
-    ![](../img/partialRelativeClass.png)
+    ![](../img/LeaderboardTypes/RelativeClass.png)
 
 === "RelativeCup"
-    ![](../img/partialRelativeClass.png)
+    ![](../img/LeaderboardTypes/RelativeCup.png)
 
 === "PartialRelativeOverall"
-    ![](../img/partialRelativeOverall.png)
+    ![](../img/LeaderboardTypes/PartialRelativeOverall.png)
 
 === "PartialRelativeClass"
-    ![](../img/partialRelativeClass.png)
+    ![](../img/LeaderboardTypes/PartialRelativeClass.png)
 
 === "PartialRelativeCup"
-    ![](../img/partialRelativeClass.png)
+    ![](../img/LeaderboardTypes/PartialRelativeCup.png)
 
 === "RelativeOnTrack"
-    ![](../img/relativeOnTrack.png)
+    ![](../img/LeaderboardTypes/RelativeOnTrack.png)
 
 === "RelativeOnTrackWoPit"
-    ![](../img/relativeOnTrack.png)
+    ![](../img/LeaderboardTypes/RelativeOnTrackWoPit.png)

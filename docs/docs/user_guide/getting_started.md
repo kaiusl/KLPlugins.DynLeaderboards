@@ -13,7 +13,7 @@
 
         For mapping to controller inputs you need to enable "Controllers input" plugin and to keyboard inputs "Keyboard Input" plugin.
 
-    ![](../img/Config_DynamicLeaderboards_Controls.png)
+    ![](../img/Config/DynamicLeaderboards_Controls.png)
     
 * Now the provided "DynLeaderboard" dash should work.
 

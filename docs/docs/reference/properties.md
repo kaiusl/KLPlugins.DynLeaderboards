@@ -60,20 +60,44 @@ for example `DynLeaderboardsPlugin.Color.Class.GT3`.
 {{ prop("Color.Class.<class>", "1.0.0", ["all"], ty="string") }}
 : Background color for car class.
 
+      Note that this export one property for every class color enabled in the plugin settings [Colors](../user_guide/config.md#colors) tab where the
+      `<class>` in property name is replaced by the class name.
+      For example `Color.Class.GT3`.
+
 {{ prop("Color.Class.<class>.Text", "2.0.0", ["all"], ty="string") }}
 : Text color for car class.
 
-{{ prop("Color.Cup.<cup category>", "1.0.0", ["all"], ty="string") }}
+      Note that this export one property for every class color enabled in the plugin settings [Colors](../user_guide/config.md#colors) tab where the
+      `<class>` in property name is replaced by the class name.
+      For example `Color.Class.GT3.Text`.
+
+{{ prop("Color.Cup.<category>", "1.0.0", ["all"], ty="string") }}
 : Background color for team cup category.
 
-{{ prop("Color.Cup.<cup category>.Text", "1.0.0", ["all"], ty="string") }}
+      Note that this export one property for every team cup category color enabled in the plugin settings [Colors](../user_guide/config.md#colors) tab where the
+      `<cup category>` in property name is replaced by the team cup category name.
+      For example `Color.Cup.Overall`.
+
+{{ prop("Color.Cup.<category>.Text", "1.0.0", ["all"], ty="string") }}
 : Text color for team cup category. 
+
+      Note that this export one property for every team cup category color enabled in the plugin settings [Colors](../user_guide/config.md#colors) tab where the
+      `<category>` in property name is replaced by the team cup category name.
+      For example `Color.Cup.Overall.Text`.
 
 {{ prop("Color.DriverCategory.<category>", "1.0.0", ["all"], ty="string") }}
 : Background color for driver category.
 
+      Note that this export one property for every driver category color enabled in the plugin settings [Colors](../user_guide/config.md#colors) tab where the
+      `<category>` in property name is replaced by the driver category name.
+      For example `Color.DriverCategory.Platinum`.
+
 {{ prop("Color.DriverCategory.<category>.Text", "2.0.0", ["all"], ty="string") }}
 : Text color for driver category.
+
+      Note that this export one property for every driver category color enabled in the plugin settings [Colors](../user_guide/config.md#colors) tab where the
+      `<category>` in property name is replaced by the driver category name.
+      For example `Color.DriverCategory.Platinum.Text`.
 
 </div>
 
@@ -85,10 +109,7 @@ for example `DynLeaderboardsPlugin.Dynamic.CurrentLeaderboard`.
 <div class="props" markdown>
 
 {{ prop("Currentleaderboard", "1.0.0", ["all"], ty="string") }}
-: Name of the currently selected leaderboard. 
-  Is one of (`Overall`, `Class`, `Cup`, `RelativeOverall`, `RelativeClass`, `RelativeCup`, `PartialRelativeOverall`, `PartialRelativeClass`, `PartialRelativeCup`, 
-  `RelativeOnTrack`, `RelativeOnTrackWoPit`).
-  See [Leaderboards](leaderboards.md) for more info about what each type means.
+: Name of the currently selected leaderboard. See [the reference](leaderboards.md) for more info about what types are available.
 
 {{ prop("FocusedPosInCurrentLeaderboard", "1.0.0", ["all"], defv="null", ty="int?") }}
 : Integer that shows the position of focused car in currently selected leaderboard. Note that it is 0 based like an 
@@ -312,12 +333,12 @@ for example `DynLeaderboardsPlugin.Dynamic.5.Car.Number`.
 *Dynamic*                                  
 
 {{ prop("Laps.Best.Delta.Dynamic.ToFocusedBest", "1.0.0", ["all"], defv="null", ty="double?") }}
-: Best lap delta to the car's best based on currently displayed leaderboard.
+: Best lap delta to the car's best based on currently displayed leaderboard type.
 
       * `Overall` -> Best lap delta to leader's best lap.
       * `Class` -> Best lap delta to class leader's best lap.
       * `Cup` -> Best lap delta to cup leader's best lap.
-      * for any relative leaderboard it's delta to focused car's best lap.
+      * any relative leaderboard -> Best lap delta to focused car's best lap.
 
 {{ prop("Laps.Last.Delta.Dynamic.ToFocusedBest", "1.0.0", ["all"], defv="null", ty="double?") }}
 : Same as above but last lap delta to other car's best lap.
@@ -365,21 +386,21 @@ for example `DynLeaderboardsPlugin.Dynamic.5.Car.Number`.
 : Relative gap to the car ahead on track.                                      
 
 {{ prop("Gap.Dynamic.ToFocused", "1.0.0", ["all"], defv="null", ty="double?") }}
-: Gap that changes based on the currently selected dynamic leaderboard.
+: Gap that changes based on the currently selected leaderboard type.
 
       * `Overall` -> Total gap to the leader.
       * `Class` -> Total gap to the class leader.
       * `Cup` -> Total gap to the cup leader.
       * `(Partial)RelativeOverall`, `(Partial)RelativeClass`, `(Partial)RelativeCup` -> Total gap to the focused car.
-      * `RelativeOnTrack` -> Relative on track gap to the focused car.
+      * `RelativeOnTrack(WoPit)` -> Relative on track gap to the focused car.
 
 {{ prop("Gap.Dynamic.ToAhead", "1.0.0", ["all"], defv="null", ty="double?") }}
-: Gap to the car ahead that changes based on the currently selected dynamic leaderboard.
+: Gap to the car ahead that changes based on the currently selected leaderboard type.
 
       * `(Partial)(Relative)Overall` -> Total gap to the car ahead in overall order.
       * `(Partial)(Relative)Class` -> Total gap to the car ahead in class.
       * `(Partial)(Relative)Cup` -> Total gap to the car ahead in cup.
-      * `RelativeOnTrack` -> Relative gap to the car ahead on track.
+      * `RelativeOnTrack(WoPit)` -> Relative gap to the car ahead on track.
 
 </div>
 
@@ -412,20 +433,20 @@ for example `DynLeaderboardsPlugin.Dynamic.5.Car.Number`.
       equivalent to `Position.Class.Start`.
 
 {{ prop("Position.Dynamic", "1.2.0", ["all"], defv="null", ty="int?") }}
-: Position that changes based of currently displayed dynamic leaderboard.
+: Position that changes based of currently displayed leaderboard type. 
 
-      * Any overall -> overall position
-      * Any class -> class position
-      * Any cup -> cup position,
-      * `RelativeOnTrack` -> overall position
+      * `(Partial)(Relative)Overall` -> overall position
+      * `(Partial)(Reltaive)Class` -> class position
+      * `(Partial)(Relative)Cup` -> cup position,
+      * `RelativeOnTrack(WoPit)` -> overall position
   
 {{ prop("Position.Dynamic.Start", "1.2.0", ["all"], defv="null", ty="int?") }}
-: Position at race start that changes based of currently displayed dynamic leaderboard.
+: Position at race start that changes based of currently displayed leaderboard type.
 
-      * Any overall -> overall position
-      * Any class -> class position
-      * Any cup -> cup position,
-      * `RelativeOnTrack` -> overall position
+      * `(Partial)(Relative)Overall` -> overall position
+      * `(Partial)(Reltaive)Class` -> class position
+      * `(Partial)(Relative)Cup` -> cup position,
+      * `RelativeOnTrack(WoPit)` -> overall position
 
 </div>
 

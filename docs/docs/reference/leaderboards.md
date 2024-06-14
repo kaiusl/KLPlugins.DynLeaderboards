@@ -46,35 +46,4 @@ will be just as the overall leaderboard. There are two types:
 
 ## A quick screenshot comparison of each type
 
-=== "Overall"
-    ![](../img/LeaderboardTypes/Overall.png)
-
-=== "Class"
-    ![](../img/LeaderboardTypes/Class.png)
-
-=== "Cup"
-    ![](../img/LeaderboardTypes/Cup.png)
-
-=== "RelativeOverall"
-    ![](../img/LeaderboardTypes/RelativeOverall.png)
-
-=== "RelativeClass"
-    ![](../img/LeaderboardTypes/RelativeClass.png)
-
-=== "RelativeCup"
-    ![](../img/LeaderboardTypes/RelativeCup.png)
-
-=== "PartialRelativeOverall"
-    ![](../img/LeaderboardTypes/PartialRelativeOverall.png)
-
-=== "PartialRelativeClass"
-    ![](../img/LeaderboardTypes/PartialRelativeClass.png)
-
-=== "PartialRelativeCup"
-    ![](../img/LeaderboardTypes/PartialRelativeCup.png)
-
-=== "RelativeOnTrack"
-    ![](../img/LeaderboardTypes/RelativeOnTrack.png)
-
-=== "RelativeOnTrackWoPit"
-    ![](../img/LeaderboardTypes/RelativeOnTrackWoPit.png)
+{{ leaderboardTypePreviews() }}

@@ -68,3 +68,23 @@ def define_env(env):
     @env.macro
     def path(path):
         return f"""*`\"{path}\"`*"""
+
+    @env.macro
+    def dashTitle(name, author):
+        return f"""<span style="font-weight:bold;font-size:125%;">{name}</span> by *{author}*"""
+
+    def leaderboardTypePreview(kind):
+        return f"""
+=== "{kind}"
+    ![](../img/LeaderboardTypes/{kind}.png){{: style="height:400px;margin-left:auto;margin-right:auto;display:block;"}}
+"""
+
+    @env.macro
+    def leaderboardTypePreviews():
+        LeaderboardTypes = [
+            "Overall", "Class", "Cup", 
+            "RelativeOverall", "RelativeClass", "RelativeCup", 
+            "PartialRelativeOverall", "PartialRelativeClass", "PartialRelativeCup", 
+            "RelativeOnTrack", "RelativeOnTrackWoPit"
+        ]
+        return "\n\n".join(leaderboardTypePreview(kind) for kind in LeaderboardTypes)

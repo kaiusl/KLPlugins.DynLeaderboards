@@ -16,7 +16,10 @@
 	```
 - There are dynamic gaps and deltas to laps that change based on the currently selected leaderboard to show meaningful 
   gaps for the current leaderboard. 
-  For example in overall leaderboard we show gaps to the overall leader, in class leaderboards to the class leader and so on.
+  For example [`Gap.Dynamic.ToFocused`](../reference/properties.md#gaps) property will show gaps to the overall leader if overall leaderboard type is selected,
+  whereas if class leaderboard type is selected the gaps are shown to the class leader and so on.
+- The driver numbers are set such that current driver is always first. For example first name of current driver can be accessed as `DynLeaderboardsPlugin.Dynamic.5.Driver.1.FirstName`. The order of other drivers is undefined.
+
 
 ## Patterns
 
@@ -77,12 +80,10 @@ var behind = $prop('DynLeaderboardsPlugin.Dynamic.' + idx + '.Gap.Dynamic.ToAhea
 ```javascript
 var idx = $prop('DynLeaderboardsPlugin.Dynamic.FocusedPosInCurrentLeaderboard')
 var ahead = $prop('DynLeaderboardsPlugin.Dynamic.' + idx + '.Laps.Last.Time')
-// gap formatting
 ```
 ```javascript
 var idx = $prop('DynLeaderboardsPlugin.Dynamic.FocusedPosInCurrentLeaderboard') + 2
 var behind = $prop('DynLeaderboardsPlugin.Dynamic.' + idx + '.Laps.Last.Time')
-// gap formatting
 ```
 
 #### Color cars on different laps differently on RelativeOnTrack leaderboards

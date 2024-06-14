@@ -11,10 +11,25 @@ It's relatively simple one and designed to be used on smartphone.
 
 ## Features
 
-- Provide a way to switch between leaderboard types on a single dash screen with a single click.
-    - Also provide gaps and lap deltas that change based on currently selected leaderboard.
-- Provide more leaderboard types ([see here](reference/leaderboards.md)).
-- Calculate bunch of new properties ([see here](reference/properties.md)).
-- More stable calculation of gaps between the cars (no more gap changing by 1s depending if you are in the corner or straights).
+- Dynamic leaderboards.
+    - Has a easy a way to switch between leaderboard types on a single dash screen with a single click.
+    - Properties that change based on currently selected leaderboard.
+    - Support multiple different dynamic leaderboards simultaneously.
+- New leaderboard types ([see here](reference/leaderboards.md)).
+- New properties ([see here](reference/properties.md)).
+- More stable calculation of gaps between the cars (no more gap changing by seconds depending if you are in the corner or straights).
+- Easy configuration through SimHub.
+
+## Next steps
+
+<div class="grid cards" markdown>
+
+- :material-clock-fast:{ .lg .middle } [**Getting started**](user_guide/getting_started.md)
+- :material-wrench-outline:{ .lg .middle } [**Configuration**](user_guide/config.md)
+- :material-view-dashboard-edit:{ .lg .middle } [**Create custom dashboards**](user_guide/creating_dashboards.md)
+- :simple-databricks:{ .lg .middle } [**Properties reference**](reference/properties.md)
+- :material-message-question-outline:{ .lg .middle } [**Troubleshooting**](user_guide/troubleshooting.md)
+
+</div>
 
 --8<-- "includes/abbreviations.md"

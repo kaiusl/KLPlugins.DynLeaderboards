@@ -326,7 +326,8 @@ namespace KLPlugins.DynLeaderboards {
                 }
 
                 // // Car and team
-                AddProp(OutCarProp.CarNumber, () => l.GetDynCar(i)?.CarNumber);
+                AddProp(OutCarProp.CarNumber, () => l.GetDynCar(i)?.CarNumberAsInt);
+                AddProp(OutCarProp.CarNumberText, () => l.GetDynCar(i)?.CarNumberAsString);
                 AddProp(OutCarProp.CarModel, () => l.GetDynCar(i)?.CarModel);
                 AddProp(OutCarProp.CarManufacturer, () => l.GetDynCar(i)?.CarManufacturer);
                 AddProp(OutCarProp.CarClass, () => l.GetDynCar(i)?.CarClass.AsString());

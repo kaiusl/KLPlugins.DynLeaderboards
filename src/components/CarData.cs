@@ -21,7 +21,8 @@ namespace KLPlugins.DynLeaderboards.Car {
         public CarClass CarClass { get; private set; }
         public TextBoxColor CarClassColor { get; private set; }
 
-        public string CarNumber { get; private set; } // string because 001 and 1 could be different numbers in some games
+        public string? CarNumberAsString { get; private set; } = null; // string because 001 and 1 could be different numbers in some games
+        public int? CarNumberAsInt { get; private set; } = null;
         /// <summary>
         /// Pretty car model name.
         /// </summary>
@@ -306,7 +307,10 @@ namespace KLPlugins.DynLeaderboards.Car {
                 bg: color.Background() ?? this.RawDataNew.CarClassColor ?? OverridableTextBoxColor.DEF_BG
             );
 
-            this.CarNumber = this.RawDataNew.CarNumber ?? "-1";
+            this.CarNumberAsString = this.RawDataNew.CarNumber;
+            if (int.TryParse(this.CarNumberAsString, out int number)) {
+                this.CarNumberAsInt = number;
+            }
 
             this.TeamName = this.RawDataNew.TeamName;
 
@@ -837,12 +841,12 @@ namespace KLPlugins.DynLeaderboards.Car {
                 && this.Location.Old == CarLocation.Track
                 && this.IsInPitLane
             ) {
-                DynLeaderboardsPlugin.LogInfo($"[{this.Id}, #{this.CarNumber}] jumped to pits");
+                DynLeaderboardsPlugin.LogInfo($"[{this.Id}, #{this.CarNumberAsString}] jumped to pits");
                 this.JumpedToPits = true;
             }
 
             if (this.JumpedToPits && !this.IsInPitLane) {
-                DynLeaderboardsPlugin.LogInfo($"[{this.Id}, #{this.CarNumber}] jumped to pits cleared.");
+                DynLeaderboardsPlugin.LogInfo($"[{this.Id}, #{this.CarNumberAsString}] jumped to pits cleared.");
                 this.JumpedToPits = false;
             }
         }
@@ -865,13 +869,13 @@ namespace KLPlugins.DynLeaderboards.Car {
                 && (this.SplinePosition > 0.5 || this.IsInPitLane)
                 && this.Laps.New == 0
             ) {
-                DynLeaderboardsPlugin.LogInfo($"[{this.Id}, #{this.CarNumber}] has not crossed the start line");
+                DynLeaderboardsPlugin.LogInfo($"[{this.Id}, #{this.CarNumberAsString}] has not crossed the start line");
                 this.HasCrossedStartLine = false;
                 this._isHasCrossedStartLineSet = true;
             }
 
             if (!this.HasCrossedStartLine && ((this.SplinePosition < 0.5 && !this.JumpedToPits) || this.ExitedPitLane)) {
-                DynLeaderboardsPlugin.LogInfo($"[{this.Id}, #{this.CarNumber}] crossed the start line");
+                DynLeaderboardsPlugin.LogInfo($"[{this.Id}, #{this.CarNumberAsString}] crossed the start line");
                 this.HasCrossedStartLine = true;
             }
         }
@@ -927,11 +931,11 @@ namespace KLPlugins.DynLeaderboards.Car {
             this.IsInPitLane = this.Location.New.IsInPits();
             this.ExitedPitLane = this.Location.New == CarLocation.Track && this.Location.Old.IsInPits();
             if (this.ExitedPitLane) {
-                DynLeaderboardsPlugin.LogInfo($"Car {this.Id}, #{this.CarNumber} exited pits");
+                DynLeaderboardsPlugin.LogInfo($"Car {this.Id}, #{this.CarNumberAsString} exited pits");
             }
             this.EnteredPitLane = this.Location.New.IsInPits() && this.Location.Old == CarLocation.Track;
             if (this.EnteredPitLane) {
-                DynLeaderboardsPlugin.LogInfo($"Car {this.Id}, #{this.CarNumber} entered pits");
+                DynLeaderboardsPlugin.LogInfo($"Car {this.Id}, #{this.CarNumberAsString} entered pits");
             }
             this.PitCount = this.RawDataNew.PitCount ?? 0;
 

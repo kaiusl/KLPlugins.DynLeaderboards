@@ -717,7 +717,7 @@ namespace KLPlugins.DynLeaderboards {
                 var car = this._overallOrder[i];
                 if (!car.IsFinished && car.MissedUpdates > 500) {
                     this._overallOrder.RemoveAt(i);
-                    DynLeaderboardsPlugin.LogInfo($"Removed disconnected car {car.Id}, #{car.CarNumber}");
+                    DynLeaderboardsPlugin.LogInfo($"Removed disconnected car {car.Id}, #{car.CarNumberAsString}");
                 }
             }
 

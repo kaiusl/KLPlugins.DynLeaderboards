@@ -25,6 +25,8 @@ namespace KLPlugins.DynLeaderboards.Settings {
         IsCupBestLapCar = 1 << 15,
 
         CarClassTextColor = 1 << 16,
+
+        CarNumberText = 1 << 17,
     }
 
     internal static class OutCarPropExtensions {
@@ -44,6 +46,7 @@ namespace KLPlugins.DynLeaderboards.Settings {
         internal static OutCarProp[] Order() {
             return new[] {
                  OutCarProp.CarNumber,
+                 OutCarProp.CarNumberText,
                  OutCarProp.CarModel,
                  OutCarProp.CarManufacturer,
                  OutCarProp.CarClass,
@@ -66,6 +69,7 @@ namespace KLPlugins.DynLeaderboards.Settings {
         internal static string ToPropName(this OutCarProp p) {
             return p switch {
                 OutCarProp.CarNumber => "Car.Number",
+                OutCarProp.CarNumberText => "Car.Number.Text",
                 OutCarProp.CarModel => "Car.Model",
                 OutCarProp.CarManufacturer => "Car.Manufacturer",
                 OutCarProp.CarClass => "Car.Class",
@@ -89,7 +93,8 @@ namespace KLPlugins.DynLeaderboards.Settings {
         internal static string ToolTipText(this OutCarProp p) {
             return p switch {
                 OutCarProp.None => "None",
-                OutCarProp.CarNumber => "Car number.",
+                OutCarProp.CarNumber => "Car number as an integer.",
+                OutCarProp.CarNumberText => "Car number as a text. Allows to differentiate 01 and 1 for example.",
                 OutCarProp.CarModel => "Car model name.",
                 OutCarProp.CarManufacturer => "Car manufacturer.",
                 OutCarProp.CarClass => "Car class (GT2, GT3, GT4, ST15, ST21, CHL, CUP17, CUP21, TCX).",

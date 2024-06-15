@@ -8,6 +8,6 @@ How to include?
 - Go to {{ path("..\SimHub\PluginsData\KLPlugins\DynLeaderboards\leaderboardConfigs") }}.
 - Pack the file with your dynamic leaderboard's name with your download.
 - The end user must copy the file back to that location and the configuration will be automatically loaded. 
-  (I suggest to include the proper folder structure inside the download).
+  (It is recommended to include the proper folder structure inside the download so that the user can just copy everything into SimHub root folder).
 
 Now the only configuration needed is to assign the buttons to change leaderboard types.

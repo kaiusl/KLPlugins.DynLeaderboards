@@ -19,7 +19,7 @@ There are several different leaderboard types to use within dynamic leaderboards
 
 ## Relative leaderboards
 
-`2N + 1` relative positions to the focused car. There are three types:
+`2M + 1` relative positions to the focused car (`M` ahead and `M` behind). There are three types:
 
 - `RelativeOverall` {{ sinceVersion("1.0.0") }} - in overall order 
 - `RelativeClass` {{ sinceVersion("1.0.0") }} - in the order of focused car's class
@@ -34,7 +34,7 @@ There are several different leaderboard types to use within dynamic leaderboards
 
 ## Partial relative leaderboards
 
-`N` top positions and `2M + 1` relative positions. If the focused car is inside the first `N + M + 1` positions the order
+`N` top positions and `2M + 1` relative positions (`M` ahead and `M` behind). If the focused car is inside the first `N + M + 1` positions the order
 will be just as the overall leaderboard. There are two types:
 
 - `PartialRelativeOverall` {{ sinceVersion("1.0.0") }} - in overall order 

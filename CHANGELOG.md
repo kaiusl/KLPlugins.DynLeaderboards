@@ -10,7 +10,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 - Support for other games, not only ACC.
     - Currently tested with AC, ACC, AMS2, RF2 and R3E.
-    - Other games should work as the plugin relies on the data provided by SimHub
+    - Other games may work as the plugin relies on the generic data provided by SimHub
       but they haven't been tested if any special handling is needed.
 - New car specific properties:
     - `Driver.Category.Color`
@@ -29,6 +29,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   actions directly in this plugins settings menu.
 - Option to remove class and/or cup leaderboards from the rotation in case
   there is only a single class or cup in the session.
+- Help buttons in settings menu that lead to the documentation site's relevant section.
 
 ### Changed
 
@@ -49,6 +50,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   For dashboards it's recommended to set min. update intervals in the dash studio.
 - Toggle option to include ST21 and CHL (ACC) classes in GT2 class.
   The same thing can now be achieved by changing the class of car directly.
+- In SimHub settings help sections. 
+  We now refer to the documentation site so that all the information is in a single place.
 
 ### Fixed
 

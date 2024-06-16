@@ -1,7 +1,7 @@
 # Getting started
 
 * Download the latest release from [OverTake][OverTakeDownload] or [GitHub][GitHubReleases].
-* To install provided dashboard run {{ path("DynLeaderboard.simhubdash") }}.
+* To install provided dashboard run {{ path("DynLeaderboards Example.simhubdash") }}.
 * Copy all the files from folder {{ path("SimHub") }} to the SimHub root. (Likely located at {{ path("C:\\Program Files (x86)\\SimHub") }}) 
 * Open SimHub and enable the "DynLeaderboardsPlugin".
 * Assign controls to change leaderboard types.
@@ -15,7 +15,7 @@
 
     ![](../img/Config/DynamicLeaderboards_Controls.png)
     
-* Now the provided "DynLeaderboard" dash should work.
+* Now the provided "DynLeaderboards Example" dash should work.
 
 
 

@@ -127,20 +127,16 @@ for example `DynLeaderboardsPlugin.Dynamic.5.Car.Number`.
 <div class="props" markdown>
 
 {{ prop("Car.Number", "1.0.0", ["all", "!AC", "!AMS2"], defv="null", ty="int?") }}
-: Car number.
+: Car number as an integer.
 
-      Note that it's type is `int` and it cannot differentiate leading zeros.
-      For example in RF2 `01` and `1` are both possible and different cars but
+      Note that this property cannot differentiate leading zeros.
+      For example in rF2 `01` and `1` are both possible and are different cars but
       this property will report both as number `1`.
 
       Prefer to use `Car.Number.Text` which can differentiate between the two.
 
 {{ prop("Car.Number.Text", "2.0.0", ["all", "!AC", "!AMS2"], defv="null", ty="string?") }}
-: Car number.
-
-      Note that it's type is `string` which is due to that a leading 0 can sometimes
-      be significant.
-      For example in RF2 `01` and `1` are both possible and different cars.
+: Car number as a text. This allows to differentiate leading zeros in number.
 
 {{ prop("Car.Model", "1.0.0", ["all"], defv="null", ty="string?") }}
 : Car model name.

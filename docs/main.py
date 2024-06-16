@@ -76,7 +76,7 @@ def define_env(env):
     def leaderboardTypePreview(kind):
         return f"""
 === "{kind}"
-    ![](../img/LeaderboardTypes/{kind}.png){{: style="height:400px;margin-left:auto;margin-right:auto;display:block;"}}
+    ![](../img/LeaderboardTypes/{kind}.png){{: style="max-height:400px;margin-left:auto;margin-right:auto;display:block;"}}
 """
 
     @env.macro

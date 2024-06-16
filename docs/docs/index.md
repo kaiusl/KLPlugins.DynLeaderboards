@@ -1,6 +1,6 @@
 This is an leaderboard plugin for [SimHub] providing simple switching between different leaderboard types.
 
-We provide example dash (named "DynLeaderboard") which is relatively simple one and designed to be used on smartphone.
+We provide example dash (named "DynLeaderboards Example") which is relatively simple one and designed to be used on smartphone.
 It serves mostly as an example for how to create dashboards with this plugin.
 
 [^1]: Prior to version 2.0.0 this plugin only supported ACC.

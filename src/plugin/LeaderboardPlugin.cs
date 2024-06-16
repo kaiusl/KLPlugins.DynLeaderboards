@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -439,7 +439,7 @@ namespace KLPlugins.DynLeaderboards {
             // this.AttachDelegate($"{l.Name}.SessionPhase", () => this.Values.Session.SessionPhase);
 
             this.AttachDelegate<DynLeaderboardsPlugin, string?>($"{l.Name}.CurrentLeaderboard", () => l.CurrentLeaderboardName);
-            this.AttachDelegate<DynLeaderboardsPlugin, int>($"{l.Name}.FocusedPosInCurrentLeaderboard", () => l.FocusedIndex);
+            this.AttachDelegate<DynLeaderboardsPlugin, int?>($"{l.Name}.FocusedPosInCurrentLeaderboard", () => l.FocusedIndex);
 
             this.AddAction(l.NextLeaderboardActionNAme, (_, _) => l.NextLeaderboard(this.Values));
             this.AddAction(l.PreviousLeaderboardActionNAme, (_, _) => l.PreviousLeaderboard(this.Values));

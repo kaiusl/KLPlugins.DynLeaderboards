@@ -1,7 +1,7 @@
 
 ??? info "Symbols used"
 
-      {{ prop("PropertyName", "1.0.0", ["ACC", "RF2", "LMU"], defv="Default value", ty="type") }}
+      {{ prop("PropertyName", "1.0.0", ["ACC", "rF2", "LMU"], defv="Default value", ty="type") }}
       : Description.
 
 
@@ -41,7 +41,7 @@ for example `DynLeaderboardsPlugin.Color.Class.GT3`.
 
 <div class="props" markdown>
 
-{{ prop("Session.Phase", "1.0.0", ["ACC", "RF2", "LMU"], defv="\"Unknown\"", ty="string") }}
+{{ prop("Session.Phase", "1.0.0", ["ACC", "rF2", "LMU"], defv="\"Unknown\"", ty="string") }}
 : Session phase.
 
 {{ prop("Session.MaxStintTime", "1.0.0", ["ACC"], defv=-1.0, ty="double") }}

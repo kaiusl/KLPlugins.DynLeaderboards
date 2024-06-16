@@ -1,4 +1,4 @@
-items = ["AC", "ACC", "AMS2", "RF2", "R3E"]
+items = ["AC", "ACC", "AMS2", "rF2", "R3E"]
 itemsFull = [
     "Assetto Corsa",
     "Assetto Corsa Competizione",

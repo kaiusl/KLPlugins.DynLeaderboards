@@ -9,7 +9,7 @@
 
 The table below reports the latest version of games and SimHub each plugin version has been tested with.
 
-| Plugin | SimHub | ACC    | AC     | AMS2    | RF2    | R3E      |
+| Plugin | SimHub | ACC    | AC     | AMS2    | rF2    | R3E      |
 | ------ | ------ | ------ | ------ | ------- | ------ | -------- |
 | 2.0.0  | 9.3.4  | 1.10.2 | 1.16.4 | 1.5.6.3 | 1.1134 | 0.9.5.52 |
 

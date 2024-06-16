@@ -286,7 +286,7 @@ namespace KLPlugins.DynLeaderboards {
                 AddLapProp<double?>(OutLapProp.BestLapTime, () => l.GetDynCar(i)?.BestLap?.Time?.TotalSeconds);
                 AddSectors(OutLapProp.BestLapSectors, "Laps.Best.S", () => l.GetDynCar(i)?.BestLap);
 
-                AddSectors(OutLapProp.BestSectors, "Laps.BestS", () => l.GetDynCar(i)?.BestSectors);
+                AddSectors(OutLapProp.BestSectors, "BestS", () => l.GetDynCar(i)?.BestSectors);
 
                 AddLapProp<double?>(OutLapProp.CurrentLapTime, () => l.GetDynCar(i)?.CurrentLapTime.TotalSeconds);
 

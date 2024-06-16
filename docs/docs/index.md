@@ -18,7 +18,7 @@ It serves mostly as an example for how to create dashboards with this plugin.
     - Easy to switch between leaderboard types on a single dash screen with a single click.
     - Properties that change based on currently selected leaderboard.
     - Support multiple different dynamic leaderboards simultaneously.
-- Support for multiple games. Tested with AC, ACC, AMS2, RF2 and R3E. [^1]
+- Support for multiple games. Tested with AC, ACC, AMS2, rF2 and R3E. [^1]
 - New leaderboard types ([see here](reference/leaderboards.md)).
 - New properties ([see here](reference/properties.md)).
 - More stable calculation of gaps between the cars (no more gap changing by seconds depending if you are in the corner or straights).

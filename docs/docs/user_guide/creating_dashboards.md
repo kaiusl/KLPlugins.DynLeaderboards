@@ -1,6 +1,13 @@
+## Creating one
+
+First head over to the "Dynamic leaderboards" tab in the settings and add a new dynamic leaderboard or edit the one already present.
+For configuration follow ["Dynamic Leaderboards"](config.md#dynamic-leaderboards) section on the "Config" page.
+Once the dynamic leaderboard is configured, restart SimHub and start creating your dashboard.
+
 ## Things to know
 
-- First driver is always current driver.
+- Car and driver indices start at 1.
+- First driver is always current driver. For example first name of current driver can be accessed as `DynLeaderboardsPlugin.Dynamic.5.Driver.1.FirstName`. The order of other drivers is undefined.
 - All times and gaps are given in seconds.
 - In relative leaderboards positive gap means the car is ahead of the car that we are comparing to, negative gap means behind.
   In overall leaderboards the gap is always positive as we are comparing to the overall/class leader and no one can be ahead of them.
@@ -18,7 +25,6 @@
   gaps for the current leaderboard. 
   For example [`Gap.Dynamic.ToFocused`](../reference/properties.md#gaps) property will show gaps to the overall leader if overall leaderboard type is selected,
   whereas if class leaderboard type is selected the gaps are shown to the class leader and so on.
-- The driver numbers are set such that current driver is always first. For example first name of current driver can be accessed as `DynLeaderboardsPlugin.Dynamic.5.Driver.1.FirstName`. The order of other drivers is undefined.
 
 
 ## Patterns

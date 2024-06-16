@@ -28,9 +28,9 @@ namespace KLPlugins.DynLeaderboards {
 #pragma warning disable CS8618
         public PluginManager PluginManager { get; set; }
         public ImageSource PictureIcon => this.ToIcon(Properties.Resources.sdkmenuicon);
-        public string LeftMenuTitle => "Dynamic Leaderboards";
+        public string LeftMenuTitle => PluginName;
 
-        internal const string PluginName = "DynLeaderboardsPlugin";
+        internal const string PluginName = "Dynamic Leaderboards";
         internal static PluginSettings Settings;
         internal static Game Game; // Const during the lifetime of this plugin, plugin is rebuilt at game change
         internal static string PluginStartTime = $"{DateTime.Now:dd-MM-yyyy_HH-mm-ss}";

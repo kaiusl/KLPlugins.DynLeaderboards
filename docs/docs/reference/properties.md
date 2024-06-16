@@ -60,42 +60,42 @@ for example `DynLeaderboardsPlugin.Color.Class.GT3`.
 {{ prop("Color.Class.<class>", "1.0.0", ["all"], ty="string") }}
 : Background color for car class.
 
-      Note that this export one property for every class color enabled in the plugin settings [Colors](../user_guide/config.md#colors) tab where the
+      Note that this export one property for every class color in the plugin settings [Colors](../user_guide/config.md#colors) tab where the
       `<class>` in property name is replaced by the class name.
       For example `Color.Class.GT3`.
 
 {{ prop("Color.Class.<class>.Text", "2.0.0", ["all"], ty="string") }}
 : Text color for car class.
 
-      Note that this export one property for every class color enabled in the plugin settings [Colors](../user_guide/config.md#colors) tab where the
+      Note that this export one property for every class color in the plugin settings [Colors](../user_guide/config.md#colors) tab where the
       `<class>` in property name is replaced by the class name.
       For example `Color.Class.GT3.Text`.
 
 {{ prop("Color.Cup.<category>", "1.0.0", ["all"], ty="string") }}
 : Background color for team cup category.
 
-      Note that this export one property for every team cup category color enabled in the plugin settings [Colors](../user_guide/config.md#colors) tab where the
+      Note that this export one property for every team cup category color in the plugin settings [Colors](../user_guide/config.md#colors) tab where the
       `<cup category>` in property name is replaced by the team cup category name.
       For example `Color.Cup.Overall`.
 
 {{ prop("Color.Cup.<category>.Text", "1.0.0", ["all"], ty="string") }}
 : Text color for team cup category. 
 
-      Note that this export one property for every team cup category color enabled in the plugin settings [Colors](../user_guide/config.md#colors) tab where the
+      Note that this export one property for every team cup category color in the plugin settings [Colors](../user_guide/config.md#colors) tab where the
       `<category>` in property name is replaced by the team cup category name.
       For example `Color.Cup.Overall.Text`.
 
 {{ prop("Color.DriverCategory.<category>", "1.0.0", ["all"], ty="string") }}
 : Background color for driver category.
 
-      Note that this export one property for every driver category color enabled in the plugin settings [Colors](../user_guide/config.md#colors) tab where the
+      Note that this export one property for every driver category color in the plugin settings [Colors](../user_guide/config.md#colors) tab where the
       `<category>` in property name is replaced by the driver category name.
       For example `Color.DriverCategory.Platinum`.
 
 {{ prop("Color.DriverCategory.<category>.Text", "2.0.0", ["all"], ty="string") }}
 : Text color for driver category.
 
-      Note that this export one property for every driver category color enabled in the plugin settings [Colors](../user_guide/config.md#colors) tab where the
+      Note that this export one property for every driver category color in the plugin settings [Colors](../user_guide/config.md#colors) tab where the
       `<category>` in property name is replaced by the driver category name.
       For example `Color.DriverCategory.Platinum.Text`.
 

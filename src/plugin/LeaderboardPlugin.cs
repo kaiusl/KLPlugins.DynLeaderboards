@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -165,17 +165,17 @@ namespace KLPlugins.DynLeaderboards {
 
             if (Settings.OutGeneralProps.Includes(OutGeneralProp.CarClassColors)) {
                 foreach (var kv in this.Values.CarClassColors) {
-                    this.AttachDelegate<DynLeaderboardsPlugin, string?>(
+                    this.AttachDelegate<DynLeaderboardsPlugin, string>(
                         OutGeneralProp.CarClassColors.ToPropName().Replace("<class>", kv.Key.AsString()),
-                        () => kv.Value.Background()
+                        () => kv.Value.Background() ?? "#000000"
                     );
                 }
             }
             if (Settings.OutGeneralProps.Includes(OutGeneralProp.CarClassColors)) {
                 foreach (var kv in this.Values.CarClassColors) {
-                    this.AttachDelegate<DynLeaderboardsPlugin, string?>(
+                    this.AttachDelegate<DynLeaderboardsPlugin, string>(
                         OutGeneralProp.CarClassTextColors.ToPropName().Replace("<class>", kv.Key.AsString()),
-                        () => kv.Value.Foreground()
+                        () => kv.Value.Foreground() ?? "#FFFFFF"
                     );
                 }
             }
@@ -438,7 +438,7 @@ namespace KLPlugins.DynLeaderboards {
 
             // this.AttachDelegate($"{l.Name}.SessionPhase", () => this.Values.Session.SessionPhase);
 
-            this.AttachDelegate<DynLeaderboardsPlugin, string?>($"{l.Name}.CurrentLeaderboard", () => l.CurrentLeaderboardName);
+            this.AttachDelegate<DynLeaderboardsPlugin, string>($"{l.Name}.CurrentLeaderboard", () => l.CurrentLeaderboardName);
             this.AttachDelegate<DynLeaderboardsPlugin, int?>($"{l.Name}.FocusedPosInCurrentLeaderboard", () => l.FocusedIndex);
 
             this.AddAction(l.NextLeaderboardActionNAme, (_, _) => l.NextLeaderboard(this.Values));

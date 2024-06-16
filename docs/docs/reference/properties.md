@@ -189,13 +189,13 @@ for example `DynLeaderboardsPlugin.Dynamic.5.Car.Number`.
 {{ prop("Laps.Last.<sector>", "1.0.0", ["all"], defv="null", ty="double?") }}
 : Last lap sector time. &lt;sector&gt; can be `S1`, `S2`, `S3`.
 
-{{ prop("Laps.Last.IsValid", "1.2.1", ["all"], defv="null", ty="bool?") }}
+{{ prop("Laps.Last.IsValid", "1.2.1", ["all"], defv="null", ty="int?") }}
 : Was last lap valid?
 
-{{ prop("Laps.Last.IsOutLap", "1.2.1", ["all"], defv="null", ty="bool?") }}
+{{ prop("Laps.Last.IsOutLap", "1.2.1", ["all"], defv="null", ty="int?") }}
 : Was last lap an out lap?
 
-{{ prop("Laps.Last.IsInLap", "1.2.1", ["all"], defv="null", ty="bool?") }}
+{{ prop("Laps.Last.IsInLap", "1.2.1", ["all"], defv="null", ty="int?") }}
 : Was last lap an in lap?
 
 {{ prop("Laps.Best.Time", "1.0.0", ["all"], defv="null", ty="double?") }}
@@ -207,13 +207,13 @@ for example `DynLeaderboardsPlugin.Dynamic.5.Car.Number`.
 {{ prop("Laps.Current.Time", "1.0.0", ["all"], defv="null", ty="double?") }}
 : Current lap time.
 
-{{ prop("Laps.Current.IsValid", "1.2.1", ["all"], defv="null", ty="bool?") }}
+{{ prop("Laps.Current.IsValid", "1.2.1", ["all"], defv="null", ty="int?") }}
 : Is current lap valid?
 
-{{ prop("Laps.Current.IsOutLap", "1.2.1", ["all"], defv="null", ty="bool?") }}
+{{ prop("Laps.Current.IsOutLap", "1.2.1", ["all"], defv="null", ty="int?") }}
 : Is current lap an out lap?
 
-{{ prop("Laps.Current.IsInLap", "1.2.1", ["all"], defv="null", ty="bool?") }}
+{{ prop("Laps.Current.IsInLap", "1.2.1", ["all"], defv="null", ty="int?") }}
 : Is current lap an in lap?
 
 {{ prop("Best<sector>", "1.0.0", ["all"], defv="null", ty="double?") }}
@@ -476,7 +476,7 @@ for example `DynLeaderboardsPlugin.Dynamic.5.Car.Number`.
 #### Pit info
 
 <div class="props" markdown>
-{{ prop("Pit.IsIn", "1.0.0", ["all"], defv="null", ty="bool?") }}
+{{ prop("Pit.IsIn", "1.0.0", ["all"], defv="null", ty="int?") }}
 : Is the car in pit lane?
 
 {{ prop("Pit.Count", "1.0.0", ["all"], defv="null", ty="int?") }}
@@ -499,22 +499,22 @@ Note that pit time counts time from the start of pitlane to the end, not just th
 
 <div class="props" markdown>
 
-{{ prop("IsFinished", "1.0.0", ["all"], defv="null", ty="bool?") }}
+{{ prop("IsFinished", "1.0.0", ["all"], defv="null", ty="int?") }}
 : Is the car finished?
 
 {{ prop("MaxSpeed", "1.0.0", ["all"], defv="null", ty="double?") }}
 : Maximum speed in this session.
 
-{{ prop("IsFocused", "1.0.0", ["all"], defv="null", ty="bool?") }}
+{{ prop("IsFocused", "1.0.0", ["all"], defv="null", ty="int?") }}
 : Is this the focusd car?
 
-{{ prop("IsOverallBestLapCar", "1.0.0", ["all"], defv="null", ty="bool?") }}
+{{ prop("IsOverallBestLapCar", "1.0.0", ["all"], defv="null", ty="int?") }}
 : Is this the car that has overall best lap?
 
-{{ prop("IsClassBestLapCar", "1.0.0", ["all"], defv="null", ty="bool?") }}
+{{ prop("IsClassBestLapCar", "1.0.0", ["all"], defv="null", ty="int?") }}
 : Is this the car that has class best lap?
 
-{{ prop("IsCupBestLapCar", "1.4.0", ["ACC"], defv="null", ty="bool?") }}
+{{ prop("IsCupBestLapCar", "1.4.0", ["ACC"], defv="null", ty="int?") }}
 : Is this the car that has cup best lap?
 
       This is effectively an ACC specific property. In all other games it is

@@ -156,11 +156,11 @@ namespace KLPlugins.DynLeaderboards {
             }
 
             if (Settings.OutGeneralProps.Includes(OutGeneralProp.MaxStintTime)) {
-                this.AttachDelegate<DynLeaderboardsPlugin, double?>(OutGeneralProp.MaxStintTime.ToPropName(), () => this.Values.Session.MaxDriverStintTime?.TotalSeconds);
+                this.AttachDelegate<DynLeaderboardsPlugin, double>(OutGeneralProp.MaxStintTime.ToPropName(), () => this.Values.Session.MaxDriverStintTime?.TotalSeconds ?? -1);
             }
 
             if (Settings.OutGeneralProps.Includes(OutGeneralProp.MaxDriveTime)) {
-                this.AttachDelegate<DynLeaderboardsPlugin, double?>(OutGeneralProp.MaxDriveTime.ToPropName(), () => this.Values.Session.MaxDriverTotalDriveTime?.TotalSeconds);
+                this.AttachDelegate<DynLeaderboardsPlugin, double>(OutGeneralProp.MaxDriveTime.ToPropName(), () => this.Values.Session.MaxDriverTotalDriveTime?.TotalSeconds ?? -1);
             }
 
             if (Settings.OutGeneralProps.Includes(OutGeneralProp.CarClassColors)) {

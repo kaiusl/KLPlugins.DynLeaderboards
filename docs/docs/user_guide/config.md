@@ -11,7 +11,7 @@
         In this plugin you can configure multiple "dynamic leaderboards" that contain different "leaderboard types" and expose different properties.
 
 This plugin provides bunch of configuration options. 
-Go to the plugin settings either directly from the left main menu "Dynamic Leaderboards" item or under "Additional plugins" item go to "DynLeaderboardsPlugin" tab.
+Go to the plugin settings either directly from the left main menu "Dynamic Leaderboards" item or under "Additional plugins" item.
 
 Below is the documentation for all the available options.
 

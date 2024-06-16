@@ -5,7 +5,7 @@
 * Copy all the files from folder {{ path("SimHub") }} to the SimHub root. (Likely located at {{ path("C:\\Program Files (x86)\\SimHub") }}) 
 * Open SimHub and enable the "DynLeaderboardsPlugin".
 * Assign controls to change leaderboard types.
-    * Go to the plugin settings either directly from the left main menu "Dynamic Leaderboards" item or under "Additional plugins" item go to "DynLeaderboardsPlugin" tab.
+    * Go to the plugin settings either directly from the left main menu "Dynamic Leaderboards" item or under "Additional plugins" item.
     * Go to "Dynamic leaderboards" tab
     * Scroll down to "CONTROLS" section and assign controls for "Next leaderboard" and/or "Previous leaderboard".
 

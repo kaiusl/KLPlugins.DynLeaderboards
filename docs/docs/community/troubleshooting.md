@@ -1,21 +1,3 @@
-## Compatibility
-
-* Any game other than ACC requires plugin 2.0.0+. 
-* ACC 1.10.2+ requires plugin 1.4.5+. 
-* ACC 1.9.6+ requires plugin 1.4.0+.
-* ACC 1.9.3+ requires plugin 1.3.2+.
-* SimHub 8.3.0+ requires plugin 1.3.0+.
-
-
-The table below reports the latest version of games and SimHub each plugin version has been tested with.
-
-| Plugin | SimHub | ACC    | AC     | AMS2    | rF2    | R3E      |
-| ------ | ------ | ------ | ------ | ------- | ------ | -------- |
-| 2.0.0  | 9.3.4  | 1.10.2 | 1.16.4 | 1.5.6.3 | 1.1134 | 0.9.5.52 |
-
-Any game missing from the table has not been tested and is not officially supported.
-Note however that since the plugin mostly uses generic SimHub data then non-tested games may also be working.
-
 ## Issues
 
 In case you find issues or bugs, feel free to report them. 
@@ -39,6 +21,23 @@ That information includes:
 * A SimHub replay displaying the issue.
 * A screenshot displaying the issue.
 * The dashboard where issue appeared (if it is not provided by this plugin).
+
+## Compatibility
+
+* Any game other than ACC requires plugin 2.0.0+. 
+* ACC 1.10.2+ requires plugin 1.4.5+. 
+* ACC 1.9.6+ requires plugin 1.4.0+.
+* ACC 1.9.3+ requires plugin 1.3.2+.
+* SimHub 8.3.0+ requires plugin 1.3.0+.
+
+The table below reports the latest version of games and SimHub each plugin version has been tested with.
+
+| Plugin | SimHub | ACC    | AC     | AMS2    | rF2    | R3E      |
+| ------ | ------ | ------ | ------ | ------- | ------ | -------- |
+| 2.0.0  | 9.3.4  | 1.10.2 | 1.16.4 | 1.5.6.3 | 1.1134 | 0.9.5.52 |
+
+Any game missing from the table has not been tested and is not officially supported.
+Note however that since the plugin mostly uses generic SimHub data then non-tested games may also be working.
 
 
 [GitHub]: https://github.com/kaiusl/KLPlugins.DynLeaderboards/issues

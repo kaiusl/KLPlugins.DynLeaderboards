@@ -148,24 +148,24 @@ namespace KLPlugins.DynLeaderboards {
         }
 
         private void AttachGeneralDelegates() {
-            this.AttachDelegate("Perf.DataUpdateMS", () => this._dataUpdateTime);
+            this.AttachDelegate<DynLeaderboardsPlugin, double>("Perf.DataUpdateMS", () => this._dataUpdateTime);
 
             // Add everything else
             if (Settings.OutGeneralProps.Includes(OutGeneralProp.SessionPhase)) {
-                this.AttachDelegate(OutGeneralProp.SessionPhase.ToPropName(), () => this.Values.Session.SessionPhase.ToString());
+                this.AttachDelegate<DynLeaderboardsPlugin, string>(OutGeneralProp.SessionPhase.ToPropName(), () => this.Values.Session.SessionPhase.ToString());
             }
 
             if (Settings.OutGeneralProps.Includes(OutGeneralProp.MaxStintTime)) {
-                this.AttachDelegate(OutGeneralProp.MaxStintTime.ToPropName(), () => this.Values.Session.MaxDriverStintTime?.TotalSeconds);
+                this.AttachDelegate<DynLeaderboardsPlugin, double?>(OutGeneralProp.MaxStintTime.ToPropName(), () => this.Values.Session.MaxDriverStintTime?.TotalSeconds);
             }
 
             if (Settings.OutGeneralProps.Includes(OutGeneralProp.MaxDriveTime)) {
-                this.AttachDelegate(OutGeneralProp.MaxDriveTime.ToPropName(), () => this.Values.Session.MaxDriverTotalDriveTime?.TotalSeconds);
+                this.AttachDelegate<DynLeaderboardsPlugin, double?>(OutGeneralProp.MaxDriveTime.ToPropName(), () => this.Values.Session.MaxDriverTotalDriveTime?.TotalSeconds);
             }
 
             if (Settings.OutGeneralProps.Includes(OutGeneralProp.CarClassColors)) {
                 foreach (var kv in this.Values.CarClassColors) {
-                    this.AttachDelegate(
+                    this.AttachDelegate<DynLeaderboardsPlugin, string?>(
                         OutGeneralProp.CarClassColors.ToPropName().Replace("<class>", kv.Key.AsString()),
                         () => kv.Value.Background()
                     );
@@ -173,7 +173,7 @@ namespace KLPlugins.DynLeaderboards {
             }
             if (Settings.OutGeneralProps.Includes(OutGeneralProp.CarClassColors)) {
                 foreach (var kv in this.Values.CarClassColors) {
-                    this.AttachDelegate(
+                    this.AttachDelegate<DynLeaderboardsPlugin, string?>(
                         OutGeneralProp.CarClassTextColors.ToPropName().Replace("<class>", kv.Key.AsString()),
                         () => kv.Value.Foreground()
                     );
@@ -182,7 +182,7 @@ namespace KLPlugins.DynLeaderboards {
 
             if (Settings.OutGeneralProps.Includes(OutGeneralProp.TeamCupColors)) {
                 foreach (var kv in this.Values.TeamCupCategoryColors) {
-                    this.AttachDelegate(
+                    this.AttachDelegate<DynLeaderboardsPlugin, string>(
                         OutGeneralProp.TeamCupColors.ToPropName().Replace("<cup>", kv.Key.AsString()),
                         () => kv.Value.Background() ?? "#000000"
                     );
@@ -190,7 +190,7 @@ namespace KLPlugins.DynLeaderboards {
             }
             if (Settings.OutGeneralProps.Includes(OutGeneralProp.TeamCupTextColors)) {
                 foreach (var kv in this.Values.TeamCupCategoryColors) {
-                    this.AttachDelegate(
+                    this.AttachDelegate<DynLeaderboardsPlugin, string>(
                         OutGeneralProp.TeamCupTextColors.ToPropName().Replace("<cup>", kv.Key.AsString()),
                         () => kv.Value.Foreground() ?? "#FFFFFF"
                     );
@@ -199,7 +199,7 @@ namespace KLPlugins.DynLeaderboards {
 
             if (Settings.OutGeneralProps.Includes(OutGeneralProp.DriverCategoryColors)) {
                 foreach (var kv in this.Values.DriverCategoryColors) {
-                    this.AttachDelegate(
+                    this.AttachDelegate<DynLeaderboardsPlugin, string>(
                         OutGeneralProp.DriverCategoryColors.ToPropName().Replace("<category>", kv.Key.AsString()),
                         () => kv.Value.Background() ?? "#000000"
                     );
@@ -207,7 +207,7 @@ namespace KLPlugins.DynLeaderboards {
             }
             if (Settings.OutGeneralProps.Includes(OutGeneralProp.DriverCategoryTextColors)) {
                 foreach (var kv in this.Values.DriverCategoryColors) {
-                    this.AttachDelegate(
+                    this.AttachDelegate<DynLeaderboardsPlugin, string>(
                         OutGeneralProp.DriverCategoryTextColors.ToPropName().Replace("<category>", kv.Key.AsString()),
                         () => kv.Value.Foreground() ?? "#FFFFFF"
                     );
@@ -215,12 +215,12 @@ namespace KLPlugins.DynLeaderboards {
             }
 
             if (Settings.OutGeneralProps.Includes(OutGeneralProp.NumClassesInSession)) {
-                this.AttachDelegate(OutGeneralProp.NumClassesInSession.ToPropName(), () => this.Values.NumClassesInSession);
+                this.AttachDelegate<DynLeaderboardsPlugin, int>(OutGeneralProp.NumClassesInSession.ToPropName(), () => this.Values.NumClassesInSession);
             }
 
 
             if (Settings.OutGeneralProps.Includes(OutGeneralProp.NumCupsInSession)) {
-                this.AttachDelegate(OutGeneralProp.NumCupsInSession.ToPropName(), () => this.Values.NumCupsInSession);
+                this.AttachDelegate<DynLeaderboardsPlugin, int>(OutGeneralProp.NumCupsInSession.ToPropName(), () => this.Values.NumCupsInSession);
             }
         }
 
@@ -271,52 +271,52 @@ namespace KLPlugins.DynLeaderboards {
 
                 void AddSectors(OutLapProp prop, string name, Func<Sectors?> sectorsProvider) {
                     if (l.Config.OutLapProps.Includes(prop)) {
-                        this.AttachDelegate($"{startName}.{name}1", () => sectorsProvider()?.S1Time?.TotalSeconds);
-                        this.AttachDelegate($"{startName}.{name}2", () => sectorsProvider()?.S2Time?.TotalSeconds);
-                        this.AttachDelegate($"{startName}.{name}3", () => sectorsProvider()?.S3Time?.TotalSeconds);
+                        this.AttachDelegate<DynLeaderboardsPlugin, double?>($"{startName}.{name}1", () => sectorsProvider()?.S1Time?.TotalSeconds);
+                        this.AttachDelegate<DynLeaderboardsPlugin, double?>($"{startName}.{name}2", () => sectorsProvider()?.S2Time?.TotalSeconds);
+                        this.AttachDelegate<DynLeaderboardsPlugin, double?>($"{startName}.{name}3", () => sectorsProvider()?.S3Time?.TotalSeconds);
                     }
                 }
 
                 // Laps and sectors
-                AddLapProp(OutLapProp.Laps, () => l.GetDynCar(i)?.Laps.New);
+                AddLapProp<int?>(OutLapProp.Laps, () => l.GetDynCar(i)?.Laps.New);
 
-                AddLapProp(OutLapProp.LastLapTime, () => l.GetDynCar(i)?.LastLap?.Time?.TotalSeconds);
+                AddLapProp<double?>(OutLapProp.LastLapTime, () => l.GetDynCar(i)?.LastLap?.Time?.TotalSeconds);
                 AddSectors(OutLapProp.LastLapSectors, "Laps.Last.S", () => l.GetDynCar(i)?.LastLap);
 
-                AddLapProp(OutLapProp.BestLapTime, () => l.GetDynCar(i)?.BestLap?.Time?.TotalSeconds);
+                AddLapProp<double?>(OutLapProp.BestLapTime, () => l.GetDynCar(i)?.BestLap?.Time?.TotalSeconds);
                 AddSectors(OutLapProp.BestLapSectors, "Laps.Best.S", () => l.GetDynCar(i)?.BestLap);
 
                 AddSectors(OutLapProp.BestSectors, "Laps.BestS", () => l.GetDynCar(i)?.BestSectors);
 
-                AddLapProp(OutLapProp.CurrentLapTime, () => l.GetDynCar(i)?.CurrentLapTime.TotalSeconds);
+                AddLapProp<double?>(OutLapProp.CurrentLapTime, () => l.GetDynCar(i)?.CurrentLapTime.TotalSeconds);
 
-                AddLapProp(OutLapProp.CurrentLapIsValid, () => l.GetDynCar(i)?.IsCurrentLapValid.ToInt());
-                AddLapProp(OutLapProp.LastLapIsValid, () => l.GetDynCar(i)?.LastLap?.IsValid.ToInt());
+                AddLapProp<int?>(OutLapProp.CurrentLapIsValid, () => l.GetDynCar(i)?.IsCurrentLapValid.ToInt());
+                AddLapProp<int?>(OutLapProp.LastLapIsValid, () => l.GetDynCar(i)?.LastLap?.IsValid.ToInt());
 
-                AddLapProp(OutLapProp.CurrentLapIsOutLap, () => l.GetDynCar(i)?.IsCurrentLapOutLap.ToInt());
-                AddLapProp(OutLapProp.LastLapIsOutLap, () => l.GetDynCar(i)?.LastLap?.IsOutLap.ToInt());
-                AddLapProp(OutLapProp.CurrentLapIsInLap, () => l.GetDynCar(i)?.IsCurrentLapInLap.ToInt());
-                AddLapProp(OutLapProp.LastLapIsInLap, () => l.GetDynCar(i)?.LastLap?.IsInLap.ToInt());
+                AddLapProp<int?>(OutLapProp.CurrentLapIsOutLap, () => l.GetDynCar(i)?.IsCurrentLapOutLap.ToInt());
+                AddLapProp<int?>(OutLapProp.LastLapIsOutLap, () => l.GetDynCar(i)?.LastLap?.IsOutLap.ToInt());
+                AddLapProp<int?>(OutLapProp.CurrentLapIsInLap, () => l.GetDynCar(i)?.IsCurrentLapInLap.ToInt());
+                AddLapProp<int?>(OutLapProp.LastLapIsInLap, () => l.GetDynCar(i)?.LastLap?.IsInLap.ToInt());
 
                 void AddOneDriverFromList(int j) {
                     var driverId = $"Driver.{j + 1}";
-                    AddDriverProp(OutDriverProp.FirstName, driverId, () => l.GetDynCar(i)?.Drivers.ElementAtOrDefault(j)?.FirstName);
-                    AddDriverProp(OutDriverProp.LastName, driverId, () => l.GetDynCar(i)?.Drivers.ElementAtOrDefault(j)?.LastName);
-                    AddDriverProp(OutDriverProp.ShortName, driverId, () => l.GetDynCar(i)?.Drivers.ElementAtOrDefault(j)?.ShortName);
-                    AddDriverProp(OutDriverProp.FullName, driverId, () => l.GetDynCar(i)?.Drivers.ElementAtOrDefault(j)?.FullName);
-                    AddDriverProp(OutDriverProp.InitialPlusLastName, driverId, () => l.GetDynCar(i)?.Drivers.ElementAtOrDefault(j)?.InitialPlusLastName);
-                    AddDriverProp(OutDriverProp.Nationality, driverId, () => l.GetDynCar(i)?.Drivers.ElementAtOrDefault(j)?.Nationality);
-                    AddDriverProp(OutDriverProp.Category, driverId, () => l.GetDynCar(i)?.Drivers.ElementAtOrDefault(j)?.Category);
-                    AddDriverProp(OutDriverProp.TotalLaps, driverId, () => l.GetDynCar(i)?.Drivers.ElementAtOrDefault(j)?.TotalLaps);
-                    AddDriverProp(OutDriverProp.BestLapTime, driverId, () => l.GetDynCar(i)?.Drivers.ElementAtOrDefault(j)?.BestLap?.Time?.TotalSeconds);
-                    AddDriverProp(OutDriverProp.TotalDrivingTime, driverId, () => {
+                    AddDriverProp<string?>(OutDriverProp.FirstName, driverId, () => l.GetDynCar(i)?.Drivers.ElementAtOrDefault(j)?.FirstName);
+                    AddDriverProp<string?>(OutDriverProp.LastName, driverId, () => l.GetDynCar(i)?.Drivers.ElementAtOrDefault(j)?.LastName);
+                    AddDriverProp<string?>(OutDriverProp.ShortName, driverId, () => l.GetDynCar(i)?.Drivers.ElementAtOrDefault(j)?.ShortName);
+                    AddDriverProp<string?>(OutDriverProp.FullName, driverId, () => l.GetDynCar(i)?.Drivers.ElementAtOrDefault(j)?.FullName);
+                    AddDriverProp<string?>(OutDriverProp.InitialPlusLastName, driverId, () => l.GetDynCar(i)?.Drivers.ElementAtOrDefault(j)?.InitialPlusLastName);
+                    AddDriverProp<string?>(OutDriverProp.Nationality, driverId, () => l.GetDynCar(i)?.Drivers.ElementAtOrDefault(j)?.Nationality);
+                    AddDriverProp<string?>(OutDriverProp.Category, driverId, () => l.GetDynCar(i)?.Drivers.ElementAtOrDefault(j)?.Category.ToString());
+                    AddDriverProp<int?>(OutDriverProp.TotalLaps, driverId, () => l.GetDynCar(i)?.Drivers.ElementAtOrDefault(j)?.TotalLaps);
+                    AddDriverProp<double?>(OutDriverProp.BestLapTime, driverId, () => l.GetDynCar(i)?.Drivers.ElementAtOrDefault(j)?.BestLap?.Time?.TotalSeconds);
+                    AddDriverProp<double?>(OutDriverProp.TotalDrivingTime, driverId, () => {
                         // We cannot pre calculate the total driving time because in some games (ACC) the current driver updates at first sector split.
                         var car = l.GetDynCar(i);
                         return car?.Drivers.ElementAtOrDefault(j)?.GetTotalDrivingTime(j == 0, car.CurrentStintTime).TotalSeconds;
                     });
-                    AddDriverProp(OutDriverProp.CategoryColorDeprecated, driverId, () => l.GetDynCar(i)?.Drivers.ElementAtOrDefault(j)?.CategoryColor.Bg);
-                    AddDriverProp(OutDriverProp.CategoryColor, driverId, () => l.GetDynCar(i)?.Drivers.ElementAtOrDefault(j)?.CategoryColor.Bg);
-                    AddDriverProp(OutDriverProp.CategoryColorText, driverId, () => l.GetDynCar(i)?.Drivers.ElementAtOrDefault(j)?.CategoryColor.Fg);
+                    AddDriverProp<string?>(OutDriverProp.CategoryColorDeprecated, driverId, () => l.GetDynCar(i)?.Drivers.ElementAtOrDefault(j)?.CategoryColor.Bg);
+                    AddDriverProp<string?>(OutDriverProp.CategoryColor, driverId, () => l.GetDynCar(i)?.Drivers.ElementAtOrDefault(j)?.CategoryColor.Bg);
+                    AddDriverProp<string?>(OutDriverProp.CategoryColorText, driverId, () => l.GetDynCar(i)?.Drivers.ElementAtOrDefault(j)?.CategoryColor.Fg);
                 }
 
                 if (l.Config.NumDrivers > 0) {
@@ -326,101 +326,101 @@ namespace KLPlugins.DynLeaderboards {
                 }
 
                 // // Car and team
-                AddProp(OutCarProp.CarNumber, () => l.GetDynCar(i)?.CarNumberAsInt);
-                AddProp(OutCarProp.CarNumberText, () => l.GetDynCar(i)?.CarNumberAsString);
-                AddProp(OutCarProp.CarModel, () => l.GetDynCar(i)?.CarModel);
-                AddProp(OutCarProp.CarManufacturer, () => l.GetDynCar(i)?.CarManufacturer);
-                AddProp(OutCarProp.CarClass, () => l.GetDynCar(i)?.CarClass.AsString());
-                AddProp(OutCarProp.TeamName, () => l.GetDynCar(i)?.TeamName);
-                AddProp(OutCarProp.TeamCupCategory, () => l.GetDynCar(i)?.TeamCupCategory);
+                AddProp<int?>(OutCarProp.CarNumber, () => l.GetDynCar(i)?.CarNumberAsInt);
+                AddProp<string?>(OutCarProp.CarNumberText, () => l.GetDynCar(i)?.CarNumberAsString);
+                AddProp<string?>(OutCarProp.CarModel, () => l.GetDynCar(i)?.CarModel);
+                AddProp<string?>(OutCarProp.CarManufacturer, () => l.GetDynCar(i)?.CarManufacturer);
+                AddProp<string?>(OutCarProp.CarClass, () => l.GetDynCar(i)?.CarClass.AsString());
+                AddProp<string?>(OutCarProp.TeamName, () => l.GetDynCar(i)?.TeamName);
+                AddProp<string?>(OutCarProp.TeamCupCategory, () => l.GetDynCar(i)?.TeamCupCategory.ToString());
 
-                AddStintProp(OutStintProp.CurrentStintTime, () => l.GetDynCar(i)?.CurrentStintTime?.TotalSeconds);
-                AddStintProp(OutStintProp.LastStintTime, () => l.GetDynCar(i)?.LastStintTime?.TotalSeconds);
-                AddStintProp(OutStintProp.CurrentStintLaps, () => l.GetDynCar(i)?.CurrentStintLaps);
-                AddStintProp(OutStintProp.LastStintLaps, () => l.GetDynCar(i)?.LastStintLaps);
+                AddStintProp<double?>(OutStintProp.CurrentStintTime, () => l.GetDynCar(i)?.CurrentStintTime?.TotalSeconds);
+                AddStintProp<double?>(OutStintProp.LastStintTime, () => l.GetDynCar(i)?.LastStintTime?.TotalSeconds);
+                AddStintProp<int?>(OutStintProp.CurrentStintLaps, () => l.GetDynCar(i)?.CurrentStintLaps);
+                AddStintProp<int?>(OutStintProp.LastStintLaps, () => l.GetDynCar(i)?.LastStintLaps);
 
-                AddProp(OutCarProp.CarClassColor, () => l.GetDynCar(i)?.CarClassColor.Bg);
-                AddProp(OutCarProp.CarClassTextColor, () => l.GetDynCar(i)?.CarClassColor.Fg);
-                AddProp(OutCarProp.TeamCupCategoryColor, () => l.GetDynCar(i)?.TeamCupCategoryColor.Bg);
-                AddProp(OutCarProp.TeamCupCategoryTextColor, () => l.GetDynCar(i)?.TeamCupCategoryColor.Fg);
+                AddProp<string?>(OutCarProp.CarClassColor, () => l.GetDynCar(i)?.CarClassColor.Bg);
+                AddProp<string?>(OutCarProp.CarClassTextColor, () => l.GetDynCar(i)?.CarClassColor.Fg);
+                AddProp<string?>(OutCarProp.TeamCupCategoryColor, () => l.GetDynCar(i)?.TeamCupCategoryColor.Bg);
+                AddProp<string?>(OutCarProp.TeamCupCategoryTextColor, () => l.GetDynCar(i)?.TeamCupCategoryColor.Fg);
 
                 // // Gaps
-                AddGapProp(OutGapProp.GapToLeader, () => l.GetDynCar(i)?.GapToLeader?.TotalSeconds);
-                AddGapProp(OutGapProp.GapToClassLeader, () => l.GetDynCar(i)?.GapToClassLeader?.TotalSeconds);
-                AddGapProp(OutGapProp.GapToCupLeader, () => l.GetDynCar(i)?.GapToCupLeader?.TotalSeconds);
-                AddGapProp(OutGapProp.GapToFocusedOnTrack, () => l.GetDynCar(i)?.GapToFocusedOnTrack?.TotalSeconds);
-                AddGapProp(OutGapProp.GapToFocusedTotal, () => l.GetDynCar(i)?.GapToFocusedTotal?.TotalSeconds);
-                AddGapProp(OutGapProp.GapToAheadOverall, () => l.GetDynCar(i)?.GapToAhead?.TotalSeconds);
-                AddGapProp(OutGapProp.GapToAheadInClass, () => l.GetDynCar(i)?.GapToAheadInClass?.TotalSeconds);
-                AddGapProp(OutGapProp.GapToAheadInCup, () => l.GetDynCar(i)?.GapToAheadInCup?.TotalSeconds);
-                AddGapProp(OutGapProp.GapToAheadOnTrack, () => l.GetDynCar(i)?.GapToAheadOnTrack?.TotalSeconds);
+                AddGapProp<double?>(OutGapProp.GapToLeader, () => l.GetDynCar(i)?.GapToLeader?.TotalSeconds);
+                AddGapProp<double?>(OutGapProp.GapToClassLeader, () => l.GetDynCar(i)?.GapToClassLeader?.TotalSeconds);
+                AddGapProp<double?>(OutGapProp.GapToCupLeader, () => l.GetDynCar(i)?.GapToCupLeader?.TotalSeconds);
+                AddGapProp<double?>(OutGapProp.GapToFocusedOnTrack, () => l.GetDynCar(i)?.GapToFocusedOnTrack?.TotalSeconds);
+                AddGapProp<double?>(OutGapProp.GapToFocusedTotal, () => l.GetDynCar(i)?.GapToFocusedTotal?.TotalSeconds);
+                AddGapProp<double?>(OutGapProp.GapToAheadOverall, () => l.GetDynCar(i)?.GapToAhead?.TotalSeconds);
+                AddGapProp<double?>(OutGapProp.GapToAheadInClass, () => l.GetDynCar(i)?.GapToAheadInClass?.TotalSeconds);
+                AddGapProp<double?>(OutGapProp.GapToAheadInCup, () => l.GetDynCar(i)?.GapToAheadInCup?.TotalSeconds);
+                AddGapProp<double?>(OutGapProp.GapToAheadOnTrack, () => l.GetDynCar(i)?.GapToAheadOnTrack?.TotalSeconds);
 
-                AddGapProp(OutGapProp.DynamicGapToFocused, () => l.GetDynGapToFocused(i)?.TotalSeconds);
-                AddGapProp(OutGapProp.DynamicGapToAhead, () => l.GetDynGapToAhead(i)?.TotalSeconds);
+                AddGapProp<double?>(OutGapProp.DynamicGapToFocused, () => l.GetDynGapToFocused(i)?.TotalSeconds);
+                AddGapProp<double?>(OutGapProp.DynamicGapToAhead, () => l.GetDynGapToAhead(i)?.TotalSeconds);
 
                 // //// Positions
-                AddPosProp(OutPosProp.ClassPosition, () => l.GetDynCar(i)?.PositionInClass);
-                AddPosProp(OutPosProp.CupPosition, () => l.GetDynCar(i)?.PositionInCup);
-                AddPosProp(OutPosProp.OverallPosition, () => l.GetDynCar(i)?.PositionOverall);
-                AddPosProp(OutPosProp.ClassPositionStart, () => l.GetDynCar(i)?.PositionInClassStart);
-                AddPosProp(OutPosProp.CupPositionStart, () => l.GetDynCar(i)?.PositionInCupStart);
-                AddPosProp(OutPosProp.OverallPositionStart, () => l.GetDynCar(i)?.PositionOverallStart);
+                AddPosProp<int?>(OutPosProp.ClassPosition, () => l.GetDynCar(i)?.PositionInClass);
+                AddPosProp<int?>(OutPosProp.CupPosition, () => l.GetDynCar(i)?.PositionInCup);
+                AddPosProp<int?>(OutPosProp.OverallPosition, () => l.GetDynCar(i)?.PositionOverall);
+                AddPosProp<int?>(OutPosProp.ClassPositionStart, () => l.GetDynCar(i)?.PositionInClassStart);
+                AddPosProp<int?>(OutPosProp.CupPositionStart, () => l.GetDynCar(i)?.PositionInCupStart);
+                AddPosProp<int?>(OutPosProp.OverallPositionStart, () => l.GetDynCar(i)?.PositionOverallStart);
 
-                AddPosProp(OutPosProp.DynamicPosition, () => l.GetDynPosition(i));
-                AddPosProp(OutPosProp.DynamicPositionStart, () => l.GetDynPositionStart(i));
+                AddPosProp<int?>(OutPosProp.DynamicPosition, () => l.GetDynPosition(i));
+                AddPosProp<int?>(OutPosProp.DynamicPositionStart, () => l.GetDynPositionStart(i));
 
                 // // Pit
-                AddPitProp(OutPitProp.IsInPitLane, () => l.GetDynCar(i)?.IsInPitLane);
-                AddPitProp(OutPitProp.PitStopCount, () => l.GetDynCar(i)?.PitCount);
-                AddPitProp(OutPitProp.PitTimeTotal, () => l.GetDynCar(i)?.TotalPitTime.TotalSeconds);
-                AddPitProp(OutPitProp.PitTimeLast, () => l.GetDynCar(i)?.PitTimeLast?.TotalSeconds);
-                AddPitProp(OutPitProp.PitTimeCurrent, () => l.GetDynCar(i)?.PitTimeCurrent?.TotalSeconds);
+                AddPitProp<int?>(OutPitProp.IsInPitLane, () => l.GetDynCar(i)?.IsInPitLane.ToInt());
+                AddPitProp<int?>(OutPitProp.PitStopCount, () => l.GetDynCar(i)?.PitCount);
+                AddPitProp<double?>(OutPitProp.PitTimeTotal, () => l.GetDynCar(i)?.TotalPitTime.TotalSeconds);
+                AddPitProp<double?>(OutPitProp.PitTimeLast, () => l.GetDynCar(i)?.PitTimeLast?.TotalSeconds);
+                AddPitProp<double?>(OutPitProp.PitTimeCurrent, () => l.GetDynCar(i)?.PitTimeCurrent?.TotalSeconds);
 
                 // // Lap deltas
 
-                AddLapProp(OutLapProp.BestLapDeltaToOverallBest, () => l.GetDynCar(i)?.BestLap?.DeltaToOverallBest?.TotalSeconds);
-                AddLapProp(OutLapProp.BestLapDeltaToClassBest, () => l.GetDynCar(i)?.BestLap?.DeltaToClassBest?.TotalSeconds);
-                AddLapProp(OutLapProp.BestLapDeltaToCupBest, () => l.GetDynCar(i)?.BestLap?.DeltaToCupBest?.TotalSeconds);
-                AddLapProp(OutLapProp.BestLapDeltaToLeaderBest, () => l.GetDynCar(i)?.BestLap?.DeltaToLeaderBest?.TotalSeconds);
-                AddLapProp(OutLapProp.BestLapDeltaToClassLeaderBest, () => l.GetDynCar(i)?.BestLap?.DeltaToClassLeaderBest?.TotalSeconds);
-                AddLapProp(OutLapProp.BestLapDeltaToCupLeaderBest, () => l.GetDynCar(i)?.BestLap?.DeltaToCupLeaderBest?.TotalSeconds);
-                AddLapProp(OutLapProp.BestLapDeltaToFocusedBest, () => l.GetDynCar(i)?.BestLap?.DeltaToFocusedBest?.TotalSeconds);
-                AddLapProp(OutLapProp.BestLapDeltaToAheadBest, () => l.GetDynCar(i)?.BestLap?.DeltaToAheadBest?.TotalSeconds);
-                AddLapProp(OutLapProp.BestLapDeltaToAheadInClassBest, () => l.GetDynCar(i)?.BestLap?.DeltaToAheadInClassBest?.TotalSeconds);
-                AddLapProp(OutLapProp.BestLapDeltaToAheadInCupBest, () => l.GetDynCar(i)?.BestLap?.DeltaToAheadInCupBest?.TotalSeconds);
+                AddLapProp<double?>(OutLapProp.BestLapDeltaToOverallBest, () => l.GetDynCar(i)?.BestLap?.DeltaToOverallBest?.TotalSeconds);
+                AddLapProp<double?>(OutLapProp.BestLapDeltaToClassBest, () => l.GetDynCar(i)?.BestLap?.DeltaToClassBest?.TotalSeconds);
+                AddLapProp<double?>(OutLapProp.BestLapDeltaToCupBest, () => l.GetDynCar(i)?.BestLap?.DeltaToCupBest?.TotalSeconds);
+                AddLapProp<double?>(OutLapProp.BestLapDeltaToLeaderBest, () => l.GetDynCar(i)?.BestLap?.DeltaToLeaderBest?.TotalSeconds);
+                AddLapProp<double?>(OutLapProp.BestLapDeltaToClassLeaderBest, () => l.GetDynCar(i)?.BestLap?.DeltaToClassLeaderBest?.TotalSeconds);
+                AddLapProp<double?>(OutLapProp.BestLapDeltaToCupLeaderBest, () => l.GetDynCar(i)?.BestLap?.DeltaToCupLeaderBest?.TotalSeconds);
+                AddLapProp<double?>(OutLapProp.BestLapDeltaToFocusedBest, () => l.GetDynCar(i)?.BestLap?.DeltaToFocusedBest?.TotalSeconds);
+                AddLapProp<double?>(OutLapProp.BestLapDeltaToAheadBest, () => l.GetDynCar(i)?.BestLap?.DeltaToAheadBest?.TotalSeconds);
+                AddLapProp<double?>(OutLapProp.BestLapDeltaToAheadInClassBest, () => l.GetDynCar(i)?.BestLap?.DeltaToAheadInClassBest?.TotalSeconds);
+                AddLapProp<double?>(OutLapProp.BestLapDeltaToAheadInCupBest, () => l.GetDynCar(i)?.BestLap?.DeltaToAheadInCupBest?.TotalSeconds);
 
-                AddLapProp(OutLapProp.LastLapDeltaToOverallBest, () => l.GetDynCar(i)?.LastLap?.DeltaToOverallBest?.TotalSeconds);
-                AddLapProp(OutLapProp.LastLapDeltaToClassBest, () => l.GetDynCar(i)?.LastLap?.DeltaToClassBest?.TotalSeconds);
-                AddLapProp(OutLapProp.LastLapDeltaToCupBest, () => l.GetDynCar(i)?.LastLap?.DeltaToCupBest?.TotalSeconds);
-                AddLapProp(OutLapProp.LastLapDeltaToLeaderBest, () => l.GetDynCar(i)?.LastLap?.DeltaToLeaderBest?.TotalSeconds);
-                AddLapProp(OutLapProp.LastLapDeltaToClassLeaderBest, () => l.GetDynCar(i)?.LastLap?.DeltaToClassLeaderBest?.TotalSeconds);
-                AddLapProp(OutLapProp.LastLapDeltaToCupLeaderBest, () => l.GetDynCar(i)?.LastLap?.DeltaToCupLeaderBest?.TotalSeconds);
-                AddLapProp(OutLapProp.LastLapDeltaToFocusedBest, () => l.GetDynCar(i)?.LastLap?.DeltaToFocusedBest?.TotalSeconds);
-                AddLapProp(OutLapProp.LastLapDeltaToAheadBest, () => l.GetDynCar(i)?.LastLap?.DeltaToAheadBest?.TotalSeconds);
-                AddLapProp(OutLapProp.LastLapDeltaToAheadInClassBest, () => l.GetDynCar(i)?.LastLap?.DeltaToAheadInClassBest?.TotalSeconds);
-                AddLapProp(OutLapProp.LastLapDeltaToAheadInCupBest, () => l.GetDynCar(i)?.LastLap?.DeltaToAheadInCupBest?.TotalSeconds);
-                AddLapProp(OutLapProp.LastLapDeltaToOwnBest, () => l.GetDynCar(i)?.LastLap?.DeltaToOwnBest?.TotalSeconds);
+                AddLapProp<double?>(OutLapProp.LastLapDeltaToOverallBest, () => l.GetDynCar(i)?.LastLap?.DeltaToOverallBest?.TotalSeconds);
+                AddLapProp<double?>(OutLapProp.LastLapDeltaToClassBest, () => l.GetDynCar(i)?.LastLap?.DeltaToClassBest?.TotalSeconds);
+                AddLapProp<double?>(OutLapProp.LastLapDeltaToCupBest, () => l.GetDynCar(i)?.LastLap?.DeltaToCupBest?.TotalSeconds);
+                AddLapProp<double?>(OutLapProp.LastLapDeltaToLeaderBest, () => l.GetDynCar(i)?.LastLap?.DeltaToLeaderBest?.TotalSeconds);
+                AddLapProp<double?>(OutLapProp.LastLapDeltaToClassLeaderBest, () => l.GetDynCar(i)?.LastLap?.DeltaToClassLeaderBest?.TotalSeconds);
+                AddLapProp<double?>(OutLapProp.LastLapDeltaToCupLeaderBest, () => l.GetDynCar(i)?.LastLap?.DeltaToCupLeaderBest?.TotalSeconds);
+                AddLapProp<double?>(OutLapProp.LastLapDeltaToFocusedBest, () => l.GetDynCar(i)?.LastLap?.DeltaToFocusedBest?.TotalSeconds);
+                AddLapProp<double?>(OutLapProp.LastLapDeltaToAheadBest, () => l.GetDynCar(i)?.LastLap?.DeltaToAheadBest?.TotalSeconds);
+                AddLapProp<double?>(OutLapProp.LastLapDeltaToAheadInClassBest, () => l.GetDynCar(i)?.LastLap?.DeltaToAheadInClassBest?.TotalSeconds);
+                AddLapProp<double?>(OutLapProp.LastLapDeltaToAheadInCupBest, () => l.GetDynCar(i)?.LastLap?.DeltaToAheadInCupBest?.TotalSeconds);
+                AddLapProp<double?>(OutLapProp.LastLapDeltaToOwnBest, () => l.GetDynCar(i)?.LastLap?.DeltaToOwnBest?.TotalSeconds);
 
-                AddLapProp(OutLapProp.LastLapDeltaToLeaderLast, () => l.GetDynCar(i)?.LastLap?.DeltaToLeaderLast?.TotalSeconds);
-                AddLapProp(OutLapProp.LastLapDeltaToClassLeaderLast, () => l.GetDynCar(i)?.LastLap?.DeltaToClassLeaderLast?.TotalSeconds);
-                AddLapProp(OutLapProp.LastLapDeltaToCupLeaderLast, () => l.GetDynCar(i)?.LastLap?.DeltaToCupLeaderLast?.TotalSeconds);
-                AddLapProp(OutLapProp.LastLapDeltaToFocusedLast, () => l.GetDynCar(i)?.LastLap?.DeltaToFocusedLast?.TotalSeconds);
-                AddLapProp(OutLapProp.LastLapDeltaToAheadLast, () => l.GetDynCar(i)?.LastLap?.DeltaToAheadLast?.TotalSeconds);
-                AddLapProp(OutLapProp.LastLapDeltaToAheadInClassLast, () => l.GetDynCar(i)?.LastLap?.DeltaToAheadInClassLast?.TotalSeconds);
-                AddLapProp(OutLapProp.LastLapDeltaToAheadInCupLast, () => l.GetDynCar(i)?.LastLap?.DeltaToAheadInCupLast?.TotalSeconds);
+                AddLapProp<double?>(OutLapProp.LastLapDeltaToLeaderLast, () => l.GetDynCar(i)?.LastLap?.DeltaToLeaderLast?.TotalSeconds);
+                AddLapProp<double?>(OutLapProp.LastLapDeltaToClassLeaderLast, () => l.GetDynCar(i)?.LastLap?.DeltaToClassLeaderLast?.TotalSeconds);
+                AddLapProp<double?>(OutLapProp.LastLapDeltaToCupLeaderLast, () => l.GetDynCar(i)?.LastLap?.DeltaToCupLeaderLast?.TotalSeconds);
+                AddLapProp<double?>(OutLapProp.LastLapDeltaToFocusedLast, () => l.GetDynCar(i)?.LastLap?.DeltaToFocusedLast?.TotalSeconds);
+                AddLapProp<double?>(OutLapProp.LastLapDeltaToAheadLast, () => l.GetDynCar(i)?.LastLap?.DeltaToAheadLast?.TotalSeconds);
+                AddLapProp<double?>(OutLapProp.LastLapDeltaToAheadInClassLast, () => l.GetDynCar(i)?.LastLap?.DeltaToAheadInClassLast?.TotalSeconds);
+                AddLapProp<double?>(OutLapProp.LastLapDeltaToAheadInCupLast, () => l.GetDynCar(i)?.LastLap?.DeltaToAheadInCupLast?.TotalSeconds);
 
-                AddLapProp(OutLapProp.DynamicBestLapDeltaToFocusedBest, () => l.GetDynBestLapDeltaToFocusedBest(i)?.TotalSeconds);
-                AddLapProp(OutLapProp.DynamicLastLapDeltaToFocusedBest, () => l.GetDynLastLapDeltaToFocusedBest(i)?.TotalSeconds);
-                AddLapProp(OutLapProp.DynamicLastLapDeltaToFocusedLast, () => l.GetDynLastLapDeltaToFocusedLast(i)?.TotalSeconds);
+                AddLapProp<double?>(OutLapProp.DynamicBestLapDeltaToFocusedBest, () => l.GetDynBestLapDeltaToFocusedBest(i)?.TotalSeconds);
+                AddLapProp<double?>(OutLapProp.DynamicLastLapDeltaToFocusedBest, () => l.GetDynLastLapDeltaToFocusedBest(i)?.TotalSeconds);
+                AddLapProp<double?>(OutLapProp.DynamicLastLapDeltaToFocusedLast, () => l.GetDynLastLapDeltaToFocusedLast(i)?.TotalSeconds);
 
                 // // Else
-                AddProp(OutCarProp.IsFinished, () => (l.GetDynCar(i)?.IsFinished ?? false).ToInt());
-                AddProp(OutCarProp.MaxSpeed, () => l.GetDynCar(i)?.MaxSpeed);
-                AddProp(OutCarProp.IsFocused, () => (l.GetDynCar(i)?.IsFocused ?? false).ToInt());
-                AddProp(OutCarProp.IsOverallBestLapCar, () => (l.GetDynCar(i)?.IsBestLapCarOverall ?? false).ToInt());
-                AddProp(OutCarProp.IsClassBestLapCar, () => (l.GetDynCar(i)?.IsBestLapCarInClass ?? false).ToInt());
-                AddProp(OutCarProp.IsCupBestLapCar, () => (l.GetDynCar(i)?.IsBestLapCarInCup ?? false) ? 1 : 0);
-                AddProp(OutCarProp.RelativeOnTrackLapDiff, () => (int?)l.GetDynCar(i)?.RelativeOnTrackLapDiff ?? 0);
+                AddProp<int?>(OutCarProp.IsFinished, () => (l.GetDynCar(i)?.IsFinished ?? false).ToInt());
+                AddProp<double?>(OutCarProp.MaxSpeed, () => l.GetDynCar(i)?.MaxSpeed);
+                AddProp<int?>(OutCarProp.IsFocused, () => (l.GetDynCar(i)?.IsFocused ?? false).ToInt());
+                AddProp<int?>(OutCarProp.IsOverallBestLapCar, () => (l.GetDynCar(i)?.IsBestLapCarOverall ?? false).ToInt());
+                AddProp<int?>(OutCarProp.IsClassBestLapCar, () => (l.GetDynCar(i)?.IsBestLapCarInClass ?? false).ToInt());
+                AddProp<int?>(OutCarProp.IsCupBestLapCar, () => (l.GetDynCar(i)?.IsBestLapCarInCup ?? false).ToInt());
+                AddProp<int?>(OutCarProp.RelativeOnTrackLapDiff, () => (int?)l.GetDynCar(i)?.RelativeOnTrackLapDiff ?? 0);
 
                 this.AttachDelegate($"{startName}.DBG_TotalSplinePosition", () => (l.GetDynCar(i))?.TotalSplinePosition);
                 this.AttachDelegate($"{startName}.DBG_SplinePosition", () => (l.GetDynCar(i))?.SplinePosition);
@@ -436,10 +436,10 @@ namespace KLPlugins.DynLeaderboards {
                 addCar(i);
             }
 
-            this.AttachDelegate($"{l.Name}.SessionPhase", () => this.Values.Session.SessionPhase);
+            // this.AttachDelegate($"{l.Name}.SessionPhase", () => this.Values.Session.SessionPhase);
 
-            this.AttachDelegate($"{l.Name}.CurrentLeaderboard", () => l.CurrentLeaderboardName);
-            this.AttachDelegate($"{l.Name}.FocusedPosInCurrentLeaderboard", () => l.FocusedIndex);
+            this.AttachDelegate<DynLeaderboardsPlugin, string?>($"{l.Name}.CurrentLeaderboard", () => l.CurrentLeaderboardName);
+            this.AttachDelegate<DynLeaderboardsPlugin, int>($"{l.Name}.FocusedPosInCurrentLeaderboard", () => l.FocusedIndex);
 
             this.AddAction(l.NextLeaderboardActionNAme, (_, _) => l.NextLeaderboard(this.Values));
             this.AddAction(l.PreviousLeaderboardActionNAme, (_, _) => l.PreviousLeaderboard(this.Values));

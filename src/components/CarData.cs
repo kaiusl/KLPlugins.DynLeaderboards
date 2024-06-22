@@ -297,14 +297,15 @@ namespace KLPlugins.DynLeaderboards.Car {
                 carInfo = values.CarInfos.Get(this.RawDataNew.CarName, rawClass);
             }
 
-            this.CarClass = carInfo?.Class() ?? rawClass;
+            var (cls, classInfo) = values.ClassInfos.GetFollowSameAs(carInfo?.Class() ?? rawClass);
+            this.CarClass = cls;
+
             this.CarModel = carInfo?.Name() ?? this.RawDataNew.CarName ?? "Unknown";
             this.CarManufacturer = carInfo?.Manufacturer() ?? GetCarManufacturer(this.CarModel);
 
-            var color = values.CarClassColors.Get(this.CarClass);
             this.CarClassColor = new TextBoxColor(
-                fg: color.Foreground() ?? this.RawDataNew.CarClassTextColor ?? OverridableTextBoxColor.DEF_FG,
-                bg: color.Background() ?? this.RawDataNew.CarClassColor ?? OverridableTextBoxColor.DEF_BG
+                fg: classInfo.Foreground() ?? this.RawDataNew.CarClassTextColor ?? OverridableTextBoxColor.DEF_FG,
+                bg: classInfo.Background() ?? this.RawDataNew.CarClassColor ?? OverridableTextBoxColor.DEF_BG
             );
 
             this.CarNumberAsString = this.RawDataNew.CarNumber;

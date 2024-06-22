@@ -483,7 +483,9 @@ namespace KLPlugins.DynLeaderboards {
             }
 
             var c = this._infos[cls];
-            if (c.Base != null) {
+            if (c.Base != null || cls == CarClass.Default) {
+                // Don't remove if has base data or if is the dafault class
+                // just disable
                 c.Reset();
                 c.DisableColor();
                 c.DisableSameAs();
@@ -519,6 +521,7 @@ namespace KLPlugins.DynLeaderboards {
 
             var c = new ClassInfos(infos);
 
+            // Make sure that all "same as" values are also in the dict
             foreach (var key in c._infos.Keys.ToList()) {
                 var it = c.Get(key);
                 if (it.SameAsDontCheckEnabled() != null) {
@@ -530,6 +533,7 @@ namespace KLPlugins.DynLeaderboards {
                 }
             }
 
+            // Make sure that default is always in the dict
             c.Get(CarClass.Default);
 
             DynLeaderboardsPlugin.LogInfo($"Read Classinfos: {JsonConvert.SerializeObject(c._infos, Formatting.Indented)}");
@@ -582,14 +586,31 @@ namespace KLPlugins.DynLeaderboards {
                 // same as cannot be enabled if there is no same as set
                 this.IsSameAsEnabled = false;
             }
+
+            if (
+                (this.Overrides?.Color?.Fg == null && this.Base?.Color?.Fg == null) ||
+                (this.Overrides?.Color?.Bg == null && this.Base?.Color?.Bg == null)
+            ) {
+                this.IsColorEnabled = false;
+            }
         }
 
         internal void Reset() {
             this.IsColorEnabled = true;
             this.IsSameAsEnabled = true;
+            this.ResetColors();
+            this.ResetSameAs();
+        }
+
+        internal void ResetColors() {
             this.ResetBackground();
             this.ResetForeground();
-            this.ResetSameAs();
+
+            if (this.Base?.Color?.Fg != null && this.Base?.Color?.Bg != null) {
+                this.IsColorEnabled = true;
+            } else {
+                this.IsColorEnabled = false;
+            }
         }
 
         internal string? Foreground() {

@@ -16,6 +16,7 @@ using AcTools.Utils.Helpers;
 
 using KLPlugins.DynLeaderboards.Car;
 using KLPlugins.DynLeaderboards.Helpers;
+using KLPlugins.DynLeaderboards.Settings.UI;
 
 using MahApps.Metro.Controls;
 
@@ -97,42 +98,12 @@ namespace KLPlugins.DynLeaderboards.Settings {
         }
     }
 
-    internal class ClassSettingsListBoxItem : ListBoxItem {
-
-        public CarClass Key { get; set; }
-        public OverridableClassInfo ClassInfo { get; set; }
-        public Border Border { get; set; }
-        public TextBlock ClassText { get; set; }
-
-        public ClassSettingsListBoxItem(CarClass key, OverridableClassInfo cls) : base() {
-            this.ClassInfo = cls;
-            this.Key = key;
-
-            this.ClassText = new TextBlock() {
-                Text = this.Key.AsString(),
-                Foreground = new SolidColorBrush(WindowsMediaColorExtensions.FromHex(this.ClassInfo.ForegroundDontCheckEnabled() ?? OverridableTextBoxColor.DEF_FG)),
-                // Margin = new Thickness(15, 5, 10, 5),
-                Padding = new Thickness(5, 0, 5, 0),
-                FontWeight = FontWeights.Bold,
-                HorizontalAlignment = HorizontalAlignment.Center
-            };
-            this.Border = new Border() {
-                HorizontalAlignment = HorizontalAlignment.Left,
-                CornerRadius = new CornerRadius(5),
-                Height = 25,
-                Margin = new Thickness(5, 0, 5, 0),
-                Child = this.ClassText,
-                Background = new SolidColorBrush(WindowsMediaColorExtensions.FromHex(this.ClassInfo.BackgroundDontCheckEnabled() ?? OverridableTextBoxColor.DEF_BG)),
-            };
-
-            this.Content = this.Border;
-        }
-    }
-
     public partial class SettingsControl : UserControl {
         internal DynLeaderboardsPlugin Plugin { get; }
         internal PluginSettings Settings => DynLeaderboardsPlugin.Settings;
         internal DynLeaderboardConfig CurrentDynLeaderboardSettings { get; private set; }
+
+        internal const double DISABLED_OPTION_OPACITY = 0.25;
 
         //internal SettingsControl() {
         //    InitializeComponent();
@@ -165,12 +136,16 @@ namespace KLPlugins.DynLeaderboards.Settings {
             this.AcRootLocation_TextBox.Background = this.Settings.IsAcRootLocationValid() ? Brushes.ForestGreen : Brushes.Crimson;
             this.Logging_ToggleButton.IsChecked = this.Settings.Log;
 
+            this.SetAllClassesAndManufacturers();
             this.SetCarSettingsTab();
-            this.SetClassSettingsTab();
+            new ClassSettingsTab(this, this.Plugin).Build();
             this.AddColors();
         }
 
-        async void DoOnConfirmation(Action action) {
+        internal ObservableCollection<string> AllClasses = new();
+        internal ObservableCollection<string> AllManufacturers = new();
+
+        internal async void DoOnConfirmation(Action action) {
             var dialogWindow = new ConfimDialog("Are you sure?", "All custom overrides will be lost.");
             var res = await dialogWindow.ShowDialogWindowAsync(this);
 
@@ -379,45 +354,46 @@ namespace KLPlugins.DynLeaderboards.Settings {
         }
 
 
-        private ObservableCollection<string> _carClasses = new();
-        private ObservableCollection<string> _manufacturers = new();
+        void SetAllClassesAndManufacturers() {
+            // Go through all cars and check for class colors. 
+            // If there are new classes then trying to Values.CarClassColors.Get will add them to the dictionary.
+            this.AllManufacturers.Clear();
+            foreach (var c in this.Plugin.Values.CarInfos) {
+                CarClass?[] classes = [c.Value.ClassDontCheckEnabled(), c.Value.BaseClass()];
+                foreach (var cls in classes) {
+                    if (cls != null) {
+                        var info = this.Plugin.Values.ClassInfos.Get(cls.Value);
+                        if (info.SameAsDontCheckEnabled() != null) {
+                            var _ = this.Plugin.Values.ClassInfos.Get(info.SameAsDontCheckEnabled().Value);
+                        }
+                    }
+                }
+
+                string[] manufacturers = [c.Value.Manufacturer(), c.Value.BaseManufacturer()];
+                foreach (var manufacturer in manufacturers) {
+                    if (manufacturer != null && !this.AllManufacturers.Contains(manufacturer)) {
+                        this.AllManufacturers.Add(manufacturer);
+                    }
+                }
+            }
+
+            this.AllClasses.Clear();
+            foreach (var c in this.Plugin.Values.ClassInfos) {
+                this.AllClasses.Add(c.Key.AsString());
+            }
+        }
+
         void SetCarSettingsCarsList() {
             SHListBox list = this.CarSettingsCarsList_SHListBox;
             list.Items.Clear();
 
             // Go through all cars and check for class colors. 
             // If there are new classes then trying to Values.CarClassColors.Get will add them to the dictionary.
-            this._manufacturers.Clear();
             foreach (var c in this.Plugin.Values.CarInfos) {
                 var item = new CarSettingsListBoxItem(c.Key, c.Value);
                 list.Items.Add(item);
-
-                var cls = c.Value.ClassDontCheckEnabled();
-                if (cls != null) {
-                    var info = this.Plugin.Values.ClassInfos.Get(cls.Value);
-                    if (info.SameAsDontCheckEnabled() != null) {
-                        var _ = this.Plugin.Values.ClassInfos.Get(info.SameAsDontCheckEnabled().Value);
-                    }
-                }
-
-                var manufacturer = c.Value.Manufacturer();
-                if (manufacturer != null && !this._manufacturers.Contains(manufacturer)) {
-                    this._manufacturers.Add(manufacturer);
-                }
-
-                manufacturer = c.Value.BaseManufacturer();
-                if (manufacturer != null && !this._manufacturers.Contains(manufacturer)) {
-                    this._manufacturers.Add(manufacturer);
-                }
             }
-            //this._manufacturers.Sort((a, b) => string.Compare(a, b, StringComparison.OrdinalIgnoreCase));
 
-            this._carClasses.Clear();
-            foreach (var c in this.Plugin.Values.ClassInfos) {
-                if (!this._carClasses.Contains(c.Key.AsString())) {
-                    this._carClasses.Add(c.Key.AsString());
-                }
-            }
 
             list.SelectedIndex = 0;
             list.Items.SortDescriptions.Add(new System.ComponentModel.SortDescription("Content", System.ComponentModel.ListSortDirection.Ascending));
@@ -608,7 +584,7 @@ namespace KLPlugins.DynLeaderboards.Settings {
             var manufacturerLabel = CreateLabelTextBox("Manufacturer", isEnabled, row);
             g2.Children.Add(manufacturerLabel);
 
-            var manufacturersView = new ListCollectionView(this._manufacturers) {
+            var manufacturersView = new ListCollectionView(this.AllManufacturers) {
                 IsLiveSorting = true,
                 CustomSort = new CaseInsensitiveComparer(CultureInfo.InvariantCulture)
             };
@@ -630,8 +606,8 @@ namespace KLPlugins.DynLeaderboards.Settings {
                 var manufacturer = (string?)manufacturerComboBox.Text;
 
                 if (manufacturer != null) {
-                    if (!this._manufacturers.Contains(manufacturer)) {
-                        this._manufacturers.Add(manufacturer);
+                    if (!this.AllManufacturers.Contains(manufacturer)) {
+                        this.AllManufacturers.Add(manufacturer);
                     }
                     car.SetManufacturer(manufacturer);
                 }
@@ -666,7 +642,7 @@ namespace KLPlugins.DynLeaderboards.Settings {
             var classLabel = CreateLabelTextBox("Class", isEnabled, row);
             g2.Children.Add(classLabel);
 
-            var classesView = new ListCollectionView(this._carClasses) {
+            var classesView = new ListCollectionView(this.AllClasses) {
                 IsLiveSorting = true,
                 CustomSort = new CaseInsensitiveComparer(CultureInfo.InvariantCulture)
             };
@@ -693,8 +669,8 @@ namespace KLPlugins.DynLeaderboards.Settings {
                     car.ResetClass();
                     classToggle.IsChecked = false;
                 } else {
-                    if (!this._carClasses.Contains(cls)) {
-                        this._carClasses.Add(cls);
+                    if (!this.AllClasses.Contains(cls)) {
+                        this.AllClasses.Add(cls);
                     }
                     car.SetClass(new CarClass(cls));
                 }
@@ -757,609 +733,6 @@ namespace KLPlugins.DynLeaderboards.Settings {
                 car.Reset();
                 classToggle.IsChecked = car.IsClassEnabled;
                 nameToggle.IsChecked = car.IsNameEnabled;
-            };
-        }
-
-        private ObservableCollection<ClassSettingsListBoxItem> _carClassesListBoxItems = new();
-        void SetClassSettingsTab() {
-            DockPanel dp = this.ClassSettings_DockPanel;
-
-            var menu = this.ClassSettingsTab_Menu;
-
-            var resetMenu = new ButtonMenuItem() {
-                Header = "Reset",
-                ShowDropDown = true,
-            };
-            menu.Items.Add(resetMenu);
-
-            var resetMenuResetAll = new MenuItem() {
-                Header = "Reset all",
-            };
-
-            resetMenu.Items.Add(resetMenuResetAll);
-            resetMenuResetAll.Click += (sender, e) => {
-                this.DoOnConfirmation(() => {
-                    foreach (var c in this.Plugin.Values.ClassInfos) {
-                        c.Value.Reset();
-                    }
-                    this.SetClassSettingsClassesList();
-                });
-            };
-
-            var resetMenuResetBackgroundColors = new MenuItem() {
-                Header = "Reset all background colors",
-            };
-            resetMenu.Items.Add(resetMenuResetBackgroundColors);
-            resetMenuResetBackgroundColors.Click += (sender, e) => {
-                this.DoOnConfirmation(() => {
-                    foreach (var c in this.Plugin.Values.ClassInfos) {
-                        c.Value.ResetBackground();
-                    }
-                    this.SetClassSettingsClassesList();
-                });
-            };
-
-            var resetMenuResetForegroundColors = new MenuItem() {
-                Header = "Reset all text colors"
-            };
-            resetMenu.Items.Add(resetMenuResetForegroundColors);
-            resetMenuResetForegroundColors.Click += (sender, e) => {
-                this.DoOnConfirmation(() => {
-                    foreach (var c in this.Plugin.Values.ClassInfos) {
-                        c.Value.ResetForeground();
-                    }
-                    this.SetClassSettingsClassesList();
-                });
-            };
-
-            var resetMenuResetSameAs = new MenuItem() {
-                Header = "Reset all same as values",
-            };
-            resetMenu.Items.Add(resetMenuResetSameAs);
-            resetMenuResetSameAs.Click += (sender, e) => {
-                this.DoOnConfirmation(() => {
-                    foreach (var c in this.Plugin.Values.ClassInfos) {
-                        c.Value.ResetSameAs();
-                    }
-                    this.SetClassSettingsClassesList();
-                });
-            };
-
-            var disableMenu = new ButtonMenuItem() {
-                Header = "Disable",
-                ShowDropDown = true,
-            };
-            menu.Items.Add(disableMenu);
-
-            var disableAll = new MenuItem() {
-                Header = "Disable all",
-            };
-            disableMenu.Items.Add(disableAll);
-            disableAll.Click += (sender, e) => {
-                this.DoOnConfirmation(() => {
-                    foreach (var c in this.Plugin.Values.ClassInfos) {
-                        c.Value.DisableColor();
-                        c.Value.DisableSameAs();
-                    }
-                    this.SetClassSettingsClassesList();
-                });
-            };
-
-            var disableAllColors = new MenuItem() {
-                Header = "Disable all colors",
-            };
-            disableMenu.Items.Add(disableAllColors);
-            disableAllColors.Click += (sender, e) => {
-                this.DoOnConfirmation(() => {
-                    foreach (var c in this.Plugin.Values.ClassInfos) {
-                        c.Value.DisableColor();
-                    }
-                    this.SetClassSettingsClassesList();
-                });
-            };
-
-            var disableAllSameAs = new MenuItem() {
-                Header = "Disable all same as values",
-            };
-            disableMenu.Items.Add(disableAllSameAs);
-            disableAllSameAs.Click += (sender, e) => {
-                this.DoOnConfirmation(() => {
-                    foreach (var c in this.Plugin.Values.ClassInfos) {
-                        c.Value.DisableSameAs();
-                    }
-                    this.SetClassSettingsClassesList();
-                });
-            };
-
-            var enableMenu = new ButtonMenuItem() {
-                Header = "Enable",
-                ShowDropDown = true,
-            };
-            menu.Items.Add(enableMenu);
-
-            var enableAll = new MenuItem() {
-                Header = "Enable all",
-            };
-            enableMenu.Items.Add(enableAll);
-            enableAll.Click += (sender, e) => {
-                this.DoOnConfirmation(() => {
-                    foreach (var c in this.Plugin.Values.ClassInfos) {
-                        c.Value.EnableColor();
-                        c.Value.EnableSameAs();
-                    }
-                    this.SetClassSettingsClassesList();
-                });
-            };
-
-            var enableAllColors = new MenuItem() {
-                Header = "Enable all colors",
-            };
-            enableMenu.Items.Add(enableAllColors);
-            enableAllColors.Click += (sender, e) => {
-                this.DoOnConfirmation(() => {
-                    foreach (var c in this.Plugin.Values.ClassInfos) {
-                        c.Value.EnableColor();
-                    }
-                    this.SetClassSettingsClassesList();
-                });
-            };
-
-            var enableAllSameAs = new MenuItem() {
-                Header = "Enable all same as values",
-            };
-            enableMenu.Items.Add(enableAllSameAs);
-            enableAllSameAs.Click += (sender, e) => {
-                this.DoOnConfirmation(() => {
-                    foreach (var c in this.Plugin.Values.ClassInfos) {
-                        c.Value.EnableSameAs();
-                    }
-                    this.SetClassSettingsClassesList();
-                });
-            };
-
-            var deletaAllBtn = new ButtonMenuItem() {
-                Header = "Remove all"
-            };
-            deletaAllBtn.ToolTip = "Remove all classes from the settings file. Note that if the class has base data it will be reset and disabled, but not completely deleted.";
-            deletaAllBtn.Click += (sender, e) => {
-                this.DoOnConfirmation(() => {
-                    var classes = this.Plugin.Values.ClassInfos.Select(kv => kv.Key).ToList();
-                    foreach (var c in classes) {
-                        this.Plugin.Values.ClassInfos.Remove(c);
-                    }
-                    this.SetClassSettingsClassesList();
-                });
-            };
-            menu.Items.Add(deletaAllBtn);
-
-            var refreshBtn = new ButtonMenuItem() {
-                Header = "Refresh"
-            };
-            refreshBtn.ToolTip = "Refresh classes list. This will check if new classes have been added and will add them here for customization.";
-            refreshBtn.Click += this.ClassSettingsRefresh_Button_Click;
-            menu.Items.Add(refreshBtn);
-
-            var classesView = new ListCollectionView(this._carClassesListBoxItems) {
-                IsLiveSorting = true,
-                CustomSort = new ClassSettingsListBoxItemComparer()
-            };
-
-            SHListBox list = this.ClassSettingsClassesList_SHListBox;
-            list.Items.Clear();
-            list.ItemsSource = classesView;
-
-            this.SetClassSettingsClassesList();
-        }
-
-
-        private class ClassSettingsListBoxItemComparer : IComparer {
-            public int Compare(object x, object y) {
-                var xKey = ((ClassSettingsListBoxItem)x).Key;
-                var yKey = ((ClassSettingsListBoxItem)y).Key;
-                return xKey.CompareTo(yKey);
-            }
-        }
-
-        void SetClassSettingsClassesList() {
-            var list = this.ClassSettingsClassesList_SHListBox;
-            // Go through all cars and check for class colors. 
-            // If there are new classes then trying to Values.CarClassColors.Get will add them to the dictionary.
-            foreach (var c in this.Plugin.Values.CarInfos) {
-                var cls = c.Value.ClassDontCheckEnabled();
-                if (cls != null) {
-                    var info = this.Plugin.Values.ClassInfos.Get(cls.Value);
-                    if (info.SameAsDontCheckEnabled() != null) {
-                        var _ = this.Plugin.Values.ClassInfos.Get(info.SameAsDontCheckEnabled().Value);
-                    }
-                }
-            }
-
-            this._carClassesListBoxItems.Clear();
-            this._carClasses.Clear();
-            foreach (var c in this.Plugin.Values.ClassInfos) {
-                var item = new ClassSettingsListBoxItem(c.Key, c.Value);
-                this._carClassesListBoxItems.Add(item);
-                this._carClasses.Add(c.Key.AsString());
-            }
-
-            list.SelectedIndex = 0;
-
-            list.SelectionChanged += (sender, _) => {
-                var item = (ClassSettingsListBoxItem?)((ListBox)sender).SelectedItem;
-                if (item != null) {
-                    this.SetClassSettingsDetails(item);
-                } else {
-                    ((StackPanel)this.ClassSettings_StackPanel).Children.Clear();
-                }
-            };
-
-            var first = (ClassSettingsListBoxItem)list.SelectedItem;
-
-            if (first != null) {
-                this.SetClassSettingsDetails(first);
-            } else {
-                ((StackPanel)this.ClassSettings_StackPanel).Children.Clear();
-            }
-        }
-
-        void SetClassSettingsDetails(ClassSettingsListBoxItem listItem) {
-            var key = listItem.Key;
-            var cls = listItem.ClassInfo;
-
-            var sp = this.ClassSettings_StackPanel;
-            sp.Children.Clear();
-
-            var g1 = new Grid() {
-                Margin = new Thickness(0, 5, 10, 5)
-            };
-            g1.ColumnDefinitions.Add(new ColumnDefinition() { Width = new GridLength(1, GridUnitType.Auto) });
-            g1.ColumnDefinitions.Add(new ColumnDefinition() { Width = new GridLength(1, GridUnitType.Star) });
-            g1.ColumnDefinitions.Add(new ColumnDefinition() { Width = new GridLength(1, GridUnitType.Auto) });
-            g1.ColumnDefinitions.Add(new ColumnDefinition() { Width = new GridLength(1, GridUnitType.Auto) });
-
-            var currentBgColor = WindowsMediaColorExtensions.FromHex(cls.BackgroundDontCheckEnabled() ?? OverridableTextBoxColor.DEF_BG);
-            var currentFgColor = WindowsMediaColorExtensions.FromHex(cls.ForegroundDontCheckEnabled() ?? OverridableTextBoxColor.DEF_FG);
-
-            var titleText = new TextBlock() {
-                Foreground = new SolidColorBrush(currentFgColor),
-                FontSize = 20,
-                Margin = new Thickness(20, 5, 15, 5),
-                Style = (Style)this.FindResource("ColorGrid_LabelText"),
-                Text = key.AsString()
-            };
-            var title = new Border() {
-                MinHeight = 35,
-                Margin = new Thickness(10, 10, 10, 10),
-                Background = new SolidColorBrush(currentBgColor),
-                Style = (Style)this.FindResource("ColorGrid_LabelBorder"),
-                Child = titleText
-            };
-            Grid.SetColumn(title, 0);
-            Grid.SetRow(title, 0);
-            g1.Children.Add(title);
-
-            var allResetButton = new SHButtonPrimary() {
-                Padding = new Thickness(5),
-                Margin = new Thickness(5, 0, 5, 0),
-                Height = 26,
-                Content = "Reset"
-            };
-            Grid.SetColumn(allResetButton, 2);
-            Grid.SetRow(allResetButton, 0);
-            g1.Children.Add(allResetButton);
-            sp.Children.Add(g1);
-
-            var deleteButton = new SHButtonPrimary() {
-                Padding = new Thickness(5),
-                Margin = new Thickness(5, 0, 5, 0),
-                Height = 26,
-                Content = "Remove",
-                ToolTip = "Removes the selected car. Note that if the car has base data, it will only be reset and disabled but not completely deleted."
-            };
-            Grid.SetColumn(deleteButton, 3);
-            Grid.SetRow(deleteButton, 0);
-            g1.Children.Add(deleteButton);
-
-            var g2 = new Grid() {
-                Margin = new Thickness(10, 5, 10, 5)
-            };
-            sp.Children.Add(g2);
-            g2.ColumnDefinitions.Add(new ColumnDefinition() { Width = new GridLength(1, GridUnitType.Auto) });
-            g2.ColumnDefinitions.Add(new ColumnDefinition() { Width = new GridLength(1, GridUnitType.Auto) });
-            g2.ColumnDefinitions.Add(new ColumnDefinition() { Width = new GridLength(1, GridUnitType.Star) });
-            g2.ColumnDefinitions.Add(new ColumnDefinition() { Width = new GridLength(1, GridUnitType.Auto) });
-
-            g2.RowDefinitions.Add(new RowDefinition() { Height = new GridLength(1, GridUnitType.Auto) });
-            g2.RowDefinitions.Add(new RowDefinition() { Height = new GridLength(1, GridUnitType.Auto) });
-            g2.RowDefinitions.Add(new RowDefinition() { Height = new GridLength(1, GridUnitType.Auto) });
-            g2.RowDefinitions.Add(new RowDefinition() { Height = new GridLength(1, GridUnitType.Auto) });
-
-
-            const double disabledOpacity = 0.25;
-
-            TextBlock CreateLabelTextBox(string label, bool isEnabled, int row) {
-                var block = new TextBlock() {
-                    Text = label,
-                    Padding = new Thickness(0, 0, 10, 0),
-                    IsEnabled = isEnabled,
-                    Opacity = isEnabled ? 1.0 : disabledOpacity
-                };
-                Grid.SetRow(block, row);
-                Grid.SetColumn(block, 1);
-
-                return block;
-            }
-
-            SHButtonSecondary CreateResetButton(int row) {
-                var button = new SHButtonSecondary() {
-                    Padding = new Thickness(5),
-                    Margin = new Thickness(5),
-                    Height = 26,
-                    Content = "Reset"
-                };
-                Grid.SetColumn(button, 3);
-                Grid.SetRow(button, row);
-
-                return button;
-            }
-
-            SHToggleButton CreateToggle(bool isEnabled, int row, string tooltip) {
-                var toggle = new SHToggleButton() {
-                    IsChecked = isEnabled,
-                    ToolTip = tooltip
-                };
-                Grid.SetColumn(toggle, 0);
-                Grid.SetRow(toggle, row);
-                return toggle;
-            }
-
-
-            //// Color row
-
-            var isEnabled = cls.IsColorEnabled;
-            var row = 0;
-
-            var colorToggle = CreateToggle(
-                isEnabled,
-                row,
-                "Enable this class' color override. If disabled, the plugin will use the colors provided by SimHub."
-            );
-            g2.Children.Add(colorToggle);
-
-            var colorLabel = CreateLabelTextBox("Color", isEnabled, row);
-            g2.Children.Add(colorLabel);
-
-            var colorsStackpanel = new StackPanel() {
-                Margin = new Thickness(0, 5, 0, 5),
-                Orientation = Orientation.Horizontal,
-                IsEnabled = isEnabled,
-                Opacity = isEnabled ? 1.0 : disabledOpacity
-            };
-            Grid.SetColumn(colorsStackpanel, 2);
-            Grid.SetRow(colorsStackpanel, row);
-            g2.Children.Add(colorsStackpanel);
-
-            colorsStackpanel.Children.Add(new TextBlock() {
-                Padding = new Thickness(0, 0, 0, 0),
-                Text = "Background"
-            });
-
-            var bgColorPicker = new ColorPicker() {
-                SelectedColor = currentBgColor,
-                Style = (Style)this.FindResource("ColorGrid_ColorPicker"),
-            };
-            bgColorPicker.SelectedColorChanged += (sender, e) => {
-                var color = bgColorPicker.SelectedColor ?? WindowsMediaColorExtensions.FromHex(OverridableTextBoxColor.DEF_BG);
-                title.Background = new SolidColorBrush(color);
-                listItem.Border.Background = new SolidColorBrush(color);
-                cls.SetBackground(color.ToString());
-            };
-            colorsStackpanel.Children.Add(bgColorPicker);
-
-            var bgColorResetButton = new SHButtonSecondary() {
-                Style = (Style)this.FindResource("ColorGrid_ResetButton"),
-            };
-            bgColorResetButton.Click += (sender, b) => {
-                var baseColor = cls.BaseBackground();
-                if (baseColor == null) {
-                    bgColorPicker.SelectedColor = WindowsMediaColorExtensions.FromHex(OverridableTextBoxColor.DEF_BG);
-                } else {
-                    bgColorPicker.SelectedColor = WindowsMediaColorExtensions.FromHex(baseColor);
-                }
-                cls.ResetBackground();
-            };
-            colorsStackpanel.Children.Add(bgColorResetButton);
-
-            colorsStackpanel.Children.Add(new TextBlock() {
-                Padding = new Thickness(25, 0, 0, 0),
-                Text = "Text"
-            });
-
-            var textColorPicker = new ColorPicker() {
-                SelectedColor = currentFgColor,
-                Style = (Style)this.FindResource("ColorGrid_ColorPicker"),
-            };
-            textColorPicker.SelectedColorChanged += (sender, e) => {
-                var color = textColorPicker.SelectedColor ?? WindowsMediaColorExtensions.FromHex(OverridableTextBoxColor.DEF_FG);
-                titleText.Foreground = new SolidColorBrush(color);
-                listItem.ClassText.Foreground = new SolidColorBrush(color);
-                cls.SetForeground(color.ToString());
-            };
-            colorsStackpanel.Children.Add(textColorPicker);
-
-            var textColorResetButton = new SHButtonSecondary() {
-                Style = (Style)this.FindResource("ColorGrid_ResetButton"),
-            };
-            textColorResetButton.Click += (sender, b) => {
-                var baseColor = cls.BaseForeground();
-                if (baseColor == null) {
-                    textColorPicker.SelectedColor = WindowsMediaColorExtensions.FromHex(OverridableTextBoxColor.DEF_FG);
-                } else {
-                    textColorPicker.SelectedColor = WindowsMediaColorExtensions.FromHex(baseColor);
-                }
-                cls.ResetForeground();
-            };
-            colorsStackpanel.Children.Add(textColorResetButton);
-
-            colorToggle.Checked += (sender, b) => {
-                cls.EnableColor();
-                colorLabel.IsEnabled = true;
-                colorLabel.Opacity = 1;
-                colorsStackpanel.IsEnabled = true;
-                colorsStackpanel.Opacity = 1;
-            };
-            colorToggle.Unchecked += (sender, b) => {
-                cls.DisableColor();
-                colorLabel.IsEnabled = false;
-                colorLabel.Opacity = disabledOpacity;
-                colorsStackpanel.IsEnabled = false;
-                colorsStackpanel.Opacity = disabledOpacity;
-            };
-
-            var colorResetButton = CreateResetButton(row);
-
-            colorResetButton.Click += (sender, b) => {
-                var baseBgColor = cls.BaseBackground();
-                if (baseBgColor == null) {
-                    bgColorPicker.SelectedColor = WindowsMediaColorExtensions.FromHex(OverridableTextBoxColor.DEF_BG);
-                } else {
-                    bgColorPicker.SelectedColor = WindowsMediaColorExtensions.FromHex(baseBgColor);
-                }
-                cls.ResetBackground();
-
-                var baseFgColor = cls.BaseForeground();
-                if (baseFgColor == null) {
-                    textColorPicker.SelectedColor = WindowsMediaColorExtensions.FromHex(OverridableTextBoxColor.DEF_FG);
-                } else {
-                    textColorPicker.SelectedColor = WindowsMediaColorExtensions.FromHex(baseFgColor);
-                }
-                cls.ResetForeground();
-            };
-            g2.Children.Add(colorResetButton);
-
-            //// Same as row
-
-            isEnabled = cls.IsSameAsEnabled;
-            row = 1;
-
-            var sameAsToggle = CreateToggle(
-                isEnabled,
-                row,
-                "Enable this class' same as override. If disabled, the plugin will use this class."
-            );
-            g2.Children.Add(sameAsToggle);
-
-            var sameAsLabel = CreateLabelTextBox("Same as", isEnabled, row);
-            g2.Children.Add(sameAsLabel);
-
-            var classesView = new ListCollectionView(this._carClasses) {
-                IsLiveSorting = true,
-                CustomSort = new CaseInsensitiveComparer(CultureInfo.InvariantCulture)
-            };
-
-            var sameAsComboBox = new ComboBox() {
-                IsReadOnly = false,
-                IsEditable = true,
-                ItemsSource = classesView,
-                IsEnabled = isEnabled,
-                SelectedItem = cls.SameAsDontCheckEnabled()?.AsString(),
-                Opacity = isEnabled ? 1.0 : disabledOpacity,
-                ShouldPreserveUserEnteredPrefix = true,
-                IsTextSearchCaseSensitive = true,
-            };
-
-            Grid.SetColumn(sameAsComboBox, 2);
-            Grid.SetRow(sameAsComboBox, row);
-            sameAsComboBox.LostFocus += (sender, b) => {
-                var clsText = (string?)sameAsComboBox.Text;
-
-                if (clsText == null || clsText == "") {
-                    // "" is not a valid class name
-                    sameAsComboBox.SelectedItem = CarClass.Default.AsString();
-                    cls.ResetSameAs();
-                } else {
-                    if (!this._carClasses.Contains(clsText)) {
-                        this._carClasses.Add(clsText);
-                    }
-                    if (!this._carClassesListBoxItems.Contains(a => a.Key.AsString() == clsText)) {
-                        var cls = new CarClass(clsText);
-                        this._carClassesListBoxItems.Add(new ClassSettingsListBoxItem(cls, this.Plugin.Values.ClassInfos.Get(cls)));
-                    }
-                    cls.SetSameAs(new CarClass(clsText));
-                }
-
-                sameAsToggle.IsChecked = cls.IsSameAsEnabled;
-            };
-            g2.Children.Add(sameAsComboBox);
-
-            var sameAsResetButton = CreateResetButton(row);
-            sameAsResetButton.Click += (sender, b) => {
-                var clsTxt = cls.BaseSameAs()?.AsString();
-                if (clsTxt == null) {
-                    sameAsComboBox.SelectedItem = null; // Must be set before resetting
-                } else {
-                    sameAsComboBox.SelectedItem = clsTxt; // Must be set before resetting
-                }
-                cls.ResetSameAs();
-
-                sameAsToggle.IsChecked = cls.IsSameAsEnabled;
-            };
-            g2.Children.Add(sameAsResetButton);
-
-            sameAsToggle.Checked += (sender, b) => {
-                cls.EnableSameAs();
-                sameAsLabel.IsEnabled = true;
-                sameAsLabel.Opacity = 1;
-                sameAsComboBox.IsEnabled = true;
-                sameAsComboBox.Opacity = 1;
-            };
-            sameAsToggle.Unchecked += (sender, b) => {
-                cls.DisableSameAs();
-                sameAsLabel.IsEnabled = false;
-                sameAsLabel.Opacity = disabledOpacity;
-                sameAsComboBox.IsEnabled = false;
-                sameAsComboBox.Opacity = disabledOpacity;
-            };
-
-            void ResetAll() {
-                var baseColor = cls.BaseBackground();
-                if (baseColor == null) {
-                    bgColorPicker.SelectedColor = WindowsMediaColorExtensions.FromHex(OverridableTextBoxColor.DEF_BG);
-                } else {
-                    bgColorPicker.SelectedColor = WindowsMediaColorExtensions.FromHex(baseColor);
-                }
-
-                baseColor = cls.BaseForeground();
-                if (baseColor == null) {
-                    textColorPicker.SelectedColor = WindowsMediaColorExtensions.FromHex(OverridableTextBoxColor.DEF_FG);
-                } else {
-                    textColorPicker.SelectedColor = WindowsMediaColorExtensions.FromHex(baseColor);
-                }
-
-                var clsTxt = cls.BaseSameAs()?.AsString();
-                if (clsTxt == null) {
-                    sameAsToggle.IsChecked = false;
-                } else {
-                    sameAsComboBox.SelectedItem = clsTxt; // Must be set before resetting
-                }
-
-                // Reset after setting text, because it will trigger the TextChanged event and calls car.Set which will set overrides
-                cls.Reset();
-                sameAsToggle.IsChecked = cls.IsSameAsEnabled;
-                colorToggle.IsChecked = cls.IsColorEnabled;
-            }
-
-
-            allResetButton.Click += (sender, b) => ResetAll();
-
-            deleteButton.Click += (sender, e) => {
-                ResetAll();
-                this.Plugin.Values.ClassInfos.Remove(key);
-                sameAsToggle.IsChecked = false;
-                colorToggle.IsChecked = false;
-                if (!this.Plugin.Values.ClassInfos.ContainsClass(key)) {
-                    this._carClassesListBoxItems.Remove(this.ClassSettingsClassesList_SHListBox.SelectedItem as ClassSettingsListBoxItem);
-                }
             };
         }
 
@@ -2686,11 +2059,6 @@ namespace KLPlugins.DynLeaderboards.Settings {
 
         private void CarSettingsRefresh_Button_Click(object sender, RoutedEventArgs e) {
             this.SetCarSettingsCarsList();
-        }
-
-
-        private void ClassSettingsRefresh_Button_Click(object sender, RoutedEventArgs e) {
-            this.SetClassSettingsClassesList();
         }
     }
 }

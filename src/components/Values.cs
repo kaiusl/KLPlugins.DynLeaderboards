@@ -435,6 +435,243 @@ namespace KLPlugins.DynLeaderboards {
         internal CarInfo() { }
     }
 
+    internal class ClassInfos {
+        private readonly Dictionary<CarClass, OverridableClassInfo> _infos;
+        
+        internal ClassInfos(Dictionary<CarClass, OverridableClassInfo> infos) {
+            this._infos = infos;
+        }
+
+        internal OverridableClassInfo Get(CarClass cls) {
+            if (!this._infos.ContainsKey(cls)) {
+                var c = new OverridableClassInfo(null, null);
+                c.DisableColor();
+                c.DisableSameAs();
+
+                this._infos[cls] = c;
+            }
+
+            return this._infos[cls];
+        }
+
+        internal (CarClass, OverridableClassInfo) GetFollowSameAs(CarClass cls) {
+            var clsOut = cls;
+            var info = this.Get(cls);
+            var nextCls = info.SameAs();
+
+            var seenClasses = new List<CarClass> { cls };
+
+            while (nextCls != null && nextCls != clsOut) {
+                clsOut = nextCls.Value;
+                info = this.Get(clsOut);
+
+                if (seenClasses.Contains(clsOut)) {
+                    DynLeaderboardsPlugin.LogWarn($"Loop detected in class same as values: {string.Join(" -> ", seenClasses)} -> {clsOut}");
+                    break;
+                }
+                seenClasses.Add(clsOut);
+
+                nextCls = info.SameAs();
+            }
+
+            return (clsOut, info);
+        }
+
+        internal void Remove(CarClass cls) {
+            if (!this._infos.ContainsKey(cls)) {
+                return;
+            }
+
+            var c = this._infos[cls];
+            if (c.Base != null) {
+                c.Reset();
+                c.DisableColor();
+                c.DisableSameAs();
+            } else {
+                this._infos.Remove(cls);
+            }
+        }
+
+        internal bool ContainsClass(CarClass cls) {
+            return this._infos.ContainsKey(cls);
+        }
+
+        internal static ClassInfos ReadFromJson(string path, string basePath) {
+            Dictionary<CarClass, OverridableClassInfo>? infos = null;
+            if (File.Exists(path)) {
+                var json = File.ReadAllText(path);
+                infos = JsonConvert.DeserializeObject<Dictionary<CarClass, OverridableClassInfo>>(json);
+            }
+            infos ??= [];
+
+            if (File.Exists(basePath)) {
+                var json = File.ReadAllText(basePath);
+                var bases = JsonConvert.DeserializeObject<Dictionary<CarClass, ClassInfo>>(json) ?? [];
+                foreach (var kv in bases) {
+                    if (infos.ContainsKey(kv.Key)) {
+                        infos[kv.Key].SetBase(kv.Value);
+                    } else {
+                        var info = new OverridableClassInfo(@base: kv.Value, null);
+                        infos[kv.Key] = info;
+                    }
+                }
+            }
+
+            return new ClassInfos(infos);
+        }
+
+
+        internal void WriteToJson(string path, string derivedPath) {
+            File.WriteAllText(path, JsonConvert.SerializeObject(this._infos, Formatting.Indented));
+        }
+    }
+
+    internal class OverridableClassInfo {
+        [JsonIgnore] internal ClassInfo? Base { get; private set; }
+        [JsonProperty] internal ClassInfo? Overrides { get; private set; }
+        [JsonProperty] internal bool IsColorEnabled { get; private set; }
+        [JsonProperty] internal bool IsSameAsEnabled { get; private set; }
+
+        [JsonConstructor]
+        internal OverridableClassInfo(ClassInfo? @base, ClassInfo? overrides, bool isColorEnabled = true, bool isSameAsEnabled = true) {
+            this.Base = @base;
+            this.Overrides = overrides;
+            this.IsColorEnabled = isColorEnabled;
+            this.IsSameAsEnabled = isSameAsEnabled;
+        }
+
+        internal void SetOverrides(ClassInfo? overrides) {
+            this.Overrides = overrides;
+        }
+
+        internal void SetBase(ClassInfo? @base) {
+            this.Base = @base;
+        }
+
+        internal void Reset() {
+            this.IsColorEnabled = true;
+            this.IsSameAsEnabled = true;
+            this.ResetBackground();
+            this.ResetForeground();
+            this.ResetSameAs();
+        }
+
+        internal string? Foreground() {
+            if (!this.IsColorEnabled) {
+                return null;
+            }
+
+            return this.Overrides?.Color?.Fg ?? this.Base?.Color?.Fg ?? OverridableTextBoxColor.DEF_FG;
+        }
+
+        internal string ForegroundDontCheckEnabled() {
+            return this.Overrides?.Color?.Fg ?? this.Base?.Color?.Fg ?? OverridableTextBoxColor.DEF_FG;
+        }
+
+        internal string BaseForeground() {
+            return this.Base?.Color?.Fg ?? OverridableTextBoxColor.DEF_FG;
+        }
+
+        internal void SetForeground(string fg) {
+            this.Overrides ??= new();
+            this.Overrides.Color ??= new();
+            this.Overrides.Color.Fg = fg;
+        }
+
+        internal void ResetForeground() {
+            if (this.Overrides?.Color != null) {
+                this.Overrides.Color.Fg = null;
+            }
+        }
+
+        internal string? Background() {
+            if (!this.IsColorEnabled) {
+                return null;
+            }
+
+            return this.Overrides?.Color?.Bg ?? this.Base?.Color?.Bg ?? OverridableTextBoxColor.DEF_BG;
+        }
+
+        internal string BackgroundDontCheckEnabled() {
+            return this.Overrides?.Color?.Bg ?? this.Base?.Color?.Bg ?? OverridableTextBoxColor.DEF_BG;
+        }
+
+        internal string BaseBackground() {
+            return this.Base?.Color?.Bg ?? OverridableTextBoxColor.DEF_BG;
+        }
+
+        internal void SetBackground(string bg) {
+            this.Overrides ??= new();
+            this.Overrides.Color ??= new();
+            this.Overrides.Color.Bg = bg;
+        }
+
+        internal void ResetBackground() {
+            if (this.Overrides?.Color != null) {
+                this.Overrides.Color.Bg = null;
+            }
+        }
+
+        internal void DisableColor() {
+            this.IsColorEnabled = false;
+        }
+
+        internal void EnableColor() {
+            this.IsColorEnabled = true;
+        }
+
+        internal CarClass? BaseSameAs() {
+            return this.Base?.SameAs;
+        }
+
+        internal CarClass? SameAs() {
+            if (!this.IsSameAsEnabled) {
+                return null;
+            }
+
+            return this.Overrides?.SameAs ?? this.Base?.SameAs;
+        }
+
+        internal CarClass? SameAsDontCheckEnabled() {
+            return this.Overrides?.SameAs ?? this.Base?.SameAs;
+        }
+
+        internal void SetSameAs(CarClass? sameAs) {
+            this.Overrides ??= new();
+            this.Overrides.SameAs = sameAs;
+        }
+
+        internal void ResetSameAs() {
+            if (this.Base?.SameAs == null) {
+                this.IsSameAsEnabled = false;
+            } else if (this.Overrides != null) {
+                this.Overrides.SameAs = null;
+            }
+        }
+
+        internal void DisableSameAs() {
+            this.IsSameAsEnabled = false;
+        }
+
+        internal void EnableSameAs() {
+            this.IsSameAsEnabled = true;
+        }
+    }
+
+    internal class ClassInfo {
+        [JsonProperty] internal TextBoxColor? Color { get; set; }
+        [JsonProperty] internal CarClass? SameAs { get; set; }
+
+
+        [JsonConstructor]
+        internal ClassInfo(TextBoxColor? color, CarClass? sameAs) {
+            this.Color = color;
+            this.SameAs = sameAs;
+        }
+
+        internal ClassInfo() { }
+    }
+
     /// <summary>
     /// Storage and calculation of new properties
     /// </summary>
@@ -484,6 +721,31 @@ namespace KLPlugins.DynLeaderboards {
             this.CarInfos.WriteToJson(path: path, derivedPath: CarInfosBasePath());
         }
 
+        internal ClassInfos ClassInfos { get; private set; }
+        private const string _CLASS_INFOS_FILENAME = "ClassInfos";
+        private static string ClassInfosPath() {
+            return $"{PluginSettings.PluginDataDir}\\{DynLeaderboardsPlugin.Game.Name}\\{_CLASS_INFOS_FILENAME}.json";
+        }
+
+        private static string ClassInfosBasePath() {
+            return $"{PluginSettings.PluginDataDir}\\{DynLeaderboardsPlugin.Game.Name}\\{_CLASS_INFOS_FILENAME}.base.json";
+        }
+
+        private static ClassInfos ReadClassInfos() {
+            var basesPath = ClassInfosBasePath();
+            var path = ClassInfosPath();
+            return ClassInfos.ReadFromJson(basePath: basesPath, path: path);
+        }
+
+        private void WriteClassInfos() {
+            string path = ClassInfosPath();
+            var dirPath = Path.GetDirectoryName(path);
+            if (!Directory.Exists(dirPath)) {
+                Directory.CreateDirectory(dirPath);
+            }
+            this.ClassInfos.WriteToJson(path: path, derivedPath: ClassInfosBasePath());
+        }
+
         internal TextBoxColors<CarClass> CarClassColors { get; }
         internal TextBoxColors<TeamCupCategory> TeamCupCategoryColors { get; }
         internal TextBoxColors<DriverCategory> DriverCategoryColors { get; }
@@ -515,6 +777,7 @@ namespace KLPlugins.DynLeaderboards {
 
         internal Values() {
             this.CarInfos = ReadCarInfos();
+            this.ClassInfos = ReadClassInfos();
             this.CarClassColors = ReadTextBoxColors<CarClass>(_carClassColorsJsonName);
             this.TeamCupCategoryColors = ReadTextBoxColors<TeamCupCategory>(_teamCupCategoryColorsJsonName);
             this.DriverCategoryColors = ReadTextBoxColors<DriverCategory>(_driverCategoryColorsJsonName);
@@ -566,6 +829,7 @@ namespace KLPlugins.DynLeaderboards {
             if (!this._isDisposed) {
                 if (disposing) {
                     this.WriteCarInfos();
+                    this.WriteClassInfos();
                     WriteTextBoxColors(this.CarClassColors, _carClassColorsJsonName);
                     WriteTextBoxColors(this.TeamCupCategoryColors, _teamCupCategoryColorsJsonName);
                     WriteTextBoxColors(this.DriverCategoryColors, _driverCategoryColorsJsonName);

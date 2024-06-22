@@ -1939,7 +1939,7 @@ namespace KLPlugins.DynLeaderboards.Car {
             this._cls = cls;
         }
 
-        public static CarClass Default = new("");
+        public static CarClass Default = new("None");
 
         public static CarClass? TryNew(string? cls) {
             if (cls == null) {

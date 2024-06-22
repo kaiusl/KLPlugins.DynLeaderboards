@@ -315,7 +315,6 @@
                             <local:DocsHelpButton DockPanel.Dock="Right"
                                                   Style="{StaticResource {x:Type local:DocsHelpButton}}"
                                                   RelativePath="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type local:SectionTitle}}, Path=HelpPath}">❓</local:DocsHelpButton>
-                                                  
                         </DockPanel>
                     </DataTemplate>
                 </Setter.Value>
@@ -616,7 +615,8 @@
         <styles:SHTabItem Header="Car settings">
 
             <DockPanel x:Name="CarSettings_DockPanel"
-                       Margin="20,20,34,20"> <!-- Extra margin to the right to align help button with other tabs which also have the scroll bar on the right -->
+                       Margin="20,20,34,20">
+                <!-- Extra margin to the right to align help button with other tabs which also have the scroll bar on the right -->
 
                 <local:DocsHelpButton DockPanel.Dock="Top"
                                       RelativePath="user_guide/config/#car-settings" />
@@ -637,7 +637,7 @@
                         <ColumnDefinition Width="*" />
                         <ColumnDefinition Width="3*" />
                     </Grid.ColumnDefinitions>
-                    
+
                     <styles:SHListBox Grid.Column="0"
                                       x:Name="CarSettingsCarsList_SHListBox"
                                       Margin="0,5,0,5">
@@ -729,6 +729,178 @@
                                          x:Name="CarSettings_StackPanel_CarClass_TextBox" />
                                 <styles:SHButtonSecondary Grid.Column="3"
                                                           Grid.Row="2"
+                                                          Padding="5"
+                                                          Margin="5">Reset</styles:SHButtonSecondary>
+                            </Grid>
+
+                        </StackPanel>
+
+                    </Border>
+                </Grid>
+
+            </DockPanel>
+
+        </styles:SHTabItem>
+
+        <styles:SHTabItem Header="Class settings">
+
+            <DockPanel x:Name="ClassSettings_DockPanel"
+                       Margin="20,20,34,20">
+                <!-- Extra margin to the right to align help button with other tabs which also have the scroll bar on the right -->
+
+                <local:DocsHelpButton DockPanel.Dock="Top"
+                                      RelativePath="user_guide/config/#class-settings" />
+
+                <Menu DockPanel.Dock="Top"
+                      x:Name="ClassSettingsTab_Menu">
+                    <!--<local:ButtonMenuItem Header="Reset" ShowDropDown="True" />
+             <local:ButtonMenuItem Header="Disable"
+                                   ShowDropDown="True" />
+             <local:ButtonMenuItem Header="Refresh" />-->
+                </Menu>
+
+                <styles:SHSectionSeparator DockPanel.Dock="Top" />
+
+                <Grid DockPanel.Dock="Top"
+                      VerticalAlignment="Top">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="3*" />
+                    </Grid.ColumnDefinitions>
+
+                    <styles:SHListBox Grid.Column="0"
+                                      x:Name="ClassSettingsClassesList_SHListBox"
+                                      Margin="0,5,0,5">
+                        <ListBoxItem>
+                            <Border Grid.Column="0"
+                                    Background="red"
+                                    HorizontalAlignment="Left"
+                                    Style="{StaticResource ColorGrid_LabelBorder}">
+                                <TextBlock Foreground="Black"
+                                           Margin="15,5,10,5"
+                                           Style="{StaticResource ColorGrid_LabelText}">GT3</TextBlock>
+                            </Border>
+                        </ListBoxItem>
+                        <ListBoxItem>
+                            <Border Grid.Column="0"
+                                    Background="DodgerBlue"
+                                    HorizontalAlignment="Left"
+                                    Style="{StaticResource ColorGrid_LabelBorder}">
+                                <TextBlock Foreground="Black"
+                                           Margin="15,5,10,5"
+                                           Style="{StaticResource ColorGrid_LabelText}">Hypercar</TextBlock>
+                            </Border>
+                        </ListBoxItem>
+                        <ListBoxItem>Test Ite2m</ListBoxItem>
+                        <ListBoxItem>Test Ite2m</ListBoxItem>
+                    </styles:SHListBox>
+
+                    <Border Grid.Column="1"
+                            CornerRadius="10"
+                            Background="#2f2f2f"
+                            Margin="10,5,5,5">
+
+                        <StackPanel x:Name="ClassSettings_StackPanel">
+
+                            <Grid Margin="0,5,10,5">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="auto" />
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="auto" />
+                                </Grid.ColumnDefinitions>
+
+                                <!--<styles:SHSubSectionTitle Grid.Column="0"
+                                                          Margin="10,10,10,10"
+                                                          FontSize="20"
+                                                          x:Name="ClassSettingsCurrentClassName_SHSubSectionTitle">CLASS
+                             NAME</styles:SHSubSectionTitle >-->
+
+                                <Border Grid.Column="0"
+                                        Background="red"
+                                        MinHeight="35"
+                                        Margin="10,10,10,10"
+                                        HorizontalAlignment="Center"
+                                        VerticalAlignment="Center"
+                                        Style="{StaticResource ColorGrid_LabelBorder}">
+                                    <TextBlock Foreground="Black"
+                                               FontSize="20"
+                                               Margin="20,5,15,5"
+                                               HorizontalAlignment="Center"
+                                               VerticalAlignment="Center"
+                                               Style="{StaticResource ColorGrid_LabelText}">GT3</TextBlock>
+                                </Border>
+                                
+                                <styles:SHButtonPrimary Grid.Column="2"
+                                                        Padding="5"
+                                                        Margin="5,0,5,0"
+                                                        Height="26">Reset</styles:SHButtonPrimary >
+                            </Grid >
+
+                            <Grid Margin="10,5,10,5">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="auto" />
+                                    <ColumnDefinition Width="auto" />
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="auto" />
+                                </Grid.ColumnDefinitions >
+
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="auto" />
+                                    <RowDefinition Height="auto" />
+                                    <RowDefinition Height="auto" />
+                                    <RowDefinition Height="auto" />
+                                </Grid.RowDefinitions >
+
+                                <styles:SHToggleCheckbox Grid.Row="0"
+                                                         IsChecked="True"
+                                                         ToolTip="Enable this class color override. If disabled, the plugin will use the color provided by SimHub." />
+                                <TextBlock Grid.Column="1"
+                                           Grid.Row="0"
+                                           Padding="0,0,10,0">
+                             Color</TextBlock >
+                                <StackPanel Grid.Column="2"
+                                            Grid.Row="0"
+                                            Margin="0,5,0,5"
+                                            Orientation="Horizontal"
+                                            x:Name="ClassSettings_StackPanel_CarName_TextBox">
+
+                                    <TextBlock Grid.Column="1"
+                                               Grid.Row="0"
+                                               Padding="0,0,0,0">
+                                        Background</TextBlock >
+
+                                    <xctk:ColorPicker SelectedColor="red"
+                                                      Style="{StaticResource ColorGrid_ColorPicker}" />
+
+
+                                    <styles:SHButtonSecondary  Style="{StaticResource ColorGrid_ResetButton}" />
+
+                                    <TextBlock Grid.Column="1"
+                                               Grid.Row="0"
+                                               Padding="25,0,0,0">
+                                        Text</TextBlock >
+
+                                    <xctk:ColorPicker SelectedColor="Black"
+                                                      Style="{StaticResource ColorGrid_ColorPicker}" />
+
+
+                                    <styles:SHButtonSecondary Style="{StaticResource ColorGrid_ResetButton}" />
+
+                                </StackPanel>
+               
+                                <styles:SHToggleCheckbox Grid.Row="1"
+                                                         IsChecked="True"
+                                                         ToolTip="Enable this car's class override. If disabled, the plugin will use the n provided by SimHub." />
+                                <TextBlock Grid.Column="1"
+                                           Grid.Row="1"
+                                           Padding="0,0,10,0">
+                             Same as</TextBlock >
+                                <TextBox Grid.Column="2"
+                                         Grid.Row="1"
+                                         Margin="0,5,0,5"
+                                         x:Name="ClassSettings_StackPanel_CarClass_TextBox" />
+                                <styles:SHButtonSecondary Grid.Column="3"
+                                                          Grid.Row="1"
                                                           Padding="5"
                                                           Margin="5">Reset</styles:SHButtonSecondary>
                             </Grid>

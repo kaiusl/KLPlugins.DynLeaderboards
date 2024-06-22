@@ -435,9 +435,9 @@ namespace KLPlugins.DynLeaderboards {
         internal CarInfo() { }
     }
 
-    internal class ClassInfos {
+    internal class ClassInfos : IEnumerable<KeyValuePair<CarClass, OverridableClassInfo>> {
         private readonly Dictionary<CarClass, OverridableClassInfo> _infos;
-        
+
         internal ClassInfos(Dictionary<CarClass, OverridableClassInfo> infos) {
             this._infos = infos;
         }
@@ -517,27 +517,58 @@ namespace KLPlugins.DynLeaderboards {
                 }
             }
 
-            return new ClassInfos(infos);
+            var c = new ClassInfos(infos);
+
+            foreach (var key in c._infos.Keys.ToList()) {
+                var it = c.Get(key);
+                if (it.SameAsDontCheckEnabled() != null) {
+                    var _ = c.Get(it.SameAsDontCheckEnabled()!.Value);
+                }
+
+                if (it.BaseSameAs() != null) {
+                    var _ = c.Get(it.BaseSameAs()!.Value);
+                }
+            }
+
+            c.Get(CarClass.Default);
+
+            DynLeaderboardsPlugin.LogInfo($"Read Classinfos: {JsonConvert.SerializeObject(c._infos, Formatting.Indented)}");
+
+            return c;
         }
 
 
         internal void WriteToJson(string path, string derivedPath) {
             File.WriteAllText(path, JsonConvert.SerializeObject(this._infos, Formatting.Indented));
         }
+
+        public IEnumerator<KeyValuePair<CarClass, OverridableClassInfo>> GetEnumerator() {
+            return this._infos.GetEnumerator();
+        }
+
+        IEnumerator IEnumerable.GetEnumerator() {
+            return this._infos.GetEnumerator();
+        }
+
     }
 
     internal class OverridableClassInfo {
         [JsonIgnore] internal ClassInfo? Base { get; private set; }
         [JsonProperty] internal ClassInfo? Overrides { get; private set; }
-        [JsonProperty] internal bool IsColorEnabled { get; private set; }
-        [JsonProperty] internal bool IsSameAsEnabled { get; private set; }
+        [JsonProperty] internal bool IsColorEnabled { get; private set; } = true;
+        [JsonProperty] internal bool IsSameAsEnabled { get; private set; } = true;
 
         [JsonConstructor]
-        internal OverridableClassInfo(ClassInfo? @base, ClassInfo? overrides, bool isColorEnabled = true, bool isSameAsEnabled = true) {
-            this.Base = @base;
+        internal OverridableClassInfo(ClassInfo? @base, ClassInfo? overrides, bool? isColorEnabled = null, bool? isSameAsEnabled = null) {
+            this.SetBase(@base);
             this.Overrides = overrides;
-            this.IsColorEnabled = isColorEnabled;
-            this.IsSameAsEnabled = isSameAsEnabled;
+            if (isColorEnabled != null) {
+                this.IsColorEnabled = isColorEnabled.Value;
+            }
+
+            if (isSameAsEnabled != null) {
+                this.IsSameAsEnabled = isSameAsEnabled.Value;
+            }
         }
 
         internal void SetOverrides(ClassInfo? overrides) {
@@ -546,6 +577,11 @@ namespace KLPlugins.DynLeaderboards {
 
         internal void SetBase(ClassInfo? @base) {
             this.Base = @base;
+
+            if (this.Overrides?.SameAs == null && this.Base?.SameAs == null) {
+                // same as cannot be enabled if there is no same as set
+                this.IsSameAsEnabled = false;
+            }
         }
 
         internal void Reset() {
@@ -568,8 +604,8 @@ namespace KLPlugins.DynLeaderboards {
             return this.Overrides?.Color?.Fg ?? this.Base?.Color?.Fg ?? OverridableTextBoxColor.DEF_FG;
         }
 
-        internal string BaseForeground() {
-            return this.Base?.Color?.Fg ?? OverridableTextBoxColor.DEF_FG;
+        internal string? BaseForeground() {
+            return this.Base?.Color?.Fg;
         }
 
         internal void SetForeground(string fg) {
@@ -596,8 +632,8 @@ namespace KLPlugins.DynLeaderboards {
             return this.Overrides?.Color?.Bg ?? this.Base?.Color?.Bg ?? OverridableTextBoxColor.DEF_BG;
         }
 
-        internal string BaseBackground() {
-            return this.Base?.Color?.Bg ?? OverridableTextBoxColor.DEF_BG;
+        internal string? BaseBackground() {
+            return this.Base?.Color?.Bg;
         }
 
         internal void SetBackground(string bg) {
@@ -642,10 +678,14 @@ namespace KLPlugins.DynLeaderboards {
         }
 
         internal void ResetSameAs() {
+            if (this.Overrides != null) {
+                this.Overrides.SameAs = null;
+            }
+
             if (this.Base?.SameAs == null) {
                 this.IsSameAsEnabled = false;
-            } else if (this.Overrides != null) {
-                this.Overrides.SameAs = null;
+            } else {
+                this.IsSameAsEnabled = true;
             }
         }
 

@@ -193,6 +193,10 @@ namespace KLPlugins.DynLeaderboards {
         }
 
         internal TextBoxColor() { }
+
+        internal TextBoxColor Clone() {
+            return new TextBoxColor(this.Fg, this.Bg);
+        }
     }
 
     internal class CarInfos : IEnumerable<KeyValuePair<string, OverridableCarInfo>> {
@@ -229,6 +233,20 @@ namespace KLPlugins.DynLeaderboards {
                 c.DisableClass();
             } else {
                 this._infos.Remove(key);
+            }
+        }
+
+        internal void RenameClass(CarClass oldCls, CarClass newCls) {
+            foreach (var kv in this._infos) {
+                if (kv.Value.ClassDontCheckEnabled() == oldCls) {
+                    // this happens in two cases:
+                    // 1. override was set to old class, just set it to new class
+                    // 2. base was set to old class. 
+                    //    But we cannot and don't want to change base values as they are not saved. 
+                    //    So we set the override class to the new one.
+                    //    This also allows "Reset" button to reset to plugin defaults as promised.
+                    kv.Value.SetClass(newCls);
+                }
             }
         }
 
@@ -543,6 +561,32 @@ namespace KLPlugins.DynLeaderboards {
             }
         }
 
+        internal void Rename(CarClass old, CarClass @new) {
+            if (!this._infos.ContainsKey(old) || this._infos.ContainsKey(@new)) {
+                return;
+            }
+
+            var info = this._infos[old];
+            // We cannot use base data in base data position as it is not saved by the plugin.
+            // Thus base is used in overrides position as it's set by the user. 
+            // Any overrides are then used to override base data
+            var newInfo = new OverridableClassInfo(null, info.Base?.Clone(), info.IsColorEnabled, info.IsSameAsEnabled);
+
+            if (info.Overrides?.Color?.Bg != null) {
+                newInfo.SetBackground(info.Overrides.Color.Bg);
+            }
+
+            if (info.Overrides?.Color?.Fg != null) {
+                newInfo.SetForeground(info.Overrides.Color.Fg);
+            }
+
+            if (info.Overrides?.SameAs != null) {
+                newInfo.SetSameAs(info.Overrides.SameAs);
+            }
+
+            this._infos[@new] = newInfo;
+        }
+
         internal bool ContainsClass(CarClass cls) {
             return this._infos.ContainsKey(cls);
         }
@@ -801,6 +845,10 @@ namespace KLPlugins.DynLeaderboards {
         }
 
         internal ClassInfo() { }
+
+        internal ClassInfo Clone() {
+            return new ClassInfo(this.Color?.Clone(), this.SameAs);
+        }
     }
 
     /// <summary>

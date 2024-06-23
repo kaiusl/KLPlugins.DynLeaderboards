@@ -262,7 +262,6 @@ namespace KLPlugins.DynLeaderboards.Settings.UI {
                         break;
 
                 };
-
             };
             this._menu.Items.Add(addNewClassBtn);
 
@@ -336,6 +335,7 @@ namespace KLPlugins.DynLeaderboards.Settings.UI {
             titleRow.ColumnDefinitions.Add(new ColumnDefinition() { Width = new GridLength(1, GridUnitType.Auto) });
             titleRow.ColumnDefinitions.Add(new ColumnDefinition() { Width = new GridLength(1, GridUnitType.Auto) });
             titleRow.ColumnDefinitions.Add(new ColumnDefinition() { Width = new GridLength(1, GridUnitType.Auto) });
+            titleRow.ColumnDefinitions.Add(new ColumnDefinition() { Width = new GridLength(1, GridUnitType.Auto) });
 
             var titleText = new TextBlock() {
                 Foreground = new SolidColorBrush(currentFgColor),
@@ -368,13 +368,56 @@ namespace KLPlugins.DynLeaderboards.Settings.UI {
                 return btn;
             }
 
-            var disableAllBtn = CreateTitleRowButton("Disable", 2);
+            var renameBtn = CreateTitleRowButton("Rename", 2);
+            titleRow.Children.Add(renameBtn);
+            renameBtn.Click += async (_, _) => {
+                var dialogWindow = new RenameClassDialog(key);
+                var res = await dialogWindow.ShowDialogWindowAsync(this._settingsControl);
+
+                switch (res) {
+                    case System.Windows.Forms.DialogResult.OK:
+                        var clsName = dialogWindow.NewClassName.Text;
+                        if (clsName != null && clsName != "") {
+                            var cls = new CarClass(clsName);
+                            var item = this.SelectedClass();
+
+                            if (item != null) {
+                                if (this._plugin.Values.ClassInfos.ContainsClass(cls)) {
+                                    var dialog = new MessageDialog("ERROR: Class already exists", "Class " + cls.AsString() + " already exists. Failed to rename current class");
+                                    var _ = await dialog.ShowDialogWindowAsync(this._settingsControl);
+                                    return;
+                                }
+
+                                // rename all class occurrences in the plugin data
+                                this._plugin.Values.ClassInfos.Rename(old: key, @new: cls);
+                                this._plugin.Values.CarInfos.RenameClass(oldCls: key, newCls: cls);
+                                // add to all classes list
+                                this.AddCarClass(cls);
+                                // rename class in currently selected car in car settings tab if it was affected by the change
+                                this._settingsControl.CarSettingsTab.RebuildCurrentDetails();
+
+                                var newItem = this._carClassesListBoxItems.FirstOrDefault(a => a.Key == cls);
+                                if (newItem != null) {
+                                    this._classesList.SelectedItem = newItem;
+                                    this._classesList.ScrollIntoView(newItem);
+                                }
+                            }
+                        }
+
+                        break;
+                    default:
+                        break;
+
+                };
+            };
+
+            var disableAllBtn = CreateTitleRowButton("Disable", 3);
             titleRow.Children.Add(disableAllBtn);
 
-            var resetAllBtn = CreateTitleRowButton("Reset", 3);
+            var resetAllBtn = CreateTitleRowButton("Reset", 4);
             titleRow.Children.Add(resetAllBtn);
 
-            var deleteBtn = CreateTitleRowButton("Remove", 4);
+            var deleteBtn = CreateTitleRowButton("Remove", 5);
             if (clsInfo.Base != null || key == CarClass.Default) {
                 deleteBtn.IsEnabled = false;
                 deleteBtn.Opacity = 0.5;
@@ -682,6 +725,11 @@ namespace KLPlugins.DynLeaderboards.Settings.UI {
 
                 this.Content = this.Border;
             }
+
+            public void SetKey(CarClass key) {
+                this.Key = key;
+                this.ClassText.Text = this.Key.AsString();
+            }
         }
 
         private class ClassSettingsListBoxItemComparer : IComparer {
@@ -727,6 +775,45 @@ namespace KLPlugins.DynLeaderboards.Settings.UI {
                 Grid.SetColumn(this.ClassName, 1);
                 Grid.SetRow(this.ClassName, 0);
                 grid.Children.Add(this.ClassName);
+
+            }
+        }
+
+        private class RenameClassDialog : SHDialogContentBase {
+
+            public TextBox NewClassName { get; set; }
+
+            public RenameClassDialog(CarClass cls) {
+                this.ShowOk = true;
+                this.ShowCancel = true;
+
+                var sp = new StackPanel();
+                this.Content = sp;
+
+                var title = new SHSectionTitle() {
+                    Text = $"Rename `{cls.AsString()}` class",
+                    Margin = new Thickness(0, 0, 0, 25)
+                };
+
+                sp.Children.Add(title);
+
+                var grid = new Grid();
+                sp.Children.Add(grid);
+
+                grid.RowDefinitions.Add(new RowDefinition() { Height = GridLength.Auto });
+
+                grid.ColumnDefinitions.Add(new ColumnDefinition() { Width = GridLength.Auto });
+                grid.ColumnDefinitions.Add(new ColumnDefinition() { Width = new GridLength(1, GridUnitType.Star) });
+
+                var nameLabel = CreateLabelTextBox("New came");
+                Grid.SetColumn(nameLabel, 0);
+                Grid.SetRow(nameLabel, 0);
+                grid.Children.Add(nameLabel);
+
+                this.NewClassName = new TextBox();
+                Grid.SetColumn(this.NewClassName, 1);
+                Grid.SetRow(this.NewClassName, 0);
+                grid.Children.Add(this.NewClassName);
 
             }
         }

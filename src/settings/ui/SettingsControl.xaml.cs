@@ -27,6 +27,27 @@ using Xceed.Wpf.Toolkit;
 using Xceed.Wpf.Toolkit.Primitives;
 
 namespace KLPlugins.DynLeaderboards.Settings {
+    public class MessageDialog : SHDialogContentBase {
+        public MessageDialog(string titleText, string msg) {
+            this.ShowOk = true;
+
+            var sp = new StackPanel();
+            this.Content = sp;
+
+            var title = new SHSectionTitle() {
+                Text = titleText,
+                Margin = new Thickness(0, 0, 0, 25)
+            };
+
+            sp.Children.Add(title);
+
+            sp.Children.Add(new TextBlock() {
+                Text = msg
+            });
+        }
+    }
+
+
     public class ButtonMenuItem : MenuItem {
         public bool ShowDropDown {
             get => (bool)this.GetValue(ShowDropDownProperty);
@@ -88,6 +109,7 @@ namespace KLPlugins.DynLeaderboards.Settings {
         internal DynLeaderboardsPlugin Plugin { get; }
         internal PluginSettings Settings => DynLeaderboardsPlugin.Settings;
         internal DynLeaderboardConfig CurrentDynLeaderboardSettings { get; private set; }
+        internal CarSettingsTab CarSettingsTab { get; private set; }
 
         internal const double DISABLED_OPTION_OPACITY = 0.25;
 
@@ -123,7 +145,8 @@ namespace KLPlugins.DynLeaderboards.Settings {
             this.Logging_ToggleButton.IsChecked = this.Settings.Log;
 
             this.SetAllClassesAndManufacturers();
-            new CarSettingsTab(this, this.Plugin).Build();
+            this.CarSettingsTab = new CarSettingsTab(this, this.Plugin);
+            this.CarSettingsTab.Build();
             new ClassSettingsTab(this, this.Plugin).Build();
             this.AddColors();
         }

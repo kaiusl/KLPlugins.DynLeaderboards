@@ -129,6 +129,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="src\settings\ui\CarSettingsTab.cs" />
     <Compile Include="src\settings\ui\ClassSettingsTab.cs" />
     <Compile Include="src\settings\ui\ConfimDialog.xaml.cs">
       <DependentUpon>ConfimDialog.xaml</DependentUpon>

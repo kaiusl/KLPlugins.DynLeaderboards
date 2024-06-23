@@ -84,20 +84,6 @@ namespace KLPlugins.DynLeaderboards.Settings {
 
     public class SectionSeparator : Control { }
 
-
-    internal class CarSettingsListBoxItem : ListBoxItem {
-
-        public string Key { get; set; }
-        public OverridableCarInfo CarInfo { get; set; }
-
-        public CarSettingsListBoxItem(string key, OverridableCarInfo car) : base() {
-            this.CarInfo = car;
-            this.Key = key;
-
-            this.Content = key;
-        }
-    }
-
     public partial class SettingsControl : UserControl {
         internal DynLeaderboardsPlugin Plugin { get; }
         internal PluginSettings Settings => DynLeaderboardsPlugin.Settings;
@@ -137,13 +123,26 @@ namespace KLPlugins.DynLeaderboards.Settings {
             this.Logging_ToggleButton.IsChecked = this.Settings.Log;
 
             this.SetAllClassesAndManufacturers();
-            this.SetCarSettingsTab();
+            new CarSettingsTab(this, this.Plugin).Build();
             new ClassSettingsTab(this, this.Plugin).Build();
             this.AddColors();
         }
 
         internal ObservableCollection<string> AllClasses = new();
         internal ObservableCollection<string> AllManufacturers = new();
+
+        internal void AddCarClass(CarClass cls) {
+            var clsStr = cls.AsString();
+            if (!this.AllClasses.Contains(clsStr)) {
+                this.AllClasses.Add(clsStr);
+            }
+        }
+
+        internal void AddCarManufacturer(string manufacturer) {
+            if (!this.AllManufacturers.Contains(manufacturer)) {
+                this.AllManufacturers.Add(manufacturer);
+            }
+        }
 
         internal async void DoOnConfirmation(Action action) {
             var dialogWindow = new ConfimDialog("Are you sure?", "All custom overrides will be lost.");
@@ -159,582 +158,34 @@ namespace KLPlugins.DynLeaderboards.Settings {
             };
         }
 
-        void SetCarSettingsTab() {
-            DockPanel dp = this.CarSettings_DockPanel;
-
-            var menu = this.CarSettingsTab_Menu;
-
-            var resetMenu = new ButtonMenuItem() {
-                Header = "Reset",
-                ShowDropDown = true,
-            };
-            menu.Items.Add(resetMenu);
-
-            var resetMenuResetAll = new MenuItem() {
-                Header = "Reset all",
-            };
-
-            resetMenu.Items.Add(resetMenuResetAll);
-            resetMenuResetAll.Click += (sender, e) => {
-                this.DoOnConfirmation(() => {
-                    foreach (var c in this.Plugin.Values.CarInfos) {
-                        c.Value.Reset();
-                    }
-                    this.SetCarSettingsCarsList();
-                });
-            };
-
-            var resetMenuResetNames = new MenuItem() {
-                Header = "Reset all names",
-            };
-            resetMenu.Items.Add(resetMenuResetNames);
-            resetMenuResetNames.Click += (sender, e) => {
-                this.DoOnConfirmation(() => {
-                    foreach (var c in this.Plugin.Values.CarInfos) {
-                        c.Value.ResetName();
-                    }
-                    this.SetCarSettingsCarsList();
-                });
-            };
-
-            var resetMenuResetManufacturers = new MenuItem() {
-                Header = "Reset all manufacturers"
-            };
-            resetMenu.Items.Add(resetMenuResetManufacturers);
-            resetMenuResetManufacturers.Click += (sender, e) => {
-                this.DoOnConfirmation(() => {
-                    foreach (var c in this.Plugin.Values.CarInfos) {
-                        c.Value.ResetManufacturer();
-                    }
-                    this.SetCarSettingsCarsList();
-                });
-            };
-
-            var resetMenuResetClasses = new MenuItem() {
-                Header = "Reset all classes",
-            };
-            resetMenu.Items.Add(resetMenuResetClasses);
-            resetMenuResetClasses.Click += (sender, e) => {
-                this.DoOnConfirmation(() => {
-                    foreach (var c in this.Plugin.Values.CarInfos) {
-                        c.Value.ResetClass();
-                    }
-                    this.SetCarSettingsCarsList();
-                });
-            };
-
-            var disableMenu = new ButtonMenuItem() {
-                Header = "Disable",
-                ShowDropDown = true,
-            };
-            menu.Items.Add(disableMenu);
-
-            var disableAll = new MenuItem() {
-                Header = "Disable all",
-            };
-            disableMenu.Items.Add(disableAll);
-            disableAll.Click += (sender, e) => {
-                this.DoOnConfirmation(() => {
-                    foreach (var c in this.Plugin.Values.CarInfos) {
-                        c.Value.DisableName();
-                        c.Value.DisableClass();
-                    }
-                    this.SetCarSettingsCarsList();
-                });
-            };
-
-            var disableAllNames = new MenuItem() {
-                Header = "Disable all names",
-            };
-            disableMenu.Items.Add(disableAllNames);
-            disableAllNames.Click += (sender, e) => {
-                this.DoOnConfirmation(() => {
-                    foreach (var c in this.Plugin.Values.CarInfos) {
-                        c.Value.DisableName();
-                    }
-                    this.SetCarSettingsCarsList();
-                });
-            };
-
-            var disableAllClasses = new MenuItem() {
-                Header = "Disable all classes",
-            };
-            disableMenu.Items.Add(disableAllClasses);
-            disableAllClasses.Click += (sender, e) => {
-                this.DoOnConfirmation(() => {
-                    foreach (var c in this.Plugin.Values.CarInfos) {
-                        c.Value.DisableClass();
-                    }
-                    this.SetCarSettingsCarsList();
-                });
-            };
-
-            var enableMenu = new ButtonMenuItem() {
-                Header = "Enable",
-                ShowDropDown = true,
-            };
-            menu.Items.Add(enableMenu);
-
-            var enableAll = new MenuItem() {
-                Header = "Enable all",
-            };
-            enableMenu.Items.Add(enableAll);
-            enableAll.Click += (sender, e) => {
-                this.DoOnConfirmation(() => {
-                    foreach (var c in this.Plugin.Values.CarInfos) {
-                        c.Value.EnableName();
-                        c.Value.EnableClass();
-                    }
-                    this.SetCarSettingsCarsList();
-                });
-            };
-
-            var enableAllNames = new MenuItem() {
-                Header = "Enable all names",
-            };
-            enableMenu.Items.Add(enableAllNames);
-            enableAllNames.Click += (sender, e) => {
-                this.DoOnConfirmation(() => {
-                    foreach (var c in this.Plugin.Values.CarInfos) {
-                        c.Value.EnableName();
-                    }
-                    this.SetCarSettingsCarsList();
-                });
-            };
-
-            var enableAllClasses = new MenuItem() {
-                Header = "Enable all classes",
-            };
-            enableMenu.Items.Add(enableAllClasses);
-            enableAllClasses.Click += (sender, e) => {
-                this.DoOnConfirmation(() => {
-                    foreach (var c in this.Plugin.Values.CarInfos) {
-                        c.Value.EnableClass();
-                    }
-                    this.SetCarSettingsCarsList();
-                });
-            };
-
-            var deletaAllBtn = new ButtonMenuItem() {
-                Header = "Remove all"
-            };
-            deletaAllBtn.ToolTip = "Remove all cars from the settings file. Note that if the car has base data it will be reset and disabled, but not completely deleted.";
-            deletaAllBtn.Click += (sender, e) => {
-                this.DoOnConfirmation(() => {
-                    var cars = this.Plugin.Values.CarInfos.Select(kv => kv.Key).ToList();
-                    foreach (var c in cars) {
-                        this.Plugin.Values.CarInfos.Remove(c);
-                    }
-                    this.SetCarSettingsCarsList();
-                });
-            };
-            menu.Items.Add(deletaAllBtn);
-
-            if (DynLeaderboardsPlugin.Game.IsAc) {
-                var updateACCarsBtn = new ButtonMenuItem() {
-                    Header = "Update base info"
-                };
-                updateACCarsBtn.ToolTip = """
-                    Read the car UI info directly from ACs car files and update this plugins look up files with that data. 
-                    That data is used to get car class, manufacturer and more.
-                    Note that this overwrites the base data, all user overrides will still work as expected.
-                    """;
-                updateACCarsBtn.Click += this.UpdateACCarInfos_Button_Click;
-                menu.Items.Add(updateACCarsBtn);
-            }
-
-            var refreshBtn = new ButtonMenuItem() {
-                Header = "Refresh"
-            };
-            refreshBtn.ToolTip = "Refresh cars list. This will check if new cars have been added and will add them here for customization.";
-            refreshBtn.Click += this.CarSettingsRefresh_Button_Click;
-            menu.Items.Add(refreshBtn);
-
-            this.SetCarSettingsCarsList();
-        }
-
-
         void SetAllClassesAndManufacturers() {
             // Go through all cars and check for class colors. 
             // If there are new classes then trying to Values.CarClassColors.Get will add them to the dictionary.
-            this.AllManufacturers.Clear();
             foreach (var c in this.Plugin.Values.CarInfos) {
                 CarClass?[] classes = [c.Value.ClassDontCheckEnabled(), c.Value.BaseClass()];
                 foreach (var cls in classes) {
                     if (cls != null) {
                         var info = this.Plugin.Values.ClassInfos.Get(cls.Value);
                         if (info.SameAsDontCheckEnabled() != null) {
-                            var _ = this.Plugin.Values.ClassInfos.Get(info.SameAsDontCheckEnabled().Value);
+                            var _ = this.Plugin.Values.ClassInfos.Get(info.SameAsDontCheckEnabled()!.Value);
                         }
                     }
                 }
 
-                string[] manufacturers = [c.Value.Manufacturer(), c.Value.BaseManufacturer()];
+                string?[] manufacturers = [c.Value.Manufacturer(), c.Value.BaseManufacturer()];
                 foreach (var manufacturer in manufacturers) {
-                    if (manufacturer != null && !this.AllManufacturers.Contains(manufacturer)) {
-                        this.AllManufacturers.Add(manufacturer);
+                    if (manufacturer != null) {
+                        this.AddCarManufacturer(manufacturer);
                     }
                 }
             }
 
-            this.AllClasses.Clear();
             foreach (var c in this.Plugin.Values.ClassInfos) {
-                this.AllClasses.Add(c.Key.AsString());
+                this.AddCarClass(c.Key);
             }
         }
 
-        void SetCarSettingsCarsList() {
-            SHListBox list = this.CarSettingsCarsList_SHListBox;
-            list.Items.Clear();
 
-            // Go through all cars and check for class colors. 
-            // If there are new classes then trying to Values.CarClassColors.Get will add them to the dictionary.
-            foreach (var c in this.Plugin.Values.CarInfos) {
-                var item = new CarSettingsListBoxItem(c.Key, c.Value);
-                list.Items.Add(item);
-            }
-
-
-            list.SelectedIndex = 0;
-            list.Items.SortDescriptions.Add(new System.ComponentModel.SortDescription("Content", System.ComponentModel.ListSortDirection.Ascending));
-
-            list.SelectionChanged += (sender, _) => {
-                var item = (CarSettingsListBoxItem?)((ListBox)sender).SelectedItem;
-                if (item != null) {
-                    this.SetCarSettingsDetails(item.Key, item.CarInfo);
-                } else {
-                    ((StackPanel)this.CarSettings_StackPanel).Children.Clear();
-                }
-            };
-
-            var first = this.Plugin.Values.CarInfos.FirstOr(null);
-
-            if (first != null) {
-                this.SetCarSettingsDetails(first.Value.Key, first.Value.Value);
-            } else {
-                ((StackPanel)this.CarSettings_StackPanel).Children.Clear();
-            }
-        }
-
-        void SetCarSettingsDetails(string key, OverridableCarInfo car) {
-            var sp = this.CarSettings_StackPanel;
-            sp.Children.Clear();
-
-            var g1 = new Grid() {
-                Margin = new Thickness(0, 5, 10, 5)
-            };
-            g1.ColumnDefinitions.Add(new ColumnDefinition() { Width = new GridLength(1, GridUnitType.Star) });
-            g1.ColumnDefinitions.Add(new ColumnDefinition() { Width = new GridLength(1, GridUnitType.Auto) });
-            g1.ColumnDefinitions.Add(new ColumnDefinition() { Width = new GridLength(1, GridUnitType.Auto) });
-
-            var carTitle = new SHSectionTitle() { Margin = new Thickness(10, 10, 10, 10), FontSize = 20, Text = key };
-            Grid.SetColumn(carTitle, 0);
-            Grid.SetRow(carTitle, 0);
-            g1.Children.Add(carTitle);
-
-            var allResetButton = new SHButtonPrimary() {
-                Padding = new Thickness(5),
-                Margin = new Thickness(5, 0, 5, 0),
-                Height = 26,
-                Content = "Reset"
-            };
-            Grid.SetColumn(allResetButton, 1);
-            Grid.SetRow(allResetButton, 0);
-            g1.Children.Add(allResetButton);
-            sp.Children.Add(g1);
-
-            var deleteButton = new SHButtonPrimary() {
-                Padding = new Thickness(5),
-                Margin = new Thickness(5, 0, 5, 0),
-                Height = 26,
-                Content = "Remove",
-                ToolTip = "Removes the selected car. Note that if the car has base data, it will only be reset and disabled but not completely deleted."
-            };
-            Grid.SetColumn(deleteButton, 2);
-            Grid.SetRow(deleteButton, 0);
-            deleteButton.Click += (sender, e) => {
-                this.Plugin.Values.CarInfos.Remove(key);
-                this.SetCarSettingsCarsList();
-            };
-            g1.Children.Add(deleteButton);
-
-            var g2 = new Grid() {
-                Margin = new Thickness(10, 5, 10, 5)
-            };
-            g2.ColumnDefinitions.Add(new ColumnDefinition() { Width = new GridLength(1, GridUnitType.Auto) });
-            g2.ColumnDefinitions.Add(new ColumnDefinition() { Width = new GridLength(1, GridUnitType.Auto) });
-            g2.ColumnDefinitions.Add(new ColumnDefinition() { Width = new GridLength(1, GridUnitType.Star) });
-            g2.ColumnDefinitions.Add(new ColumnDefinition() { Width = new GridLength(1, GridUnitType.Auto) });
-
-            g2.RowDefinitions.Add(new RowDefinition() { Height = new GridLength(1, GridUnitType.Auto) });
-            g2.RowDefinitions.Add(new RowDefinition() { Height = new GridLength(1, GridUnitType.Auto) });
-            g2.RowDefinitions.Add(new RowDefinition() { Height = new GridLength(1, GridUnitType.Auto) });
-            g2.RowDefinitions.Add(new RowDefinition() { Height = new GridLength(1, GridUnitType.Auto) });
-
-            const double disabledOpacity = 0.25;
-
-            TextBlock CreateLabelTextBox(string label, bool isEnabled, int row) {
-                var block = new TextBlock() {
-                    Text = label,
-                    Padding = new Thickness(0, 0, 10, 0),
-                    IsEnabled = isEnabled,
-                    Opacity = isEnabled ? 1.0 : disabledOpacity
-                };
-                Grid.SetRow(block, row);
-                Grid.SetColumn(block, 1);
-
-                return block;
-            }
-
-            TextBox CreateEditTextBox(string? text, bool isEnabled, int row) {
-                var textBox = new TextBox() {
-                    Margin = new Thickness(0, 5, 0, 5),
-                    Text = text ?? "",
-                    IsEnabled = isEnabled,
-                    Opacity = isEnabled ? 1 : disabledOpacity
-                };
-                Grid.SetColumn(textBox, 2);
-                Grid.SetRow(textBox, row);
-
-                return textBox;
-            }
-
-            SHButtonSecondary CreateResetButton(bool isEnabled, int row) {
-                var button = new SHButtonSecondary() {
-                    Padding = new Thickness(5),
-                    Margin = new Thickness(5),
-                    Content = "Reset",
-                    IsEnabled = isEnabled,
-                    Opacity = isEnabled ? 1.0 : disabledOpacity
-                };
-                Grid.SetColumn(button, 3);
-                Grid.SetRow(button, row);
-
-                return button;
-            }
-
-            SHToggleButton CreateToggle(bool isEnabled, int row, string tooltip) {
-                var toggle = new SHToggleButton() {
-                    IsChecked = isEnabled,
-                    ToolTip = tooltip
-                };
-                Grid.SetColumn(toggle, 0);
-                Grid.SetRow(toggle, row);
-                return toggle;
-            }
-
-
-            // Name row
-
-            var isEnabled = car.IsNameEnabled;
-            var row = 0;
-
-            var nameToggle = CreateToggle(
-                isEnabled,
-                row,
-                "Enable this car name override. If disabled, the plugin will use the name provided by SimHub."
-            );
-            g2.Children.Add(nameToggle);
-
-            var nameLabel = CreateLabelTextBox("Name", isEnabled, row);
-            g2.Children.Add(nameLabel);
-
-            var nameTextBox = CreateEditTextBox(car.NameDontCheckEnabled(), isEnabled, row);
-            nameTextBox.TextChanged += (sender, b) => car.SetName(nameTextBox.Text);
-            g2.Children.Add(nameTextBox);
-
-            var nameResetButton = CreateResetButton(isEnabled, row);
-            nameResetButton.Click += (sender, b) => {
-                // Set the text before resetting, because it will trigger the TextChanged event and calls car.SetName
-                var name = car.BaseName();
-                if (name == null) {
-                    nameToggle.IsChecked = false;
-                } else {
-                    nameTextBox.Text = name;
-                }
-                car.ResetName();
-            };
-            g2.Children.Add(nameResetButton);
-
-            nameToggle.Checked += (sender, b) => {
-                car.EnableName();
-                nameLabel.IsEnabled = true;
-                nameLabel.Opacity = 1;
-                nameTextBox.IsEnabled = true;
-                nameTextBox.Opacity = 1;
-                nameResetButton.IsEnabled = true;
-                nameResetButton.Opacity = 1;
-            };
-            nameToggle.Unchecked += (sender, b) => {
-                car.DisableName();
-                nameLabel.IsEnabled = false;
-                nameLabel.Opacity = disabledOpacity;
-                nameTextBox.IsEnabled = false;
-                nameTextBox.Opacity = disabledOpacity;
-                nameResetButton.IsEnabled = false;
-                nameResetButton.Opacity = disabledOpacity;
-            };
-
-
-            // Manufacturer row
-
-            row = 1;
-            isEnabled = true;
-
-            var manufacturerLabel = CreateLabelTextBox("Manufacturer", isEnabled, row);
-            g2.Children.Add(manufacturerLabel);
-
-            var manufacturersView = new ListCollectionView(this.AllManufacturers) {
-                IsLiveSorting = true,
-                CustomSort = new CaseInsensitiveComparer(CultureInfo.InvariantCulture)
-            };
-
-            var manufacturerComboBox = new ComboBox() {
-                IsReadOnly = false,
-                IsEditable = true,
-                ItemsSource = manufacturersView,
-                SelectedItem = car.Manufacturer(),
-                IsEnabled = isEnabled,
-                Opacity = isEnabled ? 1.0 : disabledOpacity,
-                ShouldPreserveUserEnteredPrefix = true,
-                IsTextSearchCaseSensitive = true
-            };
-
-            Grid.SetColumn(manufacturerComboBox, 2);
-            Grid.SetRow(manufacturerComboBox, row);
-            manufacturerComboBox.LostFocus += (sender, b) => {
-                var manufacturer = (string?)manufacturerComboBox.Text;
-
-                if (manufacturer != null) {
-                    if (!this.AllManufacturers.Contains(manufacturer)) {
-                        this.AllManufacturers.Add(manufacturer);
-                    }
-                    car.SetManufacturer(manufacturer);
-                }
-            };
-            g2.Children.Add(manufacturerComboBox);
-
-            var manufacturerResetButton = CreateResetButton(isEnabled, row);
-            manufacturerResetButton.Click += (sender, b) => {
-                var m = car.BaseManufacturer();
-                if (m != null) {
-                    manufacturerComboBox.SelectedItem = m; // Must be set before resetting
-                }
-                car.ResetManufacturer();
-            };
-            g2.Children.Add(manufacturerResetButton);
-
-            sp.Children.Add(g2);
-
-
-            // Class row
-
-            isEnabled = car.IsClassEnabled;
-            row = 2;
-
-            var classToggle = CreateToggle(
-                isEnabled,
-                row,
-                "Enable this car class override. If disabled, the plugin will use the class provided by SimHub."
-            );
-            g2.Children.Add(classToggle);
-
-            var classLabel = CreateLabelTextBox("Class", isEnabled, row);
-            g2.Children.Add(classLabel);
-
-            var classesView = new ListCollectionView(this.AllClasses) {
-                IsLiveSorting = true,
-                CustomSort = new CaseInsensitiveComparer(CultureInfo.InvariantCulture)
-            };
-
-            var classComboBox = new ComboBox() {
-                IsReadOnly = false,
-                IsEditable = true,
-                ItemsSource = classesView,
-                SelectedItem = car.ClassDontCheckEnabled()?.AsString(),
-                IsEnabled = isEnabled,
-                Opacity = isEnabled ? 1.0 : disabledOpacity,
-                ShouldPreserveUserEnteredPrefix = true,
-                IsTextSearchCaseSensitive = true
-            };
-
-            Grid.SetColumn(classComboBox, 2);
-            Grid.SetRow(classComboBox, row);
-            classComboBox.LostFocus += (sender, b) => {
-                var cls = (string?)classComboBox.Text;
-
-                if (cls == null || cls == "") {
-                    // "" is not a valid class name
-                    classComboBox.SelectedItem = CarClass.Default.AsString();
-                    car.ResetClass();
-                    classToggle.IsChecked = false;
-                } else {
-                    if (!this.AllClasses.Contains(cls)) {
-                        this.AllClasses.Add(cls);
-                    }
-                    car.SetClass(new CarClass(cls));
-                }
-            };
-            g2.Children.Add(classComboBox);
-
-            var classResetButton = CreateResetButton(isEnabled, row);
-            classResetButton.Click += (sender, b) => {
-                var cls = car.BaseClass()?.AsString();
-                if (cls == null) {
-                    classToggle.IsChecked = false;
-                } else {
-                    classComboBox.SelectedItem = cls; // Must be set before resetting
-                }
-                car.ResetClass();
-            };
-            g2.Children.Add(classResetButton);
-
-            classToggle.Checked += (sender, b) => {
-                car.EnableClass();
-                classLabel.IsEnabled = true;
-                classLabel.Opacity = 1;
-                classComboBox.IsEnabled = true;
-                classComboBox.Opacity = 1;
-                classResetButton.IsEnabled = true;
-                classResetButton.Opacity = 1;
-            };
-            classToggle.Unchecked += (sender, b) => {
-                car.DisableClass();
-                classLabel.IsEnabled = false;
-                classLabel.Opacity = disabledOpacity;
-                classComboBox.IsEnabled = false;
-                classComboBox.Opacity = disabledOpacity;
-                classResetButton.IsEnabled = false;
-                classResetButton.Opacity = disabledOpacity;
-            };
-
-
-            allResetButton.Click += (sender, b) => {
-                var name = car.BaseName();
-                if (name == null) {
-                    nameToggle.IsChecked = false;
-                } else {
-                    nameTextBox.Text = name;
-                }
-
-                var m = car.BaseManufacturer();
-                if (m != null) {
-                    manufacturerComboBox.SelectedItem = m; // Must be set before resetting
-                }
-                car.ResetManufacturer();
-
-                var cls = car.BaseClass()?.AsString();
-                if (cls == null) {
-                    classToggle.IsChecked = false;
-                } else {
-                    classComboBox.SelectedItem = cls; // Must be set before resetting
-                }
-                // Reset after setting text, because it will trigger the TextChanged event and calls car.Set which will set overrides
-                car.Reset();
-                classToggle.IsChecked = car.IsClassEnabled;
-                nameToggle.IsChecked = car.IsNameEnabled;
-            };
-        }
 
         private void AddColorsMenuItems<K>(Menu menu, TextBoxColors<K> colors, Dictionary<K, ColorRow<K>> rows, Action refreshColors) {
             var resetMenu = new ButtonMenuItem() {
@@ -2049,16 +1500,6 @@ namespace KLPlugins.DynLeaderboards.Settings {
             if (e.NewValue != null) {
                 this.Settings.BroadcastDataUpdateRateMs = (int)e.NewValue;
             }
-        }
-
-        private void UpdateACCarInfos_Button_Click(object sender, RoutedEventArgs e) {
-            DynLeaderboardsPlugin.UpdateACCarInfos();
-            this.Plugin.Values.UpdateCarInfos();
-            this.SetCarSettingsCarsList();
-        }
-
-        private void CarSettingsRefresh_Button_Click(object sender, RoutedEventArgs e) {
-            this.SetCarSettingsCarsList();
         }
     }
 }

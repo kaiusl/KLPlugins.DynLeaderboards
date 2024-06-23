@@ -292,7 +292,9 @@ namespace KLPlugins.DynLeaderboards.Settings.UI {
             var titleRow = new Grid() {
                 Margin = new Thickness(0, 5, 10, 5)
             };
+            this._detailsStackPanel.Children.Add(titleRow);
             titleRow.ColumnDefinitions.Add(new ColumnDefinition() { Width = new GridLength(1, GridUnitType.Star) });
+            titleRow.ColumnDefinitions.Add(new ColumnDefinition() { Width = new GridLength(1, GridUnitType.Auto) });
             titleRow.ColumnDefinitions.Add(new ColumnDefinition() { Width = new GridLength(1, GridUnitType.Auto) });
             titleRow.ColumnDefinitions.Add(new ColumnDefinition() { Width = new GridLength(1, GridUnitType.Auto) });
 
@@ -305,27 +307,34 @@ namespace KLPlugins.DynLeaderboards.Settings.UI {
             Grid.SetRow(carTitle, 0);
             titleRow.Children.Add(carTitle);
 
-            var allResetButton = new SHButtonPrimary() {
-                Padding = new Thickness(5),
-                Margin = new Thickness(5, 0, 5, 0),
-                Height = 26,
-                Content = "Reset"
-            };
-            Grid.SetColumn(allResetButton, 1);
-            Grid.SetRow(allResetButton, 0);
-            titleRow.Children.Add(allResetButton);
-            this._detailsStackPanel.Children.Add(titleRow);
+            SHButtonPrimary CreateTitleRowButton(string label, int column) {
+                var btn = new SHButtonPrimary() {
+                    Padding = new Thickness(5),
+                    Margin = new Thickness(5, 0, 5, 0),
+                    Height = 26,
+                    Content = label
+                };
+                Grid.SetColumn(btn, column);
+                Grid.SetRow(btn, 0);
 
-            var deleteButton = new SHButtonPrimary() {
-                Padding = new Thickness(5),
-                Margin = new Thickness(5, 0, 5, 0),
-                Height = 26,
-                Content = "Remove",
-                ToolTip = "Removes the selected car. Note that if the car has base data, it will only be reset and disabled but not completely deleted."
-            };
-            Grid.SetColumn(deleteButton, 2);
-            Grid.SetRow(deleteButton, 0);
-            titleRow.Children.Add(deleteButton);
+                return btn;
+            }
+
+            var disableAllBtn = CreateTitleRowButton("Disable", 1);
+            titleRow.Children.Add(disableAllBtn);
+
+            var resetAllBtn = CreateTitleRowButton("Reset", 2);
+            titleRow.Children.Add(resetAllBtn);
+
+            var deleteBtn = CreateTitleRowButton("Remove", 3);
+            if (carInfo.Base != null) {
+                deleteBtn.IsEnabled = false;
+                deleteBtn.Opacity = 0.5;
+                deleteBtn.ToolTip = "This car has base data and cannot be deleted. Use `Disable` button to revert back to SimHub provided data or `Reset` to revert back to plugin defaults.";
+            }
+            titleRow.Children.Add(deleteBtn);
+            ToolTipService.SetShowOnDisabled(deleteBtn, true);
+
 
             var settingsGrid = new Grid() {
                 Margin = new Thickness(10, 5, 10, 5)
@@ -570,25 +579,25 @@ namespace KLPlugins.DynLeaderboards.Settings.UI {
                 classComboBox.Opacity = SettingsControl.DISABLED_OPTION_OPACITY;
             };
 
+            disableAllBtn.Click += (sender, b) => {
+                nameToggle.IsChecked = false;
+                classToggle.IsChecked = false;
+            };
+
             void ResetAll() {
                 ResetName();
                 ResetManufacturer();
                 ResetClass();
             }
 
-            allResetButton.Click += (sender, b) => ResetAll();
+            resetAllBtn.Click += (sender, b) => ResetAll();
 
-            deleteButton.Click += (sender, e) => {
-                this._plugin.Values.CarInfos.Remove(key);
-
-                if (!this._plugin.Values.CarInfos.ContainsCar(key)) {
+            if (deleteBtn.IsEnabled) {
+                deleteBtn.Click += (sender, e) => {
+                    this._plugin.Values.CarInfos.Remove(key);
                     this._carsListBoxItems.Remove(this.GetSelectedCar()!);
-                } else {
-                    ResetAll();
-                    nameToggle.IsChecked = false;
-                    classToggle.IsChecked = false;
-                }
-            };
+                };
+            }
         }
     }
 }

@@ -533,7 +533,7 @@ namespace KLPlugins.DynLeaderboards {
 
             var c = this._infos[cls];
             if (c.Base != null || cls == CarClass.Default) {
-                // Don't remove if has base data or if is the dafault class
+                // Don't remove if has base data or if is the default class
                 // just disable
                 c.Reset();
                 c.DisableColor();

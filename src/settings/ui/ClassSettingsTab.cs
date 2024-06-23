@@ -14,6 +14,7 @@ using KLPlugins.DynLeaderboards.Car;
 using SimHub.Plugins.Styles;
 
 using Xceed.Wpf.Toolkit;
+using System;
 
 namespace KLPlugins.DynLeaderboards.Settings.UI {
     internal class ClassSettingsTab {
@@ -53,7 +54,7 @@ namespace KLPlugins.DynLeaderboards.Settings.UI {
             public int Compare(object x, object y) {
                 var xKey = ((ClassSettingsListBoxItem)x).Key;
                 var yKey = ((ClassSettingsListBoxItem)y).Key;
-                return xKey.CompareTo(yKey);
+                return string.Compare(xKey.AsString(), yKey.AsString(), StringComparison.OrdinalIgnoreCase);
             }
         }
 
@@ -64,8 +65,6 @@ namespace KLPlugins.DynLeaderboards.Settings.UI {
         SettingsControl _settingsControl { get; set; }
         DynLeaderboardsPlugin _plugin { get; set; }
         readonly ObservableCollection<ClassSettingsListBoxItem> _carClassesListBoxItems = [];
-
-
 
         internal ClassSettingsTab(SettingsControl settingsControl, DynLeaderboardsPlugin plugin) {
             this._settingsControl = settingsControl;
@@ -297,18 +296,22 @@ namespace KLPlugins.DynLeaderboards.Settings.UI {
             if (first != null) {
                 this.BuildDetails(first);
             } else {
-                ((StackPanel)this._detailsStackPanel).Children.Clear();
+                this._detailsStackPanel.Children.Clear();
             }
+        }
+
+        ClassSettingsListBoxItem? SelectedClass() {
+            return (ClassSettingsListBoxItem?)this._classesList.SelectedItem;
         }
 
         void BuildDetails(ClassSettingsListBoxItem listItem) {
             var key = listItem.Key;
-            var cls = listItem.ClassInfo;
+            var clsInfo = listItem.ClassInfo;
 
             this._detailsStackPanel.Children.Clear();
 
-            var currentBgColor = WindowsMediaColorExtensions.FromHex(cls.BackgroundDontCheckEnabled() ?? OverridableTextBoxColor.DEF_BG);
-            var currentFgColor = WindowsMediaColorExtensions.FromHex(cls.ForegroundDontCheckEnabled() ?? OverridableTextBoxColor.DEF_FG);
+            var currentBgColor = WindowsMediaColorExtensions.FromHex(clsInfo.BackgroundDontCheckEnabled() ?? OverridableTextBoxColor.DEF_BG);
+            var currentFgColor = WindowsMediaColorExtensions.FromHex(clsInfo.ForegroundDontCheckEnabled() ?? OverridableTextBoxColor.DEF_FG);
 
             var titleRow = new Grid() {
                 Margin = new Thickness(0, 5, 10, 5)
@@ -411,7 +414,7 @@ namespace KLPlugins.DynLeaderboards.Settings.UI {
 
             //// Color row
 
-            var isEnabled = cls.IsColorEnabled;
+            var isEnabled = clsInfo.IsColorEnabled;
             var opacity = isEnabled ? 1.0 : SettingsControl.DISABLED_OPTION_OPACITY;
             var row = 0;
 
@@ -448,7 +451,7 @@ namespace KLPlugins.DynLeaderboards.Settings.UI {
                 var color = bgColorPicker.SelectedColor ?? WindowsMediaColorExtensions.FromHex(OverridableTextBoxColor.DEF_BG);
                 titleBox.Background = new SolidColorBrush(color);
                 listItem.Border.Background = new SolidColorBrush(color);
-                cls.SetBackground(color.ToString());
+                clsInfo.SetBackground(color.ToString());
             };
             colorsStackpanel.Children.Add(bgColorPicker);
 
@@ -456,14 +459,14 @@ namespace KLPlugins.DynLeaderboards.Settings.UI {
                 Style = (Style)this._settingsControl.FindResource("ColorGrid_ResetButton"),
             };
             void ResetBgColor() {
-                var baseColor = cls.BaseBackground();
+                var baseColor = clsInfo.BaseBackground();
                 if (baseColor == null) {
                     bgColorPicker.SelectedColor = WindowsMediaColorExtensions.FromHex(OverridableTextBoxColor.DEF_BG);
                 } else {
                     bgColorPicker.SelectedColor = WindowsMediaColorExtensions.FromHex(baseColor);
                 }
-                cls.ResetBackground();
-                colorToggle.IsChecked = cls.IsColorEnabled;
+                clsInfo.ResetBackground();
+                colorToggle.IsChecked = clsInfo.IsColorEnabled;
             }
             bgColorResetButton.Click += (sender, b) => ResetBgColor();
             colorsStackpanel.Children.Add(bgColorResetButton);
@@ -481,7 +484,7 @@ namespace KLPlugins.DynLeaderboards.Settings.UI {
                 var color = textColorPicker.SelectedColor ?? WindowsMediaColorExtensions.FromHex(OverridableTextBoxColor.DEF_FG);
                 titleText.Foreground = new SolidColorBrush(color);
                 listItem.ClassText.Foreground = new SolidColorBrush(color);
-                cls.SetForeground(color.ToString());
+                clsInfo.SetForeground(color.ToString());
             };
             colorsStackpanel.Children.Add(textColorPicker);
 
@@ -489,27 +492,27 @@ namespace KLPlugins.DynLeaderboards.Settings.UI {
                 Style = (Style)this._settingsControl.FindResource("ColorGrid_ResetButton"),
             };
             void ResetTextColor() {
-                var baseColor = cls.BaseForeground();
+                var baseColor = clsInfo.BaseForeground();
                 if (baseColor == null) {
                     textColorPicker.SelectedColor = WindowsMediaColorExtensions.FromHex(OverridableTextBoxColor.DEF_FG);
                 } else {
                     textColorPicker.SelectedColor = WindowsMediaColorExtensions.FromHex(baseColor);
                 }
-                cls.ResetForeground();
-                colorToggle.IsChecked = cls.IsColorEnabled;
+                clsInfo.ResetForeground();
+                colorToggle.IsChecked = clsInfo.IsColorEnabled;
             }
             textColorResetButton.Click += (sender, b) => ResetTextColor();
             colorsStackpanel.Children.Add(textColorResetButton);
 
             colorToggle.Checked += (sender, b) => {
-                cls.EnableColor();
+                clsInfo.EnableColor();
                 colorLabel.IsEnabled = true;
                 colorLabel.Opacity = 1;
                 colorsStackpanel.IsEnabled = true;
                 colorsStackpanel.Opacity = 1;
             };
             colorToggle.Unchecked += (sender, b) => {
-                cls.DisableColor();
+                clsInfo.DisableColor();
                 colorLabel.IsEnabled = false;
                 colorLabel.Opacity = SettingsControl.DISABLED_OPTION_OPACITY;
                 colorsStackpanel.IsEnabled = false;
@@ -522,8 +525,8 @@ namespace KLPlugins.DynLeaderboards.Settings.UI {
                 ResetBgColor();
                 ResetTextColor();
 
-                cls.ResetColors();
-                colorToggle.IsChecked = cls.IsColorEnabled;
+                clsInfo.ResetColors();
+                colorToggle.IsChecked = clsInfo.IsColorEnabled;
             }
 
             colorResetButton.Click += (sender, b) => ResetColors();
@@ -531,7 +534,7 @@ namespace KLPlugins.DynLeaderboards.Settings.UI {
 
             //// Same as row
 
-            isEnabled = cls.IsSameAsEnabled;
+            isEnabled = clsInfo.IsSameAsEnabled;
             opacity = isEnabled ? 1.0 : SettingsControl.DISABLED_OPTION_OPACITY;
             row = 1;
 
@@ -545,6 +548,9 @@ namespace KLPlugins.DynLeaderboards.Settings.UI {
             var sameAsLabel = CreateLabelTextBox("Same as", isEnabled, row);
             settingsGrid.Children.Add(sameAsLabel);
 
+            var clsStr = clsInfo.SameAsDontCheckEnabled()?.AsString() ?? CarClass.Default.AsString();
+            this._settingsControl.AddCarClass(new CarClass(clsStr));
+
             var sameAsComboBox = new ComboBox() {
                 IsReadOnly = false,
                 IsEditable = true,
@@ -553,7 +559,7 @@ namespace KLPlugins.DynLeaderboards.Settings.UI {
                     CustomSort = new CaseInsensitiveComparer(CultureInfo.InvariantCulture)
                 },
                 IsEnabled = isEnabled,
-                SelectedItem = cls.SameAsDontCheckEnabled()?.AsString(),
+                SelectedItem = clsStr,
                 Opacity = opacity,
                 ShouldPreserveUserEnteredPrefix = true,
                 IsTextSearchCaseSensitive = true,
@@ -563,15 +569,11 @@ namespace KLPlugins.DynLeaderboards.Settings.UI {
             Grid.SetRow(sameAsComboBox, row);
 
             void ResetSameAs() {
-                var clsTxt = cls.BaseSameAs()?.AsString();
-                if (clsTxt == null) {
-                    sameAsComboBox.SelectedItem = CarClass.Default.AsString(); // Must be set before resetting
-                } else {
-                    sameAsComboBox.SelectedItem = clsTxt; // Must be set before resetting
-                }
-                cls.ResetSameAs();
-
-                sameAsToggle.IsChecked = cls.IsSameAsEnabled;
+                var clsStr = clsInfo.BaseSameAs()?.AsString() ?? CarClass.Default.AsString();
+                this._settingsControl.AddCarClass(new CarClass(clsStr));
+                sameAsComboBox.SelectedItem = clsStr;
+                clsInfo.ResetSameAs();
+                sameAsToggle.IsChecked = clsInfo.IsSameAsEnabled;
             }
 
             sameAsComboBox.LostFocus += (sender, b) => {
@@ -581,17 +583,16 @@ namespace KLPlugins.DynLeaderboards.Settings.UI {
                     // "" is not a valid class name
                     ResetSameAs();
                 } else {
-                    if (!this._settingsControl.AllClasses.Contains(clsText)) {
-                        this._settingsControl.AllClasses.Add(clsText);
-                    }
+                    var cls = new CarClass(clsText);
+                    this._settingsControl.AddCarClass(cls);
+
                     if (!this._carClassesListBoxItems.Contains(a => a.Key.AsString() == clsText)) {
-                        var cls = new CarClass(clsText);
                         this._carClassesListBoxItems.Add(new ClassSettingsListBoxItem(cls, this._plugin.Values.ClassInfos.Get(cls)));
                     }
-                    cls.SetSameAs(new CarClass(clsText));
+                    clsInfo.SetSameAs(new CarClass(clsText));
                 }
 
-                sameAsToggle.IsChecked = cls.IsSameAsEnabled;
+                sameAsToggle.IsChecked = clsInfo.IsSameAsEnabled;
             };
             settingsGrid.Children.Add(sameAsComboBox);
 
@@ -601,14 +602,16 @@ namespace KLPlugins.DynLeaderboards.Settings.UI {
             settingsGrid.Children.Add(sameAsResetButton);
 
             sameAsToggle.Checked += (sender, b) => {
-                cls.EnableSameAs();
+                clsInfo.EnableSameAs();
                 sameAsLabel.IsEnabled = true;
                 sameAsLabel.Opacity = 1;
                 sameAsComboBox.IsEnabled = true;
                 sameAsComboBox.Opacity = 1;
+
+                sameAsComboBox.SelectedItem = clsInfo.SameAsDontCheckEnabled()?.AsString();
             };
             sameAsToggle.Unchecked += (sender, b) => {
-                cls.DisableSameAs();
+                clsInfo.DisableSameAs();
                 sameAsLabel.IsEnabled = false;
                 sameAsLabel.Opacity = SettingsControl.DISABLED_OPTION_OPACITY;
                 sameAsComboBox.IsEnabled = false;
@@ -627,7 +630,7 @@ namespace KLPlugins.DynLeaderboards.Settings.UI {
 
                 if (!this._plugin.Values.ClassInfos.ContainsClass(key)) {
                     // class was removed from backing data, remove from ui too
-                    this._carClassesListBoxItems.Remove(this._classesList.SelectedItem as ClassSettingsListBoxItem);
+                    this._carClassesListBoxItems.Remove(this.SelectedClass()!);
                 } else {
                     // class wasn't removed, had base data. Reset and disable all.
                     ResetAll();

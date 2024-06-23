@@ -209,7 +209,7 @@ namespace KLPlugins.DynLeaderboards {
                 c.DisableName();
                 c.SetClass(carClass);
                 c.SetName(key);
-                c.SetManufacturer(key.Split(' ').First());
+                c.SetManufacturer(key.Split(' ')[0]);
 
                 this._infos[key] = c;
             }
@@ -224,12 +224,16 @@ namespace KLPlugins.DynLeaderboards {
 
             var c = this._infos[key];
             if (c.Base != null) {
-                c.Reset();
+                c.Reset(key);
                 c.DisableName();
                 c.DisableClass();
             } else {
                 this._infos.Remove(key);
             }
+        }
+
+        internal bool ContainsCar(string key) {
+            return this._infos.ContainsKey(key);
         }
 
         internal bool ContainsClass(CarClass cls) {
@@ -287,8 +291,9 @@ namespace KLPlugins.DynLeaderboards {
 
         [JsonConstructor]
         internal OverridableCarInfo(CarInfo? @base, CarInfo? overrides = null, bool? isNameEnabled = null, bool? isClassEnabled = null) {
-            this.Base = @base;
-            this.Overrides = overrides;
+            this.SetBase(@base);
+            this.SetOverrides(overrides);
+
             if (isNameEnabled != null) {
                 this.IsNameEnabled = isNameEnabled.Value;
             }
@@ -298,8 +303,8 @@ namespace KLPlugins.DynLeaderboards {
             }
         }
 
-        internal OverridableCarInfo(string? name, string? manufacturer, CarClass? cls) : this(new CarInfo(name, manufacturer, cls)) { }
-        internal OverridableCarInfo() : this(new CarInfo()) { }
+        internal OverridableCarInfo(string? name, string? manufacturer, CarClass? cls) : this(null, new CarInfo(name, manufacturer, cls)) { }
+        internal OverridableCarInfo() : this(null) { }
 
         internal string Debug() {
             return $"CarInfo: base: {JsonConvert.SerializeObject(this.Base)}, overrides: {JsonConvert.SerializeObject(this.Overrides)}";
@@ -311,14 +316,34 @@ namespace KLPlugins.DynLeaderboards {
 
         internal void SetBase(CarInfo? @base) {
             this.Base = @base;
+
+            if (this.NameDontCheckEnabled() == null) {
+                this.DisableName();
+            }
+
+            if (this.ClassDontCheckEnabled() == null) {
+                this.DisableClass();
+            }
+        }
+
+        internal void SetBase(string key, CarInfo? @base) {
+            this.SetBase(@base);
+
+            if (this.Manufacturer() == null) {
+                this.SetManufacturer(key.Split(' ')[0]);
+            }
         }
 
         internal void Reset() {
-            this.IsNameEnabled = true;
-            this.IsClassEnabled = true;
             this.ResetName();
             this.ResetClass();
             this.ResetManufacturer();
+        }
+
+        internal void Reset(string key) {
+            this.ResetName();
+            this.ResetClass();
+            this.ResetManufacturer(key);
         }
 
         internal string? BaseName() {
@@ -344,12 +369,12 @@ namespace KLPlugins.DynLeaderboards {
         }
 
         internal void ResetName() {
-            if (this.Base?.Name == null) {
-                this.IsNameEnabled = false;
-            } else if (this.Overrides != null) {
+            if (this.Overrides != null) {
                 this.Overrides.Name = null;
             }
 
+            // default is enabled if base is present
+            this.IsNameEnabled = this.Base?.Name != null;
         }
 
         internal void DisableName() {
@@ -358,6 +383,16 @@ namespace KLPlugins.DynLeaderboards {
 
         internal void EnableName() {
             this.IsNameEnabled = true;
+        }
+
+        internal void EnableName(string key) {
+            this.EnableName();
+
+            if (this.NameDontCheckEnabled() == null) {
+                // we are explicitly asked to enable colors
+                // there must be some value in it
+                this.SetName(key);
+            }
         }
 
         internal string? BaseManufacturer() {
@@ -375,10 +410,17 @@ namespace KLPlugins.DynLeaderboards {
 
 
         internal void ResetManufacturer() {
-            if (this.Base?.Manufacturer == null) {
-                // do nothing
-            } else if (this.Overrides != null) {
+            if (this.Overrides != null) {
                 this.Overrides.Manufacturer = null;
+            }
+        }
+
+        internal void ResetManufacturer(string key) {
+            this.ResetManufacturer();
+
+            if (this.Manufacturer() == null) {
+                // default is the first word of full name/key
+                this.SetManufacturer(key.Split(' ')[0]);
             }
         }
 
@@ -391,7 +433,7 @@ namespace KLPlugins.DynLeaderboards {
                 return null;
             }
 
-            return this.Overrides?.Class ?? this.Base?.Class;
+            return this.ClassDontCheckEnabled();
         }
 
         internal CarClass? ClassDontCheckEnabled() {
@@ -404,11 +446,12 @@ namespace KLPlugins.DynLeaderboards {
         }
 
         internal void ResetClass() {
-            if (this.Base?.Class == null) {
-                this.IsClassEnabled = false;
-            } else if (this.Overrides != null) {
+            if (this.Overrides != null) {
                 this.Overrides.Class = null;
             }
+
+            // default is enabled if base is present
+            this.IsClassEnabled = this.Base?.Class != null;
         }
 
         internal void DisableClass() {
@@ -417,6 +460,12 @@ namespace KLPlugins.DynLeaderboards {
 
         internal void EnableClass() {
             this.IsClassEnabled = true;
+
+            if (this.ClassDontCheckEnabled() == null) {
+                // we are explicitly asked to enable colors
+                // there must be some value in it
+                this.SetClass(CarClass.Default);
+            }
         }
     }
 
@@ -559,13 +608,13 @@ namespace KLPlugins.DynLeaderboards {
     internal class OverridableClassInfo {
         [JsonIgnore] internal ClassInfo? Base { get; private set; }
         [JsonProperty] internal ClassInfo? Overrides { get; private set; }
-        [JsonProperty] internal bool IsColorEnabled { get; private set; } = true;
-        [JsonProperty] internal bool IsSameAsEnabled { get; private set; } = true;
+        [JsonProperty] internal bool IsColorEnabled { get; private set; }
+        [JsonProperty] internal bool IsSameAsEnabled { get; private set; }
 
         [JsonConstructor]
         internal OverridableClassInfo(ClassInfo? @base, ClassInfo? overrides, bool? isColorEnabled = null, bool? isSameAsEnabled = null) {
             this.SetBase(@base);
-            this.Overrides = overrides;
+            this.SetOverrides(overrides);
             if (isColorEnabled != null) {
                 this.IsColorEnabled = isColorEnabled.Value;
             }
@@ -582,34 +631,50 @@ namespace KLPlugins.DynLeaderboards {
         internal void SetBase(ClassInfo? @base) {
             this.Base = @base;
 
-            if (this.Overrides?.SameAs == null && this.Base?.SameAs == null) {
+            // check enabled properties. New base may have missing properties.
+            // Make sure not to enable these as they may have been explicitly disabled before.
+            // It's ok to disable.
+            if (this.SameAsDontCheckEnabled() == null) {
                 // same as cannot be enabled if there is no same as set
-                this.IsSameAsEnabled = false;
+                this.DisableSameAs();
             }
 
-            if (
-                (this.Overrides?.Color?.Fg == null && this.Base?.Color?.Fg == null) ||
-                (this.Overrides?.Color?.Bg == null && this.Base?.Color?.Bg == null)
-            ) {
-                this.IsColorEnabled = false;
+            if (this.ForegroundDontCheckEnabled() == null || this.BackgroundDontCheckEnabled() == null) {
+                this.DisableColor();
             }
         }
 
         internal void Reset() {
-            this.IsColorEnabled = true;
-            this.IsSameAsEnabled = true;
             this.ResetColors();
             this.ResetSameAs();
         }
 
         internal void ResetColors() {
+            // default is enabled if base is present
+            // note: this must be done before ResetBackground and ResetForeground
+            // because otherwise they could wrongly set colors to default (not base) values
+            this.IsColorEnabled = this.Base?.Color?.Fg != null && this.Base?.Color?.Bg != null;
+
             this.ResetBackground();
             this.ResetForeground();
+        }
 
-            if (this.Base?.Color?.Fg != null && this.Base?.Color?.Bg != null) {
-                this.IsColorEnabled = true;
-            } else {
-                this.IsColorEnabled = false;
+        internal void DisableColor() {
+            this.IsColorEnabled = false;
+        }
+
+        internal void EnableColor() {
+            this.IsColorEnabled = true;
+
+            if (this.BackgroundDontCheckEnabled() == null) {
+                // we are explicitly asked to enable colors
+                // there must be some value in it
+                this.SetBackground(OverridableTextBoxColor.DEF_BG);
+            }
+
+            if (this.ForegroundDontCheckEnabled() == null) {
+                // same as above
+                this.SetForeground(OverridableTextBoxColor.DEF_FG);
             }
         }
 
@@ -618,11 +683,11 @@ namespace KLPlugins.DynLeaderboards {
                 return null;
             }
 
-            return this.Overrides?.Color?.Fg ?? this.Base?.Color?.Fg ?? OverridableTextBoxColor.DEF_FG;
+            return this.ForegroundDontCheckEnabled();
         }
 
-        internal string ForegroundDontCheckEnabled() {
-            return this.Overrides?.Color?.Fg ?? this.Base?.Color?.Fg ?? OverridableTextBoxColor.DEF_FG;
+        internal string? ForegroundDontCheckEnabled() {
+            return this.Overrides?.Color?.Fg ?? this.Base?.Color?.Fg;
         }
 
         internal string? BaseForeground() {
@@ -639,6 +704,11 @@ namespace KLPlugins.DynLeaderboards {
             if (this.Overrides?.Color != null) {
                 this.Overrides.Color.Fg = null;
             }
+
+            if (this.IsColorEnabled && this.BaseForeground() == null) {
+                // if color is enabled there must be some value in it
+                this.SetForeground(OverridableTextBoxColor.DEF_FG);
+            }
         }
 
         internal string? Background() {
@@ -646,11 +716,11 @@ namespace KLPlugins.DynLeaderboards {
                 return null;
             }
 
-            return this.Overrides?.Color?.Bg ?? this.Base?.Color?.Bg ?? OverridableTextBoxColor.DEF_BG;
+            return this.BackgroundDontCheckEnabled();
         }
 
-        internal string BackgroundDontCheckEnabled() {
-            return this.Overrides?.Color?.Bg ?? this.Base?.Color?.Bg ?? OverridableTextBoxColor.DEF_BG;
+        internal string? BackgroundDontCheckEnabled() {
+            return this.Overrides?.Color?.Bg ?? this.Base?.Color?.Bg;
         }
 
         internal string? BaseBackground() {
@@ -667,14 +737,11 @@ namespace KLPlugins.DynLeaderboards {
             if (this.Overrides?.Color != null) {
                 this.Overrides.Color.Bg = null;
             }
-        }
 
-        internal void DisableColor() {
-            this.IsColorEnabled = false;
-        }
-
-        internal void EnableColor() {
-            this.IsColorEnabled = true;
+            if (this.IsColorEnabled && this.BaseBackground() == null) {
+                // if color is enabled there must be some value in it
+                this.SetBackground(OverridableTextBoxColor.DEF_BG);
+            }
         }
 
         internal CarClass? BaseSameAs() {
@@ -686,7 +753,7 @@ namespace KLPlugins.DynLeaderboards {
                 return null;
             }
 
-            return this.Overrides?.SameAs ?? this.Base?.SameAs;
+            return this.SameAsDontCheckEnabled();
         }
 
         internal CarClass? SameAsDontCheckEnabled() {
@@ -703,11 +770,8 @@ namespace KLPlugins.DynLeaderboards {
                 this.Overrides.SameAs = null;
             }
 
-            if (this.Base?.SameAs == null) {
-                this.IsSameAsEnabled = false;
-            } else {
-                this.IsSameAsEnabled = true;
-            }
+            // default is enabled if base is present
+            this.IsSameAsEnabled = this.Base?.SameAs != null;
         }
 
         internal void DisableSameAs() {
@@ -716,6 +780,12 @@ namespace KLPlugins.DynLeaderboards {
 
         internal void EnableSameAs() {
             this.IsSameAsEnabled = true;
+
+            if (this.SameAsDontCheckEnabled() == null) {
+                // we are explicitly asked to enable "same as"
+                // there must be some value in it
+                this.SetSameAs(CarClass.Default);
+            }
         }
     }
 

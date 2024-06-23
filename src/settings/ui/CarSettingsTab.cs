@@ -283,6 +283,13 @@ namespace KLPlugins.DynLeaderboards.Settings.UI {
             }
         }
 
+        internal void RebuildCurrentDetails() {
+            var item = this.GetSelectedCar();
+            if (item != null) {
+                this.BuildDetails(item);
+            }
+        }
+
         void BuildDetails(CarSettingsListBoxItem listItem) {
             var key = listItem.Key;
             var carInfo = listItem.CarInfo;

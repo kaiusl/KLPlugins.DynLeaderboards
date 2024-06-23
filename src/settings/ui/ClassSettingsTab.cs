@@ -15,49 +15,10 @@ using SimHub.Plugins.Styles;
 
 using Xceed.Wpf.Toolkit;
 using System;
+using SimHub.Plugins.UI;
 
 namespace KLPlugins.DynLeaderboards.Settings.UI {
     internal class ClassSettingsTab {
-        private class ClassSettingsListBoxItem : ListBoxItem {
-
-            public CarClass Key { get; set; }
-            public OverridableClassInfo ClassInfo { get; set; }
-            public Border Border { get; set; }
-            public TextBlock ClassText { get; set; }
-
-            public ClassSettingsListBoxItem(CarClass key, OverridableClassInfo cls) : base() {
-                this.ClassInfo = cls;
-                this.Key = key;
-
-                this.ClassText = new TextBlock() {
-                    Text = this.Key.AsString(),
-                    Foreground = new SolidColorBrush(WindowsMediaColorExtensions.FromHex(this.ClassInfo.ForegroundDontCheckEnabled() ?? OverridableTextBoxColor.DEF_FG)),
-                    // Margin = new Thickness(15, 5, 10, 5),
-                    Padding = new Thickness(5, 0, 5, 0),
-                    FontWeight = FontWeights.Bold,
-                    HorizontalAlignment = HorizontalAlignment.Center
-                };
-                this.Border = new Border() {
-                    HorizontalAlignment = HorizontalAlignment.Left,
-                    CornerRadius = new CornerRadius(5),
-                    Height = 25,
-                    Margin = new Thickness(5, 0, 5, 0),
-                    Child = this.ClassText,
-                    Background = new SolidColorBrush(WindowsMediaColorExtensions.FromHex(this.ClassInfo.BackgroundDontCheckEnabled() ?? OverridableTextBoxColor.DEF_BG)),
-                };
-
-                this.Content = this.Border;
-            }
-        }
-
-        private class ClassSettingsListBoxItemComparer : IComparer {
-            public int Compare(object x, object y) {
-                var xKey = ((ClassSettingsListBoxItem)x).Key;
-                var yKey = ((ClassSettingsListBoxItem)y).Key;
-                return string.Compare(xKey.AsString(), yKey.AsString(), StringComparison.OrdinalIgnoreCase);
-            }
-        }
-
         DockPanel _dockPanel { get; set; }
         Menu _menu { get; set; }
         ListBox _classesList { get; set; }
@@ -275,6 +236,36 @@ namespace KLPlugins.DynLeaderboards.Settings.UI {
             };
             this._menu.Items.Add(deletaAllBtn);
 
+            var addNewClassBtn = new ButtonMenuItem() {
+                Header = "Add new class"
+            };
+            addNewClassBtn.Click += async (sender, e) => {
+                var dialogWindow = new AddNewClassDialog();
+                var res = await dialogWindow.ShowDialogWindowAsync(this._settingsControl);
+
+                switch (res) {
+                    case System.Windows.Forms.DialogResult.OK:
+                        DynLeaderboardsPlugin.LogInfo($"Add new class `{dialogWindow.ClassName.Text}`");
+                        var clsName = dialogWindow.ClassName.Text;
+                        if (clsName != null && clsName != "") {
+                            var cls = new CarClass(clsName);
+                            this.AddCarClass(cls);
+                            var newItem = this._carClassesListBoxItems.First(a => a.Key == cls);
+                            if (newItem != null) {
+                                this._classesList.SelectedItem = newItem;
+                                this._classesList.ScrollIntoView(newItem);
+                            }
+                        }
+
+                        break;
+                    default:
+                        break;
+
+                };
+
+            };
+            this._menu.Items.Add(addNewClassBtn);
+
             var refreshBtn = new ButtonMenuItem() {
                 Header = "Refresh"
             };
@@ -302,6 +293,28 @@ namespace KLPlugins.DynLeaderboards.Settings.UI {
 
         ClassSettingsListBoxItem? SelectedClass() {
             return (ClassSettingsListBoxItem?)this._classesList.SelectedItem;
+        }
+
+        static TextBlock CreateLabelTextBox(string label, bool isEnabled = true) {
+            var block = new TextBlock() {
+                Text = label,
+                Padding = new Thickness(0, 0, 10, 0),
+                IsEnabled = isEnabled,
+                Opacity = isEnabled ? 1.0 : SettingsControl.DISABLED_OPTION_OPACITY,
+                VerticalAlignment = VerticalAlignment.Center,
+                HorizontalAlignment = HorizontalAlignment.Left
+            };
+
+            return block;
+        }
+
+        void AddCarClass(CarClass cls) {
+            var info = this._plugin.Values.ClassInfos.Get(cls);
+            this._settingsControl.AddCarClass(cls);
+            var clsText = cls.AsString();
+            if (!this._carClassesListBoxItems.Contains(a => a.Key.AsString() == clsText)) {
+                this._carClassesListBoxItems.Add(new ClassSettingsListBoxItem(cls, info));
+            }
         }
 
         void BuildDetails(ClassSettingsListBoxItem listItem) {
@@ -376,12 +389,7 @@ namespace KLPlugins.DynLeaderboards.Settings.UI {
             settingsGrid.RowDefinitions.Add(new RowDefinition() { Height = new GridLength(1, GridUnitType.Auto) });
 
             TextBlock CreateLabelTextBox(string label, bool isEnabled, int row) {
-                var block = new TextBlock() {
-                    Text = label,
-                    Padding = new Thickness(0, 0, 10, 0),
-                    IsEnabled = isEnabled,
-                    Opacity = isEnabled ? 1.0 : SettingsControl.DISABLED_OPTION_OPACITY
-                };
+                var block = ClassSettingsTab.CreateLabelTextBox(label, isEnabled);
                 Grid.SetRow(block, row);
                 Grid.SetColumn(block, 1);
 
@@ -549,7 +557,7 @@ namespace KLPlugins.DynLeaderboards.Settings.UI {
             settingsGrid.Children.Add(sameAsLabel);
 
             var clsStr = clsInfo.SameAsDontCheckEnabled()?.AsString() ?? CarClass.Default.AsString();
-            this._settingsControl.AddCarClass(new CarClass(clsStr));
+            this.AddCarClass(new CarClass(clsStr));
 
             var sameAsComboBox = new ComboBox() {
                 IsReadOnly = false,
@@ -584,11 +592,7 @@ namespace KLPlugins.DynLeaderboards.Settings.UI {
                     ResetSameAs();
                 } else {
                     var cls = new CarClass(clsText);
-                    this._settingsControl.AddCarClass(cls);
-
-                    if (!this._carClassesListBoxItems.Contains(a => a.Key.AsString() == clsText)) {
-                        this._carClassesListBoxItems.Add(new ClassSettingsListBoxItem(cls, this._plugin.Values.ClassInfos.Get(cls)));
-                    }
+                    this.AddCarClass(cls);
                     clsInfo.SetSameAs(new CarClass(clsText));
                 }
 
@@ -638,6 +642,86 @@ namespace KLPlugins.DynLeaderboards.Settings.UI {
                     colorToggle.IsChecked = false;
                 }
             };
+        }
+
+        // Nested classes
+
+        private class ClassSettingsListBoxItem : ListBoxItem {
+            public CarClass Key { get; set; }
+            public OverridableClassInfo ClassInfo { get; set; }
+            public Border Border { get; set; }
+            public TextBlock ClassText { get; set; }
+
+            public ClassSettingsListBoxItem(CarClass key, OverridableClassInfo cls) : base() {
+                this.ClassInfo = cls;
+                this.Key = key;
+
+                this.ClassText = new TextBlock() {
+                    Text = this.Key.AsString(),
+                    Foreground = new SolidColorBrush(WindowsMediaColorExtensions.FromHex(this.ClassInfo.ForegroundDontCheckEnabled() ?? OverridableTextBoxColor.DEF_FG)),
+                    // Margin = new Thickness(15, 5, 10, 5),
+                    Padding = new Thickness(5, 0, 5, 0),
+                    FontWeight = FontWeights.Bold,
+                    HorizontalAlignment = HorizontalAlignment.Center
+                };
+                this.Border = new Border() {
+                    HorizontalAlignment = HorizontalAlignment.Left,
+                    CornerRadius = new CornerRadius(5),
+                    Height = 25,
+                    Margin = new Thickness(5, 0, 5, 0),
+                    Child = this.ClassText,
+                    Background = new SolidColorBrush(WindowsMediaColorExtensions.FromHex(this.ClassInfo.BackgroundDontCheckEnabled() ?? OverridableTextBoxColor.DEF_BG)),
+                };
+
+                this.Content = this.Border;
+            }
+        }
+
+        private class ClassSettingsListBoxItemComparer : IComparer {
+            public int Compare(object x, object y) {
+                var xKey = ((ClassSettingsListBoxItem)x).Key;
+                var yKey = ((ClassSettingsListBoxItem)y).Key;
+                return string.Compare(xKey.AsString(), yKey.AsString(), StringComparison.OrdinalIgnoreCase);
+            }
+        }
+
+        private class AddNewClassDialog : SHDialogContentBase {
+
+            public TextBox ClassName { get; set; }
+
+            public AddNewClassDialog() {
+                this.ShowOk = true;
+                this.ShowCancel = true;
+
+                var sp = new StackPanel();
+                this.Content = sp;
+
+                var title = new SHSectionTitle() {
+                    Text = "Add new class",
+                    Margin = new Thickness(0, 0, 0, 25)
+                };
+
+                sp.Children.Add(title);
+
+                var grid = new Grid();
+                sp.Children.Add(grid);
+
+                grid.RowDefinitions.Add(new RowDefinition() { Height = GridLength.Auto });
+
+                grid.ColumnDefinitions.Add(new ColumnDefinition() { Width = GridLength.Auto });
+                grid.ColumnDefinitions.Add(new ColumnDefinition() { Width = new GridLength(1, GridUnitType.Star) });
+
+                var nameLabel = CreateLabelTextBox("Name");
+                Grid.SetColumn(nameLabel, 0);
+                Grid.SetRow(nameLabel, 0);
+                grid.Children.Add(nameLabel);
+
+                this.ClassName = new TextBox();
+                Grid.SetColumn(this.ClassName, 1);
+                Grid.SetRow(this.ClassName, 0);
+                grid.Children.Add(this.ClassName);
+
+            }
         }
     }
 }

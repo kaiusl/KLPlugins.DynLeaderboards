@@ -282,20 +282,6 @@ namespace KLPlugins.DynLeaderboards.Settings {
                 });
             };
 
-            var deletaAllBtn = new ButtonMenuItem() {
-                Header = "Remove all",
-            };
-            deletaAllBtn.ToolTip = "Remove all colors from the settings file. Note that if the color has base data or it's assigned to any car, it will be reset and disabled, but not completely deleted.";
-            deletaAllBtn.Click += (sender, e) => {
-                this.DoOnConfirmation(() => {
-                    var cars = colors.Select(kv => kv.Key).ToList();
-                    foreach (var c in rows) {
-                        c.Value.RemoveButton.RaiseEvent(new RoutedEventArgs(ButtonBase.ClickEvent));
-                    }
-                });
-            };
-            menu.Items.Add(deletaAllBtn);
-
             var refreshBtn = new ButtonMenuItem() {
                 Header = "Refresh",
             };
@@ -480,8 +466,6 @@ namespace KLPlugins.DynLeaderboards.Settings {
             }
         }
 
-
-        private Dictionary<CarClass, ColorRow<CarClass>> _classColorRows = new();
         private Dictionary<TeamCupCategory, ColorRow<TeamCupCategory>> _teamCupCategoryColorRows = new();
         private Dictionary<DriverCategory, ColorRow<DriverCategory>> _driverCategoryColorRows = new();
         private void AddColors() {
@@ -551,43 +535,6 @@ namespace KLPlugins.DynLeaderboards.Settings {
                     }
                 });
             }
-
-            var allClassColors = this.Plugin.Values.CarClassColors;
-            var grid = this.ColorsTab_CarClassColors_Grid;
-            AddColors<CarClass>(
-                grid,
-                this.ColorsTab_CarClassColors_Menu,
-                "Class",
-                allClassColors,
-                this._classColorRows,
-                (cls, color) => {
-                    var row = new ColorRow<CarClass>(cls, cls.AsString(), color, this.FindResource);
-                    row.RemoveButton.Click += (sender, e) => {
-                        if (!allClassColors.ContainsKey(row.Key)) {
-                            row.RemoveFromGrid(grid);
-                            return;
-                        }
-
-                        var c = allClassColors.Get(row.Key);
-                        if (c.HasBase() || this.Plugin.Values.CarInfos.ContainsClass(cls)) {
-                            row.Reset();
-                            row.Disable();
-                        } else {
-                            allClassColors.Remove(row.Key);
-                            row.RemoveFromGrid(grid);
-                        }
-                    };
-                    return row;
-                },
-                () => {
-                    foreach (var car in this.Plugin.Values.CarInfos) {
-                        var cls = car.Value.ClassDontCheckEnabled();
-                        if (cls != null) {
-                            var _ = this.Plugin.Values.CarClassColors.Get(cls.Value);
-                        }
-                    }
-                }
-            );
 
             void AddColorsSimple<K>(Grid grid, Menu menu, string kind, TextBoxColors<K> allColors, Dictionary<K, ColorRow<K>> rows) {
                 AddColors<K>(

@@ -164,7 +164,7 @@ namespace KLPlugins.DynLeaderboards {
             }
 
             if (Settings.OutGeneralProps.Includes(OutGeneralProp.CarClassColors)) {
-                foreach (var kv in this.Values.CarClassColors) {
+                foreach (var kv in this.Values.ClassInfos) {
                     this.AttachDelegate<DynLeaderboardsPlugin, string>(
                         OutGeneralProp.CarClassColors.ToPropName().Replace("<class>", kv.Key.AsString()),
                         () => kv.Value.Background() ?? "#000000"
@@ -172,7 +172,7 @@ namespace KLPlugins.DynLeaderboards {
                 }
             }
             if (Settings.OutGeneralProps.Includes(OutGeneralProp.CarClassColors)) {
-                foreach (var kv in this.Values.CarClassColors) {
+                foreach (var kv in this.Values.ClassInfos) {
                     this.AttachDelegate<DynLeaderboardsPlugin, string>(
                         OutGeneralProp.CarClassTextColors.ToPropName().Replace("<class>", kv.Key.AsString()),
                         () => kv.Value.Foreground() ?? "#FFFFFF"

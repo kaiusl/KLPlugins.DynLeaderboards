@@ -154,7 +154,10 @@ namespace KLPlugins.DynLeaderboards.Settings {
         internal ObservableCollection<string> AllClasses = new();
         internal ObservableCollection<string> AllManufacturers = new();
 
-        internal void AddCarClass(CarClass cls) {
+        /// <summary>
+        /// Tries to add a new class but does nothing if the class already exists.
+        /// </summary>
+        internal void TryAddCarClass(CarClass cls) {
             var clsStr = cls.AsString();
             if (!this.AllClasses.Contains(clsStr)) {
                 this.AllClasses.Add(clsStr);
@@ -204,7 +207,7 @@ namespace KLPlugins.DynLeaderboards.Settings {
             }
 
             foreach (var c in this.Plugin.Values.ClassInfos) {
-                this.AddCarClass(c.Key);
+                this.TryAddCarClass(c.Key);
             }
         }
 

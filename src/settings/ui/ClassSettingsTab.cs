@@ -249,7 +249,7 @@ namespace KLPlugins.DynLeaderboards.Settings.UI {
                         var clsName = dialogWindow.ClassName.Text;
                         if (clsName != null && clsName != "") {
                             var cls = new CarClass(clsName);
-                            this.AddCarClass(cls);
+                            this.TryAddCarClass(cls);
                             var newItem = this._carClassesListBoxItems.First(a => a.Key == cls);
                             if (newItem != null) {
                                 this._classesList.SelectedItem = newItem;
@@ -307,12 +307,23 @@ namespace KLPlugins.DynLeaderboards.Settings.UI {
             return block;
         }
 
-        void AddCarClass(CarClass cls) {
+        /// <summary>
+        /// Tries to add a new class but does nothing if the class already exists.
+        /// </summary>
+        void TryAddCarClass(CarClass cls) {
             var info = this._plugin.Values.ClassInfos.Get(cls);
-            this._settingsControl.AddCarClass(cls);
+            this._settingsControl.TryAddCarClass(cls);
             var clsText = cls.AsString();
             if (!this._carClassesListBoxItems.Contains(a => a.Key.AsString() == clsText)) {
                 this._carClassesListBoxItems.Add(new ClassSettingsListBoxItem(cls, info));
+            }
+        }
+
+        void SelectClass(CarClass cls) {
+            var newItem = this._carClassesListBoxItems.FirstOrDefault(a => a.Key == cls);
+            if (newItem != null) {
+                this._classesList.SelectedItem = newItem;
+                this._classesList.ScrollIntoView(newItem);
             }
         }
 
@@ -368,41 +379,40 @@ namespace KLPlugins.DynLeaderboards.Settings.UI {
                 return btn;
             }
 
-            var renameBtn = CreateTitleRowButton("Rename", 2);
-            titleRow.Children.Add(renameBtn);
-            renameBtn.Click += async (_, _) => {
-                var dialogWindow = new RenameClassDialog(key);
+            var duplicateBtn = CreateTitleRowButton("Duplicate", 2);
+            duplicateBtn.ToolTip = "Duplicate this class with new name.";
+            titleRow.Children.Add(duplicateBtn);
+            duplicateBtn.Click += async (_, _) => {
+                var dialogWindow = new DuplicateClassDialog(key);
                 var res = await dialogWindow.ShowDialogWindowAsync(this._settingsControl);
 
                 switch (res) {
                     case System.Windows.Forms.DialogResult.OK:
                         var clsName = dialogWindow.NewClassName.Text;
-                        if (clsName != null && clsName != "") {
-                            var cls = new CarClass(clsName);
-                            var item = this.SelectedClass();
 
-                            if (item != null) {
-                                if (this._plugin.Values.ClassInfos.ContainsClass(cls)) {
-                                    var dialog = new MessageDialog("ERROR: Class already exists", "Class " + cls.AsString() + " already exists. Failed to rename current class");
-                                    var _ = await dialog.ShowDialogWindowAsync(this._settingsControl);
-                                    return;
-                                }
-
-                                // rename all class occurrences in the plugin data
-                                this._plugin.Values.ClassInfos.Rename(old: key, @new: cls);
-                                this._plugin.Values.CarInfos.RenameClass(oldCls: key, newCls: cls);
-                                // add to all classes list
-                                this.AddCarClass(cls);
-                                // rename class in currently selected car in car settings tab if it was affected by the change
-                                this._settingsControl.CarSettingsTab.RebuildCurrentDetails();
-
-                                var newItem = this._carClassesListBoxItems.FirstOrDefault(a => a.Key == cls);
-                                if (newItem != null) {
-                                    this._classesList.SelectedItem = newItem;
-                                    this._classesList.ScrollIntoView(newItem);
-                                }
-                            }
+                        if (clsName == null || clsName == "") {
+                            var dialog = new MessageDialog("ERROR: Empty new class name", "A new class name cannot be empty. Failed to duplicate selected class.");
+                            var _ = await dialog.ShowDialogWindowAsync(this._settingsControl);
+                            return;
                         }
+
+                        var cls = new CarClass(clsName);
+                        var item = this.SelectedClass();
+
+                        if (item == null) {
+                            // shouldn't happen because what did we want to duplicate? but just as safety check
+                            DynLeaderboardsPlugin.LogError("Failed to duplicate class because no class was selected");
+                            return;
+                        }
+                        if (this._plugin.Values.ClassInfos.ContainsClass(cls)) {
+                            var dialog = new MessageDialog("ERROR: Class already exists", "Class `" + cls.AsString() + "` already exists. Failed to duplicate selected class.");
+                            var _ = await dialog.ShowDialogWindowAsync(this._settingsControl);
+                            return;
+                        }
+
+                        this._plugin.Values.ClassInfos.Duplicate(old: key, @new: cls);
+                        this.TryAddCarClass(cls);
+                        this.SelectClass(cls);
 
                         break;
                     default:
@@ -412,17 +422,30 @@ namespace KLPlugins.DynLeaderboards.Settings.UI {
             };
 
             var disableAllBtn = CreateTitleRowButton("Disable", 3);
+            disableAllBtn.ToolTip = "Disable all custom properties for this class. As a result SimHub's provided data will be used.";
             titleRow.Children.Add(disableAllBtn);
 
             var resetAllBtn = CreateTitleRowButton("Reset", 4);
+            resetAllBtn.ToolTip = "Reset all custom properties for this class to the plugin defaults.";
             titleRow.Children.Add(resetAllBtn);
 
             var deleteBtn = CreateTitleRowButton("Remove", 5);
-            if (clsInfo.Base != null || key == CarClass.Default) {
+            if (clsInfo.HasBase() || key == CarClass.Default || this._plugin.Values.CarInfos.ContainsClass(key)) {
                 deleteBtn.IsEnabled = false;
                 deleteBtn.Opacity = 0.5;
-                deleteBtn.ToolTip = "This class has base data and cannot be deleted. Use `Disable` button to revert back to SimHub provided data or `Reset` to revert back to plugin defaults.";
+                string reason;
+                if (key == CarClass.Default) {
+                    reason = "Default class cannot be deleted.";
+                } else if (clsInfo.HasBase()) {
+                    reason = "This class has base data and cannot be deleted.";
+                } else {
+                    reason = "This class is used by some cars and cannot be deleted.";
+                }
+                deleteBtn.ToolTip = $"{reason} Use `Disable` button to revert back to SimHub provided data or `Reset` to revert back to plugin defaults.";
+            } else {
+                deleteBtn.ToolTip = "Remove this class completely.";
             }
+
             titleRow.Children.Add(deleteBtn);
             ToolTipService.SetShowOnDisabled(deleteBtn, true);
 
@@ -609,7 +632,7 @@ namespace KLPlugins.DynLeaderboards.Settings.UI {
             settingsGrid.Children.Add(sameAsLabel);
 
             var clsStr = clsInfo.SameAsDontCheckEnabled()?.AsString() ?? CarClass.Default.AsString();
-            this.AddCarClass(new CarClass(clsStr));
+            this.TryAddCarClass(new CarClass(clsStr));
 
             var sameAsComboBox = new ComboBox() {
                 IsReadOnly = false,
@@ -630,7 +653,7 @@ namespace KLPlugins.DynLeaderboards.Settings.UI {
 
             void ResetSameAs() {
                 var clsStr = clsInfo.BaseSameAs()?.AsString() ?? CarClass.Default.AsString();
-                this._settingsControl.AddCarClass(new CarClass(clsStr));
+                this._settingsControl.TryAddCarClass(new CarClass(clsStr));
                 sameAsComboBox.SelectedItem = clsStr;
                 clsInfo.ResetSameAs();
                 sameAsToggle.IsChecked = clsInfo.IsSameAsEnabled;
@@ -644,7 +667,7 @@ namespace KLPlugins.DynLeaderboards.Settings.UI {
                     ResetSameAs();
                 } else {
                     var cls = new CarClass(clsText);
-                    this.AddCarClass(cls);
+                    this.TryAddCarClass(cls);
                     clsInfo.SetSameAs(new CarClass(clsText));
                 }
 
@@ -779,11 +802,11 @@ namespace KLPlugins.DynLeaderboards.Settings.UI {
             }
         }
 
-        private class RenameClassDialog : SHDialogContentBase {
+        private class DuplicateClassDialog : SHDialogContentBase {
 
             public TextBox NewClassName { get; set; }
 
-            public RenameClassDialog(CarClass cls) {
+            public DuplicateClassDialog(CarClass cls) {
                 this.ShowOk = true;
                 this.ShowCancel = true;
 

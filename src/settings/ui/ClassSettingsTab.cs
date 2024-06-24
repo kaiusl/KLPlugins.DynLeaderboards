@@ -221,21 +221,6 @@ namespace KLPlugins.DynLeaderboards.Settings.UI {
                 });
             };
 
-            var deletaAllBtn = new ButtonMenuItem() {
-                Header = "Remove all"
-            };
-            deletaAllBtn.ToolTip = "Remove all classes from the settings file. Note that if the class has base data it will be reset and disabled, but not completely deleted.";
-            deletaAllBtn.Click += (sender, e) => {
-                this._settingsControl.DoOnConfirmation(() => {
-                    var classes = this._plugin.Values.ClassInfos.Select(kv => kv.Key).ToList();
-                    foreach (var c in classes) {
-                        this._plugin.Values.ClassInfos.Remove(c);
-                    }
-                    this.BuildItems();
-                });
-            };
-            this._menu.Items.Add(deletaAllBtn);
-
             var addNewClassBtn = new ButtonMenuItem() {
                 Header = "Add new class"
             };

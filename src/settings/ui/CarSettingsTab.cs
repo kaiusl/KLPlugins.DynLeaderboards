@@ -529,7 +529,7 @@ namespace KLPlugins.DynLeaderboards.Settings.UI {
             };
 
             var clsStr = carInfo.ClassDontCheckEnabled()?.AsString() ?? CarClass.Default.AsString();
-            this._settingsControl.AddCarClass(new CarClass(clsStr));
+            this._settingsControl.TryAddCarClass(new CarClass(clsStr));
 
             var classComboBox = new ComboBox() {
                 IsReadOnly = false,
@@ -552,7 +552,7 @@ namespace KLPlugins.DynLeaderboards.Settings.UI {
                     ResetClass();
                 } else {
                     var cls2 = new CarClass(cls);
-                    this._settingsControl.AddCarClass(cls2);
+                    this._settingsControl.TryAddCarClass(cls2);
                     carInfo.SetClass(cls2);
                 }
 

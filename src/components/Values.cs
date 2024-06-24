@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Collections.Immutable;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -544,13 +545,35 @@ namespace KLPlugins.DynLeaderboards {
             return (clsOut, info);
         }
 
+        internal ClassInfo? GetBaseFollowDuplicates(CarClass cls) {
+            var clsOut = cls;
+            var info = this.Get(cls);
+
+            if (info.Base != null) {
+                return info.Base;
+            }
+
+            foreach (var dup in info.DuplicatedFrom.Reverse()) {
+                // Don't use this.Get as that will add missing classes
+                // We don't want it here, just skip the duplicates that don't exist anymore
+                if (this._infos.ContainsKey(dup)) {
+                    info = this._infos[dup];
+                    if (info.Base != null) {
+                        return info.Base;
+                    }
+                }
+            }
+
+            return null;
+        }
+
         internal void Remove(CarClass cls) {
             if (!this._infos.ContainsKey(cls)) {
                 return;
             }
 
             var c = this._infos[cls];
-            if (c.Base != null || cls == CarClass.Default) {
+            if (c.HasBase() || cls == CarClass.Default) {
                 // Don't remove if has base data or if is the default class
                 // just disable
                 c.Reset();
@@ -561,31 +584,16 @@ namespace KLPlugins.DynLeaderboards {
             }
         }
 
-        internal void Rename(CarClass old, CarClass @new) {
+        internal void Duplicate(CarClass old, CarClass @new) {
             if (!this._infos.ContainsKey(old) || this._infos.ContainsKey(@new)) {
                 return;
             }
 
             var info = this._infos[old];
-            // We cannot use base data in base data position as it is not saved by the plugin.
-            // Thus base is used in overrides position as it's set by the user. 
-            // Any overrides are then used to override base data
-            var newInfo = new OverridableClassInfo(null, info.Base?.Clone(), info.IsColorEnabled, info.IsSameAsEnabled);
-
-            if (info.Overrides?.Color?.Bg != null) {
-                newInfo.SetBackground(info.Overrides.Color.Bg);
-            }
-
-            if (info.Overrides?.Color?.Fg != null) {
-                newInfo.SetForeground(info.Overrides.Color.Fg);
-            }
-
-            if (info.Overrides?.SameAs != null) {
-                newInfo.SetSameAs(info.Overrides.SameAs);
-            }
-
-            this._infos[@new] = newInfo;
+            this._infos[@new] = info.Duplicate(old);
         }
+
+
 
         internal bool ContainsClass(CarClass cls) {
             return this._infos.ContainsKey(cls);
@@ -604,7 +612,7 @@ namespace KLPlugins.DynLeaderboards {
                 var bases = JsonConvert.DeserializeObject<Dictionary<CarClass, ClassInfo>>(json) ?? [];
                 foreach (var kv in bases) {
                     if (infos.ContainsKey(kv.Key)) {
-                        infos[kv.Key].SetBase(kv.Value);
+                        infos[kv.Key].SetRealBase(kv.Value);
                     } else {
                         var info = new OverridableClassInfo(@base: kv.Value, null);
                         infos[kv.Key] = info;
@@ -623,6 +631,10 @@ namespace KLPlugins.DynLeaderboards {
 
                 if (it.BaseSameAs() != null) {
                     var _ = c.Get(it.BaseSameAs()!.Value);
+                }
+
+                if (it.Base == null && it.DuplicatedFrom != null) {
+                    it.SetBase(c.GetBaseFollowDuplicates(key));
                 }
             }
 
@@ -651,12 +663,20 @@ namespace KLPlugins.DynLeaderboards {
 
     internal class OverridableClassInfo {
         [JsonIgnore] internal ClassInfo? Base { get; private set; }
+        // If a class had been duplicated from it can have a "false" base from it's parent. 
+        // This flag helps to differentiate those cases. 
+        // Note that just checking if DuplicatedFrom == null is not enough.
+        // A class that was duplicated could end up receiving a base in later updates.
+        [JsonIgnore] internal bool HasRealBase { get; private set; } = false;
         [JsonProperty] internal ClassInfo? Overrides { get; private set; }
         [JsonProperty] internal bool IsColorEnabled { get; private set; }
         [JsonProperty] internal bool IsSameAsEnabled { get; private set; }
+        // Used to determine what base should this class receive if it was duplicated from another class
+        [JsonProperty] internal ImmutableList<CarClass> DuplicatedFrom { get; private set; }
+
 
         [JsonConstructor]
-        internal OverridableClassInfo(ClassInfo? @base, ClassInfo? overrides, bool? isColorEnabled = null, bool? isSameAsEnabled = null) {
+        internal OverridableClassInfo(ClassInfo? @base, ClassInfo? overrides, bool? isColorEnabled = null, bool? isSameAsEnabled = null, ImmutableList<CarClass>? duplicatedFrom = null) {
             this.SetBase(@base);
             this.SetOverrides(overrides);
             if (isColorEnabled != null) {
@@ -666,6 +686,22 @@ namespace KLPlugins.DynLeaderboards {
             if (isSameAsEnabled != null) {
                 this.IsSameAsEnabled = isSameAsEnabled.Value;
             }
+
+            if (duplicatedFrom != null) {
+                this.DuplicatedFrom = duplicatedFrom;
+            } else {
+                this.DuplicatedFrom = ImmutableList<CarClass>.Empty;
+            }
+        }
+
+        internal OverridableClassInfo Duplicate(CarClass thisClass) {
+            return new OverridableClassInfo(
+                this.Base?.Clone(),
+                this.Overrides?.Clone(),
+                isColorEnabled: this.IsColorEnabled,
+                isSameAsEnabled: this.IsSameAsEnabled,
+                duplicatedFrom: this.DuplicatedFrom.Add(thisClass)
+            );
         }
 
         internal void SetOverrides(ClassInfo? overrides) {
@@ -686,6 +722,15 @@ namespace KLPlugins.DynLeaderboards {
             if (this.ForegroundDontCheckEnabled() == null || this.BackgroundDontCheckEnabled() == null) {
                 this.DisableColor();
             }
+        }
+
+        internal void SetRealBase(ClassInfo? @base) {
+            this.SetBase(@base);
+            this.HasRealBase = true;
+        }
+
+        internal bool HasBase() {
+            return this.Base != null && this.HasRealBase;
         }
 
         internal void Reset() {

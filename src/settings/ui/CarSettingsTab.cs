@@ -64,6 +64,14 @@ namespace KLPlugins.DynLeaderboards.Settings.UI {
             this._menu = this._settingsControl.CarSettingsTab_Menu;
         }
 
+        void TrySelectCar(string car) {
+            var newItem = this._carsListBoxItems.FirstOrDefault(a => a.Key == car);
+            if (newItem != null) {
+                this._carsList.SelectedItem = newItem;
+                this._carsList.ScrollIntoView(newItem);
+            }
+        }
+
         internal void Build() {
             this.BuildMenu();
             this.BuildItems();
@@ -80,13 +88,21 @@ namespace KLPlugins.DynLeaderboards.Settings.UI {
                 Header = "Reset all",
             };
 
+            void RebuildItems() {
+                var selected = this.GetSelectedCar();
+                this.BuildItems();
+                if (selected != null) {
+                    this.TrySelectCar(selected.Key);
+                }
+            }
+
             resetMenu.Items.Add(resetMenuResetAll);
             resetMenuResetAll.Click += (sender, e) => {
                 this._settingsControl.DoOnConfirmation(() => {
                     foreach (var c in this._plugin.Values.CarInfos) {
                         c.Value.Reset(c.Key);
                     }
-                    this.BuildItems();
+                    RebuildItems();
                 });
             };
 
@@ -99,7 +115,7 @@ namespace KLPlugins.DynLeaderboards.Settings.UI {
                     foreach (var c in this._plugin.Values.CarInfos) {
                         c.Value.ResetName();
                     }
-                    this.BuildItems();
+                    RebuildItems();
                 });
             };
 
@@ -112,7 +128,7 @@ namespace KLPlugins.DynLeaderboards.Settings.UI {
                     foreach (var c in this._plugin.Values.CarInfos) {
                         c.Value.ResetManufacturer(c.Key);
                     }
-                    this.BuildItems();
+                    RebuildItems();
                 });
             };
 
@@ -125,7 +141,7 @@ namespace KLPlugins.DynLeaderboards.Settings.UI {
                     foreach (var c in this._plugin.Values.CarInfos) {
                         c.Value.ResetClass();
                     }
-                    this.BuildItems();
+                    RebuildItems();
                 });
             };
 
@@ -145,7 +161,7 @@ namespace KLPlugins.DynLeaderboards.Settings.UI {
                         c.Value.DisableName();
                         c.Value.DisableClass();
                     }
-                    this.BuildItems();
+                    RebuildItems();
                 });
             };
 
@@ -158,7 +174,7 @@ namespace KLPlugins.DynLeaderboards.Settings.UI {
                     foreach (var c in this._plugin.Values.CarInfos) {
                         c.Value.DisableName();
                     }
-                    this.BuildItems();
+                    RebuildItems();
                 });
             };
 
@@ -171,7 +187,7 @@ namespace KLPlugins.DynLeaderboards.Settings.UI {
                     foreach (var c in this._plugin.Values.CarInfos) {
                         c.Value.DisableClass();
                     }
-                    this.BuildItems();
+                    RebuildItems();
                 });
             };
 
@@ -191,7 +207,7 @@ namespace KLPlugins.DynLeaderboards.Settings.UI {
                         c.Value.EnableName(c.Key);
                         c.Value.EnableClass();
                     }
-                    this.BuildItems();
+                    RebuildItems();
                 });
             };
 
@@ -204,7 +220,7 @@ namespace KLPlugins.DynLeaderboards.Settings.UI {
                     foreach (var c in this._plugin.Values.CarInfos) {
                         c.Value.EnableName();
                     }
-                    this.BuildItems();
+                    RebuildItems();
                 });
             };
 
@@ -217,7 +233,7 @@ namespace KLPlugins.DynLeaderboards.Settings.UI {
                     foreach (var c in this._plugin.Values.CarInfos) {
                         c.Value.EnableClass();
                     }
-                    this.BuildItems();
+                    RebuildItems();
                 });
             };
 
@@ -233,7 +249,7 @@ namespace KLPlugins.DynLeaderboards.Settings.UI {
                 updateACCarsBtn.Click += (_, _) => {
                     DynLeaderboardsPlugin.UpdateACCarInfos();
                     this._plugin.Values.UpdateCarInfos();
-                    this.BuildItems();
+                    RebuildItems();
                 };
                 this._menu.Items.Add(updateACCarsBtn);
             }
@@ -242,7 +258,7 @@ namespace KLPlugins.DynLeaderboards.Settings.UI {
                 Header = "Refresh"
             };
             refreshBtn.ToolTip = "Refresh cars list. This will check if new cars have been added and will add them here for customization.";
-            refreshBtn.Click += (_, _) => this.BuildItems();
+            refreshBtn.Click += (_, _) => RebuildItems();
             this._menu.Items.Add(refreshBtn);
         }
 

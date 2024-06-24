@@ -116,14 +116,14 @@ namespace KLPlugins.DynLeaderboards.Settings.UI {
                 });
             };
 
-            var resetMenuResetSameAs = new MenuItem() {
-                Header = "Reset all same as values",
+            var resetMenuResetReplaceWith = new MenuItem() {
+                Header = "Reset all \"replace with\" values",
             };
-            resetMenu.Items.Add(resetMenuResetSameAs);
-            resetMenuResetSameAs.Click += (sender, e) => {
+            resetMenu.Items.Add(resetMenuResetReplaceWith);
+            resetMenuResetReplaceWith.Click += (sender, e) => {
                 this._settingsControl.DoOnConfirmation(() => {
                     foreach (var c in this._plugin.Values.ClassInfos) {
-                        c.Value.ResetSameAs();
+                        c.Value.ResetReplaceWith();
                     }
                     this.BuildItems();
                 });
@@ -143,7 +143,7 @@ namespace KLPlugins.DynLeaderboards.Settings.UI {
                 this._settingsControl.DoOnConfirmation(() => {
                     foreach (var c in this._plugin.Values.ClassInfos) {
                         c.Value.DisableColor();
-                        c.Value.DisableSameAs();
+                        c.Value.DisableReplaceWith();
                     }
                     this.BuildItems();
                 });
@@ -162,14 +162,14 @@ namespace KLPlugins.DynLeaderboards.Settings.UI {
                 });
             };
 
-            var disableAllSameAs = new MenuItem() {
-                Header = "Disable all same as values",
+            var disableAllReplaceWith = new MenuItem() {
+                Header = "Disable all \"replace with\" values",
             };
-            disableMenu.Items.Add(disableAllSameAs);
-            disableAllSameAs.Click += (sender, e) => {
+            disableMenu.Items.Add(disableAllReplaceWith);
+            disableAllReplaceWith.Click += (sender, e) => {
                 this._settingsControl.DoOnConfirmation(() => {
                     foreach (var c in this._plugin.Values.ClassInfos) {
-                        c.Value.DisableSameAs();
+                        c.Value.DisableReplaceWith();
                     }
                     this.BuildItems();
                 });
@@ -189,7 +189,7 @@ namespace KLPlugins.DynLeaderboards.Settings.UI {
                 this._settingsControl.DoOnConfirmation(() => {
                     foreach (var c in this._plugin.Values.ClassInfos) {
                         c.Value.EnableColor();
-                        c.Value.EnableSameAs();
+                        c.Value.EnableReplaceWith();
                     }
                     this.BuildItems();
                 });
@@ -208,14 +208,14 @@ namespace KLPlugins.DynLeaderboards.Settings.UI {
                 });
             };
 
-            var enableAllSameAs = new MenuItem() {
-                Header = "Enable all same as values",
+            var enableAllReplaceWith = new MenuItem() {
+                Header = "Enable all \"replace with\" values",
             };
-            enableMenu.Items.Add(enableAllSameAs);
-            enableAllSameAs.Click += (sender, e) => {
+            enableMenu.Items.Add(enableAllReplaceWith);
+            enableAllReplaceWith.Click += (sender, e) => {
                 this._settingsControl.DoOnConfirmation(() => {
                     foreach (var c in this._plugin.Values.ClassInfos) {
-                        c.Value.EnableSameAs();
+                        c.Value.EnableReplaceWith();
                     }
                     this.BuildItems();
                 });
@@ -600,26 +600,26 @@ namespace KLPlugins.DynLeaderboards.Settings.UI {
             colorResetButton.Click += (sender, b) => ResetColors();
             settingsGrid.Children.Add(colorResetButton);
 
-            //// Same as row
+            //// Replace with row
 
-            isEnabled = clsInfo.IsSameAsEnabled;
+            isEnabled = clsInfo.IsReplaceWithEnabled;
             opacity = isEnabled ? 1.0 : SettingsControl.DISABLED_OPTION_OPACITY;
             row = 1;
 
-            var sameAsToggle = CreateToggle(
+            var replaceWithToggle = CreateToggle(
                 isEnabled,
                 row,
-                "Enable this class' same as override. If disabled, the plugin will use this class."
+                "Enable this class' \"replace with\" override. If disabled, the plugin will use this class."
             );
-            settingsGrid.Children.Add(sameAsToggle);
+            settingsGrid.Children.Add(replaceWithToggle);
 
-            var sameAsLabel = CreateLabelTextBox("Same as", isEnabled, row);
-            settingsGrid.Children.Add(sameAsLabel);
+            var replaceWithLabel = CreateLabelTextBox("Replace with", isEnabled, row);
+            settingsGrid.Children.Add(replaceWithLabel);
 
-            var clsStr = clsInfo.SameAsDontCheckEnabled()?.AsString() ?? CarClass.Default.AsString();
+            var clsStr = clsInfo.ReplaceWithDontCheckEnabled()?.AsString() ?? CarClass.Default.AsString();
             this.TryAddCarClass(new CarClass(clsStr));
 
-            var sameAsComboBox = new ComboBox() {
+            var replaceWithComboBox = new ComboBox() {
                 IsReadOnly = false,
                 IsEditable = true,
                 ItemsSource = new ListCollectionView(this._settingsControl.AllClasses) {
@@ -633,63 +633,63 @@ namespace KLPlugins.DynLeaderboards.Settings.UI {
                 IsTextSearchCaseSensitive = true,
             };
 
-            Grid.SetColumn(sameAsComboBox, 2);
-            Grid.SetRow(sameAsComboBox, row);
+            Grid.SetColumn(replaceWithComboBox, 2);
+            Grid.SetRow(replaceWithComboBox, row);
 
-            void ResetSameAs() {
-                var clsStr = clsInfo.BaseSameAs()?.AsString() ?? CarClass.Default.AsString();
+            void ResetReplaceWith() {
+                var clsStr = clsInfo.BaseReplaceWith()?.AsString() ?? CarClass.Default.AsString();
                 this._settingsControl.TryAddCarClass(new CarClass(clsStr));
-                sameAsComboBox.SelectedItem = clsStr;
-                clsInfo.ResetSameAs();
-                sameAsToggle.IsChecked = clsInfo.IsSameAsEnabled;
+                replaceWithComboBox.SelectedItem = clsStr;
+                clsInfo.ResetReplaceWith();
+                replaceWithToggle.IsChecked = clsInfo.IsReplaceWithEnabled;
             }
 
-            sameAsComboBox.LostFocus += (sender, b) => {
-                var clsText = (string?)sameAsComboBox.Text;
+            replaceWithComboBox.LostFocus += (sender, b) => {
+                var clsText = (string?)replaceWithComboBox.Text;
 
                 if (clsText == null || clsText == "") {
                     // "" is not a valid class name
-                    ResetSameAs();
+                    ResetReplaceWith();
                 } else {
                     var cls = new CarClass(clsText);
                     this.TryAddCarClass(cls);
-                    clsInfo.SetSameAs(new CarClass(clsText));
+                    clsInfo.SetReplaceWith(new CarClass(clsText));
                 }
 
-                sameAsToggle.IsChecked = clsInfo.IsSameAsEnabled;
+                replaceWithToggle.IsChecked = clsInfo.IsReplaceWithEnabled;
             };
-            settingsGrid.Children.Add(sameAsComboBox);
+            settingsGrid.Children.Add(replaceWithComboBox);
 
-            var sameAsResetButton = CreateResetButton(row);
+            var replaceWithResetButton = CreateResetButton(row);
 
-            sameAsResetButton.Click += (sender, b) => ResetSameAs();
-            settingsGrid.Children.Add(sameAsResetButton);
+            replaceWithResetButton.Click += (sender, b) => ResetReplaceWith();
+            settingsGrid.Children.Add(replaceWithResetButton);
 
-            sameAsToggle.Checked += (sender, b) => {
-                clsInfo.EnableSameAs();
-                sameAsLabel.IsEnabled = true;
-                sameAsLabel.Opacity = 1;
-                sameAsComboBox.IsEnabled = true;
-                sameAsComboBox.Opacity = 1;
+            replaceWithToggle.Checked += (sender, b) => {
+                clsInfo.EnableReplaceWith();
+                replaceWithLabel.IsEnabled = true;
+                replaceWithLabel.Opacity = 1;
+                replaceWithComboBox.IsEnabled = true;
+                replaceWithComboBox.Opacity = 1;
 
-                sameAsComboBox.SelectedItem = clsInfo.SameAsDontCheckEnabled()?.AsString();
+                replaceWithComboBox.SelectedItem = clsInfo.ReplaceWithDontCheckEnabled()?.AsString();
             };
-            sameAsToggle.Unchecked += (sender, b) => {
-                clsInfo.DisableSameAs();
-                sameAsLabel.IsEnabled = false;
-                sameAsLabel.Opacity = SettingsControl.DISABLED_OPTION_OPACITY;
-                sameAsComboBox.IsEnabled = false;
-                sameAsComboBox.Opacity = SettingsControl.DISABLED_OPTION_OPACITY;
+            replaceWithToggle.Unchecked += (sender, b) => {
+                clsInfo.DisableReplaceWith();
+                replaceWithLabel.IsEnabled = false;
+                replaceWithLabel.Opacity = SettingsControl.DISABLED_OPTION_OPACITY;
+                replaceWithComboBox.IsEnabled = false;
+                replaceWithComboBox.Opacity = SettingsControl.DISABLED_OPTION_OPACITY;
             };
 
             disableAllBtn.Click += (sender, b) => {
                 colorToggle.IsChecked = false;
-                sameAsToggle.IsChecked = false;
+                replaceWithToggle.IsChecked = false;
             };
 
             void ResetAll() {
                 ResetColors();
-                ResetSameAs();
+                ResetReplaceWith();
             }
 
             resetAllBtn.Click += (sender, b) => ResetAll();

@@ -514,7 +514,7 @@ namespace KLPlugins.DynLeaderboards {
             if (!this._infos.ContainsKey(cls)) {
                 var c = new OverridableClassInfo(null, null);
                 c.DisableColor();
-                c.DisableSameAs();
+                c.DisableReplaceWith();
 
                 this._infos[cls] = c;
             }
@@ -522,10 +522,10 @@ namespace KLPlugins.DynLeaderboards {
             return this._infos[cls];
         }
 
-        internal (CarClass, OverridableClassInfo) GetFollowSameAs(CarClass cls) {
+        internal (CarClass, OverridableClassInfo) GetFollowReplaceWith(CarClass cls) {
             var clsOut = cls;
             var info = this.Get(cls);
-            var nextCls = info.SameAs();
+            var nextCls = info.ReplaceWith();
 
             var seenClasses = new List<CarClass> { cls };
 
@@ -534,12 +534,12 @@ namespace KLPlugins.DynLeaderboards {
                 info = this.Get(clsOut);
 
                 if (seenClasses.Contains(clsOut)) {
-                    DynLeaderboardsPlugin.LogWarn($"Loop detected in class same as values: {string.Join(" -> ", seenClasses)} -> {clsOut}");
+                    DynLeaderboardsPlugin.LogWarn($"Loop detected in class \"replace with\" values: {string.Join(" -> ", seenClasses)} -> {clsOut}");
                     break;
                 }
                 seenClasses.Add(clsOut);
 
-                nextCls = info.SameAs();
+                nextCls = info.ReplaceWith();
             }
 
             return (clsOut, info);
@@ -578,7 +578,7 @@ namespace KLPlugins.DynLeaderboards {
                 // just disable
                 c.Reset();
                 c.DisableColor();
-                c.DisableSameAs();
+                c.DisableReplaceWith();
             } else {
                 this._infos.Remove(cls);
             }
@@ -622,15 +622,15 @@ namespace KLPlugins.DynLeaderboards {
 
             var c = new ClassInfos(infos);
 
-            // Make sure that all "same as" values are also in the dict
+            // Make sure that all "replace with" values are also in the dict
             foreach (var key in c._infos.Keys.ToList()) {
                 var it = c.Get(key);
-                if (it.SameAsDontCheckEnabled() != null) {
-                    var _ = c.Get(it.SameAsDontCheckEnabled()!.Value);
+                if (it.ReplaceWithDontCheckEnabled() != null) {
+                    var _ = c.Get(it.ReplaceWithDontCheckEnabled()!.Value);
                 }
 
-                if (it.BaseSameAs() != null) {
-                    var _ = c.Get(it.BaseSameAs()!.Value);
+                if (it.BaseReplaceWith() != null) {
+                    var _ = c.Get(it.BaseReplaceWith()!.Value);
                 }
 
                 if (it.Base == null && it.DuplicatedFrom != null) {
@@ -670,21 +670,21 @@ namespace KLPlugins.DynLeaderboards {
         [JsonIgnore] internal bool HasRealBase { get; private set; } = false;
         [JsonProperty] internal ClassInfo? Overrides { get; private set; }
         [JsonProperty] internal bool IsColorEnabled { get; private set; }
-        [JsonProperty] internal bool IsSameAsEnabled { get; private set; }
+        [JsonProperty] internal bool IsReplaceWithEnabled { get; private set; }
         // Used to determine what base should this class receive if it was duplicated from another class
         [JsonProperty] internal ImmutableList<CarClass> DuplicatedFrom { get; private set; }
 
 
         [JsonConstructor]
-        internal OverridableClassInfo(ClassInfo? @base, ClassInfo? overrides, bool? isColorEnabled = null, bool? isSameAsEnabled = null, ImmutableList<CarClass>? duplicatedFrom = null) {
+        internal OverridableClassInfo(ClassInfo? @base, ClassInfo? overrides, bool? isColorEnabled = null, bool? isReplaceWithEnabled = null, ImmutableList<CarClass>? duplicatedFrom = null) {
             this.SetBase(@base);
             this.SetOverrides(overrides);
             if (isColorEnabled != null) {
                 this.IsColorEnabled = isColorEnabled.Value;
             }
 
-            if (isSameAsEnabled != null) {
-                this.IsSameAsEnabled = isSameAsEnabled.Value;
+            if (isReplaceWithEnabled != null) {
+                this.IsReplaceWithEnabled = isReplaceWithEnabled.Value;
             }
 
             if (duplicatedFrom != null) {
@@ -699,7 +699,7 @@ namespace KLPlugins.DynLeaderboards {
                 this.Base?.Clone(),
                 this.Overrides?.Clone(),
                 isColorEnabled: this.IsColorEnabled,
-                isSameAsEnabled: this.IsSameAsEnabled,
+                isReplaceWithEnabled: this.IsReplaceWithEnabled,
                 duplicatedFrom: this.DuplicatedFrom.Add(thisClass)
             );
         }
@@ -714,9 +714,9 @@ namespace KLPlugins.DynLeaderboards {
             // check enabled properties. New base may have missing properties.
             // Make sure not to enable these as they may have been explicitly disabled before.
             // It's ok to disable.
-            if (this.SameAsDontCheckEnabled() == null) {
-                // same as cannot be enabled if there is no same as set
-                this.DisableSameAs();
+            if (this.ReplaceWithDontCheckEnabled() == null) {
+                // replace with cannot be enabled if there is no replace with set
+                this.DisableReplaceWith();
             }
 
             if (this.ForegroundDontCheckEnabled() == null || this.BackgroundDontCheckEnabled() == null) {
@@ -735,7 +735,7 @@ namespace KLPlugins.DynLeaderboards {
 
         internal void Reset() {
             this.ResetColors();
-            this.ResetSameAs();
+            this.ResetReplaceWith();
         }
 
         internal void ResetColors() {
@@ -833,66 +833,66 @@ namespace KLPlugins.DynLeaderboards {
             }
         }
 
-        internal CarClass? BaseSameAs() {
-            return this.Base?.SameAs;
+        internal CarClass? BaseReplaceWith() {
+            return this.Base?.ReplaceWith;
         }
 
-        internal CarClass? SameAs() {
-            if (!this.IsSameAsEnabled) {
+        internal CarClass? ReplaceWith() {
+            if (!this.IsReplaceWithEnabled) {
                 return null;
             }
 
-            return this.SameAsDontCheckEnabled();
+            return this.ReplaceWithDontCheckEnabled();
         }
 
-        internal CarClass? SameAsDontCheckEnabled() {
-            return this.Overrides?.SameAs ?? this.Base?.SameAs;
+        internal CarClass? ReplaceWithDontCheckEnabled() {
+            return this.Overrides?.ReplaceWith ?? this.Base?.ReplaceWith;
         }
 
-        internal void SetSameAs(CarClass? sameAs) {
+        internal void SetReplaceWith(CarClass? replaceWith) {
             this.Overrides ??= new();
-            this.Overrides.SameAs = sameAs;
+            this.Overrides.ReplaceWith = replaceWith;
         }
 
-        internal void ResetSameAs() {
+        internal void ResetReplaceWith() {
             if (this.Overrides != null) {
-                this.Overrides.SameAs = null;
+                this.Overrides.ReplaceWith = null;
             }
 
             // default is enabled if base is present
-            this.IsSameAsEnabled = this.Base?.SameAs != null;
+            this.IsReplaceWithEnabled = this.Base?.ReplaceWith != null;
         }
 
-        internal void DisableSameAs() {
-            this.IsSameAsEnabled = false;
+        internal void DisableReplaceWith() {
+            this.IsReplaceWithEnabled = false;
         }
 
-        internal void EnableSameAs() {
-            this.IsSameAsEnabled = true;
+        internal void EnableReplaceWith() {
+            this.IsReplaceWithEnabled = true;
 
-            if (this.SameAsDontCheckEnabled() == null) {
-                // we are explicitly asked to enable "same as"
+            if (this.ReplaceWithDontCheckEnabled() == null) {
+                // we are explicitly asked to enable "replace with"
                 // there must be some value in it
-                this.SetSameAs(CarClass.Default);
+                this.SetReplaceWith(CarClass.Default);
             }
         }
     }
 
     internal class ClassInfo {
         [JsonProperty] internal TextBoxColor? Color { get; set; }
-        [JsonProperty] internal CarClass? SameAs { get; set; }
+        [JsonProperty] internal CarClass? ReplaceWith { get; set; }
 
 
         [JsonConstructor]
-        internal ClassInfo(TextBoxColor? color, CarClass? sameAs) {
+        internal ClassInfo(TextBoxColor? color, CarClass? replaceWith) {
             this.Color = color;
-            this.SameAs = sameAs;
+            this.ReplaceWith = replaceWith;
         }
 
         internal ClassInfo() { }
 
         internal ClassInfo Clone() {
-            return new ClassInfo(this.Color?.Clone(), this.SameAs);
+            return new ClassInfo(this.Color?.Clone(), this.ReplaceWith);
         }
     }
 

@@ -192,8 +192,8 @@ namespace KLPlugins.DynLeaderboards.Settings {
                 foreach (var cls in classes) {
                     if (cls != null) {
                         var info = this.Plugin.Values.ClassInfos.Get(cls.Value);
-                        if (info.SameAsDontCheckEnabled() != null) {
-                            var _ = this.Plugin.Values.ClassInfos.Get(info.SameAsDontCheckEnabled()!.Value);
+                        if (info.ReplaceWithDontCheckEnabled() != null) {
+                            var _ = this.Plugin.Values.ClassInfos.Get(info.ReplaceWithDontCheckEnabled()!.Value);
                         }
                     }
                 }

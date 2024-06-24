@@ -970,7 +970,6 @@ namespace KLPlugins.DynLeaderboards {
             this.ClassInfos.WriteToJson(path: path, derivedPath: ClassInfosBasePath());
         }
 
-        internal TextBoxColors<CarClass> CarClassColors { get; }
         internal TextBoxColors<TeamCupCategory> TeamCupCategoryColors { get; }
         internal TextBoxColors<DriverCategory> DriverCategoryColors { get; }
 
@@ -995,14 +994,12 @@ namespace KLPlugins.DynLeaderboards {
         internal bool IsFirstFinished { get; private set; } = false;
         private bool _startingPositionsSet = false;
 
-        private const string _carClassColorsJsonName = "CarClassColors";
         private const string _teamCupCategoryColorsJsonName = "TeamCupCategoryColors";
         private const string _driverCategoryColorsJsonName = "DriverCategoryColors";
 
         internal Values() {
             this.CarInfos = ReadCarInfos();
             this.ClassInfos = ReadClassInfos();
-            this.CarClassColors = ReadTextBoxColors<CarClass>(_carClassColorsJsonName);
             this.TeamCupCategoryColors = ReadTextBoxColors<TeamCupCategory>(_teamCupCategoryColorsJsonName);
             this.DriverCategoryColors = ReadTextBoxColors<DriverCategory>(_driverCategoryColorsJsonName);
 
@@ -1054,7 +1051,6 @@ namespace KLPlugins.DynLeaderboards {
                 if (disposing) {
                     this.WriteCarInfos();
                     this.WriteClassInfos();
-                    WriteTextBoxColors(this.CarClassColors, _carClassColorsJsonName);
                     WriteTextBoxColors(this.TeamCupCategoryColors, _teamCupCategoryColorsJsonName);
                     WriteTextBoxColors(this.DriverCategoryColors, _driverCategoryColorsJsonName);
                     this.TrackData?.Dispose();

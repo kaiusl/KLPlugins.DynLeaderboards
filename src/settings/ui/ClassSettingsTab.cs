@@ -46,7 +46,7 @@ namespace KLPlugins.DynLeaderboards.Settings.UI {
                 if (item != null) {
                     this.BuildDetails(item);
                 } else {
-                    ((StackPanel)this._detailsStackPanel).Children.Clear();
+                    this._detailsStackPanel.Children.Clear();
                 }
             };
         }
@@ -67,13 +67,21 @@ namespace KLPlugins.DynLeaderboards.Settings.UI {
                 Header = "Reset all",
             };
 
+            void RebuildItems() {
+                var selected = this.SelectedClass();
+                this.BuildItems();
+                if (selected != null) {
+                    this.TrySelectClass(selected.Key);
+                }
+            }
+
             resetMenu.Items.Add(resetMenuResetAll);
             resetMenuResetAll.Click += (sender, e) => {
                 this._settingsControl.DoOnConfirmation(() => {
                     foreach (var c in this._plugin.Values.ClassInfos) {
                         c.Value.Reset();
                     }
-                    this.BuildItems();
+                    RebuildItems();
                 });
             };
 
@@ -86,7 +94,7 @@ namespace KLPlugins.DynLeaderboards.Settings.UI {
                     foreach (var c in this._plugin.Values.ClassInfos) {
                         c.Value.ResetColors();
                     }
-                    this.BuildItems();
+                    RebuildItems();
                 });
             };
 
@@ -99,7 +107,7 @@ namespace KLPlugins.DynLeaderboards.Settings.UI {
                     foreach (var c in this._plugin.Values.ClassInfos) {
                         c.Value.ResetBackground();
                     }
-                    this.BuildItems();
+                    RebuildItems();
                 });
             };
 
@@ -112,7 +120,7 @@ namespace KLPlugins.DynLeaderboards.Settings.UI {
                     foreach (var c in this._plugin.Values.ClassInfos) {
                         c.Value.ResetForeground();
                     }
-                    this.BuildItems();
+                    RebuildItems();
                 });
             };
 
@@ -125,7 +133,7 @@ namespace KLPlugins.DynLeaderboards.Settings.UI {
                     foreach (var c in this._plugin.Values.ClassInfos) {
                         c.Value.ResetReplaceWith();
                     }
-                    this.BuildItems();
+                    RebuildItems();
                 });
             };
 
@@ -145,7 +153,7 @@ namespace KLPlugins.DynLeaderboards.Settings.UI {
                         c.Value.DisableColor();
                         c.Value.DisableReplaceWith();
                     }
-                    this.BuildItems();
+                    RebuildItems();
                 });
             };
 
@@ -158,7 +166,7 @@ namespace KLPlugins.DynLeaderboards.Settings.UI {
                     foreach (var c in this._plugin.Values.ClassInfos) {
                         c.Value.DisableColor();
                     }
-                    this.BuildItems();
+                    RebuildItems();
                 });
             };
 
@@ -171,7 +179,7 @@ namespace KLPlugins.DynLeaderboards.Settings.UI {
                     foreach (var c in this._plugin.Values.ClassInfos) {
                         c.Value.DisableReplaceWith();
                     }
-                    this.BuildItems();
+                    RebuildItems();
                 });
             };
 
@@ -191,7 +199,7 @@ namespace KLPlugins.DynLeaderboards.Settings.UI {
                         c.Value.EnableColor();
                         c.Value.EnableReplaceWith();
                     }
-                    this.BuildItems();
+                    RebuildItems();
                 });
             };
 
@@ -204,7 +212,7 @@ namespace KLPlugins.DynLeaderboards.Settings.UI {
                     foreach (var c in this._plugin.Values.ClassInfos) {
                         c.Value.EnableColor();
                     }
-                    this.BuildItems();
+                    RebuildItems();
                 });
             };
 
@@ -217,7 +225,7 @@ namespace KLPlugins.DynLeaderboards.Settings.UI {
                     foreach (var c in this._plugin.Values.ClassInfos) {
                         c.Value.EnableReplaceWith();
                     }
-                    this.BuildItems();
+                    RebuildItems();
                 });
             };
 
@@ -254,7 +262,7 @@ namespace KLPlugins.DynLeaderboards.Settings.UI {
                 Header = "Refresh"
             };
             refreshBtn.ToolTip = "Refresh classes list. This will check if new classes have been added and will add them here for customization.";
-            refreshBtn.Click += (_, _) => this.BuildItems();
+            refreshBtn.Click += (_, _) => RebuildItems();
             this._menu.Items.Add(refreshBtn);
         }
 
@@ -304,7 +312,7 @@ namespace KLPlugins.DynLeaderboards.Settings.UI {
             }
         }
 
-        void SelectClass(CarClass cls) {
+        void TrySelectClass(CarClass cls) {
             var newItem = this._carClassesListBoxItems.FirstOrDefault(a => a.Key == cls);
             if (newItem != null) {
                 this._classesList.SelectedItem = newItem;
@@ -397,7 +405,7 @@ namespace KLPlugins.DynLeaderboards.Settings.UI {
 
                         this._plugin.Values.ClassInfos.Duplicate(old: key, @new: cls);
                         this.TryAddCarClass(cls);
-                        this.SelectClass(cls);
+                        this.TrySelectClass(cls);
 
                         break;
                     default:

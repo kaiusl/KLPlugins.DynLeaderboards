@@ -247,7 +247,18 @@
             <Setter Property="Content"
                     Value="Remove" />
             <Setter Property="ToolTip"
-                    Value="Removes the selected color. Note if the color has base data, the color will only be reset and disabled but not completely deleted." />
+                    Value="Removes the selected color completely." />
+        </Style>
+
+        <Style x:Key="ColorGrid_ResetButtonPrimary"
+               TargetType="styles:SHButtonPrimary"
+               BasedOn="{StaticResource {x:Type styles:SHButtonPrimary}}">
+            <Setter Property="Padding"
+                    Value="5" />
+            <Setter Property="Margin"
+                    Value="5,5,15,5" />
+            <Setter Property="Content"
+                    Value="Reset" />
         </Style>
 
         <Style TargetType="{x:Type Hyperlink}"

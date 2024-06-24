@@ -109,6 +109,10 @@ namespace KLPlugins.DynLeaderboards {
 
         internal void SetBase(TextBoxColor? @base) {
             this._base = @base;
+
+            if (this.ForegroundDontCheckEnabled() == null || this.BackgroundDontCheckEnabled() == null) {
+                this.Disable();
+            }
         }
 
         internal bool HasBase() {
@@ -116,12 +120,28 @@ namespace KLPlugins.DynLeaderboards {
         }
 
         internal void Reset() {
-            this._overrides = null;
-            this.IsEnabled = true;
+            // default is enabled if base is present
+            // note: this must be done before ResetBackground and ResetForeground
+            // because otherwise they could wrongly set colors to default (not base) values
+            this.IsEnabled = this._base?.Fg != null && this._base?.Bg != null;
+
+            this.ResetBackground();
+            this.ResetForeground();
         }
 
         internal void Enable() {
             this.IsEnabled = true;
+
+            if (this.BackgroundDontCheckEnabled() == null) {
+                // we are explicitly asked to enable colors
+                // there must be some value in it
+                this.SetBackground(DEF_BG);
+            }
+
+            if (this.ForegroundDontCheckEnabled() == null) {
+                // same as above
+                this.SetForeground(DEF_FG);
+            }
         }
 
         internal void Disable() {
@@ -133,15 +153,15 @@ namespace KLPlugins.DynLeaderboards {
                 return null;
             }
 
-            return this._overrides?.Fg ?? this._base?.Fg ?? DEF_FG;
+            return this.ForegroundDontCheckEnabled();
         }
 
-        internal string ForegroundDontCheckEnabled() {
-            return this._overrides?.Fg ?? this._base?.Fg ?? DEF_FG;
+        internal string? ForegroundDontCheckEnabled() {
+            return this._overrides?.Fg ?? this._base?.Fg;
         }
 
-        internal string BaseForeground() {
-            return this._base?.Fg ?? DEF_FG;
+        internal string? BaseForeground() {
+            return this._base?.Fg;
         }
 
         internal void SetForeground(string fg) {
@@ -153,6 +173,11 @@ namespace KLPlugins.DynLeaderboards {
             if (this._overrides != null) {
                 this._overrides.Fg = null;
             }
+
+            if (this.IsEnabled && this.BaseForeground() == null) {
+                // if color is enabled there must be some value in it
+                this.SetForeground(OverridableTextBoxColor.DEF_FG);
+            }
         }
 
         internal string? Background() {
@@ -160,11 +185,11 @@ namespace KLPlugins.DynLeaderboards {
                 return null;
             }
 
-            return this._overrides?.Bg ?? this._base?.Bg ?? DEF_BG;
+            return this.BackgroundDontCheckEnabled();
         }
 
-        internal string BackgroundDontCheckEnabled() {
-            return this._overrides?.Bg ?? this._base?.Bg ?? DEF_BG;
+        internal string? BackgroundDontCheckEnabled() {
+            return this._overrides?.Bg ?? this._base?.Bg;
         }
 
         internal string BaseBackground() {
@@ -179,6 +204,11 @@ namespace KLPlugins.DynLeaderboards {
         internal void ResetBackground() {
             if (this._overrides != null) {
                 this._overrides.Bg = null;
+            }
+
+            if (this.IsEnabled && this.BaseBackground() == null) {
+                // if color is enabled there must be some value in it
+                this.SetBackground(OverridableTextBoxColor.DEF_BG);
             }
         }
     }
@@ -1001,7 +1031,9 @@ namespace KLPlugins.DynLeaderboards {
             this.CarInfos = ReadCarInfos();
             this.ClassInfos = ReadClassInfos();
             this.TeamCupCategoryColors = ReadTextBoxColors<TeamCupCategory>(_teamCupCategoryColorsJsonName);
+            this.TeamCupCategoryColors.Get(TeamCupCategory.Default);
             this.DriverCategoryColors = ReadTextBoxColors<DriverCategory>(_driverCategoryColorsJsonName);
+            this.DriverCategoryColors.Get(DriverCategory.Default);
 
             this.OverallOrder = this._overallOrder.AsReadOnly();
             this.ClassOrder = this._classOrder.AsReadOnly();

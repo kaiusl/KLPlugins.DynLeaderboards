@@ -297,7 +297,7 @@ namespace KLPlugins.DynLeaderboards.Car {
                 carInfo = values.CarInfos.Get(this.RawDataNew.CarName, rawClass);
             }
 
-            var (cls, classInfo) = values.ClassInfos.GetFollowSameAs(carInfo?.Class() ?? rawClass);
+            var (cls, classInfo) = values.ClassInfos.GetFollowReplaceWith(carInfo?.Class() ?? rawClass);
             this.CarClass = cls;
 
             this.CarModel = carInfo?.Name() ?? this.RawDataNew.CarName ?? "Unknown";

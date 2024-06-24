@@ -221,21 +221,6 @@ namespace KLPlugins.DynLeaderboards.Settings.UI {
                 });
             };
 
-            var deletaAllBtn = new ButtonMenuItem() {
-                Header = "Remove all"
-            };
-            deletaAllBtn.ToolTip = "Remove all cars from the settings file. Note that if the car has base data it will be reset and disabled, but not completely deleted.";
-            deletaAllBtn.Click += (sender, e) => {
-                this._settingsControl.DoOnConfirmation(() => {
-                    var cars = this._plugin.Values.CarInfos.Select(kv => kv.Key).ToList();
-                    foreach (var c in cars) {
-                        this._plugin.Values.CarInfos.Remove(c);
-                    }
-                    this.BuildItems();
-                });
-            };
-            this._menu.Items.Add(deletaAllBtn);
-
             if (DynLeaderboardsPlugin.Game.IsAc) {
                 var updateACCarsBtn = new ButtonMenuItem() {
                     Header = "Update base info"

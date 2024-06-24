@@ -165,51 +165,57 @@ namespace KLPlugins.DynLeaderboards {
 
             if (Settings.OutGeneralProps.Includes(OutGeneralProp.CarClassColors)) {
                 foreach (var kv in this.Values.ClassInfos) {
+                    var value = kv.Value;
                     this.AttachDelegate<DynLeaderboardsPlugin, string>(
                         OutGeneralProp.CarClassColors.ToPropName().Replace("<class>", kv.Key.AsString()),
-                        () => kv.Value.Background() ?? "#000000"
+                        () => value.Background() ?? OverridableTextBoxColor.DEF_BG
                     );
                 }
             }
             if (Settings.OutGeneralProps.Includes(OutGeneralProp.CarClassColors)) {
                 foreach (var kv in this.Values.ClassInfos) {
+                    var value = kv.Value;
                     this.AttachDelegate<DynLeaderboardsPlugin, string>(
                         OutGeneralProp.CarClassTextColors.ToPropName().Replace("<class>", kv.Key.AsString()),
-                        () => kv.Value.Foreground() ?? "#FFFFFF"
+                        () => value.Foreground() ?? OverridableTextBoxColor.DEF_FG
                     );
                 }
             }
 
             if (Settings.OutGeneralProps.Includes(OutGeneralProp.TeamCupColors)) {
                 foreach (var kv in this.Values.TeamCupCategoryColors) {
+                    var value = kv.Value;
                     this.AttachDelegate<DynLeaderboardsPlugin, string>(
                         OutGeneralProp.TeamCupColors.ToPropName().Replace("<cup>", kv.Key.AsString()),
-                        () => kv.Value.Background() ?? "#000000"
+                        () => value.Background() ?? OverridableTextBoxColor.DEF_BG
                     );
                 }
             }
             if (Settings.OutGeneralProps.Includes(OutGeneralProp.TeamCupTextColors)) {
                 foreach (var kv in this.Values.TeamCupCategoryColors) {
+                    var value = kv.Value;
                     this.AttachDelegate<DynLeaderboardsPlugin, string>(
                         OutGeneralProp.TeamCupTextColors.ToPropName().Replace("<cup>", kv.Key.AsString()),
-                        () => kv.Value.Foreground() ?? "#FFFFFF"
+                        () => value.Foreground() ?? OverridableTextBoxColor.DEF_FG
                     );
                 }
             }
 
             if (Settings.OutGeneralProps.Includes(OutGeneralProp.DriverCategoryColors)) {
                 foreach (var kv in this.Values.DriverCategoryColors) {
+                    var value = kv.Value;
                     this.AttachDelegate<DynLeaderboardsPlugin, string>(
                         OutGeneralProp.DriverCategoryColors.ToPropName().Replace("<category>", kv.Key.AsString()),
-                        () => kv.Value.Background() ?? "#000000"
+                        () => value.Background() ?? OverridableTextBoxColor.DEF_BG
                     );
                 }
             }
             if (Settings.OutGeneralProps.Includes(OutGeneralProp.DriverCategoryTextColors)) {
                 foreach (var kv in this.Values.DriverCategoryColors) {
+                    var value = kv.Value;
                     this.AttachDelegate<DynLeaderboardsPlugin, string>(
                         OutGeneralProp.DriverCategoryTextColors.ToPropName().Replace("<category>", kv.Key.AsString()),
-                        () => kv.Value.Foreground() ?? "#FFFFFF"
+                        () => value.Foreground() ?? OverridableTextBoxColor.DEF_FG
                     );
                 }
             }

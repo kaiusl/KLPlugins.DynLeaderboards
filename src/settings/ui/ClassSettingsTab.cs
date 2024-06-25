@@ -630,6 +630,17 @@ namespace KLPlugins.DynLeaderboards.Settings.UI {
             opacity = isEnabled ? 1.0 : SettingsControl.DISABLED_OPTION_OPACITY;
             row = 1;
 
+            var shortNameToggle = CreateToggle(
+                true,
+                row,
+                "Short name cannot be disabled as there is no SimHub data to fall back to. You can use `Reset` button to revert back to the default value."
+            );
+            shortNameToggle.IsEnabled = false;
+            shortNameToggle.Opacity = SettingsControl.DISABLED_OPTION_OPACITY;
+            ToolTipService.SetShowOnDisabled(shortNameToggle, true);
+            settingsGrid.Children.Add(shortNameToggle);
+
+
             var shortNameLabel = CreateLabelTextBox("Short name", isEnabled, row);
             settingsGrid.Children.Add(shortNameLabel);
 

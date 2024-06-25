@@ -111,7 +111,7 @@ namespace KLPlugins.DynLeaderboards.Settings {
         internal DynLeaderboardConfig CurrentDynLeaderboardSettings { get; private set; }
         internal CarSettingsTab CarSettingsTab { get; private set; }
 
-        internal const double DISABLED_OPTION_OPACITY = 0.25;
+        internal const double DISABLED_OPTION_OPACITY = 0.333;
 
         //internal SettingsControl() {
         //    InitializeComponent();

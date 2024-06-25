@@ -26,8 +26,9 @@ namespace KLPlugins.DynLeaderboards.Settings.UI {
 
         private readonly SettingsControl _settingsControl;
         private readonly DynLeaderboardsPlugin _plugin;
+        private readonly Action _updateInfos;
 
-        internal ColorsTabSection(SettingsControl settingsControl, DynLeaderboardsPlugin plugin, string label, TextBoxColors<K> colors, Menu menu, Grid colorsGrid) {
+        internal ColorsTabSection(SettingsControl settingsControl, DynLeaderboardsPlugin plugin, string label, TextBoxColors<K> colors, Menu menu, Grid colorsGrid, Action updateInfos) {
             this._settingsControl = settingsControl;
             this._plugin = plugin;
             this.Label = label;
@@ -35,7 +36,7 @@ namespace KLPlugins.DynLeaderboards.Settings.UI {
             this._rows = [];
             this.Menu = menu;
             this.ColorsGrid = colorsGrid;
-
+            this._updateInfos = updateInfos;
         }
 
         internal void Build(Func<K, bool> isDef) {
@@ -60,6 +61,7 @@ namespace KLPlugins.DynLeaderboards.Settings.UI {
                     foreach (var c in this._rows) {
                         c.Value.Reset();
                     }
+                    this._updateInfos();
                 });
             };
 
@@ -72,6 +74,7 @@ namespace KLPlugins.DynLeaderboards.Settings.UI {
                     foreach (var c in this._rows) {
                         c.Value.ResetForeground();
                     }
+                    this._updateInfos();
                 });
             };
 
@@ -84,6 +87,7 @@ namespace KLPlugins.DynLeaderboards.Settings.UI {
                     foreach (var c in this._rows) {
                         c.Value.ResetBackground();
                     }
+                    this._updateInfos();
                 });
             };
 
@@ -97,6 +101,7 @@ namespace KLPlugins.DynLeaderboards.Settings.UI {
                     foreach (var c in this._rows) {
                         c.Value.Disable();
                     }
+                    this._updateInfos();
                 });
             };
 
@@ -109,6 +114,7 @@ namespace KLPlugins.DynLeaderboards.Settings.UI {
                     foreach (var c in this._rows) {
                         c.Value.Enable();
                     }
+                    this._updateInfos();
                 });
             };
 
@@ -160,7 +166,7 @@ namespace KLPlugins.DynLeaderboards.Settings.UI {
         }
 
         ColorRow CreateNewRow(K cls, OverridableTextBoxColor color, Func<K, bool> isDef) {
-            var row = new ColorRow(cls, cls!.ToString(), color, this._settingsControl.FindResource);
+            var row = new ColorRow(cls, cls!.ToString(), color, this._settingsControl.FindResource, this._updateInfos);
             if (color.HasBase() || isDef(cls)) {
                 row.RemoveButton.IsEnabled = false;
                 row.RemoveButton.Opacity = SettingsControl.DISABLED_OPTION_OPACITY;
@@ -212,7 +218,7 @@ namespace KLPlugins.DynLeaderboards.Settings.UI {
             internal SHButtonPrimary RemoveButton { get; }
             internal SHButtonPrimary ResetButton { get; }
 
-            internal ColorRow(K key, string keyAsString, OverridableTextBoxColor color, Func<string, object> findResource) {
+            internal ColorRow(K key, string keyAsString, OverridableTextBoxColor color, Func<string, object> findResource, Action updateInfos) {
                 this.Key = key;
                 this.KeyAsString = keyAsString;
                 this.Color = color;
@@ -253,6 +259,7 @@ namespace KLPlugins.DynLeaderboards.Settings.UI {
                 this.BgColorPicker.SelectedColorChanged += (sender, e) => {
                     this.Color.SetBackground(this.BgColorPicker.SelectedColor.ToString());
                     this.ClassBox.Background = new SolidColorBrush(this.BgColorPicker.SelectedColor.Value);
+                    updateInfos();
                 };
 
                 this.BgResetButton = new SHButtonSecondary() {
@@ -261,7 +268,10 @@ namespace KLPlugins.DynLeaderboards.Settings.UI {
                     Style = (Style)findResource("ColorGrid_ResetButton"),
                 };
                 Grid.SetColumn(this.BgResetButton, 3);
-                this.BgResetButton.Click += (sender, e) => this.ResetBackground();
+                this.BgResetButton.Click += (sender, e) => {
+                    this.ResetBackground();
+                    updateInfos();
+                };
 
                 this.FgColorPicker = new ColorPicker() {
                     SelectedColor = currentFgColor,
@@ -273,6 +283,7 @@ namespace KLPlugins.DynLeaderboards.Settings.UI {
                 this.FgColorPicker.SelectedColorChanged += (sender, e) => {
                     this.Color.SetForeground(this.FgColorPicker.SelectedColor.ToString());
                     this.ClassText.Foreground = new SolidColorBrush(this.FgColorPicker.SelectedColor.Value);
+                    updateInfos();
                 };
 
                 this.FgResetButton = new SHButtonSecondary() {
@@ -281,13 +292,19 @@ namespace KLPlugins.DynLeaderboards.Settings.UI {
                     Style = (Style)findResource("ColorGrid_ResetButton"),
                 };
                 Grid.SetColumn(this.FgResetButton, 5);
-                this.FgResetButton.Click += (sender, e) => this.ResetForeground();
+                this.FgResetButton.Click += (sender, e) => {
+                    this.ResetForeground();
+                    updateInfos();
+                };
 
                 this.ResetButton = new SHButtonPrimary() {
                     Style = (Style)findResource("ColorGrid_RemoveButton"),
                     Content = "Reset"
                 };
-                this.ResetButton.Click += (_, _) => this.Reset();
+                this.ResetButton.Click += (_, _) => {
+                    this.Reset();
+                    updateInfos();
+                };
                 Grid.SetColumn(this.ResetButton, 6);
 
                 this.RemoveButton = new SHButtonPrimary() {
@@ -308,6 +325,7 @@ namespace KLPlugins.DynLeaderboards.Settings.UI {
                     this.FgColorPicker.Opacity = 1.0;
                     this.FgResetButton.IsEnabled = true;
                     this.FgResetButton.Opacity = 1.0;
+                    updateInfos();
                 };
 
                 this.EnabledToggle.Unchecked += (sender, e) => {
@@ -323,6 +341,7 @@ namespace KLPlugins.DynLeaderboards.Settings.UI {
                     this.FgColorPicker.Opacity = opacity;
                     this.FgResetButton.IsEnabled = false;
                     this.FgResetButton.Opacity = opacity;
+                    updateInfos();
                 };
             }
 

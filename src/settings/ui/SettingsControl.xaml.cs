@@ -219,7 +219,8 @@ namespace KLPlugins.DynLeaderboards.Settings {
                 "Category",
                 this.Plugin.Values.TeamCupCategoryColors,
                 this.ColorsTab_TeamCupCategoryColors_Menu,
-                this.ColorsTab_TeamCupCategoryColors_Grid
+                this.ColorsTab_TeamCupCategoryColors_Grid,
+                this.Plugin.Values.UpdateTeamCupInfos
             ).Build(c => c == TeamCupCategory.Default);
 
             new ColorsTabSection<DriverCategory>(
@@ -228,7 +229,8 @@ namespace KLPlugins.DynLeaderboards.Settings {
                 "Category",
                 this.Plugin.Values.DriverCategoryColors,
                 this.ColorsTab_DriverCategoryColors_Menu,
-                this.ColorsTab_DriverCategoryColors_Grid
+                this.ColorsTab_DriverCategoryColors_Grid,
+                this.Plugin.Values.UpdateDriverInfos
             ).Build(c => c == DriverCategory.Default);
         }
 

@@ -329,6 +329,54 @@ namespace KLPlugins.DynLeaderboards.Car {
             );
         }
 
+        internal void UpdateCarInfos(Values values) {
+            var rawClass = CarClass.TryNew(this.RawDataNew.CarClass) ?? CarClass.Default;
+            OverridableCarInfo? carInfo = null;
+            if (this.RawDataNew.CarName != null) {
+                carInfo = values.CarInfos.Get(this.RawDataNew.CarName, rawClass);
+            }
+
+            var (cls, classInfo) = values.ClassInfos.GetFollowReplaceWith(carInfo?.Class() ?? rawClass);
+            this.CarClass = cls;
+
+            this.CarModel = carInfo?.Name() ?? this.RawDataNew.CarName ?? "Unknown";
+            this.CarManufacturer = carInfo?.Manufacturer() ?? GetCarManufacturer(this.CarModel);
+
+            this.CarClassColor = new TextBoxColor(
+                fg: classInfo.Foreground() ?? this.RawDataNew.CarClassTextColor ?? OverridableTextBoxColor.DEF_FG,
+                bg: classInfo.Background() ?? this.RawDataNew.CarClassColor ?? OverridableTextBoxColor.DEF_BG
+            );
+        }
+
+        internal void UpdateClassInfos(Values values) {
+            var rawClass = CarClass.TryNew(this.RawDataNew.CarClass) ?? CarClass.Default;
+            OverridableCarInfo? carInfo = null;
+            if (this.RawDataNew.CarName != null) {
+                carInfo = values.CarInfos.Get(this.RawDataNew.CarName, rawClass);
+            }
+            var (cls, classInfo) = values.ClassInfos.GetFollowReplaceWith(carInfo?.Class() ?? rawClass);
+            this.CarClass = cls;
+
+            this.CarClassColor = new TextBoxColor(
+                fg: classInfo.Foreground() ?? this.RawDataNew.CarClassTextColor ?? OverridableTextBoxColor.DEF_FG,
+                bg: classInfo.Background() ?? this.RawDataNew.CarClassColor ?? OverridableTextBoxColor.DEF_BG
+            );
+        }
+
+        internal void UpdateTeamCupInfos(Values values) {
+            var cupColor = values.TeamCupCategoryColors.Get(this.TeamCupCategory);
+            this.TeamCupCategoryColor = new TextBoxColor(
+                fg: cupColor.Foreground() ?? OverridableTextBoxColor.DEF_FG,
+                bg: cupColor.Background() ?? OverridableTextBoxColor.DEF_BG
+            );
+        }
+
+        internal void UpdateDriverInfos(Values values) {
+            foreach (var driver in this.Drivers) {
+                driver.UpdateDriverInfos(values);
+            }
+        }
+
         private static TeamCupCategory ACCTeamCupCategoryToString(byte cupCategory) {
             return cupCategory switch {
                 0 => new TeamCupCategory("Overall"),
@@ -1497,6 +1545,14 @@ namespace KLPlugins.DynLeaderboards.Car {
             this.Initials = this.CreateInitialsACC();
 
             var col = v.DriverCategoryColors.Get(this.Category);
+            this.CategoryColor = new TextBoxColor(
+                fg: col.Foreground() ?? OverridableTextBoxColor.DEF_FG,
+                bg: col.Background() ?? OverridableTextBoxColor.DEF_BG
+            );
+        }
+
+        internal void UpdateDriverInfos(Values values) {
+            var col = values.DriverCategoryColors.Get(this.Category);
             this.CategoryColor = new TextBoxColor(
                 fg: col.Foreground() ?? OverridableTextBoxColor.DEF_FG,
                 bg: col.Background() ?? OverridableTextBoxColor.DEF_BG

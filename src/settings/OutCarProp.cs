@@ -27,6 +27,7 @@ namespace KLPlugins.DynLeaderboards.Settings {
         CarClassTextColor = 1 << 16,
 
         CarNumberText = 1 << 17,
+        CarClassShortName = 1 << 18,
     }
 
     internal static class OutCarPropExtensions {
@@ -50,10 +51,11 @@ namespace KLPlugins.DynLeaderboards.Settings {
                  OutCarProp.CarModel,
                  OutCarProp.CarManufacturer,
                  OutCarProp.CarClass,
+                 OutCarProp.CarClassShortName,
+                OutCarProp.CarClassColor,
+                 OutCarProp.CarClassTextColor,
                  OutCarProp.TeamName,
                  OutCarProp.TeamCupCategory,
-                 OutCarProp.CarClassColor,
-                 OutCarProp.CarClassTextColor,
                  OutCarProp.TeamCupCategoryColor,
                  OutCarProp.TeamCupCategoryTextColor,
                  OutCarProp.IsFinished,
@@ -73,6 +75,7 @@ namespace KLPlugins.DynLeaderboards.Settings {
                 OutCarProp.CarModel => "Car.Model",
                 OutCarProp.CarManufacturer => "Car.Manufacturer",
                 OutCarProp.CarClass => "Car.Class",
+                OutCarProp.CarClassShortName => "Car.Class.Short",
                 OutCarProp.TeamName => "Team.Name",
                 OutCarProp.TeamCupCategory => "Team.CupCategory",
                 OutCarProp.IsFinished => "IsFinished",
@@ -97,9 +100,10 @@ namespace KLPlugins.DynLeaderboards.Settings {
                 OutCarProp.CarNumberText => "Car number as a text. Allows to differentiate 01 and 1 for example.",
                 OutCarProp.CarModel => "Car model name.",
                 OutCarProp.CarManufacturer => "Car manufacturer.",
-                OutCarProp.CarClass => "Car class (GT2, GT3, GT4, ST15, ST21, CHL, CUP17, CUP21, TCX).",
+                OutCarProp.CarClass => "Car class.",
+                OutCarProp.CarClassShortName => "Car class short name.",
                 OutCarProp.TeamName => "Team name.",
-                OutCarProp.TeamCupCategory => "Team cup category (Overall/Pro, ProAm, Am, Silver, National).",
+                OutCarProp.TeamCupCategory => "Team cup category.",
                 OutCarProp.IsFinished => "Is the car finished?",
                 OutCarProp.MaxSpeed => "Maximum speed in this session.",
                 OutCarProp.CarClassColor => "Car class background color. Values can be changed in \"General settings\" tab.",

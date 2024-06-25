@@ -44,7 +44,7 @@ namespace KLPlugins.DynLeaderboards.Settings {
             p &= ~o;
         }
 
-        internal static OutCarProp[] Order() {
+        internal static OutCarProp[] OrderCarInformation() {
             return new[] {
                  OutCarProp.CarNumber,
                  OutCarProp.CarNumberText,
@@ -57,14 +57,19 @@ namespace KLPlugins.DynLeaderboards.Settings {
                  OutCarProp.TeamName,
                  OutCarProp.TeamCupCategory,
                  OutCarProp.TeamCupCategoryColor,
-                 OutCarProp.TeamCupCategoryTextColor,
+                 OutCarProp.TeamCupCategoryTextColor
+             };
+        }
+
+        internal static OutCarProp[] OrderOther() {
+            return new[] {
                  OutCarProp.IsFinished,
                  OutCarProp.MaxSpeed,
                  OutCarProp.IsFocused,
                  OutCarProp.IsOverallBestLapCar,
                  OutCarProp.IsClassBestLapCar,
                  OutCarProp.IsCupBestLapCar,
-                 OutCarProp.RelativeOnTrackLapDiff,
+                 OutCarProp.RelativeOnTrackLapDiff
              };
         }
 

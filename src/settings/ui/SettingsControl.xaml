@@ -444,8 +444,6 @@
                                  TextChanged="AcRootLocation_TextChanged" />
                     </Grid>
 
-
-
                     <local:SectionTitle>EXPOSED PROPERTIES</local:SectionTitle>
                     <StackPanel x:Name="OtherProperties_StackPanel" />
 
@@ -593,29 +591,9 @@
                     <!-- Properties for each car -->
 
                     <local:SectionTitle HelpPath="user_guide/config/#properties-for-each-car">PROPERTIES FOR EACH CAR</local:SectionTitle>
-
-                    <styles:SHSmallTitle>Car information</styles:SHSmallTitle>
-                    <StackPanel x:Name="OutCarProps_StackPanel" />
-
-                    <styles:SHSmallTitle>Lap information</styles:SHSmallTitle>
-                    <StackPanel x:Name="OutLapProps_StackPanel" />
-
-                    <styles:SHSmallTitle>Stint information</styles:SHSmallTitle>
-                    <StackPanel x:Name="OutStintProps_StackPanel" />
-
-                    <styles:SHSmallTitle>Gaps</styles:SHSmallTitle>
-                    <StackPanel x:Name="OutGapsProps_StackPanel" />
-
-                    <styles:SHSmallTitle>Positions</styles:SHSmallTitle>
-                    <StackPanel x:Name="OutPosProps_StackPanel" />
-
-                    <styles:SHSmallTitle>Pit information</styles:SHSmallTitle>
-                    <StackPanel x:Name="OutPitProps_StackPanel" />
-
-                    <styles:SHSmallTitle>Other</styles:SHSmallTitle>
-                    <StackPanel x:Name="OutOtherProps_StackPanel" />
-
-                    <!-- Properties for each car -->
+                    <StackPanel x:Name="PropertiesForEachCar_StackPanel"/>
+                    
+                    <!-- Properties for each driver -->
 
                     <local:SectionTitle HelpPath="user_guide/config/#properties-for-each-driver">PROPERTIES FOR EACH DRIVER</local:SectionTitle>
                     <StackPanel x:Name="ExposedDriverProperties_StackPanel" />
@@ -840,7 +818,7 @@
                                                VerticalAlignment="Center"
                                                Style="{StaticResource ColorGrid_LabelText}">GT3</TextBlock>
                                 </Border>
-                                
+
                                 <styles:SHButtonPrimary Grid.Column="2"
                                                         Padding="5"
                                                         Margin="5,0,5,0"
@@ -898,7 +876,7 @@
                                     <styles:SHButtonSecondary Style="{StaticResource ColorGrid_ResetButton}" />
 
                                 </StackPanel>
-               
+
                                 <styles:SHToggleCheckbox Grid.Row="1"
                                                          IsChecked="True"
                                                          ToolTip="Enable this car's class override. If disabled, the plugin will use the n provided by SimHub." />

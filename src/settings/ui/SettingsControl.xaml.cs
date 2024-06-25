@@ -20,6 +20,8 @@ using KLPlugins.DynLeaderboards.Settings.UI;
 
 using MahApps.Metro.Controls;
 
+using MathNet.Numerics.Distributions;
+
 using SimHub.Plugins.Styles;
 using SimHub.Plugins.UI;
 
@@ -237,15 +239,40 @@ namespace KLPlugins.DynLeaderboards.Settings {
         #region General settings
 
         private void AddOtherToggles() {
-            this.OtherProperties_StackPanel.Children.Clear();
-            this.OtherProperties_StackPanel.Children.Add(this.CreatePropertyTogglesDescriptionRow());
-            this.OtherProperties_StackPanel.Children.Add(this.CreateToggleSeparator());
+            var sp = this.OtherProperties_StackPanel;
+
+            sp.Children.Clear();
+
+            var enableAllBtn = new SHButtonPrimary() { 
+                Content = "Enable all",
+                Height = 26
+            };
+            var disableAlLBtn = new SHButtonPrimary() {
+                Content = "Disable all",
+                Height = 26
+            };
+
+            var btnSp = new StackPanel() {
+                Orientation = Orientation.Horizontal,
+                HorizontalAlignment = HorizontalAlignment.Right,
+                Children = {
+                    enableAllBtn,
+                    disableAlLBtn
+                }
+            };
+            sp.Children.Add(btnSp);
+
+            sp.Children.Add(this.CreatePropertyTogglesDescriptionRow());
+            sp.Children.Add(this.CreateToggleSeparator());
+
+
+            List<SHToggleButton> toggles = new();
             foreach (var v in OutGeneralPropExtensions.Order()) {
                 if (v == OutGeneralProp.None) {
                     continue;
                 }
 
-                var sp = this.CreatePropertyToggleRow(
+                var (row, toggle) = this.CreatePropertyToggleRow(
                     v.ToString(),
                     v.ToPropName(),
                     DynLeaderboardsPlugin.Settings.OutGeneralProps.Includes(v),
@@ -254,9 +281,23 @@ namespace KLPlugins.DynLeaderboards.Settings {
                     v.ToolTipText()
                 );
 
-                this.OtherProperties_StackPanel.Children.Add(sp);
+                this.OtherProperties_StackPanel.Children.Add(row);
                 this.OtherProperties_StackPanel.Children.Add(this.CreateToggleSeparator());
+                toggles.Add(toggle);
             }
+
+
+            enableAllBtn.Click += (sender, e) => {
+                foreach (var t in toggles) {
+                    t.IsChecked = true;
+                }
+            };
+
+            disableAlLBtn.Click += (sender, e) => {
+                foreach (var t in toggles) {
+                    t.IsChecked = false;
+                }
+            };
         }
 
 
@@ -756,32 +797,59 @@ namespace KLPlugins.DynLeaderboards.Settings {
         }
 
         private void AddPropertyToggles() {
-            this.OutCarProps_StackPanel.Children.Add(this.CreatePropertyTogglesDescriptionRow());
-            this.AddPitToggles();
-            this.AddPosToggles();
-            this.AddGapToggles();
-            this.AddStintToggles();
-            this.AddLapToggles();
+            this.PropertiesForEachCar_StackPanel.Children.Clear();
+            this.ExposedDriverProperties_StackPanel.Children.Clear();
             this.AddCarToggles();
+            this.AddLapToggles();
+            this.AddStintToggles();
+            this.AddGapToggles();
+            this.AddPosToggles();
+            this.AddPitToggles();
+            this.AddOtherToggles_Dynamic_leaderboards_tab();
             this.AddDriverToggles();
+        }
+
+        private class PropertyTogglesTitleRow : Border {
+            internal SHButtonPrimary EnableBtn { get; private set; }
+            internal SHButtonPrimary DisableBtn { get; private set; }
+
+            internal PropertyTogglesTitleRow(string title) {
+                this.Background = new SolidColorBrush(Color.FromArgb(0xff, 0x37, 0x37, 0x37));
+                this.CornerRadius = new CornerRadius(5);
+                this.Margin = new Thickness(5);
+
+                var dp = new DockPanel() { Margin = new Thickness(10, 0, 10, 0) };
+                this.Child = dp;
+
+                var titleBlock = new TextBlock() { Text = title };
+                DockPanel.SetDock(titleBlock, Dock.Left);
+                dp.Children.Add(titleBlock);
+
+                this.EnableBtn = new SHButtonPrimary() { Content = "Enable all", HorizontalAlignment = HorizontalAlignment.Right, Height = 26 };
+                this.DisableBtn = new SHButtonPrimary() { Content = "Disable all", HorizontalAlignment = HorizontalAlignment.Right, Height = 26 };
+
+                DockPanel.SetDock(this.EnableBtn, Dock.Right);
+                DockPanel.SetDock(this.DisableBtn, Dock.Right);
+
+                dp.Children.Add(this.DisableBtn);
+                dp.Children.Add(this.EnableBtn);
+            }
         }
 
         private void AddCarToggles() {
             // Add Car properties
-            this.OutCarProps_StackPanel.Children.Clear();
-            this.OutOtherProps_StackPanel.Children.Clear();
+            var sp = this.PropertiesForEachCar_StackPanel;
 
-            StackPanel panel = this.OutCarProps_StackPanel;
-            foreach (var v in OutCarPropExtensions.Order()) {
+            var titleRow = new PropertyTogglesTitleRow("Car information");
+            sp.Children.Add(titleRow);
+
+            List<SHToggleButton> toggles = new();
+            foreach (var v in OutCarPropExtensions.OrderCarInformation()) {
                 if (v == OutCarProp.None) {
                     continue;
                 }
 
-                if (v == OutCarProp.IsFinished) {
-                    panel = this.OutOtherProps_StackPanel;
-                }
-
-                StackPanel sp = this.CreatePropertyToggleRow(
+                var (row, toggle) = this.CreatePropertyToggleRow(
                        v.ToString(),
                        v.ToPropName(),
                        this.CurrentDynLeaderboardSettings.OutCarProps.Includes(v),
@@ -790,21 +858,52 @@ namespace KLPlugins.DynLeaderboards.Settings {
                        v.ToolTipText()
                    );
 
-                panel.Children.Add(sp);
-                panel.Children.Add(this.CreateToggleSeparator());
+                sp.Children.Add(row);
+                sp.Children.Add(this.CreateToggleSeparator());
+                toggles.Add(toggle);
             }
+
+            titleRow.EnableBtn.Click += (sender, e) => {
+                foreach (var v in toggles) {
+                    v.IsChecked = true;
+                }
+            };
+
+            titleRow.DisableBtn.Click += (sender, e) => {
+                foreach (var v in toggles) {
+                    v.IsChecked = false;
+                }
+            };
         }
 
         private void AddLapToggles() {
             // Add Lap Properties
-            this.OutLapProps_StackPanel.Children.Clear();
+            var sp = this.PropertiesForEachCar_StackPanel;
 
-            void AddSmallTitle(string name) {
-                var t = new SHSmallTitle {
-                    Content = name,
-                    Margin = new Thickness(25, 0, 0, 0)
+            var titleRow = new PropertyTogglesTitleRow("Lap information");
+            sp.Children.Add(titleRow);
+
+            List<SHToggleButton> toggles = new();
+
+            PropertyTogglesTitleRow AddSmallTitle(string name) {
+                var t = new PropertyTogglesTitleRow(name);
+                t.Margin = new Thickness(25, 5, 25, 5);
+                sp.Children.Add(t);
+                return t;
+            }
+
+            void AddEnableDisableButtonClicks(PropertyTogglesTitleRow titleRow, List<SHToggleButton> toggles) {
+                titleRow.EnableBtn.Click += (sender, e) => {
+                    foreach (var v in toggles) {
+                        v.IsChecked = true;
+                    }
                 };
-                this.OutLapProps_StackPanel.Children.Add(t);
+
+                titleRow.DisableBtn.Click += (sender, e) => {
+                    foreach (var v in toggles) {
+                        v.IsChecked = false;
+                    }
+                };
             }
 
             foreach (var v in OutLapPropExtensions.Order()) {
@@ -814,22 +913,28 @@ namespace KLPlugins.DynLeaderboards.Settings {
                 // Group by similarity
                 switch (v) {
                     case OutLapProp.BestLapDeltaToOverallBest:
-                        AddSmallTitle("Best to best");
+                        AddEnableDisableButtonClicks(titleRow, toggles);
+                        toggles = new();
+                        titleRow = AddSmallTitle("Best to best");
                         break;
 
                     case OutLapProp.LastLapDeltaToOverallBest:
-                        AddSmallTitle("Last to best");
+                        AddEnableDisableButtonClicks(titleRow, toggles);
+                        toggles = new();
+                        titleRow = AddSmallTitle("Last to best");
                         break;
 
                     case OutLapProp.LastLapDeltaToLeaderLast:
-                        AddSmallTitle("Last to last");
+                        AddEnableDisableButtonClicks(titleRow, toggles);
+                        toggles = new();
+                        titleRow = AddSmallTitle("Last to last");
                         break;
 
                     default:
                         break;
                 }
 
-                StackPanel sp = this.CreatePropertyToggleRow(
+                var (row, toggle) = this.CreatePropertyToggleRow(
                        v.ToString(),
                        v.ToPropName(),
                        this.CurrentDynLeaderboardSettings.OutLapProps.Includes(v),
@@ -838,20 +943,30 @@ namespace KLPlugins.DynLeaderboards.Settings {
                        v.ToolTipText()
                    );
 
-                this.OutLapProps_StackPanel.Children.Add(sp);
-                this.OutLapProps_StackPanel.Children.Add(this.CreateToggleSeparator());
+                sp.Children.Add(row);
+                sp.Children.Add(this.CreateToggleSeparator());
+
+                toggles.Add(toggle);
             }
+
+            AddEnableDisableButtonClicks(titleRow, toggles);
         }
 
         private void AddStintToggles() {
-            this.OutStintProps_StackPanel.Children.Clear();
             // Add Stint Properties
+            var sp = this.PropertiesForEachCar_StackPanel;
+
+            var titleRow = new PropertyTogglesTitleRow("Stint information");
+            sp.Children.Add(titleRow);
+
+            List<SHToggleButton> toggles = new();
+
             foreach (var v in OutStintPropExtensions.Order()) {
                 if (v == OutStintProp.None) {
                     continue;
                 }
 
-                StackPanel sp = this.CreatePropertyToggleRow(
+                var (row, toggle) = this.CreatePropertyToggleRow(
                        v.ToString(),
                        v.ToPropName(),
                        this.CurrentDynLeaderboardSettings.OutStintProps.Includes(v),
@@ -860,20 +975,52 @@ namespace KLPlugins.DynLeaderboards.Settings {
                        v.ToolTipText()
                    );
 
-                this.OutStintProps_StackPanel.Children.Add(sp);
-                this.OutStintProps_StackPanel.Children.Add(this.CreateToggleSeparator());
+                sp.Children.Add(row);
+                sp.Children.Add(this.CreateToggleSeparator());
+                toggles.Add(toggle);
             }
+
+            titleRow.EnableBtn.Click += (sender, e) => {
+                foreach (var v in toggles) {
+                    v.IsChecked = true;
+                }
+            };
+
+            titleRow.DisableBtn.Click += (sender, e) => {
+                foreach (var v in toggles) {
+                    v.IsChecked = false;
+                }
+            };
         }
 
         private void AddGapToggles() {
-            this.OutGapsProps_StackPanel.Children.Clear();
             // Add Gap Properties
-            void AddSmallTitle(string name) {
-                var t = new SHSmallTitle {
-                    Content = name,
-                    Margin = new Thickness(25, 0, 0, 0)
+            var sp = this.PropertiesForEachCar_StackPanel;
+
+            var titleRow = new PropertyTogglesTitleRow("Gaps");
+            sp.Children.Add(titleRow);
+
+            List<SHToggleButton> toggles = new();
+
+            PropertyTogglesTitleRow AddSmallTitle(string name) {
+                var t = new PropertyTogglesTitleRow(name);
+                t.Margin = new Thickness(25, 5, 25, 5);
+                sp.Children.Add(t);
+                return t;
+            }
+
+            void AddEnableDisableButtonClicks(PropertyTogglesTitleRow titleRow, List<SHToggleButton> toggles) {
+                titleRow.EnableBtn.Click += (sender, e) => {
+                    foreach (var v in toggles) {
+                        v.IsChecked = true;
+                    }
                 };
-                this.OutGapsProps_StackPanel.Children.Add(t);
+
+                titleRow.DisableBtn.Click += (sender, e) => {
+                    foreach (var v in toggles) {
+                        v.IsChecked = false;
+                    }
+                };
             }
 
             foreach (var v in OutGapPropExtensions.Order()) {
@@ -882,10 +1029,12 @@ namespace KLPlugins.DynLeaderboards.Settings {
                 }
 
                 if (v == OutGapProp.DynamicGapToFocused) {
-                    AddSmallTitle("Dynamic gaps");
+                    AddEnableDisableButtonClicks(titleRow, toggles);
+                    toggles = new();
+                    titleRow = AddSmallTitle("Dynamic gaps");
                 }
 
-                StackPanel sp = this.CreatePropertyToggleRow(
+                var (row, toggle) = this.CreatePropertyToggleRow(
                        v.ToString(),
                        v.ToPropName(),
                        this.CurrentDynLeaderboardSettings.OutGapProps.Includes(v),
@@ -894,20 +1043,29 @@ namespace KLPlugins.DynLeaderboards.Settings {
                        v.ToolTipText()
                    );
 
-                this.OutGapsProps_StackPanel.Children.Add(sp);
-                this.OutGapsProps_StackPanel.Children.Add(this.CreateToggleSeparator());
+                sp.Children.Add(row);
+                sp.Children.Add(this.CreateToggleSeparator());
+                toggles.Add(toggle);
             }
+
+            AddEnableDisableButtonClicks(titleRow, toggles);
         }
 
         private void AddPosToggles() {
-            this.OutPosProps_StackPanel.Children.Clear();
             // Add Pos Properties
+            var sp = this.PropertiesForEachCar_StackPanel;
+
+            var titleRow = new PropertyTogglesTitleRow("Positions");
+            sp.Children.Add(titleRow);
+
+            List<SHToggleButton> toggles = new();
+
             foreach (var v in OutPosPropExtensions.Order()) {
                 if (v == OutPosProp.None) {
                     continue;
                 }
 
-                StackPanel sp = this.CreatePropertyToggleRow(
+                var (row, toggle) = this.CreatePropertyToggleRow(
                        v.ToString(),
                        v.ToPropName(),
                        this.CurrentDynLeaderboardSettings.OutPosProps.Includes(v),
@@ -916,20 +1074,39 @@ namespace KLPlugins.DynLeaderboards.Settings {
                        v.ToolTipText()
                    );
 
-                this.OutPosProps_StackPanel.Children.Add(sp);
-                this.OutPosProps_StackPanel.Children.Add(this.CreateToggleSeparator());
+                sp.Children.Add(row);
+                sp.Children.Add(this.CreateToggleSeparator());
+                toggles.Add(toggle);
             }
+
+            titleRow.EnableBtn.Click += (sender, e) => {
+                foreach (var v in toggles) {
+                    v.IsChecked = true;
+                }
+            };
+
+            titleRow.DisableBtn.Click += (sender, e) => {
+                foreach (var v in toggles) {
+                    v.IsChecked = false;
+                }
+            };
         }
 
         private void AddPitToggles() {
-            this.OutPitProps_StackPanel.Children.Clear();
             // Add Pit Properties
+            var sp = this.PropertiesForEachCar_StackPanel;
+
+            var titleRow = new PropertyTogglesTitleRow("Pit information");
+            sp.Children.Add(titleRow);
+
+            List<SHToggleButton> toggles = new();
+
             foreach (var v in OutPitPropExtensions.Order()) {
                 if (v == OutPitProp.None) {
                     continue;
                 }
 
-                StackPanel sp = this.CreatePropertyToggleRow(
+                var (row, toggle) = this.CreatePropertyToggleRow(
                        v.ToString(),
                        v.ToPropName(),
                        this.CurrentDynLeaderboardSettings.OutPitProps.Includes(v),
@@ -938,32 +1115,106 @@ namespace KLPlugins.DynLeaderboards.Settings {
                        v.ToolTipText()
                    );
 
-                this.OutPitProps_StackPanel.Children.Add(sp);
-                this.OutPitProps_StackPanel.Children.Add(this.CreateToggleSeparator());
+                sp.Children.Add(row);
+                sp.Children.Add(this.CreateToggleSeparator());
+                toggles.Add(toggle);
             }
+
+            titleRow.EnableBtn.Click += (sender, e) => {
+                foreach (var v in toggles) {
+                    v.IsChecked = true;
+                }
+            };
+
+            titleRow.DisableBtn.Click += (sender, e) => {
+                foreach (var v in toggles) {
+                    v.IsChecked = false;
+                }
+            };
+        }
+
+        private void AddOtherToggles_Dynamic_leaderboards_tab() {
+            // Add Car properties
+            var sp = this.PropertiesForEachCar_StackPanel;
+
+            var titleRow = new PropertyTogglesTitleRow("Other");
+            sp.Children.Add(titleRow);
+
+            List<SHToggleButton> toggles = new();
+            foreach (var v in OutCarPropExtensions.OrderOther()) {
+                if (v == OutCarProp.None) {
+                    continue;
+                }
+
+                var (row, toggle) = this.CreatePropertyToggleRow(
+                       v.ToString(),
+                       v.ToPropName(),
+                       this.CurrentDynLeaderboardSettings.OutCarProps.Includes(v),
+                       (sender, e) => this.CurrentDynLeaderboardSettings.OutCarProps.Combine(v),
+                       (sender, e) => this.CurrentDynLeaderboardSettings.OutCarProps.Remove(v),
+                       v.ToolTipText()
+                   );
+
+                sp.Children.Add(row);
+                sp.Children.Add(this.CreateToggleSeparator());
+                toggles.Add(toggle);
+            }
+
+            titleRow.EnableBtn.Click += (sender, e) => {
+                foreach (var v in toggles) {
+                    v.IsChecked = true;
+                }
+            };
+
+            titleRow.DisableBtn.Click += (sender, e) => {
+                foreach (var v in toggles) {
+                    v.IsChecked = false;
+                }
+            };
         }
 
         private void AddDriverToggles() {
-            this.ExposedDriverProperties_StackPanel.Children.Clear();
-            this.ExposedDriverProperties_StackPanel.Children.Add(this.CreatePropertyTogglesDescriptionRow());
+            var sp = this.ExposedDriverProperties_StackPanel;
+            sp.Children.Add(this.CreatePropertyTogglesDescriptionRow());
+
+            var titleRow = new PropertyTogglesTitleRow("Names");
+            sp.Children.Add(titleRow);
+
+            List<SHToggleButton> toggles = new();
+
+            PropertyTogglesTitleRow AddSmallTitle(string name) {
+                var t = new PropertyTogglesTitleRow(name);
+                t.Margin = new Thickness(25, 5, 25, 5);
+                sp.Children.Add(t);
+                return t;
+            }
+
+            void AddEnableDisableButtonClicks(PropertyTogglesTitleRow titleRow, List<SHToggleButton> toggles) {
+                titleRow.EnableBtn.Click += (sender, e) => {
+                    foreach (var v in toggles) {
+                        v.IsChecked = true;
+                    }
+                };
+
+                titleRow.DisableBtn.Click += (sender, e) => {
+                    foreach (var v in toggles) {
+                        v.IsChecked = false;
+                    }
+                };
+            }
+
             foreach (var v in OutDriverPropExtensions.Order()) {
                 if (v == OutDriverProp.None) {
                     continue;
                 }
 
-                if (v == OutDriverProp.FirstName) {
-                    var stitle = new SHSmallTitle {
-                        Content = "Names"
-                    };
-                    this.ExposedDriverProperties_StackPanel.Children.Add(stitle);
-                } else if (v == OutDriverProp.Nationality) {
-                    var stitle = new SHSmallTitle {
-                        Content = "Other"
-                    };
-                    this.ExposedDriverProperties_StackPanel.Children.Add(stitle);
+                if (v == OutDriverProp.Nationality) {
+                    AddEnableDisableButtonClicks(titleRow, toggles);
+                    toggles = new();
+                    titleRow = AddSmallTitle("Other");
                 }
 
-                var sp = this.CreatePropertyToggleRow(
+                var (row, toggle) = this.CreatePropertyToggleRow(
                     v.ToString(),
                     v.ToPropName(),
                     this.CurrentDynLeaderboardSettings.OutDriverProps.Includes(v),
@@ -971,9 +1222,12 @@ namespace KLPlugins.DynLeaderboards.Settings {
                     (sender, e) => this.CurrentDynLeaderboardSettings.OutDriverProps.Remove(v),
                     v.ToolTipText()
                 );
-                this.ExposedDriverProperties_StackPanel.Children.Add(sp);
-                this.ExposedDriverProperties_StackPanel.Children.Add(this.CreateToggleSeparator());
+                sp.Children.Add(row);
+                sp.Children.Add(this.CreateToggleSeparator());
+                toggles.Add(toggle);
             }
+
+            AddEnableDisableButtonClicks(titleRow, toggles);
         }
 
         private StackPanel CreatePropertyTogglesDescriptionRow() {
@@ -1004,7 +1258,7 @@ namespace KLPlugins.DynLeaderboards.Settings {
         /// <summary>
         /// Creates row to toggle property
         /// </summary>
-        private StackPanel CreatePropertyToggleRow(
+        private (StackPanel, SHToggleButton) CreatePropertyToggleRow(
             string name,
             string displayName,
             bool isChecked,
@@ -1039,7 +1293,7 @@ namespace KLPlugins.DynLeaderboards.Settings {
             sp.Children.Add(t);
             sp.Children.Add(t2);
 
-            return sp;
+            return (sp, tb);
         }
 
         /// <summary>

@@ -467,6 +467,16 @@ namespace KLPlugins.DynLeaderboards.Settings.UI {
             row = 1;
             isEnabled = true;
 
+            var manufacturerToggle = CreateToggle(
+                true,
+                row,
+                "Manufacturer name cannot be disabled as there is no SimHub data to fall back to. You can use `Reset` button to revert back to the default value."
+            );
+            manufacturerToggle.IsEnabled = false;
+            manufacturerToggle.Opacity = SettingsControl.DISABLED_OPTION_OPACITY;
+            ToolTipService.SetShowOnDisabled(manufacturerToggle, true);
+            settingsGrid.Children.Add(manufacturerToggle);
+
             var manufacturerLabel = CreateLabelTextBox("Manufacturer", isEnabled, row);
             settingsGrid.Children.Add(manufacturerLabel);
 

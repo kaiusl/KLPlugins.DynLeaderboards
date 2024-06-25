@@ -140,8 +140,10 @@ If you are creating your own dashboard make sure to give [Creating dashboards](c
 
 This tab provides an option to change car names, manufacturers and classes. 
 All the available cars are listed on the left. 
+The listed name is the name provided by SimHub.
 If the plugin detects a new car while in game it will be added to the list but for now you'll
 need to manually refresh the list by clicking the `Refresh` button.
+This is so that we don't build unnecessary UI elements when they are not viewed and we are actually racing.
 A new car will be added in disabled state but most of the times reasonable defaults will be provided
 for easy customization.
 
@@ -166,6 +168,34 @@ The main use for base data is to match in game info (names, classes, colors etc)
     In the car settings menu if a property is enabled then whatever text is in text box will be used.
     If the property is disabled then SimHub's data will be used.
 
+#### Properties
+
+***Name***
+: Provide an custom car name instead of the one provided by SimHub.
+
+    Main use case for this option is to replace car names which are more like IDs (for example in AC).
+
+    If the base data is not available then the plugin default is the name provided by SimHub.
+
+***Manufacturer***
+: Provide an custom manufacturer.
+
+    If the base data is not available then the plugin default is the first word of SimHub provided name.
+    This is not perfect as some manufacturers have multiple words but in most cases this works fine.
+
+    Note that this property cannot be disabled since SimHub itself doesn't provide an alternative class name.
+
+***Class***
+: Provide a custom class for given car.
+
+    It is useful to split cars up more (for example in AC most cars are in either "street" or "race" class)
+    or change it's class to more suitable.
+
+    Note that if you want to change all cars from one class to another.
+    Then the simplest option is to set the `replace with` property on the current class.
+    See ["Class settings"](#properties_1) for more details.
+
+    If the base data is not available then the plugin default is the class provided by SimHub.
 
 #### Assetto Corsa
    
@@ -204,32 +234,57 @@ list by clicking the `Refresh` button.
 The classes also have same [three level fallback system](#fallback-and-defaults) as ["Car settings"](#car-settings).
 Base data is provided for ACC and AMS2 to match in game class colors and for R3E to match class groups.
 
-#### Replace with
+#### Properties
 
-If this option is set all cars that belong to the original class are shown in the `replace with` class.
-This can be useful in few cases.
+***Color***
 
-1. It allows to combine classes. 
+: Each color has background and text part which are also shown in a little preview box.
+    Background color is exported simply as `Color`, for example `Car.Class.Color`. 
+    Text color is exported as `Car.Class.TextColor`.
 
-    For example in R3E the game provided classes are very specific and even in game itself they are combined together.
-    For example "DTM 2023" and "GTR 3" are both GT3 cars and are grouped together. 
-    Thus "DTM 2023" class' `replace with` property should probably be set to "GTR 3".
+    If this property is disabled then SimHub's class colors will be used. 
+    You can change them from the "Car settings" item on the left menu (not to be confused with this plugins "Car settings" menu).
 
-    Similarly in AMS2 "GT3" and "GT3_gen2" are both "GT3" cars and in ACC "ST22" and "CHL" cars are also "GT2" cars.
+    If the base data is not available then the plugin default is to disable this property and use SimHub provided colors.
 
-    The plugin provides these replacement with base data to match in game classes. 
-    If you want you can disable all of replacements from "Disable" -> "Disable all "replace with" values" menu item. 
+***Short name***
 
-2. It allows to replace a given class with another without having to go through all the cars and change all of their classes.
-   
-    This method also has the benefit that any new car that is listed as "old class" by the game, will automatically use the new class.
-    If that is not desired, one could always change the car classes individually from the ["Car settings"](#car-settings) menu.
+: Some full class names can be rather long and in many leaderboards there is not enough space to actually show the full class name. 
+    This option allows to specify an alternative.
 
-3. It allows to rename classes. 
-   
-    First step is to duplicate the class you want to rename (from the blue `Duplicate` button). 
-    Second is to set `replace with` property on the original class to the new class.
+    If the base data is not available then the plugin default is the full class name.
 
+    Note that this property cannot be disabled since SimHub itself doesn't provide an alternative class name.
+
+***Replace with***
+
+: If this option is set all cars that belong to the original class are shown in the `replace with` class.
+    This can be useful in a few cases.
+
+    1. It allows to combine classes. 
+
+        For example in R3E the game provided classes are very specific and even in game itself they are combined together.
+        For example "DTM 2023" and "GTR 3" are both GT3 cars and are grouped together. 
+        Thus "DTM 2023" class' `replace with` property should probably be set to "GTR 3".
+
+        Similarly in AMS2 "GT3" and "GT3_gen2" are both "GT3" cars and in ACC "ST22" and "CHL" cars are also "GT2" cars.
+
+        The plugin provides these replacement with base data to match in game classes. 
+        If you want you can disable all of replacements from "Disable" -> "Disable all "replace with" values" menu item. 
+
+    2. It allows to replace a given class with another without having to go through all the cars and change all of their classes.
+    
+        This method also has the benefit that any new car that is listed as "old class" by the game, will automatically use the new class.
+        If that is not desired, one could always change the car classes individually from the ["Car settings"](#car-settings) menu.
+
+    3. It allows to rename classes. 
+    
+        First step is to duplicate the class you want to rename (from the blue `Duplicate` button). 
+        Second is to set `replace with` property on the original class to the new class.
+
+        To easily revert back to the old state reset or disable the `replace with` property on the old class.
+
+    If the base data is not available then the plugin default is to disable `replace with`.
 
 ## Misc colors
 

@@ -753,8 +753,8 @@
                 <Grid DockPanel.Dock="Top"
                       VerticalAlignment="Top">
                     <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="auto" MinWidth="250" />
                         <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="3*" />
                     </Grid.ColumnDefinitions>
 
                     <styles:SHListBox Grid.Column="0"

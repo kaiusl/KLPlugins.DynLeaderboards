@@ -455,6 +455,7 @@ namespace KLPlugins.DynLeaderboards.Settings.UI {
             settingsGrid.RowDefinitions.Add(new RowDefinition() { Height = new GridLength(1, GridUnitType.Auto) });
             settingsGrid.RowDefinitions.Add(new RowDefinition() { Height = new GridLength(1, GridUnitType.Auto) });
             settingsGrid.RowDefinitions.Add(new RowDefinition() { Height = new GridLength(1, GridUnitType.Auto) });
+            settingsGrid.RowDefinitions.Add(new RowDefinition() { Height = new GridLength(1, GridUnitType.Auto) });
 
             TextBlock CreateLabelTextBox(string label, bool isEnabled, int row) {
                 var block = ClassSettingsTab.CreateLabelTextBox(label, isEnabled);
@@ -608,11 +609,41 @@ namespace KLPlugins.DynLeaderboards.Settings.UI {
             colorResetButton.Click += (sender, b) => ResetColors();
             settingsGrid.Children.Add(colorResetButton);
 
+            //// Short name row
+
+            isEnabled = true;
+            opacity = isEnabled ? 1.0 : SettingsControl.DISABLED_OPTION_OPACITY;
+            row = 1;
+
+            var shortNameLabel = CreateLabelTextBox("Short name", isEnabled, row);
+            settingsGrid.Children.Add(shortNameLabel);
+
+            var shortNameTextBox = new TextBox() {
+                VerticalContentAlignment = VerticalAlignment.Center,
+                Text = clsInfo.ShortName() ?? key.AsString(),
+            };
+            shortNameTextBox.TextChanged += (sender, b) => {
+                clsInfo.SetShortName(shortNameTextBox.Text);
+            };
+            Grid.SetColumn(shortNameTextBox, 2);
+            Grid.SetRow(shortNameTextBox, row);
+            settingsGrid.Children.Add(shortNameTextBox);
+
+            void ResetShortName() {
+                var clsStr = clsInfo.BaseShortName() ?? key.AsString();
+                shortNameTextBox.Text = clsStr;
+                clsInfo.ResetShortName();
+            }
+
+            var shortNameResetButton = CreateResetButton(row);
+            shortNameResetButton.Click += (sender, b) => ResetShortName();
+            settingsGrid.Children.Add(shortNameResetButton);
+
             //// Replace with row
 
             isEnabled = clsInfo.IsReplaceWithEnabled;
             opacity = isEnabled ? 1.0 : SettingsControl.DISABLED_OPTION_OPACITY;
-            row = 1;
+            row = 2;
 
             var replaceWithToggle = CreateToggle(
                 isEnabled,
@@ -657,7 +688,7 @@ namespace KLPlugins.DynLeaderboards.Settings.UI {
 
                 if (clsText == null || clsText == "") {
                     // "" is not a valid class name
-                    ResetReplaceWith();
+                    ResetShortName();
                 } else {
                     var cls = new CarClass(clsText);
                     this.TryAddCarClass(cls);
@@ -697,7 +728,7 @@ namespace KLPlugins.DynLeaderboards.Settings.UI {
 
             void ResetAll() {
                 ResetColors();
-                ResetReplaceWith();
+                ResetShortName();
             }
 
             resetAllBtn.Click += (sender, b) => ResetAll();

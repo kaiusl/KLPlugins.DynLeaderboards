@@ -16,6 +16,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
     - `Driver.Category.Color`
     - `Driver.Category.TextColor`
     - `Car.Class.TextColor`
+    - `Car.Class.Short` - short class name
     - `Car.Number.Text` - string representation of number. Allows to differentiate leading zeros in the number.
 - New general properties:
     - `Color.Class.<class>.Text`
@@ -23,6 +24,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
     - `Session.NumberOfClasses`
     - `Session.NumberOfCups`
 - New config UI to edit car settings (name, manufacturer and class).
+- New config UI to edit class settings
+- New class settings options:
+    - "Short name" (eg HY for HyperCars)
+    - "Replace with" other class for easy grouping of classes or replacing one with other.
 - Option to read AC car info directly from AC files.
 - AC root location in the settings.
 - Configuration options to set controls for "NextLeaderboard" and "PreviousLeaderboards"
@@ -42,6 +47,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   resources.
 - Automatically generate lap data for gap calculation.
 - Automatically generate spline position offsets.
+- Car names, classes, colors are updated immediately after a settings change.
+  
+  Previously any changes made applied when a new car was added (either new car joined or session was restarted).
+- Plugin name in SimHub is now "Dynamic Leaderboards" instead of "DynLeaderboards".
 
 ### Removed
 

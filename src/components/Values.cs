@@ -906,23 +906,45 @@ namespace KLPlugins.DynLeaderboards {
                 this.SetReplaceWith(CarClass.Default);
             }
         }
+
+
+        internal string? BaseShortName() {
+            return this.Base?.ShortName;
+        }
+
+        internal string? ShortName() {
+            return this.Overrides?.ShortName ?? this.Base?.ShortName;
+        }
+
+        internal void SetShortName(string? shortName) {
+            this.Overrides ??= new();
+            this.Overrides.ShortName = shortName;
+        }
+
+        internal void ResetShortName() {
+            if (this.Overrides != null) {
+                this.Overrides.ShortName = null;
+            }
+        }
     }
 
     internal class ClassInfo {
         [JsonProperty] internal TextBoxColor? Color { get; set; }
         [JsonProperty] internal CarClass? ReplaceWith { get; set; }
+        [JsonProperty] internal string? ShortName { get; set; }
 
 
         [JsonConstructor]
-        internal ClassInfo(TextBoxColor? color, CarClass? replaceWith) {
+        internal ClassInfo(TextBoxColor? color, CarClass? replaceWith, string? shortName) {
             this.Color = color;
             this.ReplaceWith = replaceWith;
+            this.ShortName = shortName;
         }
 
         internal ClassInfo() { }
 
         internal ClassInfo Clone() {
-            return new ClassInfo(this.Color?.Clone(), this.ReplaceWith);
+            return new ClassInfo(this.Color?.Clone(), this.ReplaceWith, this.ShortName);
         }
     }
 

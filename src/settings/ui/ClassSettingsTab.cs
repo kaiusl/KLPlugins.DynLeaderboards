@@ -718,7 +718,7 @@ namespace KLPlugins.DynLeaderboards.Settings.UI {
 
                 if (clsText == null || clsText == "") {
                     // "" is not a valid class name
-                    ResetShortName();
+                    ResetReplaceWith();
                 } else {
                     var cls = new CarClass(clsText);
                     this.TryAddCarClass(cls);
@@ -766,6 +766,7 @@ namespace KLPlugins.DynLeaderboards.Settings.UI {
             void ResetAll() {
                 ResetColors();
                 ResetShortName();
+                ResetReplaceWith();
                 this._plugin.Values.UpdateClassInfos();
             }
 

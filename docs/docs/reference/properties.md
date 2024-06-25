@@ -141,17 +141,33 @@ for example `DynLeaderboardsPlugin.Dynamic.5.Car.Number`.
 {{ prop("Car.Model", "1.0.0", ["all"], defv="null", ty="string?") }}
 : Car model name.
 
+      The model name for every car can be changed in the plugin settings menu under ["Car settings"](../user_guide/config.md#car-settings) tab. 
+
 {{ prop("Car.Manufacturer", "1.0.0", ["all"], defv="null", ty="string?") }}
 : Car manufacturer.
+
+      The manufacturer for every car can be changed in the plugin settings menu under ["Car settings"](../user_guide/config.md#car-settings) tab. 
 
 {{ prop("Car.Class", "1.0.0", ["all"], defv="null", ty="string?") }}
 : Car class.
 
+      The class for every car can be changed in the plugin settings menu under ["Car settings"](../user_guide/config.md#car-settings) tab. 
+
+{{ prop("Car.Class.Short", "2.0.0", ["all"], defv="null", ty="string?") }}
+: Car class short name. For example HY for HyperCars.
+
+      The class for every car can be changed in the plugin settings menu under ["Car settings"](../user_guide/config.md#car-settings) tab.  
+      The short name for every class can be changed in the plugin settings menu under ["Class settings"](../user_guide/config.md#class-settings) tab. 
+
 {{ prop("Car.Class.Color", "1.0.0", ["all"], defv="null", ty="string?") }}
 : Car class color.
 
+      The colors for every class can be changed in the plugin settings menu under ["Class settings"](../user_guide/config.md#class-settings) tab. 
+
 {{ prop("Car.Class.TextColor", "2.0.0", ["all"], defv="null", ty="string?") }}
 : Car class text color.
+
+      The colors for every class can be changed in the plugin settings menu under ["Class settings"](../user_guide/config.md#class-settings) tab. 
 
 </div>
 
@@ -171,8 +187,12 @@ for example `DynLeaderboardsPlugin.Dynamic.5.Car.Number`.
 {{ prop("Team.CupCategory.Color", "1.0.0", ["all"], defv="null", ty="string?") }}
 : Team cup category main color. The intention was to be used as background color.
 
+      The colors for every category can be changed in the plugin settings menu under ["Misc colors"](../user_guide/config.md#misc-colors) tab. 
+
 {{ prop("Team.CupCategory.TextColor", "1.0.0", ["all"], defv="null", ty="string?") }}
 :  Team cup category secondary color. The intention was to be used as text color.
+
+      The colors for every category can be changed in the plugin settings menu under ["Misc colors"](../user_guide/config.md#misc-colors) tab. 
 
 </div>
 
@@ -576,7 +596,11 @@ for example `DynLeaderboardsPlugin.Dynamic.5.Driver.1.FirstName`.
 {{ prop("Category.Color", "2.0.0", ["ACC"], defv="null", ty="string?") }}
 : Background color for driver category.
 
+      The colors for every category can be changed in the plugin settings menu under ["Misc colors"](../user_guide/config.md#misc-colors) tab. 
+
 {{ prop("Category.TextColor", "2.0.0", ["ACC"], defv="null", ty="string?") }}
 : Text color for driver category.
+
+      The colors for every category can be changed in the plugin settings menu under ["Misc colors"](../user_guide/config.md#misc-colors) tab. 
 
 </div>

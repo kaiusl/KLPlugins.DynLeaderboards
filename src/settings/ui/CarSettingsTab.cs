@@ -17,12 +17,24 @@ namespace KLPlugins.DynLeaderboards.Settings.UI {
         private class CarSettingsListBoxItem : ListBoxItem {
             public string Key { get; set; }
             public OverridableCarInfo CarInfo { get; set; }
+            private TextBlock _title { get; set; }
 
             public CarSettingsListBoxItem(string key, OverridableCarInfo car) : base() {
                 this.CarInfo = car;
                 this.Key = key;
 
-                this.Content = key;
+                var sp = new StackPanel() { Margin = new Thickness(0) };
+                this._title = new TextBlock() { Margin = new Thickness(0) };
+                this.UpdateTitle();
+                var id = new TextBlock() { Text = $"id: {this.Key}", FontSize = 11, Margin = new Thickness(0), Opacity = 0.5 };
+
+                sp.Children.Add(this._title);
+                sp.Children.Add(id);
+                this.Content = sp;
+            }
+
+            internal void UpdateTitle() {
+                this._title.Text = this.CarInfo.Name() ?? this.Key;
             }
         }
 
@@ -36,9 +48,12 @@ namespace KLPlugins.DynLeaderboards.Settings.UI {
 
         private class CarSettingsListBoxItemComparer : IComparer {
             public int Compare(object x, object y) {
-                var xKey = ((CarSettingsListBoxItem)x).Key;
-                var yKey = ((CarSettingsListBoxItem)y).Key;
-                return string.Compare(xKey, yKey, StringComparison.OrdinalIgnoreCase);
+                var x2 = (CarSettingsListBoxItem)x;
+                var y2 = (CarSettingsListBoxItem)y;
+
+                var xName = x2.CarInfo.Name() ?? x2.Key;
+                var yName = y2.CarInfo.Name() ?? y2.Key;
+                return string.Compare(xName, yName, StringComparison.OrdinalIgnoreCase);
             }
         }
         internal CarSettingsTab(SettingsControl settingsControl, DynLeaderboardsPlugin plugin) {
@@ -293,6 +308,7 @@ namespace KLPlugins.DynLeaderboards.Settings.UI {
         }
 
         void BuildDetails(CarSettingsListBoxItem listItem) {
+            listItem.UpdateTitle();
             var key = listItem.Key;
             var carInfo = listItem.CarInfo;
 
@@ -409,6 +425,12 @@ namespace KLPlugins.DynLeaderboards.Settings.UI {
 
             // Name row
 
+            void UpdateCarsList() {
+                listItem.UpdateTitle();
+                ((ListCollectionView)this._carsList.ItemsSource).Refresh();
+                this._carsList.ScrollIntoView(listItem);
+            }
+
             var isEnabled = carInfo.IsNameEnabled;
             var row = 0;
 
@@ -426,8 +448,12 @@ namespace KLPlugins.DynLeaderboards.Settings.UI {
             nameTextBox.TextChanged += (sender, b) => {
                 carInfo.SetName(nameTextBox.Text);
                 this._plugin.Values.UpdateCarInfos();
+                listItem.UpdateTitle();
             };
             settingsGrid.Children.Add(nameTextBox);
+            nameTextBox.LostFocus += (sender, b) => {
+                UpdateCarsList();
+            };
 
             var nameResetButton = CreateResetButton(row);
             void ResetName() {
@@ -435,6 +461,7 @@ namespace KLPlugins.DynLeaderboards.Settings.UI {
                 nameTextBox.Text = carInfo.BaseName();
                 carInfo.ResetName();
                 nameToggle.IsChecked = carInfo.IsNameEnabled;
+                UpdateCarsList();
             }
             nameResetButton.Click += (sender, b) => {
                 ResetName();
@@ -451,6 +478,7 @@ namespace KLPlugins.DynLeaderboards.Settings.UI {
 
                 nameTextBox.Text = carInfo.NameDontCheckEnabled();
                 this._plugin.Values.UpdateCarInfos();
+                UpdateCarsList();
             };
             nameToggle.Unchecked += (sender, b) => {
                 carInfo.DisableName();
@@ -459,6 +487,7 @@ namespace KLPlugins.DynLeaderboards.Settings.UI {
                 nameTextBox.IsEnabled = false;
                 nameTextBox.Opacity = SettingsControl.DISABLED_OPTION_OPACITY;
                 this._plugin.Values.UpdateCarInfos();
+                UpdateCarsList();
             };
 
 

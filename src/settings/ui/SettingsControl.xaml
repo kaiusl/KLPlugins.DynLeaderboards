@@ -925,7 +925,7 @@
 
         </styles:SHTabItem>
 
-        <styles:SHTabItem Header="Colors">
+        <styles:SHTabItem Header="Misc colors">
             <ScrollViewer>
                 <StackPanel Margin="20">
                     <StackPanel.Resources>
@@ -937,7 +937,7 @@
                     </StackPanel.Resources>
 
 
-                    <local:DocsHelpButton RelativePath="user_guide/config/#colors" />
+                    <local:DocsHelpButton RelativePath="user_guide/config/#misc-colors" />
 
                     <local:SectionTitle>Team cup category colors</local:SectionTitle>
 

@@ -12,6 +12,7 @@
 
 This plugin provides bunch of configuration options. 
 Go to the plugin settings either directly from the left main menu "Dynamic Leaderboards" item or under "Additional plugins" item.
+Each section in SimHub menu has a little help button which directly links to the relevant section in here.
 
 Below is the documentation for all the available options.
 
@@ -140,7 +141,7 @@ If you are creating your own dashboard make sure to give [Creating dashboards](c
 This tab provides an option to change car names, manufacturers and classes. 
 All the available cars are listed on the left. 
 If the plugin detects a new car while in game it will be added to the list but for now you'll
-need to manually refresh the list by clicking the "Refresh" button.
+need to manually refresh the list by clicking the `Refresh` button.
 A new car will be added in disabled state but most of the times reasonable defaults will be provided
 for easy customization.
 
@@ -156,7 +157,7 @@ However next two levels can fix it.
 
 * Next there is base plugin data which is either bundled by the plugin with the download or it's generated from game files.
 At the moment base data is provided for ACC (which matches v1.x data) and it can be generated for AC ([more information about it](#assetto-corsa)).
-Main reason for this middle layer is so that the the plugin could update and improve the data without deleting user overrides.
+The main use for base data is to match in game info (names, classes, colors etc) by default and allow us to update and improve the data without deleting user overrides.
 
 * Finally a user can override any of the car settings. These are persistent between plugin updates.
 
@@ -165,31 +166,6 @@ Main reason for this middle layer is so that the the plugin could update and imp
     In the car settings menu if a property is enabled then whatever text is in text box will be used.
     If the property is disabled then SimHub's data will be used.
 
-#### Reset or remove
-
-The toolbar menu also provides options to "reset" or "remove" options.
-These two can be a bit confusing, so what's the difference.
-
-"reset"
-: will revert back to whatever state is the plugins default. 
-    This means that if base data was provided by the plugin then it will be used.
-    If there is no base data then SimHub's data will be used.
-    The car won't be removed from the list.
-
-"remove"
-: will try to remove the setting or car completely. 
-    This always results in SimHub's data being used.
-
-    Note that if base data is available the car won't be completely removed from the list
-    but only disabled. However the effect is same, SimHub's data will be used.
-
-For example since this plugin provides base data for ACC, "reset" will restore 
-the values to that base data, whereas "remove" will fall back to SimHub's data.
-Both will keep the cars listed.
-
-However for AMS2 there is no base data, so "reset" and "remove" effectively 
-do the same thing -- fall back to SimHub's data. 
-Only difference is that "remove" will also remove the car's from the list while "reset" doesn't.
 
 #### Assetto Corsa
    
@@ -202,7 +178,7 @@ If the plugin detects that there is no base AC car data, it will try to automati
 However for further update you need to manually trigger the update. 
 This is so that we don't accidentally trigger an expensive update during a session when unknown car joins.
 
-To update the base info go to the plugin settings and under ["Car settings"](#car-settings) tab click "Update base info" button.
+To update the base info go to the plugin settings and under ["Car settings"](#car-settings) tab click `Update base info` button.
 <span title="Note that this button is only available when AC is the selected game.">:material-information-outline:<span>
 
 This means that there are actually two ways to change car information for AC. 
@@ -214,25 +190,65 @@ Either from the plugin menu or by modifying AC files directly which Content Mana
     However their actual class is represented in tags as "#class" (for example "#GT3-GTE").
     Thus if the car's class if "race" or "street" the plugin will look at tags and first tag of format "#class" is used as the class.
 
+## Class settings
 
-## Colors
+![Screenshot](../img/Config/ClassSettings.png)
+
+This tab provides an option to change class data. 
+All the available classes are listed on the left but you can add new classes too (from `Add new class` button). 
+
+Again as with ["Car settings"](#car-settings) tab if the plugin detects new classes
+they will be added to the list but for now you'll need to manually refresh the 
+list by clicking the `Refresh` button.
+
+The classes also have same [three level fallback system](#fallback-and-defaults) as ["Car settings"](#car-settings).
+Base data is provided for ACC and AMS2 to match in game class colors and for R3E to match class groups.
+
+#### Replace with
+
+If this option is set all cars that belong to the original class are shown in the `replace with` class.
+This can be useful in few cases.
+
+1. It allows to combine classes. 
+
+    For example in R3E the game provided classes are very specific and even in game itself they are combined together.
+    For example "DTM 2023" and "GTR 3" are both GT3 cars and are grouped together. 
+    Thus "DTM 2023" class' `replace with` property should probably be set to "GTR 3".
+
+    Similarly in AMS2 "GT3" and "GT3_gen2" are both "GT3" cars and in ACC "ST22" and "CHL" cars are also "GT2" cars.
+
+    The plugin provides these replacement with base data to match in game classes. 
+    If you want you can disable all of replacements from "Disable" -> "Disable all "replace with" values" menu item. 
+
+2. It allows to replace a given class with another without having to go through all the cars and change all of their classes.
+   
+    This method also has the benefit that any new car that is listed as "old class" by the game, will automatically use the new class.
+    If that is not desired, one could always change the car classes individually from the ["Car settings"](#car-settings) menu.
+
+3. It allows to rename classes. 
+   
+    First step is to duplicate the class you want to rename (from the blue `Duplicate` button). 
+    Second is to set `replace with` property on the original class to the new class.
+
+
+## Misc colors
 
 ![Screenshot](../img/Config/Colors.png)
 
-This tab allows to customize any of the colors provided by the plugin.
-This includes class, team cup category and driver category colors.
+This tab allows to customize other colors provided by the plugin.
+This includes team cup category and driver category colors.
+Note that class colors can be customized in ["Class settings"](#class-settings) tab. 
 
 Each color has background and text part which are also shown in a little preview box.
 Background color is exported simply as `Color`, for example `Car.Class.Color`. 
 Text color is exported as `TextColor`, for example `Car.Class.TextColor`.
 
-Again as with ["Car settings"](#car-settings) tab if the plugin detects new classes or categories
+Again as with ["Car settings"](#car-settings) tab if the plugin detects new categories
 they will be added to the list but for now you'll need to manually refresh the 
-list by clicking the "Refresh" button.
+list by clicking the `Refresh` button.
 
 The colors also have same [three level fallback system](#fallback-and-defaults) as ["Car settings"](#car-settings).
-Also ["reset" and "remove"](#reset-or-remove) mean exact same things.
-Base color data is provided for ACC and AMS2 to match in game class and category colors.
+Base color data is provided for ACC to match in game category colors.
 
 <!-- ## Game specific config
 

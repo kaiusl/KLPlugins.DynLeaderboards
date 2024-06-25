@@ -228,6 +228,10 @@ namespace KLPlugins.DynLeaderboards {
         internal TextBoxColor Clone() {
             return new TextBoxColor(this.Fg, this.Bg);
         }
+
+        static internal TextBoxColor Default() {
+            return new TextBoxColor(OverridableTextBoxColor.DEF_FG, OverridableTextBoxColor.DEF_BG);
+        }
     }
 
     internal class CarInfos : IEnumerable<KeyValuePair<string, OverridableCarInfo>> {
@@ -650,6 +654,17 @@ namespace KLPlugins.DynLeaderboards {
                 }
             }
 
+            var defBase = new ClassInfo(
+                color: TextBoxColor.Default(),
+                replaceWith: null,
+                shortName: "-"
+            );
+            if (infos.ContainsKey(CarClass.Default)) {
+                infos[CarClass.Default].SetRealBase(defBase);
+            } else {
+                infos[CarClass.Default] = new OverridableClassInfo(@base: defBase, overrides: null);
+            }
+
             var c = new ClassInfos(infos);
 
             // Make sure that all "replace with" values are also in the dict
@@ -667,11 +682,6 @@ namespace KLPlugins.DynLeaderboards {
                     it.SetBase(c.GetBaseFollowDuplicates(key));
                 }
             }
-
-            // Make sure that default is always in the dict
-            c.Get(CarClass.Default);
-
-            DynLeaderboardsPlugin.LogInfo($"Read Classinfos: {JsonConvert.SerializeObject(c._infos, Formatting.Indented)}");
 
             return c;
         }
@@ -1066,7 +1076,7 @@ namespace KLPlugins.DynLeaderboards {
             this.Reset();
         }
 
-        internal void UpdateCarInfos() {
+        internal void RereadCarInfos() {
             this.CarInfos = ReadCarInfos();
         }
 
@@ -1120,6 +1130,30 @@ namespace KLPlugins.DynLeaderboards {
         }
 
         #endregion IDisposable Support
+
+        internal void UpdateClassInfos() {
+            foreach (var car in this.OverallOrder) {
+                car.UpdateClassInfos(this);
+            }
+        }
+
+        internal void UpdateCarInfos() {
+            foreach (var car in this.OverallOrder) {
+                car.UpdateCarInfos(this);
+            }
+        }
+
+        internal void UpdateTeamCupInfos() {
+            foreach (var car in this.OverallOrder) {
+                car.UpdateTeamCupInfos(this);
+            }
+        }
+
+        internal void UpdateDriverInfos() {
+            foreach (var car in this.OverallOrder) {
+                car.UpdateDriverInfos(this);
+            }
+        }
 
         private int _skipCarUpdatesCount = 0;
         internal void OnDataUpdate(PluginManager _, GameData data) {

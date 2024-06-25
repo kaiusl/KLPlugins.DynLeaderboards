@@ -94,6 +94,7 @@ namespace KLPlugins.DynLeaderboards.Settings.UI {
                 if (selected != null) {
                     this.TrySelectCar(selected.Key);
                 }
+                this._plugin.Values.UpdateCarInfos();
             }
 
             resetMenu.Items.Add(resetMenuResetAll);
@@ -248,7 +249,7 @@ namespace KLPlugins.DynLeaderboards.Settings.UI {
                     """;
                 updateACCarsBtn.Click += (_, _) => {
                     DynLeaderboardsPlugin.UpdateACCarInfos();
-                    this._plugin.Values.UpdateCarInfos();
+                    this._plugin.Values.RereadCarInfos();
                     RebuildItems();
                 };
                 this._menu.Items.Add(updateACCarsBtn);
@@ -422,7 +423,10 @@ namespace KLPlugins.DynLeaderboards.Settings.UI {
             settingsGrid.Children.Add(nameLabel);
 
             var nameTextBox = CreateEditTextBox(carInfo.NameDontCheckEnabled(), isEnabled, row);
-            nameTextBox.TextChanged += (sender, b) => carInfo.SetName(nameTextBox.Text);
+            nameTextBox.TextChanged += (sender, b) => {
+                carInfo.SetName(nameTextBox.Text);
+                this._plugin.Values.UpdateCarInfos();
+            };
             settingsGrid.Children.Add(nameTextBox);
 
             var nameResetButton = CreateResetButton(row);
@@ -432,7 +436,10 @@ namespace KLPlugins.DynLeaderboards.Settings.UI {
                 carInfo.ResetName();
                 nameToggle.IsChecked = carInfo.IsNameEnabled;
             }
-            nameResetButton.Click += (sender, b) => ResetName();
+            nameResetButton.Click += (sender, b) => {
+                ResetName();
+                this._plugin.Values.UpdateCarInfos();
+            };
             settingsGrid.Children.Add(nameResetButton);
 
             nameToggle.Checked += (sender, b) => {
@@ -443,6 +450,7 @@ namespace KLPlugins.DynLeaderboards.Settings.UI {
                 nameTextBox.Opacity = 1;
 
                 nameTextBox.Text = carInfo.NameDontCheckEnabled();
+                this._plugin.Values.UpdateCarInfos();
             };
             nameToggle.Unchecked += (sender, b) => {
                 carInfo.DisableName();
@@ -450,6 +458,7 @@ namespace KLPlugins.DynLeaderboards.Settings.UI {
                 nameLabel.Opacity = SettingsControl.DISABLED_OPTION_OPACITY;
                 nameTextBox.IsEnabled = false;
                 nameTextBox.Opacity = SettingsControl.DISABLED_OPTION_OPACITY;
+                this._plugin.Values.UpdateCarInfos();
             };
 
 
@@ -491,6 +500,7 @@ namespace KLPlugins.DynLeaderboards.Settings.UI {
                     this._settingsControl.AddCarManufacturer(manufacturer);
                     carInfo.SetManufacturer(manufacturer);
                 }
+                this._plugin.Values.UpdateCarInfos();
             };
             settingsGrid.Children.Add(manufacturerComboBox);
 
@@ -503,7 +513,10 @@ namespace KLPlugins.DynLeaderboards.Settings.UI {
                 }
                 manufacturerComboBox.SelectedItem = manufacturer;
             }
-            manufacturerResetButton.Click += (sender, b) => ResetManufacturer();
+            manufacturerResetButton.Click += (sender, b) => {
+                ResetManufacturer();
+                this._plugin.Values.UpdateCarInfos();
+            };
             settingsGrid.Children.Add(manufacturerResetButton);
 
             this._detailsStackPanel.Children.Add(settingsGrid);
@@ -558,6 +571,7 @@ namespace KLPlugins.DynLeaderboards.Settings.UI {
                 }
 
                 classToggle.IsChecked = carInfo.IsClassEnabled;
+                this._plugin.Values.UpdateCarInfos();
             };
             settingsGrid.Children.Add(classComboBox);
 
@@ -567,7 +581,10 @@ namespace KLPlugins.DynLeaderboards.Settings.UI {
                 carInfo.ResetClass();
                 classToggle.IsChecked = carInfo.IsClassEnabled;
             }
-            classResetButton.Click += (sender, b) => ResetClass();
+            classResetButton.Click += (sender, b) => {
+                ResetClass();
+                this._plugin.Values.UpdateCarInfos();
+            };
             settingsGrid.Children.Add(classResetButton);
 
             classToggle.Checked += (sender, b) => {
@@ -578,6 +595,7 @@ namespace KLPlugins.DynLeaderboards.Settings.UI {
                 classComboBox.Opacity = 1;
 
                 classComboBox.SelectedItem = carInfo.ClassDontCheckEnabled()?.AsString();
+                this._plugin.Values.UpdateCarInfos();
             };
             classToggle.Unchecked += (sender, b) => {
                 carInfo.DisableClass();
@@ -585,11 +603,13 @@ namespace KLPlugins.DynLeaderboards.Settings.UI {
                 classLabel.Opacity = SettingsControl.DISABLED_OPTION_OPACITY;
                 classComboBox.IsEnabled = false;
                 classComboBox.Opacity = SettingsControl.DISABLED_OPTION_OPACITY;
+                this._plugin.Values.UpdateCarInfos();
             };
 
             disableAllBtn.Click += (sender, b) => {
                 nameToggle.IsChecked = false;
                 classToggle.IsChecked = false;
+                this._plugin.Values.UpdateCarInfos();
             };
 
             void ResetAll() {
@@ -598,7 +618,10 @@ namespace KLPlugins.DynLeaderboards.Settings.UI {
                 ResetClass();
             }
 
-            resetAllBtn.Click += (sender, b) => ResetAll();
+            resetAllBtn.Click += (sender, b) => {
+                ResetAll();
+                this._plugin.Values.UpdateCarInfos();
+            };
 
             if (deleteBtn.IsEnabled) {
                 deleteBtn.Click += (sender, e) => {

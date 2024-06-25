@@ -73,6 +73,7 @@ namespace KLPlugins.DynLeaderboards.Settings.UI {
                 if (selected != null) {
                     this.TrySelectClass(selected.Key);
                 }
+                this._plugin.Values.UpdateClassInfos();
             }
 
             resetMenu.Items.Add(resetMenuResetAll);
@@ -529,6 +530,7 @@ namespace KLPlugins.DynLeaderboards.Settings.UI {
                 titleBox.Background = new SolidColorBrush(color);
                 listItem.Border.Background = new SolidColorBrush(color);
                 clsInfo.SetBackground(color.ToString());
+                this._plugin.Values.UpdateClassInfos();
             };
             colorsStackpanel.Children.Add(bgColorPicker);
 
@@ -544,8 +546,12 @@ namespace KLPlugins.DynLeaderboards.Settings.UI {
                 }
                 clsInfo.ResetBackground();
                 colorToggle.IsChecked = clsInfo.IsColorEnabled;
+
             }
-            bgColorResetButton.Click += (sender, b) => ResetBgColor();
+            bgColorResetButton.Click += (sender, b) => {
+                ResetBgColor();
+                this._plugin.Values.UpdateClassInfos();
+            };
             colorsStackpanel.Children.Add(bgColorResetButton);
 
             colorsStackpanel.Children.Add(new TextBlock() {
@@ -562,6 +568,7 @@ namespace KLPlugins.DynLeaderboards.Settings.UI {
                 titleText.Foreground = new SolidColorBrush(color);
                 listItem.ClassText.Foreground = new SolidColorBrush(color);
                 clsInfo.SetForeground(color.ToString());
+                this._plugin.Values.UpdateClassInfos();
             };
             colorsStackpanel.Children.Add(textColorPicker);
 
@@ -578,7 +585,10 @@ namespace KLPlugins.DynLeaderboards.Settings.UI {
                 clsInfo.ResetForeground();
                 colorToggle.IsChecked = clsInfo.IsColorEnabled;
             }
-            textColorResetButton.Click += (sender, b) => ResetTextColor();
+            textColorResetButton.Click += (sender, b) => {
+                ResetTextColor();
+                this._plugin.Values.UpdateClassInfos();
+            };
             colorsStackpanel.Children.Add(textColorResetButton);
 
             colorToggle.Checked += (sender, b) => {
@@ -587,6 +597,7 @@ namespace KLPlugins.DynLeaderboards.Settings.UI {
                 colorLabel.Opacity = 1;
                 colorsStackpanel.IsEnabled = true;
                 colorsStackpanel.Opacity = 1;
+                this._plugin.Values.UpdateClassInfos();
             };
             colorToggle.Unchecked += (sender, b) => {
                 clsInfo.DisableColor();
@@ -594,6 +605,7 @@ namespace KLPlugins.DynLeaderboards.Settings.UI {
                 colorLabel.Opacity = SettingsControl.DISABLED_OPTION_OPACITY;
                 colorsStackpanel.IsEnabled = false;
                 colorsStackpanel.Opacity = SettingsControl.DISABLED_OPTION_OPACITY;
+                this._plugin.Values.UpdateClassInfos();
             };
 
             var colorResetButton = CreateResetButton(row);
@@ -606,7 +618,10 @@ namespace KLPlugins.DynLeaderboards.Settings.UI {
                 colorToggle.IsChecked = clsInfo.IsColorEnabled;
             }
 
-            colorResetButton.Click += (sender, b) => ResetColors();
+            colorResetButton.Click += (sender, b) => {
+                ResetColors();
+                this._plugin.Values.UpdateClassInfos();
+            };
             settingsGrid.Children.Add(colorResetButton);
 
             //// Short name row
@@ -624,6 +639,7 @@ namespace KLPlugins.DynLeaderboards.Settings.UI {
             };
             shortNameTextBox.TextChanged += (sender, b) => {
                 clsInfo.SetShortName(shortNameTextBox.Text);
+                this._plugin.Values.UpdateClassInfos();
             };
             Grid.SetColumn(shortNameTextBox, 2);
             Grid.SetRow(shortNameTextBox, row);
@@ -636,7 +652,10 @@ namespace KLPlugins.DynLeaderboards.Settings.UI {
             }
 
             var shortNameResetButton = CreateResetButton(row);
-            shortNameResetButton.Click += (sender, b) => ResetShortName();
+            shortNameResetButton.Click += (sender, b) => {
+                ResetShortName();
+                this._plugin.Values.UpdateClassInfos();
+            };
             settingsGrid.Children.Add(shortNameResetButton);
 
             //// Replace with row
@@ -696,12 +715,16 @@ namespace KLPlugins.DynLeaderboards.Settings.UI {
                 }
 
                 replaceWithToggle.IsChecked = clsInfo.IsReplaceWithEnabled;
+                this._plugin.Values.UpdateClassInfos();
             };
             settingsGrid.Children.Add(replaceWithComboBox);
 
             var replaceWithResetButton = CreateResetButton(row);
 
-            replaceWithResetButton.Click += (sender, b) => ResetReplaceWith();
+            replaceWithResetButton.Click += (sender, b) => {
+                ResetReplaceWith();
+                this._plugin.Values.UpdateClassInfos();
+            };
             settingsGrid.Children.Add(replaceWithResetButton);
 
             replaceWithToggle.Checked += (sender, b) => {
@@ -712,6 +735,7 @@ namespace KLPlugins.DynLeaderboards.Settings.UI {
                 replaceWithComboBox.Opacity = 1;
 
                 replaceWithComboBox.SelectedItem = clsInfo.ReplaceWithDontCheckEnabled()?.AsString();
+                this._plugin.Values.UpdateClassInfos();
             };
             replaceWithToggle.Unchecked += (sender, b) => {
                 clsInfo.DisableReplaceWith();
@@ -719,16 +743,19 @@ namespace KLPlugins.DynLeaderboards.Settings.UI {
                 replaceWithLabel.Opacity = SettingsControl.DISABLED_OPTION_OPACITY;
                 replaceWithComboBox.IsEnabled = false;
                 replaceWithComboBox.Opacity = SettingsControl.DISABLED_OPTION_OPACITY;
+                this._plugin.Values.UpdateClassInfos();
             };
 
             disableAllBtn.Click += (sender, b) => {
                 colorToggle.IsChecked = false;
                 replaceWithToggle.IsChecked = false;
+                this._plugin.Values.UpdateClassInfos();
             };
 
             void ResetAll() {
                 ResetColors();
                 ResetShortName();
+                this._plugin.Values.UpdateClassInfos();
             }
 
             resetAllBtn.Click += (sender, b) => ResetAll();

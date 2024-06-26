@@ -759,7 +759,7 @@ namespace KLPlugins.DynLeaderboards.Settings.UI {
             }
 
             replaceWithComboBox.LostFocus += (sender, b) => {
-                var currentReplaceWith = listItem.ReplacedWithPreview!.Key;
+                var currentReplaceWith = listItem.ReplacedWithPreview?.Key;
                 var clsText = (string?)replaceWithComboBox.Text;
 
                 if (clsText == null || clsText == "") {
@@ -774,9 +774,11 @@ namespace KLPlugins.DynLeaderboards.Settings.UI {
                 replaceWithToggle.IsChecked = clsInfo.IsReplaceWithEnabled;
                 this._plugin.Values.UpdateClassInfos();
                 listItem.UpdateReplacedWith(this._plugin.Values);
-                foreach (var item in this._carClassesListBoxItems) {
-                    if (item.ReplacedWithPreview != null && item.ReplacedWithPreview.Key == currentReplaceWith) {
-                        item.UpdateReplacedWith(this._plugin.Values);
+                if (currentReplaceWith != null) {
+                    foreach (var item in this._carClassesListBoxItems) {
+                        if (item.ReplacedWithPreview != null && item.ReplacedWithPreview.Key == currentReplaceWith) {
+                            item.UpdateReplacedWith(this._plugin.Values);
+                        }
                     }
                 }
             };
@@ -813,7 +815,7 @@ namespace KLPlugins.DynLeaderboards.Settings.UI {
 
             };
             replaceWithToggle.Unchecked += (sender, b) => {
-                var currentReplaceWith = listItem.ReplacedWithPreview!.Key;
+                var currentReplaceWith = listItem.ReplacedWithPreview?.Key;
                 clsInfo.DisableReplaceWith();
                 replaceWithLabel.IsEnabled = false;
                 replaceWithLabel.Opacity = SettingsControl.DISABLED_OPTION_OPACITY;
@@ -821,9 +823,11 @@ namespace KLPlugins.DynLeaderboards.Settings.UI {
                 replaceWithComboBox.Opacity = SettingsControl.DISABLED_OPTION_OPACITY;
                 this._plugin.Values.UpdateClassInfos();
                 listItem.UpdateReplacedWith(this._plugin.Values);
-                foreach (var item in this._carClassesListBoxItems) {
-                    if (item.ReplacedWithPreview != null && item.ReplacedWithPreview.Key == currentReplaceWith) {
-                        item.UpdateReplacedWith(this._plugin.Values);
+                if (currentReplaceWith != null) {
+                    foreach (var item in this._carClassesListBoxItems) {
+                        if (item.ReplacedWithPreview != null && item.ReplacedWithPreview.Key == currentReplaceWith) {
+                            item.UpdateReplacedWith(this._plugin.Values);
+                        }
                     }
                 }
             };

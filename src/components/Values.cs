@@ -607,15 +607,41 @@ namespace KLPlugins.DynLeaderboards {
             }
 
             var c = this._infos[cls];
-            if (c.HasBase() || cls == CarClass.Default) {
+            if (this.CanBeRemovedKnownToExist(cls, c)) {
+                this._infos.Remove(cls);
+            } else {
                 // Don't remove if has base data or if is the default class
                 // just disable
                 c.Reset();
                 c.DisableColor();
                 c.DisableReplaceWith();
-            } else {
-                this._infos.Remove(cls);
             }
+        }
+
+        internal bool CanBeRemoved(CarClass cls) {
+            if (!this._infos.ContainsKey(cls)) {
+                return false;
+            }
+
+            var c = this._infos[cls];
+            return this.CanBeRemovedKnownToExist(cls, c);
+        }
+
+        internal bool CanBeRemovedKnownToExist(CarClass cls) {
+            var c = this._infos[cls];
+            return this.CanBeRemovedKnownToExist(cls, c);
+        }
+
+        internal bool CanBeRemovedKnownToExist(CarClass cls, OverridableClassInfo c) {
+            if (c.HasBase() || cls == CarClass.Default || this.IsUsedInAnyReplaceWith(cls)) {
+                return false;
+            } else {
+                return true;
+            }
+        }
+
+        internal bool IsUsedInAnyReplaceWith(CarClass cls) {
+            return this._infos.Any(it => it.Value.ReplaceWith() == cls);
         }
 
         internal void Duplicate(CarClass old, CarClass @new) {

@@ -140,7 +140,9 @@ If you are creating your own dashboard make sure to give [Creating dashboards](c
 
 This tab provides an option to change car names, manufacturers and classes. 
 All the available cars are listed on the left. 
-The listed name is the name provided by SimHub.
+The listed name is the model name exported by the plugin.
+An id used by SimHub is listed as small text below.
+
 If the plugin detects a new car while in game it will be added to the list but for now you'll
 need to manually refresh the list by clicking the `Refresh` button.
 This is so that we don't build unnecessary UI elements when they are not viewed and we are actually racing.
@@ -225,7 +227,7 @@ Either from the plugin menu or by modifying AC files directly which Content Mana
 ![Screenshot](../img/Config/ClassSettings.png)
 
 This tab provides an option to change class data. 
-All the available classes are listed on the left but you can add new classes too (from `Add new class` button). 
+All the available classes are listed on the left but you can add new classes too (from `Add new class` button).
 
 Again as with ["Car settings"](#car-settings) tab if the plugin detects new classes
 they will be added to the list but for now you'll need to manually refresh the 
@@ -246,6 +248,7 @@ Base data is provided for ACC and AMS2 to match in game class colors and for R3E
     You can change them from the "Car settings" item on the left menu (not to be confused with this plugins "Car settings" menu).
 
     If the base data is not available then the plugin default is to disable this property and use SimHub provided colors.
+    This is indicated by a small blue dot next to the class preview in the classes list.
 
 ***Short name***
 
@@ -285,6 +288,14 @@ Base data is provided for ACC and AMS2 to match in game class colors and for R3E
         To easily revert back to the old state reset or disable the `replace with` property on the old class.
 
     If the base data is not available then the plugin default is to disable `replace with`.
+
+    To easily identify which class is replaced with something else, we show a second class preview box in the classes list.
+    For example in the screenshot above "DTM 2014" is replaced with "DTM 2013", but "DTM 2013" is not replaced itself.
+
+    Note that replacements can have multiple steps. 
+    For example if class "A" has set `replace with` to "B" and "B" itself is replaced by "C" then "A" will actually also be replaced with "C".
+    This is also reflected in the replacement class preview box.
+
 
 ## Misc colors
 

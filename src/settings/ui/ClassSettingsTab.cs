@@ -424,7 +424,9 @@ namespace KLPlugins.DynLeaderboards.Settings.UI {
             titleRow.Children.Add(resetAllBtn);
 
             var deleteBtn = CreateTitleRowButton("Remove", 5);
-            if (clsInfo.HasBase() || key == CarClass.Default || this._plugin.Values.CarInfos.ContainsClass(key)) {
+            if (this._plugin.Values.ClassInfos.CanBeRemoved(key)) {
+                deleteBtn.ToolTip = "Remove this class completely.";
+            } else {
                 deleteBtn.IsEnabled = false;
                 deleteBtn.Opacity = 0.5;
                 string reason;
@@ -432,12 +434,12 @@ namespace KLPlugins.DynLeaderboards.Settings.UI {
                     reason = "Default class cannot be deleted.";
                 } else if (clsInfo.HasBase()) {
                     reason = "This class has base data and cannot be deleted.";
+                } else if (this._plugin.Values.ClassInfos.IsUsedInAnyReplaceWith(key)) {
+                    reason = "This class is used by some classes as a replacement and cannot be deleted.";
                 } else {
                     reason = "This class is used by some cars and cannot be deleted.";
                 }
                 deleteBtn.ToolTip = $"{reason} Use `Disable` button to revert back to SimHub provided data or `Reset` to revert back to plugin defaults.";
-            } else {
-                deleteBtn.ToolTip = "Remove this class completely.";
             }
 
             titleRow.Children.Add(deleteBtn);
@@ -528,9 +530,15 @@ namespace KLPlugins.DynLeaderboards.Settings.UI {
             bgColorPicker.SelectedColorChanged += (sender, e) => {
                 var color = bgColorPicker.SelectedColor ?? WindowsMediaColorExtensions.FromHex(OverridableTextBoxColor.DEF_BG);
                 titleBox.Background = new SolidColorBrush(color);
-                listItem.Border.Background = new SolidColorBrush(color);
+                listItem.ClassPreview.Border.Background = new SolidColorBrush(color);
                 clsInfo.SetBackground(color.ToString());
                 this._plugin.Values.UpdateClassInfos();
+
+                foreach (var item in this._carClassesListBoxItems) {
+                    if (item.ReplacedWithPreview != null && item.ReplacedWithPreview.Key == key) {
+                        item.ReplacedWithPreview.Update();
+                    }
+                }
             };
             colorsStackpanel.Children.Add(bgColorPicker);
 
@@ -546,11 +554,15 @@ namespace KLPlugins.DynLeaderboards.Settings.UI {
                 }
                 clsInfo.ResetBackground();
                 colorToggle.IsChecked = clsInfo.IsColorEnabled;
-
             }
             bgColorResetButton.Click += (sender, b) => {
                 ResetBgColor();
                 this._plugin.Values.UpdateClassInfos();
+                foreach (var item in this._carClassesListBoxItems) {
+                    if (item.ReplacedWithPreview != null && item.ReplacedWithPreview.Key == key) {
+                        item.ReplacedWithPreview.Update();
+                    }
+                }
             };
             colorsStackpanel.Children.Add(bgColorResetButton);
 
@@ -566,9 +578,14 @@ namespace KLPlugins.DynLeaderboards.Settings.UI {
             textColorPicker.SelectedColorChanged += (sender, e) => {
                 var color = textColorPicker.SelectedColor ?? WindowsMediaColorExtensions.FromHex(OverridableTextBoxColor.DEF_FG);
                 titleText.Foreground = new SolidColorBrush(color);
-                listItem.ClassText.Foreground = new SolidColorBrush(color);
+                listItem.ClassPreview.ClassText.Foreground = new SolidColorBrush(color);
                 clsInfo.SetForeground(color.ToString());
                 this._plugin.Values.UpdateClassInfos();
+                foreach (var item in this._carClassesListBoxItems) {
+                    if (item.ReplacedWithPreview != null && item.ReplacedWithPreview.Key == key) {
+                        item.ReplacedWithPreview.Update();
+                    }
+                }
             };
             colorsStackpanel.Children.Add(textColorPicker);
 
@@ -588,6 +605,11 @@ namespace KLPlugins.DynLeaderboards.Settings.UI {
             textColorResetButton.Click += (sender, b) => {
                 ResetTextColor();
                 this._plugin.Values.UpdateClassInfos();
+                foreach (var item in this._carClassesListBoxItems) {
+                    if (item.ReplacedWithPreview != null && item.ReplacedWithPreview.Key == key) {
+                        item.ReplacedWithPreview.Update();
+                    }
+                }
             };
             colorsStackpanel.Children.Add(textColorResetButton);
 
@@ -597,10 +619,15 @@ namespace KLPlugins.DynLeaderboards.Settings.UI {
                 colorLabel.Opacity = 1;
                 colorsStackpanel.IsEnabled = true;
                 colorsStackpanel.Opacity = 1;
-                listItem.UpdateColors();
+                listItem.ClassPreview.Update();
                 this._plugin.Values.UpdateClassInfos();
                 titleBox.Background = new SolidColorBrush(WindowsMediaColorExtensions.FromHex(clsInfo.Background() ?? OverridableTextBoxColor.DEF_BG));
                 titleText.Foreground = new SolidColorBrush(WindowsMediaColorExtensions.FromHex(clsInfo.Foreground() ?? OverridableTextBoxColor.DEF_FG));
+                foreach (var item in this._carClassesListBoxItems) {
+                    if (item.ReplacedWithPreview != null && item.ReplacedWithPreview.Key == key) {
+                        item.ReplacedWithPreview.Update();
+                    }
+                }
             };
             colorToggle.Unchecked += (sender, b) => {
                 clsInfo.DisableColor();
@@ -609,10 +636,15 @@ namespace KLPlugins.DynLeaderboards.Settings.UI {
                 colorsStackpanel.IsEnabled = false;
                 colorsStackpanel.Opacity = SettingsControl.DISABLED_OPTION_OPACITY;
 
-                listItem.UpdateColors();
+                listItem.ClassPreview.Update();
                 this._plugin.Values.UpdateClassInfos();
                 titleBox.Background = new SolidColorBrush(WindowsMediaColorExtensions.FromHex(clsInfo.Background() ?? OverridableTextBoxColor.DEF_BG));
                 titleText.Foreground = new SolidColorBrush(WindowsMediaColorExtensions.FromHex(clsInfo.Foreground() ?? OverridableTextBoxColor.DEF_FG));
+                foreach (var item in this._carClassesListBoxItems) {
+                    if (item.ReplacedWithPreview != null && item.ReplacedWithPreview.Key == key) {
+                        item.ReplacedWithPreview.Update();
+                    }
+                }
             };
 
             var colorResetButton = CreateResetButton(row);
@@ -628,6 +660,11 @@ namespace KLPlugins.DynLeaderboards.Settings.UI {
             colorResetButton.Click += (sender, b) => {
                 ResetColors();
                 this._plugin.Values.UpdateClassInfos();
+                foreach (var item in this._carClassesListBoxItems) {
+                    if (item.ReplacedWithPreview != null && item.ReplacedWithPreview.Key == key) {
+                        item.ReplacedWithPreview.Update();
+                    }
+                }
             };
             settingsGrid.Children.Add(colorResetButton);
 
@@ -722,6 +759,7 @@ namespace KLPlugins.DynLeaderboards.Settings.UI {
             }
 
             replaceWithComboBox.LostFocus += (sender, b) => {
+                var currentReplaceWith = listItem.ReplacedWithPreview!.Key;
                 var clsText = (string?)replaceWithComboBox.Text;
 
                 if (clsText == null || clsText == "") {
@@ -736,6 +774,11 @@ namespace KLPlugins.DynLeaderboards.Settings.UI {
                 replaceWithToggle.IsChecked = clsInfo.IsReplaceWithEnabled;
                 this._plugin.Values.UpdateClassInfos();
                 listItem.UpdateReplacedWith(this._plugin.Values);
+                foreach (var item in this._carClassesListBoxItems) {
+                    if (item.ReplacedWithPreview != null && item.ReplacedWithPreview.Key == currentReplaceWith) {
+                        item.UpdateReplacedWith(this._plugin.Values);
+                    }
+                }
             };
             settingsGrid.Children.Add(replaceWithComboBox);
 
@@ -744,6 +787,11 @@ namespace KLPlugins.DynLeaderboards.Settings.UI {
             replaceWithResetButton.Click += (sender, b) => {
                 ResetReplaceWith();
                 this._plugin.Values.UpdateClassInfos();
+                foreach (var item in this._carClassesListBoxItems) {
+                    if (item.ReplacedWithPreview != null && item.ReplacedWithPreview.Key == key) {
+                        item.UpdateReplacedWith(this._plugin.Values);
+                    }
+                }
             };
             settingsGrid.Children.Add(replaceWithResetButton);
 
@@ -757,8 +805,15 @@ namespace KLPlugins.DynLeaderboards.Settings.UI {
                 replaceWithComboBox.SelectedItem = clsInfo.ReplaceWithDontCheckEnabled()?.AsString();
                 this._plugin.Values.UpdateClassInfos();
                 listItem.UpdateReplacedWith(this._plugin.Values);
+                foreach (var item in this._carClassesListBoxItems) {
+                    if (item.ReplacedWithPreview != null && item.ReplacedWithPreview.Key == key) {
+                        item.UpdateReplacedWith(this._plugin.Values);
+                    }
+                }
+
             };
             replaceWithToggle.Unchecked += (sender, b) => {
+                var currentReplaceWith = listItem.ReplacedWithPreview!.Key;
                 clsInfo.DisableReplaceWith();
                 replaceWithLabel.IsEnabled = false;
                 replaceWithLabel.Opacity = SettingsControl.DISABLED_OPTION_OPACITY;
@@ -766,6 +821,11 @@ namespace KLPlugins.DynLeaderboards.Settings.UI {
                 replaceWithComboBox.Opacity = SettingsControl.DISABLED_OPTION_OPACITY;
                 this._plugin.Values.UpdateClassInfos();
                 listItem.UpdateReplacedWith(this._plugin.Values);
+                foreach (var item in this._carClassesListBoxItems) {
+                    if (item.ReplacedWithPreview != null && item.ReplacedWithPreview.Key == currentReplaceWith) {
+                        item.UpdateReplacedWith(this._plugin.Values);
+                    }
+                }
             };
 
             disableAllBtn.Click += (sender, b) => {
@@ -779,6 +839,11 @@ namespace KLPlugins.DynLeaderboards.Settings.UI {
                 ResetShortName();
                 ResetReplaceWith();
                 this._plugin.Values.UpdateClassInfos();
+                foreach (var item in this._carClassesListBoxItems) {
+                    if (item.ReplacedWithPreview != null && item.ReplacedWithPreview.Key == key) {
+                        item.UpdateReplacedWith(this._plugin.Values);
+                    }
+                }
             }
 
             resetAllBtn.Click += (sender, b) => ResetAll();
@@ -793,37 +858,30 @@ namespace KLPlugins.DynLeaderboards.Settings.UI {
 
         // Nested classes
 
-        private class ClassSettingsListBoxItem : ListBoxItem {
+        private class ClassPreview : StackPanel {
             public CarClass Key { get; set; }
             public OverridableClassInfo ClassInfo { get; set; }
+            public TextBlock Markers { get; set; }
             public Border Border { get; set; }
             public TextBlock ClassText { get; set; }
 
-            public TextBlock Markers { get; set; }
-            public TextBlock ReplacedWithArrow { get; set; }
-            public TextBlock ReplacedWithText { get; set; }
-            public Border ReplacedWithBorder { get; set; }
-            private bool _replacedWithEnabled = false;
-            private StackPanel _contentSp;
-
-            public ClassSettingsListBoxItem(CarClass key, OverridableClassInfo cls, Values values) : base() {
-                this.ClassInfo = cls;
+            internal ClassPreview(CarClass key, OverridableClassInfo cls) {
                 this.Key = key;
+                this.ClassInfo = cls;
 
-                this._contentSp = new StackPanel() { Orientation = Orientation.Horizontal };
-                this.Content = this._contentSp;
+                this.Orientation = Orientation.Horizontal;
 
                 this.Markers = new TextBlock() {
                     VerticalAlignment = VerticalAlignment.Top,
-                    FontSize = 12,
+                    FontSize = 7,
                     HorizontalAlignment = HorizontalAlignment.Left,
                     Margin = new Thickness(0),
                     Padding = new Thickness(0),
-                    Foreground = new SolidColorBrush(Colors.Tomato),
+                    Foreground = new SolidColorBrush(Colors.DodgerBlue),
                     FontWeight = FontWeights.Bold,
-                    Width = 5
+                    Width = 6
                 };
-                this._contentSp.Children.Add(this.Markers);
+                this.Children.Add(this.Markers);
 
                 this.ClassText = new TextBlock() {
                     Text = this.Key.AsString(),
@@ -835,11 +893,39 @@ namespace KLPlugins.DynLeaderboards.Settings.UI {
                     HorizontalAlignment = HorizontalAlignment.Left,
                     CornerRadius = new CornerRadius(5),
                     Height = 25,
-                    Margin = new Thickness(5, 0, 5, 0),
+                    Margin = new Thickness(2, 0, 2, 0),
                     Child = this.ClassText
                 };
-                this._contentSp.Children.Add(this.Border);
-                this.UpdateColors();
+                this.Children.Add(this.Border);
+                this.Update();
+            }
+
+            internal void Update() {
+                this.Border.Background = new SolidColorBrush(WindowsMediaColorExtensions.FromHex(this.ClassInfo.Background() ?? OverridableTextBoxColor.DEF_BG));
+                this.ClassText.Foreground = new SolidColorBrush(WindowsMediaColorExtensions.FromHex(this.ClassInfo.Foreground() ?? OverridableTextBoxColor.DEF_FG));
+                this.Markers.Text = this.ClassInfo.IsColorEnabled ? "" : "⬤";
+            }
+        }
+
+        private class ClassSettingsListBoxItem : ListBoxItem {
+            public CarClass Key { get; set; }
+            public OverridableClassInfo ClassInfo { get; set; }
+
+            public ClassPreview ClassPreview { get; set; }
+
+            public TextBlock ReplacedWithArrow { get; set; }
+            public ClassPreview? ReplacedWithPreview { get; set; } = null;
+            private StackPanel _contentSp;
+
+            public ClassSettingsListBoxItem(CarClass key, OverridableClassInfo cls, Values values) : base() {
+                this.ClassInfo = cls;
+                this.Key = key;
+
+                this._contentSp = new StackPanel() { Orientation = Orientation.Horizontal };
+                this.Content = this._contentSp;
+
+                this.ClassPreview = new ClassPreview(key, cls);
+                this._contentSp.Children.Add(this.ClassPreview);
 
                 this.ReplacedWithArrow = new TextBlock() {
                     Text = "→",
@@ -850,52 +936,33 @@ namespace KLPlugins.DynLeaderboards.Settings.UI {
                     VerticalAlignment = VerticalAlignment.Center
                 };
 
-                this.ReplacedWithText = new TextBlock() {
-                    Padding = new Thickness(5, 0, 5, 0),
-                    FontWeight = FontWeights.Bold,
-                    HorizontalAlignment = HorizontalAlignment.Center,
-                };
-                this.ReplacedWithBorder = new Border() {
-                    HorizontalAlignment = HorizontalAlignment.Left,
-                    CornerRadius = new CornerRadius(5),
-                    Height = 25,
-                    Margin = new Thickness(5, 0, 5, 0),
-                    Child = this.ReplacedWithText,
-                };
-
                 this.UpdateReplacedWith(values);
-            }
-
-            public void SetKey(CarClass key) {
-                this.Key = key;
-                this.ClassText.Text = this.Key.AsString();
-            }
-
-            internal void UpdateColors() {
-                //this.Border.Opacity = this.ClassInfo.IsColorEnabled ? 1.0 : SettingsControl.DISABLED_OPTION_OPACITY;
-                this.Border.Background = new SolidColorBrush(WindowsMediaColorExtensions.FromHex(this.ClassInfo.Background() ?? OverridableTextBoxColor.DEF_BG));
-                this.ClassText.Foreground = new SolidColorBrush(WindowsMediaColorExtensions.FromHex(this.ClassInfo.Foreground() ?? OverridableTextBoxColor.DEF_FG));
-                this.Markers.Text = this.ClassInfo.IsColorEnabled ? "" : "•";
             }
 
             internal void UpdateReplacedWith(Values values) {
                 var (replacedWith, replacedWithInfo) = values.ClassInfos.GetFollowReplaceWith(this.Key);
                 if (replacedWith != this.Key) {
-                    if (!this._replacedWithEnabled) {
+                    if (this.ReplacedWithPreview == null) {
+                        // no replaced with preview is present, add new
+                        this.ReplacedWithPreview = new ClassPreview(replacedWith, replacedWithInfo);
                         this._contentSp.Children.Add(this.ReplacedWithArrow);
-                        this._contentSp.Children.Add(this.ReplacedWithBorder);
-                        this._replacedWithEnabled = true;
+                        this._contentSp.Children.Add(this.ReplacedWithPreview);
+                    } else if (this.ReplacedWithPreview.Key != replacedWith) {
+                        // current replaced with preview is not correct class anymore, replace with new
+                        this._contentSp.Children.Remove(this.ReplacedWithPreview);
+                        this.ReplacedWithPreview = new ClassPreview(replacedWith, replacedWithInfo);
+                        this._contentSp.Children.Add(this.ReplacedWithPreview);
+                    } else {
+                        // current is correct, just update it
+                        this.ReplacedWithPreview.Update();
                     }
 
-                    this.ReplacedWithText.Text = replacedWith.AsString();
-                    this.ReplacedWithText.Foreground = new SolidColorBrush(WindowsMediaColorExtensions.FromHex(replacedWithInfo.Foreground() ?? OverridableTextBoxColor.DEF_FG));
-                    this.ReplacedWithBorder.Background = new SolidColorBrush(WindowsMediaColorExtensions.FromHex(replacedWithInfo.Background() ?? OverridableTextBoxColor.DEF_BG));
-                    this.Border.Opacity = SettingsControl.DISABLED_OPTION_OPACITY;
-                } else if (this._replacedWithEnabled) {
+                    this.ClassPreview.Opacity = SettingsControl.DISABLED_OPTION_OPACITY;
+                } else if (this.ReplacedWithPreview != null) {
                     this._contentSp.Children.Remove(this.ReplacedWithArrow);
-                    this._contentSp.Children.Remove(this.ReplacedWithBorder);
-                    this._replacedWithEnabled = false;
-                    this.Border.Opacity = 1.0;
+                    this._contentSp.Children.Remove(this.ReplacedWithPreview);
+                    this.ClassPreview.Opacity = 1.0;
+                    this.ReplacedWithPreview = null;
                 }
             }
         }

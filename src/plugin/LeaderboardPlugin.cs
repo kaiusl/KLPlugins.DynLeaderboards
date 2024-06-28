@@ -11,6 +11,7 @@ using GameReaderCommon;
 
 using KLPlugins.DynLeaderboards.Car;
 using KLPlugins.DynLeaderboards.Settings;
+using KLPlugins.DynLeaderboards.Settings.UI;
 using KLPlugins.DynLeaderboards.Track;
 
 using Newtonsoft.Json;

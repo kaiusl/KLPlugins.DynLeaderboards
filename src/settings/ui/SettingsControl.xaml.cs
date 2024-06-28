@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -16,7 +16,6 @@ using AcTools.Utils.Helpers;
 
 using KLPlugins.DynLeaderboards.Car;
 using KLPlugins.DynLeaderboards.Helpers;
-using KLPlugins.DynLeaderboards.Settings.UI;
 
 using MahApps.Metro.Controls;
 
@@ -28,7 +27,7 @@ using SimHub.Plugins.UI;
 using Xceed.Wpf.Toolkit;
 using Xceed.Wpf.Toolkit.Primitives;
 
-namespace KLPlugins.DynLeaderboards.Settings {
+namespace KLPlugins.DynLeaderboards.Settings.UI {
     public class MessageDialog : SHDialogContentBase {
         public MessageDialog(string titleText, string msg) {
             this.ShowOk = true;
@@ -77,6 +76,12 @@ namespace KLPlugins.DynLeaderboards.Settings {
         }
         public static readonly DependencyProperty RelativePathProperty =
                 DependencyProperty.RegisterAttached("RelativePath", typeof(string), typeof(DocsHyperlink), new PropertyMetadata(""));
+
+        public DocsHyperlink() {
+            this.RequestNavigate += (sender, e) => {
+                System.Diagnostics.Process.Start(e.Uri.ToString());
+            };
+        }
     }
 
     public class DocsHelpButton : UserControl {

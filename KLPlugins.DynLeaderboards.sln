@@ -7,12 +7,15 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KLPlugins.DynLeaderboards",
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug_Design|Any CPU = Debug_Design|Any CPU
 		Debug|Any CPU = Debug|Any CPU
 		Docs Debug|Any CPU = Docs Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
 		Timings|Any CPU = Timings|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{833040C9-FE5E-4CCF-B21D-71979E049B6B}.Debug_Design|Any CPU.ActiveCfg = Debug_Design|Any CPU
+		{833040C9-FE5E-4CCF-B21D-71979E049B6B}.Debug_Design|Any CPU.Build.0 = Debug_Design|Any CPU
 		{833040C9-FE5E-4CCF-B21D-71979E049B6B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{833040C9-FE5E-4CCF-B21D-71979E049B6B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{833040C9-FE5E-4CCF-B21D-71979E049B6B}.Docs Debug|Any CPU.ActiveCfg = Docs Debug|Any CPU

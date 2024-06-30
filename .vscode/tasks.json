@@ -47,6 +47,42 @@
             ],
             "group": {
                 "kind": "build",
+            },
+            "presentation": {
+                "reveal": "silent"
+            },
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "build_debug_docs",
+            "type": "shell",
+            "command": "msbuild",
+            "args": [
+                "/property:GenerateFullPaths=true",
+                "/t:build",
+                "/consoleloggerparameters:NoSummary",
+                "/p:configuration=Debug_Docs"
+            ],
+            "group": {
+                "kind": "build",
+            },
+            "presentation": {
+                "reveal": "silent"
+            },
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "build_debug_design",
+            "type": "shell",
+            "command": "msbuild",
+            "args": [
+                "/property:GenerateFullPaths=true",
+                "/t:build",
+                "/consoleloggerparameters:NoSummary",
+                "/p:configuration=Debug_Design"
+            ],
+            "group": {
+                "kind": "build",
                 "isDefault": true
             },
             "presentation": {

@@ -19,6 +19,8 @@ using Newtonsoft.Json;
 using SimHub.Plugins;
 
 using SimHubAMS2 = PCarsSharedMemory.AMS2.Models;
+using System.Collections.Specialized;
+using System.ComponentModel;
 
 namespace KLPlugins.DynLeaderboards {
     internal class TextBoxColors<K> : IEnumerable<KeyValuePair<K, OverridableTextBoxColor>> {
@@ -547,8 +549,6 @@ namespace KLPlugins.DynLeaderboards {
         internal OverridableClassInfo Get(CarClass cls) {
             if (!this._infos.ContainsKey(cls)) {
                 var c = new OverridableClassInfo(null, null);
-                c.DisableColor();
-                c.DisableReplaceWith();
 
                 this._infos[cls] = c;
             }
@@ -599,64 +599,6 @@ namespace KLPlugins.DynLeaderboards {
             }
 
             return null;
-        }
-
-        internal void Remove(CarClass cls) {
-            if (!this._infos.ContainsKey(cls)) {
-                return;
-            }
-
-            var c = this._infos[cls];
-            if (this.CanBeRemovedKnownToExist(cls, c)) {
-                this._infos.Remove(cls);
-            } else {
-                // Don't remove if has base data or if is the default class
-                // just disable
-                c.Reset();
-                c.DisableColor();
-                c.DisableReplaceWith();
-            }
-        }
-
-        internal bool CanBeRemoved(CarClass cls) {
-            if (!this._infos.ContainsKey(cls)) {
-                return false;
-            }
-
-            var c = this._infos[cls];
-            return this.CanBeRemovedKnownToExist(cls, c);
-        }
-
-        internal bool CanBeRemovedKnownToExist(CarClass cls) {
-            var c = this._infos[cls];
-            return this.CanBeRemovedKnownToExist(cls, c);
-        }
-
-        internal bool CanBeRemovedKnownToExist(CarClass cls, OverridableClassInfo c) {
-            if (c.HasBase() || cls == CarClass.Default || this.IsUsedInAnyReplaceWith(cls)) {
-                return false;
-            } else {
-                return true;
-            }
-        }
-
-        internal bool IsUsedInAnyReplaceWith(CarClass cls) {
-            return this._infos.Any(it => it.Value.ReplaceWith() == cls);
-        }
-
-        internal void Duplicate(CarClass old, CarClass @new) {
-            if (!this._infos.ContainsKey(old) || this._infos.ContainsKey(@new)) {
-                return;
-            }
-
-            var info = this._infos[old];
-            this._infos[@new] = info.Duplicate(old);
-        }
-
-
-
-        internal bool ContainsClass(CarClass cls) {
-            return this._infos.ContainsKey(cls);
         }
 
         internal static ClassInfos ReadFromJson(string path, string basePath) {
@@ -712,7 +654,6 @@ namespace KLPlugins.DynLeaderboards {
             return c;
         }
 
-
         internal void WriteToJson(string path, string derivedPath) {
             File.WriteAllText(path, JsonConvert.SerializeObject(this._infos, Formatting.Indented));
         }
@@ -723,6 +664,159 @@ namespace KLPlugins.DynLeaderboards {
 
         IEnumerator IEnumerable.GetEnumerator() {
             return this._infos.GetEnumerator();
+        }
+
+
+        /// <summary>
+        /// This is the glue between ClassInfos and settings UI
+        /// </summary>
+        internal class Manager : IEnumerable<KeyValuePair<CarClass, OverridableClassInfo.Manager>>, INotifyCollectionChanged {
+            private readonly ClassInfos _baseInfos;
+            private readonly Dictionary<CarClass, OverridableClassInfo.Manager> _classManagers = [];
+            public event NotifyCollectionChangedEventHandler? CollectionChanged;
+
+            internal Manager(ClassInfos infos) {
+                this._baseInfos = infos;
+                this.Update();
+            }
+
+            internal void Update() {
+                foreach (var kv in this._baseInfos) {
+                    this.TryAdd(kv.Key, kv.Value);
+                }
+            }
+
+            internal OverridableClassInfo.Manager? TryAdd(CarClass cls) {
+                if (this._classManagers.ContainsKey(cls)) {
+                    return null;
+                }
+
+                return this.AddDoesntExist(cls);
+            }
+
+            internal OverridableClassInfo.Manager? TryAdd(CarClass cls, OverridableClassInfo info) {
+                if (this._classManagers.ContainsKey(cls)) {
+                    return null;
+                }
+
+                return this.AddDoesntExist(cls, info);
+            }
+
+            internal OverridableClassInfo.Manager AddDoesntExist(CarClass cls) {
+                var info = this._baseInfos.Get(cls);
+                return this.AddDoesntExist(cls, info);
+            }
+
+            internal OverridableClassInfo.Manager AddDoesntExist(CarClass cls, OverridableClassInfo info) {
+                var newItem = new OverridableClassInfo.Manager(cls, info);
+                this._classManagers[cls] = newItem;
+                this.CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, newItem));
+                return newItem;
+            }
+
+            internal OverridableClassInfo.Manager? Get(CarClass cls) {
+                if (!this._classManagers.ContainsKey(cls)) {
+                    return null;
+                }
+                return this._classManagers[cls];
+            }
+
+            internal OverridableClassInfo.Manager GetOrAdd(CarClass cls) {
+                if (!this._classManagers.ContainsKey(cls)) {
+                    return this.AddDoesntExist(cls);
+                }
+                return this._classManagers[cls];
+            }
+
+            internal OverridableClassInfo.Manager? GetFollowReplaceWith(CarClass cls) {
+                var clsOut = cls;
+                var manager = this.GetOrAdd(cls);
+                var nextCls = manager.Info.ReplaceWith(); // don't use manager.ReplaceWith, it defaults to default class
+
+                var seenClasses = new List<CarClass> { cls };
+
+                while (nextCls != null && nextCls != clsOut) {
+                    clsOut = nextCls.Value;
+                    manager = this.GetOrAdd(clsOut);
+
+                    if (seenClasses.Contains(clsOut)) {
+                        DynLeaderboardsPlugin.LogWarn($"Loop detected in class \"replace with\" values: {string.Join(" -> ", seenClasses)} -> {clsOut}");
+                        break;
+                    }
+                    seenClasses.Add(clsOut);
+
+                    nextCls = manager.Info.ReplaceWith();
+                }
+
+                return manager;
+            }
+
+            internal void Remove(CarClass cls) {
+                if (!this._classManagers.ContainsKey(cls)) {
+                    return;
+                }
+
+                var manager = this._classManagers[cls];
+                if (this.CanBeRemoved(manager)) {
+                    this._classManagers.Remove(cls);
+                    this._baseInfos._infos.Remove(cls);
+                    this.CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, manager));
+                } else {
+                    // Don't remove if has base data or if is the default class
+                    // just disable
+                    manager.Reset();
+                    manager.IsColorEnabled = false;
+                    manager.IsReplaceWithEnabled = false;
+                }
+            }
+
+            internal bool CanBeRemoved(CarClass cls) {
+                if (!this._classManagers.ContainsKey(cls)) {
+                    return false;
+                }
+
+                return this.CanBeRemovedKnownToExist(cls);
+            }
+
+            internal bool CanBeRemovedKnownToExist(CarClass cls) {
+                var c = this._classManagers[cls];
+                return this.CanBeRemoved(c);
+            }
+
+            internal bool CanBeRemoved(OverridableClassInfo.Manager c) {
+                if (c.HasBase() || c.Key == CarClass.Default || this.IsUsedInAnyReplaceWith(c.Key)) {
+                    return false;
+                } else {
+                    return true;
+                }
+            }
+
+            internal bool IsUsedInAnyReplaceWith(CarClass cls) {
+                return this._classManagers.Values.Any(it => it.ReplaceWith == cls);
+            }
+
+            internal void Duplicate(CarClass old, CarClass @new) {
+                if (!this._classManagers.ContainsKey(old) || this._classManagers.ContainsKey(@new)) {
+                    return;
+                }
+
+                var info = this._classManagers[old].Info.Duplicate(old);
+                this._baseInfos._infos[@new] = info;
+
+                this.AddDoesntExist(@new, info);
+            }
+
+            internal bool ContainsClass(CarClass cls) {
+                return this._classManagers.ContainsKey(cls);
+            }
+
+            public IEnumerator<KeyValuePair<CarClass, OverridableClassInfo.Manager>> GetEnumerator() {
+                return this._classManagers.GetEnumerator();
+            }
+
+            IEnumerator IEnumerable.GetEnumerator() {
+                return this._classManagers.GetEnumerator();
+            }
         }
 
     }
@@ -782,55 +876,17 @@ namespace KLPlugins.DynLeaderboards {
             // It's ok to disable.
             if (this.ReplaceWithDontCheckEnabled() == null) {
                 // replace with cannot be enabled if there is no replace with set
-                this.DisableReplaceWith();
+                this.IsReplaceWithEnabled = false;
             }
 
             if (this.ForegroundDontCheckEnabled() == null || this.BackgroundDontCheckEnabled() == null) {
-                this.DisableColor();
+                this.IsColorEnabled = false;
             }
         }
 
         internal void SetRealBase(ClassInfo? @base) {
             this.SetBase(@base);
             this.HasRealBase = true;
-        }
-
-        internal bool HasBase() {
-            return this.Base != null && this.HasRealBase;
-        }
-
-        internal void Reset() {
-            this.ResetColors();
-            this.ResetReplaceWith();
-        }
-
-        internal void ResetColors() {
-            // default is enabled if base is present
-            // note: this must be done before ResetBackground and ResetForeground
-            // because otherwise they could wrongly set colors to default (not base) values
-            this.IsColorEnabled = this.Base?.Color?.Fg != null && this.Base?.Color?.Bg != null;
-
-            this.ResetBackground();
-            this.ResetForeground();
-        }
-
-        internal void DisableColor() {
-            this.IsColorEnabled = false;
-        }
-
-        internal void EnableColor() {
-            this.IsColorEnabled = true;
-
-            if (this.BackgroundDontCheckEnabled() == null) {
-                // we are explicitly asked to enable colors
-                // there must be some value in it
-                this.SetBackground(OverridableTextBoxColor.DEF_BG);
-            }
-
-            if (this.ForegroundDontCheckEnabled() == null) {
-                // same as above
-                this.SetForeground(OverridableTextBoxColor.DEF_FG);
-            }
         }
 
         internal string? Foreground() {
@@ -849,23 +905,6 @@ namespace KLPlugins.DynLeaderboards {
             return this.Base?.Color?.Fg;
         }
 
-        internal void SetForeground(string fg) {
-            this.Overrides ??= new();
-            this.Overrides.Color ??= new();
-            this.Overrides.Color.Fg = fg;
-        }
-
-        internal void ResetForeground() {
-            if (this.Overrides?.Color != null) {
-                this.Overrides.Color.Fg = null;
-            }
-
-            if (this.IsColorEnabled && this.BaseForeground() == null) {
-                // if color is enabled there must be some value in it
-                this.SetForeground(OverridableTextBoxColor.DEF_FG);
-            }
-        }
-
         internal string? Background() {
             if (!this.IsColorEnabled) {
                 return null;
@@ -880,23 +919,6 @@ namespace KLPlugins.DynLeaderboards {
 
         internal string? BaseBackground() {
             return this.Base?.Color?.Bg;
-        }
-
-        internal void SetBackground(string bg) {
-            this.Overrides ??= new();
-            this.Overrides.Color ??= new();
-            this.Overrides.Color.Bg = bg;
-        }
-
-        internal void ResetBackground() {
-            if (this.Overrides?.Color != null) {
-                this.Overrides.Color.Bg = null;
-            }
-
-            if (this.IsColorEnabled && this.BaseBackground() == null) {
-                // if color is enabled there must be some value in it
-                this.SetBackground(OverridableTextBoxColor.DEF_BG);
-            }
         }
 
         internal CarClass? BaseReplaceWith() {
@@ -915,35 +937,6 @@ namespace KLPlugins.DynLeaderboards {
             return this.Overrides?.ReplaceWith ?? this.Base?.ReplaceWith;
         }
 
-        internal void SetReplaceWith(CarClass? replaceWith) {
-            this.Overrides ??= new();
-            this.Overrides.ReplaceWith = replaceWith;
-        }
-
-        internal void ResetReplaceWith() {
-            if (this.Overrides != null) {
-                this.Overrides.ReplaceWith = null;
-            }
-
-            // default is enabled if base is present
-            this.IsReplaceWithEnabled = this.Base?.ReplaceWith != null;
-        }
-
-        internal void DisableReplaceWith() {
-            this.IsReplaceWithEnabled = false;
-        }
-
-        internal void EnableReplaceWith() {
-            this.IsReplaceWithEnabled = true;
-
-            if (this.ReplaceWithDontCheckEnabled() == null) {
-                // we are explicitly asked to enable "replace with"
-                // there must be some value in it
-                this.SetReplaceWith(CarClass.Default);
-            }
-        }
-
-
         internal string? BaseShortName() {
             return this.Base?.ShortName;
         }
@@ -952,14 +945,178 @@ namespace KLPlugins.DynLeaderboards {
             return this.Overrides?.ShortName ?? this.Base?.ShortName;
         }
 
-        internal void SetShortName(string? shortName) {
-            this.Overrides ??= new();
-            this.Overrides.ShortName = shortName;
-        }
+        /// <summary>
+        /// This is the glue between OverridableClassInfo and settings UI
+        /// </summary>
+        internal class Manager(CarClass key, OverridableClassInfo info) : INotifyPropertyChanged {
+            public event PropertyChangedEventHandler? PropertyChanged;
+            private void InvokePropertyChanged([System.Runtime.CompilerServices.CallerMemberName] string? propertyName = null) {
+                if (this.PropertyChanged == null) {
+                    return;
+                }
 
-        internal void ResetShortName() {
-            if (this.Overrides != null) {
-                this.Overrides.ShortName = null;
+                this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+            }
+            internal OverridableClassInfo Info { get; } = info;
+            internal CarClass Key { get; } = key;
+
+            internal bool HasBase() {
+                return this.Info.Base != null && this.Info.HasRealBase;
+            }
+
+            internal string? Background {
+                get => this.Info.Background();
+                set {
+                    this.Info.Overrides ??= new();
+                    this.Info.Overrides.Color ??= new();
+                    this.Info.Overrides.Color.Bg = value;
+                    this.InvokePropertyChanged();
+                }
+            }
+
+            internal string? Foreground {
+                get => this.Info.Foreground();
+                set {
+                    this.Info.Overrides ??= new();
+                    this.Info.Overrides.Color ??= new();
+                    this.Info.Overrides.Color.Fg = value;
+                    this.InvokePropertyChanged();
+                }
+            }
+
+            internal bool IsColorEnabled {
+                get => this.Info.IsColorEnabled;
+                set {
+                    this.Info.IsColorEnabled = value;
+                    this.InvokePropertyChanged();
+                    var notifiedBg = false;
+                    var notifiedFg = false;
+                    if (value) {
+                        if (this.Info.BackgroundDontCheckEnabled() == null) {
+                            // we are explicitly asked to enable colors
+                            // there must be some value in it
+                            this.Background = OverridableTextBoxColor.DEF_BG;
+                            notifiedBg = true;
+                        }
+
+                        if (this.Info.ForegroundDontCheckEnabled() == null) {
+                            // same as above
+                            this.Foreground = OverridableTextBoxColor.DEF_FG;
+                            notifiedFg = true;
+                        }
+                    }
+                    if (!notifiedBg) {
+                        this.InvokePropertyChanged(nameof(this.Background));
+                    }
+                    if (!notifiedFg) {
+                        this.InvokePropertyChanged(nameof(this.Foreground));
+                    }
+                }
+            }
+
+            internal void ResetBackground() {
+                if (this.Info.Overrides?.Color != null) {
+                    this.Info.Overrides.Color.Bg = null;
+                }
+
+                if (this.IsColorEnabled && this.Info.BaseBackground() == null) {
+                    // if color is enabled there must be some value in it
+                    this.Background = OverridableTextBoxColor.DEF_BG;
+                } else {
+                    this.InvokePropertyChanged(nameof(this.Background));
+                }
+            }
+
+            internal void ResetForeground() {
+                if (this.Info.Overrides?.Color != null) {
+                    this.Info.Overrides.Color.Fg = null;
+                }
+
+                if (this.IsColorEnabled && this.Info.BaseForeground() == null) {
+                    // if color is enabled there must be some value in it
+                    this.Foreground = OverridableTextBoxColor.DEF_FG;
+                } else {
+                    this.InvokePropertyChanged(nameof(this.Foreground));
+                }
+            }
+
+            internal void ResetColors() {
+                // don't call the setter for this.IsColorEnabled, that would notify bg and fg change unnecessarily
+                this.Info.IsColorEnabled = this.Info.Base?.Color?.Fg != null && this.Info.Base?.Color?.Bg != null;
+                this.InvokePropertyChanged(nameof(this.IsColorEnabled));
+
+                this.ResetBackground();
+                this.ResetForeground();
+            }
+
+            internal string ShortName {
+                get => this.Info.ShortName() ?? this.Key.AsString();
+                set {
+                    this.Info.Overrides ??= new();
+                    this.Info.Overrides.ShortName = value;
+                    this.InvokePropertyChanged();
+                }
+            }
+
+            internal void ResetShortName() {
+                if (this.Info.Overrides != null) {
+                    this.Info.Overrides.ShortName = null;
+                }
+                this.InvokePropertyChanged(nameof(this.ShortName));
+            }
+
+            internal CarClass? ReplaceWith {
+                get => this.Info.ReplaceWith();
+                set {
+                    this.Info.Overrides ??= new();
+                    this.Info.Overrides.ReplaceWith = value;
+                    this.InvokePropertyChanged();
+                }
+            }
+
+            internal bool IsReplaceWithEnabled {
+                get => this.Info.IsReplaceWithEnabled;
+                set {
+                    this.Info.IsReplaceWithEnabled = value;
+                    this.InvokePropertyChanged();
+                    var notified = false;
+
+                    if (value) {
+                        if (this.Info.ReplaceWithDontCheckEnabled() == null) {
+                            this.ReplaceWith = CarClass.Default;
+                            notified = true;
+                        }
+                    }
+                    if (!notified) {
+                        this.InvokePropertyChanged(nameof(this.ReplaceWith));
+                    }
+                }
+            }
+
+            internal void ResetReplaceWith() {
+                if (this.Info.Overrides != null) {
+                    this.Info.Overrides.ReplaceWith = null;
+                }
+
+                // default is enabled if base is present
+                this.IsReplaceWithEnabled = this.Info.Base?.ReplaceWith != null;
+                // No need to notify, this is done in the setter above
+            }
+
+            internal void Reset() {
+                this.ResetColors();
+                this.ResetShortName();
+                this.ResetReplaceWith();
+            }
+
+            internal void DisableAll() {
+                this.IsColorEnabled = false;
+                this.IsReplaceWithEnabled = false;
+            }
+
+            internal void EnableAll() {
+                this.IsColorEnabled = true;
+                this.IsReplaceWithEnabled = true;
             }
         }
     }
@@ -968,7 +1125,6 @@ namespace KLPlugins.DynLeaderboards {
         [JsonProperty] internal TextBoxColor? Color { get; set; }
         [JsonProperty] internal CarClass? ReplaceWith { get; set; }
         [JsonProperty] internal string? ShortName { get; set; }
-
 
         [JsonConstructor]
         internal ClassInfo(TextBoxColor? color, CarClass? replaceWith, string? shortName) {

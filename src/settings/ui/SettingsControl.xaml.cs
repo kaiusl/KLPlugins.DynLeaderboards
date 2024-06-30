@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -117,8 +117,9 @@ namespace KLPlugins.DynLeaderboards.Settings.UI {
         internal PluginSettings Settings => DynLeaderboardsPlugin.Settings;
         internal DynLeaderboardConfig CurrentDynLeaderboardSettings { get; private set; }
         internal CarSettingsTab CarSettingsTab { get; private set; }
+        internal ClassInfos.Manager ClassesManager { get; private set; }
 
-        internal const double DISABLED_OPTION_OPACITY = 0.333;
+        public const double DISABLED_OPTION_OPACITY = 0.333;
 
         //internal SettingsControl() {
         //    InitializeComponent();
@@ -130,6 +131,22 @@ namespace KLPlugins.DynLeaderboards.Settings.UI {
             this.DataContext = this;
 
             this.Plugin = plugin;
+
+            this.ClassesManager = new ClassInfos.Manager(this.Plugin.Values.ClassInfos);
+            this.ClassesManager.CollectionChanged += (s, e) => {
+                if (e.NewItems != null) {
+                    foreach (OverridableClassInfo.Manager item in e.NewItems) {
+                        this.TryAddCarClass(item.Key);
+                    }
+                }
+                //if (e.OldItems != null) {
+                //    foreach (OverridableClassInfo.Manager item in e.OldItems) {
+                //    }
+
+                //}
+            };
+
+            this.ClassSettingsTab_SHTabItem.Content = new ClassSettingsTab(this, this.Plugin.Values, this.ClassesManager);
 
             if (this.Settings.DynLeaderboardConfigs.Count == 0) {
                 this.Plugin.AddNewLeaderboard(new DynLeaderboardConfig("Dynamic"));
@@ -154,7 +171,6 @@ namespace KLPlugins.DynLeaderboards.Settings.UI {
             this.SetAllClassesAndManufacturers();
             this.CarSettingsTab = new CarSettingsTab(this, this.Plugin);
             this.CarSettingsTab.Build();
-            new ClassSettingsTab(this, this.Plugin).Build();
             this.AddColorsTab();
         }
 
@@ -248,7 +264,7 @@ namespace KLPlugins.DynLeaderboards.Settings.UI {
 
             sp.Children.Clear();
 
-            var enableAllBtn = new SHButtonPrimary() { 
+            var enableAllBtn = new SHButtonPrimary() {
                 Content = "Enable all",
                 Height = 26
             };

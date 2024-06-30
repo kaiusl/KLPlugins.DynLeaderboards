@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
@@ -50,6 +50,16 @@
     <OutputPath>bin\Docs Debug\</OutputPath>
     <DefineConstants>DEBUG;TRACE;DOCS_DEBUG</DefineConstants>
     <Optimize>false</Optimize>
+    <DebugType>full</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <WarningsAsErrors>CS8509</WarningsAsErrors>
+    <LangVersion>12.0</LangVersion>
+    <ErrorReport>prompt</ErrorReport>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug_Design|AnyCPU'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\Debug_Design\</OutputPath>
+    <DefineConstants>TRACE;DEBUG;DESIGN</DefineConstants>
     <DebugType>full</DebugType>
     <PlatformTarget>AnyCPU</PlatformTarget>
     <WarningsAsErrors>CS8509</WarningsAsErrors>
@@ -134,7 +144,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="src\settings\ui\CarSettingsTab.cs" />
-    <Compile Include="src\settings\ui\ClassSettingsTab.cs" />
     <Compile Include="src\settings\ui\ColorsTabSection.cs" />
     <Compile Include="src\settings\ui\ConfimDialog.xaml.cs">
       <DependentUpon>ConfimDialog.xaml</DependentUpon>
@@ -160,10 +169,14 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
+    <Compile Include="src\settings\ui\Converters.cs" />
     <Compile Include="src\settings\ui\SettingsControl.xaml.cs">
       <DependentUpon>SettingsControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="src\components\Values.cs" />
+    <Compile Include="src\settings\ui\ClassSettingsTab.xaml.cs">
+      <DependentUpon>ClassSettingsTab.xaml</DependentUpon>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <Page Include="src\settings\ui\ConfimDialog.xaml">
@@ -177,6 +190,10 @@
       <ContainsDesignTimeResources>true</ContainsDesignTimeResources>
     </Page>
     <Page Include="src\settings\ui\SettingsControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="src\settings\ui\ClassSettingsTab.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

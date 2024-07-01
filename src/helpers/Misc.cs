@@ -4,6 +4,8 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 
+using Newtonsoft.Json;
+
 namespace KLPlugins.DynLeaderboards.Helpers {
 
     internal static class Misc {
@@ -217,6 +219,36 @@ namespace KLPlugins.DynLeaderboards.Helpers {
             }
 
 
+        }
+    }
+
+    internal class Box<T> where T : struct {
+        public T Value;
+
+        internal Box(T value) {
+            this.Value = value;
+        }
+    }
+
+    public class BoxJsonConverter<T> : JsonConverter where T : struct {
+        public override void WriteJson(JsonWriter writer, object? value, JsonSerializer serializer) {
+            if (value is Box<T> box) {
+                writer.WriteValue(box.Value);
+            } else {
+                throw new ArgumentException("value must be Box<T>");
+            }
+        }
+
+        public override object? ReadJson(JsonReader reader, Type objectType, object? existingValue, JsonSerializer serializer) {
+            var t = serializer.Deserialize<T?>(reader);
+            if (t == null) {
+                return null;
+            }
+            return new Box<T>(t.Value);
+        }
+
+        public override bool CanConvert(Type objectType) {
+            return objectType == typeof(T?);
         }
     }
 

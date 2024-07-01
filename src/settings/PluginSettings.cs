@@ -5,17 +5,22 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 
+using KLPlugins.DynLeaderboards.Helpers;
+
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 namespace KLPlugins.DynLeaderboards.Settings {
     internal class PluginSettings {
         [JsonProperty] public int Version { get; set; } = 3;
-        [JsonProperty] public string AccDataLocation { get; set; }
+        [JsonProperty] public string? AccDataLocation { get; set; }
         [JsonProperty] public string? AcRootLocation { get; set; }
         [JsonProperty] public bool Log { get; set; }
         [JsonProperty] public int BroadcastDataUpdateRateMs { get; set; }
-        [JsonProperty] public OutGeneralProp OutGeneralProps = OutGeneralProp.None;
+
+        [JsonProperty]
+        [JsonConverter(typeof(BoxJsonConverter<OutGeneralProp>))]
+        public Box<OutGeneralProp> OutGeneralProps = new(OutGeneralProp.None);
         [JsonProperty] public bool Include_ST21_In_GT2 { get; set; }
         [JsonProperty] public bool Include_CHL_In_GT2 { get; set; }
 

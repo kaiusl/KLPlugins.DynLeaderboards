@@ -1,13 +1,10 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Linq;
-using System.Runtime.Remoting.Contexts;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Controls.Primitives;
 using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Media;
@@ -19,13 +16,9 @@ using KLPlugins.DynLeaderboards.Helpers;
 
 using MahApps.Metro.Controls;
 
-using MathNet.Numerics.Distributions;
 
 using SimHub.Plugins.Styles;
 using SimHub.Plugins.UI;
-
-using Xceed.Wpf.Toolkit;
-using Xceed.Wpf.Toolkit.Primitives;
 
 namespace KLPlugins.DynLeaderboards.Settings.UI {
     public class MessageDialog : SHDialogContentBase {
@@ -146,6 +139,7 @@ namespace KLPlugins.DynLeaderboards.Settings.UI {
                 //}
             };
 
+            this.GeneralSettingsTab_SHTabItem.Content = new GeneralSettingsTab(this.Settings);
             this.ClassSettingsTab_SHTabItem.Content = new ClassSettingsTab(this, this.Plugin.Values, this.ClassesManager);
 
             if (this.Settings.DynLeaderboardConfigs.Count == 0) {
@@ -159,14 +153,6 @@ namespace KLPlugins.DynLeaderboards.Settings.UI {
             this.SelectDynLeaderboard_ComboBox.SelectedIndex = 0;
 
             this.AddDynLeaderboardSettings();
-            this.AddOtherToggles();
-
-            // Set current values for other settings
-            this.AccDataLocation_TextBox.Text = this.Settings.AccDataLocation;
-            this.AcRootLocation_TextBox.Text = this.Settings.AcRootLocation ?? "TODO";
-            this.AccDataLocation_TextBox.Background = this.Settings.IsAccDataLocationValid() ? Brushes.ForestGreen : Brushes.Crimson;
-            this.AcRootLocation_TextBox.Background = this.Settings.IsAcRootLocationValid() ? Brushes.ForestGreen : Brushes.Crimson;
-            this.Logging_ToggleButton.IsChecked = this.Settings.Log;
 
             this.SetAllClassesAndManufacturers();
             this.CarSettingsTab = new CarSettingsTab(this, this.Plugin);
@@ -256,134 +242,6 @@ namespace KLPlugins.DynLeaderboards.Settings.UI {
                 this.Plugin.Values.UpdateDriverInfos
             ).Build(c => c == DriverCategory.Default);
         }
-
-        #region General settings
-
-        private void AddOtherToggles() {
-            var sp = this.OtherProperties_StackPanel;
-
-            sp.Children.Clear();
-
-            var enableAllBtn = new SHButtonPrimary() {
-                Content = "Enable all",
-                Height = 26
-            };
-            var disableAlLBtn = new SHButtonPrimary() {
-                Content = "Disable all",
-                Height = 26
-            };
-
-            var btnSp = new StackPanel() {
-                Orientation = Orientation.Horizontal,
-                HorizontalAlignment = HorizontalAlignment.Right,
-                Children = {
-                    enableAllBtn,
-                    disableAlLBtn
-                }
-            };
-            sp.Children.Add(btnSp);
-
-            sp.Children.Add(this.CreatePropertyTogglesDescriptionRow());
-            sp.Children.Add(this.CreateToggleSeparator());
-
-
-            List<SHToggleButton> toggles = new();
-            foreach (var v in OutGeneralPropExtensions.Order()) {
-                if (v == OutGeneralProp.None) {
-                    continue;
-                }
-
-                var (row, toggle) = this.CreatePropertyToggleRow(
-                    v.ToString(),
-                    v.ToPropName(),
-                    DynLeaderboardsPlugin.Settings.OutGeneralProps.Includes(v),
-                    (sender, e) => DynLeaderboardsPlugin.Settings.OutGeneralProps.Combine(v),
-                    (sender, e) => DynLeaderboardsPlugin.Settings.OutGeneralProps.Remove(v),
-                    v.ToolTipText()
-                );
-
-                this.OtherProperties_StackPanel.Children.Add(row);
-                this.OtherProperties_StackPanel.Children.Add(this.CreateToggleSeparator());
-                toggles.Add(toggle);
-            }
-
-
-            enableAllBtn.Click += (sender, e) => {
-                foreach (var t in toggles) {
-                    t.IsChecked = true;
-                }
-            };
-
-            disableAlLBtn.Click += (sender, e) => {
-                foreach (var t in toggles) {
-                    t.IsChecked = false;
-                }
-            };
-        }
-
-
-        private void AccDataLocation_TextChanged(object sender, TextChangedEventArgs e) {
-            var success = DynLeaderboardsPlugin.Settings.SetAccDataLocation(this.AccDataLocation_TextBox.Text);
-            if (success) {
-                this.AccDataLocation_TextBox.Background = Brushes.ForestGreen;
-            } else {
-                this.AccDataLocation_TextBox.Background = Brushes.Crimson;
-            }
-        }
-
-        private void AcRootLocation_TextChanged(object sender, TextChangedEventArgs e) {
-            var success = DynLeaderboardsPlugin.Settings.SetAcRootLocation(this.AcRootLocation_TextBox.Text);
-            if (success) {
-                this.AcRootLocation_TextBox.Background = Brushes.ForestGreen;
-            } else {
-                this.AcRootLocation_TextBox.Background = Brushes.Crimson;
-            }
-        }
-
-        private void Logging_ToggleButton_Click(object sender, RoutedEventArgs e) {
-            DynLeaderboardsPlugin.Settings.Log = !DynLeaderboardsPlugin.Settings.Log;
-        }
-
-        private void IncludeST21InGT2_ToggleButton_Click(object sender, RoutedEventArgs e) {
-            DynLeaderboardsPlugin.Settings.Include_ST21_In_GT2 = !DynLeaderboardsPlugin.Settings.Include_ST21_In_GT2;
-        }
-
-        private void IncludeCHLInGT2_ToggleButton_Click(object sender, RoutedEventArgs e) {
-            DynLeaderboardsPlugin.Settings.Include_CHL_In_GT2 = !DynLeaderboardsPlugin.Settings.Include_CHL_In_GT2;
-        }
-
-        private void SelectedColorChanged<T>(object _, RoutedPropertyChangedEventArgs<Color?> e, T c, Dictionary<T, string> settingsColors) {
-            if (e.NewValue != null) {
-                var newColor = (Color)e.NewValue;
-                settingsColors[c] = newColor.ToString();
-            }
-        }
-
-        // private void ClassColorPickerReset(CarClass cls) {
-        //     DynLeaderboardsPlugin.Settings.CarClassColors[cls] = cls.ACCColor();
-        //     this._classColorPickers[cls].SelectedColor = (Color)ColorConverter.ConvertFromString(cls.ACCColor());
-        // }
-
-        // private void TeamCupColorPickerReset(TeamCupCategory cup) {
-        //     DynLeaderboardsPlugin.Settings.TeamCupCategoryColors[cup] = cup.ACCColor();
-        //     this._cupColorPickers[cup].SelectedColor = (Color)ColorConverter.ConvertFromString(cup.ACCColor());
-        // }
-
-        // private void TeamCupTextColorPickerReset(TeamCupCategory cup) {
-        //     DynLeaderboardsPlugin.Settings.TeamCupCategoryTextColors[cup] = cup.ACCTextColor();
-        //     this._cupTextColorPickers[cup].SelectedColor = (Color)ColorConverter.ConvertFromString(cup.ACCTextColor());
-        // }
-
-        // private void DriverCategoryColorPickerReset(DriverCategory cls) {
-        //     DynLeaderboardsPlugin.Settings.DriverCategoryColors[cls] = cls.GetAccColor();
-        //     this._driverCategoryColorPickers[cls].SelectedColor = (Color)ColorConverter.ConvertFromString(cls.GetAccColor());
-        // }
-
-        private void Hyperlink_RequestNavigate(object sender, System.Windows.Navigation.RequestNavigateEventArgs e) {
-            System.Diagnostics.Process.Start(e.Uri.ToString());
-        }
-
-        #endregion General settings
 
         #region Dynamic leaderboard
 

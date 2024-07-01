@@ -1,0 +1,209 @@
+﻿<UserControl x:Class="KLPlugins.DynLeaderboards.Settings.UI.GeneralSettingsTab"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:local="clr-namespace:KLPlugins.DynLeaderboards.Settings.UI"
+             xmlns:styles="clr-namespace:SimHub.Plugins.Styles;assembly=SimHub.Plugins"
+             mc:Ignorable="d"
+             xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
+             xmlns:ui="clr-namespace:SimHub.Plugins.UI;assembly=SimHub.Plugins"
+             xmlns:system="clr-namespace:System;assembly=mscorlib"
+             xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
+             d:DesignHeight="1000"
+             d:DesignWidth="1400"
+             d:Background="#252525"
+             d:Foreground="white"
+             d:DataContext="{d:DesignInstance local:DesignGeneralSettingsTabViewModel, IsDesignTimeCreatable=True}">
+    <!-- Actual BG and FG will be set by control this gets embedded in.  -->
+    <!-- local:DesignGeneralSettingsTabViewModel type is only available if DESIGN flag is set (it is automatically set in Debug_Design configuration) -->
+
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="themes/Themes.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
+
+    <ScrollViewer>
+        <StackPanel Margin="20">
+
+            <local:DocsHelpButton RelativePath="user_guide/config/#general_settings" />
+
+            <TextBlock MaxWidth="750"
+                       TextWrapping="Wrap">These settings are global to the whole plugin. <Bold>For the changes to take effect you need to restart SimHub</Bold>.
+            </TextBlock>
+
+            <local:SectionTitle HelpPath="user_guide/config/#paths">PATHS</local:SectionTitle>
+
+            <Grid>
+                <Grid.Resources>
+                    <system:String x:Key="ACC_Config_Location_Tooltip">Location of ACC configuration folder. That is where for example ..\Config\broadcasting.json is located.</system:String>
+                    <system:String x:Key="AC_Root_Location_Tooltip">Location of AC root folder. That is where for example ..\content\cars is located.</system:String>
+
+                    <Style TargetType="{x:Type TextBlock}"
+                           x:Key="Label"
+                           BasedOn="{StaticResource {x:Type TextBlock}}">
+                        <Setter Property="Grid.Column"
+                                Value="0" />
+                    </Style>
+
+                    <Style TargetType="{x:Type TextBox}"
+                           x:Key="Location"
+                           BasedOn="{StaticResource {x:Type TextBox}}">
+                        <Setter Property="Grid.Column"
+                                Value="1" />
+                        <Setter Property="Height"
+                                Value="25" />
+                        <Setter Property="HorizontalAlignment"
+                                Value="Left" />
+                        <Setter Property="VerticalAlignment"
+                                Value="Center" />
+
+                    </Style>
+                </Grid.Resources>
+
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition MinWidth="200"
+                                      Width="auto" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+
+                <Grid.RowDefinitions>
+                    <RowDefinition MinHeight="35" />
+                    <RowDefinition MinHeight="35" />
+                </Grid.RowDefinitions>
+
+                <TextBlock Style="{StaticResource Label}"
+                           ToolTip="{StaticResource ACC_Config_Location_Tooltip}">ACC configuration location:</TextBlock>
+                <TextBox Style="{StaticResource Location}"
+                         ToolTip="{StaticResource ACC_Config_Location_Tooltip}"
+                         Text="{Binding ACCDataLocation, Mode=TwoWay}"
+                         Background="{Binding ACCDataLocationBackground, UpdateSourceTrigger=PropertyChanged}" />
+
+                <TextBlock Style="{StaticResource Label}"
+                           ToolTip="{StaticResource AC_Root_Location_Tooltip}"
+                           Grid.Row="1">AC root location:</TextBlock>
+                <TextBox Style="{StaticResource Location}"
+                         ToolTip="{StaticResource AC_Root_Location_Tooltip}"
+                         Grid.Row="1"
+                         Text="{Binding ACRootLocation, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                         Background="{Binding ACRootLocationBackground}" />
+            </Grid>
+            
+            <!-- Exposed properties -->
+
+            <local:SectionTitle>EXPOSED PROPERTIES</local:SectionTitle>
+
+            <StackPanel Orientation="Horizontal"
+                        HorizontalAlignment="Right">
+                <styles:SHButtonPrimary Content="Enable selected"
+                                        Command="{Binding ExposedPropertiesEnableSelectedCommand}" />
+                <styles:SHButtonPrimary Content="Disable selected"
+                                        Command="{Binding ExposedPropertiesDisableSelectedCommand}" />
+            </StackPanel>
+
+            <DataGrid ItemsSource="{Binding ExposedProperties}"
+                      AutoGenerateColumns="False"
+                      CanUserAddRows="False"
+                      CanUserDeleteRows="False"
+                      CanUserReorderColumns="False"
+                      CanUserSortColumns="False"
+                      CanUserResizeColumns="False"
+                      SelectionMode="Extended"
+                      SelectedCellsChanged="DataGrid_SelectedCellsChanged"
+                      Background="Transparent"
+                      d:SelectedIndex="2">
+
+                <DataGrid.RowStyle>
+                    <Style TargetType="{x:Type DataGridRow}"
+                           BasedOn="{StaticResource {x:Type DataGridRow}}">
+
+                        <Setter Property="BorderBrush"
+                                Value="#4000" />
+                        <Setter Property="BorderThickness"
+                                Value="0,2,0,0" />
+                        <Setter Property="Background"
+                                Value="Transparent" />
+
+                        <Style.Triggers>
+                            <Trigger Property="IsSelected"
+                                     Value="True">
+                                <Trigger.Setters>
+                                    <Setter Property="Background"
+                                            Value="#196E92" />
+                                </Trigger.Setters>
+                            </Trigger>
+                        </Style.Triggers>
+
+                    </Style>
+                </DataGrid.RowStyle>
+
+                <DataGrid.ContextMenu>
+                    <ContextMenu Name="cm"
+                                 StaysOpen="False">
+                        <MenuItem Header="Enable selected"
+                                  Command="{Binding ExposedPropertiesEnableSelectedCommand}" />
+                        <MenuItem Header="Disable selected"
+                                  Command="{Binding ExposedPropertiesDisableSelectedCommand}" />
+                    </ContextMenu>
+                </DataGrid.ContextMenu>
+
+
+                <DataGrid.Columns>
+                    <DataGridTemplateColumn IsReadOnly="True">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <!-- IMPORTANT: UpdateSourceTrigger must be explicitly set, otherwise the updates are not triggered! -->
+                                <styles:SHToggleCheckbox IsChecked="{Binding Path=IsEnabled, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+
+                    <DataGridTextColumn Header="Property name"
+                                        Binding="{Binding Path=Name}"
+                                        MinWidth="250"
+                                        IsReadOnly="True" />
+
+                    <!-- Use DataGridTemplateColumn instead of DataGridTextColumn so we can set the TextBlock.TextWrapping to Wrap. -->
+                    <DataGridTemplateColumn IsReadOnly="True"
+                                            Width="*"
+                                            Header="Description">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding Description}"
+                                           TextWrapping="Wrap"
+                                           Margin="0,5,0,5" />
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                </DataGrid.Columns>
+            </DataGrid>
+
+
+            <local:SectionTitle>DEBUG</local:SectionTitle>
+
+            <!-- Enable logging -->
+
+            <Grid ToolTip="Enable or disable debug information logging. Errors will always be logged.">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition MinWidth="200"
+                                      Width="auto" />
+                    <ColumnDefinition Width="auto" />
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition MinHeight="35" />
+                </Grid.RowDefinitions>
+
+                <TextBlock Grid.Column="0"
+                           Text="Log info: " />
+                <styles:SHToggleButton Grid.Column="1"
+                                       x:Name="Logging_ToggleButton"
+                                       IsChecked="{Binding Log, Mode=TwoWay}" />
+            </Grid>
+
+        </StackPanel>
+    </ScrollViewer>
+
+</UserControl>

@@ -145,6 +145,7 @@
   <ItemGroup>
     <Compile Include="src\settings\ui\CarSettingsTab.cs" />
     <Compile Include="src\settings\ui\ColorsTabSection.cs" />
+    <Compile Include="src\settings\ui\Common.cs" />
     <Compile Include="src\settings\ui\ConfimDialog.xaml.cs">
       <DependentUpon>ConfimDialog.xaml</DependentUpon>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
@@ -170,6 +171,9 @@
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
     <Compile Include="src\settings\ui\Converters.cs" />
+    <Compile Include="src\settings\ui\GeneralSettingsTab.xaml.cs">
+      <DependentUpon>GeneralSettingsTab.xaml</DependentUpon>
+    </Compile>
     <Compile Include="src\settings\ui\SettingsControl.xaml.cs">
       <DependentUpon>SettingsControl.xaml</DependentUpon>
     </Compile>
@@ -188,6 +192,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
       <ContainsDesignTimeResources>true</ContainsDesignTimeResources>
+    </Page>
+    <Page Include="src\settings\ui\GeneralSettingsTab.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="src\settings\ui\SettingsControl.xaml">
       <SubType>Designer</SubType>

@@ -151,20 +151,21 @@ namespace KLPlugins.DynLeaderboards {
         private void AttachGeneralDelegates() {
             this.AttachDelegate<DynLeaderboardsPlugin, double>("Perf.DataUpdateMS", () => this._dataUpdateTime);
 
+            var outGenProps = Settings.OutGeneralProps.Value;
             // Add everything else
-            if (Settings.OutGeneralProps.Includes(OutGeneralProp.SessionPhase)) {
+            if (outGenProps.Includes(OutGeneralProp.SessionPhase)) {
                 this.AttachDelegate<DynLeaderboardsPlugin, string>(OutGeneralProp.SessionPhase.ToPropName(), () => this.Values.Session.SessionPhase.ToString());
             }
 
-            if (Settings.OutGeneralProps.Includes(OutGeneralProp.MaxStintTime)) {
+            if (outGenProps.Includes(OutGeneralProp.MaxStintTime)) {
                 this.AttachDelegate<DynLeaderboardsPlugin, double>(OutGeneralProp.MaxStintTime.ToPropName(), () => this.Values.Session.MaxDriverStintTime?.TotalSeconds ?? -1);
             }
 
-            if (Settings.OutGeneralProps.Includes(OutGeneralProp.MaxDriveTime)) {
+            if (outGenProps.Includes(OutGeneralProp.MaxDriveTime)) {
                 this.AttachDelegate<DynLeaderboardsPlugin, double>(OutGeneralProp.MaxDriveTime.ToPropName(), () => this.Values.Session.MaxDriverTotalDriveTime?.TotalSeconds ?? -1);
             }
 
-            if (Settings.OutGeneralProps.Includes(OutGeneralProp.CarClassColors)) {
+            if (outGenProps.Includes(OutGeneralProp.CarClassColors)) {
                 foreach (var kv in this.Values.ClassInfos) {
                     var value = kv.Value;
                     this.AttachDelegate<DynLeaderboardsPlugin, string>(
@@ -173,7 +174,7 @@ namespace KLPlugins.DynLeaderboards {
                     );
                 }
             }
-            if (Settings.OutGeneralProps.Includes(OutGeneralProp.CarClassColors)) {
+            if (outGenProps.Includes(OutGeneralProp.CarClassColors)) {
                 foreach (var kv in this.Values.ClassInfos) {
                     var value = kv.Value;
                     this.AttachDelegate<DynLeaderboardsPlugin, string>(
@@ -183,7 +184,7 @@ namespace KLPlugins.DynLeaderboards {
                 }
             }
 
-            if (Settings.OutGeneralProps.Includes(OutGeneralProp.TeamCupColors)) {
+            if (outGenProps.Includes(OutGeneralProp.TeamCupColors)) {
                 foreach (var kv in this.Values.TeamCupCategoryColors) {
                     var value = kv.Value;
                     this.AttachDelegate<DynLeaderboardsPlugin, string>(
@@ -192,7 +193,7 @@ namespace KLPlugins.DynLeaderboards {
                     );
                 }
             }
-            if (Settings.OutGeneralProps.Includes(OutGeneralProp.TeamCupTextColors)) {
+            if (outGenProps.Includes(OutGeneralProp.TeamCupTextColors)) {
                 foreach (var kv in this.Values.TeamCupCategoryColors) {
                     var value = kv.Value;
                     this.AttachDelegate<DynLeaderboardsPlugin, string>(
@@ -202,7 +203,7 @@ namespace KLPlugins.DynLeaderboards {
                 }
             }
 
-            if (Settings.OutGeneralProps.Includes(OutGeneralProp.DriverCategoryColors)) {
+            if (outGenProps.Includes(OutGeneralProp.DriverCategoryColors)) {
                 foreach (var kv in this.Values.DriverCategoryColors) {
                     var value = kv.Value;
                     this.AttachDelegate<DynLeaderboardsPlugin, string>(
@@ -211,7 +212,7 @@ namespace KLPlugins.DynLeaderboards {
                     );
                 }
             }
-            if (Settings.OutGeneralProps.Includes(OutGeneralProp.DriverCategoryTextColors)) {
+            if (outGenProps.Includes(OutGeneralProp.DriverCategoryTextColors)) {
                 foreach (var kv in this.Values.DriverCategoryColors) {
                     var value = kv.Value;
                     this.AttachDelegate<DynLeaderboardsPlugin, string>(
@@ -221,12 +222,12 @@ namespace KLPlugins.DynLeaderboards {
                 }
             }
 
-            if (Settings.OutGeneralProps.Includes(OutGeneralProp.NumClassesInSession)) {
+            if (outGenProps.Includes(OutGeneralProp.NumClassesInSession)) {
                 this.AttachDelegate<DynLeaderboardsPlugin, int>(OutGeneralProp.NumClassesInSession.ToPropName(), () => this.Values.NumClassesInSession);
             }
 
 
-            if (Settings.OutGeneralProps.Includes(OutGeneralProp.NumCupsInSession)) {
+            if (outGenProps.Includes(OutGeneralProp.NumCupsInSession)) {
                 this.AttachDelegate<DynLeaderboardsPlugin, int>(OutGeneralProp.NumCupsInSession.ToPropName(), () => this.Values.NumCupsInSession);
             }
         }

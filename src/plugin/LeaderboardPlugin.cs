@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -151,7 +151,7 @@ namespace KLPlugins.DynLeaderboards {
         private void AttachGeneralDelegates() {
             this.AttachDelegate<DynLeaderboardsPlugin, double>("Perf.DataUpdateMS", () => this._dataUpdateTime);
 
-            var outGenProps = Settings.OutGeneralProps.Value;
+            var outGenProps = Settings.OutGeneralProps;
             // Add everything else
             if (outGenProps.Includes(OutGeneralProp.SessionPhase)) {
                 this.AttachDelegate<DynLeaderboardsPlugin, string>(OutGeneralProp.SessionPhase.ToPropName(), () => this.Values.Session.SessionPhase.ToString());

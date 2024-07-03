@@ -19,8 +19,7 @@ namespace KLPlugins.DynLeaderboards.Settings {
         [JsonProperty] public int BroadcastDataUpdateRateMs { get; set; }
 
         [JsonProperty]
-        [JsonConverter(typeof(BoxJsonConverter<OutGeneralProp>))]
-        public Box<OutGeneralProp> OutGeneralProps = new(OutGeneralProp.None);
+        public OutGeneralProps OutGeneralProps = new(OutGeneralProp.None);
         [JsonProperty] public bool Include_ST21_In_GT2 { get; set; }
         [JsonProperty] public bool Include_CHL_In_GT2 { get; set; }
 
@@ -352,26 +351,27 @@ namespace KLPlugins.DynLeaderboards.Settings {
         [JsonIgnore] public string PreviousLeaderboardActionName => $"{this.Name}.PreviousLeaderboard";
 
         [JsonProperty]
-        public OutCarProp OutCarProps = OutCarProp.CarNumber
+        public OutCarProps OutCarProps = new(OutCarProp.CarNumber
              | OutCarProp.CarClass
              | OutCarProp.IsFinished
              | OutCarProp.CarClassColor
              | OutCarProp.TeamCupCategoryColor
              | OutCarProp.TeamCupCategoryTextColor
-             | OutCarProp.RelativeOnTrackLapDiff;
+             | OutCarProp.RelativeOnTrackLapDiff
+        );
 
-        [JsonProperty] public OutPitProp OutPitProps = OutPitProp.IsInPitLane;
-        [JsonProperty] public OutPosProp OutPosProps = OutPosProp.DynamicPosition;
-        [JsonProperty] public OutGapProp OutGapProps = OutGapProp.DynamicGapToFocused;
-        [JsonProperty] public OutStintProp OutStintProps = OutStintProp.None;
-        [JsonProperty] public OutDriverProp OutDriverProps = OutDriverProp.InitialPlusLastName;
+        [JsonProperty] public OutPitProps OutPitProps = new(OutPitProp.IsInPitLane);
+        [JsonProperty] public OutPosProps OutPosProps = new(OutPosProp.DynamicPosition);
+        [JsonProperty] public OutGapProps OutGapProps = new(OutGapProp.DynamicGapToFocused);
+        [JsonProperty] public OutStintProps OutStintProps = new(OutStintProp.None);
+        [JsonProperty] public OutDriverProps OutDriverProps = new(OutDriverProp.InitialPlusLastName);
 
         [JsonProperty]
-        public OutLapProp OutLapProps = OutLapProp.Laps
+        public OutLapProps OutLapProps = new(OutLapProp.Laps
              | OutLapProp.LastLapTime
              | OutLapProp.BestLapTime
              | OutLapProp.DynamicBestLapDeltaToFocusedBest
-             | OutLapProp.DynamicLastLapDeltaToFocusedLast;
+             | OutLapProp.DynamicLastLapDeltaToFocusedLast);
 
         [JsonProperty] public int NumOverallPos { get; set; } = 16;
         [JsonProperty] public int NumClassPos { get; set; } = 16;

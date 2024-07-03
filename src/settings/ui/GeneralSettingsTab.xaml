@@ -104,41 +104,10 @@
                                         Command="{Binding ExposedPropertiesDisableSelectedCommand}" />
             </StackPanel>
 
-            <DataGrid ItemsSource="{Binding ExposedProperties}"
-                      AutoGenerateColumns="False"
-                      CanUserAddRows="False"
-                      CanUserDeleteRows="False"
-                      CanUserReorderColumns="False"
-                      CanUserSortColumns="False"
-                      CanUserResizeColumns="False"
-                      SelectionMode="Extended"
-                      SelectedCellsChanged="DataGrid_SelectedCellsChanged"
-                      Background="Transparent"
-                      d:SelectedIndex="2">
-
-                <DataGrid.RowStyle>
-                    <Style TargetType="{x:Type DataGridRow}"
-                           BasedOn="{StaticResource {x:Type DataGridRow}}">
-
-                        <Setter Property="BorderBrush"
-                                Value="#4000" />
-                        <Setter Property="BorderThickness"
-                                Value="0,2,0,0" />
-                        <Setter Property="Background"
-                                Value="Transparent" />
-
-                        <Style.Triggers>
-                            <Trigger Property="IsSelected"
-                                     Value="True">
-                                <Trigger.Setters>
-                                    <Setter Property="Background"
-                                            Value="#196E92" />
-                                </Trigger.Setters>
-                            </Trigger>
-                        </Style.Triggers>
-
-                    </Style>
-                </DataGrid.RowStyle>
+            <local:DataGrid2 ItemsSource="{Binding ExposedProperties}"
+                             Style="{StaticResource ExposedPropertiesDataGrid2}"
+                             SelectedCellsChanged="DataGrid_SelectedCellsChanged"
+                             d:SelectedIndex="2">
 
                 <DataGrid.ContextMenu>
                     <ContextMenu Name="cm"
@@ -150,36 +119,12 @@
                     </ContextMenu>
                 </DataGrid.ContextMenu>
 
-
                 <DataGrid.Columns>
-                    <DataGridTemplateColumn IsReadOnly="True">
-                        <DataGridTemplateColumn.CellTemplate>
-                            <DataTemplate>
-                                <!-- IMPORTANT: UpdateSourceTrigger must be explicitly set, otherwise the updates are not triggered! -->
-                                <styles:SHToggleCheckbox IsChecked="{Binding Path=IsEnabled, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
-                            </DataTemplate>
-                        </DataGridTemplateColumn.CellTemplate>
-                    </DataGridTemplateColumn>
-
-                    <DataGridTextColumn Header="Property name"
-                                        Binding="{Binding Path=Name}"
-                                        MinWidth="250"
-                                        IsReadOnly="True" />
-
-                    <!-- Use DataGridTemplateColumn instead of DataGridTextColumn so we can set the TextBlock.TextWrapping to Wrap. -->
-                    <DataGridTemplateColumn IsReadOnly="True"
-                                            Width="*"
-                                            Header="Description">
-                        <DataGridTemplateColumn.CellTemplate>
-                            <DataTemplate>
-                                <TextBlock Text="{Binding Description}"
-                                           TextWrapping="Wrap"
-                                           Margin="0,5,0,5" />
-                            </DataTemplate>
-                        </DataGridTemplateColumn.CellTemplate>
-                    </DataGridTemplateColumn>
+                    <StaticResource ResourceKey="ExposedPropertiesDataGrid_Column0" />
+                    <StaticResource ResourceKey="ExposedPropertiesDataGrid_Column1" />
+                    <StaticResource ResourceKey="ExposedPropertiesDataGrid_Column2" />
                 </DataGrid.Columns>
-            </DataGrid>
+            </local:DataGrid2>
 
 
             <local:SectionTitle>DEBUG</local:SectionTitle>

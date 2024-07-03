@@ -60,7 +60,7 @@ namespace KLPlugins.DynLeaderboards.Settings.UI {
             }
         }
 
-        public List<PropertyViewModel> ExposedProperties { get; } = [];
+        public List<PropertyViewModelBase> ExposedProperties { get; } = [];
 
         public ICommand ExposedPropertiesEnableSelectedCommand { get; }
         public ICommand ExposedPropertiesDisableSelectedCommand { get; }
@@ -83,7 +83,7 @@ namespace KLPlugins.DynLeaderboards.Settings.UI {
                     continue;
                 }
 
-                var vm = new PropertyViewModel(v, this._settings.OutGeneralProps);
+                var vm = new PropertyViewModel<OutGeneralProp>(v.ToPropName(), v.ToolTipText(), v, this._settings.OutGeneralProps);
                 this.ExposedProperties.Add(vm);
             }
 
@@ -105,9 +105,9 @@ namespace KLPlugins.DynLeaderboards.Settings.UI {
         internal void OnExposedPropertiesSelectedCellsChanged(object sender, SelectedCellsChangedEventArgs e) {
             // one item is returned for every cell, we have three columns so we get everything three times,
             // so skip duplicates 
-            PropertyViewModel? prev = null;
+            PropertyViewModelBase? prev = null;
             foreach (var it in e.AddedCells) {
-                if (it.Item is not PropertyViewModel vm || prev == vm) {
+                if (it.Item is not PropertyViewModelBase vm || prev == vm) {
                     continue;
                 }
 
@@ -117,7 +117,7 @@ namespace KLPlugins.DynLeaderboards.Settings.UI {
 
             prev = null;
             foreach (var it in e.RemovedCells) {
-                if (it.Item is not PropertyViewModel vm || prev == vm) {
+                if (it.Item is not PropertyViewModelBase vm || prev == vm) {
                     continue;
                 }
                 vm.IsRowSelected = false;
@@ -152,60 +152,21 @@ namespace KLPlugins.DynLeaderboards.Settings.UI {
         }
     }
 
-    internal class PropertyViewModel : INotifyPropertyChanged {
-        private readonly OutGeneralProp _prop = OutGeneralProp.None;
-        private readonly Box<OutGeneralProp> _setting;
-
-        public event PropertyChangedEventHandler? PropertyChanged;
-
-        public bool IsEnabled {
-            get => this._setting.Value.Includes(this._prop);
-            set {
-                if (value) {
-                    this._setting.Value.Combine(this._prop);
-                } else {
-                    this._setting.Value.Remove(this._prop);
-                };
-                this.InvokePropertyChanged();
-            }
-        }
-        public string Name { get; }
-        public string Description { get; }
-        internal bool IsRowSelected { get; set; } = false;
-#if DESIGN
-        internal PropertyViewModel() { }
-#endif
-        internal PropertyViewModel(OutGeneralProp prop, Box<OutGeneralProp> setting) {
-            this._prop = prop;
-            this._setting = setting;
-            this.Name = prop.ToPropName();
-            this.Description = prop.ToolTipText();
-        }
-
-        private void InvokePropertyChanged([System.Runtime.CompilerServices.CallerMemberName] string? propertyName = null) {
-            if (propertyName == null) {
-                return;
-            }
-
-            this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
-    }
-
 #if DESIGN
     internal class DesignGeneralSettingsTabViewModel : GeneralSettingsTabViewModel {
         public new string? ACCDataLocation { get; set; } = @"C:\Users\user\Documents\Assetto Corsa Competizione";
         public new string? ACRootLocation { get; set; } = @"C:\Program Files\SteamLibrary\steamapps\common\assettocorsa";
         public new SolidColorBrush ACRootLocationBackground { get; set; } = PATH_BG_OK;
         public new bool Log { get; set; } = true;
-        public new List<PropertyViewModel> ExposedProperties { get; set; } = CreateProperties();
+        public new List<PropertyViewModelBase> ExposedProperties { get; set; } = CreateProperties();
 
-        private static List<PropertyViewModel> CreateProperties() {
-            var list = new List<PropertyViewModel>();
+        private static List<PropertyViewModelBase> CreateProperties() {
+            var list = new List<PropertyViewModelBase>();
 
-            var vm1 = new DesignPropertyViewModel();
+            var vm1 = new DesignPropertyViewModel<OutGeneralProp>();
             list.Add(vm1);
 
-            var vm2 = new DesignPropertyViewModel() {
+            var vm2 = new DesignPropertyViewModel<OutGeneralProp>() {
                 Name = "Long prop name Long prop name",
                 IsEnabled = false
             };
@@ -217,7 +178,7 @@ namespace KLPlugins.DynLeaderboards.Settings.UI {
                     continue;
                 }
 
-                var vm = new DesignPropertyViewModel() {
+                var vm = new DesignPropertyViewModel<OutGeneralProp>() {
                     Name = v.ToPropName(),
                     Description = v.ToolTipText(),
                     IsEnabled = random.Next(2) == 1
@@ -228,12 +189,6 @@ namespace KLPlugins.DynLeaderboards.Settings.UI {
 
             return list;
         }
-    }
-
-    internal class DesignPropertyViewModel : PropertyViewModel {
-        public new bool IsEnabled { get; set; } = true;
-        public new string Name { get; set; } = "Prop";
-        public new string Description { get; set; } = "Desc";
     }
 #endif
 }

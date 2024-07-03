@@ -172,51 +172,51 @@ namespace KLPlugins.DynLeaderboards {
                     break;
                 case LeaderboardKind.RelativeOverall:
                     this.SetCarsRelativeX(
-                        numRelPos: this.Config.NumOverallRelativePos,
+                        numRelPos: this.Config.NumOverallRelativePos.Value,
                         cars: v.OverallOrder,
                         focusedCarIndexInCars: v.FocusedCar.IndexOverall
                     );
                     break;
                 case LeaderboardKind.RelativeClass:
                     this.SetCarsRelativeX(
-                        numRelPos: this.Config.NumClassRelativePos,
+                        numRelPos: this.Config.NumClassRelativePos.Value,
                         cars: v.ClassOrder,
                         focusedCarIndexInCars: v.FocusedCar.IndexClass
                     );
                     break;
                 case LeaderboardKind.RelativeCup:
                     this.SetCarsRelativeX(
-                        numRelPos: this.Config.NumCupRelativePos,
+                        numRelPos: this.Config.NumCupRelativePos.Value,
                         cars: v.CupOrder,
                         focusedCarIndexInCars: v.FocusedCar.IndexCup
                     );
                     break;
                 case LeaderboardKind.PartialRelativeOverall:
                     this.SetCarsPartialRelativeX(
-                        numTopPos: this.Config.PartialRelativeOverallNumOverallPos,
-                        numRelPos: this.Config.PartialRelativeOverallNumRelativePos,
+                        numTopPos: this.Config.PartialRelativeOverallNumOverallPos.Value,
+                        numRelPos: this.Config.PartialRelativeOverallNumRelativePos.Value,
                         cars: v.OverallOrder,
                         focusedCarIndexInCars: v.FocusedCar.IndexOverall
                     );
                     break;
                 case LeaderboardKind.PartialRelativeClass:
                     this.SetCarsPartialRelativeX(
-                        numTopPos: this.Config.PartialRelativeClassNumClassPos,
-                        numRelPos: this.Config.PartialRelativeClassNumRelativePos,
+                        numTopPos: this.Config.PartialRelativeClassNumClassPos.Value,
+                        numRelPos: this.Config.PartialRelativeClassNumRelativePos.Value,
                         cars: v.ClassOrder,
                         focusedCarIndexInCars: v.FocusedCar.IndexClass
                     );
                     break;
                 case LeaderboardKind.PartialRelativeCup:
                     this.SetCarsPartialRelativeX(
-                        numTopPos: this.Config.PartialRelativeCupNumCupPos,
-                        numRelPos: this.Config.PartialRelativeCupNumRelativePos,
+                        numTopPos: this.Config.PartialRelativeCupNumCupPos.Value,
+                        numRelPos: this.Config.PartialRelativeCupNumRelativePos.Value,
                         cars: v.CupOrder,
                         focusedCarIndexInCars: v.FocusedCar.IndexCup
                     );
                     break;
                 case LeaderboardKind.RelativeOnTrack: {
-                        var relPos = this.Config.NumOnTrackRelativePos;
+                        var relPos = this.Config.NumOnTrackRelativePos.Value;
 
                         if (v.RelativeOnTrackAheadOrder.Count < relPos) {
                             for (int i = 0; i < relPos - v.RelativeOnTrackAheadOrder.Count; i++) {
@@ -238,7 +238,7 @@ namespace KLPlugins.DynLeaderboards {
                     break;
 
                 case LeaderboardKind.RelativeOnTrackWoPit: {
-                        var relPos = this.Config.NumOnTrackRelativePos;
+                        var relPos = this.Config.NumOnTrackRelativePos.Value;
 
                         var aheadCars = v.RelativeOnTrackAheadOrder
                             .Where(c => !c.IsInPitLane)

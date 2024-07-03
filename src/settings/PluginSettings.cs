@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -140,7 +140,7 @@ namespace KLPlugins.DynLeaderboards.Settings {
                         continue;
                     }
 
-                    max = Math.Max(max, v.NumClassPos);
+                    max = Math.Max(max, v.NumClassPos.Value);
                 }
             }
             return max;
@@ -154,7 +154,7 @@ namespace KLPlugins.DynLeaderboards.Settings {
                         continue;
                     }
 
-                    max = Math.Max(max, v.NumCupPos);
+                    max = Math.Max(max, v.NumCupPos.Value);
                 }
             }
             return max;
@@ -373,21 +373,49 @@ namespace KLPlugins.DynLeaderboards.Settings {
              | OutLapProp.DynamicBestLapDeltaToFocusedBest
              | OutLapProp.DynamicLastLapDeltaToFocusedLast);
 
-        [JsonProperty] public int NumOverallPos { get; set; } = 16;
-        [JsonProperty] public int NumClassPos { get; set; } = 16;
-        [JsonProperty] public int NumCupPos { get; set; } = 16;
-        [JsonProperty] public int NumOnTrackRelativePos { get; set; } = 5;
-        [JsonProperty] public int NumOverallRelativePos { get; set; } = 5;
-        [JsonProperty] public int NumClassRelativePos { get; set; } = 5;
+        [JsonProperty]
+        [JsonConverter(typeof(BoxJsonConverter<int>))]
+        public Box<int> NumOverallPos { get; set; } = new(16);
+        [JsonProperty]
+        [JsonConverter(typeof(BoxJsonConverter<int>))]
+        public Box<int> NumClassPos { get; set; } = new(16);
+        [JsonProperty]
+        [JsonConverter(typeof(BoxJsonConverter<int>))]
+        public Box<int> NumCupPos { get; set; } = new(16);
+        [JsonProperty]
+        [JsonConverter(typeof(BoxJsonConverter<int>))]
+        public Box<int> NumOnTrackRelativePos { get; set; } = new(5);
+        [JsonProperty]
+        [JsonConverter(typeof(BoxJsonConverter<int>))]
+        public Box<int> NumOverallRelativePos { get; set; } = new(5);
+        [JsonProperty]
+        [JsonConverter(typeof(BoxJsonConverter<int>))]
+        public Box<int> NumClassRelativePos { get; set; } = new(5);
 
-        [JsonProperty] public int NumCupRelativePos { get; set; } = 5;
-        [JsonProperty] public int NumDrivers { get; set; } = 1;
-        [JsonProperty] public int PartialRelativeOverallNumOverallPos { get; set; } = 5;
-        [JsonProperty] public int PartialRelativeOverallNumRelativePos { get; set; } = 5;
-        [JsonProperty] public int PartialRelativeClassNumClassPos { get; set; } = 5;
-        [JsonProperty] public int PartialRelativeClassNumRelativePos { get; set; } = 5;
-        [JsonProperty] public int PartialRelativeCupNumCupPos { get; set; } = 5;
-        [JsonProperty] public int PartialRelativeCupNumRelativePos { get; set; } = 5;
+        [JsonProperty]
+        [JsonConverter(typeof(BoxJsonConverter<int>))]
+        public Box<int> NumCupRelativePos { get; set; } = new(5);
+        [JsonProperty]
+        [JsonConverter(typeof(BoxJsonConverter<int>))]
+        public Box<int> NumDrivers { get; set; } = new(1);
+        [JsonProperty]
+        [JsonConverter(typeof(BoxJsonConverter<int>))]
+        public Box<int> PartialRelativeOverallNumOverallPos { get; set; } = new(5);
+        [JsonProperty]
+        [JsonConverter(typeof(BoxJsonConverter<int>))]
+        public Box<int> PartialRelativeOverallNumRelativePos { get; set; } = new(5);
+        [JsonProperty]
+        [JsonConverter(typeof(BoxJsonConverter<int>))]
+        public Box<int> PartialRelativeClassNumClassPos { get; set; } = new(5);
+        [JsonProperty]
+        [JsonConverter(typeof(BoxJsonConverter<int>))]
+        public Box<int> PartialRelativeClassNumRelativePos { get; set; } = new(5);
+        [JsonProperty]
+        [JsonConverter(typeof(BoxJsonConverter<int>))]
+        public Box<int> PartialRelativeCupNumCupPos { get; set; } = new(5);
+        [JsonProperty]
+        [JsonConverter(typeof(BoxJsonConverter<int>))]
+        public Box<int> PartialRelativeCupNumRelativePos { get; set; } = new(5);
 
         [JsonProperty] public List<Leaderboard> Order { get; set; } = new();
 
@@ -450,16 +478,16 @@ namespace KLPlugins.DynLeaderboards.Settings {
         internal int MaxPositions() {
             if (this._maxPositions == null) {
                 var numPos = new int[] {
-                    this.NumOverallPos,
-                    this.NumClassPos,
-                    this.NumCupPos,
-                    this.NumOverallRelativePos*2+1,
-                    this.NumClassRelativePos*2+1,
-                    this.NumCupRelativePos*2+1,
-                    this.NumOnTrackRelativePos*2+1,
-                    this.PartialRelativeClassNumClassPos + this.PartialRelativeClassNumRelativePos*2+1,
-                    this.PartialRelativeOverallNumOverallPos + this.PartialRelativeOverallNumRelativePos*2+1,
-                    this.PartialRelativeCupNumCupPos + this.PartialRelativeCupNumRelativePos*2+1,
+                    this.NumOverallPos.Value,
+                    this.NumClassPos.Value,
+                    this.NumCupPos.Value,
+                    this.NumOverallRelativePos.Value*2+1,
+                    this.NumClassRelativePos.Value*2+1,
+                    this.NumCupRelativePos.Value*2+1,
+                    this.NumOnTrackRelativePos.Value*2+1,
+                    this.PartialRelativeClassNumClassPos.Value + this.PartialRelativeClassNumRelativePos.Value*2+1,
+                    this.PartialRelativeOverallNumOverallPos.Value + this.PartialRelativeOverallNumRelativePos.Value*2+1,
+                    this.PartialRelativeCupNumCupPos.Value + this.PartialRelativeCupNumRelativePos.Value*2+1,
                 };
 
                 this._maxPositions = numPos.Max();

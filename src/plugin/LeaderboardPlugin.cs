@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -327,8 +327,8 @@ namespace KLPlugins.DynLeaderboards {
                     AddDriverProp<string?>(OutDriverProp.CategoryColorText, driverId, () => l.GetDynCar(i)?.Drivers.ElementAtOrDefault(j)?.CategoryColor.Fg);
                 }
 
-                if (l.Config.NumDrivers > 0) {
-                    for (int j = 0; j < l.Config.NumDrivers; j++) {
+                if (l.Config.NumDrivers.Value > 0) {
+                    for (int j = 0; j < l.Config.NumDrivers.Value; j++) {
                         AddOneDriverFromList(j);
                     }
                 }

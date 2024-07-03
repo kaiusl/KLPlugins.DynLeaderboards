@@ -328,8 +328,8 @@ namespace KLPlugins.DynLeaderboards {
                 }
 
                 var currentLeaderboard = this.Config.CurrentLeaderboard();
-                if (
-                    (isSingleClass && currentLeaderboard.RemoveIfSingleClass)
+                if (!currentLeaderboard.IsEnabled
+                    || (isSingleClass && currentLeaderboard.RemoveIfSingleClass)
                     || (isSingleCup && currentLeaderboard.RemoveIfSingleCup)
                 ) {
                     continue;
@@ -353,8 +353,8 @@ namespace KLPlugins.DynLeaderboards {
                 }
 
                 var currentLeaderboard = this.Config.CurrentLeaderboard();
-                if (
-                    (isSingleClass && currentLeaderboard.RemoveIfSingleClass)
+                if (!currentLeaderboard.IsEnabled
+                    || (isSingleClass && currentLeaderboard.RemoveIfSingleClass)
                     || (isSingleCup && currentLeaderboard.RemoveIfSingleCup)
                 ) {
                     continue;

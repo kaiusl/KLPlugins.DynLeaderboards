@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -73,6 +73,16 @@ namespace KLPlugins.DynLeaderboards.Settings {
                         num++;
                     }
                     cfg.Name = $"{cfg.Name}_CONFLICT{num}";
+                }
+
+                // Make sure all leaderboard kinds are present.
+                foreach (var l in (LeaderboardKind[])Enum.GetValues(typeof(LeaderboardKind))) {
+                    if (l == LeaderboardKind.None || cfg.Order.Contains(x => x.Kind == l)) {
+                        continue;
+                    }
+
+                    var newLeaderboard = new Leaderboard(l);
+                    cfg.Order.Add(newLeaderboard);
                 }
 
                 this.DynLeaderboardConfigs.Add(cfg);
@@ -559,12 +569,14 @@ namespace KLPlugins.DynLeaderboards.Settings {
         [JsonProperty] public LeaderboardKind Kind { get; private set; }
         [JsonProperty] public bool RemoveIfSingleClass { get; internal set; }
         [JsonProperty] public bool RemoveIfSingleCup { get; internal set; }
+        [JsonProperty] public bool IsEnabled { get; internal set; }
 
         [JsonConstructor]
-        internal Leaderboard(LeaderboardKind kind, bool removeIfSingleClass, bool removeIfSingleCup) {
+        internal Leaderboard(LeaderboardKind kind, bool removeIfSingleClass, bool removeIfSingleCup, bool isEnabled = false) {
             this.Kind = kind;
             this.RemoveIfSingleClass = removeIfSingleClass;
             this.RemoveIfSingleCup = removeIfSingleCup;
+            this.IsEnabled = isEnabled;
         }
 
         internal Leaderboard(LeaderboardKind kind) {

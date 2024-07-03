@@ -1,9 +1,9 @@
-﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
                     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
                     xmlns:local="clr-namespace:KLPlugins.DynLeaderboards.Settings.UI"
-                    xmlns:styles="clr-namespace:SimHub.Plugins.Styles;assembly=SimHub.Plugins"
+                    xmlns:sh="clr-namespace:SimHub.Plugins.Styles;assembly=SimHub.Plugins"
                     mc:Ignorable="d"
                     xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
                     xmlns:ui="clr-namespace:SimHub.Plugins.UI;assembly=SimHub.Plugins"
@@ -40,7 +40,7 @@
     </Style>
 
     <!-- Default toggle button style -->
-    <Style TargetType="styles:SHToggleButton">
+    <Style TargetType="sh:SHToggleButton">
         <Setter Property="Width"
                 Value="75" />
         <Setter Property="Height"
@@ -62,7 +62,7 @@
     </Style>
 
     <!-- Default section style -->
-    <Style TargetType="styles:SHSectionTitle">
+    <Style TargetType="sh:SHSectionTitle">
         <Setter Property="FontSize"
                 Value="20" />
     </Style>
@@ -188,8 +188,8 @@
     </Style>
 
     <Style x:Key="ColorGrid_EnabledToggle"
-           TargetType="{x:Type styles:SHToggleButton}"
-           BasedOn="{StaticResource {x:Type styles:SHToggleButton}}">
+           TargetType="{x:Type sh:SHToggleButton}"
+           BasedOn="{StaticResource {x:Type sh:SHToggleButton}}">
         <Setter Property="Grid.Column"
                 Value="0" />
         <Setter Property="Margin"
@@ -230,8 +230,8 @@
                 Value="5,0,5,0" />
     </Style>
 
-    <Style TargetType="styles:SHButtonSecondary"
-           BasedOn="{StaticResource {x:Type styles:SHButtonSecondary}}">
+    <Style TargetType="sh:SHButtonSecondary"
+           BasedOn="{StaticResource {x:Type sh:SHButtonSecondary}}">
         <Setter Property="Padding"
                 Value="5" />
         <Setter Property="Margin"
@@ -242,8 +242,8 @@
                 Value="Center" />
     </Style>
 
-    <Style TargetType="styles:SHButtonPrimary"
-           BasedOn="{StaticResource {x:Type styles:SHButtonPrimary}}">
+    <Style TargetType="sh:SHButtonPrimary"
+           BasedOn="{StaticResource {x:Type sh:SHButtonPrimary}}">
         <Setter Property="Padding"
                 Value="5" />
         <Setter Property="Margin"
@@ -255,8 +255,8 @@
     </Style>
 
     <Style x:Key="ColorGrid_ResetButton"
-           TargetType="styles:SHButtonSecondary"
-           BasedOn="{StaticResource {x:Type styles:SHButtonSecondary}}">
+           TargetType="sh:SHButtonSecondary"
+           BasedOn="{StaticResource {x:Type sh:SHButtonSecondary}}">
         <Setter Property="Padding"
                 Value="5" />
         <Setter Property="Margin"
@@ -268,8 +268,8 @@
     </Style>
 
     <Style x:Key="ColorGrid_RemoveButton"
-           TargetType="styles:SHButtonPrimary"
-           BasedOn="{StaticResource {x:Type styles:SHButtonPrimary}}">
+           TargetType="sh:SHButtonPrimary"
+           BasedOn="{StaticResource {x:Type sh:SHButtonPrimary}}">
         <Setter Property="Padding"
                 Value="5" />
         <Setter Property="Margin"
@@ -284,8 +284,8 @@
 
 
     <Style x:Key="ColorGrid_ResetButtonPrimary"
-           TargetType="styles:SHButtonPrimary"
-           BasedOn="{StaticResource {x:Type styles:SHButtonPrimary}}">
+           TargetType="sh:SHButtonPrimary"
+           BasedOn="{StaticResource {x:Type sh:SHButtonPrimary}}">
         <Setter Property="Padding"
                 Value="5" />
         <Setter Property="Margin"
@@ -351,9 +351,9 @@
                 <DataTemplate>
                     <DockPanel Margin="0">
                         <local:SectionSeparator DockPanel.Dock="Top" />
-                        <styles:SHSectionTitle Style="{StaticResource {x:Type styles:SHSectionTitle}}"
-                                               DockPanel.Dock="Left"
-                                               Text="{Binding}" />
+                        <sh:SHSectionTitle Style="{StaticResource {x:Type sh:SHSectionTitle}}"
+                                           DockPanel.Dock="Left"
+                                           Text="{Binding}" />
 
                         <local:DocsHelpButton DockPanel.Dock="Right"
                                               Style="{StaticResource {x:Type local:DocsHelpButton}}"
@@ -373,8 +373,8 @@
                         <DataTemplate>
                             <StackPanel Margin="0">
                                 <local:SectionSeparator />
-                                <styles:SHSectionTitle  Style="{StaticResource {x:Type styles:SHSectionTitle}}"
-                                                        Text="{Binding}" />
+                                <sh:SHSectionTitle  Style="{StaticResource {x:Type sh:SHSectionTitle}}"
+                                                    Text="{Binding}" />
                             </StackPanel>
                         </DataTemplate>
                     </Setter.Value>
@@ -464,5 +464,139 @@
             </Setter.Value>
         </Setter>
     </Style>
+
+    <Style x:Key="TransparentSelect_DataGridRow"
+           TargetType="{x:Type DataGridRow}"
+           BasedOn="{StaticResource {x:Type DataGridRow}}">
+
+        <Setter Property="BorderBrush"
+                Value="#4000" />
+        <Setter Property="BorderThickness"
+                Value="0,2,0,0" />
+        <Setter Property="Background"
+                Value="Transparent" />
+    </Style>
+
+    <Style TargetType="{x:Type DataGridRow}"
+           BasedOn="{StaticResource TransparentSelect_DataGridRow}">
+        <Style.Triggers>
+            <Trigger Property="IsSelected"
+                     Value="True">
+                <Trigger.Setters>
+                    <Setter Property="Background"
+                            Value="#196E92" />
+                </Trigger.Setters>
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+
+
+    <Style TargetType="{x:Type local:DataGrid2}"
+           BasedOn="{StaticResource {x:Type DataGrid}}">
+
+        <Setter Property="DefaultGroupStyle">
+            <Setter.Value>
+                <GroupStyle>
+                    <GroupStyle.ContainerStyle>
+                        <Style TargetType="{x:Type GroupItem}">
+                            <Setter Property="Template">
+                                <Setter.Value>
+                                    <ControlTemplate TargetType="{x:Type GroupItem}">
+                                        <StackPanel Orientation="Vertical">
+                                            <Border Background="#0fffffff"
+                                                    CornerRadius="5"
+                                                    Margin="5">
+                                                <TextBlock Text="{Binding Path=Name}"
+                                                           FontWeight="Bold"
+                                                           Padding="5" />
+                                            </Border>
+                                            <ItemsPresenter Margin="10,0,10,5" />
+                                        </StackPanel>
+                                    </ControlTemplate>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                    </GroupStyle.ContainerStyle>
+                </GroupStyle>
+            </Setter.Value>
+        </Setter>
+
+        <Setter Property="RowStyle"
+                Value="{StaticResource {x:Type DataGridRow}}" />
+
+        <Setter Property="ColumnHeaderStyle">
+            <Setter.Value>
+                <Style TargetType="{x:Type DataGridColumnHeader}"
+                       BasedOn="{StaticResource {x:Type DataGridColumnHeader}}">
+
+                    <Setter Property="Background"
+                            Value="Transparent" />
+                    <Setter Property="FontWeight"
+                            Value="Bold" />
+                    <Setter Property="Margin"
+                            Value="5,0,5,0" />
+                    <Setter Property="Padding"
+                            Value="0,0,0,1" />
+                    <Setter Property="BorderBrush"
+                            Value="#222" />
+                    <Setter Property="BorderThickness"
+                            Value="0,0,0,2" />
+                </Style>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="ExposedPropertiesDataGrid2"
+           TargetType="{x:Type local:DataGrid2}"
+           BasedOn="{StaticResource {x:Type local:DataGrid2}}">
+        <Setter Property="AutoGenerateColumns"
+                Value="False" />
+        <Setter Property="CanUserAddRows"
+                Value="False" />
+        <Setter Property="CanUserDeleteRows"
+                Value="False" />
+        <Setter Property="CanUserReorderColumns"
+                Value="False" />
+        <Setter Property="CanUserResizeColumns"
+                Value="False" />
+        <Setter Property="CanUserResizeRows"
+                Value="False" />
+        <Setter Property="CanUserSortColumns"
+                Value="False" />
+        <Setter Property="SelectionMode"
+                Value="Extended" />
+        <Setter Property="Background"
+                Value="Transparent" />
+    </Style>
+
+    <DataGridTemplateColumn x:Key="ExposedPropertiesDataGrid_Column0"
+                            IsReadOnly="True">
+        <DataGridTemplateColumn.CellTemplate>
+            <DataTemplate>
+                <!-- IMPORTANT: UpdateSourceTrigger must be explicitly set, otherwise the updates are not triggered! -->
+                <sh:SHToggleCheckbox IsChecked="{Binding Path=IsEnabled, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+            </DataTemplate>
+        </DataGridTemplateColumn.CellTemplate>
+    </DataGridTemplateColumn>
+
+    <DataGridTextColumn x:Key="ExposedPropertiesDataGrid_Column1"
+                        Header="Property name"
+                        Binding="{Binding Path=Name}"
+                        MinWidth="250"
+                        IsReadOnly="True" />
+
+    <!-- Use DataGridTemplateColumn instead of DataGridTextColumn so we can set the TextBlock.TextWrapping to Wrap. -->
+    <DataGridTemplateColumn x:Key="ExposedPropertiesDataGrid_Column2"
+                            IsReadOnly="True"
+                            Width="*"
+                            Header="Description">
+        <DataGridTemplateColumn.CellTemplate>
+            <DataTemplate>
+                <TextBlock Text="{Binding Description}"
+                           TextWrapping="Wrap"
+                           Margin="0,5,0,5" />
+            </DataTemplate>
+        </DataGridTemplateColumn.CellTemplate>
+    </DataGridTemplateColumn>
 
 </ResourceDictionary>

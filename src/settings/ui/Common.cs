@@ -82,8 +82,38 @@ namespace KLPlugins.DynLeaderboards.Settings.UI {
         }
     }
 
+    internal class SelectedPropertiesCommand(Action<PropertyViewModelBase> execute) : ICommand {
+        private readonly Action<PropertyViewModelBase> _execute = execute;
+
+        public event EventHandler? CanExecuteChanged;
+
+        public bool CanExecute(object parameter) {
+            return true;
+        }
+
+        public void Execute(object parameter) {
+            if (parameter is not System.Collections.IList selectedItems) {
+                var msg = $"Expected the parameter to be `IList`. Got `{parameter?.GetType()}`";
+                Debug.Fail(msg);
+                DynLeaderboardsPlugin.LogError(msg);
+                return;
+            }
+
+            foreach (var v in selectedItems) {
+                if (v is not PropertyViewModelBase vm) {
+                    var msg = $"Expected the list element to be `PropertyViewModelBase`. Got `{v?.GetType()}`";
+                    Debug.Fail(msg);
+                    DynLeaderboardsPlugin.LogError(msg);
+                    continue;
+                }
+
+                this._execute(vm);
+            }
+        }
+    }
+
 #if DESIGN
-        internal class DesignPropertyViewModel<T> : PropertyViewModel<T> {
+    internal class DesignPropertyViewModel<T> : PropertyViewModel<T> {
         public new bool IsEnabled { get; set; } = true;
         public new string Name { get; set; } = "Prop";
         public new string Description { get; set; } = "Desc";

@@ -18,12 +18,6 @@ namespace KLPlugins.DynLeaderboards.Settings.UI {
             this._viewModel = new GeneralSettingsTabViewModel(settings);
             this.DataContext = this._viewModel;
         }
-
-        private void DataGrid_SelectedCellsChanged(object sender, SelectedCellsChangedEventArgs e) {
-            // DataGrid doesn't expose SelectedItems/Rows etc property to us as bindable. 
-            // Manually keep track of which rows are selected.
-            this._viewModel.OnExposedPropertiesSelectedCellsChanged(sender, e);
-        }
     }
 
     internal class GeneralSettingsTabViewModel : INotifyPropertyChanged {
@@ -87,42 +81,8 @@ namespace KLPlugins.DynLeaderboards.Settings.UI {
                 this.ExposedProperties.Add(vm);
             }
 
-            this.ExposedPropertiesEnableSelectedCommand = new Command(() => {
-                var items = this.ExposedProperties.Where(v => v.IsRowSelected);
-                foreach (var it in items) {
-                    it.IsEnabled = true;
-                }
-            });
-
-            this.ExposedPropertiesDisableSelectedCommand = new Command(() => {
-                var items = this.ExposedProperties.Where(v => v.IsRowSelected);
-                foreach (var v in items) {
-                    v.IsEnabled = false;
-                }
-            });
-        }
-
-        internal void OnExposedPropertiesSelectedCellsChanged(object sender, SelectedCellsChangedEventArgs e) {
-            // one item is returned for every cell, we have three columns so we get everything three times,
-            // so skip duplicates 
-            PropertyViewModelBase? prev = null;
-            foreach (var it in e.AddedCells) {
-                if (it.Item is not PropertyViewModelBase vm || prev == vm) {
-                    continue;
-                }
-
-                vm.IsRowSelected = true;
-                prev = vm;
-            }
-
-            prev = null;
-            foreach (var it in e.RemovedCells) {
-                if (it.Item is not PropertyViewModelBase vm || prev == vm) {
-                    continue;
-                }
-                vm.IsRowSelected = false;
-                prev = vm;
-            }
+            this.ExposedPropertiesEnableSelectedCommand = new SelectedPropertiesCommand(p => p.IsEnabled = true);
+            this.ExposedPropertiesDisableSelectedCommand = new SelectedPropertiesCommand(p => p.IsEnabled = false);
         }
 
         private void InvokePropertyChanged([System.Runtime.CompilerServices.CallerMemberName] string? propertyName = null) {

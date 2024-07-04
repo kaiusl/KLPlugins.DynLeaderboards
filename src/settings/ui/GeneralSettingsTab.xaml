@@ -96,26 +96,20 @@
 
             <local:SectionTitle>EXPOSED PROPERTIES</local:SectionTitle>
 
-            <StackPanel Orientation="Horizontal"
-                        HorizontalAlignment="Right">
-                <styles:SHButtonPrimary Content="Enable selected"
-                                        Command="{Binding ExposedPropertiesEnableSelectedCommand}" />
-                <styles:SHButtonPrimary Content="Disable selected"
-                                        Command="{Binding ExposedPropertiesDisableSelectedCommand}" />
-            </StackPanel>
-
             <local:DataGrid2 ItemsSource="{Binding ExposedProperties}"
                              Style="{StaticResource ExposedPropertiesDataGrid2}"
-                             SelectedCellsChanged="DataGrid_SelectedCellsChanged"
                              d:SelectedIndex="2">
 
                 <DataGrid.ContextMenu>
                     <ContextMenu Name="cm"
                                  StaysOpen="False">
+                        <!-- See https://stackoverflow.com/a/25965943s and comments -->
                         <MenuItem Header="Enable selected"
-                                  Command="{Binding ExposedPropertiesEnableSelectedCommand}" />
+                                  Command="{Binding ExposedPropertiesEnableSelectedCommand}"
+                                  CommandParameter="{Binding PlacementTarget.SelectedItems, RelativeSource={RelativeSource FindAncestor,AncestorType=ContextMenu}}" />
                         <MenuItem Header="Disable selected"
-                                  Command="{Binding ExposedPropertiesDisableSelectedCommand}" />
+                                  Command="{Binding ExposedPropertiesDisableSelectedCommand}"
+                                  CommandParameter="{Binding PlacementTarget.SelectedItems, RelativeSource={RelativeSource FindAncestor,AncestorType=ContextMenu}}" />
                     </ContextMenu>
                 </DataGrid.ContextMenu>
 

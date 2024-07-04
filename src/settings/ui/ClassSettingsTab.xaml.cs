@@ -8,6 +8,7 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
+using System.Windows.Documents;
 using System.Windows.Input;
 
 using KLPlugins.DynLeaderboards.Car;
@@ -188,8 +189,8 @@ namespace KLPlugins.DynLeaderboards.Settings.UI {
 
             switch (res) {
                 case System.Windows.Forms.DialogResult.OK:
-                    DynLeaderboardsPlugin.LogInfo($"Add new class `{dialogWindow.NewClassName}`");
-                    var clsName = dialogWindow.NewClassName;
+                    DynLeaderboardsPlugin.LogInfo($"Add new class `{dialogWindow.Text}`");
+                    var clsName = dialogWindow.Text;
                     // ChooseNewClassNameDialog validates that the entered class name is valid new name and OK cannot be pressed before
                     var cls = new CarClass(clsName!);
                     this._classesManager.TryAdd(cls);
@@ -286,7 +287,7 @@ namespace KLPlugins.DynLeaderboards.Settings.UI {
 
             switch (res) {
                 case System.Windows.Forms.DialogResult.OK:
-                    var clsName = dialogWindow.NewClassName!;
+                    var clsName = dialogWindow.Text!;
                     // ChooseNewClassNameDialog validates that the entered class name is valid new name and OK cannot be pressed before
                     var cls = new CarClass(clsName);
                     this._classesManager.Duplicate(old: this.Class, @new: cls);
@@ -461,71 +462,8 @@ namespace KLPlugins.DynLeaderboards.Settings.UI {
         }
     }
 
-    internal class ChooseNewClassNameDialog : SHDialogContentBase {
-        public string? NewClassName { get; set; }
-
-        internal ChooseNewClassNameDialog(string title, ClassInfos.Manager classesManager) {
-            this.ShowOk = true;
-            this.ShowCancel = true;
-
-            var sp = new StackPanel();
-            this.Content = sp;
-
-            sp.Children.Add(new SHSectionTitle() {
-                Text = title,
-                Margin = new Thickness(0, 0, 0, 25)
-            });
-
-            var grid = new Grid();
-            sp.Children.Add(grid);
-
-            grid.RowDefinitions.Add(new RowDefinition() { Height = GridLength.Auto });
-
-            grid.ColumnDefinitions.Add(new ColumnDefinition() { Width = GridLength.Auto });
-            grid.ColumnDefinitions.Add(new ColumnDefinition() { Width = new GridLength(1, GridUnitType.Star) });
-
-            var nameLabel = CreateLabelTextBox("Name");
-            Grid.SetColumn(nameLabel, 0);
-            Grid.SetRow(nameLabel, 0);
-            grid.Children.Add(nameLabel);
-
-            var tb = new TextBox() { };
-            Grid.SetColumn(tb, 1);
-            Grid.SetRow(tb, 0);
-            grid.Children.Add(tb);
-
-            var nameBinding = new Binding("NewClassName") {
-                Mode = BindingMode.TwoWay,
-                Source = this,
-                UpdateSourceTrigger = UpdateSourceTrigger.PropertyChanged,
-                ValidationRules = { new ValidNewClassNameRule(classesManager) },
-                NotifyOnValidationError = true
-            };
-            tb.SetBinding(TextBox.TextProperty, nameBinding);
-            tb.Text = null; // force validation
-            this.IsOkEnabled = false;
-
-            Validation.AddErrorHandler(tb, (s, e) => {
-                if (e.Action == ValidationErrorEventAction.Added) {
-                    this.IsOkEnabled = false;
-                } else if (e.Action == ValidationErrorEventAction.Removed) {
-                    this.IsOkEnabled = true;
-                }
-            });
-        }
-
-        static TextBlock CreateLabelTextBox(string label, bool isEnabled = true) {
-            var block = new TextBlock() {
-                Text = label,
-                Padding = new Thickness(0, 0, 10, 0),
-                IsEnabled = isEnabled,
-                Opacity = isEnabled ? 1.0 : SettingsControl.DISABLED_OPTION_OPACITY,
-                VerticalAlignment = VerticalAlignment.Center,
-                HorizontalAlignment = HorizontalAlignment.Left
-            };
-
-            return block;
-        }
+    internal class ChooseNewClassNameDialog : AskTextDialog {
+        internal ChooseNewClassNameDialog(string title, ClassInfos.Manager classesManager) : base(title, "Name", [new ValidNewClassNameRule(classesManager)]) { }
     }
 
 #if DESIGN

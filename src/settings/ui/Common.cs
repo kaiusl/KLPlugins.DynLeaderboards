@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -10,6 +12,7 @@ using System.Windows.Media;
 
 using KLPlugins.DynLeaderboards.Helpers;
 
+using SimHub.Plugins.Styles;
 using SimHub.Plugins.UI;
 
 namespace KLPlugins.DynLeaderboards.Settings.UI {
@@ -147,6 +150,64 @@ namespace KLPlugins.DynLeaderboards.Settings.UI {
             if (this.GroupStyle.Count == 0) {
                 this.GroupStyle.Add(defaultStyle);
             }
+        }
+    }
+
+    internal class AskTextDialog : SHDialogContentBase {
+        public string? Text { get; set; }
+
+        internal AskTextDialog(string title, string? textBoxLabel, IEnumerable<ValidationRule>? validationRules = null) : base() {
+            this.ShowOk = true;
+            this.ShowCancel = true;
+
+            var sp = new StackPanel();
+            this.Content = sp;
+
+            sp.Children.Add(new SHSectionTitle() {
+                Text = title,
+                Margin = new Thickness(0, 0, 0, 25)
+            });
+
+            var textSp = new StackPanel() { Orientation = Orientation.Horizontal };
+            sp.Children.Add(textSp);
+
+            var label = new TextBlock() {
+                Text = textBoxLabel ?? "",
+                Padding = new Thickness(0, 0, 10, 0),
+                VerticalAlignment = VerticalAlignment.Center,
+                HorizontalAlignment = HorizontalAlignment.Left
+            };
+            Grid.SetColumn(label, 0);
+            Grid.SetRow(label, 0);
+            textSp.Children.Add(label);
+
+            var tb = new TextBox() { };
+            Grid.SetColumn(tb, 1);
+            Grid.SetRow(tb, 0);
+            textSp.Children.Add(tb);
+
+            var textBinding = new Binding("Text") {
+                Mode = BindingMode.TwoWay,
+                Source = this,
+                UpdateSourceTrigger = UpdateSourceTrigger.PropertyChanged,
+                NotifyOnValidationError = true
+            };
+            if (validationRules != null) {
+                foreach (var rule in validationRules) {
+                    textBinding.ValidationRules.Add(rule);
+                }
+            }
+            tb.SetBinding(TextBox.TextProperty, textBinding);
+            tb.Text = null; // force validation
+            this.IsOkEnabled = false;
+
+            Validation.AddErrorHandler(tb, (s, e) => {
+                if (e.Action == ValidationErrorEventAction.Added) {
+                    this.IsOkEnabled = false;
+                } else if (e.Action == ValidationErrorEventAction.Removed) {
+                    this.IsOkEnabled = true;
+                }
+            });
         }
     }
 }

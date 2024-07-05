@@ -91,17 +91,17 @@
                          Text="{Binding ACRootLocation, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                          Background="{Binding ACRootLocationBackground}" />
             </Grid>
-            
+
             <!-- Exposed properties -->
 
             <local:SectionTitle>EXPOSED PROPERTIES</local:SectionTitle>
 
-            <local:DataGrid2 ItemsSource="{Binding ExposedProperties}"
-                             Style="{StaticResource ExposedPropertiesDataGrid2}"
+            <local:ListView2 ItemsSource="{Binding ExposedProperties}"
+                             Style="{StaticResource ExposedPropertiesListView2}"
                              d:SelectedIndex="2">
 
-                <DataGrid.ContextMenu>
-                    <ContextMenu Name="cm"
+                <ListView.ContextMenu>
+                    <ContextMenu Name="cms"
                                  StaysOpen="False">
                         <!-- See https://stackoverflow.com/a/25965943s and comments -->
                         <MenuItem Header="Enable selected"
@@ -111,14 +111,8 @@
                                   Command="{Binding ExposedPropertiesDisableSelectedCommand}"
                                   CommandParameter="{Binding PlacementTarget.SelectedItems, RelativeSource={RelativeSource FindAncestor,AncestorType=ContextMenu}}" />
                     </ContextMenu>
-                </DataGrid.ContextMenu>
-
-                <DataGrid.Columns>
-                    <StaticResource ResourceKey="ExposedPropertiesDataGrid_Column0" />
-                    <StaticResource ResourceKey="ExposedPropertiesDataGrid_Column1" />
-                    <StaticResource ResourceKey="ExposedPropertiesDataGrid_Column2" />
-                </DataGrid.Columns>
-            </local:DataGrid2>
+                </ListView.ContextMenu>
+            </local:ListView2>
 
 
             <local:SectionTitle>DEBUG</local:SectionTitle>

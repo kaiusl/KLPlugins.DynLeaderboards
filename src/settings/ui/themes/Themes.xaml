@@ -599,4 +599,196 @@
         </DataGridTemplateColumn.CellTemplate>
     </DataGridTemplateColumn>
 
+
+    <Style TargetType="{x:Type ListViewItem}"
+           BasedOn="{StaticResource {x:Type ListViewItem}}">
+
+        <Setter Property="BorderBrush"
+                Value="#0fffffff" />
+        <Setter Property="BorderThickness"
+                Value="0,0,0,1" />
+        <Setter Property="Background"
+                Value="Transparent" />
+
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type ListViewItem}">
+                    <Border x:Name="Bd"
+                            CornerRadius="5"
+                            Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}">
+                        <GridViewRowPresenter VerticalAlignment="{TemplateBinding VerticalContentAlignment}" />
+                    </Border>
+
+                    <ControlTemplate.Triggers>
+
+                        <Trigger Property="IsSelected"
+                                 Value="true">
+                            <Setter Property="Background"
+                                    TargetName="Bd"
+                                    Value="{DynamicResource AccentColorBrush}" />
+                        </Trigger>
+                        <Trigger Property="IsMouseOver"
+                                 Value="true">
+                            <Setter Property="Background"
+                                    TargetName="Bd"
+                                    Value="{DynamicResource AccentColorBrush3}" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+
+
+    </Style>
+
+    <Style x:Key="TransparentSelection_ListViewItem"
+           TargetType="{x:Type ListViewItem}"
+           BasedOn="{StaticResource {x:Type ListViewItem}}">
+
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type ListViewItem}">
+                    <Border Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}">
+                        <GridViewRowPresenter VerticalAlignment="{TemplateBinding VerticalContentAlignment}" />
+                    </Border>
+
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="HideHeaderGridView"
+           TargetType="GridViewColumnHeader">
+        <Setter Property="Visibility"
+                Value="Collapsed" />
+    </Style>
+
+    <Style TargetType="{x:Type local:ListView2}"
+           BasedOn="{StaticResource {x:Type ListView}}">
+
+        <Setter Property="ScrollViewer.HorizontalScrollBarVisibility"
+                Value="Disabled" />
+
+        <Setter Property="DefaultGroupStyle">
+            <Setter.Value>
+                <x:Array Type="{x:Type GroupStyle}">
+                    <GroupStyle>
+                        <GroupStyle.ContainerStyle>
+                            <Style TargetType="{x:Type GroupItem}">
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate TargetType="{x:Type GroupItem}">
+                                            <StackPanel Orientation="Vertical">
+                                                <Border Background="#0fffffff"
+                                                        CornerRadius="5"
+                                                        Margin="10,5,10,5">
+                                                    <TextBlock Text="{Binding Name}"
+                                                               FontWeight="Bold"
+                                                               Padding="5" />
+                                                </Border>
+                                                <ItemsPresenter Margin="10,0,10,5" />
+                                            </StackPanel>
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                            </Style>
+                        </GroupStyle.ContainerStyle>
+
+                    </GroupStyle>
+
+                    <GroupStyle>
+                        <GroupStyle.ContainerStyle>
+                            <Style TargetType="{x:Type GroupItem}">
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate TargetType="{x:Type GroupItem}">
+                                            <StackPanel Orientation="Vertical">
+                                                <Border Background="#08ffffff"
+                                                        CornerRadius="5"
+                                                        Margin="10,5,10,5">
+                                                    <TextBlock Text="{Binding Name}"
+                                                               Padding="2.5"
+                                                               FontStyle="Italic" />
+                                                </Border>
+                                                <ItemsPresenter Margin="10,0,10,5" />
+                                            </StackPanel>
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+
+
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding Name}"
+                                             Value="">
+                                        <Setter Property="Template">
+                                            <Setter.Value>
+                                                <ControlTemplate TargetType="{x:Type GroupItem}">
+                                                    <ItemsPresenter />
+                                                </ControlTemplate>
+                                            </Setter.Value>
+                                        </Setter>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </GroupStyle.ContainerStyle>
+
+                    </GroupStyle>
+
+                </x:Array>
+            </Setter.Value>
+        </Setter>
+
+        <Setter Property="Background"
+                Value="Transparent" />
+
+        <Setter Property="BorderThickness"
+                Value="0" />
+    </Style>
+
+    <Style x:Key="ExposedPropertiesListView2"
+           TargetType="{x:Type local:ListView2}"
+           BasedOn="{StaticResource {x:Type local:ListView2}}">
+        <Setter Property="SelectionMode"
+                Value="Extended" />
+
+        <Setter Property="View">
+            <Setter.Value>
+                <GridView ColumnHeaderContainerStyle="{StaticResource HideHeaderGridView}">
+
+                    <GridViewColumn>
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <!-- IMPORTANT: UpdateSourceTrigger must be explicitly set, otherwise the updates are not triggered! -->
+                                <sh:SHToggleCheckbox IsChecked="{Binding Path=IsEnabled, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+
+                    <GridViewColumn>
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding Path=Name}"
+                                           Width="250" />
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+
+                    <GridViewColumn>
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding Path=Description}"
+                                           TextWrapping="Wrap" />
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+                </GridView>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
 </ResourceDictionary>

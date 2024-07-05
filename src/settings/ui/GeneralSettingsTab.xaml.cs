@@ -1,12 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
 using System.Windows.Controls;
+using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Media;
-
-using KLPlugins.DynLeaderboards.Helpers;
 
 namespace KLPlugins.DynLeaderboards.Settings.UI {
     public partial class GeneralSettingsTab : UserControl {
@@ -54,7 +52,9 @@ namespace KLPlugins.DynLeaderboards.Settings.UI {
             }
         }
 
-        public List<PropertyViewModelBase> ExposedProperties { get; } = [];
+
+        private List<PropertyViewModelBase> _exposedProperties { get; } = [];
+        public ListCollectionView ExposedProperties { get; }
 
         public ICommand ExposedPropertiesEnableSelectedCommand { get; }
         public ICommand ExposedPropertiesDisableSelectedCommand { get; }
@@ -78,11 +78,13 @@ namespace KLPlugins.DynLeaderboards.Settings.UI {
                 }
 
                 var vm = new PropertyViewModel<OutGeneralProp>(v.ToPropName(), v.ToolTipText(), v, this._settings.OutGeneralProps);
-                this.ExposedProperties.Add(vm);
+                this._exposedProperties.Add(vm);
             }
 
             this.ExposedPropertiesEnableSelectedCommand = new SelectedPropertiesCommand(p => p.IsEnabled = true);
             this.ExposedPropertiesDisableSelectedCommand = new SelectedPropertiesCommand(p => p.IsEnabled = false);
+
+            this.ExposedProperties = new ListCollectionView(this._exposedProperties);
         }
 
         private void InvokePropertyChanged([System.Runtime.CompilerServices.CallerMemberName] string? propertyName = null) {

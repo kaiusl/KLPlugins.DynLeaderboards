@@ -35,6 +35,7 @@ namespace KLPlugins.DynLeaderboards.Settings.UI {
         internal bool IsRowSelected { get; set; } = false;
         public abstract bool IsEnabled { get; set; }
         public string Group { get; set; } = "";
+        public string SubGroup { get; set; } = "";
     }
 
     internal class PropertyViewModel<T> : PropertyViewModelBase, INotifyPropertyChanged {
@@ -85,6 +86,14 @@ namespace KLPlugins.DynLeaderboards.Settings.UI {
         }
     }
 
+#if DESIGN
+    internal class DesignPropertyViewModel<T> : PropertyViewModel<T> {
+        public new bool IsEnabled { get; set; } = true;
+        public new string Name { get; set; } = "Prop";
+        public new string Description { get; set; } = "Desc";
+    }
+#endif
+
     internal class SelectedPropertiesCommand(Action<PropertyViewModelBase> execute) : ICommand {
         private readonly Action<PropertyViewModelBase> _execute = execute;
 
@@ -115,14 +124,6 @@ namespace KLPlugins.DynLeaderboards.Settings.UI {
         }
     }
 
-#if DESIGN
-    internal class DesignPropertyViewModel<T> : PropertyViewModel<T> {
-        public new bool IsEnabled { get; set; } = true;
-        public new string Name { get; set; } = "Prop";
-        public new string Description { get; set; } = "Desc";
-    }
-#endif
-
     public class DataGrid2 : DataGrid {
         public GroupStyle DefaultGroupStyle {
             get => (GroupStyle)this.GetValue(DefaultGroupStyleProperty);
@@ -149,6 +150,36 @@ namespace KLPlugins.DynLeaderboards.Settings.UI {
             // Add style if user has not defined one explicitly as <DataGrid.GroupStyle>
             if (this.GroupStyle.Count == 0) {
                 this.GroupStyle.Add(defaultStyle);
+            }
+        }
+    }
+
+    public class ListView2 : ListView {
+        public IEnumerable<GroupStyle> DefaultGroupStyle {
+            get => (List<GroupStyle>)this.GetValue(DefaultGroupStyleProperty);
+            set => this.SetValue(DefaultGroupStyleProperty, value);
+        }
+
+        public static readonly DependencyProperty DefaultGroupStyleProperty =
+            DependencyProperty.Register(
+                "DefaultGroupStyle",
+                typeof(IEnumerable<GroupStyle>),
+                typeof(ListView2),
+                new UIPropertyMetadata(null, DefaultGroupStyleChanged)
+            );
+
+        private static void DefaultGroupStyleChanged(DependencyObject o, DependencyPropertyChangedEventArgs e) {
+            ((ListView2)o).SetDefaultGroupStyle(e.NewValue as IEnumerable<GroupStyle>);
+        }
+
+        private void SetDefaultGroupStyle(IEnumerable<GroupStyle>? defaultStyle) {
+            if (defaultStyle == null) {
+                return;
+            }
+
+            // Add style if user has not defined one explicitly as <DataGrid.GroupStyle>
+            if (this.GroupStyle.Count == 0) {
+                this.GroupStyle.AddAll(defaultStyle);
             }
         }
     }

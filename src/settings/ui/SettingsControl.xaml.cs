@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Globalization;
@@ -102,8 +102,6 @@ namespace KLPlugins.DynLeaderboards.Settings.UI {
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) { throw new NotImplementedException(); }
     }
-
-    public class SectionSeparator : Control { }
 
     public partial class SettingsControl : UserControl {
         internal DynLeaderboardsPlugin Plugin { get; }

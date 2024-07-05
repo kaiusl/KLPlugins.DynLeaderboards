@@ -61,11 +61,6 @@
                 Value="Wrap" />
     </Style>
 
-    <!-- Default section style -->
-    <Style TargetType="sh:SHSectionTitle">
-        <Setter Property="FontSize"
-                Value="20" />
-    </Style>
 
     <!-- Row separator -->
     <Style x:Key="RowSep"
@@ -350,7 +345,7 @@
             <Setter.Value>
                 <DataTemplate>
                     <DockPanel Margin="0">
-                        <local:SectionSeparator DockPanel.Dock="Top" />
+                        <sh:SHSectionSeparator DockPanel.Dock="Top" />
                         <sh:SHSectionTitle Style="{StaticResource {x:Type sh:SHSectionTitle}}"
                                            DockPanel.Dock="Left"
                                            Text="{Binding}" />
@@ -372,7 +367,7 @@
                     <Setter.Value>
                         <DataTemplate>
                             <StackPanel Margin="0">
-                                <local:SectionSeparator />
+                                <sh:SHSectionSeparator />
                                 <sh:SHSectionTitle  Style="{StaticResource {x:Type sh:SHSectionTitle}}"
                                                     Text="{Binding}" />
                             </StackPanel>
@@ -382,27 +377,6 @@
             </Trigger>
         </Style.Triggers>
 
-    </Style>
-
-    <Style TargetType="{x:Type local:SectionSeparator}">
-        <Setter Property="Template">
-            <Setter.Value>
-                <ControlTemplate>
-                    <StackPanel Margin="0">
-
-                        <StackPanel.Resources>
-                            <Style TargetType="{x:Type Separator}">
-                                <Setter Property="Background"
-                                        Value="DimGray" />
-                            </Style>
-                        </StackPanel.Resources>
-
-                        <Separator Margin="0,15,0,1" />
-                        <Separator Margin="0,1,0,10" />
-                    </StackPanel>
-                </ControlTemplate>
-            </Setter.Value>
-        </Setter>
     </Style>
 
     <Style TargetType="{x:Type local:ClassPreview}">

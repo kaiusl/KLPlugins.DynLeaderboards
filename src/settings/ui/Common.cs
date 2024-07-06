@@ -1,12 +1,10 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 
@@ -14,6 +12,8 @@ using KLPlugins.DynLeaderboards.Helpers;
 
 using SimHub.Plugins.Styles;
 using SimHub.Plugins.UI;
+
+using WoteverCommon.Extensions;
 
 namespace KLPlugins.DynLeaderboards.Settings.UI {
     internal class Command(Action execute) : ICommand {
@@ -29,6 +29,17 @@ namespace KLPlugins.DynLeaderboards.Settings.UI {
             this._execute();
         }
     }
+
+    public class ControlsEditor2 : ControlsEditor {
+        public override void OnApplyTemplate() {
+            base.OnApplyTemplate();
+
+            if (this.GetTemplateChild("brd") is Border r) {
+                r.Background = new SolidColorBrush(WindowsMediaColorExtensions.FromHex("#0bffffff"));
+            }
+        }
+    }
+
     internal abstract class PropertyViewModelBase {
         public abstract string Name { get; }
         public abstract string Description { get; }
@@ -187,7 +198,7 @@ namespace KLPlugins.DynLeaderboards.Settings.UI {
     internal class AskTextDialog : SHDialogContentBase {
         public string? Text { get; set; }
 
-        internal AskTextDialog(string title, string? textBoxLabel, IEnumerable<ValidationRule>? validationRules = null) : base() {
+        internal AskTextDialog(string title, string? textBoxLabel, IEnumerable<ValidationRule>? validationRules = null, string? defaultText = null) : base() {
             this.ShowOk = true;
             this.ShowCancel = true;
 
@@ -229,7 +240,7 @@ namespace KLPlugins.DynLeaderboards.Settings.UI {
                 }
             }
             tb.SetBinding(TextBox.TextProperty, textBinding);
-            tb.Text = null; // force validation
+            tb.Text = defaultText; // force validation
             this.IsOkEnabled = false;
 
             Validation.AddErrorHandler(tb, (s, e) => {

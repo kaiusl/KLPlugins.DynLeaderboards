@@ -132,6 +132,14 @@ namespace KLPlugins.DynLeaderboards.Settings {
             this.DynLeaderboardConfigs.RemoveAt(i);
         }
 
+        internal void RemoveLeaderboard(DynLeaderboardConfig cfg) {
+            var fname = $"{LeaderboardConfigsDataDir}\\{cfg.Name}.json";
+            if (File.Exists(fname)) {
+                File.Delete(fname);
+            }
+            this.DynLeaderboardConfigs.Remove(cfg);
+        }
+
         public int GetMaxNumClassPos() {
             int max = 0;
             if (this.DynLeaderboardConfigs.Count > 0) {
@@ -431,7 +439,6 @@ namespace KLPlugins.DynLeaderboards.Settings {
         [JsonIgnore] internal string CurrentLeaderboardName = "";
         [JsonProperty] public bool IsEnabled { get; set; } = true;
 
-
         private delegate JObject Migration(JObject o);
 
         public Leaderboard CurrentLeaderboard() {
@@ -456,6 +463,10 @@ namespace KLPlugins.DynLeaderboards.Settings {
                 new Leaderboard(LeaderboardKind.RelativeOnTrackWoPit)
             ];
             this.CurrentLeaderboardName = this.Order[this._currentLeaderboardIdx].Kind.ToString();
+        }
+
+        internal DynLeaderboardConfig DeepClone() {
+            return JsonConvert.DeserializeObject<DynLeaderboardConfig>(JsonConvert.SerializeObject(this))!;
         }
 
         internal void Rename(string newName) {

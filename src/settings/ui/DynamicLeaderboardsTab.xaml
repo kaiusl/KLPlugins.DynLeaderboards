@@ -1,0 +1,251 @@
+﻿<UserControl x:Class="KLPlugins.DynLeaderboards.Settings.UI.DynamicLeaderboardsTab"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:local="clr-namespace:KLPlugins.DynLeaderboards.Settings.UI"
+             xmlns:sh="clr-namespace:SimHub.Plugins.Styles;assembly=SimHub.Plugins"
+             mc:Ignorable="d"
+             xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
+             xmlns:ui="clr-namespace:SimHub.Plugins.UI;assembly=SimHub.Plugins"
+             xmlns:system="clr-namespace:System;assembly=mscorlib"
+             xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
+             d:DesignHeight="10000"
+             d:DesignWidth="1400"
+             d:Background="#252525"
+             d:Foreground="white"
+             d:DataContext="{d:DesignInstance local:DesignDynamicLeaderboardTabViewModel, IsDesignTimeCreatable=True}">
+    <!-- Actual BG and FG will be set by control this gets embedded in.  -->
+    <!-- local:DesignGeneralSettingsTabViewModel type is only available if DESIGN flag is set (it is automatically set in bDebug_Design configuration) -->
+
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="themes/Themes.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+
+            <Style x:Key="SubSectionStackPanel"
+                   TargetType="{x:Type StackPanel}">
+                <Setter Property="Margin"
+                        Value="10,5,10,5" />
+            </Style>
+        </ResourceDictionary>
+    </UserControl.Resources>
+
+
+    <DockPanel Margin="20,20,34,20"
+               Grid.RowSpan="2">
+        <!-- Extra margin to the right to align help button with other tabs which also have the scroll bar on the right -->
+
+        <local:DocsHelpButton DockPanel.Dock="Top"
+                              RelativePath="user_guide/config/#class-settings" />
+
+        <sh:SHSectionSeparator DockPanel.Dock="Top" />
+
+        <Grid DockPanel.Dock="Top"
+              VerticalAlignment="Top">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="auto"
+                                  MinWidth="250" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+
+            <StackPanel Grid.Column="0">
+                <sh:SHButtonSecondary Content="Add new"
+                                      Margin="10,5,10,10"
+                                      Command="{Binding AddNewLeaderboardCommand}" />
+                <sh:SHListBox x:Name="Classes_ListBox"
+                              Margin="0,5,0,5"
+                              ItemsSource="{Binding Leaderboards}"
+                              SelectedItem="{Binding SelectedLeaderboardListBoxItem, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+            </StackPanel>
+
+            <Border Grid.Column="1"
+                    CornerRadius="10"
+                    Background="#2f2f2f"
+                    Margin="10,5,5,5">
+
+                <!-- Must be a DockPanel so that the inner ScrollView works  -->
+                <DockPanel Margin="10"
+                           Visibility="{Binding IsSelectedNull, Mode=OneWay, Converter={StaticResource BoolToVisibilityHiddenConverter}, ConverterParameter=rev}">
+
+                    <!--Title row-->
+                    <DockPanel DockPanel.Dock="Top"
+                               Margin="0,5,10,5"
+                               DataContext="{Binding SelectedLeaderboardViewModel}"
+                               HorizontalAlignment="Stretch">
+
+                        <sh:SHSectionTitle DockPanel.Dock="Left"
+                                           Text="{Binding Name}"
+                                           FontSize="20"
+                                           FontWeight="Bold" />
+
+
+                        <sh:SHButtonPrimary DockPanel.Dock="Right"
+                                            Content="Remove"
+                                            HorizontalAlignment="Right"
+                                            Command="{Binding RemoveCommand}" />
+
+                        <sh:SHButtonPrimary DockPanel.Dock="Right"
+                                            Content="Duplicate"
+                                            HorizontalAlignment="Right"
+                                            Command="{Binding DuplicateCommand}" />
+
+                        <sh:SHButtonPrimary DockPanel.Dock="Right"
+                                            Content="Rename"
+                                            HorizontalAlignment="Right"
+                                            Command="{Binding RenameCommand}" />
+                    </DockPanel>
+
+                    <!--Rotation-->
+
+
+                    <ScrollViewer DockPanel.Dock="Top"
+                                  x:Name="SelectedLeaderboard_ScrollViewer"
+                                  DataContext="{Binding SelectedLeaderboardViewModel}"
+                                  VirtualizingPanel.IsVirtualizing="True">
+
+                        <StackPanel>
+                            <local:SectionTitle DockPanel.Dock="Top"
+                                                HelpPath="user_guide/config/#leaderboard-rotation">LEADERBOARD ROTATION</local:SectionTitle>
+
+                            <StackPanel Style="{StaticResource SubSectionStackPanel}">
+                                <StackPanel DockPanel.Dock="Top"
+                                            Orientation="Horizontal">
+                                    <sh:SHButtonSecondary Command="{Binding SelectedRotationUpCommand}"
+                                                          ToolTip="Move currently selected leaderboard one position up.">Up</sh:SHButtonSecondary>
+                                    <sh:SHButtonSecondary Command="{Binding SelectedRotationDownCommand}"
+                                                          ToolTip="Move currently selected leaderboard one position down.">Down</sh:SHButtonSecondary>
+
+                                    <StackPanel Margin="135,0,5,0">
+                                        <TextBlock Margin="0"
+                                                   HorizontalAlignment="Center">Remove if single</TextBlock>
+                                        <TextBlock Margin="0"
+                                                   Text="class      /      cup"
+                                                   HorizontalAlignment="Center" />
+                                    </StackPanel>
+                                </StackPanel>
+
+                                <sh:SHListBox DockPanel.Dock="Top"
+                                              Margin="10,10,0,13"
+                                              HorizontalAlignment="Left"
+                                              VerticalAlignment="Top"
+                                              ItemsSource="{Binding RotationItems}"
+                                              SelectedIndex="{Binding SelectedRotationIndex, Mode=OneWayToSource, UpdateSourceTrigger=PropertyChanged}"
+                                              Background="Transparent"
+                                              PreviewMouseWheel="ContainerDontScroll_PreviewMouseWheel"
+                                              d:SelectedIndex="2">
+                                    <sh:SHListBox.Resources>
+                                        <ResourceDictionary Source="/SimHub.Plugins;component/Themes/GenericSHListBox.xaml" />
+                                    </sh:SHListBox.Resources>
+
+                                    <sh:SHListBox.ItemContainerStyle>
+                                        <Style TargetType="{x:Type ListBoxItem}"
+                                               BasedOn="{StaticResource SHListBoxItemStyle}">
+                                            <Setter Property="Background"
+                                                    Value="#0fffffff" />
+                                        </Style>
+                                    </sh:SHListBox.ItemContainerStyle>
+                                </sh:SHListBox>
+                            </StackPanel>
+
+
+                            <!--Controls-->
+
+
+                            <local:SectionTitle DockPanel.Dock="Top"
+                                                HelpPath="user_guide/config/#controls">CONTROLS</local:SectionTitle>
+                            <StackPanel DockPanel.Dock="Top"
+                                        x:Name="DynamicLeaderboardsTab_Controls_StackPanel"
+                                        Style="{StaticResource SubSectionStackPanel}">
+                                <StackPanel.Resources>
+                                    <Style TargetType="TextBlock">
+                                    </Style>
+                                </StackPanel.Resources>
+
+                                <local:ControlsEditor2 FriendlyName="Next leaderboard"
+                                                       ActionName="{Binding ControlsNextLeaderboardActionName}" />
+                                <local:ControlsEditor2 FriendlyName="Previous leaderboard"
+                                                       ActionName="{Binding ControlsPreviousLeaderboardActionName}" />
+                            </StackPanel>
+
+
+                            <!--Number of positions-->
+
+
+                            <local:SectionTitle DockPanel.Dock="Top"
+                                                HelpPath="user_guide/config/#number-of-positions">NUMBER OF POSITIONS</local:SectionTitle>
+
+                            <StackPanel Style="{StaticResource SubSectionStackPanel}">
+                                <local:ListView2 ItemsSource="{Binding NumPosItems}"
+                                                 ItemContainerStyle="{StaticResource TransparentSelection_ListViewItem}"
+                                                 PreviewMouseWheel="ContainerDontScroll_PreviewMouseWheel"
+                                                 SelectionMode="Single"
+                                                 d:SelectedIndex="5">
+
+                                    <ListView.View>
+                                        <GridView ColumnHeaderContainerStyle="{StaticResource HideHeaderGridView}">
+                                            <GridViewColumn DisplayMemberBinding="{Binding Path=Name}"
+                                                            Width="200">
+                                            </GridViewColumn>
+
+                                            <GridViewColumn>
+                                                <GridViewColumn.CellTemplate>
+                                                    <DataTemplate>
+                                                        <Border Background="#2000"
+                                                                CornerRadius="5">
+                                                            <mah:NumericUpDown Width="100"
+                                                                               Height="26"
+                                                                               Value="{Binding Pos, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                                               Minimum="0"
+                                                                               Maximum="100"
+                                                                               Interval="1"
+                                                                               BorderThickness="0"
+                                                                               Background="Transparent" />
+                                                        </Border>
+                                                    </DataTemplate>
+                                                </GridViewColumn.CellTemplate>
+                                            </GridViewColumn>
+                                        </GridView>
+                                    </ListView.View>
+                                </local:ListView2>
+                            </StackPanel>
+
+                            <!--Properties for each car-->
+
+
+                            <local:SectionTitle HelpPath="user_guide/config/#properties-for-each-car">PROPERTIES FOR EACH CAR</local:SectionTitle>
+
+                            <StackPanel Style="{StaticResource SubSectionStackPanel}">
+                                <local:ListView2 x:Name="ExposedProperties_DataGrid2"
+                                                 ItemsSource="{Binding ExposedProperties}"
+                                                 Style="{StaticResource ExposedPropertiesListView2}"
+                                                 PreviewMouseWheel="ContainerDontScroll_PreviewMouseWheel"
+                                                 d:SelectedIndex="5">
+
+                                    <ListView.ContextMenu>
+                                        <ContextMenu Name="cm"
+                                                     StaysOpen="False">
+                                            <MenuItem Header="Enable selected"
+                                                      Command="{Binding ExposedPropertiesEnableSelectedCommand}"
+                                                      CommandParameter="{Binding PlacementTarget.SelectedItems, RelativeSource={RelativeSource FindAncestor,AncestorType=ContextMenu}}" />
+                                            <MenuItem Header="Disable selected"
+                                                      Command="{Binding ExposedPropertiesDisableSelectedCommand}"
+                                                      CommandParameter="{Binding PlacementTarget.SelectedItems, RelativeSource={RelativeSource FindAncestor,AncestorType=ContextMenu}}" />
+                                        </ContextMenu>
+                                    </ListView.ContextMenu>
+
+                                </local:ListView2>
+                            </StackPanel>
+
+                        </StackPanel>
+
+                    </ScrollViewer>
+                </DockPanel>
+
+            </Border>
+        </Grid>
+
+    </DockPanel>
+
+</UserControl>

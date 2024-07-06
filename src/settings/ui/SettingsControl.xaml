@@ -25,135 +25,15 @@
     <styles:SHTabControl x:Name="TabControl">
 
         <styles:SHTabItem Header="General settings"
-                          x:Name="GeneralSettingsTab_SHTabItem">
+                          x:Name="GeneralSettingsTab_SHTabItem" />
+
+
+        <styles:SHTabItem Header="Dynamic leaderboards"
+                          x:Name="DynamicLeaderboardsTab_SHTabItem">
         </styles:SHTabItem>
 
-        <styles:SHTabItem Header="Dynamic leaderboards">
 
-            <ScrollViewer>
-                <StackPanel Margin="20">
-                    <StackPanel.Resources>
 
-                        <Style x:Key="Description"
-                               TargetType="TextBlock">
-                            <Setter Property="HorizontalAlignment"
-                                    Value="Left" />
-                            <Setter Property="VerticalAlignment"
-                                    Value="Center" />
-                            <Setter Property="TextWrapping"
-                                    Value="Wrap" />
-                            <Setter Property="Width"
-                                    Value="200" />
-                            <Setter Property="Margin"
-                                    Value="3,3,3,3" />
-                        </Style>
-
-                        <Style x:Key="NumPos"
-                               TargetType="mah:NumericUpDown">
-                            <Setter Property="HorizontalAlignment"
-                                    Value="Left" />
-                            <Setter Property="VerticalAlignment"
-                                    Value="Center" />
-                            <Setter Property="Height"
-                                    Value="25" />
-                            <Setter Property="Width"
-                                    Value="100" />
-                            <Setter Property="HasDecimals"
-                                    Value="False" />
-                            <Setter Property="Minimum"
-                                    Value="0" />
-                            <Setter Property="Maximum"
-                                    Value="100" />
-                            <Setter Property="Interval"
-                                    Value="1" />
-                            <Setter Property="Margin"
-                                    Value="3,3,3,3" />
-                        </Style>
-                    </StackPanel.Resources>
-
-                    <!-- Header -->
-
-                    <local:DocsHelpButton RelativePath="user_guide/config/#dynamic-leaderboards" />
-
-                    <TextBlock>Here you can customize the functionality of your dynamic leaderboards. <Bold>For the changes to take effect you need to restart SimHub</Bold>.</TextBlock>
-
-                    <!-- Dynamic leaderboards -->
-
-                    <local:SectionTitle HelpPath="user_guide/config/#dynamic-leaderboards_1">DYNAMIC LEADERBOARDS</local:SectionTitle>
-
-                    <StackPanel x:Name="DynLeaderboardsList_StackPanel"
-                                Orientation="Horizontal">
-                        <ComboBox x:Name="SelectDynLeaderboard_ComboBox"
-                                  Margin="5,5,5,5"
-                                  HorizontalAlignment="Left"
-                                  VerticalAlignment="Top"
-                                  SelectionChanged="SelectDynLeaderboard_ComboBox_SelectionChanged" />
-
-                        <styles:SHButtonPrimary HorizontalAlignment="Left"
-                                                Margin="5,5,5,5"
-                                                Click="RemoveLeaderboard_ButtonClick"
-                                                ToolTip="Removes currently selected dynamic leaderboard.">
-                            Remove
-                        </styles:SHButtonPrimary>
-                    </StackPanel>
-
-                    <styles:SHButtonPrimary HorizontalAlignment="Left"
-                                            Margin="5,5,5,5"
-                                            Click="AddNewLeaderboard_Button_Click">
-                        Add new leaderboard
-                    </styles:SHButtonPrimary>
-
-                    <!-- Rotation -->
-
-                    <local:SectionTitle HelpPath="user_guide/config/#leaderboard-rotation">LEADERBOARD ROTATION</local:SectionTitle>
-
-                    <StackPanel Orientation="Horizontal">
-                        <styles:SHButtonSecondary Click="DynLeaderboard_ListView_Up"
-                                                  ToolTip="Move currently selected leaderboard one position up.">Up</styles:SHButtonSecondary>
-                        <styles:SHButtonSecondary Click="DynLeaderboard_ListView_Down"
-                                                  ToolTip="Move currently selected leaderboard one position down.">Down</styles:SHButtonSecondary>
-
-                        <StackPanel Margin="200,0,5,0">
-                            <TextBlock Margin="0"
-                                       HorizontalAlignment="Center">Remove if single</TextBlock>
-                            <TextBlock Margin="0"
-                                       Text="class      /      cup"
-                                       HorizontalAlignment="Center" />
-                        </StackPanel>
-                    </StackPanel>
-
-                    <ListView x:Name="DynLeaderboards_ListView"
-                              Margin="10,10,0,13"
-                              HorizontalAlignment="Left"
-                              VerticalAlignment="Top" />
-
-                    <!-- Controls -->
-
-                    <local:SectionTitle HelpPath="user_guide/config/#controls">CONTROLS</local:SectionTitle>
-                    <StackPanel x:Name="DynamicLeaderboardsTab_Controls_StackPanel">
-                        <StackPanel.Resources>
-                            <Style TargetType="TextBlock">
-                            </Style>
-                        </StackPanel.Resources>
-                    </StackPanel>
-
-                    <!-- Number of positions -->
-
-                    <local:SectionTitle HelpPath="user_guide/config/#number-of-positions">NUMBER OF POSITIONS</local:SectionTitle>
-                    <StackPanel x:Name="NumPositions_StackPanel" />
-
-                    <!-- Properties for each car -->
-
-                    <local:SectionTitle HelpPath="user_guide/config/#properties-for-each-car">PROPERTIES FOR EACH CAR</local:SectionTitle>
-                    <StackPanel x:Name="PropertiesForEachCar_StackPanel"/>
-                    
-                    <!-- Properties for each driver -->
-
-                    <local:SectionTitle HelpPath="user_guide/config/#properties-for-each-driver">PROPERTIES FOR EACH DRIVER</local:SectionTitle>
-                    <StackPanel x:Name="ExposedDriverProperties_StackPanel" />
-                </StackPanel>
-            </ScrollViewer>
-        </styles:SHTabItem>
 
         <styles:SHTabItem Header="Car settings">
 
@@ -285,8 +165,9 @@
 
         </styles:SHTabItem>
 
-        <styles:SHTabItem Header="Class settings" x:Name="ClassSettingsTab_SHTabItem">
-        </styles:SHTabItem>
+        <styles:SHTabItem Header="Class settings"
+                          x:Name="ClassSettingsTab_SHTabItem" />
+
 
         <styles:SHTabItem Header="Misc colors">
             <ScrollViewer>

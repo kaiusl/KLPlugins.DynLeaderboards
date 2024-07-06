@@ -377,6 +377,11 @@ namespace KLPlugins.DynLeaderboards.Settings {
                 OutPosProp.ClassPositionStart,
                 OutPosProp.CupPosition,
                 OutPosProp.CupPositionStart,
+             ];
+        }
+
+        internal static OutPosProp[] OrderDynamic() {
+            return [
                 OutPosProp.DynamicPosition,
                 OutPosProp.DynamicPositionStart
              ];
@@ -405,12 +410,12 @@ namespace KLPlugins.DynLeaderboards.Settings {
                 OutPosProp.OverallPositionStart => "Overall position at race start",
                 OutPosProp.CupPositionStart => "Cup position at race start",
                 OutPosProp.DynamicPosition => @"Position that changes based of currently displayed dynamic leaderboard.
-Any overall -> ovarall position,
+Any overall -> overall position,
 Any class -> class position,
 Any cup -> cup position,
 RelativeOnTrack -> overall position",
                 OutPosProp.DynamicPositionStart => @"Position at the race start that changes based of currently displayed dynamic leaderboard.
-Any overall -> ovarall position,
+Any overall -> overall position,
 Any class -> class position,
 Any cup -> cup position,
 RelativeOnTrack -> overall position",
@@ -459,7 +464,7 @@ RelativeOnTrack -> overall position",
 
     internal static class OutGapPropExtensions {
         internal static OutGapProp[] Order() {
-            return new[] {
+            return [
                  OutGapProp.GapToLeader,
                  OutGapProp.GapToClassLeader,
                  OutGapProp.GapToCupLeader,
@@ -469,9 +474,14 @@ RelativeOnTrack -> overall position",
                  OutGapProp.GapToAheadInClass,
                  OutGapProp.GapToAheadInCup,
                  OutGapProp.GapToAheadOnTrack,
+             ];
+        }
+
+        internal static OutGapProp[] OrderDynamic() {
+            return [
                  OutGapProp.DynamicGapToFocused,
                  OutGapProp.DynamicGapToAhead,
-             };
+             ];
         }
 
         internal static string ToPropName(this OutGapProp p) {
@@ -681,7 +691,11 @@ RelativeOnTrack -> gap to ahead on track.",
                 OutLapProp.CurrentLapIsValid,
                 OutLapProp.CurrentLapIsOutLap,
                 OutLapProp.CurrentLapIsInLap,
+            ];
+        }
 
+        internal static OutLapProp[] OrderDeltaBestToBest() {
+            return [
                 OutLapProp.BestLapDeltaToOverallBest,
                 OutLapProp.BestLapDeltaToClassBest,
                 OutLapProp.BestLapDeltaToCupBest,
@@ -692,7 +706,11 @@ RelativeOnTrack -> gap to ahead on track.",
                 OutLapProp.BestLapDeltaToAheadBest,
                 OutLapProp.BestLapDeltaToAheadInClassBest,
                 OutLapProp.BestLapDeltaToAheadInCupBest,
+            ];
+        }
 
+        internal static OutLapProp[] OrderDeltaLastToBest() {
+            return [
                 OutLapProp.LastLapDeltaToOverallBest,
                 OutLapProp.LastLapDeltaToClassBest,
                 OutLapProp.LastLapDeltaToCupBest,
@@ -704,7 +722,11 @@ RelativeOnTrack -> gap to ahead on track.",
                 OutLapProp.LastLapDeltaToAheadInClassBest,
                 OutLapProp.LastLapDeltaToAheadInCupBest,
                 OutLapProp.LastLapDeltaToOwnBest,
+            ];
+        }
 
+        internal static OutLapProp[] OrderDeltaLastToLast() {
+            return [
                 OutLapProp.LastLapDeltaToLeaderLast,
                 OutLapProp.LastLapDeltaToClassLeaderLast,
                 OutLapProp.LastLapDeltaToCupLeaderLast,
@@ -712,7 +734,11 @@ RelativeOnTrack -> gap to ahead on track.",
                 OutLapProp.LastLapDeltaToAheadLast,
                 OutLapProp.LastLapDeltaToAheadInClassLast,
                 OutLapProp.LastLapDeltaToAheadInCupLast,
+            ];
+        }
 
+        internal static OutLapProp[] OrderDynamic() {
+            return [
                 OutLapProp.DynamicBestLapDeltaToFocusedBest,
                 OutLapProp.DynamicLastLapDeltaToFocusedBest,
                 OutLapProp.DynamicLastLapDeltaToFocusedLast,
@@ -853,7 +879,6 @@ Any relative -> delta to focused car's last lap",
             }
         }
     }
-
 
     [Flags]
     internal enum OutDriverProp {

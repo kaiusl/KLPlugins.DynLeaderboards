@@ -465,6 +465,11 @@ namespace KLPlugins.DynLeaderboards {
             this.DynLeaderboards.RemoveAt(i);
         }
 
+        internal void RemoveLeaderboard(DynLeaderboardConfig cfg) {
+            Settings.RemoveLeaderboard(cfg);
+            this.DynLeaderboards.RemoveAll(p => p.Config.Name == cfg.Name);
+        }
+
         private void SubscribeToSimHubEvents(PluginManager pm) {
             pm.GameStateChanged += this.Values.OnGameStateChanged;
             pm.GameStateChanged += (bool running, PluginManager _) => {

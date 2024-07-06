@@ -732,7 +732,7 @@
 
                                 <Style.Triggers>
                                     <DataTrigger Binding="{Binding Name}"
-                                             Value="">
+                                                 Value="">
                                         <Setter Property="Template">
                                             <Setter.Value>
                                                 <ControlTemplate TargetType="{x:Type GroupItem}">
@@ -797,6 +797,23 @@
                 </GridView>
             </Setter.Value>
         </Setter>
+    </Style>
+
+    <Style TargetType="{x:Type DockPanel}"
+           x:Key="TabOuterDockPanel">
+        <Setter Property="Margin"
+                Value="20,20,34,20" />
+        <!-- Extra margin to the right to align help button with other tabs which also have the scroll bar on the right -->
+    </Style>
+
+    <Style TargetType="{x:Type Border}"
+           x:Key="SelectedItemDetailsBorder">
+        <Setter Property="Background"
+                Value="#2f2f2f" />
+        <Setter Property="CornerRadius"
+                Value="10" />
+        <Setter Property="Margin"
+                Value="10,5,5,5" />
     </Style>
 
 </ResourceDictionary>

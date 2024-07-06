@@ -9,8 +9,10 @@
              mc:Ignorable="d"
              d:DesignHeight="1000"
              d:DesignWidth="1400"
+             d:Background="#252525"
+             d:Foreground="White"
              d:DataContext="{d:DesignInstance local:DesignClassSettingsTabViewModel, IsDesignTimeCreatable=True}">
-             <!-- local:DesignClassSettingsTabViewModel type is only available if DESIGN flag is set (it is automatically set in Debug_Design configuration) -->
+    <!-- local:DesignClassSettingsTabViewModel type is only available if DESIGN flag is set (it is automatically set in Debug_Design configuration) -->
 
     <UserControl.Resources>
         <ResourceDictionary>
@@ -20,252 +22,248 @@
         </ResourceDictionary>
     </UserControl.Resources>
 
-    <Grid>
-        <DockPanel Margin="20,20,34,20">
-            <!-- Extra margin to the right to align help button with other tabs which also have the scroll bar on the right -->
+    <DockPanel Style="{StaticResource TabOuterDockPanel}">
+        <!-- Extra margin to the right to align help button with other tabs which also have the scroll bar on the right -->
 
-            <local:DocsHelpButton DockPanel.Dock="Top"
-                                  RelativePath="user_guide/config/#class-settings" />
+        <local:DocsHelpButton DockPanel.Dock="Top"
+                              RelativePath="user_guide/config/#class-settings" />
 
-            <Menu DockPanel.Dock="Top">
+        <Menu DockPanel.Dock="Top">
 
-                <local:ButtonMenuItem Header="Reset"
-                                      ShowDropDown="True">
-                    <MenuItem Header="Reset all"
-                              Command="{Binding MenuResetAllCommand}" />
-                    <MenuItem Header="Reset all colors"
-                              Command="{Binding MenuResetAllColorsCommand}" />
-                    <MenuItem Header="Reset all background colors"
-                              Command="{Binding MenuResetAllBackgroundCommand}" />
-                    <MenuItem Header="Reset all text colors"
-                              Command="{Binding MenuResetAllForegroundCommand}" />
-                    <MenuItem Header="Reset all short names"
-                              Command="{Binding MenuResetAllShortNameCommand}" />
-                    <MenuItem Header="Reset all 'replace with' values"
-                              Command="{Binding MenuResetAllReplaceWithCommand}" />
-                </local:ButtonMenuItem>
+            <local:ButtonMenuItem Header="Reset"
+                                  ShowDropDown="True">
+                <MenuItem Header="Reset all"
+                          Command="{Binding MenuResetAllCommand}" />
+                <MenuItem Header="Reset all colors"
+                          Command="{Binding MenuResetAllColorsCommand}" />
+                <MenuItem Header="Reset all background colors"
+                          Command="{Binding MenuResetAllBackgroundCommand}" />
+                <MenuItem Header="Reset all text colors"
+                          Command="{Binding MenuResetAllForegroundCommand}" />
+                <MenuItem Header="Reset all short names"
+                          Command="{Binding MenuResetAllShortNameCommand}" />
+                <MenuItem Header="Reset all 'replace with' values"
+                          Command="{Binding MenuResetAllReplaceWithCommand}" />
+            </local:ButtonMenuItem>
 
-                <local:ButtonMenuItem Header="Disable"
-                                      ShowDropDown="True">
-                    <MenuItem Header="Disable all"
-                              Command="{Binding MenuDisableAllCommand}" />
-                    <MenuItem Header="Disable all colors"
-                              Command="{Binding MenuDisableAllColorsCommand}" />
-                    <MenuItem Header="Disable all 'replace with' values"
-                              Command="{Binding MenuDisableAllReplaceWithCommand}" />
-                </local:ButtonMenuItem>
+            <local:ButtonMenuItem Header="Disable"
+                                  ShowDropDown="True">
+                <MenuItem Header="Disable all"
+                          Command="{Binding MenuDisableAllCommand}" />
+                <MenuItem Header="Disable all colors"
+                          Command="{Binding MenuDisableAllColorsCommand}" />
+                <MenuItem Header="Disable all 'replace with' values"
+                          Command="{Binding MenuDisableAllReplaceWithCommand}" />
+            </local:ButtonMenuItem>
 
-                <local:ButtonMenuItem Header="Enable"
-                                      ShowDropDown="True">
-                    <MenuItem Header="Enable all"
-                              Command="{Binding MenuEnableAllCommand}" />
-                    <MenuItem Header="Enable all colors"
-                              Command="{Binding MenuEnableAllColorsCommand}" />
-                    <MenuItem Header="Enable all 'replace with' values"
-                              Command="{Binding MenuEnableAllReplaceWithCommand}" />
-                </local:ButtonMenuItem>
+            <local:ButtonMenuItem Header="Enable"
+                                  ShowDropDown="True">
+                <MenuItem Header="Enable all"
+                          Command="{Binding MenuEnableAllCommand}" />
+                <MenuItem Header="Enable all colors"
+                          Command="{Binding MenuEnableAllColorsCommand}" />
+                <MenuItem Header="Enable all 'replace with' values"
+                          Command="{Binding MenuEnableAllReplaceWithCommand}" />
+            </local:ButtonMenuItem>
 
-                <local:ButtonMenuItem Header="Add new class"
-                                      Command="{Binding MenuAddNewClassCommand}" />
+            <local:ButtonMenuItem Header="Add new class"
+                                  Command="{Binding MenuAddNewClassCommand}" />
 
-                <local:ButtonMenuItem Header="Refresh"
-                                      Command="{Binding MenuRefreshCommand}" />
+            <local:ButtonMenuItem Header="Refresh"
+                                  Command="{Binding MenuRefreshCommand}" />
 
-            </Menu>
+        </Menu>
 
-            <sh:SHSectionSeparator DockPanel.Dock="Top" />
+        <sh:SHSectionSeparator DockPanel.Dock="Top" />
 
-            <Grid DockPanel.Dock="Top"
-                  VerticalAlignment="Top">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="auto"
-                                      MinWidth="250" />
-                    <ColumnDefinition Width="*" />
-                </Grid.ColumnDefinitions>
+        <Grid DockPanel.Dock="Top"
+              VerticalAlignment="Top">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="auto"
+                                  MinWidth="250" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
 
-                <sh:SHListBox x:Name="Classes_ListBox"
-                                  Grid.Column="0"
-                                  Margin="0,5,0,5"
-                                  ItemsSource="{Binding ClassesListCollectionView}"
-                                  SelectedItem="{Binding SelectedClass, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+            <sh:SHListBox x:Name="Classes_ListBox"
+                          Grid.Column="0"
+                          Margin="0,5,0,5"
+                          ItemsSource="{Binding ClassesListCollectionView}"
+                          SelectedItem="{Binding SelectedClass, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
 
-                <Border Grid.Column="1"
-                        CornerRadius="10"
-                        Background="#2f2f2f"
-                        Margin="10,5,5,5">
+            <Border Grid.Column="1"
+                    Style="{StaticResource SelectedItemDetailsBorder}">
 
-                    <StackPanel Visibility="{Binding IsSelectedNull, Mode=OneWay, Converter={StaticResource BoolToVisibilityHiddenConverter}, ConverterParameter=rev}">
+                <StackPanel Visibility="{Binding IsSelectedNull, Mode=OneWay, Converter={StaticResource BoolToVisibilityHiddenConverter}, ConverterParameter=rev}">
 
-                        <!-- Title row -->
-                        <DockPanel Margin="0,5,10,5"
-                                   HorizontalAlignment="Stretch"
-                                   DataContext="{Binding SelectedClassViewModel}">
-                            <Border DockPanel.Dock="Left"
-                                    Grid.Column="0"
-                                    Background="{Binding Background, Mode=OneWay}"
-                                    MinHeight="35"
-                                    Margin="10,10,10,10"
-                                    HorizontalAlignment="Left"
-                                    VerticalAlignment="Center"
-                                    Style="{StaticResource ColorGrid_LabelBorder}">
-                                <TextBlock Foreground="{Binding Foreground, Mode=OneWay}"
-                                           FontSize="20"
-                                           Margin="20,5,15,5"
-                                           HorizontalAlignment="Center"
-                                           VerticalAlignment="Center"
-                                           Style="{StaticResource ColorGrid_LabelText}"
-                                           Text="{Binding Class, Mode=OneWay}" />
-                            </Border>
+                    <!-- Title row -->
+                    <DockPanel Margin="0,5,10,5"
+                               HorizontalAlignment="Stretch"
+                               DataContext="{Binding SelectedClassViewModel}">
+                        <Border DockPanel.Dock="Left"
+                                Grid.Column="0"
+                                Background="{Binding Background, Mode=OneWay}"
+                                MinHeight="35"
+                                Margin="10,10,10,10"
+                                HorizontalAlignment="Left"
+                                VerticalAlignment="Center"
+                                Style="{StaticResource ColorGrid_LabelBorder}">
+                            <TextBlock Foreground="{Binding Foreground, Mode=OneWay}"
+                                       FontSize="20"
+                                       Margin="20,5,15,5"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center"
+                                       Style="{StaticResource ColorGrid_LabelText}"
+                                       Text="{Binding Class, Mode=OneWay}" />
+                        </Border>
 
-                            <sh:SHButtonPrimary DockPanel.Dock="Right"
-                                                    Content="Remove"
-                                                    HorizontalAlignment="Right"
-                                                    IsEnabled="{Binding CanBeRemoved, Mode=OneWay}"
-                                                    Opacity="{Binding CanBeRemoved, Mode=OneWay, Converter={StaticResource IsEnabledToOpacityConverter}}"
-                                                    Command="{Binding RemoveClassCommand}" />
+                        <sh:SHButtonPrimary DockPanel.Dock="Right"
+                                            Content="Remove"
+                                            HorizontalAlignment="Right"
+                                            IsEnabled="{Binding CanBeRemoved, Mode=OneWay}"
+                                            Opacity="{Binding CanBeRemoved, Mode=OneWay, Converter={StaticResource IsEnabledToOpacityConverter}}"
+                                            Command="{Binding RemoveClassCommand}" />
 
-                            <sh:SHButtonPrimary DockPanel.Dock="Right"
-                                                    Content="Reset"
-                                                    HorizontalAlignment="Right"
-                                                    Command="{Binding ResetAllCommand}" />
+                        <sh:SHButtonPrimary DockPanel.Dock="Right"
+                                            Content="Reset"
+                                            HorizontalAlignment="Right"
+                                            Command="{Binding ResetAllCommand}" />
 
-                            <sh:SHButtonPrimary DockPanel.Dock="Right"
-                                                    Content="Disable"
-                                                    HorizontalAlignment="Right"
-                                                    Command="{Binding DisableAllCommand}" />
+                        <sh:SHButtonPrimary DockPanel.Dock="Right"
+                                            Content="Disable"
+                                            HorizontalAlignment="Right"
+                                            Command="{Binding DisableAllCommand}" />
 
-                            <sh:SHButtonPrimary DockPanel.Dock="Right"
-                                                    Content="Duplicate"
-                                                    HorizontalAlignment="Right"
-                                                    Command="{Binding DuplicateClassCommand}" />
-                        </DockPanel>
+                        <sh:SHButtonPrimary DockPanel.Dock="Right"
+                                            Content="Duplicate"
+                                            HorizontalAlignment="Right"
+                                            Command="{Binding DuplicateClassCommand}" />
+                    </DockPanel>
 
-                        <Grid Margin="10,5,10,5"
-                              DataContext="{Binding SelectedClassViewModel}">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="auto" />
-                                <ColumnDefinition Width="auto" />
-                                <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="auto" />
-                            </Grid.ColumnDefinitions >
+                    <Grid Margin="10,5,10,5"
+                          DataContext="{Binding SelectedClassViewModel}">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="auto" />
+                            <ColumnDefinition Width="auto" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="auto" />
+                        </Grid.ColumnDefinitions >
 
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="auto" />
-                                <RowDefinition Height="auto" />
-                                <RowDefinition Height="auto" />
-                                <RowDefinition Height="auto" />
-                            </Grid.RowDefinitions >
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="auto" />
+                            <RowDefinition Height="auto" />
+                            <RowDefinition Height="auto" />
+                            <RowDefinition Height="auto" />
+                        </Grid.RowDefinitions >
 
-                            <!-- Color row -->
-                            <sh:SHToggleCheckbox Grid.Row="0"
-                                                     IsChecked="{Binding IsColorEnabled, Mode=TwoWay}"
-                                                     ToolTip="Enable this class color override. If disabled, the plugin will use the color provided by SimHub." />
+                        <!-- Color row -->
+                        <sh:SHToggleCheckbox Grid.Row="0"
+                                             IsChecked="{Binding IsColorEnabled, Mode=TwoWay}"
+                                             ToolTip="Enable this class color override. If disabled, the plugin will use the color provided by SimHub." />
+                        <TextBlock Grid.Column="1"
+                                   Grid.Row="0"
+                                   Padding="0,0,10,0"
+                                   Text="Color" />
+
+                        <StackPanel Grid.Column="2"
+                                    Grid.Row="0"
+                                    Margin="0,5,0,5"
+                                    Orientation="Horizontal"
+                                    IsEnabled="{Binding IsColorEnabled, Mode=OneWay}"
+                                    Opacity="{Binding IsColorEnabled, Mode=OneWay, Converter={StaticResource IsEnabledToOpacityConverter}}">
+
                             <TextBlock Grid.Column="1"
                                        Grid.Row="0"
-                                       Padding="0,0,10,0"
-                                       Text="Color" />
+                                       Padding="0,0,0,0"
+                                       Text="Background" />
 
-                            <StackPanel Grid.Column="2"
-                                        Grid.Row="0"
-                                        Margin="0,5,0,5"
-                                        Orientation="Horizontal"
-                                        IsEnabled="{Binding IsColorEnabled, Mode=OneWay}"
-                                        Opacity="{Binding IsColorEnabled, Mode=OneWay, Converter={StaticResource IsEnabledToOpacityConverter}}">
+                            <xctk:ColorPicker SelectedColor="{Binding Background, Mode=TwoWay}"
+                                              Style="{StaticResource ColorGrid_ColorPicker}" />
 
-                                <TextBlock Grid.Column="1"
-                                           Grid.Row="0"
-                                           Padding="0,0,0,0"
-                                           Text="Background" />
-
-                                <xctk:ColorPicker SelectedColor="{Binding Background, Mode=TwoWay}"
-                                                  Style="{StaticResource ColorGrid_ColorPicker}" />
-
-                                <sh:SHButtonSecondary Command="{Binding ResetBackgroundColorCommand}"
-                                                          Content="Reset" />
-
-                                <TextBlock Grid.Column="1"
-                                           Grid.Row="0"
-                                           Padding="25,0,0,0"
-                                           Text="Text" />
-
-                                <xctk:ColorPicker SelectedColor="{Binding Foreground, Mode=TwoWay}"
-                                                  Style="{StaticResource ColorGrid_ColorPicker}" />
-
-                                <sh:SHButtonSecondary Command="{Binding ResetForegroundColorCommand}"
-                                                          Content="Reset" />
-
-                            </StackPanel>
-
-                            <sh:SHButtonSecondary Grid.Column="3"
-                                                      Grid.Row="0"
-                                                      Content="Reset"
-                                                      Command="{Binding ResetColorsCommand}" />
-
-                            <!-- Short name row -->
-                            <sh:SHToggleCheckbox Grid.Row="1"
-                                                     IsChecked="True"
-                                                     IsEnabled="False"
-                                                     Opacity="0.333"
-                                                     ToolTip="Short name cannot be disabled."
-                                                     ToolTipService.ShowOnDisabled="True" />
+                            <sh:SHButtonSecondary Command="{Binding ResetBackgroundColorCommand}"
+                                                  Content="Reset" />
 
                             <TextBlock Grid.Column="1"
-                                       Grid.Row="1"
-                                       Padding="0,0,10,0"
-                                       Text="Short name" />
+                                       Grid.Row="0"
+                                       Padding="25,0,0,0"
+                                       Text="Text" />
 
-                            <TextBox Grid.Column="2"
-                                     Grid.Row="1"
-                                     Margin="0,5,0,5"
-                                     Text="{Binding ShortName, Mode=TwoWay}" />
+                            <xctk:ColorPicker SelectedColor="{Binding Foreground, Mode=TwoWay}"
+                                              Style="{StaticResource ColorGrid_ColorPicker}" />
 
-                            <sh:SHButtonSecondary Grid.Column="3"
-                                                      Grid.Row="1"
-                                                      Content="Reset"
-                                                      Command="{Binding ResetShortNameCommand}" />
+                            <sh:SHButtonSecondary Command="{Binding ResetForegroundColorCommand}"
+                                                  Content="Reset" />
 
-                            <!-- Replace with row -->
-                            <sh:SHToggleCheckbox Grid.Row="2"
-                                                     IsChecked="{Binding IsReplaceWithEnabled, Mode=TwoWay}"
-                                                     ToolTip="Enable this car's class override. If disabled, the plugin will use the n provided by SimHub." />
-                            <TextBlock Grid.Column="1"
-                                       Grid.Row="2"
-                                       Padding="0,0,10,0"
-                                       Text="Replace with" />
+                        </StackPanel>
 
-                            <ComboBox Grid.Column="2"
-                                      Grid.Row="2"
-                                      Margin="0,5,0,5"
-                                      IsReadOnly="False"
-                                      IsEditable="True"
-                                      IsSynchronizedWithCurrentItem="True"
-                                      IsEnabled="{Binding IsReplaceWithEnabled, Mode=OneWay}"
-                                      Opacity="{Binding IsReplaceWithEnabled, Mode=OneWay, Converter={StaticResource IsEnabledToOpacityConverter}}"
-                                      ShouldPreserveUserEnteredPrefix="True"
-                                      IsTextSearchCaseSensitive="True"
-                                      ItemsSource="{Binding AllClassesView, Mode=OneWay}">
-                                <ComboBox.Text>
-                                    <Binding Path="ReplaceWith"
-                                             UpdateSourceTrigger="LostFocus"
-                                             Mode="TwoWay">
-                                        <Binding.ValidationRules>
-                                            <local:ValidClassNameRule />
-                                        </Binding.ValidationRules>
-                                    </Binding>
-                                </ComboBox.Text>
-                            </ComboBox>
+                        <sh:SHButtonSecondary Grid.Column="3"
+                                              Grid.Row="0"
+                                              Content="Reset"
+                                              Command="{Binding ResetColorsCommand}" />
 
-                            <sh:SHButtonSecondary Grid.Column="3"
-                                                      Grid.Row="2"
-                                                      Command="{Binding ResetReplaceWithCommand}"
-                                                      Content="Reset" />
-                        </Grid>
+                        <!-- Short name row -->
+                        <sh:SHToggleCheckbox Grid.Row="1"
+                                             IsChecked="True"
+                                             IsEnabled="False"
+                                             Opacity="0.333"
+                                             ToolTip="Short name cannot be disabled."
+                                             ToolTipService.ShowOnDisabled="True" />
 
-                    </StackPanel>
+                        <TextBlock Grid.Column="1"
+                                   Grid.Row="1"
+                                   Padding="0,0,10,0"
+                                   Text="Short name" />
 
-                </Border>
-            </Grid>
+                        <TextBox Grid.Column="2"
+                                 Grid.Row="1"
+                                 Margin="0,5,0,5"
+                                 Text="{Binding ShortName, Mode=TwoWay}" />
 
-        </DockPanel>
-    </Grid>
+                        <sh:SHButtonSecondary Grid.Column="3"
+                                              Grid.Row="1"
+                                              Content="Reset"
+                                              Command="{Binding ResetShortNameCommand}" />
+
+                        <!-- Replace with row -->
+                        <sh:SHToggleCheckbox Grid.Row="2"
+                                             IsChecked="{Binding IsReplaceWithEnabled, Mode=TwoWay}"
+                                             ToolTip="Enable this car's class override. If disabled, the plugin will use the n provided by SimHub." />
+                        <TextBlock Grid.Column="1"
+                                   Grid.Row="2"
+                                   Padding="0,0,10,0"
+                                   Text="Replace with" />
+
+                        <ComboBox Grid.Column="2"
+                                  Grid.Row="2"
+                                  Margin="0,5,0,5"
+                                  IsReadOnly="False"
+                                  IsEditable="True"
+                                  IsSynchronizedWithCurrentItem="True"
+                                  IsEnabled="{Binding IsReplaceWithEnabled, Mode=OneWay}"
+                                  Opacity="{Binding IsReplaceWithEnabled, Mode=OneWay, Converter={StaticResource IsEnabledToOpacityConverter}}"
+                                  ShouldPreserveUserEnteredPrefix="True"
+                                  IsTextSearchCaseSensitive="True"
+                                  ItemsSource="{Binding AllClassesView, Mode=OneWay}">
+                            <ComboBox.Text>
+                                <Binding Path="ReplaceWith"
+                                         UpdateSourceTrigger="LostFocus"
+                                         Mode="TwoWay">
+                                    <Binding.ValidationRules>
+                                        <local:ValidClassNameRule />
+                                    </Binding.ValidationRules>
+                                </Binding>
+                            </ComboBox.Text>
+                        </ComboBox>
+
+                        <sh:SHButtonSecondary Grid.Column="3"
+                                              Grid.Row="2"
+                                              Command="{Binding ResetReplaceWithCommand}"
+                                              Content="Reset" />
+                    </Grid>
+
+                </StackPanel>
+
+            </Border>
+        </Grid>
+
+    </DockPanel>
 </UserControl>

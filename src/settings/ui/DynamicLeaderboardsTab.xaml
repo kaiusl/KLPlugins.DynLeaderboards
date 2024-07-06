@@ -33,8 +33,7 @@
     </UserControl.Resources>
 
 
-    <DockPanel Margin="20,20,34,20"
-               Grid.RowSpan="2">
+    <DockPanel Style="{StaticResource TabOuterDockPanel}">
         <!-- Extra margin to the right to align help button with other tabs which also have the scroll bar on the right -->
 
         <local:DocsHelpButton DockPanel.Dock="Top"
@@ -42,8 +41,7 @@
 
         <sh:SHSectionSeparator DockPanel.Dock="Top" />
 
-        <Grid DockPanel.Dock="Top"
-              VerticalAlignment="Top">
+        <Grid DockPanel.Dock="Top">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="auto"
                                   MinWidth="250" />
@@ -55,15 +53,12 @@
                                       Margin="10,5,10,10"
                                       Command="{Binding AddNewLeaderboardCommand}" />
                 <sh:SHListBox x:Name="Classes_ListBox"
-                              Margin="0,5,0,5"
                               ItemsSource="{Binding Leaderboards}"
                               SelectedItem="{Binding SelectedLeaderboardListBoxItem, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
             </StackPanel>
 
             <Border Grid.Column="1"
-                    CornerRadius="10"
-                    Background="#2f2f2f"
-                    Margin="10,5,5,5">
+                    Style="{StaticResource SelectedItemDetailsBorder}">
 
                 <!-- Must be a DockPanel so that the inner ScrollView works  -->
                 <DockPanel Margin="10"
@@ -79,7 +74,6 @@
                                            Text="{Binding Name}"
                                            FontSize="20"
                                            FontWeight="Bold" />
-
 
                         <sh:SHButtonPrimary DockPanel.Dock="Right"
                                             Content="Remove"
@@ -149,9 +143,7 @@
                                 </sh:SHListBox>
                             </StackPanel>
 
-
                             <!--Controls-->
-
 
                             <local:SectionTitle DockPanel.Dock="Top"
                                                 HelpPath="user_guide/config/#controls">CONTROLS</local:SectionTitle>

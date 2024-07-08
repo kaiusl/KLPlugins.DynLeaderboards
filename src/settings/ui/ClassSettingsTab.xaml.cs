@@ -231,7 +231,10 @@ namespace KLPlugins.DynLeaderboards.Settings.UI {
 
         public CarClass ReplaceWith {
             get => this._classManager.ReplaceWith ?? CarClass.Default;
-            set => this._classManager.ReplaceWith = value;
+            set {
+                this._settingsControl.TryAddCarClass(value);
+                this._classManager.ReplaceWith = value;
+            }
         }
 
         public bool CanBeRemoved => this._classesManager.CanBeRemoved(this.Class);

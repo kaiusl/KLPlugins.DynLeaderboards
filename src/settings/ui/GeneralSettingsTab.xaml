@@ -80,7 +80,8 @@
                 <TextBox Style="{StaticResource Location}"
                          ToolTip="{StaticResource ACC_Config_Location_Tooltip}"
                          Text="{Binding ACCDataLocation, Mode=TwoWay}"
-                         Background="{Binding ACCDataLocationBackground, UpdateSourceTrigger=PropertyChanged}" />
+                         Background="{Binding ACCDataLocationBackground}"
+                         BorderBrush="{Binding ACCDataLocationBorderBrush}"/>
 
                 <TextBlock Style="{StaticResource Label}"
                            ToolTip="{StaticResource AC_Root_Location_Tooltip}"
@@ -89,7 +90,8 @@
                          ToolTip="{StaticResource AC_Root_Location_Tooltip}"
                          Grid.Row="1"
                          Text="{Binding ACRootLocation, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                         Background="{Binding ACRootLocationBackground}" />
+                         Background="{Binding ACRootLocationBackground}"
+                         BorderBrush="{Binding ACRootLocationBorderBrush}"/>
             </Grid>
 
             <!-- Exposed properties -->

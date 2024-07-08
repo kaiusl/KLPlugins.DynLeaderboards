@@ -23,6 +23,8 @@ namespace KLPlugins.DynLeaderboards.Settings.UI {
 
         protected static readonly SolidColorBrush PATH_BG_OK = new(Colors.ForestGreen);
         protected static readonly SolidColorBrush PATH_BG_ERROR = new(Colors.Firebrick);
+        protected static readonly SolidColorBrush PATH_BORDER_OK = new(Colors.SpringGreen);
+        protected static readonly SolidColorBrush PATH_BORDER_ERROR = new(Colors.Red);
 
         public string? ACCDataLocation {
             get => this._settings.AccDataLocation;
@@ -33,6 +35,7 @@ namespace KLPlugins.DynLeaderboards.Settings.UI {
             }
         }
         public SolidColorBrush ACCDataLocationBackground { get; private set; } = PATH_BG_ERROR;
+        public SolidColorBrush ACCDataLocationBorderBrush { get; private set; } = PATH_BORDER_ERROR;
 
         public string? ACRootLocation {
             get => this._settings.AcRootLocation;
@@ -43,6 +46,7 @@ namespace KLPlugins.DynLeaderboards.Settings.UI {
             }
         }
         public SolidColorBrush ACRootLocationBackground { get; set; } = PATH_BG_ERROR;
+        public SolidColorBrush ACRootLocationBorderBrush { get; set; } = PATH_BORDER_ERROR;
 
         public bool Log {
             get => this._settings.Log;
@@ -98,8 +102,10 @@ namespace KLPlugins.DynLeaderboards.Settings.UI {
         private void UpdateACCDataLocationBackground() {
             if (this._settings.IsAccDataLocationValid()) {
                 this.ACCDataLocationBackground = PATH_BG_OK;
+                this.ACCDataLocationBorderBrush = PATH_BORDER_OK;
             } else {
                 this.ACCDataLocationBackground = PATH_BG_ERROR;
+                this.ACCDataLocationBorderBrush = PATH_BORDER_ERROR;
             }
             this.InvokePropertyChanged(nameof(this.ACCDataLocationBackground));
         }
@@ -107,8 +113,10 @@ namespace KLPlugins.DynLeaderboards.Settings.UI {
         private void UpdateACRootLocationBackground() {
             if (this._settings.IsAcRootLocationValid()) {
                 this.ACRootLocationBackground = PATH_BG_OK;
+                this.ACRootLocationBorderBrush = PATH_BORDER_OK;
             } else {
                 this.ACRootLocationBackground = PATH_BG_ERROR;
+                this.ACRootLocationBorderBrush = PATH_BORDER_ERROR;
             }
             this.InvokePropertyChanged(nameof(this.ACRootLocationBackground));
         }

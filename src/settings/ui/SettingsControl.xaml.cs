@@ -131,6 +131,7 @@ namespace KLPlugins.DynLeaderboards.Settings.UI {
 
             this.GeneralSettingsTab_SHTabItem.Content = new GeneralSettingsTab(this.Settings);
             this.DynamicLeaderboardsTab_SHTabItem.Content = new DynamicLeaderboardsTab(this.Settings, this.Plugin, this);
+            this.CarSettingsTab_SHTabItem.Content = new CarSettingsTab(this.Plugin, this);
             this.ClassSettingsTab_SHTabItem.Content = new ClassSettingsTab(this, this.Plugin.Values, this.ClassesManager);
 
             if (this.Settings.DynLeaderboardConfigs.Count == 0) {
@@ -141,8 +142,8 @@ namespace KLPlugins.DynLeaderboards.Settings.UI {
 
 
             this.SetAllClassesAndManufacturers();
-            this.CarSettingsTab = new CarSettingsTab(this, this.Plugin);
-            this.CarSettingsTab.Build();
+            //this.CarSettingsTab = new CarSettingsTab(this, this.Plugin);
+            //this.CarSettingsTab.Build();
             this.AddColorsTab();
         }
 
@@ -159,7 +160,7 @@ namespace KLPlugins.DynLeaderboards.Settings.UI {
             }
         }
 
-        internal void AddCarManufacturer(string manufacturer) {
+        internal void TryAddCarManufacturer(string manufacturer) {
             if (!this.AllManufacturers.Contains(manufacturer)) {
                 this.AllManufacturers.Add(manufacturer);
             }
@@ -196,7 +197,7 @@ namespace KLPlugins.DynLeaderboards.Settings.UI {
                 string?[] manufacturers = [c.Value.Manufacturer(), c.Value.BaseManufacturer()];
                 foreach (var manufacturer in manufacturers) {
                     if (manufacturer != null) {
-                        this.AddCarManufacturer(manufacturer);
+                        this.TryAddCarManufacturer(manufacturer);
                     }
                 }
             }

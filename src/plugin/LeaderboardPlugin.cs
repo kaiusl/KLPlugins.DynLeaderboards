@@ -485,11 +485,13 @@ namespace KLPlugins.DynLeaderboards {
 
         internal static void UpdateACCarInfos() {
             if (Settings.AcRootLocation == null) {
+                LogWarn("AC root location is not set. Please check your settings.");
                 return;
             }
 
             var carsFolder = Path.Combine(Settings.AcRootLocation, "content", "cars");
             if (!Directory.Exists(carsFolder)) {
+                LogWarn("AC cars folder is not found. Please check your settings.");
                 return;
             }
 

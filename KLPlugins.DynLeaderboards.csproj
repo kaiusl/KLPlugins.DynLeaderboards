@@ -143,7 +143,9 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="src\settings\ui\CarSettingsTab.cs" />
+    <Compile Include="src\settings\ui\CarSettingsTab.xaml.cs">
+      <DependentUpon>CarSettingsTab.xaml</DependentUpon>
+    </Compile>
     <Compile Include="src\settings\ui\ColorsTabSection.cs" />
     <Compile Include="src\settings\ui\Common.cs" />
     <Compile Include="src\settings\ui\ConfimDialog.xaml.cs">
@@ -183,6 +185,10 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <Page Include="src\settings\ui\CarSettingsTab.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="src\settings\ui\ConfimDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

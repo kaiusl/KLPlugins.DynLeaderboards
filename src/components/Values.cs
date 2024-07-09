@@ -258,7 +258,7 @@ namespace KLPlugins.DynLeaderboards {
             return this._infos[key];
         }
 
-        internal void Remove(string key) {
+        internal void TryRemove(string key) {
             if (!this._infos.ContainsKey(key)) {
                 return;
             }
@@ -271,6 +271,15 @@ namespace KLPlugins.DynLeaderboards {
             } else {
                 this._infos.Remove(key);
             }
+        }
+
+        internal bool CanBeRemoved(string key) {
+            if (!this._infos.ContainsKey(key)) {
+                return false;
+            }
+
+            var c = this._infos[key];
+            return c.Base == null;
         }
 
         internal void RenameClass(CarClass oldCls, CarClass newCls) {
@@ -338,7 +347,9 @@ namespace KLPlugins.DynLeaderboards {
         }
     }
 
-    internal class OverridableCarInfo {
+    internal class OverridableCarInfo : INotifyPropertyChanged {
+        public event PropertyChangedEventHandler? PropertyChanged;
+
         [JsonIgnore] internal CarInfo? Base { get; private set; }
         [JsonProperty("Overrides")] internal CarInfo? Overrides { get; private set; }
         [JsonProperty] internal bool IsNameEnabled { get; private set; } = true;
@@ -361,6 +372,13 @@ namespace KLPlugins.DynLeaderboards {
         internal OverridableCarInfo(string? name, string? manufacturer, CarClass? cls) : this(null, new CarInfo(name, manufacturer, cls)) { }
         internal OverridableCarInfo() : this(null) { }
 
+        private void InvokePropertyChanged([System.Runtime.CompilerServices.CallerMemberName] string? propertyName = null) {
+            if (propertyName == null) {
+                return;
+            }
+
+            this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
         internal string Debug() {
             return $"CarInfo: base: {JsonConvert.SerializeObject(this.Base)}, overrides: {JsonConvert.SerializeObject(this.Overrides)}";
         }
@@ -417,10 +435,11 @@ namespace KLPlugins.DynLeaderboards {
             return this.Overrides?.Name ?? this.Base?.Name;
         }
 
-
         internal void SetName(string name) {
             this.Overrides ??= new();
             this.Overrides.Name = name;
+
+            this.InvokePropertyChanged(nameof(this.Name));
         }
 
         internal void ResetName() {
@@ -430,14 +449,21 @@ namespace KLPlugins.DynLeaderboards {
 
             // default is enabled if base is present
             this.IsNameEnabled = this.Base?.Name != null;
+
+            this.InvokePropertyChanged(nameof(this.Name));
+            this.InvokePropertyChanged(nameof(this.IsNameEnabled));
         }
 
         internal void DisableName() {
             this.IsNameEnabled = false;
+            this.InvokePropertyChanged(nameof(this.Name));
+            this.InvokePropertyChanged(nameof(this.IsNameEnabled));
         }
 
         internal void EnableName() {
             this.IsNameEnabled = true;
+            this.InvokePropertyChanged(nameof(this.Name));
+            this.InvokePropertyChanged(nameof(this.IsNameEnabled));
         }
 
         internal void EnableName(string key) {
@@ -461,13 +487,16 @@ namespace KLPlugins.DynLeaderboards {
         internal void SetManufacturer(string manufacturer) {
             this.Overrides ??= new();
             this.Overrides.Manufacturer = manufacturer;
-        }
 
+            this.InvokePropertyChanged(nameof(this.Manufacturer));
+        }
 
         internal void ResetManufacturer() {
             if (this.Overrides != null) {
                 this.Overrides.Manufacturer = null;
             }
+
+            this.InvokePropertyChanged(nameof(this.Manufacturer));
         }
 
         internal void ResetManufacturer(string key) {
@@ -498,6 +527,9 @@ namespace KLPlugins.DynLeaderboards {
         internal void SetClass(CarClass cls) {
             this.Overrides ??= new();
             this.Overrides.Class = cls;
+
+            this.InvokePropertyChanged(nameof(this.Class));
+            this.InvokePropertyChanged(nameof(this.IsClassEnabled));
         }
 
         internal void ResetClass() {
@@ -507,10 +539,16 @@ namespace KLPlugins.DynLeaderboards {
 
             // default is enabled if base is present
             this.IsClassEnabled = this.Base?.Class != null;
+
+            this.InvokePropertyChanged(nameof(this.Class));
+            this.InvokePropertyChanged(nameof(this.IsClassEnabled));
         }
 
         internal void DisableClass() {
             this.IsClassEnabled = false;
+
+            this.InvokePropertyChanged(nameof(this.Class));
+            this.InvokePropertyChanged(nameof(this.IsClassEnabled));
         }
 
         internal void EnableClass() {
@@ -520,6 +558,9 @@ namespace KLPlugins.DynLeaderboards {
                 // we are explicitly asked to enable colors
                 // there must be some value in it
                 this.SetClass(CarClass.Default);
+            } else {
+                this.InvokePropertyChanged(nameof(this.Class));
+                this.InvokePropertyChanged(nameof(this.IsClassEnabled));
             }
         }
     }

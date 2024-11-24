@@ -7,9 +7,6 @@
              xmlns:sh="clr-namespace:SimHub.Plugins.Styles;assembly=SimHub.Plugins"
              mc:Ignorable="d"
              xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
-             xmlns:ui="clr-namespace:SimHub.Plugins.UI;assembly=SimHub.Plugins"
-             xmlns:system="clr-namespace:System;assembly=mscorlib"
-             xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
              d:DesignHeight="10000"
              d:DesignWidth="1400"
              d:Background="#252525"
@@ -101,19 +98,27 @@
 
                         <StackPanel>
                             <local:SectionTitle DockPanel.Dock="Top"
-                                                HelpPath="user_guide/config/#leaderboard-rotation">LEADERBOARD ROTATION</local:SectionTitle>
+                                                HelpPath="user_guide/config/#leaderboard-rotation">
+                                LEADERBOARD ROTATION
+                            </local:SectionTitle>
 
                             <StackPanel Style="{StaticResource SubSectionStackPanel}">
                                 <StackPanel DockPanel.Dock="Top"
                                             Orientation="Horizontal">
                                     <sh:SHButtonSecondary Command="{Binding SelectedRotationUpCommand}"
-                                                          ToolTip="Move currently selected leaderboard one position up.">Up</sh:SHButtonSecondary>
+                                                          ToolTip="Move currently selected leaderboard one position up.">
+                                        Up
+                                    </sh:SHButtonSecondary>
                                     <sh:SHButtonSecondary Command="{Binding SelectedRotationDownCommand}"
-                                                          ToolTip="Move currently selected leaderboard one position down.">Down</sh:SHButtonSecondary>
+                                                          ToolTip="Move currently selected leaderboard one position down.">
+                                        Down
+                                    </sh:SHButtonSecondary>
 
                                     <StackPanel Margin="135,0,5,0">
                                         <TextBlock Margin="0"
-                                                   HorizontalAlignment="Center">Remove if single</TextBlock>
+                                                   HorizontalAlignment="Center">
+                                            Remove if single
+                                        </TextBlock>
                                         <TextBlock Margin="0"
                                                    Text="class      /      cup"
                                                    HorizontalAlignment="Center" />
@@ -130,7 +135,8 @@
                                               PreviewMouseWheel="ContainerDontScroll_PreviewMouseWheel"
                                               d:SelectedIndex="2">
                                     <sh:SHListBox.Resources>
-                                        <ResourceDictionary Source="/SimHub.Plugins;component/Themes/GenericSHListBox.xaml" />
+                                        <ResourceDictionary
+                                            Source="/SimHub.Plugins;component/Themes/GenericSHListBox.xaml" />
                                     </sh:SHListBox.Resources>
 
                                     <sh:SHListBox.ItemContainerStyle>
@@ -146,13 +152,14 @@
                             <!--Controls-->
 
                             <local:SectionTitle DockPanel.Dock="Top"
-                                                HelpPath="user_guide/config/#controls">CONTROLS</local:SectionTitle>
+                                                HelpPath="user_guide/config/#controls">
+                                CONTROLS
+                            </local:SectionTitle>
                             <StackPanel DockPanel.Dock="Top"
                                         x:Name="DynamicLeaderboardsTab_Controls_StackPanel"
                                         Style="{StaticResource SubSectionStackPanel}">
                                 <StackPanel.Resources>
-                                    <Style TargetType="TextBlock">
-                                    </Style>
+                                    <Style TargetType="TextBlock" />
                                 </StackPanel.Resources>
 
                                 <local:ControlsEditor2 FriendlyName="Next leaderboard"
@@ -166,7 +173,9 @@
 
 
                             <local:SectionTitle DockPanel.Dock="Top"
-                                                HelpPath="user_guide/config/#number-of-positions">NUMBER OF POSITIONS</local:SectionTitle>
+                                                HelpPath="user_guide/config/#number-of-positions">
+                                NUMBER OF POSITIONS
+                            </local:SectionTitle>
 
                             <StackPanel Style="{StaticResource SubSectionStackPanel}">
                                 <local:ListView2 ItemsSource="{Binding NumPosItems}"
@@ -178,8 +187,7 @@
                                     <ListView.View>
                                         <GridView ColumnHeaderContainerStyle="{StaticResource HideHeaderGridView}">
                                             <GridViewColumn DisplayMemberBinding="{Binding Path=Name}"
-                                                            Width="200">
-                                            </GridViewColumn>
+                                                            Width="200" />
 
                                             <GridViewColumn>
                                                 <GridViewColumn.CellTemplate>

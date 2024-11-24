@@ -6,10 +6,6 @@
              xmlns:local="clr-namespace:KLPlugins.DynLeaderboards.Settings.UI"
              xmlns:sh="clr-namespace:SimHub.Plugins.Styles;assembly=SimHub.Plugins"
              mc:Ignorable="d"
-             xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
-             xmlns:ui="clr-namespace:SimHub.Plugins.UI;assembly=SimHub.Plugins"
-             xmlns:system="clr-namespace:System;assembly=mscorlib"
-             xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
              d:DesignHeight="700"
              d:DesignWidth="1400"
              d:Background="#252525"
@@ -63,8 +59,8 @@
                           Command="{Binding MenuEnableAllClassesCommand}" />
             </local:ButtonMenuItem>
             <local:ButtonMenuItem Header="Update base info"
-                                  Visibility="{Binding IsAC, Converter={StaticResource BoolToVisibilityCollapsedConverter}}"
-                                  Command="{Binding MenuUpdateACBaseInfoCommand}" />
+                                  Visibility="{Binding IsAc, Converter={StaticResource BoolToVisibilityCollapsedConverter}}"
+                                  Command="{Binding MenuUpdateAcBaseInfoCommand}" />
             <local:ButtonMenuItem Header="Refresh"
                                   Command="{Binding MenuRefreshCommand}" />
 
@@ -134,7 +130,7 @@
                                             HorizontalAlignment="Right"
                                             Content="Disable"
                                             Command="{Binding DisableAllCommand}" />
-                    </DockPanel >
+                    </DockPanel>
 
                     <Grid Margin="10,5,10,5"
                           DataContext="{Binding SelectedCarDetailsViewModel}">
@@ -143,14 +139,14 @@
                             <ColumnDefinition Width="auto" />
                             <ColumnDefinition Width="*" />
                             <ColumnDefinition Width="auto" />
-                        </Grid.ColumnDefinitions >
+                        </Grid.ColumnDefinitions>
 
                         <Grid.RowDefinitions>
                             <RowDefinition Height="auto" />
                             <RowDefinition Height="auto" />
                             <RowDefinition Height="auto" />
                             <RowDefinition Height="auto" />
-                        </Grid.RowDefinitions >
+                        </Grid.RowDefinitions>
 
                         <sh:SHToggleCheckbox Grid.Row="0"
                                              IsChecked="{Binding IsNameEnabled, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
@@ -158,7 +154,8 @@
                         <TextBlock Grid.Column="1"
                                    Grid.Row="0"
                                    Padding="0,0,10,0">
-                                    Name</TextBlock >
+                            Name
+                        </TextBlock>
                         <TextBox Margin="0,5,0,5"
                                  Grid.Column="2"
                                  Grid.Row="0"
@@ -173,7 +170,6 @@
                                               Command="{Binding ResetNameCommand}" />
 
 
-
                         <sh:SHToggleCheckbox Grid.Row="1"
                                              IsChecked="True"
                                              IsEnabled="False"
@@ -181,22 +177,22 @@
                         <TextBlock Grid.Column="1"
                                    Grid.Row="1"
                                    Padding="0,0,10,0">
-                                    Manufacturer</TextBlock >
+                            Manufacturer
+                        </TextBlock>
                         <Border Grid.Column="2"
                                 Grid.Row="1"
                                 Background="#2000"
                                 CornerRadius="5"
                                 Margin="2">
-                            <ComboBox Grid.Column="2"
-                                      Grid.Row="1"
-                                      Margin="0"
-                                      IsEditable="True"
-                                      IsReadOnly="False"
-                                      BorderThickness="0"
-                                      Background="Transparent"
-                                      ItemsSource="{Binding AllManufacturers, Mode=OneWay}"
-                                      Text="{Binding Manufacturer, Mode=TwoWay, UpdateSourceTrigger=LostFocus}"
-                                      x:Name="CarSettings_StackPanel_CarManufacturer_TextBox" />
+                            <ComboBox
+                                Margin="0"
+                                IsEditable="True"
+                                IsReadOnly="False"
+                                BorderThickness="0"
+                                Background="Transparent"
+                                ItemsSource="{Binding AllManufacturers, Mode=OneWay}"
+                                Text="{Binding Manufacturer, Mode=TwoWay, UpdateSourceTrigger=LostFocus}"
+                                x:Name="CarSettings_StackPanel_CarManufacturer_TextBox" />
                         </Border>
 
                         <sh:SHButtonSecondary Grid.Column="3"
@@ -210,7 +206,8 @@
                         <TextBlock Grid.Column="1"
                                    Grid.Row="2"
                                    Padding="0,0,10,0">
-                                    Class</TextBlock >
+                            Class
+                        </TextBlock>
                         <Border Grid.Column="2"
                                 Grid.Row="2"
                                 Background="#2000"
@@ -218,16 +215,15 @@
                                 Margin="2"
                                 IsEnabled="{Binding IsClassEnabled, Mode=OneWay}"
                                 Opacity="{Binding IsClassEnabled, Mode=OneWay, Converter={StaticResource IsEnabledToOpacityConverter}}">
-                            <ComboBox Grid.Column="2"
-                                      Grid.Row="3"
-                                      Margin="0"
-                                      IsEditable="True"
-                                      IsReadOnly="False"
-                                      Background="Transparent"
-                                      BorderThickness="0"
-                                      ItemsSource="{Binding AllClasses, Mode=OneWay}"
-                                      Text="{Binding Class, Mode=TwoWay, UpdateSourceTrigger=LostFocus}"
-                                      x:Name="CarSettings_StackPanel_CarClass_TextBox" />
+                            <ComboBox
+                                Margin="0"
+                                IsEditable="True"
+                                IsReadOnly="False"
+                                Background="Transparent"
+                                BorderThickness="0"
+                                ItemsSource="{Binding AllClasses, Mode=OneWay}"
+                                Text="{Binding Class, Mode=TwoWay, UpdateSourceTrigger=LostFocus}"
+                                x:Name="CarSettings_StackPanel_CarClass_TextBox" />
                         </Border>
 
                         <sh:SHButtonSecondary Grid.Column="3"

@@ -15,241 +15,245 @@ using SimHub.Plugins.UI;
 
 using WoteverCommon.Extensions;
 
-namespace KLPlugins.DynLeaderboards.Settings.UI {
-    internal class Command(Action execute) : ICommand {
-        private readonly Action _execute = execute;
+namespace KLPlugins.DynLeaderboards.Settings.UI;
 
-        public event EventHandler? CanExecuteChanged;
+internal class Command(Action execute) : ICommand {
+    public event EventHandler? CanExecuteChanged;
 
-        public bool CanExecute(object parameter) {
-            return true;
-        }
-
-        public void Execute(object parameter) {
-            this._execute();
-        }
+    public bool CanExecute(object parameter) {
+        return true;
     }
 
-    public class ControlsEditor2 : ControlsEditor {
-        public override void OnApplyTemplate() {
-            base.OnApplyTemplate();
+    public void Execute(object parameter) {
+        execute();
+    }
+}
 
-            if (this.GetTemplateChild("brd") is Border r) {
-                r.Background = new SolidColorBrush(WindowsMediaColorExtensions.FromHex("#0bffffff"));
+public class ControlsEditor2 : ControlsEditor {
+    public override void OnApplyTemplate() {
+        base.OnApplyTemplate();
+
+        if (this.GetTemplateChild("brd") is Border r) {
+            r.Background = new SolidColorBrush(WindowsMediaColorExtensions.FromHex("#0bffffff"));
+        }
+    }
+}
+
+internal abstract class PropertyViewModelBase {
+    public abstract string Name { get; }
+    public abstract string Description { get; }
+    internal bool IsRowSelected { get; set; } = false;
+    public abstract bool IsEnabled { get; set; }
+    public string Group { get; set; } = "";
+    public string SubGroup { get; set; } = "";
+}
+
+internal class PropertyViewModel<T> : PropertyViewModelBase, INotifyPropertyChanged {
+    private readonly T _prop;
+    private IOutProps<T> _setting;
+
+    public event PropertyChangedEventHandler? PropertyChanged;
+
+    public override bool IsEnabled {
+        get => this._setting.Includes(this._prop);
+        set {
+            if (value) {
+                this._setting.Combine(this._prop);
+            } else {
+                this._setting.Remove(this._prop);
             }
+
+            ;
+            this.InvokePropertyChanged();
         }
     }
 
-    internal abstract class PropertyViewModelBase {
-        public abstract string Name { get; }
-        public abstract string Description { get; }
-        internal bool IsRowSelected { get; set; } = false;
-        public abstract bool IsEnabled { get; set; }
-        public string Group { get; set; } = "";
-        public string SubGroup { get; set; } = "";
+    private readonly string _name;
+    public override string Name => this._name;
+
+    private readonly string _description;
+    public override string Description => this._description;
+
+    #if DESIGN
+    internal PropertyViewModel() { }
+    #endif
+    internal PropertyViewModel(string name, string tooltip, T prop, IOutProps<T> setting) {
+        this._prop = prop;
+        this._setting = setting;
+        this._name = name;
+        this._description = tooltip;
     }
 
-    internal class PropertyViewModel<T> : PropertyViewModelBase, INotifyPropertyChanged {
-        private readonly T _prop;
-        private IOutProps<T> _setting;
+    internal void UpdateSetting(IOutProps<T> setting) {
+        this._setting = setting;
+        this.InvokePropertyChanged(nameof(this.IsEnabled));
+    }
 
-        public event PropertyChangedEventHandler? PropertyChanged;
-
-        public override bool IsEnabled {
-            get => this._setting.Includes(this._prop);
-            set {
-                if (value) {
-                    this._setting.Combine(this._prop);
-                } else {
-                    this._setting.Remove(this._prop);
-                };
-                this.InvokePropertyChanged();
-            }
+    private void InvokePropertyChanged([System.Runtime.CompilerServices.CallerMemberName] string? propertyName = null) {
+        if (propertyName == null) {
+            return;
         }
 
-        private readonly string _name;
-        public override string Name => this._name;
-
-        private readonly string _description;
-        public override string Description => this._description;
+        this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+    }
+}
 
 #if DESIGN
-        internal PropertyViewModel() { }
-#endif
-        internal PropertyViewModel(string name, string tooltip, T prop, IOutProps<T> setting) {
-            this._prop = prop;
-            this._setting = setting;
-            this._name = name;
-            this._description = tooltip;
-        }
-
-        internal void UpdateSetting(IOutProps<T> setting) {
-            this._setting = setting;
-            this.InvokePropertyChanged(nameof(this.IsEnabled));
-        }
-
-        private void InvokePropertyChanged([System.Runtime.CompilerServices.CallerMemberName] string? propertyName = null) {
-            if (propertyName == null) {
-                return;
-            }
-
-            this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
-    }
-
-#if DESIGN
-    internal class DesignPropertyViewModel<T> : PropertyViewModel<T> {
-        public new bool IsEnabled { get; set; } = true;
-        public new string Name { get; set; } = "Prop";
-        public new string Description { get; set; } = "Desc";
-    }
+internal class DesignPropertyViewModel<T> : PropertyViewModel<T> {
+    public new bool IsEnabled { get; set; } = true;
+    public new string Name { get; set; } = "Prop";
+    public new string Description { get; set; } = "Desc";
+}
 #endif
 
-    internal class SelectedPropertiesCommand(Action<PropertyViewModelBase> execute) : ICommand {
-        private readonly Action<PropertyViewModelBase> _execute = execute;
+internal class SelectedPropertiesCommand(Action<PropertyViewModelBase> execute) : ICommand {
+    public event EventHandler? CanExecuteChanged;
 
-        public event EventHandler? CanExecuteChanged;
+    public bool CanExecute(object parameter) {
+        return true;
+    }
 
-        public bool CanExecute(object parameter) {
-            return true;
+    public void Execute(object parameter) {
+        if (parameter is not System.Collections.IList selectedItems) {
+            var msg = $"Expected the parameter to be `IList`. Got `{parameter?.GetType()}`";
+            Debug.Fail(msg);
+            DynLeaderboardsPlugin.LogError(msg);
+            return;
         }
 
-        public void Execute(object parameter) {
-            if (parameter is not System.Collections.IList selectedItems) {
-                var msg = $"Expected the parameter to be `IList`. Got `{parameter?.GetType()}`";
+        foreach (var v in selectedItems) {
+            if (v is not PropertyViewModelBase vm) {
+                var msg = $"Expected the list element to be `PropertyViewModelBase`. Got `{v?.GetType()}`";
                 Debug.Fail(msg);
                 DynLeaderboardsPlugin.LogError(msg);
-                return;
+                continue;
             }
 
-            foreach (var v in selectedItems) {
-                if (v is not PropertyViewModelBase vm) {
-                    var msg = $"Expected the list element to be `PropertyViewModelBase`. Got `{v?.GetType()}`";
-                    Debug.Fail(msg);
-                    DynLeaderboardsPlugin.LogError(msg);
-                    continue;
-                }
-
-                this._execute(vm);
-            }
+            execute(vm);
         }
     }
+}
 
-    public class DataGrid2 : DataGrid {
-        public GroupStyle DefaultGroupStyle {
-            get => (GroupStyle)this.GetValue(DefaultGroupStyleProperty);
-            set => this.SetValue(DefaultGroupStyleProperty, value);
-        }
-
-        public static readonly DependencyProperty DefaultGroupStyleProperty =
-            DependencyProperty.Register(
-                "DefaultGroupStyle",
-                typeof(GroupStyle),
-                typeof(DataGrid2),
-                new UIPropertyMetadata(null, DefaultGroupStyleChanged)
-            );
-
-        private static void DefaultGroupStyleChanged(DependencyObject o, DependencyPropertyChangedEventArgs e) {
-            ((DataGrid2)o).SetDefaultGroupStyle(e.NewValue as GroupStyle);
-        }
-
-        private void SetDefaultGroupStyle(GroupStyle? defaultStyle) {
-            if (defaultStyle == null) {
-                return;
-            }
-
-            // Add style if user has not defined one explicitly as <DataGrid.GroupStyle>
-            if (this.GroupStyle.Count == 0) {
-                this.GroupStyle.Add(defaultStyle);
-            }
-        }
+public class DataGrid2 : DataGrid {
+    public GroupStyle DefaultGroupStyle {
+        get => (GroupStyle)this.GetValue(DataGrid2.DefaultGroupStyleProperty);
+        set => this.SetValue(DataGrid2.DefaultGroupStyleProperty, value);
     }
 
-    public class ListView2 : ListView {
-        public IEnumerable<GroupStyle> DefaultGroupStyle {
-            get => (List<GroupStyle>)this.GetValue(DefaultGroupStyleProperty);
-            set => this.SetValue(DefaultGroupStyleProperty, value);
-        }
+    public static readonly DependencyProperty DefaultGroupStyleProperty =
+        DependencyProperty.Register(
+            "DefaultGroupStyle",
+            typeof(GroupStyle),
+            typeof(DataGrid2),
+            new UIPropertyMetadata(null, DataGrid2.DefaultGroupStyleChanged)
+        );
 
-        public static readonly DependencyProperty DefaultGroupStyleProperty =
-            DependencyProperty.Register(
-                "DefaultGroupStyle",
-                typeof(IEnumerable<GroupStyle>),
-                typeof(ListView2),
-                new UIPropertyMetadata(null, DefaultGroupStyleChanged)
-            );
-
-        private static void DefaultGroupStyleChanged(DependencyObject o, DependencyPropertyChangedEventArgs e) {
-            ((ListView2)o).SetDefaultGroupStyle(e.NewValue as IEnumerable<GroupStyle>);
-        }
-
-        private void SetDefaultGroupStyle(IEnumerable<GroupStyle>? defaultStyle) {
-            if (defaultStyle == null) {
-                return;
-            }
-
-            // Add style if user has not defined one explicitly as <DataGrid.GroupStyle>
-            if (this.GroupStyle.Count == 0) {
-                this.GroupStyle.AddAll(defaultStyle);
-            }
-        }
+    private static void DefaultGroupStyleChanged(DependencyObject o, DependencyPropertyChangedEventArgs e) {
+        ((DataGrid2)o).SetDefaultGroupStyle(e.NewValue as GroupStyle);
     }
 
-    internal class AskTextDialog : SHDialogContentBase {
-        public string? Text { get; set; }
+    private void SetDefaultGroupStyle(GroupStyle? defaultStyle) {
+        if (defaultStyle == null) {
+            return;
+        }
 
-        internal AskTextDialog(string title, string? textBoxLabel, IEnumerable<ValidationRule>? validationRules = null, string? defaultText = null) : base() {
-            this.ShowOk = true;
-            this.ShowCancel = true;
+        // Add style if user has not defined one explicitly as <DataGrid.GroupStyle>
+        if (this.GroupStyle.Count == 0) {
+            this.GroupStyle.Add(defaultStyle);
+        }
+    }
+}
 
-            var sp = new StackPanel();
-            this.Content = sp;
+public class ListView2 : ListView {
+    public IEnumerable<GroupStyle> DefaultGroupStyle {
+        get => (List<GroupStyle>)this.GetValue(ListView2.DefaultGroupStyleProperty);
+        set => this.SetValue(ListView2.DefaultGroupStyleProperty, value);
+    }
 
-            sp.Children.Add(new SHSectionTitle() {
-                Text = title,
-                Margin = new Thickness(0, 0, 0, 25)
-            });
+    public static readonly DependencyProperty DefaultGroupStyleProperty =
+        DependencyProperty.Register(
+            "DefaultGroupStyle",
+            typeof(IEnumerable<GroupStyle>),
+            typeof(ListView2),
+            new UIPropertyMetadata(null, ListView2.DefaultGroupStyleChanged)
+        );
 
-            var textSp = new StackPanel() { Orientation = Orientation.Horizontal };
-            sp.Children.Add(textSp);
+    private static void DefaultGroupStyleChanged(DependencyObject o, DependencyPropertyChangedEventArgs e) {
+        ((ListView2)o).SetDefaultGroupStyle(e.NewValue as IEnumerable<GroupStyle>);
+    }
 
-            var label = new TextBlock() {
-                Text = textBoxLabel ?? "",
-                Padding = new Thickness(0, 0, 10, 0),
-                VerticalAlignment = VerticalAlignment.Center,
-                HorizontalAlignment = HorizontalAlignment.Left
-            };
-            Grid.SetColumn(label, 0);
-            Grid.SetRow(label, 0);
-            textSp.Children.Add(label);
+    private void SetDefaultGroupStyle(IEnumerable<GroupStyle>? defaultStyle) {
+        if (defaultStyle == null) {
+            return;
+        }
 
-            var tb = new TextBox() { };
-            Grid.SetColumn(tb, 1);
-            Grid.SetRow(tb, 0);
-            textSp.Children.Add(tb);
+        // Add style if user has not defined one explicitly as <DataGrid.GroupStyle>
+        if (this.GroupStyle.Count == 0) {
+            this.GroupStyle.AddAll(defaultStyle);
+        }
+    }
+}
 
-            var textBinding = new Binding("Text") {
-                Mode = BindingMode.TwoWay,
-                Source = this,
-                UpdateSourceTrigger = UpdateSourceTrigger.PropertyChanged,
-                NotifyOnValidationError = true
-            };
-            if (validationRules != null) {
-                foreach (var rule in validationRules) {
-                    textBinding.ValidationRules.Add(rule);
-                }
+internal class AskTextDialog : SHDialogContentBase {
+    public string? Text { get; set; }
+
+    internal AskTextDialog(
+        string title,
+        string? textBoxLabel,
+        IEnumerable<ValidationRule>? validationRules = null,
+        string? defaultText = null
+    ) {
+        this.ShowOk = true;
+        this.ShowCancel = true;
+
+        var sp = new StackPanel();
+        this.Content = sp;
+
+        sp.Children.Add(new SHSectionTitle { Text = title, Margin = new Thickness(0, 0, 0, 25) });
+
+        var textSp = new StackPanel { Orientation = Orientation.Horizontal };
+        sp.Children.Add(textSp);
+
+        var label = new TextBlock {
+            Text = textBoxLabel ?? "",
+            Padding = new Thickness(0, 0, 10, 0),
+            VerticalAlignment = VerticalAlignment.Center,
+            HorizontalAlignment = HorizontalAlignment.Left,
+        };
+        Grid.SetColumn(label, 0);
+        Grid.SetRow(label, 0);
+        textSp.Children.Add(label);
+
+        var tb = new TextBox();
+        Grid.SetColumn(tb, 1);
+        Grid.SetRow(tb, 0);
+        textSp.Children.Add(tb);
+
+        var textBinding = new Binding("Text") {
+            Mode = BindingMode.TwoWay,
+            Source = this,
+            UpdateSourceTrigger = UpdateSourceTrigger.PropertyChanged,
+            NotifyOnValidationError = true,
+        };
+        if (validationRules != null) {
+            foreach (var rule in validationRules) {
+                textBinding.ValidationRules.Add(rule);
             }
-            tb.SetBinding(TextBox.TextProperty, textBinding);
-            tb.Text = defaultText; // force validation
-            this.IsOkEnabled = false;
+        }
 
-            Validation.AddErrorHandler(tb, (s, e) => {
+        tb.SetBinding(TextBox.TextProperty, textBinding);
+        tb.Text = defaultText; // force validation
+        this.IsOkEnabled = false;
+
+        Validation.AddErrorHandler(
+            tb,
+            (s, e) => {
                 if (e.Action == ValidationErrorEventAction.Added) {
                     this.IsOkEnabled = false;
                 } else if (e.Action == ValidationErrorEventAction.Removed) {
                     this.IsOkEnabled = true;
                 }
-            });
-        }
+            }
+        );
     }
 }

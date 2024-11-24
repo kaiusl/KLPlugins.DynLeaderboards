@@ -6,10 +6,6 @@
              xmlns:local="clr-namespace:KLPlugins.DynLeaderboards.Settings.UI"
              xmlns:styles="clr-namespace:SimHub.Plugins.Styles;assembly=SimHub.Plugins"
              mc:Ignorable="d"
-             xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
-             xmlns:ui="clr-namespace:SimHub.Plugins.UI;assembly=SimHub.Plugins"
-             xmlns:system="clr-namespace:System;assembly=mscorlib"
-             xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
              d:DesignHeight="1000"
              d:DesignWidth="1400">
 
@@ -29,12 +25,9 @@
 
 
         <styles:SHTabItem Header="Dynamic leaderboards"
-                          x:Name="DynamicLeaderboardsTab_SHTabItem">
-        </styles:SHTabItem>
+                          x:Name="DynamicLeaderboardsTab_SHTabItem" />
 
-        <styles:SHTabItem Header="Car settings" x:Name="CarSettingsTab_SHTabItem">
-
-        </styles:SHTabItem>
+        <styles:SHTabItem Header="Car settings" x:Name="CarSettingsTab_SHTabItem" />
 
         <styles:SHTabItem Header="Class settings"
                           x:Name="ClassSettingsTab_SHTabItem" />
@@ -67,7 +60,7 @@
                                               ShowDropDown="True" />-->
                     </Menu>
 
-                    <Grid x:Name="ColorsTab_TeamCupCategoryColors_Grid"></Grid>
+                    <Grid x:Name="ColorsTab_TeamCupCategoryColors_Grid" />
 
                     <local:SectionTitle>Driver category colors</local:SectionTitle>
 
@@ -82,7 +75,7 @@
                                               ShowDropDown="True" />-->
                     </Menu>
 
-                    <Grid x:Name="ColorsTab_DriverCategoryColors_Grid"></Grid>
+                    <Grid x:Name="ColorsTab_DriverCategoryColors_Grid" />
 
 
                 </StackPanel>

@@ -93,14 +93,14 @@
             <Border Grid.Column="1"
                     Style="{StaticResource SelectedItemDetailsBorder}">
 
-                <StackPanel Visibility="{Binding IsSelectedNull, Mode=OneWay, Converter={StaticResource BoolToVisibilityHiddenConverter}, ConverterParameter=rev}">
+                <StackPanel
+                    Visibility="{Binding IsSelectedNull, Mode=OneWay, Converter={StaticResource BoolToVisibilityHiddenConverter}, ConverterParameter=rev}">
 
                     <!-- Title row -->
                     <DockPanel Margin="0,5,10,5"
                                HorizontalAlignment="Stretch"
                                DataContext="{Binding SelectedClassViewModel}">
                         <Border DockPanel.Dock="Left"
-                                Grid.Column="0"
                                 Background="{Binding Background, Mode=OneWay}"
                                 MinHeight="35"
                                 Margin="10,10,10,10"
@@ -110,8 +110,6 @@
                             <TextBlock Foreground="{Binding Foreground, Mode=OneWay}"
                                        FontSize="20"
                                        Margin="20,5,15,5"
-                                       HorizontalAlignment="Center"
-                                       VerticalAlignment="Center"
                                        Style="{StaticResource ColorGrid_LabelText}"
                                        Text="{Binding Class, Mode=OneWay}" />
                         </Border>
@@ -146,14 +144,14 @@
                             <ColumnDefinition Width="auto" />
                             <ColumnDefinition Width="*" />
                             <ColumnDefinition Width="auto" />
-                        </Grid.ColumnDefinitions >
+                        </Grid.ColumnDefinitions>
 
                         <Grid.RowDefinitions>
                             <RowDefinition Height="auto" />
                             <RowDefinition Height="auto" />
                             <RowDefinition Height="auto" />
                             <RowDefinition Height="auto" />
-                        </Grid.RowDefinitions >
+                        </Grid.RowDefinitions>
 
                         <!-- Color row -->
                         <sh:SHToggleCheckbox Grid.Row="0"
@@ -171,10 +169,9 @@
                                     IsEnabled="{Binding IsColorEnabled, Mode=OneWay}"
                                     Opacity="{Binding IsColorEnabled, Mode=OneWay, Converter={StaticResource IsEnabledToOpacityConverter}}">
 
-                            <TextBlock Grid.Column="1"
-                                       Grid.Row="0"
-                                       Padding="0,0,0,0"
-                                       Text="Background" />
+                            <TextBlock
+                                Padding="0,0,0,0"
+                                Text="Background" />
 
                             <xctk:ColorPicker SelectedColor="{Binding Background, Mode=TwoWay}"
                                               Style="{StaticResource ColorGrid_ColorPicker}" />
@@ -182,10 +179,9 @@
                             <sh:SHButtonSecondary Command="{Binding ResetBackgroundColorCommand}"
                                                   Content="Reset" />
 
-                            <TextBlock Grid.Column="1"
-                                       Grid.Row="0"
-                                       Padding="25,0,0,0"
-                                       Text="Text" />
+                            <TextBlock
+                                Padding="25,0,0,0"
+                                Text="Text" />
 
                             <xctk:ColorPicker SelectedColor="{Binding Foreground, Mode=TwoWay}"
                                               Style="{StaticResource ColorGrid_ColorPicker}" />

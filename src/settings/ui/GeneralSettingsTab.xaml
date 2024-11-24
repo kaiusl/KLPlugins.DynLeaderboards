@@ -6,10 +6,7 @@
              xmlns:local="clr-namespace:KLPlugins.DynLeaderboards.Settings.UI"
              xmlns:styles="clr-namespace:SimHub.Plugins.Styles;assembly=SimHub.Plugins"
              mc:Ignorable="d"
-             xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
-             xmlns:ui="clr-namespace:SimHub.Plugins.UI;assembly=SimHub.Plugins"
              xmlns:system="clr-namespace:System;assembly=mscorlib"
-             xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
              d:DesignHeight="1000"
              d:DesignWidth="1400"
              d:Background="#252525"
@@ -32,7 +29,9 @@
             <local:DocsHelpButton RelativePath="user_guide/config/#general_settings" />
 
             <TextBlock MaxWidth="750"
-                       TextWrapping="Wrap">These settings are global to the whole plugin. <Bold>For the changes to take effect you need to restart SimHub</Bold>.
+                       TextWrapping="Wrap">
+                These settings are global to the whole plugin.
+                <Bold>For the changes to take effect you need to restart SimHub</Bold>.
             </TextBlock>
 
             <local:SectionTitle HelpPath="user_guide/config/#paths">PATHS</local:SectionTitle>
@@ -76,22 +75,26 @@
                 </Grid.RowDefinitions>
 
                 <TextBlock Style="{StaticResource Label}"
-                           ToolTip="{StaticResource ACC_Config_Location_Tooltip}">ACC configuration location:</TextBlock>
+                           ToolTip="{StaticResource ACC_Config_Location_Tooltip}">
+                    ACC configuration location:
+                </TextBlock>
                 <TextBox Style="{StaticResource Location}"
                          ToolTip="{StaticResource ACC_Config_Location_Tooltip}"
-                         Text="{Binding ACCDataLocation, Mode=TwoWay}"
-                         Background="{Binding ACCDataLocationBackground}"
-                         BorderBrush="{Binding ACCDataLocationBorderBrush}"/>
+                         Text="{Binding AccDataLocation, Mode=TwoWay}"
+                         Background="{Binding AccDataLocationBackground}"
+                         BorderBrush="{Binding AccDataLocationBorderBrush}" />
 
                 <TextBlock Style="{StaticResource Label}"
                            ToolTip="{StaticResource AC_Root_Location_Tooltip}"
-                           Grid.Row="1">AC root location:</TextBlock>
+                           Grid.Row="1">
+                    AC root location:
+                </TextBlock>
                 <TextBox Style="{StaticResource Location}"
                          ToolTip="{StaticResource AC_Root_Location_Tooltip}"
                          Grid.Row="1"
-                         Text="{Binding ACRootLocation, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                         Background="{Binding ACRootLocationBackground}"
-                         BorderBrush="{Binding ACRootLocationBorderBrush}"/>
+                         Text="{Binding AcRootLocation, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                         Background="{Binding AcRootLocationBackground}"
+                         BorderBrush="{Binding AcRootLocationBorderBrush}" />
             </Grid>
 
             <!-- Exposed properties -->

@@ -4,28 +4,23 @@ using System.Windows.Controls;
 using SimHub.Plugins.Styles;
 using SimHub.Plugins.UI;
 
-namespace KLPlugins.DynLeaderboards {
-    /// <summary>
-    /// Interaction logic for ConfimDialog.xaml
-    /// </summary>
-    public partial class ConfimDialog : SHDialogContentBase {
-        public ConfimDialog(string titleText, string msg) {
-            this.InitializeComponent();
-            this.ShowYes = true;
-            this.ShowCancel = true;
+namespace KLPlugins.DynLeaderboards;
 
-            var sp = this.StackPanel;
+/// <summary>
+///     Interaction logic for ConfimDialog.xaml
+/// </summary>
+public partial class ConfimDialog : SHDialogContentBase {
+    public ConfimDialog(string titleText, string msg) {
+        this.InitializeComponent();
+        this.ShowYes = true;
+        this.ShowCancel = true;
 
-            var title = new SHSectionTitle() {
-                Text = titleText,
-                Margin = new Thickness(0, 0, 0, 25)
-            };
+        var sp = this.StackPanel;
 
-            sp.Children.Add(title);
+        var title = new SHSectionTitle { Text = titleText, Margin = new Thickness(0, 0, 0, 25) };
 
-            sp.Children.Add(new TextBlock() {
-                Text = msg
-            });
-        }
+        sp.Children.Add(title);
+
+        sp.Children.Add(new TextBlock { Text = msg });
     }
 }

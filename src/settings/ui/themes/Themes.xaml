@@ -5,9 +5,6 @@
                     xmlns:local="clr-namespace:KLPlugins.DynLeaderboards.Settings.UI"
                     xmlns:sh="clr-namespace:SimHub.Plugins.Styles;assembly=SimHub.Plugins"
                     mc:Ignorable="d"
-                    xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
-                    xmlns:ui="clr-namespace:SimHub.Plugins.UI;assembly=SimHub.Plugins"
-                    xmlns:system="clr-namespace:System;assembly=mscorlib"
                     xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit">
 
     <local:IsEnabledToOpacityConverter x:Key="IsEnabledToOpacityConverter" />
@@ -178,8 +175,6 @@
                 Value="0.75" />
         <Setter Property="Margin"
                 Value="10,0,10,5" />
-        <Setter Property="HorizontalAlignment"
-                Value="Left" />
     </Style>
 
     <Style x:Key="ColorGrid_EnabledToggle"
@@ -251,38 +246,16 @@
 
     <Style x:Key="ColorGrid_ResetButton"
            TargetType="sh:SHButtonSecondary"
-           BasedOn="{StaticResource {x:Type sh:SHButtonSecondary}}">
-        <Setter Property="Padding"
-                Value="5" />
-        <Setter Property="Margin"
-                Value="5,5,5,5" />
-        <Setter Property="Height"
-                Value="26" />
-        <Setter Property="VerticalAlignment"
-                Value="Center" />
-    </Style>
+           BasedOn="{StaticResource {x:Type sh:SHButtonSecondary}}" />
 
     <Style x:Key="ColorGrid_RemoveButton"
            TargetType="sh:SHButtonPrimary"
-           BasedOn="{StaticResource {x:Type sh:SHButtonPrimary}}">
-        <Setter Property="Padding"
-                Value="5" />
-        <Setter Property="Margin"
-                Value="5,5,5,5" />
-        <Setter Property="Height"
-                Value="26" />
-        <Setter Property="VerticalAlignment"
-                Value="Center" />
-    </Style>
-
-
+           BasedOn="{StaticResource {x:Type sh:SHButtonPrimary}}" />
 
 
     <Style x:Key="ColorGrid_ResetButtonPrimary"
            TargetType="sh:SHButtonPrimary"
            BasedOn="{StaticResource {x:Type sh:SHButtonPrimary}}">
-        <Setter Property="Padding"
-                Value="5" />
         <Setter Property="Margin"
                 Value="5,5,15,5" />
         <Setter Property="Content"
@@ -329,8 +302,10 @@
                                    VerticalAlignment="Center"
                                    Margin="0"
                                    Padding="0">
-							<local:DocsHyperlink Style="{StaticResource {x:Type local:DocsHyperlink}}"
-                                                 RelativePath="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type local:DocsHelpButton}}, Path=RelativePath}">❓</local:DocsHyperlink>
+                            <local:DocsHyperlink Style="{StaticResource {x:Type local:DocsHyperlink}}"
+                                                 RelativePath="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type local:DocsHelpButton}}, Path=RelativePath}">
+                                ❓
+                            </local:DocsHyperlink>
                         </TextBlock>
                     </Border>
                 </DataTemplate>
@@ -352,7 +327,9 @@
 
                         <local:DocsHelpButton DockPanel.Dock="Right"
                                               Style="{StaticResource {x:Type local:DocsHelpButton}}"
-                                              RelativePath="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type local:SectionTitle}}, Path=HelpPath}">❓</local:DocsHelpButton>
+                                              RelativePath="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type local:SectionTitle}}, Path=HelpPath}">
+                            ❓
+                        </local:DocsHelpButton>
                     </DockPanel>
                 </DataTemplate>
             </Setter.Value>
@@ -368,8 +345,8 @@
                         <DataTemplate>
                             <StackPanel Margin="0">
                                 <sh:SHSectionSeparator />
-                                <sh:SHSectionTitle  Style="{StaticResource {x:Type sh:SHSectionTitle}}"
-                                                    Text="{Binding}" />
+                                <sh:SHSectionTitle Style="{StaticResource {x:Type sh:SHSectionTitle}}"
+                                                   Text="{Binding}" />
                             </StackPanel>
                         </DataTemplate>
                     </Setter.Value>
@@ -404,7 +381,7 @@
                                        VerticalAlignment="Center"
                                        FontWeight="Bold"
                                        Text="{Binding ClassName}"
-                                       Foreground="{Binding Foreground}"></TextBlock>
+                                       Foreground="{Binding Foreground}" />
                         </Border>
 
                     </StackPanel>
@@ -472,18 +449,9 @@
     </Style>
 
 
-
     <Style x:Key="TransparentSelect_DataGridRow"
            TargetType="{x:Type DataGridRow}"
-           BasedOn="{StaticResource {x:Type DataGridRow}}">
-
-        <Setter Property="BorderBrush"
-                Value="#4000" />
-        <Setter Property="BorderThickness"
-                Value="0,2,0,0" />
-        <Setter Property="Background"
-                Value="Transparent" />
-    </Style>
+           BasedOn="{StaticResource {x:Type DataGridRow}}" />
 
     <Style TargetType="{x:Type DataGridRow}"
            BasedOn="{StaticResource TransparentSelect_DataGridRow}">
@@ -582,7 +550,8 @@
         <DataGridTemplateColumn.CellTemplate>
             <DataTemplate>
                 <!-- IMPORTANT: UpdateSourceTrigger must be explicitly set, otherwise the updates are not triggered! -->
-                <sh:SHToggleCheckbox IsChecked="{Binding Path=IsEnabled, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                <sh:SHToggleCheckbox
+                    IsChecked="{Binding Path=IsEnabled, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
             </DataTemplate>
         </DataGridTemplateColumn.CellTemplate>
     </DataGridTemplateColumn>
@@ -772,7 +741,8 @@
                         <GridViewColumn.CellTemplate>
                             <DataTemplate>
                                 <!-- IMPORTANT: UpdateSourceTrigger must be explicitly set, otherwise the updates are not triggered! -->
-                                <sh:SHToggleCheckbox IsChecked="{Binding Path=IsEnabled, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                <sh:SHToggleCheckbox
+                                    IsChecked="{Binding Path=IsEnabled, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
                             </DataTemplate>
                         </GridViewColumn.CellTemplate>
                     </GridViewColumn>

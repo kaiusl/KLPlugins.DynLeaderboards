@@ -591,14 +591,19 @@ internal class CarInfo {
 
 internal class ClassInfos : IEnumerable<KeyValuePair<CarClass, OverridableClassInfo>> {
     private readonly Dictionary<CarClass, OverridableClassInfo> _infos;
+    private readonly SimHubClassColors _simHubClassColors;
 
-    internal ClassInfos(Dictionary<CarClass, OverridableClassInfo> infos) {
+    private ClassInfos(Dictionary<CarClass, OverridableClassInfo> infos, SimHubClassColors simHubClassColors) {
         this._infos = infos;
+        this._simHubClassColors = simHubClassColors;
     }
 
     internal OverridableClassInfo GetOrAdd(CarClass cls) {
         if (!this._infos.ContainsKey(cls)) {
             var c = new OverridableClassInfo(null, null);
+            if (this._simHubClassColors.AssignedColors.TryGetValue(cls, out var shColor)) {
+                c.SimHubColor = shColor;
+            }
 
             this._infos[cls] = c;
         }
@@ -660,7 +665,7 @@ internal class ClassInfos : IEnumerable<KeyValuePair<CarClass, OverridableClassI
         }
 
         infos ??= [];
-
+        
         if (File.Exists(basePath)) {
             var json = File.ReadAllText(basePath);
             var bases = JsonConvert.DeserializeObject<Dictionary<CarClass, ClassInfo>>(json) ?? [];
@@ -685,7 +690,16 @@ internal class ClassInfos : IEnumerable<KeyValuePair<CarClass, OverridableClassI
             infos[CarClass.Default] = new OverridableClassInfo(@base: defBase, overrides: null);
         }
 
-        var c = new ClassInfos(infos);
+        var simHubClassColorsPath = $"PluginsData\\{DynLeaderboardsPlugin.Game.Name}\\ColorPalette.json";
+        SimHubClassColors simHubClassColors;
+        if (File.Exists(simHubClassColorsPath)) {
+            var json = File.ReadAllText(simHubClassColorsPath);
+            simHubClassColors = SimHubClassColors.FromJson(json);
+        } else {
+            simHubClassColors = new SimHubClassColors();
+        }
+
+        var c = new ClassInfos(infos, simHubClassColors);
 
         // Make sure that all "replace with" values are also in the dict
         foreach (var key in c._infos.Keys.ToList()) {
@@ -701,6 +715,14 @@ internal class ClassInfos : IEnumerable<KeyValuePair<CarClass, OverridableClassI
             if (it.Base == null) {
                 it.SetBase(c.GetBaseFollowDuplicates(key));
             }
+        }
+
+        foreach (var kv in c._infos) {
+            if (c._simHubClassColors.AssignedColors.TryGetValue(kv.Key, out var shColor)) {
+                kv.Value.SimHubColor = shColor;
+            }
+
+            kv.Value.CheckEnabled();
         }
 
         return c;
@@ -856,6 +878,9 @@ internal class ClassInfos : IEnumerable<KeyValuePair<CarClass, OverridableClassI
             }
 
             var info = this._classManagers[old].Info.Duplicate(old);
+            if (this._baseInfos._simHubClassColors.AssignedColors.TryGetValue(@new, out var shColors)) {
+                info.SimHubColor = shColors;
+            }
             this._baseInfos._infos[@new] = info;
 
             this.AddDoesntExist(@new, info);
@@ -890,6 +915,7 @@ internal class OverridableClassInfo {
 
     // Used to determine what base should this class receive if it was duplicated from another class
     [JsonProperty] internal ImmutableList<CarClass> DuplicatedFrom { get; private set; }
+    [JsonIgnore] internal TextBoxColor? SimHubColor { get; set; } = null;
 
 
     [JsonConstructor]
@@ -898,7 +924,8 @@ internal class OverridableClassInfo {
         ClassInfo? overrides,
         bool? isColorEnabled = null,
         bool? isReplaceWithEnabled = null,
-        ImmutableList<CarClass>? duplicatedFrom = null
+        ImmutableList<CarClass>? duplicatedFrom = null,
+        TextBoxColor? simHubColor = null
     ) {
         this.SetBase(@base);
         this.SetOverrides(overrides);
@@ -911,6 +938,7 @@ internal class OverridableClassInfo {
         }
 
         this.DuplicatedFrom = duplicatedFrom ?? ImmutableList<CarClass>.Empty;
+        this.SimHubColor = simHubColor;
     }
 
     internal OverridableClassInfo Duplicate(CarClass thisClass) {
@@ -919,7 +947,8 @@ internal class OverridableClassInfo {
             this.Overrides?.Clone(),
             isColorEnabled: this.IsColorEnabled,
             isReplaceWithEnabled: this.IsReplaceWithEnabled,
-            duplicatedFrom: this.DuplicatedFrom.Add(thisClass)
+            duplicatedFrom: this.DuplicatedFrom.Add(thisClass),
+            simHubColor: null
         );
     }
 
@@ -929,7 +958,9 @@ internal class OverridableClassInfo {
 
     internal void SetBase(ClassInfo? @base) {
         this.Base = @base;
+    }
 
+    internal void CheckEnabled() {
         // check enabled properties. New base may have missing properties.
         // Make sure not to enable these as they may have been explicitly disabled before.
         // It's ok to disable.
@@ -950,14 +981,14 @@ internal class OverridableClassInfo {
 
     internal string? Foreground() {
         if (!this.IsColorEnabled) {
-            return null;
+            return this.SimHubColor?.Fg;
         }
 
         return this.ForegroundDontCheckEnabled();
     }
 
     internal string? ForegroundDontCheckEnabled() {
-        return this.Overrides?.Color?.Fg ?? this.Base?.Color?.Fg;
+        return this.Overrides?.Color?.Fg ?? this.Base?.Color?.Fg ?? this.SimHubColor?.Fg;
     }
 
     internal string? BaseForeground() {
@@ -966,14 +997,14 @@ internal class OverridableClassInfo {
 
     internal string? Background() {
         if (!this.IsColorEnabled) {
-            return null;
+            return this.SimHubColor?.Bg;
         }
 
         return this.BackgroundDontCheckEnabled();
     }
 
     internal string? BackgroundDontCheckEnabled() {
-        return this.Overrides?.Color?.Bg ?? this.Base?.Color?.Bg;
+        return this.Overrides?.Color?.Bg ?? this.Base?.Color?.Bg ?? this.SimHubColor?.Bg;
     }
 
     internal string? BaseBackground() {
@@ -1063,16 +1094,17 @@ internal class OverridableClassInfo {
                 var notifiedBg = false;
                 var notifiedFg = false;
                 if (value) {
-                    if (this.Info.BackgroundDontCheckEnabled() == null) {
+                    if (this.Info.Overrides?.Color?.Bg == null) {
                         // we are explicitly asked to enable colors
                         // there must be some value in it
-                        this.Background = OverridableTextBoxColor.DEF_BG;
+                        // the value must be whatever was shown at the moment of enabling
+                        this.Background = this.Info.BackgroundDontCheckEnabled() ?? OverridableTextBoxColor.DEF_BG;
                         notifiedBg = true;
                     }
 
-                    if (this.Info.ForegroundDontCheckEnabled() == null) {
+                    if (this.Info.Overrides?.Color?.Fg == null) {
                         // same as above
-                        this.Foreground = OverridableTextBoxColor.DEF_FG;
+                        this.Foreground = this.Info.ForegroundDontCheckEnabled() ?? OverridableTextBoxColor.DEF_FG;
                         notifiedFg = true;
                     }
                 }
@@ -1092,9 +1124,10 @@ internal class OverridableClassInfo {
                 this.Info.Overrides.Color.Bg = null;
             }
 
-            if (this.IsColorEnabled && this.Info.BaseBackground() == null) {
+            if (this.IsColorEnabled && this.Info.Overrides?.Color?.Bg == null) {
                 // if color is enabled there must be some value in it
-                this.Background = OverridableTextBoxColor.DEF_BG;
+                // the value must be whatever was shown at the moment of enabling
+                this.Background = this.Info.BackgroundDontCheckEnabled() ?? OverridableTextBoxColor.DEF_BG;
             } else {
                 this.InvokePropertyChanged(nameof(this.Background));
             }
@@ -1105,9 +1138,10 @@ internal class OverridableClassInfo {
                 this.Info.Overrides.Color.Fg = null;
             }
 
-            if (this.IsColorEnabled && this.Info.BaseForeground() == null) {
+            if (this.IsColorEnabled && this.Info.Overrides?.Color?.Fg == null) {
                 // if color is enabled there must be some value in it
-                this.Foreground = OverridableTextBoxColor.DEF_FG;
+                // the value must be whatever was shown at the moment of enabling
+                this.Foreground = this.Info.ForegroundDontCheckEnabled() ?? OverridableTextBoxColor.DEF_FG;
             } else {
                 this.InvokePropertyChanged(nameof(this.Foreground));
             }
@@ -1864,5 +1898,68 @@ public class Values : IDisposable {
             // where we have lots of time
             this.TrackData?.SaveData();
         }
+    }
+}
+
+internal class SimHubClassColors {
+    [JsonProperty] public Dictionary<CarClass, TextBoxColor> AssignedColors = [];
+
+    public static SimHubClassColors FromJson(string json) {
+        var self = new SimHubClassColors();
+
+        var raw = JsonConvert.DeserializeObject<Raw>(json);
+        if (raw != null) {
+            foreach (var color in raw.AssignedColors) {
+                var cls = new CarClass(color.Target);
+
+                var lstar = ColorTools.LStar(color.Color);
+                var fg = lstar > 70 ? "#000000" : "#FFFFFF";
+
+                var col = new TextBoxColor(fg, color.Color);
+                self.AssignedColors.Add(cls, col);
+            }
+        }
+
+        return self;
+    }
+
+    [method: JsonConstructor]
+    private class Raw(List<RawColor> assignedColors) {
+        [JsonProperty] public List<RawColor> AssignedColors = assignedColors;
+    }
+
+    [method: JsonConstructor]
+    private class RawColor(string target, string color) {
+        [JsonProperty] public string Target { get; } = target;
+        [JsonProperty] public string Color { get; } = color;
+    }
+}
+
+internal static class ColorTools {
+    public static double Lightness(string color) {
+        var col = WindowsMediaColorExtensions.FromHex(color);
+        var r = ColorTools.ToLinRgb(col.R / 255.0);
+        var g = ColorTools.ToLinRgb(col.G / 255.0);
+        var b = ColorTools.ToLinRgb(col.B / 255.0);
+
+        return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+    }
+
+    public static double LStar(string color) {
+        var y = ColorTools.Lightness(color);
+        if (y < 0.008856) {
+            return y * 903.3;
+        }
+
+        return Math.Pow(y, 1.0 / 3.0) * 116.0 - 16.0;
+    }
+
+    private static double ToLinRgb(double c) {
+        if (c <= 0.04045) {
+            return c / 12.92;
+        }
+
+        var step1 = (c + 0.055) / 1.055;
+        return Math.Pow(step1, 2.4);
     }
 }

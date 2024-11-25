@@ -339,9 +339,20 @@ internal class SelectedCarDetailsViewModel : INotifyPropertyChanged {
     public string Class {
         get => (this._info.Class() ?? CarClass.Default).AsString();
         set {
+            var oldClass = this._info.Class() ?? CarClass.Default;
             var cls = new CarClass(value);
             this._info.SetClass(cls);
             this._settingsControl.TryAddCarClass(cls);
+
+            // HACK:
+            // Problem is that when a car's class changed, we want to update the CanBeRemove property on Class settings tab.
+            // So we somehow have to trigger an update on SelectedClassViewModels.CanBeRemoved property.
+            // 
+            // ClassInfos.Manager doesn't itself have a property CanBeRemoved, but ClassSettingsTab's SelectedClassViewModels does,
+            // and it forwards all property change notifications from ClassInfos.Manager. 
+            // Thus, below will trigger an update of SelectedClassViewModels.CanBeRemoved property. 
+            this._settingsControl.ClassesManager.GetOrAdd(oldClass).InvokePropertyChanged("CanBeRemoved");
+            this._settingsControl.ClassesManager.GetOrAdd(cls).InvokePropertyChanged("CanBeRemoved");
         }
     }
 
@@ -353,6 +364,9 @@ internal class SelectedCarDetailsViewModel : INotifyPropertyChanged {
             } else {
                 this._info.DisableClass();
             }
+
+            this._settingsControl.ClassesManager.GetOrAdd(this._info.ClassDontCheckEnabled() ?? CarClass.Default)
+                .InvokePropertyChanged("CanBeRemoved");
         }
     }
 

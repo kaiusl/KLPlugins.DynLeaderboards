@@ -299,8 +299,12 @@ internal class CarInfos : IEnumerable<KeyValuePair<string, OverridableCarInfo>> 
         return this._infos.ContainsKey(key);
     }
 
-    internal bool ContainsClass(CarClass cls) {
+    internal bool ContainsClassIncludeDisabled(CarClass cls) {
         return this._infos.Any(kv => kv.Value.ClassDontCheckEnabled() == cls);
+    }
+
+    internal bool ContainsClass(CarClass cls) {
+        return this._infos.Any(kv => kv.Value.Class() == cls);
     }
 
     public IEnumerator<KeyValuePair<string, OverridableCarInfo>> GetEnumerator() {
@@ -592,7 +596,7 @@ internal class ClassInfos : IEnumerable<KeyValuePair<CarClass, OverridableClassI
         this._infos = infos;
     }
 
-    internal OverridableClassInfo Get(CarClass cls) {
+    internal OverridableClassInfo GetOrAdd(CarClass cls) {
         if (!this._infos.ContainsKey(cls)) {
             var c = new OverridableClassInfo(null, null);
 
@@ -604,14 +608,14 @@ internal class ClassInfos : IEnumerable<KeyValuePair<CarClass, OverridableClassI
 
     internal (CarClass, OverridableClassInfo) GetFollowReplaceWith(CarClass cls) {
         var clsOut = cls;
-        var info = this.Get(cls);
+        var info = this.GetOrAdd(cls);
         var nextCls = info.ReplaceWith();
 
         var seenClasses = new List<CarClass> { cls };
 
         while (nextCls != null && nextCls != clsOut) {
             clsOut = nextCls.Value;
-            info = this.Get(clsOut);
+            info = this.GetOrAdd(clsOut);
 
             if (seenClasses.Contains(clsOut)) {
                 DynLeaderboardsPlugin.LogWarn(
@@ -629,7 +633,7 @@ internal class ClassInfos : IEnumerable<KeyValuePair<CarClass, OverridableClassI
     }
 
     internal ClassInfo? GetBaseFollowDuplicates(CarClass cls) {
-        var info = this.Get(cls);
+        var info = this.GetOrAdd(cls);
 
         if (info.Base != null) {
             return info.Base;
@@ -685,13 +689,13 @@ internal class ClassInfos : IEnumerable<KeyValuePair<CarClass, OverridableClassI
 
         // Make sure that all "replace with" values are also in the dict
         foreach (var key in c._infos.Keys.ToList()) {
-            var it = c.Get(key);
+            var it = c.GetOrAdd(key);
             if (it.ReplaceWithDontCheckEnabled() != null) {
-                var _ = c.Get(it.ReplaceWithDontCheckEnabled()!.Value);
+                var _ = c.GetOrAdd(it.ReplaceWithDontCheckEnabled()!.Value);
             }
 
             if (it.BaseReplaceWith() != null) {
-                var _ = c.Get(it.BaseReplaceWith()!.Value);
+                var _ = c.GetOrAdd(it.BaseReplaceWith()!.Value);
             }
 
             if (it.Base == null) {
@@ -752,7 +756,7 @@ internal class ClassInfos : IEnumerable<KeyValuePair<CarClass, OverridableClassI
         }
 
         internal OverridableClassInfo.Manager AddDoesntExist(CarClass cls) {
-            var info = this._baseInfos.Get(cls);
+            var info = this._baseInfos.GetOrAdd(cls);
             return this.AddDoesntExist(cls, info);
         }
 
@@ -1014,7 +1018,7 @@ internal class OverridableClassInfo {
 
         public event PropertyChangedEventHandler? PropertyChanged;
 
-        private void InvokePropertyChanged(
+        internal void InvokePropertyChanged(
             [System.Runtime.CompilerServices.CallerMemberName] string? propertyName = null
         ) {
             if (this.PropertyChanged == null) {

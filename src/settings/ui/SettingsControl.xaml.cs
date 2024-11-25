@@ -180,6 +180,7 @@ public partial class SettingsControl : UserControl {
         var clsStr = cls.AsString();
         if (!this.AllClasses.Contains(clsStr)) {
             this.AllClasses.Add(clsStr);
+            this.Plugin.Values.ClassInfos.GetOrAdd(cls);
         }
     }
 
@@ -214,9 +215,9 @@ public partial class SettingsControl : UserControl {
             CarClass?[] classes = [c.Value.ClassDontCheckEnabled(), c.Value.BaseClass()];
             foreach (var cls in classes) {
                 if (cls != null) {
-                    var info = this.Plugin.Values.ClassInfos.Get(cls.Value);
+                    var info = this.Plugin.Values.ClassInfos.GetOrAdd(cls.Value);
                     if (info.ReplaceWithDontCheckEnabled() != null) {
-                        var _ = this.Plugin.Values.ClassInfos.Get(info.ReplaceWithDontCheckEnabled()!.Value);
+                        var _ = this.Plugin.Values.ClassInfos.GetOrAdd(info.ReplaceWithDontCheckEnabled()!.Value);
                     }
                 }
             }

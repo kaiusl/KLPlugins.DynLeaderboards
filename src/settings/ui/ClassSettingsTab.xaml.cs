@@ -218,6 +218,7 @@ internal class ClassSettingsTabViewModel : INotifyPropertyChanged {
             var dialogWindow = new ChooseNewClassNameDialog("Add new class", this._classesManager);
             var res = await dialogWindow.ShowDialogWindowAsync(this._settingsControl);
 
+            // ReSharper disable once SwitchStatementHandlesSomeKnownEnumValuesWithDefault
             switch (res) {
                 case DialogResult.OK:
                     DynLeaderboardsPlugin.LogInfo($"Add new class `{dialogWindow.Text}`");
@@ -226,13 +227,6 @@ internal class ClassSettingsTabViewModel : INotifyPropertyChanged {
                     var cls = new CarClass(clsName!);
                     this._classesManager.TryAdd(cls);
                     break;
-                case DialogResult.None:
-                case DialogResult.Cancel:
-                case DialogResult.Abort:
-                case DialogResult.Retry:
-                case DialogResult.Ignore:
-                case DialogResult.Yes:
-                case DialogResult.No:
                 default:
                     break;
             }
@@ -282,7 +276,9 @@ internal class SelectedClassViewModel : INotifyPropertyChanged {
         }
     }
 
-    public bool CanBeRemoved => this._classesManager.CanBeRemoved(this.Class);
+    public bool CanBeRemoved =>
+        this._classesManager.CanBeRemoved(this.Class)
+        && !this._settingsControl.Plugin.Values.CarInfos.ContainsClass(this.Class);
     public ListCollectionView AllClassesView { get; }
 
     public ICommand ResetColorsCommand { get; }

@@ -316,7 +316,9 @@ internal class ColorsTabSection<K> {
             };
             Grid.SetColumn(this.ResetButton, 6);
 
-            this.RemoveButton = new SHButtonPrimary { Style = (Style)findResource("ColorGrid_RemoveButton") };
+            this.RemoveButton = new SHButtonPrimary {
+                Style = (Style)findResource("ColorGrid_RemoveButton"), Content = "Remove",
+            };
             Grid.SetColumn(this.RemoveButton, 7);
             ToolTipService.SetShowOnDisabled(this.RemoveButton, true);
 

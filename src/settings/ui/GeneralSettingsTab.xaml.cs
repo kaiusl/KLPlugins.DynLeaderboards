@@ -4,6 +4,9 @@ using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Media;
+#if DESIGN
+using System;
+#endif
 
 namespace KLPlugins.DynLeaderboards.Settings.UI;
 
@@ -136,6 +139,7 @@ internal class GeneralSettingsTabViewModel : INotifyPropertyChanged {
 #if DESIGN
 internal class DesignGeneralSettingsTabViewModel : GeneralSettingsTabViewModel {
     public new string? AccDataLocation { get; set; } = @"C:\Users\user\Documents\Assetto Corsa Competizione";
+
     // ReSharper disable once StringLiteralTypo
     public new string? AcRootLocation { get; set; } = @"C:\Program Files\SteamLibrary\steamapps\common\assettocorsa";
     public new SolidColorBrush AcRootLocationBackground { get; set; } = GeneralSettingsTabViewModel.PathBgOk;

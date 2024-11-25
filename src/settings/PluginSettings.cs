@@ -468,12 +468,15 @@ internal class DynLeaderboardConfig {
         get => this._currentLeaderboardIdx;
         set {
             this._currentLeaderboardIdx = value > -1 && value < this.Order.Count ? value : 0;
-            this.CurrentLeaderboardName = this.CurrentLeaderboard().Kind.ToString();
+            var currentLeaderboard = this.CurrentLeaderboard();
+            this.CurrentLeaderboardDisplayName = currentLeaderboard.Kind.ToDisplayString();
+            this.CurrentLeaderboardCompactName = currentLeaderboard.Kind.ToCompactString();
         }
     }
 
     [JsonIgnore] private int _currentLeaderboardIdx = 0;
-    [JsonIgnore] internal string CurrentLeaderboardName = "";
+    [JsonIgnore] internal string CurrentLeaderboardDisplayName = "";
+    [JsonIgnore] internal string CurrentLeaderboardCompactName = "";
     [JsonProperty] public bool IsEnabled { get; set; } = true;
 
     private delegate JObject Migration(JObject o);
@@ -499,7 +502,8 @@ internal class DynLeaderboardConfig {
             new Leaderboard(LeaderboardKind.RELATIVE_ON_TRACK),
             new Leaderboard(LeaderboardKind.RELATIVE_ON_TRACK_WO_PIT),
         ];
-        this.CurrentLeaderboardName = this.Order[this._currentLeaderboardIdx].Kind.ToString();
+        this.CurrentLeaderboardDisplayName = this.Order[this._currentLeaderboardIdx].Kind.ToDisplayString();
+        this.CurrentLeaderboardCompactName = this.Order[this._currentLeaderboardIdx].Kind.ToCompactString();
     }
 
     internal DynLeaderboardConfig DeepClone() {

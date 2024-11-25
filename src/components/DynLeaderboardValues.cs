@@ -28,7 +28,8 @@ public class DynLeaderboard {
     public DynPositionDelegate GetDynPositionStart { get; private set; } = null!;
 
     public string Name => this.Config.Name;
-    public string CurrentLeaderboardName => this.Config.CurrentLeaderboardName;
+    public string CurrentLeaderboardDisplayName => this.Config.CurrentLeaderboardDisplayName;
+    public string CurrentLeaderboardCompactName => this.Config.CurrentLeaderboardCompactName;
     public string NextLeaderboardActionNAme => this.Config.NextLeaderboardActionName;
     public string PreviousLeaderboardActionNAme => this.Config.PreviousLeaderboardActionName;
     public int MaxPositions => this.Config.MaxPositions();

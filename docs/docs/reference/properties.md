@@ -109,7 +109,12 @@ for example `DynLeaderboardsPlugin.Dynamic.CurrentLeaderboard`.
 <div class="props" markdown>
 
 {{ prop("Currentleaderboard", "1.0.0", ["all"], ty="string") }}
-: Name of the currently selected leaderboard. See [the reference](leaderboards.md) for more info about what types are available.
+: Name of the currently selected leaderboard in CamelCase format. See [the reference](leaderboards.md) for more info
+about what types are available.
+
+{{ prop("Currentleaderboard.DisplayName", "2.0.0", ["all"], ty="string") }}
+: Properly formated name of the currently selected leaderboard. See [the reference](leaderboards.md) for more info about
+what types are available.
 
 {{ prop("FocusedPosInCurrentLeaderboard", "1.0.0", ["all"], defv="null", ty="int?") }}
 : Integer that shows the position of focused car in currently selected leaderboard. Note that it is 0 based like an 

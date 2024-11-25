@@ -14,6 +14,10 @@ using KLPlugins.DynLeaderboards.Car;
 using Control = System.Windows.Controls.Control;
 using UserControl = System.Windows.Controls.UserControl;
 
+#if DESIGN
+using System.Collections.Generic;
+#endif
+
 namespace KLPlugins.DynLeaderboards.Settings.UI;
 
 public partial class ClassSettingsTab : UserControl {

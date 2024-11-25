@@ -10,8 +10,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 - Support for other games, not only ACC.
     - Currently tested with AC, ACC, AMS2, RF2 and R3E.
-    - Other games may work as the plugin relies on the generic data provided by SimHub
+  - Other games may work as the plugin relies on the generic data provided by SimHub,
       but they haven't been tested if any special handling is needed.
+- New dynamic leaderboard specific properties:
+  - `CurrentLeaderboard.DisplayName` - properly formated current leaderboard name, for example "Partial relative
+    overall"
 - New car specific properties:
     - `Driver.Category.Color`
     - `Driver.Category.TextColor`
@@ -27,11 +30,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - New config UI to edit class settings
 - New class settings options:
     - "Short name" (eg HY for HyperCars)
-    - "Replace with" other class for easy grouping of classes or replacing one with other.
+  - "Replace with" other class for easy grouping of classes or replacing one with another.
 - Option to read AC car info directly from AC files.
 - AC root location in the settings.
 - Configuration options to set controls for "NextLeaderboard" and "PreviousLeaderboards"
-  actions directly in this plugins settings menu.
+  actions directly in this plugin settings menu.
 - Option to remove class and/or cup leaderboards from the rotation in case
   there is only a single class or cup in the session.
 - Help buttons in settings menu that lead to the documentation site's relevant section.

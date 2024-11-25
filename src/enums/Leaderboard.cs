@@ -1,4 +1,6 @@
-﻿namespace KLPlugins.DynLeaderboards;
+﻿using System;
+
+namespace KLPlugins.DynLeaderboards;
 
 // IMPORTANT: new leaderboards need to be added to the end in order to not break older configurations
 public enum LeaderboardKind {
@@ -17,6 +19,42 @@ public enum LeaderboardKind {
 }
 
 internal static class LeaderboardExtensions {
+    internal static string ToDisplayString(this LeaderboardKind kind) {
+        return kind switch {
+            LeaderboardKind.NONE => "None",
+            LeaderboardKind.OVERALL => "Overall",
+            LeaderboardKind.CLASS => "Class",
+            LeaderboardKind.RELATIVE_OVERALL => "Relative overall",
+            LeaderboardKind.RELATIVE_CLASS => "Relative class",
+            LeaderboardKind.PARTIAL_RELATIVE_OVERALL => "Partial relative overall",
+            LeaderboardKind.PARTIAL_RELATIVE_CLASS => "Partial relative class",
+            LeaderboardKind.RELATIVE_ON_TRACK => "Relative on track",
+            LeaderboardKind.RELATIVE_ON_TRACK_WO_PIT => "Relative on track (wo pit)",
+            LeaderboardKind.CUP => "Cup",
+            LeaderboardKind.RELATIVE_CUP => "Relative cup",
+            LeaderboardKind.PARTIAL_RELATIVE_CUP => "Partial relative cup",
+            _ => throw new ArgumentOutOfRangeException(nameof(kind), kind, null),
+        };
+    }
+
+    internal static string ToCompactString(this LeaderboardKind kind) {
+        return kind switch {
+            LeaderboardKind.NONE => "None",
+            LeaderboardKind.OVERALL => "Overall",
+            LeaderboardKind.CLASS => "Class",
+            LeaderboardKind.RELATIVE_OVERALL => "RelativeOverall",
+            LeaderboardKind.RELATIVE_CLASS => "RelativeClass",
+            LeaderboardKind.PARTIAL_RELATIVE_OVERALL => "PartialRelativeOverall",
+            LeaderboardKind.PARTIAL_RELATIVE_CLASS => "PartialRelativeClass",
+            LeaderboardKind.RELATIVE_ON_TRACK => "RelativeOnTrack",
+            LeaderboardKind.RELATIVE_ON_TRACK_WO_PIT => "RelativeOnTrackWoPit)",
+            LeaderboardKind.CUP => "Cup",
+            LeaderboardKind.RELATIVE_CUP => "RelativeCup",
+            LeaderboardKind.PARTIAL_RELATIVE_CUP => "PartialRelativeCup",
+            _ => throw new ArgumentOutOfRangeException(nameof(kind), kind, null),
+        };
+    }
+
     internal static string Tooltip(this LeaderboardKind l) {
         return l switch {
             LeaderboardKind.OVERALL => "`N` top overall positions. `N` can be set below.",

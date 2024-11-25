@@ -8,6 +8,11 @@ using System.Windows.Data;
 using System.Windows.Input;
 
 using KLPlugins.DynLeaderboards.Car;
+#if DESIGN
+using System.Collections.Generic;
+
+using WoteverCommon.Extensions;
+#endif
 
 namespace KLPlugins.DynLeaderboards.Settings.UI;
 

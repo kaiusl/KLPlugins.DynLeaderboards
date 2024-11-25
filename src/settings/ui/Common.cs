@@ -78,7 +78,7 @@ internal class PropertyViewModel<T> : PropertyViewModelBase, INotifyPropertyChan
     internal PropertyViewModel() { }
     #pragma warning restore CS8618, CS9264
     #endif
-    
+
     internal PropertyViewModel(string name, string tooltip, T prop, IOutProps<T> setting) {
         this._prop = prop;
         this._setting = setting;

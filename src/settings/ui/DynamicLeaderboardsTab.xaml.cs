@@ -642,7 +642,7 @@ internal class LeaderboardRotationItemViewModel {
         set => this._leaderboard.IsEnabled = value;
     }
 
-    public string Name => this._leaderboard.Kind.ToString();
+    public string Name => this._leaderboard.Kind.ToDisplayString();
 
     public bool RemoveIfSingleClass {
         get => this._leaderboard.RemoveIfSingleClass;
@@ -829,8 +829,7 @@ internal class DesignDynamicLeaderboardTabViewModel : DynamicLeaderboardsTabView
 
     private static List<LeaderboardComboBoxItem> CreateLeaderboards() {
         var list = new List<LeaderboardComboBoxItem> {
-            new(new DesignLeaderboardComboBoxItemViewModel()),
-            new(new DesignLeaderboardComboBoxItemViewModel()),
+            new(new DesignLeaderboardComboBoxItemViewModel()), new(new DesignLeaderboardComboBoxItemViewModel()),
         };
         return list;
     }

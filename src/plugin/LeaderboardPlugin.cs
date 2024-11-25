@@ -662,7 +662,11 @@ public class DynLeaderboardsPlugin : IDataPlugin, IWPFSettingsV2 {
 
         this.AttachDelegate<DynLeaderboardsPlugin, string>(
             $"{l.Name}.CurrentLeaderboard",
-            () => l.CurrentLeaderboardName
+            () => l.CurrentLeaderboardCompactName
+        );
+        this.AttachDelegate<DynLeaderboardsPlugin, string>(
+            $"{l.Name}.CurrentLeaderboard.DisplayName",
+            () => l.CurrentLeaderboardDisplayName
         );
         this.AttachDelegate<DynLeaderboardsPlugin, int?>(
             $"{l.Name}.FocusedPosInCurrentLeaderboard",

@@ -221,6 +221,45 @@
         </Page>
     </ItemGroup>
     <ItemGroup>
+        <Content Include="docs\docs\about\index.md"/>
+        <Content Include="docs\docs\community\dashes.md"/>
+        <Content Include="docs\docs\community\requests.md"/>
+        <Content Include="docs\docs\community\troubleshooting.md"/>
+        <Content Include="docs\docs\img\Config\CarSettings.png"/>
+        <Content Include="docs\docs\img\Config\CarSettings.png~"/>
+        <Content Include="docs\docs\img\Config\ClassSettings.png"/>
+        <Content Include="docs\docs\img\Config\ClassSettings.png~"/>
+        <Content Include="docs\docs\img\Config\Colors.png"/>
+        <Content Include="docs\docs\img\Config\Colors.png~"/>
+        <Content Include="docs\docs\img\Config\DynamicLeaderboards.png"/>
+        <Content Include="docs\docs\img\Config\DynamicLeaderboards.png~"/>
+        <Content Include="docs\docs\img\Config\DynamicLeaderboards_Controls.png"/>
+        <Content Include="docs\docs\img\Config\GeneralSettings.png"/>
+        <Content Include="docs\docs\img\Config\GeneralSettings.png~"/>
+        <Content Include="docs\docs\img\LeaderboardTypes\Class.png"/>
+        <Content Include="docs\docs\img\LeaderboardTypes\Cup.png"/>
+        <Content Include="docs\docs\img\LeaderboardTypes\Overall.png"/>
+        <Content Include="docs\docs\img\LeaderboardTypes\PartialRelativeClass.png"/>
+        <Content Include="docs\docs\img\LeaderboardTypes\PartialRelativeCup.png"/>
+        <Content Include="docs\docs\img\LeaderboardTypes\PartialRelativeOverall.png"/>
+        <Content Include="docs\docs\img\LeaderboardTypes\RelativeClass.png"/>
+        <Content Include="docs\docs\img\LeaderboardTypes\RelativeCup.png"/>
+        <Content Include="docs\docs\img\LeaderboardTypes\RelativeOnTrack.png"/>
+        <Content Include="docs\docs\img\LeaderboardTypes\RelativeOnTrackWoPit.png"/>
+        <Content Include="docs\docs\img\LeaderboardTypes\RelativeOverall.png"/>
+        <Content Include="docs\docs\img\SimHub_gaps_overlay_by_serek4.png"/>
+        <Content Include="docs\docs\index.md"/>
+        <Content Include="docs\docs\reference\leaderboards.md"/>
+        <Content Include="docs\docs\reference\properties.md"/>
+        <Content Include="docs\docs\stylesheets\extra.css"/>
+        <Content Include="docs\docs\user_guide\config.md"/>
+        <Content Include="docs\docs\user_guide\creating_dashboards.md"/>
+        <Content Include="docs\docs\user_guide\getting_started.md"/>
+        <Content Include="docs\docs\user_guide\publishing_dashboards.md"/>
+        <Content Include="docs\includes\abbreviations.md"/>
+        <Content Include="docs\main.py"/>
+        <Content Include="docs\mkdocs.yml"/>
+        <Content Include="docs\__pycache__\main.cpython-311.pyc"/>
         <Content Include="sdkmenuicon.png"/>
     </ItemGroup>
     <ItemGroup>

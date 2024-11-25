@@ -134,8 +134,8 @@ internal class CarSettingsTabViewModel : INotifyPropertyChanged {
             }
         }
 
-        Command CreateAllCarsCommand(Action<CarsListBoxItemViewModel> action) {
-            return new Command(
+        CommandAfterConfirmation CreateAllCarsCommand(Action<CarsListBoxItemViewModel> action) {
+            return new CommandAfterConfirmation(
                 () => {
                     if (this.SelectedCarDetailsViewModel != null) {
                         this.SelectedCarDetailsViewModel.PropertyChanged -= this.OnSelectedNameChanged;
@@ -151,17 +151,19 @@ internal class CarSettingsTabViewModel : INotifyPropertyChanged {
 
                     this.Cars.Refresh();
                     this.ScrollSelectedIntoView?.Invoke();
-                }
+                },
+                this._settingsControl
             );
         }
 
-        Command CreateAllCarsCommandCannotChangeOrder(Action<CarsListBoxItemViewModel> action) {
-            return new Command(
+        CommandAfterConfirmation CreateAllCarsCommandCannotChangeOrder(Action<CarsListBoxItemViewModel> action) {
+            return new CommandAfterConfirmation(
                 () => {
                     foreach (var vm in this.CarsObservable) {
                         action(vm);
                     }
-                }
+                },
+                this._settingsControl
             );
         }
 

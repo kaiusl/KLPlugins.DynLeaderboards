@@ -29,6 +29,18 @@ internal class Command(Action execute) : ICommand {
     }
 }
 
+internal class CommandAfterConfirmation(Action execute, SettingsControl settingsControl) : ICommand {
+    public event EventHandler? CanExecuteChanged;
+
+    public bool CanExecute(object parameter) {
+        return true;
+    }
+
+    public void Execute(object parameter) {
+        settingsControl.DoOnConfirmation(execute);
+    }
+}
+
 public class ControlsEditor2 : ControlsEditor {
     public override void OnApplyTemplate() {
         base.OnApplyTemplate();

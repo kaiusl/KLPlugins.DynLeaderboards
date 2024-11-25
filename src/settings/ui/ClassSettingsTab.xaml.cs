@@ -162,15 +162,16 @@ internal class ClassSettingsTabViewModel : INotifyPropertyChanged {
         this.SelectedClass = (ClassListBoxItem?)this.ClassesListCollectionView.CurrentItem
             ?? this._classesListBoxItems.FirstOrDefault();
 
-        Command AllClassesCommand(Action<OverridableClassInfo.Manager> action) {
-            return new Command(
+        CommandAfterConfirmation AllClassesCommand(Action<OverridableClassInfo.Manager> action) {
+            return new CommandAfterConfirmation(
                 () => {
                     foreach (var item in this._classesManager) {
                         action(item.Value);
                     }
 
                     this._values.UpdateClassInfos();
-                }
+                },
+                this._settingsControl
             );
         }
 

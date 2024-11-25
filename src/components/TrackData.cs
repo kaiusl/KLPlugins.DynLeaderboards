@@ -390,6 +390,9 @@ public class TrackData {
 
     private void WriteSplinePosOffsets() {
         var path = $"{PluginSettings.PLUGIN_DATA_DIR}\\{DynLeaderboardsPlugin.Game.Name}\\SplinePosOffsets.json";
+        var dirPath = Path.GetDirectoryName(path)!;
+        Directory.CreateDirectory(dirPath);
+        
         File.WriteAllText(path, JsonConvert.SerializeObject(TrackData._splinePosOffsets, Formatting.Indented));
     }
 

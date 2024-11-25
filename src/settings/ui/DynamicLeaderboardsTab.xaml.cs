@@ -7,9 +7,14 @@ using System.Globalization;
 using System.Linq;
 using System.Windows.Controls;
 using System.Windows.Data;
+using System.Windows.Forms;
 using System.Windows.Input;
 
 using KLPlugins.DynLeaderboards.Helpers;
+
+using Control = System.Windows.Controls.Control;
+using Exception = System.Exception;
+using UserControl = System.Windows.Controls.UserControl;
 
 namespace KLPlugins.DynLeaderboards.Settings.UI;
 
@@ -59,7 +64,9 @@ internal class DynamicLeaderboardsTabViewModel : INotifyPropertyChanged {
     public ICommand AddNewLeaderboardCommand { get; }
 
     #if DESIGN
+    #pragma warning disable CS8618, CS9264
     internal DynamicLeaderboardsTabViewModel() { }
+    #pragma warning restore CS8618, CS9264
     #endif
 
     public DynamicLeaderboardsTabViewModel(
@@ -76,7 +83,7 @@ internal class DynamicLeaderboardsTabViewModel : INotifyPropertyChanged {
             this._leaderboards.Add(new LeaderboardComboBoxItem(vm));
         }
 
-        this.SelectedLeaderboardListBoxItem = this._leaderboards?[0];
+        this.SelectedLeaderboardListBoxItem = this._leaderboards[0];
 
         this.AddNewLeaderboardCommand = new Command(this.AddNewLeaderboardWithDialog);
 
@@ -137,45 +144,55 @@ internal class DynamicLeaderboardsTabViewModel : INotifyPropertyChanged {
     }
 
     private async void AddNewLeaderboardWithDialog() {
-        var dialogWindow = new AskTextDialog(
-            "Add new dynamic leaderboard",
-            "Name",
-            [new NewLeaderboardNameValidationRule(this._settings.DynLeaderboardConfigs)]
-        );
-        var res = await dialogWindow.ShowDialogWindowAsync(this._settingsControl);
+        try {
+            var dialogWindow = new AskTextDialog(
+                "Add new dynamic leaderboard",
+                "Name",
+                [new NewLeaderboardNameValidationRule(this._settings.DynLeaderboardConfigs)]
+            );
+            var res = await dialogWindow.ShowDialogWindowAsync(this._settingsControl);
 
-        switch (res) {
-            case System.Windows.Forms.DialogResult.OK:
-                var name = dialogWindow.Text!;
-                // AskTextDialog validates that the entered leaderboard name is valid new name and OK cannot be pressed before
-                var newCfg = new DynLeaderboardConfig(name);
-                this.AddNewLeaderboard(newCfg);
-                break;
+            // ReSharper disable once SwitchStatementHandlesSomeKnownEnumValuesWithDefault
+            switch (res) {
+                case DialogResult.OK:
+                    var name = dialogWindow.Text!;
+                    // AskTextDialog validates that the entered leaderboard name is valid new name and OK cannot be pressed before
+                    var newCfg = new DynLeaderboardConfig(name);
+                    this.AddNewLeaderboard(newCfg);
+                    break;
+                default:
+                    break;
+            }
+        } catch (Exception e) {
+            DynLeaderboardsPlugin.LogError($"Failed to add new dynamic leaderboard: {e}");
         }
-
-        ;
     }
 
     private async void DuplicateLeaderboard(DynLeaderboardConfig cfg) {
-        var dialogWindow = new AskTextDialog(
-            $"Duplicate dynamic leaderboard '{cfg.Name}'",
-            "Name",
-            [new NewLeaderboardNameValidationRule(this._settings.DynLeaderboardConfigs)],
-            cfg.Name
-        );
-        var res = await dialogWindow.ShowDialogWindowAsync(this._settingsControl);
+        try {
+            var dialogWindow = new AskTextDialog(
+                $"Duplicate dynamic leaderboard '{cfg.Name}'",
+                "Name",
+                [new NewLeaderboardNameValidationRule(this._settings.DynLeaderboardConfigs)],
+                cfg.Name
+            );
+            var res = await dialogWindow.ShowDialogWindowAsync(this._settingsControl);
 
-        switch (res) {
-            case System.Windows.Forms.DialogResult.OK:
-                var name = dialogWindow.Text!;
-                // AskTextDialog validates that the entered leaderboard name is valid new name and OK cannot be pressed before
-                var newCfg = cfg.DeepClone();
-                newCfg.Name = name;
-                this.AddNewLeaderboard(newCfg);
-                break;
+            // ReSharper disable once SwitchStatementHandlesSomeKnownEnumValuesWithDefault
+            switch (res) {
+                case DialogResult.OK:
+                    var name = dialogWindow.Text!;
+                    // AskTextDialog validates that the entered leaderboard name is valid new name and OK cannot be pressed before
+                    var newCfg = cfg.DeepClone();
+                    newCfg.Name = name;
+                    this.AddNewLeaderboard(newCfg);
+                    break;
+                default:
+                    break;
+            }
+        } catch (Exception e) {
+            DynLeaderboardsPlugin.LogError($"Failed to add duplicate dynamic leaderboard: {e}");
         }
-
-        ;
     }
 
     private void InvokePropertyChanged([System.Runtime.CompilerServices.CallerMemberName] string? propertyName = null) {
@@ -194,7 +211,7 @@ internal class NewLeaderboardNameValidationRule : ValidationRule {
         this._cfgs = cfgs;
     }
 
-    public override ValidationResult Validate(object value, CultureInfo cultureInfo) {
+    public override ValidationResult Validate(object? value, CultureInfo cultureInfo) {
         if (value == null) {
             return new ValidationResult(false, "Dynamic leaderboard name cannot be null");
         }
@@ -231,7 +248,9 @@ internal class LeaderboardComboBoxItemViewModel : INotifyPropertyChanged {
     public bool IsEnabled { get; set; }
 
     #if DESIGN
+    #pragma warning disable CS8618, CS9264
     internal LeaderboardComboBoxItemViewModel() { }
+    #pragma warning restore CS8618, CS9264
     #endif
 
     internal LeaderboardComboBoxItemViewModel(DynLeaderboardConfig cfg) {
@@ -293,7 +312,9 @@ internal class SelectedLeaderboardViewModel : INotifyPropertyChanged {
     private readonly SettingsControl _settingsControl;
 
     #if DESIGN
-    public SelectedLeaderboardViewModel() { }
+    #pragma warning disable CS8618, CS9264
+    protected SelectedLeaderboardViewModel() { }
+    #pragma warning restore CS8618, CS9264
     #endif
     public SelectedLeaderboardViewModel(
         DynLeaderboardConfig cfg,
@@ -332,28 +353,33 @@ internal class SelectedLeaderboardViewModel : INotifyPropertyChanged {
     }
 
     private async void Rename() {
-        var dialogWindow = new AskTextDialog(
-            $"Rename dynamic leaderboard '{this.Name}'",
-            "Name",
-            [new NewLeaderboardNameValidationRule(this._settings.DynLeaderboardConfigs)],
-            this._cfg.Name
-        );
-        var res = await dialogWindow.ShowDialogWindowAsync(this._settingsControl);
+        try {
+            var dialogWindow = new AskTextDialog(
+                $"Rename dynamic leaderboard '{this.Name}'",
+                "Name",
+                [new NewLeaderboardNameValidationRule(this._settings.DynLeaderboardConfigs)],
+                this._cfg.Name
+            );
+            var res = await dialogWindow.ShowDialogWindowAsync(this._settingsControl);
 
-        switch (res) {
-            case System.Windows.Forms.DialogResult.OK:
-                var name = dialogWindow.Text!;
-                // AskTextDialog validates that the entered leaderboard name is valid new name and OK cannot be pressed before
-                this._cfg.Rename(name);
-                this.Name = name;
+            // ReSharper disable once SwitchStatementHandlesSomeKnownEnumValuesWithDefault
+            switch (res) {
+                case DialogResult.OK:
+                    var name = dialogWindow.Text!;
+                    // AskTextDialog validates that the entered leaderboard name is valid new name and OK cannot be pressed before
+                    this._cfg.Rename(name);
+                    this.Name = name;
 
-                this.InvokePropertyChanged(nameof(this.Name));
-                this.InvokePropertyChanged(nameof(this.ControlsNextLeaderboardActionName));
-                this.InvokePropertyChanged(nameof(this.ControlsPreviousLeaderboardActionName));
-                break;
+                    this.InvokePropertyChanged(nameof(this.Name));
+                    this.InvokePropertyChanged(nameof(this.ControlsNextLeaderboardActionName));
+                    this.InvokePropertyChanged(nameof(this.ControlsPreviousLeaderboardActionName));
+                    break;
+                default:
+                    break;
+            }
+        } catch (Exception e) {
+            DynLeaderboardsPlugin.LogError($"Failed to rename a dynamic leaderboard: {e}");
         }
-
-        ;
     }
 
     public void SetCfg(DynLeaderboardConfig cfg) {
@@ -375,29 +401,38 @@ internal class SelectedLeaderboardViewModel : INotifyPropertyChanged {
         }
 
         foreach (var p in this._exposedProperties) {
-            if (p is PropertyViewModel<OutCarProp> pcar) {
-                pcar.UpdateSetting(this._cfg.OutCarProps);
-            } else if (p is PropertyViewModel<OutPitProp> pPit) {
-                pPit.UpdateSetting(this._cfg.OutPitProps);
-            } else if (p is PropertyViewModel<OutLapProp> pLap) {
-                pLap.UpdateSetting(this._cfg.OutLapProps);
-            } else if (p is PropertyViewModel<OutStintProp> pSting) {
-                pSting.UpdateSetting(this._cfg.OutStintProps);
-            } else if (p is PropertyViewModel<OutGapProp> pGaps) {
-                pGaps.UpdateSetting(this._cfg.OutGapProps);
-            } else if (p is PropertyViewModel<OutPosProp> pPos) {
-                pPos.UpdateSetting(this._cfg.OutPosProps);
-            } else if (p is PropertyViewModel<OutDriverProp> pDriver) {
-                pDriver.UpdateSetting(this._cfg.OutDriverProps);
-            } else {
-                var msg = $"Unknown property type {p.GetType()} in {this.Name}";
-                Debug.Fail(msg);
-                DynLeaderboardsPlugin.LogError(msg);
+            switch (p) {
+                case PropertyViewModel<OutCarProp> pCar:
+                    pCar.UpdateSetting(this._cfg.OutCarProps);
+                    break;
+                case PropertyViewModel<OutPitProp> pPit:
+                    pPit.UpdateSetting(this._cfg.OutPitProps);
+                    break;
+                case PropertyViewModel<OutLapProp> pLap:
+                    pLap.UpdateSetting(this._cfg.OutLapProps);
+                    break;
+                case PropertyViewModel<OutStintProp> pSting:
+                    pSting.UpdateSetting(this._cfg.OutStintProps);
+                    break;
+                case PropertyViewModel<OutGapProp> pGaps:
+                    pGaps.UpdateSetting(this._cfg.OutGapProps);
+                    break;
+                case PropertyViewModel<OutPosProp> pPos:
+                    pPos.UpdateSetting(this._cfg.OutPosProps);
+                    break;
+                case PropertyViewModel<OutDriverProp> pDriver:
+                    pDriver.UpdateSetting(this._cfg.OutDriverProps);
+                    break;
+                default: {
+                    var msg = $"Unknown property type {p.GetType()} in {this.Name}";
+                    DynLeaderboardsPlugin.LogError(msg);
+                    break;
+                }
             }
         }
     }
 
-    protected internal virtual void AddProps<T>(
+    protected virtual void AddProps<T>(
         T[] order,
         Func<T, bool> isNotDef,
         Func<T, string> nameFunc,
@@ -622,7 +657,9 @@ internal class LeaderboardRotationItemViewModel {
     private readonly Leaderboard _leaderboard;
 
     #if DESIGN
+    #pragma warning disable CS8618, CS9264
     internal LeaderboardRotationItemViewModel() { }
+    #pragma warning restore CS8618, CS9264
     #endif
 
     internal LeaderboardRotationItemViewModel(Leaderboard leaderboard) {
@@ -751,7 +788,9 @@ internal class NumPosItemViewModel : INotifyPropertyChanged {
     private Box<int> _setting;
 
     #if DESIGN
+    #pragma warning disable CS8618, CS9264
     internal NumPosItemViewModel() { }
+    #pragma warning restore CS8618, CS9264
     #endif
 
     internal NumPosItemViewModel(PosItem it, Box<int> setting) {
@@ -789,9 +828,10 @@ internal class DesignDynamicLeaderboardTabViewModel : DynamicLeaderboardsTabView
     public new bool IsSelectedNull { get; set; } = false;
 
     private static List<LeaderboardComboBoxItem> CreateLeaderboards() {
-        var list = new List<LeaderboardComboBoxItem>();
-        list.Add(new LeaderboardComboBoxItem(new DesignLeaderboardComboBoxItemViewModel()));
-        list.Add(new LeaderboardComboBoxItem(new DesignLeaderboardComboBoxItemViewModel()));
+        var list = new List<LeaderboardComboBoxItem> {
+            new(new DesignLeaderboardComboBoxItemViewModel()),
+            new(new DesignLeaderboardComboBoxItemViewModel()),
+        };
         return list;
     }
 }
@@ -831,7 +871,7 @@ internal class DesignSelectedLeaderboardViewModel : SelectedLeaderboardViewModel
         };
     }
 
-    protected internal override void AddProps<T>(
+    protected override void AddProps<T>(
         T[] order,
         Func<T, bool> isNotDef,
         Func<T, string> nameFunc,
@@ -865,11 +905,12 @@ internal class DesignSelectedLeaderboardViewModel : SelectedLeaderboardViewModel
 
 
     private static List<LeaderboardRotationItem> CreateRotation() {
-        var list = new List<LeaderboardRotationItemViewModel>();
-        list.Add(new DesignLeaderboardRotationItemViewModel { Name = "Overall" });
-        list.Add(new DesignLeaderboardRotationItemViewModel { Name = "PartialRelativeOverall" });
-        list.Add(new DesignLeaderboardRotationItemViewModel { Name = "RelativeOnTrack" });
-        list.Add(new DesignLeaderboardRotationItemViewModel());
+        var list = new List<LeaderboardRotationItemViewModel> {
+            new DesignLeaderboardRotationItemViewModel { Name = "Overall" },
+            new DesignLeaderboardRotationItemViewModel { Name = "PartialRelativeOverall" },
+            new DesignLeaderboardRotationItemViewModel { Name = "RelativeOnTrack" },
+            new DesignLeaderboardRotationItemViewModel(),
+        };
         return list.Select(c => new LeaderboardRotationItem(c)).ToList();
     }
 }

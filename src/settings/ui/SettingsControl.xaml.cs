@@ -73,7 +73,7 @@ public class DocsHyperlink : Hyperlink {
         );
 
     public DocsHyperlink() {
-        this.RequestNavigate += (sender, e) => { System.Diagnostics.Process.Start(e.Uri.ToString()); };
+        this.RequestNavigate += (_, e) => { System.Diagnostics.Process.Start(e.Uri.ToString()); };
     }
 }
 
@@ -99,7 +99,11 @@ public sealed class DocsPathConverter : IValueConverter {
     public const string DOCS_ROOT = "https://kaiusl.github.io/KLPlugins.DynLeaderboards/2.0.x/";
     #endif
 
-    public object? Convert(object value, Type targetType, object parameter, CultureInfo culture) {
+    public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture) {
+        if (value == null) {
+            return null;
+        }
+
         try {
             var fullPath = DocsPathConverter.DOCS_ROOT + (string)value;
             return fullPath;
@@ -108,7 +112,7 @@ public sealed class DocsPathConverter : IValueConverter {
         }
     }
 
-    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) {
+    public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) {
         throw new NotImplementedException();
     }
 }
@@ -116,8 +120,10 @@ public sealed class DocsPathConverter : IValueConverter {
 public partial class SettingsControl : UserControl {
     internal DynLeaderboardsPlugin Plugin { get; }
     internal PluginSettings Settings => DynLeaderboardsPlugin.Settings;
+
     internal DynLeaderboardConfig CurrentDynLeaderboardSettings { get; private set; }
-    internal CarSettingsTab CarSettingsTab { get; private set; }
+
+    //internal CarSettingsTab CarSettingsTab { get; private set; };
     internal ClassInfos.Manager ClassesManager { get; }
 
     public const double DISABLED_OPTION_OPACITY = 0.333;
@@ -134,7 +140,7 @@ public partial class SettingsControl : UserControl {
         this.Plugin = plugin;
 
         this.ClassesManager = new ClassInfos.Manager(this.Plugin.Values.ClassInfos);
-        this.ClassesManager.CollectionChanged += (s, e) => {
+        this.ClassesManager.CollectionChanged += (_, e) => {
             if (e.NewItems != null) {
                 foreach (OverridableClassInfo.Manager item in e.NewItems) {
                     this.TryAddCarClass(item.Key);
@@ -164,8 +170,8 @@ public partial class SettingsControl : UserControl {
         this.AddColorsTab();
     }
 
-    internal ObservableCollection<string> AllClasses = [];
-    internal ObservableCollection<string> AllManufacturers = [];
+    internal readonly ObservableCollection<string> AllClasses = [];
+    internal readonly ObservableCollection<string> AllManufacturers = [];
 
     /// <summary>
     ///     Tries to add a new class but does nothing if the class already exists.
@@ -184,16 +190,21 @@ public partial class SettingsControl : UserControl {
     }
 
     internal async void DoOnConfirmation(Action action) {
-        var dialogWindow = new ConfimDialog("Are you sure?", "All custom overrides will be lost.");
-        var res = await dialogWindow.ShowDialogWindowAsync(this);
+        try {
+            var dialogWindow = new ConfirmDialog("Are you sure?", "All custom overrides will be lost.");
+            var res = await dialogWindow.ShowDialogWindowAsync(this);
 
-        switch (res) {
-            case System.Windows.Forms.DialogResult.Yes:
-                action();
-                break;
+            // ReSharper disable once SwitchStatementHandlesSomeKnownEnumValuesWithDefault
+            switch (res) {
+                case System.Windows.Forms.DialogResult.Yes:
+                    action();
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+        } catch (Exception e) {
+            DynLeaderboardsPlugin.LogError($"Failed to do on confirmation: {e}");
         }
-
-        ;
     }
 
     private void SetAllClassesAndManufacturers() {

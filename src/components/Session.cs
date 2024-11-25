@@ -275,7 +275,7 @@ internal static class SessionPhaseExtensions {
                 8 => SessionPhase.SESSION_OVER,
                 9 =>
                     SessionPhase
-                        .STARTING, // it's possible but don't know what it means exactly but it happens at race starts
+                        .STARTING, // it's possible but don't know what it means exactly, but it happens at race starts
                 _ => SessionPhase.UNKNOWN,
             };
             if (phase == SessionPhase.UNKNOWN) {

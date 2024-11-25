@@ -195,8 +195,8 @@ internal class OverridableTextBoxColor {
         return this._overrides?.Bg ?? this._base?.Bg;
     }
 
-    internal string BaseBackground() {
-        return this._base?.Bg ?? OverridableTextBoxColor.DEF_BG;
+    internal string? BaseBackground() {
+        return this._base?.Bg;
     }
 
     internal void SetBackground(string bg) {
@@ -209,10 +209,10 @@ internal class OverridableTextBoxColor {
             this._overrides.Bg = null;
         }
 
-        if (this.IsEnabled && this.BaseBackground() == null) {
-            // if color is enabled there must be some value in it
-            this.SetBackground(OverridableTextBoxColor.DEF_BG);
-        }
+        // if (this.IsEnabled && this.BaseBackground() == null) {
+        //     // if color is enabled there must be some value in it
+        //     this.SetBackground(OverridableTextBoxColor.DEF_BG);
+        // }
     }
 }
 
@@ -260,11 +260,10 @@ internal class CarInfos : IEnumerable<KeyValuePair<string, OverridableCarInfo>> 
     }
 
     internal void TryRemove(string key) {
-        if (!this._infos.ContainsKey(key)) {
+        if (!this._infos.TryGetValue(key, out var c)) {
             return;
         }
 
-        var c = this._infos[key];
         if (c.Base != null) {
             c.Reset(key);
             c.DisableName();
@@ -275,11 +274,10 @@ internal class CarInfos : IEnumerable<KeyValuePair<string, OverridableCarInfo>> 
     }
 
     internal bool CanBeRemoved(string key) {
-        if (!this._infos.ContainsKey(key)) {
+        if (!this._infos.TryGetValue(key, out var c)) {
             return false;
         }
 
-        var c = this._infos[key];
         return c.Base == null;
     }
 
@@ -302,13 +300,7 @@ internal class CarInfos : IEnumerable<KeyValuePair<string, OverridableCarInfo>> 
     }
 
     internal bool ContainsClass(CarClass cls) {
-        foreach (var kv in this._infos) {
-            if (kv.Value.ClassDontCheckEnabled() == cls) {
-                return true;
-            }
-        }
-
-        return false;
+        return this._infos.Any(kv => kv.Value.ClassDontCheckEnabled() == cls);
     }
 
     public IEnumerator<KeyValuePair<string, OverridableCarInfo>> GetEnumerator() {
@@ -637,7 +629,6 @@ internal class ClassInfos : IEnumerable<KeyValuePair<CarClass, OverridableClassI
     }
 
     internal ClassInfo? GetBaseFollowDuplicates(CarClass cls) {
-        var clsOut = cls;
         var info = this.Get(cls);
 
         if (info.Base != null) {
@@ -647,8 +638,7 @@ internal class ClassInfos : IEnumerable<KeyValuePair<CarClass, OverridableClassI
         foreach (var dup in info.DuplicatedFrom.Reverse()) {
             // Don't use this.Get as that will add missing classes
             // We don't want it here, just skip the duplicates that don't exist anymore
-            if (this._infos.ContainsKey(dup)) {
-                info = this._infos[dup];
+            if (this._infos.TryGetValue(dup, out info)) {
                 if (info.Base != null) {
                     return info.Base;
                 }
@@ -704,7 +694,7 @@ internal class ClassInfos : IEnumerable<KeyValuePair<CarClass, OverridableClassI
                 var _ = c.Get(it.BaseReplaceWith()!.Value);
             }
 
-            if (it.Base == null && it.DuplicatedFrom != null) {
+            if (it.Base == null) {
                 it.SetBase(c.GetBaseFollowDuplicates(key));
             }
         }
@@ -777,22 +767,14 @@ internal class ClassInfos : IEnumerable<KeyValuePair<CarClass, OverridableClassI
         }
 
         internal OverridableClassInfo.Manager? Get(CarClass cls) {
-            if (!this._classManagers.ContainsKey(cls)) {
-                return null;
-            }
-
-            return this._classManagers[cls];
+            return !this._classManagers.TryGetValue(cls, out var manager) ? null : manager;
         }
 
         internal OverridableClassInfo.Manager GetOrAdd(CarClass cls) {
-            if (!this._classManagers.ContainsKey(cls)) {
-                return this.AddDoesntExist(cls);
-            }
-
-            return this._classManagers[cls];
+            return !this._classManagers.TryGetValue(cls, out var add) ? this.AddDoesntExist(cls) : add;
         }
 
-        internal OverridableClassInfo.Manager? GetFollowReplaceWith(CarClass cls) {
+        internal OverridableClassInfo.Manager GetFollowReplaceWith(CarClass cls) {
             var clsOut = cls;
             var manager = this.GetOrAdd(cls);
             var nextCls = manager.Info.ReplaceWith(); // don't use manager.ReplaceWith, it defaults to default class
@@ -819,11 +801,10 @@ internal class ClassInfos : IEnumerable<KeyValuePair<CarClass, OverridableClassI
         }
 
         internal void Remove(CarClass cls) {
-            if (!this._classManagers.ContainsKey(cls)) {
+            if (!this._classManagers.TryGetValue(cls, out var manager)) {
                 return;
             }
 
-            var manager = this._classManagers[cls];
             if (this.CanBeRemoved(manager)) {
                 this._classManagers.Remove(cls);
                 this._baseInfos._infos.Remove(cls);
@@ -832,7 +813,7 @@ internal class ClassInfos : IEnumerable<KeyValuePair<CarClass, OverridableClassI
                     new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, manager)
                 );
             } else {
-                // Don't remove if has base data or if is the default class
+                // Don't remove if it has base data or if it is the default class,
                 // just disable
                 manager.Reset();
                 manager.IsColorEnabled = false;
@@ -893,7 +874,7 @@ internal class ClassInfos : IEnumerable<KeyValuePair<CarClass, OverridableClassI
 internal class OverridableClassInfo {
     [JsonIgnore] internal ClassInfo? Base { get; private set; }
 
-    // If a class had been duplicated from it can have a "false" base from it's parent. 
+    // If a class had been duplicated from it can have a "false" base from its parent. 
     // This flag helps to differentiate those cases. 
     // Note that just checking if DuplicatedFrom == null is not enough.
     // A class that was duplicated could end up receiving a base in later updates.
@@ -925,11 +906,7 @@ internal class OverridableClassInfo {
             this.IsReplaceWithEnabled = isReplaceWithEnabled.Value;
         }
 
-        if (duplicatedFrom != null) {
-            this.DuplicatedFrom = duplicatedFrom;
-        } else {
-            this.DuplicatedFrom = ImmutableList<CarClass>.Empty;
-        }
+        this.DuplicatedFrom = duplicatedFrom ?? ImmutableList<CarClass>.Empty;
     }
 
     internal OverridableClassInfo Duplicate(CarClass thisClass) {
@@ -1280,6 +1257,10 @@ public class Values : IDisposable {
     private void WriteCarInfos() {
         var path = Values.CarInfosPath();
         var dirPath = Path.GetDirectoryName(path);
+        if (dirPath == null) {
+            throw new Exception($"invalid car infos path {path}");
+        }
+
         if (!Directory.Exists(dirPath)) {
             Directory.CreateDirectory(dirPath);
         }
@@ -1309,6 +1290,10 @@ public class Values : IDisposable {
     private void WriteClassInfos() {
         var path = Values.ClassInfosPath();
         var dirPath = Path.GetDirectoryName(path);
+        if (dirPath == null) {
+            throw new Exception($"invalid class infos path {path}");
+        }
+
         if (!Directory.Exists(dirPath)) {
             Directory.CreateDirectory(dirPath);
         }
@@ -1332,6 +1317,10 @@ public class Values : IDisposable {
     private static void WriteTextBoxColors<K>(TextBoxColors<K> colors, string fileName) {
         var path = Values.TextBoxColorsPath(fileName);
         var dirPath = Path.GetDirectoryName(path);
+        if (dirPath == null) {
+            throw new Exception($"invalid text box colors path {path}");
+        }
+
         if (!Directory.Exists(dirPath)) {
             Directory.CreateDirectory(dirPath);
         }
@@ -1470,7 +1459,7 @@ public class Values : IDisposable {
 
         this.TrackData?.OnDataUpdate();
 
-        if (this.TrackData != null && this.TrackData.LengthMeters == 0) {
+        if (this.TrackData is { LengthMeters: 0 }) {
             // In ACC sometimes the track length is not immediately available, and is 0.
             this.TrackData?.SetLength(data);
         }
@@ -1541,8 +1530,8 @@ public class Values : IDisposable {
                 car.UpdateIndependent(this, focusedCarId, opponent, data);
 
                 // Note: car.IsFinished is actually updated in car.UpdateDependsOnOthers.
-                // Thus is the player manages to finish the race and exit before the first update, we would remove them.
-                // However that is practically impossible.
+                // Thus, if the player manages to finish the race and exit before the first update, we would remove them.
+                // However, that is practically impossible.
                 if (!car.IsFinished && car.MissedUpdates > 500) {
                     continue;
                 }
@@ -1690,16 +1679,16 @@ public class Values : IDisposable {
     private CarData? GetCarAheadOnTrack(CarData c) {
         var thisPos = c.SplinePosition;
 
-        // Closest car ahead is the one with smallest positive relative spline position.
+        // Closest car ahead is the one with the smallest positive relative spline position.
         CarData? closestCar = null;
-        var relsplinepos = double.MaxValue;
+        var relSplinePos = double.MaxValue;
         foreach (var car in this._overallOrder) {
             var carPos = car.SplinePosition;
 
             var pos = CarData.CalculateRelativeSplinePosition(toPos: carPos, fromPos: thisPos);
-            if (pos > 0 && pos < relsplinepos) {
+            if (pos > 0 && pos < relSplinePos) {
                 closestCar = car;
-                relsplinepos = pos;
+                relSplinePos = pos;
             }
         }
 
@@ -1757,10 +1746,10 @@ public class Values : IDisposable {
                 }
 
                 // Always compare by laps first
-                var alaps = a.Laps.New;
-                var blaps = b.Laps.New;
-                if (alaps != blaps) {
-                    return blaps.CompareTo(alaps);
+                var aLaps = a.Laps.New;
+                var bLaps = b.Laps.New;
+                if (aLaps != bLaps) {
+                    return bLaps.CompareTo(aLaps);
                 }
 
                 // Keep order if one of the cars has offset lap update, could cause jumping otherwise
@@ -1782,14 +1771,14 @@ public class Values : IDisposable {
                     // Need to use FinishTime
                     if (!a.IsFinished || !b.IsFinished) {
                         // If one hasn't finished and their number of laps is same, that means that the car who has finished must be lap down.
-                        // Thus it should be behind the one who hasn't finished.
-                        var aFTime = a.FinishTime == null ? long.MinValue : a.FinishTime.Value.Ticks;
-                        var bFTime = b.FinishTime == null ? long.MinValue : b.FinishTime.Value.Ticks;
+                        // Thus, it should be behind the one who hasn't finished.
+                        var aFTime = a.FinishTime?.Ticks ?? long.MinValue;
+                        var bFTime = b.FinishTime?.Ticks ?? long.MinValue;
                         return aFTime.CompareTo(bFTime);
                     } else {
                         // Both cars have finished
-                        var aFTime = a.FinishTime == null ? long.MaxValue : a.FinishTime.Value.Ticks;
-                        var bFTime = b.FinishTime == null ? long.MaxValue : b.FinishTime.Value.Ticks;
+                        var aFTime = a.FinishTime?.Ticks ?? long.MaxValue;
+                        var bFTime = b.FinishTime?.Ticks ?? long.MaxValue;
 
                         if (aFTime == bFTime) {
                             return a.RawDataNew.Position.CompareTo(b.RawDataNew.Position);
@@ -1801,19 +1790,17 @@ public class Values : IDisposable {
 
                 if (DynLeaderboardsPlugin.Game.IsAms2) {
                     // Spline pos == 0.0 if race has not started, race state is 1 if that's the case, use games positions
-                    if (gameData.NewData.GetRawDataObject() is SimHubAMS2.AMS2APIStruct rawAms2Data) {
-                        // If using AMS2 shared memory data, UDP data is not supported atm
-                        if (rawAms2Data.mRaceState < 2) {
-                            return a.RawDataNew!.Position.CompareTo(b.RawDataNew!.Position);
-                        }
+                    // If using AMS2 shared memory data, UDP data is not supported atm
+                    if (gameData.NewData.GetRawDataObject() is SimHubAMS2.AMS2APIStruct { mRaceState: < 2 }) {
+                        return a.RawDataNew.Position.CompareTo(b.RawDataNew.Position);
                     }
 
                     // cars that didn't finish (DQ, DNS, DNF) should always be at the end
-                    var aDidNotFinish = a.RawDataNew?.DidNotFinish ?? false;
-                    var bDidNotFinish = b.RawDataNew?.DidNotFinish ?? false;
+                    var aDidNotFinish = a.RawDataNew.DidNotFinish ?? false;
+                    var bDidNotFinish = b.RawDataNew.DidNotFinish ?? false;
                     if (aDidNotFinish || bDidNotFinish) {
                         if (aDidNotFinish && bDidNotFinish) {
-                            return a.RawDataNew!.Position.CompareTo(b.RawDataNew!.Position);
+                            return a.RawDataNew.Position.CompareTo(b.RawDataNew.Position);
                         }
 
                         if (aDidNotFinish) {
@@ -1831,8 +1818,6 @@ public class Values : IDisposable {
 
                 return b.TotalSplinePosition.CompareTo(a.TotalSplinePosition);
             }
-
-            ;
 
             this._overallOrder.Sort(Cmp);
         } else {

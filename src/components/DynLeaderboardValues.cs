@@ -17,15 +17,15 @@ public class DynLeaderboard {
 
     public delegate int? DynPositionDelegate(int i);
 
-    public GetDynCarDelegate GetDynCar { get; private set; }
-    public DynGapDelegate GetDynGapToFocused { get; private set; }
-    public DynGapDelegate GetDynGapToAhead { get; private set; }
-    public DynLapDeltaDelegate GetDynBestLapDeltaToFocusedBest { get; private set; }
-    public DynLapDeltaDelegate GetDynLastLapDeltaToFocusedBest { get; private set; }
-    public DynLapDeltaDelegate GetDynLastLapDeltaToFocusedLast { get; private set; }
+    public GetDynCarDelegate GetDynCar { get; private set; } = null!;
+    public DynGapDelegate GetDynGapToFocused { get; private set; } = null!;
+    public DynGapDelegate GetDynGapToAhead { get; private set; } = null!;
+    public DynLapDeltaDelegate GetDynBestLapDeltaToFocusedBest { get; private set; } = null!;
+    public DynLapDeltaDelegate GetDynLastLapDeltaToFocusedBest { get; private set; } = null!;
+    public DynLapDeltaDelegate GetDynLastLapDeltaToFocusedLast { get; private set; } = null!;
 
-    public DynPositionDelegate GetDynPosition { get; private set; }
-    public DynPositionDelegate GetDynPositionStart { get; private set; }
+    public DynPositionDelegate GetDynPosition { get; private set; } = null!;
+    public DynPositionDelegate GetDynPositionStart { get; private set; } = null!;
 
     public string Name => this.Config.Name;
     public string CurrentLeaderboardName => this.Config.CurrentLeaderboardName;
@@ -60,13 +60,13 @@ public class DynLeaderboard {
 
     private void SetDynGettersDefault() {
         this.GetDynCar = i => this._cars.ElementAtOrDefault(i);
-        this.GetDynGapToFocused = i => null;
-        this.GetDynGapToAhead = i => null;
-        this.GetDynBestLapDeltaToFocusedBest = i => null;
-        this.GetDynLastLapDeltaToFocusedBest = i => null;
-        this.GetDynLastLapDeltaToFocusedLast = i => null;
-        this.GetDynPosition = i => null;
-        this.GetDynPositionStart = i => null;
+        this.GetDynGapToFocused = _ => null;
+        this.GetDynGapToAhead = _ => null;
+        this.GetDynBestLapDeltaToFocusedBest = _ => null;
+        this.GetDynLastLapDeltaToFocusedBest = _ => null;
+        this.GetDynLastLapDeltaToFocusedLast = _ => null;
+        this.GetDynPosition = _ => null;
+        this.GetDynPositionStart = _ => null;
     }
 
     private void SetDynGetters(Values v) {
@@ -152,6 +152,7 @@ public class DynLeaderboard {
                 this.GetDynPositionStart = i => this.GetDynCar(i)?.PositionOverallStart;
                 break;
 
+            case LeaderboardKind.NONE:
             default:
                 this.SetDynGettersDefault();
                 break;
@@ -248,8 +249,9 @@ public class DynLeaderboard {
                 var aheadCars = v.RelativeOnTrackAheadOrder
                     .Where(c => !c.IsInPitLane)
                     .Take(relPos)
-                    .Reverse();
-                var aheadCount = aheadCars.Count();
+                    .Reverse()
+                    .ToList();
+                var aheadCount = aheadCars.Count;
 
                 if (aheadCount < relPos) {
                     for (var i = 0; i < relPos - aheadCount; i++) {
@@ -271,6 +273,9 @@ public class DynLeaderboard {
                     this._cars.Add(car);
                 }
             }
+                break;
+            case LeaderboardKind.NONE:
+            default:
                 break;
         }
     }

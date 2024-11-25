@@ -148,8 +148,8 @@
         </Compile>
         <Compile Include="src\settings\ui\ColorsTabSection.cs"/>
         <Compile Include="src\settings\ui\Common.cs"/>
-        <Compile Include="src\settings\ui\ConfimDialog.xaml.cs">
-            <DependentUpon>ConfimDialog.xaml</DependentUpon>
+        <Compile Include="src\settings\ui\ConfirmDialog.xaml.cs">
+            <DependentUpon>ConfirmDialog.xaml</DependentUpon>
             <CopyToOutputDirectory>Always</CopyToOutputDirectory>
         </Compile>
         <Compile Include="src\components\CarData.cs"/>
@@ -189,7 +189,7 @@
             <SubType>Designer</SubType>
             <Generator>MSBuild:Compile</Generator>
         </Page>
-        <Page Include="src\settings\ui\ConfimDialog.xaml">
+        <Page Include="src\settings\ui\ConfirmDialog.xaml">
             <SubType>Designer</SubType>
             <Generator>MSBuild:Compile</Generator>
             <CopyToOutputDirectory>Always</CopyToOutputDirectory>

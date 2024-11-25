@@ -31,7 +31,7 @@ internal class Timer {
 
     internal Timer(string path) {
         this._watch = new Stopwatch();
-        Directory.CreateDirectory(Path.GetDirectoryName(path));
+        Directory.CreateDirectory(Path.GetDirectoryName(path) ?? throw new InvalidOperationException());
         this._file = File.Create(path);
         this._writer = new StreamWriter(this._file);
     }
@@ -174,11 +174,7 @@ internal static class DictExtensions {
     }
 
     internal static V? GetValueOr<K, V>(this Dictionary<K, V> dict, K key, V? defValue) {
-        if (dict.ContainsKey(key)) {
-            return dict[key];
-        }
-
-        return defValue;
+        return dict.TryGetValue(key, out var val) ? val : defValue;
     }
 
     internal static V GetOrAddValue<K, V>(this Dictionary<K, V> dict, K key, V defValue) {

@@ -23,7 +23,7 @@ namespace KLPlugins.DynLeaderboards;
 [PluginDescription("")]
 [PluginAuthor("Kaius Loos")]
 [PluginName(DynLeaderboardsPlugin.PLUGIN_NAME)]
-public class DynLeaderboardsPlugin : IPlugin, IDataPlugin, IWPFSettingsV2 {
+public class DynLeaderboardsPlugin : IDataPlugin, IWPFSettingsV2 {
     // The properties that compiler yells at that can be null are set in Init method.
     // For the purposes of this plugin, they are never null
     #pragma warning disable CS8618
@@ -31,7 +31,7 @@ public class DynLeaderboardsPlugin : IPlugin, IDataPlugin, IWPFSettingsV2 {
     public ImageSource PictureIcon => this.ToIcon(Properties.Resources.sdkmenuicon);
     public string LeftMenuTitle => DynLeaderboardsPlugin.PLUGIN_NAME;
 
-    internal const string PLUGIN_NAME = "Dynamic Leaderboards";
+    private const string PLUGIN_NAME = "Dynamic Leaderboards";
     internal static PluginSettings Settings;
     internal static Game Game; // Const during the lifetime of this plugin, plugin is rebuilt at game change
     internal static string PluginStartTime = $"{DateTime.Now:dd-MM-yyyy_HH-mm-ss}";
@@ -51,8 +51,6 @@ public class DynLeaderboardsPlugin : IPlugin, IDataPlugin, IWPFSettingsV2 {
     ///     raw data are intentionally "hidden" under a generic object type (A plugin SHOULD NOT USE IT)
     ///     This method is on the critical path, it must execute as fast as possible and avoid throwing any error
     /// </summary>
-    /// <param name="pluginManager"></param>
-    /// <param name="data"></param>
     public void DataUpdate(PluginManager pm, ref GameData data) {
         var swatch = Stopwatch.StartNew();
         if (data.GameRunning && data.OldData != null && data.NewData != null) {
@@ -80,12 +78,12 @@ public class DynLeaderboardsPlugin : IPlugin, IDataPlugin, IWPFSettingsV2 {
         // Say something was accidentally copied there or file and leaderboard names were different which would render original file useless
         foreach (var fname in Directory.GetFiles(PluginSettings.LEADERBOARD_CONFIGS_DATA_DIR)) {
             var leaderboardName = fname.Replace(".json", "").Split('\\').Last();
-            if (!DynLeaderboardsPlugin.Settings.DynLeaderboardConfigs.Any(x => x.Name == leaderboardName)) {
+            if (DynLeaderboardsPlugin.Settings.DynLeaderboardConfigs.All(x => x.Name != leaderboardName)) {
                 File.Delete(fname);
             }
         }
 
-        this.Values?.Dispose();
+        this.Values.Dispose();
         if (DynLeaderboardsPlugin._logWriter != null) {
             DynLeaderboardsPlugin._logWriter.Dispose();
             DynLeaderboardsPlugin._logWriter = null;
@@ -112,15 +110,15 @@ public class DynLeaderboardsPlugin : IPlugin, IDataPlugin, IWPFSettingsV2 {
     /// </summary>
     /// <param name="pm"></param>
     public void Init(PluginManager pm) {
-        // Performance is important while in game, prejit methods at startup, to avoid doing that mid races
-        DynLeaderboardsPlugin.PreJit(); 
+        // Performance is important while in game, pre-jit methods at startup, to avoid doing that mid-races
+        DynLeaderboardsPlugin.PreJit();
 
         // Create new log file at game change
         DynLeaderboardsPlugin.PluginStartTime = $"{DateTime.Now:dd-MM-yyyy_HH-mm-ss}";
 
         PluginSettings.Migrate(); // migrate settings before reading them properly
         DynLeaderboardsPlugin.Settings = this.ReadCommonSettings("GeneralSettings", () => new PluginSettings());
-        this.InitLogging(); // needs to know if logging is enabled, but we want to do it as soon as possible, eg right after reading settings
+        this.InitLogging(); // needs to know if logging is enabled, but we want to do it as soon as possible, e.g. right after reading settings
 
         DynLeaderboardsPlugin.LogInfo("Starting plugin.");
 
@@ -263,7 +261,10 @@ public class DynLeaderboardsPlugin : IPlugin, IDataPlugin, IWPFSettingsV2 {
 
             void AddDriverProp<T>(OutDriverProp prop, string driverId, Func<T> valueProvider) {
                 if (l.Config.OutDriverProps.Includes(prop)) {
-                    this.AttachDelegate<DynLeaderboardsPlugin, T>($"{startName}.{driverId}.{prop.ToPropName()}", valueProvider);
+                    this.AttachDelegate<DynLeaderboardsPlugin, T>(
+                        $"{startName}.{driverId}.{prop.ToPropName()}",
+                        valueProvider
+                    );
                 }
             }
 
@@ -386,7 +387,7 @@ public class DynLeaderboardsPlugin : IPlugin, IDataPlugin, IWPFSettingsV2 {
                     OutDriverProp.TOTAL_DRIVING_TIME,
                     driverId,
                     () => {
-                        // We cannot pre calculate the total driving time because in some games (ACC) the current driver updates at first sector split.
+                        // We cannot pre-calculate the total driving time because in some games (ACC) the current driver updates at first sector split.
                         var car = l.GetDynCar(i);
                         return car?.Drivers.ElementAtOrDefault<Driver>(j)
                             ?.GetTotalDrivingTime(j == 0, car.CurrentStintTime)
@@ -426,7 +427,10 @@ public class DynLeaderboardsPlugin : IPlugin, IDataPlugin, IWPFSettingsV2 {
             AddProp<string?>(OutCarProp.TEAM_NAME, () => l.GetDynCar(i)?.TeamName);
             AddProp<string?>(OutCarProp.TEAM_CUP_CATEGORY, () => l.GetDynCar(i)?.TeamCupCategory.ToString());
 
-            AddStintProp<double?>(OutStintProp.CURRENT_STINT_TIME, () => l.GetDynCar(i)?.CurrentStintTime?.TotalSeconds);
+            AddStintProp<double?>(
+                OutStintProp.CURRENT_STINT_TIME,
+                () => l.GetDynCar(i)?.CurrentStintTime?.TotalSeconds
+            );
             AddStintProp<double?>(OutStintProp.LAST_STINT_TIME, () => l.GetDynCar(i)?.LastStintTime?.TotalSeconds);
             AddStintProp<int?>(OutStintProp.CURRENT_STINT_LAPS, () => l.GetDynCar(i)?.CurrentStintLaps);
             AddStintProp<int?>(OutStintProp.LAST_STINT_LAPS, () => l.GetDynCar(i)?.LastStintLaps);
@@ -440,12 +444,21 @@ public class DynLeaderboardsPlugin : IPlugin, IDataPlugin, IWPFSettingsV2 {
             AddGapProp<double?>(OutGapProp.GAP_TO_LEADER, () => l.GetDynCar(i)?.GapToLeader?.TotalSeconds);
             AddGapProp<double?>(OutGapProp.GAP_TO_CLASS_LEADER, () => l.GetDynCar(i)?.GapToClassLeader?.TotalSeconds);
             AddGapProp<double?>(OutGapProp.GAP_TO_CUP_LEADER, () => l.GetDynCar(i)?.GapToCupLeader?.TotalSeconds);
-            AddGapProp<double?>(OutGapProp.GAP_TO_FOCUSED_ON_TRACK, () => l.GetDynCar(i)?.GapToFocusedOnTrack?.TotalSeconds);
+            AddGapProp<double?>(
+                OutGapProp.GAP_TO_FOCUSED_ON_TRACK,
+                () => l.GetDynCar(i)?.GapToFocusedOnTrack?.TotalSeconds
+            );
             AddGapProp<double?>(OutGapProp.GAP_TO_FOCUSED_TOTAL, () => l.GetDynCar(i)?.GapToFocusedTotal?.TotalSeconds);
             AddGapProp<double?>(OutGapProp.GAP_TO_AHEAD_OVERALL, () => l.GetDynCar(i)?.GapToAhead?.TotalSeconds);
-            AddGapProp<double?>(OutGapProp.GAP_TO_AHEAD_IN_CLASS, () => l.GetDynCar(i)?.GapToAheadInClass?.TotalSeconds);
+            AddGapProp<double?>(
+                OutGapProp.GAP_TO_AHEAD_IN_CLASS,
+                () => l.GetDynCar(i)?.GapToAheadInClass?.TotalSeconds
+            );
             AddGapProp<double?>(OutGapProp.GAP_TO_AHEAD_IN_CUP, () => l.GetDynCar(i)?.GapToAheadInCup?.TotalSeconds);
-            AddGapProp<double?>(OutGapProp.GAP_TO_AHEAD_ON_TRACK, () => l.GetDynCar(i)?.GapToAheadOnTrack?.TotalSeconds);
+            AddGapProp<double?>(
+                OutGapProp.GAP_TO_AHEAD_ON_TRACK,
+                () => l.GetDynCar(i)?.GapToAheadOnTrack?.TotalSeconds
+            );
 
             AddGapProp<double?>(OutGapProp.DYNAMIC_GAP_TO_FOCUSED, () => l.GetDynGapToFocused(i)?.TotalSeconds);
             AddGapProp<double?>(OutGapProp.DYNAMIC_GAP_TO_AHEAD, () => l.GetDynGapToAhead(i)?.TotalSeconds);
@@ -616,20 +629,30 @@ public class DynLeaderboardsPlugin : IPlugin, IDataPlugin, IWPFSettingsV2 {
                 () => (int?)l.GetDynCar(i)?.RelativeOnTrackLapDiff ?? 0
             );
 
-            this.AttachDelegate<DynLeaderboardsPlugin, double?>($"{startName}.DBG_TotalSplinePosition", () => l.GetDynCar(i)?.TotalSplinePosition);
-            this.AttachDelegate<DynLeaderboardsPlugin, double?>($"{startName}.DBG_SplinePosition", () => l.GetDynCar(i)?.SplinePosition);
-            this.AttachDelegate<DynLeaderboardsPlugin, bool?>($"{startName}.DBG_HasCrossedStartLine", () => l.GetDynCar(i)?.HasCrossedStartLine);
+            this.AttachDelegate<DynLeaderboardsPlugin, double?>(
+                $"{startName}.DBG_TotalSplinePosition",
+                () => l.GetDynCar(i)?.TotalSplinePosition
+            );
+            this.AttachDelegate<DynLeaderboardsPlugin, double?>(
+                $"{startName}.DBG_SplinePosition",
+                () => l.GetDynCar(i)?.SplinePosition
+            );
+            this.AttachDelegate<DynLeaderboardsPlugin, bool?>(
+                $"{startName}.DBG_HasCrossedStartLine",
+                () => l.GetDynCar(i)?.HasCrossedStartLine
+            );
             //this.AttachDelegate($"{startName}.DBG_Position", () => (l.GetDynCar(i))?.NewData?.Position);
             // //this.AttachDelegate($"{startName}.DBG_TrackPosition", () => (l.GetDynCar(i))?.NewData?.TrackPosition);
-            this.AttachDelegate<DynLeaderboardsPlugin, CarData.OffsetLapUpdateType?>($"{startName}.DBG_OffsetLapUpdate", () => l.GetDynCar(i)?.OffsetLapUpdate);
+            this.AttachDelegate<DynLeaderboardsPlugin, CarData.OffsetLapUpdateType?>(
+                $"{startName}.DBG_OffsetLapUpdate",
+                () => l.GetDynCar(i)?.OffsetLapUpdate
+            );
             this.AttachDelegate<DynLeaderboardsPlugin, string>(
                 $"{startName}.DBG_Laps",
                 () => $"{l.GetDynCar(i)?.Laps.Old} : {l.GetDynCar(i)?.Laps.New}"
             );
             //this.AttachDelegate($"{startName}.DBG_ID", () => (l.GetDynCar(i))?.Id);
         }
-
-        ;
 
         for (var i = 0; i < l.MaxPositions; i++) {
             AddCar(i);
@@ -705,9 +728,9 @@ public class DynLeaderboardsPlugin : IPlugin, IDataPlugin, IWPFSettingsV2 {
             }
 
             var cls = uiInfo.Class;
-            if (cls == "race" || cls == "street") {
+            if (cls is "race" or "street") {
                 // Kunos cars have a proper class name in the tags as #... (for example #GT4 or #Vintage Touring)
-                var altCls = uiInfo.Tags?.Find(t => t.StartsWith("#"));
+                var altCls = uiInfo.Tags.Find(t => t.StartsWith("#"));
                 if (altCls != null) {
                     cls = altCls.Substring(1);
                 } else {
@@ -748,10 +771,11 @@ public class DynLeaderboardsPlugin : IPlugin, IDataPlugin, IWPFSettingsV2 {
 
     #region Logging
 
-    internal void InitLogging() {
+    private void InitLogging() {
         this._logFileName = $"{PluginSettings.PLUGIN_DATA_DIR}\\Logs\\Log_{DynLeaderboardsPlugin.PluginStartTime}.txt";
-        if (DynLeaderboardsPlugin.Settings.Log) {
-            Directory.CreateDirectory(Path.GetDirectoryName(this._logFileName));
+        var dirPath = Path.GetExtension(this._logFileName);
+        if (DynLeaderboardsPlugin.Settings.Log && dirPath != null) {
+            Directory.CreateDirectory(dirPath);
             DynLeaderboardsPlugin._logFile = File.Create(this._logFileName);
             DynLeaderboardsPlugin._logWriter = new StreamWriter(DynLeaderboardsPlugin._logFile);
         }

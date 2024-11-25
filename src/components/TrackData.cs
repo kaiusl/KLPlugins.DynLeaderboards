@@ -86,7 +86,7 @@ internal class LapInterpolator {
         }
 
         var dirPath = Path.GetDirectoryName(path);
-        if (!Directory.Exists(dirPath)) {
+        if (dirPath != null && !Directory.Exists(dirPath)) {
             Directory.CreateDirectory(dirPath);
         }
 
@@ -98,9 +98,9 @@ internal class LapInterpolator {
             }
 
             for (var i = 9; i > 0; i--) {
-                var bakpath = $"{path}.{i}.bak";
-                if (File.Exists(bakpath)) {
-                    File.Move(bakpath, $"{path}.{i + 1}.bak");
+                var backupPath = $"{path}.{i}.bak";
+                if (File.Exists(backupPath)) {
+                    File.Move(backupPath, $"{path}.{i + 1}.bak");
                 }
             }
 
@@ -124,7 +124,7 @@ internal class LapInterpolator {
         var i = 0;
         // Find first point where spline position is < 0.1.
         // On some tracks there may be an offset and the data starts at 0.9x or something.
-        // That is wrong pos to start. We use this.SplinePosOffset to correct it but it's not perfect, 
+        // That is wrong pos to start. We use this.SplinePosOffset to correct it, but it's not perfect, 
         // or it may be missing where it's needed.
         for (; i < rawPos.Count;) {
             var p = rawPos[i] + splinePosOffset;
@@ -325,15 +325,15 @@ public class TrackData {
             lastPos -= 1;
         }
 
-        #if DEBUG
-        var path =
-            $"{PluginSettings.PLUGIN_DATA_DIR}\\{DynLeaderboardsPlugin.Game.Name}\\laps_data_summary\\{this.Id}.txt";
-        Directory.CreateDirectory(Path.GetDirectoryName(path));
-        File.AppendAllText(
-            path,
-            $"{firstPosRaw:F5};{lastPosRaw:F5};{lapDataTime.First():F3};{lapDataTime.Last():F3};{cls.AsString()}\n"
-        );
-        #endif
+        // #if DEBUG
+        // var path =
+        //     $"{PluginSettings.PLUGIN_DATA_DIR}\\{DynLeaderboardsPlugin.Game.Name}\\laps_data_summary\\{this.Id}.txt";
+        // Directory.CreateDirectory(Path.GetDirectoryName(path));
+        // File.AppendAllText(
+        //     path,
+        //     $"{firstPosRaw:F5};{lastPosRaw:F5};{lapDataTime.First():F3};{lapDataTime.Last():F3};{cls.AsString()}\n"
+        // );
+        // #endif
 
         if (firstPos < 0.05 && lastPos > 0.95 && lapDataTime.First() < PluginSettings.LAP_DATA_TIME_DELAY_SEC * 5) {
             var newLapTime = lapDataTime.Last();
@@ -355,11 +355,11 @@ public class TrackData {
             );
             if (firstPosRaw > 0.9) {
                 // lap time resets before spline pos
-                // example: lap starts at 0.99, so offset is 1 - 0.99 = 0.01. Thus new lap starts at 0.0.
+                // example: lap starts at 0.99, so offset is 1 - 0.99 = 0.01. Thus, new lap starts at 0.0.
                 this.SplinePosOffset.Update(1 - firstPosRaw);
             } else if (lastPosRaw < 0.1) {
                 // lap time resets after spline pos
-                // example: lap ends at 0.01, so offset is 1 - 0.01 = 0.99. Thus new lap ends at 1.0. Start will be > 1.0 but we subtract 1 from it.
+                // example: lap ends at 0.01, so offset is 1 - 0.01 = 0.99. Thus, new lap ends at 1.0. Start will be > 1.0, but we subtract 1 from it.
                 this.SplinePosOffset.Update(1 - lastPosRaw);
             }
         } else {

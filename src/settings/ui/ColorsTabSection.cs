@@ -55,7 +55,7 @@ internal class ColorsTabSection<K> {
         var resetMenuResetAll = new MenuItem { Header = "Reset all" };
 
         resetMenu.Items.Add(resetMenuResetAll);
-        resetMenuResetAll.Click += (sender, e) => {
+        resetMenuResetAll.Click += (_, _) => {
             this._settingsControl.DoOnConfirmation(
                 () => {
                     foreach (var c in this._rows) {
@@ -69,7 +69,7 @@ internal class ColorsTabSection<K> {
 
         var resetMenuResetNames = new MenuItem { Header = "Reset all foreground" };
         resetMenu.Items.Add(resetMenuResetNames);
-        resetMenuResetNames.Click += (sender, e) => {
+        resetMenuResetNames.Click += (_, _) => {
             this._settingsControl.DoOnConfirmation(
                 () => {
                     foreach (var c in this._rows) {
@@ -83,7 +83,7 @@ internal class ColorsTabSection<K> {
 
         var resetMenuResetClasses = new MenuItem { Header = "Reset all backgrounds" };
         resetMenu.Items.Add(resetMenuResetClasses);
-        resetMenuResetClasses.Click += (sender, e) => {
+        resetMenuResetClasses.Click += (_, _) => {
             this._settingsControl.DoOnConfirmation(
                 () => {
                     foreach (var c in this._rows) {
@@ -98,7 +98,7 @@ internal class ColorsTabSection<K> {
         var disableMenu = new ButtonMenuItem { Header = "Disable all" };
         this.Menu.Items.Add(disableMenu);
 
-        disableMenu.Click += (sender, e) => {
+        disableMenu.Click += (_, _) => {
             this._settingsControl.DoOnConfirmation(
                 () => {
                     foreach (var c in this._rows) {
@@ -112,7 +112,7 @@ internal class ColorsTabSection<K> {
 
         var enableMenu = new ButtonMenuItem { Header = "Enable all" };
         this.Menu.Items.Add(enableMenu);
-        enableMenu.Click += (sender, e) => {
+        enableMenu.Click += (_, _) => {
             this._settingsControl.DoOnConfirmation(
                 () => {
                     foreach (var c in this._rows) {
@@ -130,24 +130,23 @@ internal class ColorsTabSection<K> {
 
             this.BuildLabelRow();
 
-            foreach (var (cls, i) in this.Colors.WithIndex() ?? []) {
+            foreach (var (cls, i) in this.Colors.WithIndex()) {
                 this.ColorsGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Auto) });
-                ColorRow row;
-                if (!this._rows.ContainsKey(cls.Key)) {
+                if (!this._rows.TryGetValue(cls.Key, out var row)) {
                     row = this.CreateNewRow(cls.Key, cls.Value, isDef);
                     this._rows[cls.Key] = row;
-                } else {
-                    row = this._rows[cls.Key];
                 }
 
                 row.AddToGrid(this.ColorsGrid, i + 1);
             }
         }
 
-        var refreshBtn = new ButtonMenuItem { Header = "Refresh" };
-        refreshBtn.ToolTip =
-            "Refresh colors. This will check if new classes or categories have been added and will add them here for customization.";
-        refreshBtn.Click += (sender, e) => RefreshColors();
+        var refreshBtn = new ButtonMenuItem {
+            Header = "Refresh",
+            ToolTip =
+                "Refresh colors. This will check if new classes or categories have been added and will add them here for customization.",
+        };
+        refreshBtn.Click += (_, _) => RefreshColors();
         this.Menu.Items.Add(refreshBtn);
     }
 
@@ -164,7 +163,7 @@ internal class ColorsTabSection<K> {
         this.ColorsGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Auto) });
         this.BuildLabelRow();
 
-        foreach (var (cls, i) in this.Colors.WithIndex() ?? []) {
+        foreach (var (cls, i) in this.Colors.WithIndex()) {
             this.ColorsGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Auto) });
             var row = this.CreateNewRow(cls.Key, cls.Value, isDef);
             this._rows[cls.Key] = row;
@@ -177,13 +176,11 @@ internal class ColorsTabSection<K> {
         if (color.HasBase() || isDef(cls)) {
             row.RemoveButton.IsEnabled = false;
             row.RemoveButton.Opacity = SettingsControl.DISABLED_OPTION_OPACITY;
-            if (isDef(cls)) {
-                row.RemoveButton.ToolTip = "This category is the default and cannot be removed.";
-            } else {
-                row.RemoveButton.ToolTip = "This category has base data and cannot be removed.";
-            }
+            row.RemoveButton.ToolTip = isDef(cls)
+                ? "This category is the default and cannot be removed."
+                : "This category has base data and cannot be removed.";
         } else {
-            row.RemoveButton.Click += (sender, e) => {
+            row.RemoveButton.Click += (_, _) => {
                 this.Colors.Remove(row.Key);
                 row.RemoveFromGrid(this.ColorsGrid);
             };
@@ -273,7 +270,7 @@ internal class ColorsTabSection<K> {
                 Style = (Style)findResource("ColorGrid_ColorPicker"),
             };
             Grid.SetColumn(this.BgColorPicker, 2);
-            this.BgColorPicker.SelectedColorChanged += (sender, e) => {
+            this.BgColorPicker.SelectedColorChanged += (_, _) => {
                 this.Color.SetBackground(this.BgColorPicker.SelectedColor.ToString());
                 this.ClassBox.Background = new SolidColorBrush(this.BgColorPicker.SelectedColor.Value);
                 updateInfos();
@@ -283,7 +280,7 @@ internal class ColorsTabSection<K> {
                 Opacity = opacity, IsEnabled = isEnabled, Style = (Style)findResource("ColorGrid_ResetButton"),
             };
             Grid.SetColumn(this.BgResetButton, 3);
-            this.BgResetButton.Click += (sender, e) => {
+            this.BgResetButton.Click += (_, _) => {
                 this.ResetBackground();
                 updateInfos();
             };
@@ -295,7 +292,7 @@ internal class ColorsTabSection<K> {
                 Style = (Style)findResource("ColorGrid_ColorPicker"),
             };
             Grid.SetColumn(this.FgColorPicker, 4);
-            this.FgColorPicker.SelectedColorChanged += (sender, e) => {
+            this.FgColorPicker.SelectedColorChanged += (_, _) => {
                 this.Color.SetForeground(this.FgColorPicker.SelectedColor.ToString());
                 this.ClassText.Foreground = new SolidColorBrush(this.FgColorPicker.SelectedColor.Value);
                 updateInfos();
@@ -305,7 +302,7 @@ internal class ColorsTabSection<K> {
                 Opacity = opacity, IsEnabled = isEnabled, Style = (Style)findResource("ColorGrid_ResetButton"),
             };
             Grid.SetColumn(this.FgResetButton, 5);
-            this.FgResetButton.Click += (sender, e) => {
+            this.FgResetButton.Click += (_, _) => {
                 this.ResetForeground();
                 updateInfos();
             };
@@ -323,7 +320,7 @@ internal class ColorsTabSection<K> {
             Grid.SetColumn(this.RemoveButton, 7);
             ToolTipService.SetShowOnDisabled(this.RemoveButton, true);
 
-            this.EnabledToggle.Checked += (sender, e) => {
+            this.EnabledToggle.Checked += (_, _) => {
                 this.Color.Enable();
                 this.ClassBox.IsEnabled = true;
                 this.ClassBox.Opacity = 1.0;
@@ -338,7 +335,7 @@ internal class ColorsTabSection<K> {
                 updateInfos();
             };
 
-            this.EnabledToggle.Unchecked += (sender, e) => {
+            this.EnabledToggle.Unchecked += (_, _) => {
                 var opacity = SettingsControl.DISABLED_OPTION_OPACITY;
                 this.Color.Disable();
                 this.ClassBox.IsEnabled = false;

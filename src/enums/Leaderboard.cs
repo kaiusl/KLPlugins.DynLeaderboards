@@ -31,7 +31,7 @@ internal static class LeaderboardExtensions {
             LeaderboardKind.RELATIVE_ON_TRACK =>
                 "`2N + 1` relative positions to the focused car on track. `N` can be set below.",
             LeaderboardKind.RELATIVE_ON_TRACK_WO_PIT =>
-                "`2N + 1` relative positions to the focused car on track excluding the cars in the pitlane which are not on the same lap as the focused car. `N` can be set below.",
+                "`2N + 1` relative positions to the focused car on track excluding the cars in the pit lane which are not on the same lap as the focused car. `N` can be set below.",
             LeaderboardKind.PARTIAL_RELATIVE_OVERALL =>
                 "`N` top positions and `2M + 1` relative positions in overall order. If the focused car is inside the first `N + M + 1` positions the order will be just as the overall leaderboard. `N` and `M` can be set below.",
             LeaderboardKind.PARTIAL_RELATIVE_CLASS =>

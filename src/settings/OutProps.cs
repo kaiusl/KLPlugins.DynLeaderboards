@@ -1,10 +1,11 @@
 using System;
+using System.ComponentModel;
 
 using Newtonsoft.Json;
 
 namespace KLPlugins.DynLeaderboards.Settings;
 
-internal interface IOutProps<T> {
+internal interface IOutProps<in T> {
     bool Includes(T o);
     void Combine(T o);
     void Remove(T o);
@@ -12,7 +13,7 @@ internal interface IOutProps<T> {
 
 internal abstract class OutPropsBase<T>(T value) : IOutProps<T>
     where T : struct {
-    public T Value { get; protected internal set; } = value;
+    protected T Value { get; set; } = value;
 
     public abstract bool Includes(T o);
     public abstract void Combine(T o);
@@ -30,11 +31,7 @@ internal abstract class OutPropsBase<T>(T value) : IOutProps<T>
             JsonSerializer serializer
         ) {
             var t = serializer.Deserialize<T?>(reader);
-            if (t == null) {
-                return null;
-            }
-
-            return construct(t.Value);
+            return t == null ? null : construct(t.Value);
         }
 
         public override void WriteJson(JsonWriter writer, object? value, JsonSerializer serializer) {
@@ -63,7 +60,7 @@ internal class OutGeneralProps : OutPropsBase<OutGeneralProp> {
         this.Value &= ~prop;
     }
 
-    public class JsonConvert() : OutPropBaseJsonConverter(p => new OutGeneralProps(p));
+    private class JsonConvert() : OutPropBaseJsonConverter(p => new OutGeneralProps(p));
 }
 
 [Flags]
@@ -112,7 +109,7 @@ internal static class OutGeneralPropExtensions {
             OutGeneralProp.DRIVER_CATEGORY_TEXT_COLORS => "Color.DriverCategory.<category>.Text",
             OutGeneralProp.NUM_CLASSES_IN_SESSION => "Session.NumberOfClasses",
             OutGeneralProp.NUM_CUPS_IN_SESSION => "Session.NumberOfCups",
-            _ => throw new ArgumentOutOfRangeException("Invalid enum variant"),
+            OutGeneralProp.NONE or _ => throw new InvalidEnumArgumentException("Invalid enum variant"),
         };
     }
 
@@ -132,7 +129,7 @@ internal static class OutGeneralPropExtensions {
             OutGeneralProp.NUM_CUPS_IN_SESSION =>
                 "Number of different cups (class and team cup category combinations) in current session.",
             OutGeneralProp.NONE => "None",
-            _ => throw new ArgumentOutOfRangeException($"Invalid enum variant {p}"),
+            _ => throw new InvalidEnumArgumentException($"Invalid enum variant {p}"),
         };
     }
 }
@@ -153,7 +150,7 @@ internal class OutCarProps : OutPropsBase<OutCarProp> {
         this.Value &= ~prop;
     }
 
-    public class JsonConvert() : OutPropBaseJsonConverter(p => new OutCarProps(p));
+    private class JsonConvert() : OutPropBaseJsonConverter(p => new OutCarProps(p));
 }
 
 [Flags]
@@ -235,7 +232,7 @@ internal static class OutCarPropExtensions {
             OutCarProp.IS_CLASS_BEST_LAP_CAR => "IsClassBestLapCar",
             OutCarProp.RELATIVE_ON_TRACK_LAP_DIFF => "RelativeOnTrackLapDiff",
             OutCarProp.IS_CUP_BEST_LAP_CAR => "IsCupBestLapCar",
-            _ => throw new ArgumentOutOfRangeException($"Invalid enum variant {p}"),
+            OutCarProp.NONE or _ => throw new ArgumentOutOfRangeException($"Invalid enum variant {p}"),
         };
     }
 
@@ -266,7 +263,7 @@ internal static class OutCarPropExtensions {
             OutCarProp.RELATIVE_ON_TRACK_LAP_DIFF =>
                 "Show if this car is ahead or behind by the lap on the relative on track. 1: this car is ahead by a lap, 0: same lap, -1: this car is behind by a lap.",
             OutCarProp.IS_CUP_BEST_LAP_CAR => "Is this the car that has cup best lap?",
-            _ => throw new ArgumentOutOfRangeException($"Invalid enum variant {p}"),
+            _ => throw new InvalidEnumArgumentException($"Invalid enum variant {p}"),
         };
     }
 }
@@ -287,7 +284,7 @@ internal class OutPitProps : OutPropsBase<OutPitProp> {
         this.Value &= ~prop;
     }
 
-    public class JsonConvert() : OutPropBaseJsonConverter(p => new OutPitProps(p));
+    private class JsonConvert() : OutPropBaseJsonConverter(p => new OutPitProps(p));
 }
 
 [Flags]
@@ -318,18 +315,18 @@ internal static class OutPitPropExtensions {
             OutPitProp.PIT_TIME_TOTAL => "Pit.Time.Total",
             OutPitProp.PIT_TIME_LAST => "Pit.Time.Last",
             OutPitProp.PIT_TIME_CURRENT => "Pit.Time.Current",
-            _ => throw new ArgumentOutOfRangeException($"Invalid enum variant {p}"),
+            OutPitProp.NONE or _ => throw new InvalidEnumArgumentException($"Invalid enum variant {p}"),
         };
     }
 
     internal static string ToolTipText(this OutPitProp p) {
         return p switch {
             OutPitProp.IS_IN_PIT_LANE => "Is the car in pit lane?",
-            OutPitProp.PIT_STOP_COUNT => "Number of pitstops.",
+            OutPitProp.PIT_STOP_COUNT => "Number of pit stops.",
             OutPitProp.PIT_TIME_TOTAL => "Total time spent in pits.",
             OutPitProp.PIT_TIME_LAST => "Last pit time.",
             OutPitProp.PIT_TIME_CURRENT => "Current time in pits.",
-            _ => throw new ArgumentOutOfRangeException($"Invalid enum variant {p}"),
+            OutPitProp.NONE or _ => throw new InvalidEnumArgumentException($"Invalid enum variant {p}"),
         };
     }
 }
@@ -350,7 +347,7 @@ internal class OutPosProps : OutPropsBase<OutPosProp> {
         this.Value &= ~prop;
     }
 
-    public class JsonConvert() : OutPropBaseJsonConverter(p => new OutPosProps(p));
+    private class JsonConvert() : OutPropBaseJsonConverter(p => new OutPosProps(p));
 }
 
 [Flags]
@@ -392,7 +389,7 @@ internal static class OutPosPropExtensions {
             OutPosProp.DYNAMIC_POSITION_START => "Position.Dynamic.Start",
             OutPosProp.CUP_POSITION => "Position.Cup",
             OutPosProp.CUP_POSITION_START => "Position.Cup.Start",
-            _ => throw new ArgumentOutOfRangeException($"Invalid enum variant {p}"),
+            OutPosProp.NONE or _ => throw new InvalidEnumArgumentException($"Invalid enum variant {p}"),
         };
     }
 
@@ -404,18 +401,22 @@ internal static class OutPosPropExtensions {
             OutPosProp.CLASS_POSITION_START => "Class position at race start",
             OutPosProp.OVERALL_POSITION_START => "Overall position at race start",
             OutPosProp.CUP_POSITION_START => "Cup position at race start",
-            OutPosProp.DYNAMIC_POSITION => @"Position that changes based of currently displayed dynamic leaderboard.
-Any overall -> overall position,
-Any class -> class position,
-Any cup -> cup position,
-RelativeOnTrack -> overall position",
+            OutPosProp.DYNAMIC_POSITION => """
+                                           Position that changes based of currently displayed dynamic leaderboard.
+                                           Any overall -> overall position,
+                                           Any class -> class position,
+                                           Any cup -> cup position,
+                                           RelativeOnTrack -> overall position
+                                           """,
             OutPosProp.DYNAMIC_POSITION_START =>
-                @"Position at the race start that changes based of currently displayed dynamic leaderboard.
-Any overall -> overall position,
-Any class -> class position,
-Any cup -> cup position,
-RelativeOnTrack -> overall position",
-            _ => throw new ArgumentOutOfRangeException($"Invalid enum variant {p}"),
+                """
+                Position at the race start that changes based of currently displayed dynamic leaderboard.
+                Any overall -> overall position,
+                Any class -> class position,
+                Any cup -> cup position,
+                RelativeOnTrack -> overall position
+                """,
+            OutPosProp.NONE or _ => throw new InvalidEnumArgumentException($"Invalid enum variant {p}"),
         };
     }
 }
@@ -436,7 +437,7 @@ internal class OutGapProps : OutPropsBase<OutGapProp> {
         this.Value &= ~prop;
     }
 
-    public class JsonConvert() : OutPropBaseJsonConverter(p => new OutGapProps(p));
+    private class JsonConvert() : OutPropBaseJsonConverter(p => new OutGapProps(p));
 }
 
 [Flags]
@@ -487,7 +488,7 @@ internal static class OutGapPropExtensions {
             OutGapProp.GAP_TO_AHEAD_ON_TRACK => "Gap.ToAhead.OnTrack",
             OutGapProp.DYNAMIC_GAP_TO_FOCUSED => "Gap.Dynamic.ToFocused",
             OutGapProp.DYNAMIC_GAP_TO_AHEAD => "Gap.Dynamic.ToAhead",
-            _ => throw new ArgumentOutOfRangeException($"Invalid enum variant {p}"),
+            OutGapProp.NONE or _ => throw new InvalidEnumArgumentException($"Invalid enum variant {p}"),
         };
     }
 
@@ -504,19 +505,23 @@ internal static class OutGapPropExtensions {
             OutGapProp.GAP_TO_AHEAD_IN_CLASS => "Total gap to the car ahead in class. Always positive.",
             OutGapProp.GAP_TO_AHEAD_IN_CUP => "Total gap to the car ahead in cup. Always positive.",
             OutGapProp.GAP_TO_AHEAD_ON_TRACK => "Relative on track gap to car ahead. Always positive.",
-            OutGapProp.DYNAMIC_GAP_TO_FOCUSED => @"Gap that changes based of currently displayed dynamic leaderboard.
-Overall -> gap to leader,
-Class -> gap to class leader,
-Cup -> gap to cup leader,
-PartialRelativeOverall/PartialRelativeClass/RelativePverall/RelativeClass -> gap to focused total,
-RelativeOnTrack -> gap to focused on track.",
+            OutGapProp.DYNAMIC_GAP_TO_FOCUSED => """
+                                                 Gap that changes based of currently displayed dynamic leaderboard.
+                                                 Overall -> gap to leader,
+                                                 Class -> gap to class leader,
+                                                 Cup -> gap to cup leader,
+                                                 PartialRelativeOverall/PartialRelativeClass/RelativeOverall/RelativeClass -> gap to focused total,
+                                                 RelativeOnTrack -> gap to focused on track.
+                                                 """,
             OutGapProp.DYNAMIC_GAP_TO_AHEAD =>
-                @"Gap to the car ahead that changes based on the currently displayed dynamic leaderboard.
-Overall/RelativeOverall/PartialRelativeOverall -> gap to ahead in overall order,
-Class/RelativeClass/PartialRelativeClass -> gap to ahead in class order,
-Cup/RelativeCup/PartialRelativeCup -> gap to ahead in cup order,
-RelativeOnTrack -> gap to ahead on track.",
-            _ => throw new ArgumentOutOfRangeException($"Invalid enum variant {p}"),
+                """
+                Gap to the car ahead that changes based on the currently displayed dynamic leaderboard.
+                Overall/RelativeOverall/PartialRelativeOverall -> gap to ahead in overall order,
+                Class/RelativeClass/PartialRelativeClass -> gap to ahead in class order,
+                Cup/RelativeCup/PartialRelativeCup -> gap to ahead in cup order,
+                RelativeOnTrack -> gap to ahead on track.
+                """,
+            OutGapProp.NONE or _ => throw new InvalidEnumArgumentException($"Invalid enum variant {p}"),
         };
     }
 }
@@ -537,7 +542,7 @@ internal class OutStintProps : OutPropsBase<OutStintProp> {
         this.Value &= ~prop;
     }
 
-    public class JsonConvert() : OutPropBaseJsonConverter(p => new OutStintProps(p));
+    private class JsonConvert() : OutPropBaseJsonConverter(p => new OutStintProps(p));
 }
 
 [Flags]
@@ -565,7 +570,7 @@ internal static class OutStintPropExtensions {
             OutStintProp.CURRENT_STINT_LAPS => "Stint.Current.Laps",
             OutStintProp.LAST_STINT_TIME => "Stint.Last.Time",
             OutStintProp.LAST_STINT_LAPS => "Stint.Last.Laps",
-            _ => throw new ArgumentOutOfRangeException($"Invalid enum variant {p}"),
+            OutStintProp.NONE or _ => throw new InvalidEnumArgumentException($"Invalid enum variant {p}"),
         };
     }
 
@@ -575,7 +580,7 @@ internal static class OutStintPropExtensions {
             OutStintProp.LAST_STINT_TIME => "Last stint time.",
             OutStintProp.CURRENT_STINT_LAPS => "Number of laps completed in current stint",
             OutStintProp.LAST_STINT_LAPS => "Number of laps completed in last stint",
-            _ => throw new ArgumentOutOfRangeException($"Invalid enum variant {p}"),
+            OutStintProp.NONE or _ => throw new InvalidEnumArgumentException($"Invalid enum variant {p}"),
         };
     }
 }
@@ -596,7 +601,7 @@ internal class OutLapProps : OutPropsBase<OutLapProp> {
         this.Value &= ~prop;
     }
 
-    public class JsonConvert() : OutPropBaseJsonConverter(p => new OutLapProps(p));
+    private class JsonConvert() : OutPropBaseJsonConverter(p => new OutLapProps(p));
 }
 
 [Flags]
@@ -776,7 +781,7 @@ internal static class OutLapPropExtensions {
             OutLapProp.LAST_LAP_IS_OUT_LAP => "Laps.Last.IsOutLap",
             OutLapProp.CURRENT_LAP_IS_IN_LAP => "Laps.Current.IsInLap",
             OutLapProp.LAST_LAP_IS_IN_LAP => "Laps.Last.IsInLap",
-            _ => throw new ArgumentOutOfRangeException("Invalid enum variant"),
+            OutLapProp.NONE or _ => throw new InvalidEnumArgumentException("Invalid enum variant"),
         };
     }
 
@@ -789,59 +794,72 @@ internal static class OutLapPropExtensions {
             OutLapProp.BEST_LAP_SECTORS => "Best lap sector times.",
             OutLapProp.BEST_SECTORS => "Best sector times.",
             OutLapProp.CURRENT_LAP_TIME => "Current lap time.",
-            OutLapProp.BEST_LAP_DELTA_TO_OVERALL_BEST => "Best lap delta to the overall best lap.",
-            OutLapProp.BEST_LAP_DELTA_TO_CLASS_BEST => "Best lap delta to the class best lap.",
-            OutLapProp.BEST_LAP_DELTA_TO_CUP_BEST => "Best lap delta to the cup best lap.",
-            OutLapProp.BEST_LAP_DELTA_TO_LEADER_BEST => "Best lap delta to the leader's best lap.",
-            OutLapProp.BEST_LAP_DELTA_TO_CLASS_LEADER_BEST => "Best lap delta to the class leader's best lap.",
-            OutLapProp.BEST_LAP_DELTA_TO_CUP_LEADER_BEST => "Best lap delta to the cup leader's best lap.",
-            OutLapProp.BEST_LAP_DELTA_TO_FOCUSED_BEST => "Best lap delta to the focused car's best lap.",
-            OutLapProp.BEST_LAP_DELTA_TO_AHEAD_BEST => "Best lap delta to the ahead car's best lap.",
-            OutLapProp.BEST_LAP_DELTA_TO_AHEAD_IN_CLASS_BEST => "Best lap delta to the in class ahead car's best lap.",
-            OutLapProp.BEST_LAP_DELTA_TO_AHEAD_IN_CUP_BEST => "Best lap delta to the in cup ahead car's best lap.",
-            OutLapProp.LAST_LAP_DELTA_TO_OVERALL_BEST => "Last lap delta to the overall best lap.",
-            OutLapProp.LAST_LAP_DELTA_TO_CLASS_BEST => "Last lap delta to the class best lap.",
-            OutLapProp.LAST_LAP_DELTA_TO_CUP_BEST => "Last lap delta to the cup best lap.",
-            OutLapProp.LAST_LAP_DELTA_TO_LEADER_BEST => "Last lap delta to the leader's best lap.",
-            OutLapProp.LAST_LAP_DELTA_TO_CLASS_LEADER_BEST => "Last lap delta to the class leader's best lap.",
-            OutLapProp.LAST_LAP_DELTA_TO_CUP_LEADER_BEST => "Last lap delta to the cup leader's best lap.",
-            OutLapProp.LAST_LAP_DELTA_TO_FOCUSED_BEST => "Last lap delta to the focused car's best lap.",
-            OutLapProp.LAST_LAP_DELTA_TO_AHEAD_BEST => "Last lap delta to the ahead car's best lap.",
-            OutLapProp.LAST_LAP_DELTA_TO_AHEAD_IN_CLASS_BEST => "Last lap delta to the in class car ahead's best lap.",
-            OutLapProp.LAST_LAP_DELTA_TO_AHEAD_IN_CUP_BEST => "Last lap delta to the in cup car ahead's best lap.",
+            OutLapProp.BEST_LAP_DELTA_TO_OVERALL_BEST => "Best lap delta to the best lap overall.",
+            OutLapProp.BEST_LAP_DELTA_TO_CLASS_BEST => "Best lap delta to the best lap in class.",
+            OutLapProp.BEST_LAP_DELTA_TO_CUP_BEST => "Best lap delta to the best lap in cup.",
+            OutLapProp.BEST_LAP_DELTA_TO_LEADER_BEST => "Best lap delta to the best lap of overall leader.",
+            OutLapProp.BEST_LAP_DELTA_TO_CLASS_LEADER_BEST => "Best lap delta to the best lap of class leader.",
+            OutLapProp.BEST_LAP_DELTA_TO_CUP_LEADER_BEST => "Best lap delta to the best lap of cup leader.",
+            OutLapProp.BEST_LAP_DELTA_TO_FOCUSED_BEST => "Best lap delta to the best lap of focused car.",
+            OutLapProp.BEST_LAP_DELTA_TO_AHEAD_BEST =>
+                "Best lap delta to the best lap of the car ahead in overall order.",
+            OutLapProp.BEST_LAP_DELTA_TO_AHEAD_IN_CLASS_BEST =>
+                "Best lap delta to the best lap of the car ahead in class.",
+            OutLapProp.BEST_LAP_DELTA_TO_AHEAD_IN_CUP_BEST => "Best lap delta to the best lap of the car ahead in cup.",
+
+            OutLapProp.LAST_LAP_DELTA_TO_OVERALL_BEST => "Last lap delta to the best lap overall.",
+            OutLapProp.LAST_LAP_DELTA_TO_CLASS_BEST => "Last lap delta to the best lap in class.",
+            OutLapProp.LAST_LAP_DELTA_TO_CUP_BEST => "Last lap delta to the best lap in cup.",
+            OutLapProp.LAST_LAP_DELTA_TO_LEADER_BEST => "Last lap delta to the best lap of overall leader.",
+            OutLapProp.LAST_LAP_DELTA_TO_CLASS_LEADER_BEST => "Last lap delta to the best lap of class leader.",
+            OutLapProp.LAST_LAP_DELTA_TO_CUP_LEADER_BEST => "Last lap delta to the best lap of cup leader.",
+            OutLapProp.LAST_LAP_DELTA_TO_FOCUSED_BEST => "Last lap delta to the best lap of the focused car.",
+            OutLapProp.LAST_LAP_DELTA_TO_AHEAD_BEST =>
+                "Last lap delta to the best lap of the car ahead in overall order.",
+            OutLapProp.LAST_LAP_DELTA_TO_AHEAD_IN_CLASS_BEST =>
+                "Last lap delta to the best lap of the car ahead in class.",
+            OutLapProp.LAST_LAP_DELTA_TO_AHEAD_IN_CUP_BEST => "Last lap delta to the best lap of the car ahead in cup.",
             OutLapProp.LAST_LAP_DELTA_TO_OWN_BEST => "Last lap delta to own best lap.",
-            OutLapProp.LAST_LAP_DELTA_TO_LEADER_LAST => "Last lap delta to the leader's last lap.",
-            OutLapProp.LAST_LAP_DELTA_TO_CLASS_LEADER_LAST => "Last lap delta to the class leaders last lap.",
-            OutLapProp.LAST_LAP_DELTA_TO_CUP_LEADER_LAST => "Last lap delta to the cup leaders last lap.",
-            OutLapProp.LAST_LAP_DELTA_TO_FOCUSED_LAST => "Last lap delta to the focused car's last lap.",
-            OutLapProp.LAST_LAP_DELTA_TO_AHEAD_LAST => "Last lap delta to the ahead car's last lap.",
-            OutLapProp.LAST_LAP_DELTA_TO_AHEAD_IN_CLASS_LAST => "Last lap delta to the in class ahead car's last lap.",
-            OutLapProp.LAST_LAP_DELTA_TO_AHEAD_IN_CUP_LAST => "Last lap delta to the in cup ahead car's last lap.",
+
+            OutLapProp.LAST_LAP_DELTA_TO_LEADER_LAST => "Last lap delta to the last lap of the overall leader.",
+            OutLapProp.LAST_LAP_DELTA_TO_CLASS_LEADER_LAST => "Last lap delta to the last lap of the class leader.",
+            OutLapProp.LAST_LAP_DELTA_TO_CUP_LEADER_LAST => "Last lap delta to the last lap of the cup leader.",
+            OutLapProp.LAST_LAP_DELTA_TO_FOCUSED_LAST => "Last lap delta to the last lap of focused car.",
+            OutLapProp.LAST_LAP_DELTA_TO_AHEAD_LAST => "Last lap delta to the last lap of car ahead in overall order.",
+            OutLapProp.LAST_LAP_DELTA_TO_AHEAD_IN_CLASS_LAST =>
+                "Last lap delta to the last lap of the car ahead in class.",
+            OutLapProp.LAST_LAP_DELTA_TO_AHEAD_IN_CUP_LAST => "Last lap delta to the last lap of the car ahead in cup.",
             OutLapProp.DYNAMIC_BEST_LAP_DELTA_TO_FOCUSED_BEST =>
-                @"Best lap delta to the car's best based on currently displayed dynamic leaderboard.
-Overall -> delta to leader's best lap,
-Class -> delta to class leader's best lap,
-Cup -> delta to cup leader's best lap,
-Any relative -> delta to focused car's best lap",
+                """
+                Best lap delta to the car's best based on currently displayed dynamic leaderboard.
+                Overall -> delta to leader's best lap,
+                Class -> delta to class leader's best lap,
+                Cup -> delta to cup leader's best lap,
+                Any relative -> delta to focused car's best lap
+                """,
             OutLapProp.DYNAMIC_LAST_LAP_DELTA_TO_FOCUSED_BEST =>
-                @"Last lap delta to the car's best based on currently displayed dynamic leaderboard.
-Overall -> delta to leader's best lap,
-Class -> delta to class leader's best lap,
-Cup -> delta to cup leader's best lap,
-Any relative -> delta to focused car's best lap",
+                """
+                Last lap delta to the car's best based on currently displayed dynamic leaderboard.
+                Overall -> delta to leader's best lap,
+                Class -> delta to class leader's best lap,
+                Cup -> delta to cup leader's best lap,
+                Any relative -> delta to focused car's best lap
+                """,
             OutLapProp.DYNAMIC_LAST_LAP_DELTA_TO_FOCUSED_LAST =>
-                @"Last lap delta to the car's last based on currently displayed dynamic leaderboard.
-Overall -> delta to leader's last lap,
-Class -> delta to class leader's last lap,
-Cup -> delta to cup leader's last lap,
-Any relative -> delta to focused car's last lap",
+                """
+                Last lap delta to the car's last based on currently displayed dynamic leaderboard.
+                Overall -> delta to leader's last lap,
+                Class -> delta to class leader's last lap,
+                Cup -> delta to cup leader's last lap,
+                Any relative -> delta to focused car's last lap
+                """,
             OutLapProp.CURRENT_LAP_IS_VALID => "Is current lap valid?",
             OutLapProp.LAST_LAP_IS_VALID => "Was last lap valid?",
             OutLapProp.CURRENT_LAP_IS_OUT_LAP => "Is current lap an out lap?",
             OutLapProp.LAST_LAP_IS_OUT_LAP => "Was last lap an out lap?",
             OutLapProp.CURRENT_LAP_IS_IN_LAP => "Is current lap an in lap?",
             OutLapProp.LAST_LAP_IS_IN_LAP => "Was last lap an in lap?",
-            _ => throw new ArgumentOutOfRangeException("Invalid enum variant"),
+            OutLapProp.NONE or _ => throw new InvalidEnumArgumentException("Invalid enum variant"),
         };
     }
 }
@@ -862,7 +880,7 @@ internal class OutDriverProps : OutPropsBase<OutDriverProp> {
         this.Value &= ~prop;
     }
 
-    public class JsonConvert() : OutPropBaseJsonConverter(p => new OutDriverProps(p));
+    private class JsonConvert() : OutPropBaseJsonConverter(p => new OutDriverProps(p));
 }
 
 [Flags]
@@ -918,7 +936,7 @@ internal static class OutDriverPropExtensions {
             OutDriverProp.CATEGORY_COLOR_DEPRECATED => "CategoryColor",
             OutDriverProp.CATEGORY_COLOR => "Category.Color",
             OutDriverProp.CATEGORY_COLOR_TEXT => "Category.TextColor",
-            _ => throw new ArgumentOutOfRangeException($"Invalid enum variant {p}"),
+            OutDriverProp.NONE or _ => throw new InvalidEnumArgumentException($"Invalid enum variant {p}"),
         };
     }
 
@@ -938,7 +956,7 @@ internal static class OutDriverPropExtensions {
             OutDriverProp.CATEGORY_COLOR_DEPRECATED => "DEPRECATED. Use Category.Color instead.",
             OutDriverProp.CATEGORY_COLOR => "Background color for driver category",
             OutDriverProp.CATEGORY_COLOR_TEXT => "Text color for driver category",
-            _ => throw new ArgumentOutOfRangeException($"Invalid enum variant {p}"),
+            _ => throw new InvalidEnumArgumentException($"Invalid enum variant {p}"),
         };
     }
 }

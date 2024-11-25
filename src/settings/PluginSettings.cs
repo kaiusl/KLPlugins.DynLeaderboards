@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 
@@ -23,8 +22,8 @@ internal class PluginSettings {
     [JsonProperty] public bool IncludeSt21InGt2 { get; set; }
     [JsonProperty] public bool IncludeChlInGt2 { get; set; }
 
-    [JsonIgnore] internal const int CURRENT_SETTINGS_VERSION = 3;
-    [JsonIgnore] internal List<DynLeaderboardConfig> DynLeaderboardConfigs { get; set; } = [];
+    [JsonIgnore] private const int _CURRENT_SETTINGS_VERSION = 3;
+    [JsonIgnore] internal List<DynLeaderboardConfig> DynLeaderboardConfigs { get; set; }
 
     [JsonIgnore] internal const string PLUGIN_DATA_DIR = "PluginsData\\KLPlugins\\DynLeaderboards";
 
@@ -242,18 +241,18 @@ internal class PluginSettings {
         var savedSettings = JObject.Parse(File.ReadAllText(settingsFname));
 
         var version = 0; // If settings doesn't contain version key, it's 0
-        if (savedSettings.ContainsKey("Version")) {
-            version = (int)savedSettings["Version"]!;
+        if (savedSettings.TryGetValue("Version", out var savedSetting)) {
+            version = (int)savedSetting!;
         }
 
-        if (version != PluginSettings.CURRENT_SETTINGS_VERSION) {
+        if (version != PluginSettings._CURRENT_SETTINGS_VERSION) {
             // Migrate step by step to current version.
-            while (version != PluginSettings.CURRENT_SETTINGS_VERSION) {
+            while (version != PluginSettings._CURRENT_SETTINGS_VERSION) {
                 savedSettings = migrations[$"{version}_{version + 1}"](savedSettings);
                 version += 1;
             }
 
-            // Save up to date setting back to the disk
+            // Save up-to-date setting back to the disk
             using var file = File.CreateText(settingsFname);
             var serializer = new JsonSerializer { Formatting = Formatting.Indented };
             serializer.Serialize(file, savedSettings);
@@ -263,7 +262,7 @@ internal class PluginSettings {
     }
 
     /// <summary>
-    ///     Creates dictionary of migrations to be called. Key is "oldversion_newversion".
+    ///     Creates dictionary of migrations to be called. Key is "old_version_new_version".
     /// </summary>
     /// <returns></returns>
     private static Dictionary<string, Migration> CreateMigrationsDict() {
@@ -272,7 +271,7 @@ internal class PluginSettings {
         };
 
         #if DEBUG
-        for (var i = 0; i < PluginSettings.CURRENT_SETTINGS_VERSION; i++) {
+        for (var i = 0; i < PluginSettings._CURRENT_SETTINGS_VERSION; i++) {
             Debug.Assert(migrations.ContainsKey($"{i}_{i + 1}"), $"Migration from v{i} to v{i + 1} is not set.");
         }
         #endif
@@ -296,11 +295,11 @@ internal class PluginSettings {
         Directory.CreateDirectory(PluginSettings.LEADERBOARD_CONFIGS_DATA_DIR);
         Directory.CreateDirectory(PluginSettings.LEADERBOARD_CONFIGS_DATA_BACKUP_DIR);
         const string key = "DynLeaderboardConfigs";
-        if (o.ContainsKey(key)) {
-            foreach (var cfg in o[key]!) {
+        if (o.TryGetValue(key, out var configs)) {
+            foreach (var cfg in configs) {
                 var fname = $"{PluginSettings.LEADERBOARD_CONFIGS_DATA_DIR}\\{cfg["Name"]}.json";
-                if (File.Exists(fname)) // Don't overwrite existing configs
-                {
+                // Don't overwrite existing configs
+                if (File.Exists(fname)) {
                     continue;
                 }
 
@@ -358,7 +357,7 @@ internal class PluginSettings {
 }
 
 internal class DynLeaderboardConfig {
-    [JsonIgnore] internal const int CURRENT_CONFIG_VERSION = 3;
+    [JsonIgnore] private const int _CURRENT_CONFIG_VERSION = 3;
 
     [JsonProperty] public int Version { get; set; } = 3;
 
@@ -369,7 +368,7 @@ internal class DynLeaderboardConfig {
         get => this._name;
         set {
             var arr = value.ToCharArray();
-            arr = Array.FindAll(arr, c => char.IsLetterOrDigit(c));
+            arr = Array.FindAll(arr, char.IsLetterOrDigit);
             this._name = new string(arr);
         }
     }
@@ -475,7 +474,7 @@ internal class DynLeaderboardConfig {
     private delegate JObject Migration(JObject o);
 
     public Leaderboard CurrentLeaderboard() {
-        return this.Order.ElementAtOrDefault(this.CurrentLeaderboardIdx);
+        return this.Order.ElementAt(this.CurrentLeaderboardIdx);
     }
 
     public DynLeaderboardConfig() { }
@@ -562,21 +561,21 @@ internal class DynLeaderboardConfig {
             var savedSettings = JObject.Parse(File.ReadAllText(fileName));
 
             var version = 0; // If settings doesn't contain version key, it's 0
-            if (savedSettings.ContainsKey("Version")) {
-                version = (int)savedSettings["Version"]!;
+            if (savedSettings.TryGetValue("Version", out var setting)) {
+                version = (int)setting!;
             }
 
-            if (version == DynLeaderboardConfig.CURRENT_CONFIG_VERSION) {
+            if (version == DynLeaderboardConfig._CURRENT_CONFIG_VERSION) {
                 return;
             }
 
             // Migrate step by step to current version.
-            while (version != DynLeaderboardConfig.CURRENT_CONFIG_VERSION) {
+            while (version != DynLeaderboardConfig._CURRENT_CONFIG_VERSION) {
                 savedSettings = migrations[$"{version}_{version + 1}"](savedSettings);
                 version += 1;
             }
 
-            // Save up to date setting back to the disk
+            // Save up-to-date setting back to the disk
             using var file = File.CreateText(fileName);
             var serializer = new JsonSerializer { Formatting = Formatting.Indented };
             serializer.Serialize(file, savedSettings);
@@ -584,7 +583,7 @@ internal class DynLeaderboardConfig {
     }
 
     /// <summary>
-    ///     Creates dictionary of migrations to be called. Key is "oldversion_newversion".
+    ///     Creates dictionary of migrations to be called. Key is "old_version_new_version".
     /// </summary>
     /// <returns></returns>
     private static Dictionary<string, Migration> CreateMigrationsDict() {
@@ -593,7 +592,7 @@ internal class DynLeaderboardConfig {
         };
 
         #if DEBUG
-        for (var i = 1; i < DynLeaderboardConfig.CURRENT_CONFIG_VERSION; i++) {
+        for (var i = 1; i < DynLeaderboardConfig._CURRENT_CONFIG_VERSION; i++) {
             Debug.Assert(
                 migrations.ContainsKey($"{i}_{i + 1}"),
                 $"Migration from v{i} to v{i + 1} is not set for DynLeaderboardConfig."
@@ -624,8 +623,6 @@ internal class DynLeaderboardConfig {
     /// <summary>
     ///     Migration of setting from version 0 to version 1
     /// </summary>
-    /// <param name="o"></param>
-    /// <returns></returns>
     private static JObject Mig2To3(JObject cfg) {
         // v2 to v3 changes:
         // - Bump versions!
@@ -674,21 +671,25 @@ internal class LeaderboardKindTypeConverter : TypeConverter {
     public override object ConvertFrom(
         ITypeDescriptorContext context,
         System.Globalization.CultureInfo culture,
-        object value
+        object? value
     ) {
-        return new Leaderboard((LeaderboardKind)(long)value);
+        if (value is long val) {
+            return new Leaderboard((LeaderboardKind)val);
+        }
+
+        throw new NotSupportedException($"cannot convert object of type `{value?.GetType()}` to `LeaderboardKind`");
     }
 
     public override bool CanConvertTo(ITypeDescriptorContext context, Type destinationType) {
         return false;
     }
 
-    public override object ConvertTo(
-        ITypeDescriptorContext context,
-        System.Globalization.CultureInfo culture,
-        object value,
-        Type destinationType
-    ) {
-        return base.ConvertTo(context, culture, value, destinationType);
-    }
+    // public override object ConvertTo(
+    //     ITypeDescriptorContext context,
+    //     System.Globalization.CultureInfo culture,
+    //     object value,
+    //     Type destinationType
+    // ) {
+    //     return base.ConvertTo(context, culture, value, destinationType);
+    // }
 }

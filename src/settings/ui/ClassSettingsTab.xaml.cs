@@ -1,15 +1,18 @@
 ﻿using System;
 using System.Collections;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Globalization;
 using System.Linq;
 using System.Windows.Controls;
 using System.Windows.Data;
+using System.Windows.Forms;
 using System.Windows.Input;
 
 using KLPlugins.DynLeaderboards.Car;
+
+using Control = System.Windows.Controls.Control;
+using UserControl = System.Windows.Controls.UserControl;
 
 namespace KLPlugins.DynLeaderboards.Settings.UI;
 
@@ -22,9 +25,12 @@ public partial class ClassSettingsTab : UserControl {
         this._viewModel = new ClassSettingsTabViewModel(settingsControl, values, classesManager);
         this.DataContext = this._viewModel;
 
-        this._viewModel.PropertyChanged += (sender, e) => {
+        this._viewModel.PropertyChanged += (_, e) => {
             if (e.PropertyName == nameof(this._viewModel.SelectedClass)) {
-                this.Classes_ListBox.ScrollIntoView(this._viewModel.SelectedClass);
+                var selectedClass = this._viewModel.SelectedClass;
+                if (selectedClass != null) {
+                    this.Classes_ListBox.ScrollIntoView(selectedClass);
+                }
             }
         };
     }
@@ -124,7 +130,7 @@ internal class ClassSettingsTabViewModel : INotifyPropertyChanged {
             );
         }
 
-        this._classesManager.CollectionChanged += (s, e) => {
+        this._classesManager.CollectionChanged += (_, e) => {
             if (e.NewItems != null) {
                 ClassListBoxItem? last = null;
                 foreach (OverridableClassInfo.Manager item in e.NewItems) {
@@ -203,20 +209,31 @@ internal class ClassSettingsTabViewModel : INotifyPropertyChanged {
     }
 
     private async void AddNewClass() {
-        var dialogWindow = new ChooseNewClassNameDialog("Add new class", this._classesManager);
-        var res = await dialogWindow.ShowDialogWindowAsync(this._settingsControl);
+        try {
+            var dialogWindow = new ChooseNewClassNameDialog("Add new class", this._classesManager);
+            var res = await dialogWindow.ShowDialogWindowAsync(this._settingsControl);
 
-        switch (res) {
-            case System.Windows.Forms.DialogResult.OK:
-                DynLeaderboardsPlugin.LogInfo($"Add new class `{dialogWindow.Text}`");
-                var clsName = dialogWindow.Text;
-                // ChooseNewClassNameDialog validates that the entered class name is valid new name and OK cannot be pressed before
-                var cls = new CarClass(clsName!);
-                this._classesManager.TryAdd(cls);
-                break;
+            switch (res) {
+                case DialogResult.OK:
+                    DynLeaderboardsPlugin.LogInfo($"Add new class `{dialogWindow.Text}`");
+                    var clsName = dialogWindow.Text;
+                    // ChooseNewClassNameDialog validates that the entered class name is valid new name and OK cannot be pressed before
+                    var cls = new CarClass(clsName!);
+                    this._classesManager.TryAdd(cls);
+                    break;
+                case DialogResult.None:
+                case DialogResult.Cancel:
+                case DialogResult.Abort:
+                case DialogResult.Retry:
+                case DialogResult.Ignore:
+                case DialogResult.Yes:
+                case DialogResult.No:
+                default:
+                    break;
+            }
+        } catch (Exception e) {
+            DynLeaderboardsPlugin.LogError($"Failed to add a new class: {e}");
         }
-
-        ;
     }
 }
 
@@ -277,7 +294,9 @@ internal class SelectedClassViewModel : INotifyPropertyChanged {
     private readonly ClassInfos.Manager _classesManager;
 
     #if DESIGN
+    #pragma warning disable CS8618, CS9264
     internal SelectedClassViewModel() { }
+    #pragma warning restore CS8618, CS9264
     #endif
 
     internal SelectedClassViewModel(
@@ -313,24 +332,35 @@ internal class SelectedClassViewModel : INotifyPropertyChanged {
     }
 
     private async void DuplicateClass() {
-        var dialogWindow = new ChooseNewClassNameDialog($"Duplicate {this.Class.AsString()}", this._classesManager);
-        var res = await dialogWindow.ShowDialogWindowAsync(this._settingsControl);
+        try {
+            var dialogWindow = new ChooseNewClassNameDialog($"Duplicate {this.Class.AsString()}", this._classesManager);
+            var res = await dialogWindow.ShowDialogWindowAsync(this._settingsControl);
 
-        switch (res) {
-            case System.Windows.Forms.DialogResult.OK:
-                var clsName = dialogWindow.Text!;
-                // ChooseNewClassNameDialog validates that the entered class name is valid new name and OK cannot be pressed before
-                var cls = new CarClass(clsName);
-                this._classesManager.Duplicate(old: this.Class, @new: cls);
-                break;
+            switch (res) {
+                case DialogResult.OK:
+                    var clsName = dialogWindow.Text!;
+                    // ChooseNewClassNameDialog validates that the entered class name is valid new name and OK cannot be pressed before
+                    var cls = new CarClass(clsName);
+                    this._classesManager.Duplicate(old: this.Class, @new: cls);
+                    break;
+                case DialogResult.None:
+                case DialogResult.Cancel:
+                case DialogResult.Abort:
+                case DialogResult.Retry:
+                case DialogResult.Ignore:
+                case DialogResult.Yes:
+                case DialogResult.No:
+                default:
+                    break;
+            }
+        } catch (Exception e) {
+            DynLeaderboardsPlugin.LogError($"Failed to duplicate the class: {e}");
         }
-
-        ;
     }
 }
 
 /// <summary>
-///     This expects the DataContext property to be set to a instance of ClassPreviewViewModel
+///     This expects the DataContext property to be set to an instance of ClassPreviewViewModel
 /// </summary>
 public class ClassPreview : Control { }
 
@@ -345,7 +375,9 @@ internal class ClassPreviewViewModel : INotifyPropertyChanged {
     public string Foreground => this._manager.Foreground ?? OverridableTextBoxColor.DEF_FG;
 
     #if DESIGN
+    #pragma warning disable CS8618, CS9264
     internal ClassPreviewViewModel() { }
+    #pragma warning restore CS8618, CS9264
     #endif
 
     internal ClassPreviewViewModel(OverridableClassInfo.Manager manager) {
@@ -383,7 +415,9 @@ internal class ClassListBoxItemViewModel : INotifyPropertyChanged {
     public event PropertyChangedEventHandler? PropertyChanged;
 
     #if DESIGN
+    #pragma warning disable CS8618, CS9264
     internal ClassListBoxItemViewModel() { }
+    #pragma warning restore CS8618, CS9264
     #endif
 
     internal ClassListBoxItemViewModel(
@@ -395,7 +429,7 @@ internal class ClassListBoxItemViewModel : INotifyPropertyChanged {
         this._classesManager = classesManager;
         this.ClassPreview = new ClassPreviewViewModel(this._classManager);
 
-        this._classManager.PropertyChanged += (sender, e) => {
+        this._classManager.PropertyChanged += (_, e) => {
             if (e.PropertyName == nameof(OverridableClassInfo.Manager.ReplaceWith)) {
                 if (this._classManager.ReplaceWith != null) {
                     this._classesManager.TryAdd(this._classManager.ReplaceWith.Value);
@@ -408,7 +442,7 @@ internal class ClassListBoxItemViewModel : INotifyPropertyChanged {
 
     internal void UpdateReplaceWith() {
         var newManager = this._classesManager.GetFollowReplaceWith(this._classManager.Key);
-        if (newManager != null && newManager.Key == this._classManager.Key) {
+        if (newManager.Key == this._classManager.Key) {
             newManager = null;
         }
 
@@ -420,18 +454,16 @@ internal class ClassListBoxItemViewModel : INotifyPropertyChanged {
             ?.Unsubscribe(); // unsubscribe old preview from the manager so that the manager doesn't hold a reference to it and the preview could be destroyed
 
         this._replacedWithManager = replacement;
-        if (this._replacedWithManager != null) {
-            this.ReplaceWithPreview = new ClassPreviewViewModel(this._replacedWithManager);
-        } else {
-            this.ReplaceWithPreview = null;
-        }
+        this.ReplaceWithPreview = this._replacedWithManager != null
+            ? new ClassPreviewViewModel(this._replacedWithManager)
+            : null;
 
         this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(this.ReplaceWithPreview)));
         this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(this.HasReplacement)));
     }
 
     internal class KeyComparer : IComparer {
-        public int Compare(object x, object y) {
+        public int Compare(object? x, object? y) {
             if (x == null || y == null) {
                 throw new ArgumentException("x and y must not be null");
             }
@@ -450,7 +482,7 @@ internal class ClassListBoxItemViewModel : INotifyPropertyChanged {
 }
 
 public class ValidClassNameRule : ValidationRule {
-    public override ValidationResult Validate(object value, CultureInfo cultureInfo) {
+    public override ValidationResult Validate(object? value, CultureInfo cultureInfo) {
         if (value == null) {
             return new ValidationResult(false, "Value cannot be null");
         }
@@ -478,7 +510,7 @@ public class ValidNewClassNameRule : ValidationRule {
         this._classesManager = classesManager;
     }
 
-    public override ValidationResult Validate(object value, CultureInfo cultureInfo) {
+    public override ValidationResult Validate(object? value, CultureInfo cultureInfo) {
         if (value == null) {
             return new ValidationResult(false, "Class name cannot be null");
         }

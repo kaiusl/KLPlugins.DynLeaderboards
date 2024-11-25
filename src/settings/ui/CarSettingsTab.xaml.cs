@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -9,8 +8,6 @@ using System.Windows.Data;
 using System.Windows.Input;
 
 using KLPlugins.DynLeaderboards.Car;
-
-using WoteverCommon.Extensions;
 
 namespace KLPlugins.DynLeaderboards.Settings.UI;
 
@@ -27,7 +24,12 @@ public partial class CarSettingsTab : UserControl {
         this.DataContext = this.ViewModel;
 
         this.ViewModel.ScrollSelectedIntoView +=
-            () => this.CarSettingsCarsList_SHListBox.ScrollIntoView(this.ViewModel.SelectedCar);
+            () => {
+                var selectedCar = this.ViewModel.SelectedCar;
+                if (selectedCar != null) {
+                    this.CarSettingsCarsList_SHListBox.ScrollIntoView(selectedCar);
+                }
+            };
     }
 }
 
@@ -116,13 +118,15 @@ internal class CarSettingsTabViewModel : INotifyPropertyChanged {
             },
         };
 
-        var first = this.Cars.GetItemAt(0);
-        if (first is CarsListBoxItemViewModel firstVm) {
-            this.SelectedCar = firstVm;
-        } else {
-            var msg = $"Expected the list element to be `CarsListBoxItemViewModel`. Got `{first?.GetType()}`.";
-            Debug.Fail(msg);
-            DynLeaderboardsPlugin.LogError(msg);
+        if (!this.Cars.IsEmpty) {
+            var first = this.Cars.GetItemAt(0);
+            if (first is CarsListBoxItemViewModel firstVm) {
+                this.SelectedCar = firstVm;
+            } else {
+                var msg = $"Expected the list element to be `CarsListBoxItemViewModel`. Got `{first?.GetType()}`.";
+                Debug.Fail(msg);
+                DynLeaderboardsPlugin.LogError(msg);
+            }
         }
 
         Command CreateAllCarsCommand(Action<CarsListBoxItemViewModel> action) {
@@ -206,7 +210,9 @@ internal class CarSettingsTabViewModel : INotifyPropertyChanged {
     }
 
     #if DESIGN
+    #pragma warning disable CS8618, CS9264
     internal CarSettingsTabViewModel() { }
+    #pragma warning restore CS8618, CS9264
 
     internal class DesignInstance : CarSettingsTabViewModel {
         public DesignInstance() {
@@ -214,7 +220,7 @@ internal class CarSettingsTabViewModel : INotifyPropertyChanged {
                 new CarsListBoxItemViewModel.DesignInstance {
                     Name = "Audi R8 LMS GT3 Evo", Id = "audi_r8_lms_gt3_evo",
                 },
-                new CarsListBoxItemViewModel.DesignInstance { Name = "BMW M2 CS", Id = "BMWM2CS" },
+                new CarsListBoxItemViewModel.DesignInstance { Name = "BMW M2 CS", Id = "BMW_M2_CS" },
                 new CarsListBoxItemViewModel.DesignInstance {
                     Name = "Alfa Romeo Giulia Quadrifoglio", Id = "alfa_giulia_quadrifoglio",
                 },
@@ -261,8 +267,8 @@ internal class CarsListBoxItemViewModel : INotifyPropertyChanged {
     public string Name => this.Info.Name() ?? this.Key;
     public string Id => this.Key;
 
-    internal string Key;
-    internal OverridableCarInfo Info;
+    internal readonly string Key;
+    internal readonly OverridableCarInfo Info;
 
     internal CarsListBoxItemViewModel(string key, OverridableCarInfo info) {
         this.Key = key;
@@ -272,10 +278,12 @@ internal class CarsListBoxItemViewModel : INotifyPropertyChanged {
     }
 
     #if DESIGN
+    #pragma warning disable CS8618, CS9264
     internal CarsListBoxItemViewModel() { }
+    #pragma warning restore CS8618, CS9264
     internal class DesignInstance : CarsListBoxItemViewModel {
-        public new string Name { get; set; }
-        public new string Id { get; set; }
+        public new string Name { get; set; } = "a";
+        public new string Id { get; set; } = "b";
     }
     #endif
 
@@ -310,8 +318,6 @@ internal class SelectedCarDetailsViewModel : INotifyPropertyChanged {
             } else {
                 this._info.DisableName();
             }
-
-            ;
         }
     }
 
@@ -340,8 +346,6 @@ internal class SelectedCarDetailsViewModel : INotifyPropertyChanged {
             } else {
                 this._info.DisableClass();
             }
-
-            ;
         }
     }
 
@@ -390,7 +394,9 @@ internal class SelectedCarDetailsViewModel : INotifyPropertyChanged {
     }
 
     #if DESIGN
+    #pragma warning disable CS8618, CS9264
     internal SelectedCarDetailsViewModel() { }
+    #pragma warning restore CS8618, CS9264
 
     internal class DesignInstance : SelectedCarDetailsViewModel {
         public new string Name { get; set; } = "Audi R8 LMS GT3 Evo";

@@ -19,7 +19,7 @@ public class StringToSolidColorBrushConverter : IValueConverter {
         return new SolidColorBrush(WindowsMediaColorExtensions.FromHex(str));
     }
 
-    public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) {
+    public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) {
         throw new NotImplementedException();
     }
 }
@@ -34,13 +34,12 @@ public class StringToColorConverter : IValueConverter {
         return WindowsMediaColorExtensions.FromHex(str);
     }
 
-    public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) {
-        if (value == null || value is not Color) {
+    public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) {
+        if (value is not Color color) {
             throw new ArgumentException("value must be Color");
         }
 
-        var c = (Color)value;
-        return c.ToString();
+        return color.ToString();
     }
 }
 
@@ -68,7 +67,7 @@ public class BoolToTConverter<T>(T trueValue, T falseValue) : IValueConverter {
         return falseValue;
     }
 
-    public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) {
+    public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) {
         throw new NotImplementedException();
     }
 }
@@ -92,12 +91,11 @@ public class StringCarClassConverter : IValueConverter {
             return null;
         }
 
-        if (value is not CarClass) {
+        if (value is not CarClass cls) {
             return DependencyProperty.UnsetValue;
         }
 
-        var c = (CarClass)value;
-        return c.AsString();
+        return cls.AsString();
     }
 
     public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) {
@@ -119,7 +117,7 @@ public class IsNull : IValueConverter {
         return value == null;
     }
 
-    public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) {
+    public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) {
         throw new NotImplementedException();
     }
 }
@@ -130,7 +128,7 @@ public class IsNotNull : IValueConverter {
         return value != null;
     }
 
-    public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) {
+    public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) {
         throw new NotImplementedException();
     }
 }

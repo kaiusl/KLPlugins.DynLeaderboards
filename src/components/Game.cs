@@ -1,16 +1,19 @@
 ﻿namespace KLPlugins.DynLeaderboards;
 
 /// <summary>
-///     Booleans to tell which game we have. Since different games have different available data then we need to do alot of
+///     Booleans to tell which game we have. Since different games have different available data then we need to do a lot
+///     of
 ///     check like gameName == "...".
-///     The gameName is constant in each plugin reload and thus we can set it once and simplyfy game checks alot.
+///     The gameName is constant in each plugin reload, and thus we can set it once and simplify game checks a lot.
 /// </summary>
 public class Game {
     public const string AC_NAME = "AssettoCorsa";
     public const string ACC_NAME = "AssettoCorsaCompetizione";
     public const string RF2_NAME = "RFactor2";
     public const string IRACING_NAME = "IRacing";
-    public const string R3_E_NAME = "RRRE";
+
+    // ReSharper disable once InconsistentNaming
+    public const string R3E_NAME = "RRRE";
     public const string AMS2_NAME = "Automobilista2";
     public const string LMU_NAME = "LMU";
 
@@ -47,7 +50,7 @@ public class Game {
             case Game.IRACING_NAME:
                 this.IsIracing = true;
                 break;
-            case Game.R3_E_NAME:
+            case Game.R3E_NAME:
                 this.IsR3E = true;
                 break;
             case Game.AMS2_NAME:

@@ -63,7 +63,6 @@ internal class PropertyViewModel<T> : PropertyViewModelBase, INotifyPropertyChan
                 this._setting.Remove(this._prop);
             }
 
-            ;
             this.InvokePropertyChanged();
         }
     }
@@ -75,8 +74,11 @@ internal class PropertyViewModel<T> : PropertyViewModelBase, INotifyPropertyChan
     public override string Description => this._description;
 
     #if DESIGN
+    #pragma warning disable CS8618, CS9264
     internal PropertyViewModel() { }
+    #pragma warning restore CS8618, CS9264
     #endif
+    
     internal PropertyViewModel(string name, string tooltip, T prop, IOutProps<T> setting) {
         this._prop = prop;
         this._setting = setting;
@@ -113,7 +115,7 @@ internal class SelectedPropertiesCommand(Action<PropertyViewModelBase> execute) 
         return true;
     }
 
-    public void Execute(object parameter) {
+    public void Execute(object? parameter) {
         if (parameter is not System.Collections.IList selectedItems) {
             var msg = $"Expected the parameter to be `IList`. Got `{parameter?.GetType()}`";
             Debug.Fail(msg);
@@ -142,7 +144,7 @@ public class DataGrid2 : DataGrid {
 
     public static readonly DependencyProperty DefaultGroupStyleProperty =
         DependencyProperty.Register(
-            "DefaultGroupStyle",
+            nameof(DataGrid2.DefaultGroupStyle),
             typeof(GroupStyle),
             typeof(DataGrid2),
             new UIPropertyMetadata(null, DataGrid2.DefaultGroupStyleChanged)
@@ -172,7 +174,7 @@ public class ListView2 : ListView {
 
     public static readonly DependencyProperty DefaultGroupStyleProperty =
         DependencyProperty.Register(
-            "DefaultGroupStyle",
+            nameof(ListView2.DefaultGroupStyle),
             typeof(IEnumerable<GroupStyle>),
             typeof(ListView2),
             new UIPropertyMetadata(null, ListView2.DefaultGroupStyleChanged)
@@ -242,12 +244,12 @@ internal class AskTextDialog : SHDialogContentBase {
         }
 
         tb.SetBinding(TextBox.TextProperty, textBinding);
-        tb.Text = defaultText; // force validation
+        tb.Text = defaultText ?? ""; // force validation
         this.IsOkEnabled = false;
 
         Validation.AddErrorHandler(
             tb,
-            (s, e) => {
+            (_, e) => {
                 if (e.Action == ValidationErrorEventAction.Added) {
                     this.IsOkEnabled = false;
                 } else if (e.Action == ValidationErrorEventAction.Removed) {

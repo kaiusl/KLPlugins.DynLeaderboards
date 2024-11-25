@@ -7,10 +7,10 @@ using SimHub.Plugins.UI;
 namespace KLPlugins.DynLeaderboards;
 
 /// <summary>
-///     Interaction logic for ConfimDialog.xaml
+///     Interaction logic for ConfirmDialog.xaml
 /// </summary>
-public partial class ConfimDialog : SHDialogContentBase {
-    public ConfimDialog(string titleText, string msg) {
+public partial class ConfirmDialog : SHDialogContentBase {
+    public ConfirmDialog(string titleText, string msg) {
         this.InitializeComponent();
         this.ShowYes = true;
         this.ShowCancel = true;

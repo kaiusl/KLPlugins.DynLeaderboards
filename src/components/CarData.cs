@@ -603,7 +603,7 @@ namespace KLPlugins.DynLeaderboards.Car {
                     if (pos != null && time != null) {
                         var lastPos = this.LapDataPos.Last();
                         var lastTime = this.LapDataTime.Last();
-                        if (lastPos != pos.Value && time.Value - lastTime > PluginSettings.LAP_DATA_TIME_DELAY_SEC) {
+                        if (lastPos < pos.Value && time.Value - lastTime > PluginSettings.LAP_DATA_TIME_DELAY_SEC) {
                             this.LapDataPos.Add(pos.Value);
                             this.LapDataTime.Add(time.Value);
                         }
@@ -630,7 +630,7 @@ namespace KLPlugins.DynLeaderboards.Car {
                 } else {
                     var lastPos = this.LapDataPos.Last();
                     var lastTime = this.LapDataTime.Last();
-                    if (lastPos != rawPos.Value
+                    if (lastPos < rawPos.Value
                         && rawTime.Value.TotalSeconds - lastTime > PluginSettings.LAP_DATA_TIME_DELAY_SEC) {
                         this.LapDataPos.Add(rawPos.Value);
                         this.LapDataTime.Add(rawTime.Value.TotalSeconds);

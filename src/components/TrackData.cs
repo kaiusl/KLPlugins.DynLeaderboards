@@ -255,6 +255,7 @@ public class TrackData {
     // access it a lot per one update. So it would include a lot of unnecessary synchronizations
     // while with current solution we only have one synchronized access.
     internal readonly Dictionary<CarClass, LapInterpolator> LapInterpolators = [];
+    internal readonly HashSet<CarClass> UpdatedInterpolators = []; 
 
     private readonly ConcurrentQueue<(CarClass, LapInterpolator)> _builtLapInterpolators = [];
 
@@ -288,20 +289,28 @@ public class TrackData {
                 DynLeaderboardsPlugin.LogInfo($"Added LapInterpolator for {kv.Item1}");
             }
 
-            lock (this._lapInterpolatorsInBuilding) {
-                this._lapInterpolatorsInBuilding.Remove(kv.Item1);
-            }
+            this._lapInterpolatorsInBuilding.Remove(kv.Item1);
         }
     }
 
-    internal void Dispose() {
-        foreach (var kv in this.LapInterpolators) {
+    internal void SaveData() {
+        DynLeaderboardsPlugin.LogInfo("Saving track data");
+        foreach (var kv in this.UpdatedInterpolators) {
             var path =
-                $"{PluginSettings.PLUGIN_DATA_DIR}\\{DynLeaderboardsPlugin.Game.Name}\\laps_data\\{this.Id}_{kv.Key}.txt";
-            kv.Value.WriteLapInterpolatorData(path);
+                $"{PluginSettings.PLUGIN_DATA_DIR}\\{DynLeaderboardsPlugin.Game.Name}\\laps_data\\{this.Id}_{kv}.txt";
+            if (this.LapInterpolators.TryGetValue(kv, out var interp)) {
+                interp.WriteLapInterpolatorData(path);
+            }
         }
 
+        this.UpdatedInterpolators.Clear();
+
         this.WriteSplinePosOffsets();
+    }
+
+    internal void Dispose() {
+        DynLeaderboardsPlugin.LogInfo("Disposing track data");
+        this.SaveData();
     }
 
     internal void OnLapFinished(
@@ -342,6 +351,7 @@ public class TrackData {
             var current = this.LapInterpolators.GetValueOr(cls, null);
             if (current == null || current.Interpolate(newLapLastPos).TotalSeconds > newLapTime) {
                 this.AddLapInterpolator(rawPos: lapDataPos, rawTime: lapDataTime, cls);
+                this.UpdatedInterpolators.Add(cls);
                 DynLeaderboardsPlugin.LogInfo($"Saved new best lap for {cls}: {newLapTime}.");
             }
         } else if (
@@ -388,18 +398,18 @@ public class TrackData {
             return;
         }
 
+        if (this._lapInterpolatorsInBuilding.Contains(carClass)) {
+            return;
+        }
+
+        this._lapInterpolatorsInBuilding.Add(carClass);
+    
+
         Task.Run(() => this.BuildLapInterpolatorInner(carClass));
     }
 
     private void BuildLapInterpolatorInner(CarClass carClass) {
-        lock (this._lapInterpolatorsInBuilding) {
-            // Check and add need to behave as one operation!
-            if (this._lapInterpolatorsInBuilding.Contains(carClass)) {
-                return;
-            }
-
-            this._lapInterpolatorsInBuilding.Add(carClass);
-        }
+       
 
         var path =
             $"{PluginSettings.PLUGIN_DATA_DIR}\\{DynLeaderboardsPlugin.Game.Name}\\laps_data\\{this.Id}_{carClass}.txt";

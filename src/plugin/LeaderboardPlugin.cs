@@ -696,12 +696,14 @@ public class DynLeaderboardsPlugin : IDataPlugin, IWPFSettingsV2 {
     private void SubscribeToSimHubEvents(PluginManager pm) {
         pm.GameStateChanged += this.Values.OnGameStateChanged;
         pm.GameStateChanged += (running, _) => {
-            DynLeaderboardsPlugin.LogInfo($"GameStateChanged to {running}");
-            if (!running) {
-                if (DynLeaderboardsPlugin._logWriter != null && !DynLeaderboardsPlugin._isLogFlushed) {
-                    DynLeaderboardsPlugin._logWriter.Flush();
-                    DynLeaderboardsPlugin._isLogFlushed = true;
-                }
+            DynLeaderboardsPlugin.LogInfo($"GameStateChanged to running={running}");
+            if (running) {
+                return;
+            }
+
+            if (DynLeaderboardsPlugin._logWriter != null && !DynLeaderboardsPlugin._isLogFlushed) {
+                DynLeaderboardsPlugin._logWriter.Flush();
+                DynLeaderboardsPlugin._isLogFlushed = true;
             }
         };
     }

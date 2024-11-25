@@ -1448,8 +1448,11 @@ public class Values : IDisposable {
             );
             this.ResetWithoutSession();
             this.Booleans.OnNewEvent(this.Session.SessionType);
-            this.TrackData?.Dispose();
-            this.TrackData = new TrackData(data);
+            if (this.TrackData == null || this.TrackData.PrettyName != data.NewData.TrackName) {
+                this.TrackData?.Dispose();
+                this.TrackData = new TrackData(data);
+            }
+       
             foreach (var car in this.OverallOrder) {
                 this.TrackData.BuildLapInterpolator(car.CarClass);
             }
@@ -1461,11 +1464,18 @@ public class Values : IDisposable {
             );
         }
 
-        this.TrackData?.OnDataUpdate();
+        if (this.TrackData == null) {
+            this.TrackData = new TrackData(data);
+            foreach (var car in this.OverallOrder) {
+                this.TrackData.BuildLapInterpolator(car.CarClass);
+            }
+        }
 
-        if (this.TrackData is { LengthMeters: 0 }) {
+        this.TrackData.OnDataUpdate();
+
+        if (this.TrackData.LengthMeters == 0) {
             // In ACC sometimes the track length is not immediately available, and is 0.
-            this.TrackData?.SetLength(data);
+            this.TrackData.SetLength(data);
         }
 
         this.Booleans.OnDataUpdate(data, this);
@@ -1850,6 +1860,9 @@ public class Values : IDisposable {
     internal void OnGameStateChanged(bool running, PluginManager _) {
         if (running) { } else {
             this.Reset();
+            // dispose track data on session end, so that we save the interpolators data after session,
+            // where we have lots of time
+            this.TrackData?.SaveData();
         }
     }
 }

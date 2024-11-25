@@ -43,6 +43,22 @@ Once the dynamic leaderboard is configured, restart SimHub and start creating yo
     prop('DynLeaderboardsPlugin.Dynamic.' + repeatindex() + '.Laps.Last.Time')
     ```
 
+#### Hiding non-existing cars from leaderboard
+
+Set the visibility of items that need to be hidden to
+
+=== "Javascript"
+
+    ```javascript
+    return $prop('DynLeaderboardsPlugin.Dynamic.' + repeatindex() + '.Exists');
+    ```
+
+=== "NCalc"
+
+    ```javascript
+    prop('DynLeaderboardsPlugin.Dynamic.' + repeatindex() + '.Exists')
+    ```
+
 #### Gap formatting
 
 ```javascript

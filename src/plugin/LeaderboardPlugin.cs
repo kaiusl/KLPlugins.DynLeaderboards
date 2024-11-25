@@ -253,6 +253,11 @@ public class DynLeaderboardsPlugin : IDataPlugin, IWPFSettingsV2 {
         void AddCar(int i) {
             var startName = $"{l.Name}.{i + 1}";
 
+            this.AttachDelegate<DynLeaderboardsPlugin, int>(
+                $"{startName}.Exists",
+                () => (l.GetDynCar(i) != null).ToInt()
+            );
+
             void AddProp<T>(OutCarProp prop, Func<T> valueProvider) {
                 if (l.Config.OutCarProps.Includes(prop)) {
                     this.AttachDelegate<DynLeaderboardsPlugin, T>($"{startName}.{prop.ToPropName()}", valueProvider);

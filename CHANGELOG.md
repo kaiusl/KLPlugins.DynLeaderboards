@@ -16,6 +16,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   - `CurrentLeaderboard.DisplayName` - properly formated current leaderboard name, for example "Partial relative
     overall"
 - New car specific properties:
+  - `Exists` - Does a car exists in this position in the leaderboard?
     - `Driver.Category.Color`
     - `Driver.Category.TextColor`
     - `Car.Class.TextColor`

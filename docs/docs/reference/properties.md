@@ -524,6 +524,9 @@ Note that pit time counts time from the start of pitlane to the end, not just th
 
 <div class="props" markdown>
 
+{{ prop("Exists", "2.0.0", ["all"], ty="int") }}
+: Does a car exists in this position in the leaderboard?
+
 {{ prop("IsFinished", "1.0.0", ["all"], defv="null", ty="int?") }}
 : Is the car finished?
 

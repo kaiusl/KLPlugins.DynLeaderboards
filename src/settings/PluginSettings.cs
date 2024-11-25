@@ -8,6 +8,9 @@ using KLPlugins.DynLeaderboards.Helpers;
 
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+#if DEBUG
+using System.Diagnostics;
+#endif
 
 namespace KLPlugins.DynLeaderboards.Settings;
 
@@ -19,8 +22,6 @@ internal class PluginSettings {
     [JsonProperty] public int BroadcastDataUpdateRateMs { get; set; }
 
     [JsonProperty] public OutGeneralProps OutGeneralProps = new(OutGeneralProp.NONE);
-    [JsonProperty] public bool IncludeSt21InGt2 { get; set; }
-    [JsonProperty] public bool IncludeChlInGt2 { get; set; }
 
     [JsonIgnore] private const int _CURRENT_SETTINGS_VERSION = 3;
     [JsonIgnore] internal List<DynLeaderboardConfig> DynLeaderboardConfigs { get; set; }
@@ -45,8 +46,6 @@ internal class PluginSettings {
         this.Log = false;
         this.BroadcastDataUpdateRateMs = 500;
         this.DynLeaderboardConfigs = [];
-        this.IncludeChlInGt2 = false;
-        this.IncludeSt21InGt2 = false;
         this.SaveDynLeaderboardConfigs();
     }
 
@@ -248,6 +247,12 @@ internal class PluginSettings {
         if (version != PluginSettings._CURRENT_SETTINGS_VERSION) {
             // Migrate step by step to current version.
             while (version != PluginSettings._CURRENT_SETTINGS_VERSION) {
+                // create backup of old settings before migrating
+                using var backupFile = File.CreateText($"{settingsFname}.v{version}.bak");
+                var serializer1 = new JsonSerializer { Formatting = Formatting.Indented };
+                serializer1.Serialize(backupFile, savedSettings);
+
+                // migrate
                 savedSettings = migrations[$"{version}_{version + 1}"](savedSettings);
                 version += 1;
             }
@@ -553,12 +558,12 @@ internal class DynLeaderboardConfig {
     internal static void Migrate() {
         Dictionary<string, Migration> migrations = DynLeaderboardConfig.CreateMigrationsDict();
 
-        foreach (var fileName in Directory.GetFiles(PluginSettings.LEADERBOARD_CONFIGS_DATA_DIR)) {
-            if (!File.Exists(fileName) || !fileName.EndsWith(".json")) {
+        foreach (var filePath in Directory.GetFiles(PluginSettings.LEADERBOARD_CONFIGS_DATA_DIR)) {
+            if (!File.Exists(filePath) || !filePath.EndsWith(".json")) {
                 continue;
             }
 
-            var savedSettings = JObject.Parse(File.ReadAllText(fileName));
+            var savedSettings = JObject.Parse(File.ReadAllText(filePath));
 
             var version = 0; // If settings doesn't contain version key, it's 0
             if (savedSettings.TryGetValue("Version", out var setting)) {
@@ -569,14 +574,23 @@ internal class DynLeaderboardConfig {
                 return;
             }
 
+            var fileName = Path.GetFileName(filePath);
             // Migrate step by step to current version.
             while (version != DynLeaderboardConfig._CURRENT_CONFIG_VERSION) {
+                // create backup of old settings before migrating
+                using var backupFile = File.CreateText(
+                    $"{PluginSettings.LEADERBOARD_CONFIGS_DATA_BACKUP_DIR}\\{fileName}.v{version}.bak"
+                );
+                var serializer1 = new JsonSerializer { Formatting = Formatting.Indented };
+                serializer1.Serialize(backupFile, savedSettings);
+
+                // migrate
                 savedSettings = migrations[$"{version}_{version + 1}"](savedSettings);
                 version += 1;
             }
 
             // Save up-to-date setting back to the disk
-            using var file = File.CreateText(fileName);
+            using var file = File.CreateText(filePath);
             var serializer = new JsonSerializer { Formatting = Formatting.Indented };
             serializer.Serialize(file, savedSettings);
         }

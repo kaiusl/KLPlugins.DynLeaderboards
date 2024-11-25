@@ -1937,6 +1937,7 @@ internal class SimHubClassColors {
 
 internal static class ColorTools {
     public static double Lightness(string color) {
+        // from https://stackoverflow.com/a/56678483
         var col = WindowsMediaColorExtensions.FromHex(color);
         var r = ColorTools.ToLinRgb(col.R / 255.0);
         var g = ColorTools.ToLinRgb(col.G / 255.0);
@@ -1946,6 +1947,7 @@ internal static class ColorTools {
     }
 
     public static double LStar(string color) {
+        // from https://stackoverflow.com/a/56678483
         var y = ColorTools.Lightness(color);
         if (y < 0.008856) {
             return y * 903.3;
@@ -1955,6 +1957,7 @@ internal static class ColorTools {
     }
 
     private static double ToLinRgb(double c) {
+        // from https://stackoverflow.com/a/56678483
         if (c <= 0.04045) {
             return c / 12.92;
         }

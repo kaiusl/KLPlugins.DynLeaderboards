@@ -339,9 +339,9 @@ internal class SelectedCarDetailsViewModel : INotifyPropertyChanged {
     }
 
     public string Class {
-        get => (this._info.Class() ?? CarClass.Default).AsString();
+        get => this._info.Class().AsString();
         set {
-            var oldClass = this._info.Class() ?? CarClass.Default;
+            var oldClass = this._info.Class();
             var cls = new CarClass(value);
             this._info.SetClass(cls);
             this._settingsControl.TryAddCarClass(cls);
@@ -354,7 +354,7 @@ internal class SelectedCarDetailsViewModel : INotifyPropertyChanged {
             // and it forwards all property change notifications from ClassInfos.Manager. 
             // Thus, below will trigger an update of SelectedClassViewModels.CanBeRemoved property. 
             this._settingsControl.ClassesManager.GetOrAdd(oldClass).InvokePropertyChanged("CanBeRemoved");
-            var newClsManager = this._settingsControl.ClassesManager.GetOrAdd(cls);
+            var newClsManager = this._settingsControl.ClassesManager.GetOrAddFollowReplaceWith(cls);
             newClsManager.InvokePropertyChanged("CanBeRemoved");
 
             this.ClassPreviewViewModel = new ClassPreviewViewModel(newClsManager);
@@ -371,11 +371,11 @@ internal class SelectedCarDetailsViewModel : INotifyPropertyChanged {
                 this._info.DisableClass();
             }
 
-            this._settingsControl.ClassesManager.GetOrAdd(this._info.ClassDontCheckEnabled() ?? CarClass.Default)
+            this._settingsControl.ClassesManager.GetOrAdd(this._info.ClassDontCheckEnabled())
                 .InvokePropertyChanged("CanBeRemoved");
 
-            var cls = this._info.Class() ?? CarClass.Default;
-            var newClsManager = this._settingsControl.ClassesManager.GetOrAdd(cls);
+            var cls = this._info.Class();
+            var newClsManager = this._settingsControl.ClassesManager.GetOrAddFollowReplaceWith(cls);
             this.ClassPreviewViewModel = new ClassPreviewViewModel(newClsManager);
             this.InvokePropertyChanged(nameof(this.ClassPreviewViewModel));
         }
@@ -401,8 +401,8 @@ internal class SelectedCarDetailsViewModel : INotifyPropertyChanged {
         this.Id = key;
         this._info = info;
         this._settingsControl = settingsControl;
-        var cls = info.Class() ?? CarClass.Default;
-        var clsManager = settingsControl.ClassesManager.GetOrAdd(cls);
+        var cls = info.Class();
+        var clsManager = settingsControl.ClassesManager.GetOrAddFollowReplaceWith(cls);
         this.ClassPreviewViewModel = new ClassPreviewViewModel(clsManager);
 
         this.AllClasses = new ListCollectionView(settingsControl.AllClasses) {

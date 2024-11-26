@@ -400,7 +400,7 @@ internal class ClassListBoxItemViewModel : INotifyPropertyChanged {
     }
 
     internal void UpdateReplaceWith() {
-        var newManager = this._classesManager.GetFollowReplaceWith(this._classManager.Key);
+        var newManager = this._classesManager.GetOrAddFollowReplaceWith(this._classManager.Key);
         if (newManager.Key == this._classManager.Key) {
             newManager = null;
         }

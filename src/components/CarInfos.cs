@@ -177,10 +177,6 @@ internal class OverridableCarInfo : INotifyPropertyChanged {
         if (this.NameDontCheckEnabled() == null) {
             this.DisableName();
         }
-
-        if (this.ClassDontCheckEnabled() == null) {
-            this.DisableClass();
-        }
     }
 
     internal void SetBase(string key, CarInfo? @base) {
@@ -251,13 +247,12 @@ internal class OverridableCarInfo : INotifyPropertyChanged {
     }
 
     internal void EnableName(string key) {
-        this.EnableName();
-
-        if (this.NameDontCheckEnabled() == null) {
-            // we are explicitly asked to enable colors
-            // there must be some value in it
-            this.SetName(key);
+        if (this.Overrides?.Name == null) {
+            this.Overrides ??= new CarInfo();
+            this.Overrides.Name = key;
         }
+
+        this.EnableName();
     }
 
     internal string? BaseManufacturer() {
@@ -296,7 +291,7 @@ internal class OverridableCarInfo : INotifyPropertyChanged {
         return this.Base?.Class;
     }
 
-    internal CarClass? Class() {
+    internal CarClass Class() {
         if (!this.IsClassEnabled) {
             return this.SimHubCarClass;
         }
@@ -304,8 +299,8 @@ internal class OverridableCarInfo : INotifyPropertyChanged {
         return this.ClassDontCheckEnabled();
     }
 
-    internal CarClass? ClassDontCheckEnabled() {
-        return this.Overrides?.Class ?? this.Base?.Class;
+    internal CarClass ClassDontCheckEnabled() {
+        return this.Overrides?.Class ?? this.Base?.Class ?? this.SimHubCarClass;
     }
 
     internal void SetClass(CarClass cls) {
@@ -337,15 +332,15 @@ internal class OverridableCarInfo : INotifyPropertyChanged {
 
     internal void EnableClass() {
         this.IsClassEnabled = true;
-
-        if (this.ClassDontCheckEnabled() == null) {
-            // we are explicitly asked to enable colors
-            // there must be some value in it
-            this.SetClass(CarClass.Default);
-        } else {
-            this.InvokePropertyChanged(nameof(this.Class));
-            this.InvokePropertyChanged(nameof(this.IsClassEnabled));
+        // we are explicitly asked to enable class, there must be some override in it
+        // it must be whatever we are showing at the moment, and it should never change
+        if (this.Overrides?.Class == null) {
+            this.Overrides ??= new CarInfo();
+            this.Overrides.Class = this.ClassDontCheckEnabled();
         }
+
+        this.InvokePropertyChanged(nameof(this.Class));
+        this.InvokePropertyChanged(nameof(this.IsClassEnabled));
     }
 }
 

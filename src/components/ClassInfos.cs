@@ -232,7 +232,7 @@ internal class ClassInfos : IEnumerable<KeyValuePair<CarClass, OverridableClassI
             return !this._classManagers.TryGetValue(cls, out var add) ? this.AddDoesntExist(cls) : add;
         }
 
-        internal OverridableClassInfo.Manager GetFollowReplaceWith(CarClass cls) {
+        internal OverridableClassInfo.Manager GetOrAddFollowReplaceWith(CarClass cls) {
             var clsOut = cls;
             var manager = this.GetOrAdd(cls);
             var nextCls = manager.Info.ReplaceWith(); // don't use manager.ReplaceWith, it defaults to default class
@@ -596,18 +596,15 @@ internal class OverridableClassInfo {
             set {
                 this.Info.IsReplaceWithEnabled = value;
                 this.InvokePropertyChanged();
-                var notified = false;
 
                 if (value) {
-                    if (this.Info.ReplaceWithDontCheckEnabled() == null) {
-                        this.ReplaceWith = CarClass.Default;
-                        notified = true;
+                    if (this.Info.Overrides?.ReplaceWith == null) {
+                        this.Info.Overrides ??= new ClassInfo();
+                        this.Info.Overrides.ReplaceWith = this.Info.ReplaceWithDontCheckEnabled() ?? CarClass.Default;
                     }
                 }
 
-                if (!notified) {
-                    this.InvokePropertyChanged(nameof(this.ReplaceWith));
-                }
+                this.InvokePropertyChanged(nameof(this.ReplaceWith));
             }
         }
 

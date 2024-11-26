@@ -3,6 +3,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Input;
@@ -260,7 +261,7 @@ internal class CarSettingsTabViewModel : INotifyPropertyChanged {
         this._settingsControl.Plugin.Values.CarInfos.TryRemove(key);
     }
 
-    private void InvokePropertyChanged([System.Runtime.CompilerServices.CallerMemberName] string? propertyName = null) {
+    private void InvokePropertyChanged([CallerMemberName] string? propertyName = null) {
         if (propertyName == null) {
             return;
         }
@@ -309,6 +310,7 @@ internal class CarsListBoxItemViewModel : INotifyPropertyChanged {
 internal class SelectedCarDetailsViewModel : INotifyPropertyChanged {
     public event PropertyChangedEventHandler? PropertyChanged;
     public event Action<string>? RemoveCar;
+    public ClassPreviewViewModel ClassPreviewViewModel { get; private set; }
 
     public string Name {
         get => this._info.Name() ?? this.Id;
@@ -352,7 +354,11 @@ internal class SelectedCarDetailsViewModel : INotifyPropertyChanged {
             // and it forwards all property change notifications from ClassInfos.Manager. 
             // Thus, below will trigger an update of SelectedClassViewModels.CanBeRemoved property. 
             this._settingsControl.ClassesManager.GetOrAdd(oldClass).InvokePropertyChanged("CanBeRemoved");
-            this._settingsControl.ClassesManager.GetOrAdd(cls).InvokePropertyChanged("CanBeRemoved");
+            var newClsManager = this._settingsControl.ClassesManager.GetOrAdd(cls);
+            newClsManager.InvokePropertyChanged("CanBeRemoved");
+
+            this.ClassPreviewViewModel = new ClassPreviewViewModel(newClsManager);
+            this.InvokePropertyChanged(nameof(this.ClassPreviewViewModel));
         }
     }
 
@@ -367,6 +373,11 @@ internal class SelectedCarDetailsViewModel : INotifyPropertyChanged {
 
             this._settingsControl.ClassesManager.GetOrAdd(this._info.ClassDontCheckEnabled() ?? CarClass.Default)
                 .InvokePropertyChanged("CanBeRemoved");
+
+            var cls = this._info.Class() ?? CarClass.Default;
+            var newClsManager = this._settingsControl.ClassesManager.GetOrAdd(cls);
+            this.ClassPreviewViewModel = new ClassPreviewViewModel(newClsManager);
+            this.InvokePropertyChanged(nameof(this.ClassPreviewViewModel));
         }
     }
 
@@ -390,6 +401,9 @@ internal class SelectedCarDetailsViewModel : INotifyPropertyChanged {
         this.Id = key;
         this._info = info;
         this._settingsControl = settingsControl;
+        var cls = info.Class() ?? CarClass.Default;
+        var clsManager = settingsControl.ClassesManager.GetOrAdd(cls);
+        this.ClassPreviewViewModel = new ClassPreviewViewModel(clsManager);
 
         this.AllClasses = new ListCollectionView(settingsControl.AllClasses) {
             IsLiveSorting = true, SortDescriptions = { new SortDescription() },
@@ -426,6 +440,8 @@ internal class SelectedCarDetailsViewModel : INotifyPropertyChanged {
         public new string Manufacturer { get; set; } = "Audi";
         public new string Class { get; set; } = "GT3";
         public new bool IsClassEnabled { get; set; } = true;
+
+        public new ClassPreviewViewModel ClassPreviewViewModel { get; set; } = new DesignClassPreviewViewModel();
     }
     #endif
 
@@ -439,7 +455,7 @@ internal class SelectedCarDetailsViewModel : INotifyPropertyChanged {
         this.PropertyChanged?.Invoke(this, e);
     }
 
-    private void InvokePropertyChanged([System.Runtime.CompilerServices.CallerMemberName] string? propertyName = null) {
+    private void InvokePropertyChanged([CallerMemberName] string? propertyName = null) {
         if (propertyName == null) {
             return;
         }

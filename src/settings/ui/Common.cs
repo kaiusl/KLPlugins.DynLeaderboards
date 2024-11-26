@@ -271,3 +271,49 @@ internal class AskTextDialog : SHDialogContentBase {
         );
     }
 }
+
+/// <summary>
+///     This expects the DataContext property to be set to an instance of ClassPreviewViewModel
+/// </summary>
+public class ClassPreview : Control { }
+
+internal class ClassPreviewViewModel : INotifyPropertyChanged {
+    private readonly OverridableClassInfo.Manager _manager;
+
+    public event PropertyChangedEventHandler? PropertyChanged;
+
+    public string ClassName => this._manager.Key.AsString();
+    public bool IsColorEnabled => this._manager.IsColorEnabled;
+    public string Background => this._manager.Background ?? OverridableTextBoxColor.DEF_BG;
+    public string Foreground => this._manager.Foreground ?? OverridableTextBoxColor.DEF_FG;
+
+    #if DESIGN
+    #pragma warning disable CS8618, CS9264
+    internal ClassPreviewViewModel() { }
+    #pragma warning restore CS8618, CS9264
+    #endif
+
+    internal ClassPreviewViewModel(OverridableClassInfo.Manager manager) {
+        this._manager = manager;
+        this._manager.PropertyChanged += this.OnManagerPropertyChanged;
+    }
+
+    internal void Unsubscribe() {
+        this._manager.PropertyChanged -= this.OnManagerPropertyChanged;
+    }
+
+    private void OnManagerPropertyChanged(object sender, PropertyChangedEventArgs e) {
+        this.PropertyChanged?.Invoke(this, e); // property names are same, can just forward
+    }
+}
+
+#if DESIGN
+
+internal class DesignClassPreviewViewModel : ClassPreviewViewModel {
+    public new string ClassName { get; set; } = "Test";
+    public new bool IsColorEnabled { get; set; } = true;
+    public new string Background { get; set; } = "black";
+    public new string Foreground { get; set; } = "white";
+}
+
+#endif

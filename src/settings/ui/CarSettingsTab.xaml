@@ -114,6 +114,12 @@
                                            FontSize="20"
                                            Text="{Binding Id, Mode=OneWay}" />
 
+                        <local:ClassPreview DockPanel.Dock="Left"
+                                            Margin="10,10,10,10"
+                                            FontSize="15"
+                                            Padding="10,10,10,10"
+                                            DataContext="{Binding ClassPreviewViewModel}" />
+
                         <sh:SHButtonPrimary DockPanel.Dock="Right"
                                             HorizontalAlignment="Right"
                                             Content="Remove"

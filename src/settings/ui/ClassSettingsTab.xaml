@@ -36,10 +36,6 @@
                           Command="{Binding MenuResetAllCommand}" />
                 <MenuItem Header="Reset all colors"
                           Command="{Binding MenuResetAllColorsCommand}" />
-                <MenuItem Header="Reset all background colors"
-                          Command="{Binding MenuResetAllBackgroundCommand}" />
-                <MenuItem Header="Reset all text colors"
-                          Command="{Binding MenuResetAllForegroundCommand}" />
                 <MenuItem Header="Reset all short names"
                           Command="{Binding MenuResetAllShortNameCommand}" />
                 <MenuItem Header="Reset all 'replace with' values"
@@ -176,8 +172,6 @@
                             <xctk:ColorPicker SelectedColor="{Binding Background, Mode=TwoWay}"
                                               Style="{StaticResource ColorGrid_ColorPicker}" />
 
-                            <sh:SHButtonSecondary Command="{Binding ResetBackgroundColorCommand}"
-                                                  Content="Reset" />
 
                             <TextBlock
                                 Padding="25,0,0,0"
@@ -186,8 +180,6 @@
                             <xctk:ColorPicker SelectedColor="{Binding Foreground, Mode=TwoWay}"
                                               Style="{StaticResource ColorGrid_ColorPicker}" />
 
-                            <sh:SHButtonSecondary Command="{Binding ResetForegroundColorCommand}"
-                                                  Content="Reset" />
 
                         </StackPanel>
 
@@ -197,7 +189,7 @@
                                               Command="{Binding ResetColorsCommand}" />
 
                         <!-- Short name row -->
-                        <sh:SHToggleCheckbox Grid.Row="1"
+                        <sh:SHToggleCheckbox Grid.Row="1" Grid.Column="0"
                                              IsChecked="True"
                                              IsEnabled="False"
                                              Opacity="0.333"
@@ -220,7 +212,7 @@
                                               Command="{Binding ResetShortNameCommand}" />
 
                         <!-- Replace with row -->
-                        <sh:SHToggleCheckbox Grid.Row="2"
+                        <sh:SHToggleCheckbox Grid.Row="2" Grid.Column="0"
                                              IsChecked="{Binding IsReplaceWithEnabled, Mode=TwoWay}"
                                              ToolTip="Enable this car's class override. If disabled, the plugin will use the n provided by SimHub." />
                         <TextBlock Grid.Column="1"

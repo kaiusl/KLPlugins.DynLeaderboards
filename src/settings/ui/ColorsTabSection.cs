@@ -49,45 +49,14 @@ internal class ColorsTabSection<K> {
     }
 
     private void BuildMenu(Func<K, bool> isDef) {
-        var resetMenu = new ButtonMenuItem { Header = "Reset", ShowDropDown = true };
+        var resetMenu = new ButtonMenuItem { Header = "Reset all" };
         this.Menu.Items.Add(resetMenu);
 
-        var resetMenuResetAll = new MenuItem { Header = "Reset all" };
-
-        resetMenu.Items.Add(resetMenuResetAll);
-        resetMenuResetAll.Click += (_, _) => {
+        resetMenu.Click += (_, _) => {
             this._settingsControl.DoOnConfirmation(
                 () => {
                     foreach (var c in this._rows) {
                         c.Value.Reset();
-                    }
-
-                    this._updateInfos();
-                }
-            );
-        };
-
-        var resetMenuResetNames = new MenuItem { Header = "Reset all foreground" };
-        resetMenu.Items.Add(resetMenuResetNames);
-        resetMenuResetNames.Click += (_, _) => {
-            this._settingsControl.DoOnConfirmation(
-                () => {
-                    foreach (var c in this._rows) {
-                        c.Value.ResetForeground();
-                    }
-
-                    this._updateInfos();
-                }
-            );
-        };
-
-        var resetMenuResetClasses = new MenuItem { Header = "Reset all backgrounds" };
-        resetMenu.Items.Add(resetMenuResetClasses);
-        resetMenuResetClasses.Click += (_, _) => {
-            this._settingsControl.DoOnConfirmation(
-                () => {
-                    foreach (var c in this._rows) {
-                        c.Value.ResetBackground();
                     }
 
                     this._updateInfos();
@@ -215,9 +184,7 @@ internal class ColorsTabSection<K> {
         internal Border ClassBox { get; }
         internal TextBlock ClassText { get; }
         internal ColorPicker BgColorPicker { get; }
-        internal SHButtonSecondary BgResetButton { get; }
         internal ColorPicker FgColorPicker { get; }
-        internal SHButtonSecondary FgResetButton { get; }
         internal SHButtonPrimary RemoveButton { get; }
         internal SHButtonPrimary ResetButton { get; }
 
@@ -276,15 +243,6 @@ internal class ColorsTabSection<K> {
                 updateInfos();
             };
 
-            this.BgResetButton = new SHButtonSecondary {
-                Opacity = opacity, IsEnabled = isEnabled, Style = (Style)findResource("ColorGrid_ResetButton"),
-            };
-            Grid.SetColumn(this.BgResetButton, 3);
-            this.BgResetButton.Click += (_, _) => {
-                this.ResetBackground();
-                updateInfos();
-            };
-
             this.FgColorPicker = new ColorPicker {
                 SelectedColor = currentFgColor,
                 Opacity = opacity,
@@ -295,15 +253,6 @@ internal class ColorsTabSection<K> {
             this.FgColorPicker.SelectedColorChanged += (_, _) => {
                 this.Color.SetForeground(this.FgColorPicker.SelectedColor.ToString());
                 this.ClassText.Foreground = new SolidColorBrush(this.FgColorPicker.SelectedColor.Value);
-                updateInfos();
-            };
-
-            this.FgResetButton = new SHButtonSecondary {
-                Opacity = opacity, IsEnabled = isEnabled, Style = (Style)findResource("ColorGrid_ResetButton"),
-            };
-            Grid.SetColumn(this.FgResetButton, 5);
-            this.FgResetButton.Click += (_, _) => {
-                this.ResetForeground();
                 updateInfos();
             };
 
@@ -328,12 +277,8 @@ internal class ColorsTabSection<K> {
                 this.ClassBox.Opacity = 1.0;
                 this.BgColorPicker.IsEnabled = true;
                 this.BgColorPicker.Opacity = 1.0;
-                this.BgResetButton.IsEnabled = true;
-                this.BgResetButton.Opacity = 1.0;
                 this.FgColorPicker.IsEnabled = true;
                 this.FgColorPicker.Opacity = 1.0;
-                this.FgResetButton.IsEnabled = true;
-                this.FgResetButton.Opacity = 1.0;
                 updateInfos();
             };
 
@@ -344,12 +289,8 @@ internal class ColorsTabSection<K> {
                 this.ClassBox.Opacity = opacity;
                 this.BgColorPicker.IsEnabled = false;
                 this.BgColorPicker.Opacity = opacity;
-                this.BgResetButton.IsEnabled = false;
-                this.BgResetButton.Opacity = opacity;
                 this.FgColorPicker.IsEnabled = false;
                 this.FgColorPicker.Opacity = opacity;
-                this.FgResetButton.IsEnabled = false;
-                this.FgResetButton.Opacity = opacity;
                 updateInfos();
             };
         }
@@ -358,18 +299,14 @@ internal class ColorsTabSection<K> {
             Grid.SetRow(this.EnabledToggle, row);
             Grid.SetRow(this.ClassBox, row);
             Grid.SetRow(this.BgColorPicker, row);
-            Grid.SetRow(this.BgResetButton, row);
             Grid.SetRow(this.FgColorPicker, row);
-            Grid.SetRow(this.FgResetButton, row);
             Grid.SetRow(this.RemoveButton, row);
             Grid.SetRow(this.ResetButton, row);
 
             grid.Children.Add(this.EnabledToggle);
             grid.Children.Add(this.ClassBox);
             grid.Children.Add(this.BgColorPicker);
-            grid.Children.Add(this.BgResetButton);
             grid.Children.Add(this.FgColorPicker);
-            grid.Children.Add(this.FgResetButton);
             grid.Children.Add(this.RemoveButton);
             grid.Children.Add(this.ResetButton);
         }
@@ -378,16 +315,16 @@ internal class ColorsTabSection<K> {
             grid.Children.Remove(this.EnabledToggle);
             grid.Children.Remove(this.ClassBox);
             grid.Children.Remove(this.BgColorPicker);
-            grid.Children.Remove(this.BgResetButton);
             grid.Children.Remove(this.FgColorPicker);
-            grid.Children.Remove(this.FgResetButton);
             grid.Children.Remove(this.RemoveButton);
             grid.Children.Remove(this.ResetButton);
         }
 
         internal void Reset() {
-            this.ResetForeground();
-            this.ResetBackground();
+            this.FgColorPicker.SelectedColor =
+                WindowsMediaColorExtensions.FromHex(this.Color.BaseForeground() ?? OverridableTextBoxColor.DEF_FG);
+            this.BgColorPicker.SelectedColor =
+                WindowsMediaColorExtensions.FromHex(this.Color.BaseBackground() ?? OverridableTextBoxColor.DEF_BG);
             this.Color.Reset();
 
             this.EnabledToggle.IsChecked = this.Color.IsEnabled;
@@ -399,18 +336,6 @@ internal class ColorsTabSection<K> {
 
         internal void Enable() {
             this.EnabledToggle.IsChecked = true;
-        }
-
-        internal void ResetForeground() {
-            this.FgColorPicker.SelectedColor =
-                WindowsMediaColorExtensions.FromHex(this.Color.BaseForeground() ?? OverridableTextBoxColor.DEF_FG);
-            this.Color.ResetForeground();
-        }
-
-        internal void ResetBackground() {
-            this.BgColorPicker.SelectedColor =
-                WindowsMediaColorExtensions.FromHex(this.Color.BaseBackground() ?? OverridableTextBoxColor.DEF_BG);
-            this.Color.ResetBackground();
         }
     }
 }

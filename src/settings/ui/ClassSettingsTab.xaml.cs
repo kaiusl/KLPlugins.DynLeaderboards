@@ -86,8 +86,6 @@ internal class ClassSettingsTabViewModel : INotifyPropertyChanged {
 
     public ICommand MenuResetAllCommand { get; }
     public ICommand MenuResetAllColorsCommand { get; }
-    public ICommand MenuResetAllForegroundCommand { get; }
-    public ICommand MenuResetAllBackgroundCommand { get; }
     public ICommand MenuResetAllShortNameCommand { get; }
     public ICommand MenuResetAllReplaceWithCommand { get; }
 
@@ -177,8 +175,6 @@ internal class ClassSettingsTabViewModel : INotifyPropertyChanged {
 
         this.MenuResetAllCommand = AllClassesCommand(c => c.Reset());
         this.MenuResetAllColorsCommand = AllClassesCommand(c => c.ResetColors());
-        this.MenuResetAllForegroundCommand = AllClassesCommand(c => c.ResetForeground());
-        this.MenuResetAllBackgroundCommand = AllClassesCommand(c => c.ResetBackground());
         this.MenuResetAllShortNameCommand = AllClassesCommand(c => c.ResetShortName());
         this.MenuResetAllReplaceWithCommand = AllClassesCommand(c => c.ResetReplaceWith());
 
@@ -283,8 +279,6 @@ internal class SelectedClassViewModel : INotifyPropertyChanged {
     public ListCollectionView AllClassesView { get; }
 
     public ICommand ResetColorsCommand { get; }
-    public ICommand ResetForegroundColorCommand { get; }
-    public ICommand ResetBackgroundColorCommand { get; }
     public ICommand ResetShortNameCommand { get; }
     public ICommand ResetReplaceWithCommand { get; }
     public ICommand ResetAllCommand { get; }
@@ -313,8 +307,6 @@ internal class SelectedClassViewModel : INotifyPropertyChanged {
         this.AllClassesView = allClassesView;
 
         this.ResetColorsCommand = new Command(() => this._classManager.ResetColors());
-        this.ResetForegroundColorCommand = new Command(() => this._classManager.ResetForeground());
-        this.ResetBackgroundColorCommand = new Command(() => this._classManager.ResetBackground());
         this.ResetShortNameCommand = new Command(() => this._classManager.ResetShortName());
         this.ResetReplaceWithCommand = new Command(() => this._classManager.ResetReplaceWith());
         this.ResetAllCommand = new Command(() => this._classManager.Reset());

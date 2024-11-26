@@ -381,7 +381,7 @@ namespace KLPlugins.DynLeaderboards.Car {
         }
 
         private void SetTeamCupColors(Values values) {
-            var cupColor = values.TeamCupCategoryColors.Get(this.TeamCupCategory);
+            var cupColor = values.TeamCupCategoryColors.GetOrAdd(this.TeamCupCategory);
             this.TeamCupCategoryColor = new TextBoxColor(
                 fg: cupColor.Foreground() ?? OverridableTextBoxColor.DEF_FG,
                 bg: cupColor.Background() ?? OverridableTextBoxColor.DEF_BG
@@ -1633,7 +1633,7 @@ namespace KLPlugins.DynLeaderboards.Car {
             this.ShortName = o.Initials;
             this.InitialPlusLastName = o.ShortName;
 
-            var col = v.DriverCategoryColors.Get(this.Category);
+            var col = v.DriverCategoryColors.GetOrAdd(this.Category);
             this.CategoryColor = new TextBoxColor(
                 fg: col.Foreground() ?? OverridableTextBoxColor.DEF_FG,
                 bg: col.Background() ?? OverridableTextBoxColor.DEF_BG
@@ -1651,7 +1651,7 @@ namespace KLPlugins.DynLeaderboards.Car {
             this.InitialPlusLastName = this.CreateInitialPlusLastNameAcc();
             this.Initials = this.CreateInitialsAcc();
 
-            var col = v.DriverCategoryColors.Get(this.Category);
+            var col = v.DriverCategoryColors.GetOrAdd(this.Category);
             this.CategoryColor = new TextBoxColor(
                 fg: col.Foreground() ?? OverridableTextBoxColor.DEF_FG,
                 bg: col.Background() ?? OverridableTextBoxColor.DEF_BG
@@ -1659,7 +1659,7 @@ namespace KLPlugins.DynLeaderboards.Car {
         }
 
         internal void UpdateDriverInfos(Values values) {
-            var col = values.DriverCategoryColors.Get(this.Category);
+            var col = values.DriverCategoryColors.GetOrAdd(this.Category);
             this.CategoryColor = new TextBoxColor(
                 fg: col.Foreground() ?? OverridableTextBoxColor.DEF_FG,
                 bg: col.Background() ?? OverridableTextBoxColor.DEF_BG

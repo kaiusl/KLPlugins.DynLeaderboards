@@ -8,6 +8,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
 
 using GameReaderCommon;
 
@@ -31,7 +32,7 @@ internal class TextBoxColors<K> : IEnumerable<KeyValuePair<K, OverridableTextBox
         this._colors = colors;
     }
 
-    internal OverridableTextBoxColor Get(K key) {
+    internal OverridableTextBoxColor GetOrAdd(K key) {
         if (!this._colors.ContainsKey(key)) {
             var c = new OverridableTextBoxColor();
             c.Disable();
@@ -124,27 +125,16 @@ internal class OverridableTextBoxColor {
 
     internal void Reset() {
         // default is enabled if base is present
-        // note: this must be done before ResetBackground and ResetForeground
-        // because otherwise they could wrongly set colors to default (not base) values
-        this.IsEnabled = this._base?.Fg != null && this._base?.Bg != null;
-
-        this.ResetBackground();
-        this.ResetForeground();
+        this.IsEnabled = this.HasBase();
+        this._overrides = null;
     }
 
     internal void Enable() {
         this.IsEnabled = true;
 
-        if (this.BackgroundDontCheckEnabled() == null) {
-            // we are explicitly asked to enable colors
-            // there must be some value in it
-            this.SetBackground(OverridableTextBoxColor.DEF_BG);
-        }
-
-        if (this.ForegroundDontCheckEnabled() == null) {
-            // same as above
-            this.SetForeground(OverridableTextBoxColor.DEF_FG);
-        }
+        // we are explicitly asked to enable colors
+        // there must be some value in it
+        this._overrides = this._base == null ? TextBoxColor.Default() : this._base.Clone();
     }
 
     internal void Disable() {
@@ -168,18 +158,10 @@ internal class OverridableTextBoxColor {
     }
 
     internal void SetForeground(string fg) {
-        this._overrides ??= new TextBoxColor();
-        this._overrides.Fg = fg;
-    }
-
-    internal void ResetForeground() {
-        if (this._overrides != null) {
-            this._overrides.Fg = null;
-        }
-
-        if (this.IsEnabled && this.BaseForeground() == null) {
-            // if color is enabled there must be some value in it
-            this.SetForeground(OverridableTextBoxColor.DEF_FG);
+        if (this._overrides == null) {
+            this._overrides = TextBoxColor.FromFg(fg);
+        } else {
+            this._overrides.Fg = fg;
         }
     }
 
@@ -200,33 +182,23 @@ internal class OverridableTextBoxColor {
     }
 
     internal void SetBackground(string bg) {
-        this._overrides ??= new TextBoxColor();
-        this._overrides.Bg = bg;
-    }
-
-    internal void ResetBackground() {
-        if (this._overrides != null) {
-            this._overrides.Bg = null;
+        if (this._overrides == null) {
+            this._overrides = TextBoxColor.FromBg(bg);
+        } else {
+            this._overrides.Bg = bg;
         }
-
-        // if (this.IsEnabled && this.BaseBackground() == null) {
-        //     // if color is enabled there must be some value in it
-        //     this.SetBackground(OverridableTextBoxColor.DEF_BG);
-        // }
     }
 }
 
 public class TextBoxColor {
-    [JsonProperty] public string? Fg { get; internal set; }
-    [JsonProperty] public string? Bg { get; internal set; }
+    [JsonProperty] public string Fg { get; internal set; }
+    [JsonProperty] public string Bg { get; internal set; }
 
     [JsonConstructor]
-    internal TextBoxColor(string? fg, string? bg) {
+    internal TextBoxColor(string fg, string bg) {
         this.Fg = fg;
         this.Bg = bg;
     }
-
-    internal TextBoxColor() { }
 
     internal TextBoxColor Clone() {
         return new TextBoxColor(this.Fg, this.Bg);
@@ -234,6 +206,16 @@ public class TextBoxColor {
 
     internal static TextBoxColor Default() {
         return new TextBoxColor(OverridableTextBoxColor.DEF_FG, OverridableTextBoxColor.DEF_BG);
+    }
+
+    internal static TextBoxColor FromFg(string fg) {
+        var bg = ColorTools.ComplementaryBlackOrWhite(fg);
+        return new TextBoxColor(fg: fg, bg: bg);
+    }
+
+    internal static TextBoxColor FromBg(string bg) {
+        var fg = ColorTools.ComplementaryBlackOrWhite(bg);
+        return new TextBoxColor(fg: fg, bg: bg);
     }
 }
 
@@ -379,7 +361,7 @@ internal class OverridableCarInfo : INotifyPropertyChanged {
 
     internal OverridableCarInfo() : this(null) { }
 
-    private void InvokePropertyChanged([System.Runtime.CompilerServices.CallerMemberName] string? propertyName = null) {
+    private void InvokePropertyChanged([CallerMemberName] string? propertyName = null) {
         if (propertyName == null) {
             return;
         }
@@ -673,7 +655,15 @@ internal class ClassInfos : IEnumerable<KeyValuePair<CarClass, OverridableClassI
                 if (infos.ContainsKey(kv.Key)) {
                     infos[kv.Key].SetRealBase(kv.Value);
                 } else {
-                    var info = new OverridableClassInfo(@base: kv.Value, null);
+                    var isColorEnabled = kv.Value.Color?.Fg != null && kv.Value.Color?.Bg != null;
+                    var isReplaceWithEnabled = kv.Value.ReplaceWith != null;
+                    var info = new OverridableClassInfo(
+                        @base: kv.Value,
+                        null,
+                        isColorEnabled: isColorEnabled,
+                        isReplaceWithEnabled: isReplaceWithEnabled
+                    );
+
                     infos[kv.Key] = info;
                 }
             }
@@ -1050,9 +1040,7 @@ internal class OverridableClassInfo {
 
         public event PropertyChangedEventHandler? PropertyChanged;
 
-        internal void InvokePropertyChanged(
-            [System.Runtime.CompilerServices.CallerMemberName] string? propertyName = null
-        ) {
+        internal void InvokePropertyChanged([CallerMemberName] string? propertyName = null) {
             if (this.PropertyChanged == null) {
                 return;
             }
@@ -1071,9 +1059,15 @@ internal class OverridableClassInfo {
             get => this.Info.Background();
             set {
                 this.Info.Overrides ??= new ClassInfo();
-                this.Info.Overrides.Color ??= new TextBoxColor();
-                this.Info.Overrides.Color.Bg = value;
+                if (value == null) {
+                    this.Info.Overrides.Color = null;
+                } else {
+                    this.Info.Overrides.Color ??= TextBoxColor.FromBg(value);
+                    this.Info.Overrides.Color.Bg = value;
+                }
+
                 this.InvokePropertyChanged();
+                this.InvokePropertyChanged(nameof(this.Foreground));
             }
         }
 
@@ -1081,9 +1075,15 @@ internal class OverridableClassInfo {
             get => this.Info.Foreground();
             set {
                 this.Info.Overrides ??= new ClassInfo();
-                this.Info.Overrides.Color ??= new TextBoxColor();
-                this.Info.Overrides.Color.Fg = value;
+                if (value == null) {
+                    this.Info.Overrides.Color = null;
+                } else {
+                    this.Info.Overrides.Color ??= TextBoxColor.FromFg(value);
+                    this.Info.Overrides.Color.Fg = value;
+                }
+
                 this.InvokePropertyChanged();
+                this.InvokePropertyChanged(nameof(this.Background));
             }
         }
 
@@ -1091,70 +1091,35 @@ internal class OverridableClassInfo {
             get => this.Info.IsColorEnabled;
             set {
                 this.Info.IsColorEnabled = value;
-                this.InvokePropertyChanged();
-                var notifiedBg = false;
-                var notifiedFg = false;
                 if (value) {
-                    if (this.Info.Overrides?.Color?.Bg == null) {
-                        // we are explicitly asked to enable colors
-                        // there must be some value in it
-                        // the value must be whatever was shown at the moment of enabling
-                        this.Background = this.Info.BackgroundDontCheckEnabled() ?? OverridableTextBoxColor.DEF_BG;
-                        notifiedBg = true;
-                    }
-
-                    if (this.Info.Overrides?.Color?.Fg == null) {
-                        // same as above
-                        this.Foreground = this.Info.ForegroundDontCheckEnabled() ?? OverridableTextBoxColor.DEF_FG;
-                        notifiedFg = true;
+                    if (this.Info.Overrides?.Color == null) {
+                        this.Info.Overrides ??= new ClassInfo();
+                        this.Info.Overrides.Color = this.Info.Base?.Color?.Clone()
+                            ?? this.Info.SimHubColor?.Clone()
+                            ?? TextBoxColor.Default();
                     }
                 }
 
-                if (!notifiedBg) {
-                    this.InvokePropertyChanged(nameof(this.Background));
-                }
-
-                if (!notifiedFg) {
-                    this.InvokePropertyChanged(nameof(this.Foreground));
-                }
-            }
-        }
-
-        internal void ResetBackground() {
-            if (this.Info.Overrides?.Color != null) {
-                this.Info.Overrides.Color.Bg = null;
-            }
-
-            if (this.IsColorEnabled && this.Info.Overrides?.Color?.Bg == null) {
-                // if color is enabled there must be some value in it
-                // the value must be whatever was shown at the moment of enabling
-                this.Background = this.Info.BackgroundDontCheckEnabled() ?? OverridableTextBoxColor.DEF_BG;
-            } else {
+                this.InvokePropertyChanged();
                 this.InvokePropertyChanged(nameof(this.Background));
-            }
-        }
-
-        internal void ResetForeground() {
-            if (this.Info.Overrides?.Color != null) {
-                this.Info.Overrides.Color.Fg = null;
-            }
-
-            if (this.IsColorEnabled && this.Info.Overrides?.Color?.Fg == null) {
-                // if color is enabled there must be some value in it
-                // the value must be whatever was shown at the moment of enabling
-                this.Foreground = this.Info.ForegroundDontCheckEnabled() ?? OverridableTextBoxColor.DEF_FG;
-            } else {
                 this.InvokePropertyChanged(nameof(this.Foreground));
             }
         }
 
         internal void ResetColors() {
+            // default is enabled, is we have base
             // don't call the setter for this.IsColorEnabled, that would notify bg and fg change unnecessarily
-            this.Info.IsColorEnabled = this.Info.Base?.Color?.Fg != null && this.Info.Base?.Color?.Bg != null;
-            this.InvokePropertyChanged(nameof(this.IsColorEnabled));
+            this.Info.IsColorEnabled = this.Info.Base?.Color != null;
 
-            this.ResetBackground();
-            this.ResetForeground();
+            // don't call this.ResetBackground() or this.ResetForeground(),
+            // we don't want to write base colors to overrides
+            if (this.Info.Overrides != null) {
+                this.Info.Overrides.Color = null;
+            }
+
+            this.InvokePropertyChanged(nameof(this.IsColorEnabled));
+            this.InvokePropertyChanged(nameof(this.Foreground));
+            this.InvokePropertyChanged(nameof(this.Background));
         }
 
         internal string ShortName {
@@ -1378,9 +1343,9 @@ public class Values : IDisposable {
         this.ClassInfos = Values.ReadClassInfos();
         this.TeamCupCategoryColors =
             Values.ReadTextBoxColors<TeamCupCategory>(Values._TEAM_CUP_CATEGORY_COLORS_JSON_NAME);
-        this.TeamCupCategoryColors.Get(TeamCupCategory.Default);
+        this.TeamCupCategoryColors.GetOrAdd(TeamCupCategory.Default);
         this.DriverCategoryColors = Values.ReadTextBoxColors<DriverCategory>(Values._DRIVER_CATEGORY_COLORS_JSON_NAME);
-        this.DriverCategoryColors.Get(DriverCategory.Default);
+        this.DriverCategoryColors.GetOrAdd(DriverCategory.Default);
 
         this.OverallOrder = this._overallOrder.AsReadOnly();
         this.ClassOrder = this._classOrder.AsReadOnly();
@@ -1958,6 +1923,11 @@ internal static class ColorTools {
         }
 
         return Math.Pow(y, 1.0 / 3.0) * 116.0 - 16.0;
+    }
+
+    public static string ComplementaryBlackOrWhite(string color) {
+        var lstar = ColorTools.LStar(color);
+        return lstar > 70 ? "#000000" : "#FFFFFF";
     }
 
     private static double ToLinRgb(double c) {

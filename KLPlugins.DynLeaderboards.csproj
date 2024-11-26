@@ -143,6 +143,9 @@
         </Reference>
     </ItemGroup>
     <ItemGroup>
+        <Compile Include="src\components\CarInfos.cs"/>
+        <Compile Include="src\components\ClassInfos.cs"/>
+        <Compile Include="src\components\TextBoxColors.cs"/>
         <Compile Include="src\settings\ui\CarSettingsTab.xaml.cs">
             <DependentUpon>CarSettingsTab.xaml</DependentUpon>
         </Compile>

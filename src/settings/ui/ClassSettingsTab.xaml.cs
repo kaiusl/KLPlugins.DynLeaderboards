@@ -279,6 +279,7 @@ internal class SelectedClassViewModel : INotifyPropertyChanged {
     public bool CanBeRemoved =>
         this._classesManager.CanBeRemoved(this.Class)
         && !this._settingsControl.Plugin.Values.CarInfos.ContainsClass(this.Class);
+
     public ListCollectionView AllClassesView { get; }
 
     public ICommand ResetColorsCommand { get; }

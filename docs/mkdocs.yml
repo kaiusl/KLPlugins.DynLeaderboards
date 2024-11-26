@@ -1,20 +1,20 @@
 site_name: Dynamic Leaderboards Plugin for SimHub
 nav:
   - 'Home': 'index.md'
-  - 'User guide': 
-    - 'Getting started': 'user_guide/getting_started.md'
-    - 'Configuration': 'user_guide/config.md'
-    - 'Creating dashboards': 'user_guide/creating_dashboards.md'
-    - 'Publishing dashboards': 'user_guide/publishing_dashboards.md'
+  - 'User guide':
+      - 'Getting started': 'user_guide/getting_started.md'
+      - 'Configuration': 'user_guide/config.md'
+      - 'Creating dashboards': 'user_guide/creating_dashboards.md'
+      - 'Publishing dashboards': 'user_guide/publishing_dashboards.md'
   - 'Community':
-    - 'Dashboards': 'community/dashes.md'
-    - 'Troubleshooting': 'community/troubleshooting.md'
-    - 'Feature requests and suggestions': 'community/requests.md'
-  - 'Reference': 
-    - 'Available leaderboards': 'reference/leaderboards.md'
-    - 'Available properties': 'reference/properties.md'
-  - 'About': 
-    - 'Links': 'about/index.md'
+      - 'Dashboards': 'community/dashes.md'
+      - 'Troubleshooting': 'community/troubleshooting.md'
+      - 'Feature requests and suggestions': 'community/requests.md'
+  - 'Reference':
+      - 'Available leaderboards': 'reference/leaderboards.md'
+      - 'Available properties': 'reference/properties.md'
+  - 'About':
+      - 'Links': 'about/index.md'
 
 site_url: https://kaiusl.github.io/KLPlugins.DynLeaderboards/
 repo_url: https://github.com/kaiusl/KLPlugins.DynLeaderboards
@@ -64,12 +64,12 @@ markdown_extensions:
   - pymdownx.snippets:
       check_paths: true
   - pymdownx.emoji:
-      emoji_index: !!python/name:material.extensions.emoji.twemoji 
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
       emoji_generator: !!python/name:material.extensions.emoji.to_svg
 
 theme:
   name: 'material'
-  palette: 
+  palette:
     - media: "(prefers-color-scheme: dark)"
       scheme: dark
       toggle:

@@ -10,8 +10,9 @@
     
         In this plugin you can configure multiple "dynamic leaderboards" that contain different "leaderboard types" and expose different properties.
 
-This plugin provides bunch of configuration options. 
-Go to the plugin settings either directly from the left main menu "Dynamic Leaderboards" item or under "Additional plugins" item.
+This plugin provides bunch of configuration options.
+Go to the plugin settings either directly from the left main menu "Dynamic Leaderboards" item or under "Additional
+plugins" item.
 Each section in SimHub menu has a little help button which directly links to the relevant section in here.
 
 Below is the documentation for all the available options.
@@ -27,13 +28,14 @@ This tab includes settings that are global to the whole plugin.
 There are couple of paths needed for the plugin to work.
 
 !!! note
-    These are game specific and if you don't play that specific game you can safely ignore that setting.
+These are game specific and if you don't play that specific game you can safely ignore that setting.
 
-If the background of text box is green then we found needed files. If it's red then there is something wrong with the location.
+If the background of text box is green then we found needed files. If it's red then there is something wrong with the
+location.
 
 "ACC configuration location"
 : is used to read connection information from the broadcasting client.
-    
+
     We need to find the file {{ path("..\\Assetto Corsa Competizione\\Config\\broadcasting.json") }}.
     Likely the correct location is {{ path("C:\\Users\\<user name>\\Documents\\Assetto Corsa Competizione") }}
 
@@ -43,20 +45,19 @@ If the background of text box is green then we found needed files. If it's red t
     We need to find the folder {{ path("..\\assettocorsa\\content\\cars") }}. 
     Likely the correct location is {{ path("C:\\Program Files (x86)\\Steam\\steamapps\\common\\assettocorsa") }}.
 
-
 If you needed to change the location, restart SimHub for the changes to take effect.
 
 #### EXPOSED PROPERTIES
 
 All properties listed here will be available globally (not tied to specific dynamic leaderboard).
 
-The SimHub menu provides a short description for each property. 
+The SimHub menu provides a short description for each property.
 For more detailed description see [the reference](../reference/properties.md#general).
 
 #### DEBUG
 
 These setting can be useful when reporting issues with the plugin.
-For normal use it's recommended to keep everything in this section disabled. 
+For normal use it's recommended to keep everything in this section disabled.
 
 If you are experiencing issues, then see [troubleshooting](../community/troubleshooting.md) page.
 
@@ -71,24 +72,28 @@ This is the tab where you can configure all of the dynamic leaderboards.
 This section allows to select which dynamic leaderboard is currently configured.
 You can also add and remove dynamic leaderboards.
 
-The toggle button in front of each leaderboard allows to disable calculation of given dynamic leaderboard. 
+The toggle button in front of each leaderboard allows to disable calculation of given dynamic leaderboard.
 This can be useful if you have many leaderboards installed but only use some of them at a time.
 You can disable the ones not used at the moment in order to not waste resources.
 
-You can change the name by opening the dropdown menu and writing inside the corresponding box. 
-Then all properties will be available as `DynLeaderboardsPlugin.<chosen name>.<pos>.<property name>`. 
-For example you named your dynamic leaderboard as "MyDynLeaderboard" then you can do 
-`DynLeaderboardsPlugin.MyDynLeaderboard.5.Car.Number` to get the fifth car's number in whatever leaderboard type is currently. 
-If it's overall order you get the fifth car overall, if it's on track relative leaderboard you get the car that is in fifth position in that order.
+You can change the name by opening the dropdown menu and writing inside the corresponding box.
+Then all properties will be available as `DynLeaderboardsPlugin.<chosen name>.<pos>.<property name>`.
+For example you named your dynamic leaderboard as "MyDynLeaderboard" then you can do
+`DynLeaderboardsPlugin.MyDynLeaderboard.5.Car.Number` to get the fifth car's number in whatever leaderboard type is
+currently.
+If it's overall order you get the fifth car overall, if it's on track relative leaderboard you get the car that is in
+fifth position in that order.
 
 #### LEADERBOARD ROTATION
 
-Here you define the specific leaderboard types that appear in the dynamic leaderboard and choose the order of appearance. 
+Here you define the specific leaderboard types that appear in the dynamic leaderboard and choose the order of
+appearance.
 
-You can also enable removing some leaderboard types if there is only a single class or cup in the session. 
-Overall and class/cup leaderboards are equivalent in a single class/cup sessions and thus there is really no need to scroll through all of them if they are all enabled.
+You can also enable removing some leaderboard types if there is only a single class or cup in the session.
+Overall and class/cup leaderboards are equivalent in a single class/cup sessions and thus there is really no need to
+scroll through all of them if they are all enabled.
 
-!!! TIP 
+!!! TIP
 
     You don't need to restart SimHub after the changes made to the rotation.
 
@@ -97,7 +102,7 @@ For leaderboard type definitions see [the reference](../reference/leaderboards.m
 #### CONTROLS
 
 This section allows to assign controls for "Next leaderboard" and/or "Previous leaderboard"
-which move between the leaderboards enabled in the rotation section. 
+which move between the leaderboards enabled in the rotation section.
 "Next leaderboard" will move down the list and "Previous leaderboard" up the list.
 
 !!! info
@@ -106,40 +111,46 @@ which move between the leaderboards enabled in the rotation section.
 
 #### NUMBER OF POSITIONS
 
-Here you can limit the number of positions exported since there is no need to export more than your leaderboard can display.
+Here you can limit the number of positions exported since there is no need to export more than your leaderboard can
+display.
 
-For relative positions we set the number of positions shown ahead and behind. 
+For relative positions we set the number of positions shown ahead and behind.
 That is if set to 5 for example, we show 5 cars ahead and 5 cars behind the focused car.
 
-The driver numbers are set such that current driver is always first. 
+The driver numbers are set such that current driver is always first.
 If you set the number of drivers to 1, then we only show current driver.
-  
+
 #### PROPERTIES FOR EACH CAR
 
-Enable/disable properties for currently selected dynamic leaderboard. 
-Each property can be accessed as `DynLeaderboardsPlugin.<dynamic leaderboard name>.<pos>.<property name>`. 
+Enable/disable properties for currently selected dynamic leaderboard.
+Each property can be accessed as `DynLeaderboardsPlugin.<dynamic leaderboard name>.<pos>.<property name>`.
 
-The SimHub menu provides a short description for each property. 
+The SimHub menu provides a short description for each property.
 For more detailed description see [the reference](../reference/properties.md#for-each-car).
 
 #### PROPERTIES FOR EACH DRIVER
 
-These can be accessed as `DynLeaderboardsPlugin.<dynamic leaderboard name>.<pos>.Driver.<driver number>.<property name>`. `<driver number>` starts at 1 and that always corresponds to the current driver. For example `DynLeaderboardsPlugin.Dynamic.5.Driver.1.FirstName` will get the first name of the current driver of the 5th car.
+These can be accessed as
+`DynLeaderboardsPlugin.<dynamic leaderboard name>.<pos>.Driver.<driver number>.<property name>`. `<driver number>`
+starts at 1 and that always corresponds to the current driver. For example
+`DynLeaderboardsPlugin.Dynamic.5.Driver.1.FirstName` will get the first name of the current driver of the 5th car.
 
-The SimHub menu provides a short description for each property. 
+The SimHub menu provides a short description for each property.
 For more detailed description see [the reference](../reference/properties.md#for-each-driver).
 
 #### Closing notes
 
-After you reached the end, restart SimHub for the changes to take effect and start creating your own dashboard or enjoy the provided one.
-If you are creating your own dashboard make sure to give [Creating dashboards](creating_dashboards.md) page at least a quick read.
+After you reached the end, restart SimHub for the changes to take effect and start creating your own dashboard or enjoy
+the provided one.
+If you are creating your own dashboard make sure to give [Creating dashboards](creating_dashboards.md) page at least a
+quick read.
 
 ## Car settings
 
 ![Screenshot](../img/Config/CarSettings.png)
 
-This tab provides an option to change car names, manufacturers and classes. 
-All the available cars are listed on the left. 
+This tab provides an option to change car names, manufacturers and classes.
+All the available cars are listed on the left.
 The listed name is the model name exported by the plugin.
 An id used by SimHub is listed as small text below.
 
@@ -154,14 +165,17 @@ for easy customization.
 The options have a three level system: SimHub data, base data and user overrides.
 
 * At the bottom there is SimHub's data which is used if the property is not available from the plugin side.
-This includes if the property is disabled or the car is missing from the plugin. 
-Note that "Manufacturer" property cannot be disabled as SimHub doesn't provide it.
-By default the manufacturer is the first word of the car name but this is not perfect.
-However next two levels can fix it.
+  This includes if the property is disabled or the car is missing from the plugin.
+  Note that "Manufacturer" property cannot be disabled as SimHub doesn't provide it.
+  By default the manufacturer is the first word of the car name but this is not perfect.
+  However next two levels can fix it.
 
-* Next there is base plugin data which is either bundled by the plugin with the download or it's generated from game files.
-At the moment base data is provided for ACC (which matches v1.x data) and it can be generated for AC ([more information about it](#assetto-corsa)).
-The main use for base data is to match in game info (names, classes, colors etc) by default and allow us to update and improve the data without deleting user overrides.
+* Next there is base plugin data which is either bundled by the plugin with the download or it's generated from game
+  files.
+  At the moment base data is provided for ACC (which matches v1.x data) and it can be generated for
+  AC ([more information about it](#assetto-corsa)).
+  The main use for base data is to match in game info (names, classes, colors etc) by default and allow us to update and
+  improve the data without deleting user overrides.
 
 * Finally a user can override any of the car settings. These are persistent between plugin updates.
 
@@ -200,20 +214,22 @@ The main use for base data is to match in game info (names, classes, colors etc)
     If the base data is not available then the plugin default is the class provided by SimHub.
 
 #### Assetto Corsa
-   
-This plugin can read the default car information directly from AC's car files (from {{ path("..\\assettocorsa\\content\\cars\\\<car_id>\\ui\\ui_car.json")}}).
+
+This plugin can read the default car information directly from AC's car files (from {{ path("
+..\\assettocorsa\\content\\cars\\\<car_id>\\ui\\ui_car.json")}}).
 This is useful for modded cars so you don't have to manually enter all the necessary data.
 
 For this to function properly, a correct "AC root location" needs to be set under ["General settings -> PATHS"](#paths).
 
 If the plugin detects that there is no base AC car data, it will try to automatically read it.
-However for further update you need to manually trigger the update. 
+However for further update you need to manually trigger the update.
 This is so that we don't accidentally trigger an expensive update during a session when unknown car joins.
 
-To update the base info go to the plugin settings and under ["Car settings"](#car-settings) tab click `Update base info` button.
+To update the base info go to the plugin settings and under ["Car settings"](#car-settings) tab click `Update base info`
+button.
 <span title="Note that this button is only available when AC is the selected game.">:material-information-outline:<span>
 
-This means that there are actually two ways to change car information for AC. 
+This means that there are actually two ways to change car information for AC.
 Either from the plugin menu or by modifying AC files directly which Content Manager makes very easy.
 
 !!! Info "Classes"
@@ -226,11 +242,11 @@ Either from the plugin menu or by modifying AC files directly which Content Mana
 
 ![Screenshot](../img/Config/ClassSettings.png)
 
-This tab provides an option to change class data. 
+This tab provides an option to change class data.
 All the available classes are listed on the left but you can add new classes too (from `Add new class` button).
 
 Again as with ["Car settings"](#car-settings) tab if the plugin detects new classes
-they will be added to the list but for now you'll need to manually refresh the 
+they will be added to the list but for now you'll need to manually refresh the
 list by clicking the `Refresh` button.
 
 The classes also have same [three level fallback system](#fallback-and-defaults) as ["Car settings"](#car-settings).
@@ -241,8 +257,8 @@ Base data is provided for ACC and AMS2 to match in game class colors and for R3E
 ***Color***
 
 : Each color has background and text part which are also shown in a little preview box.
-    Background color is exported simply as `Color`, for example `Car.Class.Color`. 
-    Text color is exported as `Car.Class.TextColor`.
+Background color is exported simply as `Color`, for example `Car.Class.Color`.
+Text color is exported as `Car.Class.TextColor`.
 
     If this property is disabled then SimHub's class colors will be used. 
     You can change them from the "Car settings" item on the left menu (not to be confused with this plugins "Car settings" menu).
@@ -252,8 +268,9 @@ Base data is provided for ACC and AMS2 to match in game class colors and for R3E
 
 ***Short name***
 
-: Some full class names can be rather long and in many leaderboards there is not enough space to actually show the full class name. 
-    This option allows to specify an alternative.
+: Some full class names can be rather long and in many leaderboards there is not enough space to actually show the full
+class name.
+This option allows to specify an alternative.
 
     If the base data is not available then the plugin default is the full class name.
 
@@ -262,7 +279,7 @@ Base data is provided for ACC and AMS2 to match in game class colors and for R3E
 ***Replace with***
 
 : If this option is set all cars that belong to the original class are shown in the `replace with` class.
-    This can be useful in a few cases.
+This can be useful in a few cases.
 
     1. It allows to combine classes. 
 
@@ -296,21 +313,20 @@ Base data is provided for ACC and AMS2 to match in game class colors and for R3E
     For example if class "A" has set `replace with` to "B" and "B" itself is replaced by "C" then "A" will actually also be replaced with "C".
     This is also reflected in the replacement class preview box.
 
-
 ## Misc colors
 
 ![Screenshot](../img/Config/Colors.png)
 
 This tab allows to customize other colors provided by the plugin.
 This includes team cup category and driver category colors.
-Note that class colors can be customized in ["Class settings"](#class-settings) tab. 
+Note that class colors can be customized in ["Class settings"](#class-settings) tab.
 
 Each color has background and text part which are also shown in a little preview box.
-Background color is exported simply as `Color`, for example `Car.Class.Color`. 
+Background color is exported simply as `Color`, for example `Car.Class.Color`.
 Text color is exported as `TextColor`, for example `Car.Class.TextColor`.
 
 Again as with ["Car settings"](#car-settings) tab if the plugin detects new categories
-they will be added to the list but for now you'll need to manually refresh the 
+they will be added to the list but for now you'll need to manually refresh the
 list by clicking the `Refresh` button.
 
 The colors also have same [three level fallback system](#fallback-and-defaults) as ["Car settings"](#car-settings).

@@ -1,267 +1,267 @@
 {
-  "Alpine A110 GT4 2018": {
-    "Name": "Alpine A110 GT4",
-    "Manufacturer": "Alpine",
-    "Class": "GT4"
-  },
-  "Aston Martin V8 Vantage GT3 2019": {
-    "Name": "Aston Martin V8 Vantage GT3",
-    "Manufacturer": "Aston Martin",
-    "Class": "GT3"
-  },
-  "Aston Martin Vantage V12 GT3 2013": {
-    "Name": "Aston Martin V12 Vantage GT3",
-    "Manufacturer": "Aston Martin",
-    "Class": "GT3"
-  },
-  "Aston Martin Vantage AMR GT4 2018": {
-    "Name": "Aston Martin V8 Vantage GT4",
-    "Manufacturer": "Aston Martin",
-    "Class": "GT4"
-  },
-  "Audi R8 LMS 2015": {
-    "Name": "Audi R8 LMS GT3",
-    "Manufacturer": "Audi",
-    "Class": "GT3"
-  },
-  "Audi R8 LMS Evo 2019": {
-    "Name": "Audi R8 LMS GT3 evo",
-    "Manufacturer": "Audi",
-    "Class": "GT3"
-  },
-  "Audi R8 LMS Evo II 2022": {
-    "Name": "Audi R8 LMS GT3 evo II",
-    "Manufacturer": "Audi",
-    "Class": "GT3"
-  },
-  "Audi R8 LMS GT4 2016": {
-    "Name": "Audi R8 LMS GT4",
-    "Manufacturer": "Audi",
-    "Class": "GT4"
-  },
-  "Audi R8 LMS GT2 2021": {
-    "Name": "Audi R8 LMS GT2",
-    "Manufacturer": "Audi",
-    "Class": "GT2"
-  },
-  "Bentley Continental GT3 2015": {
-    "Name": "Bentley Continental GT3 16",
-    "Manufacturer": "Bentley",
-    "Class": "GT3"
-  },
-  "Bentley Continental GT3 2018": {
-    "Name": "Bentley Continental GT3 18",
-    "Manufacturer": "Bentley",
-    "Class": "GT3"
-  },
-  "BMW M4 GT3 2021": {
-    "Name": "BMW M4 GT3",
-    "Manufacturer": "BMW",
-    "Class": "GT3"
-  },
-  "BMW M6 GT3 2017": {
-    "Name": "BMW M6 GT3",
-    "Manufacturer": "BMW",
-    "Class": "GT3"
-  },
-  "BMW M4 GT4 2018": {
-    "Name": "BMW M4 GT4",
-    "Manufacturer": "BMW",
-    "Class": "GT4"
-  },
-  "BMW M2 Cup 2020": {
-    "Name": "BMW M2 CS Racing",
-    "Manufacturer": "BMW",
-    "Class": "TCX"
-  },
-  "Chevrolet Camaro GT4 R 2017": {
-    "Name": "Chevrolet Camaro GT4",
-    "Manufacturer": "Chevrolet",
-    "Class": "GT4"
-  },
-  "Emil Frey Jaguar G3 2021": {
-    "Name": "Emil Frey Jaguar G3",
-    "Manufacturer": "Jaguar",
-    "Class": "GT3"
-  },
-  "Ferrari 296 GT3 2023": {
-    "Name": "Ferrari 296 GT3",
-    "Manufacturer": "Ferrari",
-    "Class": "GT3"
-  },
-  "Ferrari 488 GT3 2018": {
-    "Name": "Ferrari 488 GT3",
-    "Manufacturer": "Ferrari",
-    "Class": "GT3"
-  },
-  "Ferrari 488 GT3 Evo 2020": {
-    "Name": "Ferrari 488 GT3 EVO 20",
-    "Manufacturer": "Ferrari",
-    "Class": "GT3"
-  },
-  "Ferrari 488 Challenge Evo 2020": {
-    "Name": "Ferrari 488 Challenge EVO",
-    "Manufacturer": "Ferrari",
-    "Class": "CHL"
-  },
-  "Ginetta G55 GT4 2012": {
-    "Name": "Ginetta G55 GT4",
-    "Manufacturer": "Ginetta",
-    "Class": "GT4"
-  },
-  "Honda NSX GT3 2017": {
-    "Name": "Honda NSX GT3",
-    "Manufacturer": "Honda",
-    "Class": "GT3"
-  },
-  "Honda NSX GT3 Evo 2019": {
-    "Name": "Honda NSX GT3 Evo",
-    "Manufacturer": "Honda",
-    "Class": "GT3"
-  },
-  "KTM Xbow GT2 2021": {
-    "Name": "KTM X-Bow GT2",
-    "Manufacturer": "KTM",
-    "Class": "GT2"
-  },
-  "KTM Xbow GT4 2016": {
-    "Name": "KTM X-Bow GT4",
-    "Manufacturer": "KTM",
-    "Class": "GT4"
-  },
-  "Lamborghini Gallardo G3 Reiter 2017": {
-    "Name": "Lamborghini Gallardo REX",
-    "Manufacturer": "Lamborghini",
-    "Class": "GT3"
-  },
-  "Lamborghini Huracán GT3 2015": {
-    "Name": "Lamborghini Huracán GT3",
-    "Manufacturer": "Lamborghini",
-    "Class": "GT3"
-  },
-  "Lamborghini Huracán GT3 Evo 2019": {
-    "Name": "Lamborghini Huracán GT3 EVO",
-    "Manufacturer": "Lamborghini",
-    "Class": "GT3"
-  },
-  "Lamborghini Huracán GT3 Evo2 2023": {
-    "Name": "Lamborghini Huracán GT3 EVO2",
-    "Manufacturer": "Lamborghini",
-    "Class": "GT3"
-  },
-  "Lamborghini Huracán ST 2015": {
-    "Name": "Lamborghini Huracán ST",
-    "Manufacturer": "Lamborghini",
-    "Class": "ST15"
-  },
-  "Lamborghini Huracán ST Evo2 2021": {
-    "Name": "Lamborghini Huracán ST EVO2",
-    "Manufacturer": "Lamborghini",
-    "Class": "ST21"
-  },
-  "Lexus RCF GT3 2016": {
-    "Name": "Lexus RC-F GT3",
-    "Manufacturer": "Lexus",
-    "Class": "GT3"
-  },
-  "Maserati GT2 2023": {
-    "Name": "Maserati MC20 GT2",
-    "Manufacturer": "Maserati",
-    "Class": "GT2"
-  },
-  "Maserati Gran Turismo MC GT4 2016": {
-    "Name": "Maserati MC GT4",
-    "Manufacturer": "Maserati",
-    "Class": "GT4"
-  },
-  "McLaren 650S GT3 2015": {
-    "Name": "McLaren 650S GT3",
-    "Manufacturer": "McLaren",
-    "Class": "GT3"
-  },
-  "McLaren 720S GT3 2019": {
-    "Name": "McLaren 720S GT3",
-    "Manufacturer": "McLaren",
-    "Class": "GT3"
-  },
-  "McLaren 720s GT3 Evo 2023": {
-    "Name": "McLaren 720S GT3 Evo",
-    "Manufacturer": "McLaren",
-    "Class": "GT3"
-  },
-  "McLaren 570s GT4 2016": {
-    "Name": "McLaren 570S GT4",
-    "Manufacturer": "McLaren",
-    "Class": "GT4"
-  },
-  "Mercedes AMG GT2 2023": {
-    "Name": "Mercedes-AMG GT2",
-    "Manufacturer": "Mercedes",
-    "Class": "GT2"
-  },
-  "Mercedes AMG GT3 2015": {
-    "Name": "Mercedes-AMG GT3",
-    "Manufacturer": "Mercedes",
-    "Class": "GT3"
-  },
-  "Mercedes AMG GT3 Evo 2020": {
-    "Name": "Mercedes-AMG GT3 20",
-    "Manufacturer": "Mercedes",
-    "Class": "GT3"
-  },
-  "Mercedes AMG GT4 2016": {
-    "Name": "Mercedes-AMG GT4",
-    "Manufacturer": "Mercedes",
-    "Class": "GT4"
-  },
-  "Nissan GT R Nismo GT3 2015": {
-    "Name": "Nissan GT-R GT3 15",
-    "Manufacturer": "Nissan",
-    "Class": "GT3"
-  },
-  "Nissan GT R Nismo GT3 2018": {
-    "Name": "Nissan GT-R GT3 18",
-    "Manufacturer": "Nissan",
-    "Class": "GT3"
-  },
-  "Porsche 911 GT3 R 2018": {
-    "Name": "Porsche 991 GT3 R",
-    "Manufacturer": "Porsche",
-    "Class": "GT3"
-  },
-  "Porsche 911 II GT3 R 2019": {
-    "Name": "Porsche 991II GT3 R",
-    "Manufacturer": "Porsche",
-    "Class": "GT3"
-  },
-  "Porsche 992 GT3 R 2023": {
-    "Name": "Porsche 992 GT3 R",
-    "Manufacturer": "Porsche",
-    "Class": "GT3"
-  },
-  "Porsche 991 II GT3 Cup 2017": {
-    "Name": "Porsche 991II GT3 Cup",
-    "Manufacturer": "Porsche",
-    "Class": "CUP17"
-  },
-  "Porsche 992 GT3 Cup 2021": {
-    "Name": "Porsche 992 GT3 Cup",
-    "Manufacturer": "Porsche",
-    "Class": "CUP21"
-  },
-  "Porsche 991 II GT2 RS CS EVO 2023": {
-    "Name": "Porsche 911 GT2 RS CS Evo",
-    "Manufacturer": "Porsche",
-    "Class": "GT2"
-  },
-  "Porsche 935 2019": {
-    "Name": "Porsche 935",
-    "Manufacturer": "Porsche",
-    "Class": "GT2"
-  },
-  "Porsche 718 Cayman GT4 MR 2019": {
-    "Name": "Porsche 718 Cayman GT4",
-    "Manufacturer": "Porsche",
-    "Class": "GT4"
-  }
+    "Alpine A110 GT4 2018": {
+        "Name": "Alpine A110 GT4",
+        "Manufacturer": "Alpine",
+        "Class": "GT4"
+    },
+    "Aston Martin V8 Vantage GT3 2019": {
+        "Name": "Aston Martin V8 Vantage GT3",
+        "Manufacturer": "Aston Martin",
+        "Class": "GT3"
+    },
+    "Aston Martin Vantage V12 GT3 2013": {
+        "Name": "Aston Martin V12 Vantage GT3",
+        "Manufacturer": "Aston Martin",
+        "Class": "GT3"
+    },
+    "Aston Martin Vantage AMR GT4 2018": {
+        "Name": "Aston Martin V8 Vantage GT4",
+        "Manufacturer": "Aston Martin",
+        "Class": "GT4"
+    },
+    "Audi R8 LMS 2015": {
+        "Name": "Audi R8 LMS GT3",
+        "Manufacturer": "Audi",
+        "Class": "GT3"
+    },
+    "Audi R8 LMS Evo 2019": {
+        "Name": "Audi R8 LMS GT3 evo",
+        "Manufacturer": "Audi",
+        "Class": "GT3"
+    },
+    "Audi R8 LMS Evo II 2022": {
+        "Name": "Audi R8 LMS GT3 evo II",
+        "Manufacturer": "Audi",
+        "Class": "GT3"
+    },
+    "Audi R8 LMS GT4 2016": {
+        "Name": "Audi R8 LMS GT4",
+        "Manufacturer": "Audi",
+        "Class": "GT4"
+    },
+    "Audi R8 LMS GT2 2021": {
+        "Name": "Audi R8 LMS GT2",
+        "Manufacturer": "Audi",
+        "Class": "GT2"
+    },
+    "Bentley Continental GT3 2015": {
+        "Name": "Bentley Continental GT3 16",
+        "Manufacturer": "Bentley",
+        "Class": "GT3"
+    },
+    "Bentley Continental GT3 2018": {
+        "Name": "Bentley Continental GT3 18",
+        "Manufacturer": "Bentley",
+        "Class": "GT3"
+    },
+    "BMW M4 GT3 2021": {
+        "Name": "BMW M4 GT3",
+        "Manufacturer": "BMW",
+        "Class": "GT3"
+    },
+    "BMW M6 GT3 2017": {
+        "Name": "BMW M6 GT3",
+        "Manufacturer": "BMW",
+        "Class": "GT3"
+    },
+    "BMW M4 GT4 2018": {
+        "Name": "BMW M4 GT4",
+        "Manufacturer": "BMW",
+        "Class": "GT4"
+    },
+    "BMW M2 Cup 2020": {
+        "Name": "BMW M2 CS Racing",
+        "Manufacturer": "BMW",
+        "Class": "TCX"
+    },
+    "Chevrolet Camaro GT4 R 2017": {
+        "Name": "Chevrolet Camaro GT4",
+        "Manufacturer": "Chevrolet",
+        "Class": "GT4"
+    },
+    "Emil Frey Jaguar G3 2021": {
+        "Name": "Emil Frey Jaguar G3",
+        "Manufacturer": "Jaguar",
+        "Class": "GT3"
+    },
+    "Ferrari 296 GT3 2023": {
+        "Name": "Ferrari 296 GT3",
+        "Manufacturer": "Ferrari",
+        "Class": "GT3"
+    },
+    "Ferrari 488 GT3 2018": {
+        "Name": "Ferrari 488 GT3",
+        "Manufacturer": "Ferrari",
+        "Class": "GT3"
+    },
+    "Ferrari 488 GT3 Evo 2020": {
+        "Name": "Ferrari 488 GT3 EVO 20",
+        "Manufacturer": "Ferrari",
+        "Class": "GT3"
+    },
+    "Ferrari 488 Challenge Evo 2020": {
+        "Name": "Ferrari 488 Challenge EVO",
+        "Manufacturer": "Ferrari",
+        "Class": "CHL"
+    },
+    "Ginetta G55 GT4 2012": {
+        "Name": "Ginetta G55 GT4",
+        "Manufacturer": "Ginetta",
+        "Class": "GT4"
+    },
+    "Honda NSX GT3 2017": {
+        "Name": "Honda NSX GT3",
+        "Manufacturer": "Honda",
+        "Class": "GT3"
+    },
+    "Honda NSX GT3 Evo 2019": {
+        "Name": "Honda NSX GT3 Evo",
+        "Manufacturer": "Honda",
+        "Class": "GT3"
+    },
+    "KTM Xbow GT2 2021": {
+        "Name": "KTM X-Bow GT2",
+        "Manufacturer": "KTM",
+        "Class": "GT2"
+    },
+    "KTM Xbow GT4 2016": {
+        "Name": "KTM X-Bow GT4",
+        "Manufacturer": "KTM",
+        "Class": "GT4"
+    },
+    "Lamborghini Gallardo G3 Reiter 2017": {
+        "Name": "Lamborghini Gallardo REX",
+        "Manufacturer": "Lamborghini",
+        "Class": "GT3"
+    },
+    "Lamborghini Huracán GT3 2015": {
+        "Name": "Lamborghini Huracán GT3",
+        "Manufacturer": "Lamborghini",
+        "Class": "GT3"
+    },
+    "Lamborghini Huracán GT3 Evo 2019": {
+        "Name": "Lamborghini Huracán GT3 EVO",
+        "Manufacturer": "Lamborghini",
+        "Class": "GT3"
+    },
+    "Lamborghini Huracán GT3 Evo2 2023": {
+        "Name": "Lamborghini Huracán GT3 EVO2",
+        "Manufacturer": "Lamborghini",
+        "Class": "GT3"
+    },
+    "Lamborghini Huracán ST 2015": {
+        "Name": "Lamborghini Huracán ST",
+        "Manufacturer": "Lamborghini",
+        "Class": "ST15"
+    },
+    "Lamborghini Huracán ST Evo2 2021": {
+        "Name": "Lamborghini Huracán ST EVO2",
+        "Manufacturer": "Lamborghini",
+        "Class": "ST21"
+    },
+    "Lexus RCF GT3 2016": {
+        "Name": "Lexus RC-F GT3",
+        "Manufacturer": "Lexus",
+        "Class": "GT3"
+    },
+    "Maserati GT2 2023": {
+        "Name": "Maserati MC20 GT2",
+        "Manufacturer": "Maserati",
+        "Class": "GT2"
+    },
+    "Maserati Gran Turismo MC GT4 2016": {
+        "Name": "Maserati MC GT4",
+        "Manufacturer": "Maserati",
+        "Class": "GT4"
+    },
+    "McLaren 650S GT3 2015": {
+        "Name": "McLaren 650S GT3",
+        "Manufacturer": "McLaren",
+        "Class": "GT3"
+    },
+    "McLaren 720S GT3 2019": {
+        "Name": "McLaren 720S GT3",
+        "Manufacturer": "McLaren",
+        "Class": "GT3"
+    },
+    "McLaren 720s GT3 Evo 2023": {
+        "Name": "McLaren 720S GT3 Evo",
+        "Manufacturer": "McLaren",
+        "Class": "GT3"
+    },
+    "McLaren 570s GT4 2016": {
+        "Name": "McLaren 570S GT4",
+        "Manufacturer": "McLaren",
+        "Class": "GT4"
+    },
+    "Mercedes AMG GT2 2023": {
+        "Name": "Mercedes-AMG GT2",
+        "Manufacturer": "Mercedes",
+        "Class": "GT2"
+    },
+    "Mercedes AMG GT3 2015": {
+        "Name": "Mercedes-AMG GT3",
+        "Manufacturer": "Mercedes",
+        "Class": "GT3"
+    },
+    "Mercedes AMG GT3 Evo 2020": {
+        "Name": "Mercedes-AMG GT3 20",
+        "Manufacturer": "Mercedes",
+        "Class": "GT3"
+    },
+    "Mercedes AMG GT4 2016": {
+        "Name": "Mercedes-AMG GT4",
+        "Manufacturer": "Mercedes",
+        "Class": "GT4"
+    },
+    "Nissan GT R Nismo GT3 2015": {
+        "Name": "Nissan GT-R GT3 15",
+        "Manufacturer": "Nissan",
+        "Class": "GT3"
+    },
+    "Nissan GT R Nismo GT3 2018": {
+        "Name": "Nissan GT-R GT3 18",
+        "Manufacturer": "Nissan",
+        "Class": "GT3"
+    },
+    "Porsche 911 GT3 R 2018": {
+        "Name": "Porsche 991 GT3 R",
+        "Manufacturer": "Porsche",
+        "Class": "GT3"
+    },
+    "Porsche 911 II GT3 R 2019": {
+        "Name": "Porsche 991II GT3 R",
+        "Manufacturer": "Porsche",
+        "Class": "GT3"
+    },
+    "Porsche 992 GT3 R 2023": {
+        "Name": "Porsche 992 GT3 R",
+        "Manufacturer": "Porsche",
+        "Class": "GT3"
+    },
+    "Porsche 991 II GT3 Cup 2017": {
+        "Name": "Porsche 991II GT3 Cup",
+        "Manufacturer": "Porsche",
+        "Class": "CUP17"
+    },
+    "Porsche 992 GT3 Cup 2021": {
+        "Name": "Porsche 992 GT3 Cup",
+        "Manufacturer": "Porsche",
+        "Class": "CUP21"
+    },
+    "Porsche 991 II GT2 RS CS EVO 2023": {
+        "Name": "Porsche 911 GT2 RS CS Evo",
+        "Manufacturer": "Porsche",
+        "Class": "GT2"
+    },
+    "Porsche 935 2019": {
+        "Name": "Porsche 935",
+        "Manufacturer": "Porsche",
+        "Class": "GT2"
+    },
+    "Porsche 718 Cayman GT4 MR 2019": {
+        "Name": "Porsche 718 Cayman GT4",
+        "Manufacturer": "Porsche",
+        "Class": "GT4"
+    }
 }

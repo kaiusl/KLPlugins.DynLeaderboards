@@ -3,13 +3,14 @@ hide:
   - navigation
 ---
 
-# 
+#       
 
 <div style="margin-left:200px;" markdown>
 
 This is an leaderboard plugin for [SimHub] providing simple switching between different leaderboard types.
 
-We provide example dash (named "DynLeaderboards Example") which is relatively simple one and designed to be used on smartphone.
+We provide example dash (named "DynLeaderboards Example") which is relatively simple one and designed to be used on
+smartphone.
 It serves mostly as an example for how to create dashboards with this plugin.
 
 [^1]: Prior to version 2.0.0 this plugin only supported ACC.
@@ -30,7 +31,8 @@ It serves mostly as an example for how to create dashboards with this plugin.
 - Support for multiple games. Tested with AC, ACC, AMS2, rF2 and R3E. [^1]
 - New leaderboard types ([see here](reference/leaderboards.md)).
 - New properties ([see here](reference/properties.md)).
-- More stable calculation of gaps between the cars (no more gap changing by seconds depending if you are in the corner or straights).
+- More stable calculation of gaps between the cars (no more gap changing by seconds depending if you are in the corner
+  or straights).
 - Easy configuration through [SimHub].
 - Customizable car information (classes, names etc) and colors.
 
@@ -38,8 +40,10 @@ It serves mostly as an example for how to create dashboards with this plugin.
 
 The plugin exports data for set number of positions as SimHub properties.
 You can create a regular leaderboard dash using these properties.
-This data however is populated based on the currently selected leaderboard type which can be easily changed using SimHub actions.
-This creates a dynamic leaderboard where you can change the leaderboard type on a single dash screen with a click of a button.
+This data however is populated based on the currently selected leaderboard type which can be easily changed using SimHub
+actions.
+This creates a dynamic leaderboard where you can change the leaderboard type on a single dash screen with a click of a
+button.
 
 ## Next steps
 

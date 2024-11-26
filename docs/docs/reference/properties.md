@@ -1,4 +1,3 @@
-
 ??? info "Symbols used"
 
       {{ prop("PropertyName", "1.0.0", ["ACC", "rF2", "LMU"], defv="Default value", ty="type") }}
@@ -33,10 +32,9 @@
         
         Note that this list only includes the games that the plugin has been tested with.
 
-
-
 ## General
-These properties are available as `DynLeaderboardsPlugin.<property name>`, 
+
+These properties are available as `DynLeaderboardsPlugin.<property name>`,
 for example `DynLeaderboardsPlugin.Color.Class.GT3`.
 
 <div class="props" markdown>
@@ -48,8 +46,8 @@ for example `DynLeaderboardsPlugin.Color.Class.GT3`.
 : Maximum driver stint time.
 
 {{ prop("Session.MaxDriveTime", "1.0.0", ["ACC"], defv=-1.0, ty="double") }}
-: Maximum total driving time for driver for player car. This can be different for other teams if they have different 
-  number of drivers.
+: Maximum total driving time for driver for player car. This can be different for other teams if they have different
+number of drivers.
 
 {{ prop("Session.NumberOfClasses", "2.0.0", ["all"], defv=0, ty="int") }}
 : Number of different classes in current session.
@@ -79,7 +77,7 @@ for example `DynLeaderboardsPlugin.Color.Class.GT3`.
       For example `Color.Cup.Overall`.
 
 {{ prop("Color.Cup.<category>.Text", "1.0.0", ["all"], ty="string", defv="\"#FFFFFF\"") }}
-: Text color for team cup category. 
+: Text color for team cup category.
 
       Note that this export one property for every team cup category color in the plugin settings [Colors](../user_guide/config.md#colors) tab where the
       `<category>` in property name is replaced by the team cup category name.
@@ -103,7 +101,7 @@ for example `DynLeaderboardsPlugin.Color.Class.GT3`.
 
 ## For each dynamic leaderboard
 
-These properties are available as `DynLeaderboardsPlugin.<leaderboard name>.<property name>`, 
+These properties are available as `DynLeaderboardsPlugin.<leaderboard name>.<property name>`,
 for example `DynLeaderboardsPlugin.Dynamic.CurrentLeaderboard`.
 
 <div class="props" markdown>
@@ -117,14 +115,14 @@ about what types are available.
 what types are available.
 
 {{ prop("FocusedPosInCurrentLeaderboard", "1.0.0", ["all"], defv="null", ty="int?") }}
-: Integer that shows the position of focused car in currently selected leaderboard. Note that it is 0 based like an 
-  index to array.
+: Integer that shows the position of focused car in currently selected leaderboard. Note that it is 0 based like an
+index to array.
 
 </div>
 
 ### For each car
 
-These properties are available as `DynLeaderboardsPlugin.<leaderboard name>.<position>.<property name>`, 
+These properties are available as `DynLeaderboardsPlugin.<leaderboard name>.<position>.<property name>`,
 for example `DynLeaderboardsPlugin.Dynamic.5.Car.Number`.
 
 #### Car info
@@ -287,7 +285,7 @@ for example `DynLeaderboardsPlugin.Dynamic.5.Car.Number`.
       This is effectively an ACC specific property. In all other games it is
       equivalent to `Laps.Best.Delta.ToAheadInClassBest`.
 
-*Last to best*                                 
+*Last to best*
 
 {{ prop("Laps.Last.Delta.ToOverallBest", "1.0.0", ["all"], defv="null", ty="double?") }}
 : Last lap delta to overall best lap.
@@ -331,7 +329,7 @@ for example `DynLeaderboardsPlugin.Dynamic.5.Car.Number`.
 {{ prop("Laps.Last.Delta.ToOwnBest", "1.0.0", ["all"], defv="null", ty="double?") }}
 : Last lap delta to own best lap.
 
-*Last to last*                             
+*Last to last*
 
 {{ prop("Laps.Last.Delta.ToLeaderLast", "1.0.0", ["all"], defv="null", ty="double?") }}
 : Last lap delta to leader's last lap.
@@ -360,7 +358,7 @@ for example `DynLeaderboardsPlugin.Dynamic.5.Car.Number`.
       This is effectively an ACC specific property. In all other games it is
       equivalent to `Laps.Last.Delta.ToAheadInClassLasts`.
 
-*Dynamic*                                  
+*Dynamic*
 
 {{ prop("Laps.Best.Delta.Dynamic.ToFocusedBest", "1.0.0", ["all"], defv="null", ty="double?") }}
 : Best lap delta to the car's best based on currently displayed leaderboard type.
@@ -383,37 +381,37 @@ for example `DynLeaderboardsPlugin.Dynamic.5.Car.Number`.
 <div class="props" markdown>
 
 {{ prop("Gap.ToOverallLeader", "1.0.0", ["all"], defv="null", ty="double?") }}
-: Total gap to the leader.                                                     
+: Total gap to the leader.
 
 {{ prop("Gap.ToClassLeader", "1.0.0", ["all"], defv="null", ty="double?") }}
 : Total gap to the class leader.
 
 {{ prop("Gap.ToCupLeader", "1.4.0", ["all"], defv="null", ty="double?") }}
-: Total gap to the cup leader.   
+: Total gap to the cup leader.
 
       This is effectively an ACC specific property. In all other games it is
       equivalent to `Gap.ToClassLeader`.
 
 {{ prop("Gap.ToFocused.Total", "1.0.0", ["all"], defv="null", ty="double?") }}
-: Total gap to the focused car.                                                
+: Total gap to the focused car.
 
 {{ prop("Gap.ToFocused.OnTrack", "1.0.0", ["all"], defv="null", ty="double?") }}
-: Relative on track gap to the focused car.                                    
+: Relative on track gap to the focused car.
 
 {{ prop("Gap.ToAhead.Overall", "1.0.0", ["all"], defv="null", ty="double?") }}
-: Total gap to the car ahead in overall order.                                 
+: Total gap to the car ahead in overall order.
 
 {{ prop("Gap.ToAhead.Class", "1.0.0", ["all"], defv="null", ty="double?") }}
-: Total gap to the car ahead in class.                                         
+: Total gap to the car ahead in class.
 
 {{ prop("Gap.ToAhead.Cup", "1.4.0", ["all"], defv="null", ty="double?") }}
-: Total gap to the car ahead in cup.        
+: Total gap to the car ahead in cup.
 
       This is effectively an ACC specific property. In all other games it is
       equivalent to `Gap.ToAhead.Class`.
 
 {{ prop("Gap.ToAhead.OnTrack", "1.0.0", ["all"], defv="null", ty="double?") }}
-: Relative gap to the car ahead on track.                                      
+: Relative gap to the car ahead on track.
 
 {{ prop("Gap.Dynamic.ToFocused", "1.0.0", ["all"], defv="null", ty="double?") }}
 : Gap that changes based on the currently selected leaderboard type.
@@ -463,12 +461,13 @@ for example `DynLeaderboardsPlugin.Dynamic.5.Car.Number`.
       equivalent to `Position.Class.Start`.
 
 {{ prop("Position.Dynamic", "1.2.0", ["all"], defv="null", ty="int?") }}
-: Position that changes based of currently displayed leaderboard type. 
+: Position that changes based of currently displayed leaderboard type.
 
       * `(Partial)(Relative)Overall` -> overall position
       * `(Partial)(Reltaive)Class` -> class position
       * `(Partial)(Relative)Cup` -> cup position,
       * `RelativeOnTrack(WoPit)` -> overall position
+
   
 {{ prop("Position.Dynamic.Start", "1.2.0", ["all"], defv="null", ty="int?") }}
 : Position at race start that changes based of currently displayed leaderboard type.
@@ -558,7 +557,8 @@ Note that pit time counts time from the start of pitlane to the end, not just th
 </div>
 
 #### For each driver
-`DynLeaderboardsPlugin.<leaderboard name>.<position>.Driver.<driver number>.<property name>`, 
+
+`DynLeaderboardsPlugin.<leaderboard name>.<position>.Driver.<driver number>.<property name>`,
 for example `DynLeaderboardsPlugin.Dynamic.5.Driver.1.FirstName`.
 
 <div class="props" markdown>
@@ -596,7 +596,8 @@ for example `DynLeaderboardsPlugin.Dynamic.5.Driver.1.FirstName`.
 {{ prop("BestLapTime", "1.0.0", ["all"], defv="null", ty="double?") }}
 : Best lap time.
 
-{{ prop("CategoryColor", "1.0.0", ["ACC"], defv="null", ty="string?", deprecated="2.0.0", deprecatedTooltip="Use `Category.Color` instead.") }}
+{{ prop("CategoryColor", "1.0.0", ["ACC"], defv="null", ty="string?", deprecated="2.0.0", deprecatedTooltip="Use
+`Category.Color` instead.") }}
 : Background color for driver category.
 
       **DEPRECATED**. Use **`Category.Color`** instead.

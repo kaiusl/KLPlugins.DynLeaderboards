@@ -255,7 +255,7 @@ public class TrackData {
     // access it a lot per one update. So it would include a lot of unnecessary synchronizations
     // while with current solution we only have one synchronized access.
     internal readonly Dictionary<CarClass, LapInterpolator> LapInterpolators = [];
-    internal readonly HashSet<CarClass> UpdatedInterpolators = []; 
+    internal readonly HashSet<CarClass> UpdatedInterpolators = [];
 
     private readonly ConcurrentQueue<(CarClass, LapInterpolator)> _builtLapInterpolators = [];
 
@@ -392,7 +392,7 @@ public class TrackData {
         var path = $"{PluginSettings.PLUGIN_DATA_DIR}\\{DynLeaderboardsPlugin.Game.Name}\\SplinePosOffsets.json";
         var dirPath = Path.GetDirectoryName(path)!;
         Directory.CreateDirectory(dirPath);
-        
+
         File.WriteAllText(path, JsonConvert.SerializeObject(TrackData._splinePosOffsets, Formatting.Indented));
     }
 
@@ -406,14 +406,11 @@ public class TrackData {
         }
 
         this._lapInterpolatorsInBuilding.Add(carClass);
-    
 
         Task.Run(() => this.BuildLapInterpolatorInner(carClass));
     }
 
     private void BuildLapInterpolatorInner(CarClass carClass) {
-       
-
         var path =
             $"{PluginSettings.PLUGIN_DATA_DIR}\\{DynLeaderboardsPlugin.Game.Name}\\laps_data\\{this.Id}_{carClass}.txt";
 

@@ -1,17 +1,21 @@
 ## Creating one
 
-First head over to the "Dynamic leaderboards" tab in the settings and add a new dynamic leaderboard or edit the one already present.
+First head over to the "Dynamic leaderboards" tab in the settings and add a new dynamic leaderboard or edit the one
+already present.
 For configuration follow ["Dynamic Leaderboards"](config.md#dynamic-leaderboards) section on the "Config" page.
 Once the dynamic leaderboard is configured, restart SimHub and start creating your dashboard.
 
 ## Things to know
 
 - Car and driver indices start at 1.
-- First driver is always current driver. For example first name of current driver can be accessed as `DynLeaderboardsPlugin.Dynamic.5.Driver.1.FirstName`. The order of other drivers is undefined.
+- First driver is always current driver. For example first name of current driver can be accessed as
+  `DynLeaderboardsPlugin.Dynamic.5.Driver.1.FirstName`. The order of other drivers is undefined.
 - All times and gaps are given in seconds.
-- In relative leaderboards positive gap means the car is ahead of the car that we are comparing to, negative gap means behind.
-  In overall leaderboards the gap is always positive as we are comparing to the overall/class leader and no one can be ahead of them.
-- If the gap is larger than 1 lap, only the lap part of the gap is shown. To differentiate between gap in seconds and 
+- In relative leaderboards positive gap means the car is ahead of the car that we are comparing to, negative gap means
+  behind.
+  In overall leaderboards the gap is always positive as we are comparing to the overall/class leader and no one can be
+  ahead of them.
+- If the gap is larger than 1 lap, only the lap part of the gap is shown. To differentiate between gap in seconds and
   full laps we add 100 000 to the gap if it's larger than 1 lap. In dash you can show the gap then as follows
     ```javascript
 	var v = $prop('DynLeaderboardsPlugin.Dynamic.' + repeatindex() + '.Gap.Dynamic.ToFocused')
@@ -21,11 +25,11 @@ Once the dynamic leaderboard is configured, restart SimHub and start creating yo
 	if (v > 50000) { return format(v - 100000, '0', true) + 'L' }
 	return format(v, '0.0', true)
 	```
-- There are dynamic gaps and deltas to laps that change based on the currently selected leaderboard to show meaningful 
-  gaps for the current leaderboard. 
-  For example [`Gap.Dynamic.ToFocused`](../reference/properties.md#gaps) property will show gaps to the overall leader if overall leaderboard type is selected,
+- There are dynamic gaps and deltas to laps that change based on the currently selected leaderboard to show meaningful
+  gaps for the current leaderboard.
+  For example [`Gap.Dynamic.ToFocused`](../reference/properties.md#gaps) property will show gaps to the overall leader
+  if overall leaderboard type is selected,
   whereas if class leaderboard type is selected the gaps are shown to the class leader and so on.
-
 
 ## Patterns
 
@@ -50,13 +54,13 @@ Set the visibility of items that need to be hidden to
 === "Javascript"
 
     ```javascript
-    return $prop('DynLeaderboardsPlugin.Dynamic.' + repeatindex() + '.Exists');
+    return isnull($prop('DynLeaderboardsPlugin.Dynamic.' + repeatindex() + '.Exists'), 0);
     ```
 
 === "NCalc"
 
     ```javascript
-    prop('DynLeaderboardsPlugin.Dynamic.' + repeatindex() + '.Exists')
+    isnull(prop('DynLeaderboardsPlugin.Dynamic.' + repeatindex() + '.Exists'), 0)
     ```
 
 #### Gap formatting
@@ -72,7 +76,8 @@ return format(v, '0.00', true)
 
 #### Gap to behind
 
-The plugin provides a property for a gap to car ahead but not to the car behind. The latter is found by shifting the index by one.
+The plugin provides a property for a gap to car ahead but not to the car behind. The latter is found by shifting the
+index by one.
 
 ```javascript
 var gap_to_ahead = $prop('DynLeaderboardsPlugin.Dynamic.' + repeatindex() + '.Gap.Dynamic.ToAhead')
@@ -91,6 +96,7 @@ var idx = $prop('DynLeaderboardsPlugin.Dynamic.FocusedPosInCurrentLeaderboard') 
 var ahead = $prop('DynLeaderboardsPlugin.Dynamic.' + idx + '.Gap.Dynamic.ToAhead')
 // gap formatting
 ```
+
 ```javascript
 var idx = $prop('DynLeaderboardsPlugin.Dynamic.FocusedPosInCurrentLeaderboard') + 2
 var behind = $prop('DynLeaderboardsPlugin.Dynamic.' + idx + '.Gap.Dynamic.ToAhead')
@@ -103,6 +109,7 @@ var behind = $prop('DynLeaderboardsPlugin.Dynamic.' + idx + '.Gap.Dynamic.ToAhea
 var idx = $prop('DynLeaderboardsPlugin.Dynamic.FocusedPosInCurrentLeaderboard')
 var ahead = $prop('DynLeaderboardsPlugin.Dynamic.' + idx + '.Laps.Last.Time')
 ```
+
 ```javascript
 var idx = $prop('DynLeaderboardsPlugin.Dynamic.FocusedPosInCurrentLeaderboard') + 2
 var behind = $prop('DynLeaderboardsPlugin.Dynamic.' + idx + '.Laps.Last.Time')

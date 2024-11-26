@@ -59,7 +59,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Removed
 
-* Pregenerated lap data files since they are not needed anymore.
+* regenerate lap data files since they are not needed anymore.
 * Option to set data update interval. The data update rate is defined by SimHub.
   For dashboards it's recommended to set min. update intervals in the dash studio.
 * Toggle option to include ST21 and CHL (ACC) classes in GT2 class.
@@ -78,6 +78,20 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 * Position flickering if two cars have same finishing time.
 * On track gap had different signs when using naive and interpolator based methods.
 * Overly bright separators in settings menu.
+
+### Changes in the example dashboard
+
+* Dash was renamed to "DynLeaderboards Example" from "ACCDynLdb", since it no longer is ACC specific.
+* Color changes:
+  * Leaderboard name is now gray, instead of bright green.
+  * Player row is indicated by a blue shade, instead of red.
+  * Alternative row background is more subtle
+* Added buttons to change leaderboard kind.
+
+  Clicking on the left of the dashboard will select previous leaderboard kind,
+  clicking on the right will select the next.
+* Position, number, pit/finish indicator have rounded corners.
+* Minimum update interval is fixed to 333ms.
 
 ## [1.4.5] - 2024-05-07
 

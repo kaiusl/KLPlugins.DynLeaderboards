@@ -572,6 +572,10 @@ namespace KLPlugins.DynLeaderboards.Car {
 
             if (this.IsCurrentLapValid) {
                 this.CheckIfLapInvalidated(rawData);
+
+                if (!this.IsCurrentLapValid) {
+                    DynLeaderboardsPlugin.LogInfo($"Invalidated lap #{this.CarNumberAsString} [{this.Id}]");
+                }
             }
 
             this.UpdateLapTimes(values.Session);
@@ -589,14 +593,22 @@ namespace KLPlugins.DynLeaderboards.Car {
             if (this.LapDataValidForSave
                 && (this.IsCurrentLapInLap || this.IsCurrentLapOutLap || !this.IsCurrentLapValid || this.IsInPitLane)) {
                 this.LapDataValidForSave = false;
+                DynLeaderboardsPlugin.LogInfo($"Invalidated lap for save #{this.CarNumberAsString} [{this.Id}]");
             }
 
             if (this.RawDataOld.CurrentLapTime > this.RawDataNew.CurrentLapTime
+                // in AMS2 lap time goes briefly to null on lap time reset
                 || (DynLeaderboardsPlugin.Game.IsAms2
                     && this.RawDataOld.CurrentLapTime != null
                     && this.RawDataNew.CurrentLapTime == null)
+                // in R3E lap time on invalid lap is shown as TimeSpan.Zero,
+                // thus above would only trigger on a second valid lap in a row
+                || (DynLeaderboardsPlugin.Game.IsR3E
+                    && (this.RawDataOld.CurrentLapTime == TimeSpan.Zero || this.RawDataOld.CurrentLapTime == null)
+                    && this.RawDataNew.CurrentLapTime != TimeSpan.Zero
+                    && this.RawDataNew.CurrentLapTime != null)
             ) {
-                if (this.LapDataValidForSave && this.LapDataPos.Count != 0) {
+                if (this.LapDataValidForSave && this.LapDataPos.Count > 20) {
                     // Add last point
                     var pos = this.RawDataOld.TrackPositionPercent;
                     var time = this.RawDataOld.CurrentLapTime?.TotalSeconds;

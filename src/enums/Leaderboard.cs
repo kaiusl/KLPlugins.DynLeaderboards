@@ -47,7 +47,7 @@ internal static class LeaderboardExtensions {
             LeaderboardKind.PARTIAL_RELATIVE_OVERALL => "PartialRelativeOverall",
             LeaderboardKind.PARTIAL_RELATIVE_CLASS => "PartialRelativeClass",
             LeaderboardKind.RELATIVE_ON_TRACK => "RelativeOnTrack",
-            LeaderboardKind.RELATIVE_ON_TRACK_WO_PIT => "RelativeOnTrackWoPit)",
+            LeaderboardKind.RELATIVE_ON_TRACK_WO_PIT => "RelativeOnTrackWoPit",
             LeaderboardKind.CUP => "Cup",
             LeaderboardKind.RELATIVE_CUP => "RelativeCup",
             LeaderboardKind.PARTIAL_RELATIVE_CUP => "PartialRelativeCup",

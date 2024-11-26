@@ -665,7 +665,7 @@ internal class ClassInfos : IEnumerable<KeyValuePair<CarClass, OverridableClassI
         }
 
         infos ??= [];
-        
+
         if (File.Exists(basePath)) {
             var json = File.ReadAllText(basePath);
             var bases = JsonConvert.DeserializeObject<Dictionary<CarClass, ClassInfo>>(json) ?? [];
@@ -881,6 +881,7 @@ internal class ClassInfos : IEnumerable<KeyValuePair<CarClass, OverridableClassI
             if (this._baseInfos._simHubClassColors.AssignedColors.TryGetValue(@new, out var shColors)) {
                 info.SimHubColor = shColors;
             }
+
             this._baseInfos._infos[@new] = info;
 
             this.AddDoesntExist(@new, info);
@@ -1485,17 +1486,16 @@ public class Values : IDisposable {
             if (this.TrackData == null || this.TrackData.PrettyName != data.NewData.TrackName) {
                 this.TrackData?.Dispose();
                 this.TrackData = new TrackData(data);
+                DynLeaderboardsPlugin.LogInfo(
+                    $"Track set to: id={this.TrackData.Id}, name={this.TrackData.PrettyName}, len={this.TrackData.LengthMeters}"
+                );
             }
-       
+
             foreach (var car in this.OverallOrder) {
                 this.TrackData.BuildLapInterpolator(car.CarClass);
             }
 
             this._skipCarUpdatesCount = 0;
-
-            DynLeaderboardsPlugin.LogInfo(
-                $"Track set to: id={this.TrackData.Id}, name={this.TrackData.PrettyName}, len={this.TrackData.LengthMeters}"
-            );
         }
 
         if (this.TrackData == null) {
@@ -1503,6 +1503,10 @@ public class Values : IDisposable {
             foreach (var car in this.OverallOrder) {
                 this.TrackData.BuildLapInterpolator(car.CarClass);
             }
+
+            DynLeaderboardsPlugin.LogInfo(
+                $"Track set to: id={this.TrackData.Id}, name={this.TrackData.PrettyName}, len={this.TrackData.LengthMeters}"
+            );
         }
 
         this.TrackData.OnDataUpdate();

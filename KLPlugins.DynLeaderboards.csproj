@@ -221,6 +221,8 @@
         </Page>
     </ItemGroup>
     <ItemGroup>
+        <Content Include="DashTemplates\DynLeaderboardAll.simhubdash"/>
+        <Content Include="DashTemplates\DynLeaderboards Example.simhubdash"/>
         <Content Include="docs\docs\about\index.md"/>
         <Content Include="docs\docs\community\dashes.md"/>
         <Content Include="docs\docs\community\requests.md"/>
@@ -259,7 +261,11 @@
         <Content Include="docs\includes\abbreviations.md"/>
         <Content Include="docs\main.py"/>
         <Content Include="docs\mkdocs.yml"/>
-        <Content Include="docs\__pycache__\main.cpython-311.pyc"/>
+        <Content Include="PluginsData\KLPlugins\DynLeaderboards\AssettoCorsaCompetizione\CarClassColors.base.json"/>
+        <Content Include="PluginsData\KLPlugins\DynLeaderboards\AssettoCorsaCompetizione\CarInfos.base.json"/>
+        <Content Include="PluginsData\KLPlugins\DynLeaderboards\AssettoCorsaCompetizione\DriverCategoryColors.base.json"/>
+        <Content Include="PluginsData\KLPlugins\DynLeaderboards\AssettoCorsaCompetizione\SplinePosOffsets.json"/>
+        <Content Include="PluginsData\KLPlugins\DynLeaderboards\AssettoCorsaCompetizione\TeamCupCategoryColors.base.json"/>
         <Content Include="sdkmenuicon.png"/>
     </ItemGroup>
     <ItemGroup>

@@ -316,6 +316,9 @@ namespace KLPlugins.DynLeaderboards.Car {
             OverridableCarInfo? carInfo = null;
             if (this.RawDataNew.CarName != null) {
                 carInfo = values.CarInfos.Get(this.RawDataNew.CarName, rawClass);
+                if (carInfo.SimHubCarClass != rawClass) {
+                    carInfo.SimHubCarClass = rawClass;
+                }
             }
 
             this.SetStaticCarInfo(carInfo);
@@ -345,6 +348,9 @@ namespace KLPlugins.DynLeaderboards.Car {
             OverridableCarInfo? carInfo = null;
             if (this.RawDataNew.CarName != null) {
                 carInfo = values.CarInfos.Get(this.RawDataNew.CarName, rawClass);
+                if (carInfo.SimHubCarClass != rawClass) {
+                    carInfo.SimHubCarClass = rawClass;
+                }
             }
 
             this.SetStaticCarInfo(carInfo);
@@ -358,6 +364,9 @@ namespace KLPlugins.DynLeaderboards.Car {
             OverridableCarInfo? carInfo = null;
             if (this.RawDataNew.CarName != null) {
                 carInfo = values.CarInfos.Get(this.RawDataNew.CarName, rawClass);
+                if (carInfo.SimHubCarClass != rawClass) {
+                    carInfo.SimHubCarClass = rawClass;
+                }
             }
 
             var (cls, classInfo) = values.ClassInfos.GetFollowReplaceWith(carInfo?.Class() ?? rawClass);

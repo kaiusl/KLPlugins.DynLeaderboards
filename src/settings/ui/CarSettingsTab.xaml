@@ -109,10 +109,19 @@
                     <DockPanel Margin="0,5,10,5"
                                DataContext="{Binding SelectedCarDetailsViewModel}">
 
+                        <StackPanel Orientation="Horizontal" DockPanel.Dock="Bottom">
+                            <TextBlock Margin="15,0,0,5" FontSize="13" Text="id: " Foreground="#98ffffff" />
+                            <TextBlock Margin="5,0,10,5"
+                                       FontSize="13"
+                                       Foreground="#98ffffff"
+                                       Text="{Binding Id, Mode=OneWay}" />
+                        </StackPanel>
+
+
                         <sh:SHSectionTitle DockPanel.Dock="Left"
                                            Margin="10,10,10,10"
                                            FontSize="20"
-                                           Text="{Binding Id, Mode=OneWay}" />
+                                           Text="{Binding Name, Mode=OneWay}" />
 
                         <local:ClassPreview DockPanel.Dock="Left"
                                             Margin="10,10,10,10"

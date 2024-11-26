@@ -126,6 +126,7 @@ internal class OverridableCarInfo : INotifyPropertyChanged {
     [JsonProperty("Overrides")] internal CarInfo? Overrides { get; private set; }
     [JsonProperty] internal bool IsNameEnabled { get; private set; } = true;
     [JsonProperty] internal bool IsClassEnabled { get; private set; } = true;
+    [JsonProperty] internal CarClass SimHubCarClass { get; set; } = CarClass.Default;
 
     [JsonConstructor]
     internal OverridableCarInfo(
@@ -297,7 +298,7 @@ internal class OverridableCarInfo : INotifyPropertyChanged {
 
     internal CarClass? Class() {
         if (!this.IsClassEnabled) {
-            return null;
+            return this.SimHubCarClass;
         }
 
         return this.ClassDontCheckEnabled();

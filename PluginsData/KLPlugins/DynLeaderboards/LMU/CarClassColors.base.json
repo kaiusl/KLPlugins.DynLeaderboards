@@ -1,0 +1,22 @@
+{
+    "HY": {
+        "Fg": "#FFFFFF",
+        "Bg": "#D81B18"
+    },
+    "P2": {
+        "Fg": "#FFFFFF",
+        "Bg": "#004F94"
+    },
+    "GTE": {
+        "Fg": "#FFFFFF",
+        "Bg": "#F2910E"
+    },
+    "GT3": {
+        "Fg": "#FFFFFF",
+        "Bg": "#F2910E"
+    },
+    "GT": {
+        "Fg": "#FFFFFF",
+        "Bg": "#F2910E"
+    }
+}

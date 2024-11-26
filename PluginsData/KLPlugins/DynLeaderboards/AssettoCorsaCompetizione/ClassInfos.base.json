@@ -1,0 +1,86 @@
+{
+    "GT3": {
+        "Color": {
+            "Fg": "#ffffff",
+            "Bg": "#000000"
+        },
+        "ReplaceWith": null
+    },
+    "GT4": {
+        "Color": {
+            "Fg": "#ffffff",
+            "Bg": "#262660"
+        },
+        "ReplaceWith": null
+    },
+    "CUP": {
+        "Color": {
+            "Fg": "#ffffff",
+            "Bg": "#457C45"
+        },
+        "ReplaceWith": null
+    },
+    "CUP18": {
+        "Color": {
+            "Fg": "#ffffff",
+            "Bg": "#457C45"
+        },
+        "ReplaceWith": null
+    },
+    "CUP21": {
+        "Color": {
+            "Fg": "#ffffff",
+            "Bg": "#284c28"
+        },
+        "ReplaceWith": null
+    },
+    "ST": {
+        "Color": {
+            "Fg": "#ffffff",
+            "Bg": "#CCBA00"
+        },
+        "ReplaceWith": null
+    },
+    "ST18": {
+        "Color": {
+            "Fg": "#ffffff",
+            "Bg": "#CCBA00"
+        },
+        "ReplaceWith": null
+    },
+    "ST22": {
+        "Color": {
+            "Fg": "#ffffff",
+            "Bg": "#988A00"
+        },
+        "ReplaceWith": null
+    },
+    "CHL": {
+        "Color": {
+            "Fg": "#ffffff",
+            "Bg": "#B90000"
+        },
+        "ReplaceWith": null
+    },
+    "TCX": {
+        "Color": {
+            "Fg": "#ffffff",
+            "Bg": "#007CA7"
+        },
+        "ReplaceWith": null
+    },
+    "GT2": {
+        "Color": {
+            "Fg": "#ffffff",
+            "Bg": "#FF3100"
+        },
+        "ReplaceWith": null
+    },
+    "GTC": {
+        "Color": {
+            "Fg": "#ffffff",
+            "Bg": "#B90000"
+        },
+        "ReplaceWith": null
+    }
+}

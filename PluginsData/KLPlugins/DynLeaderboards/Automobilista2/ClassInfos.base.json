@@ -1,0 +1,625 @@
+{
+    "ARC_Cam": {
+        "Color": {
+            "Fg": "#FF000000",
+            "Bg": "#FFF0CC20"
+        },
+        "ReplaceWith": null
+    },
+    "Carrera Cup": {
+        "Color": {
+            "Fg": "#FF000000",
+            "Bg": "#FFF3001B"
+        },
+        "ReplaceWith": null
+    },
+    "Cat_Academy": {
+        "Color": {
+            "Fg": "#FF000000",
+            "Bg": "#FF8ED86C"
+        },
+        "ReplaceWith": null
+    },
+    "Cat_Superlight": {
+        "Color": {
+            "Fg": "#FF000000",
+            "Bg": "#FFEAEAE8"
+        },
+        "ReplaceWith": null
+    },
+    "Cat_Supersport": {
+        "Color": {
+            "Fg": "#FF000000",
+            "Bg": "#FFF3AE00"
+        },
+        "ReplaceWith": null
+    },
+    "Cat620R": {
+        "Color": {
+            "Fg": "#FF000000",
+            "Bg": "#FF86CF20"
+        },
+        "ReplaceWith": null
+    },
+    "CopaClassicB": {
+        "Color": {
+            "Fg": "#FF000000",
+            "Bg": "#FFF7EA00"
+        },
+        "ReplaceWith": null
+    },
+    "CopaClassicFL": {
+        "Color": {
+            "Fg": "#FF000000",
+            "Bg": "#FF5FB9E3"
+        },
+        "ReplaceWith": null
+    },
+    "CopaFusca": {
+        "Color": {
+            "Fg": "#FFFFFFFF",
+            "Bg": "#FFAF2A22"
+        },
+        "ReplaceWith": null
+    },
+    "CopaTruck": {
+        "Color": {
+            "Fg": "#FF000000",
+            "Bg": "#FFFFC606"
+        },
+        "ReplaceWith": null
+    },
+    "CopaUno": {
+        "Color": {
+            "Fg": "#FF000000",
+            "Bg": "#FFF8FA65"
+        },
+        "ReplaceWith": null
+    },
+    "DPI": {
+        "Color": {
+            "Fg": "#FF000000",
+            "Bg": "#FFF06700"
+        },
+        "ReplaceWith": null
+    },
+    "F-3": {
+        "Color": {
+            "Fg": "#FF000000",
+            "Bg": "#FF2C9AD7"
+        },
+        "ReplaceWith": null
+    },
+    "F-Classic_Gen1": {
+        "Color": {
+            "Fg": "#FF000000",
+            "Bg": "#FFB70035"
+        },
+        "ReplaceWith": null
+    },
+    "F-Classic_Gen2": {
+        "Color": {
+            "Fg": "#FF000000",
+            "Bg": "#FFE80022"
+        },
+        "ReplaceWith": null
+    },
+    "F-Classic_Gen3": {
+        "Color": {
+            "Fg": "#FF000000",
+            "Bg": "#FFF4001E"
+        },
+        "ReplaceWith": null
+    },
+    "F-Classic_Gen4": {
+        "Color": {
+            "Fg": "#FF000000",
+            "Bg": "#FFDE0039"
+        },
+        "ReplaceWith": null
+    },
+    "F-Dirt": {
+        "Color": {
+            "Fg": "#FFFFFFFF",
+            "Bg": "#FFA2500F"
+        },
+        "ReplaceWith": null
+    },
+    "F-Hitech_Gen1": {
+        "Color": {
+            "Fg": "#FF000000",
+            "Bg": "#FFFFFFFF"
+        },
+        "ReplaceWith": null
+    },
+    "F-Hitech_Gen2": {
+        "Color": {
+            "Fg": "#FF000000",
+            "Bg": "#FFFFFFFF"
+        },
+        "ReplaceWith": null
+    },
+    "F-Inter": {
+        "Color": {
+            "Fg": "#FF000000",
+            "Bg": "#FFBB0000"
+        },
+        "ReplaceWith": null
+    },
+    "F-Junior": {
+        "Color": {
+            "Fg": "#FFFFFFFF",
+            "Bg": "#FF275945"
+        },
+        "ReplaceWith": null
+    },
+    "F-Reiza": {
+        "Color": {
+            "Fg": "#FF000000",
+            "Bg": "#FFDB000A"
+        },
+        "ReplaceWith": null
+    },
+    "F-Retro_Gen1": {
+        "Color": {
+            "Fg": "#FF000000",
+            "Bg": "#FFE29560"
+        },
+        "ReplaceWith": null
+    },
+    "F-Retro_Gen2": {
+        "Color": {
+            "Fg": "#FF000000",
+            "Bg": "#FF90DEFD"
+        },
+        "ReplaceWith": null
+    },
+    "F-Retro_Gen3": {
+        "Color": {
+            "Fg": "#FFFFFFFF",
+            "Bg": "#FF548A7E"
+        },
+        "ReplaceWith": null
+    },
+    "F-Trainer": {
+        "Color": {
+            "Fg": "#FF000000",
+            "Bg": "#FFE9E206"
+        },
+        "ReplaceWith": null
+    },
+    "F-Trainer_A": {
+        "Color": {
+            "Fg": "#FF000000",
+            "Bg": "#FFE9C906"
+        },
+        "ReplaceWith": null
+    },
+    "F-Ultimate": {
+        "Color": {
+            "Fg": "#FF000000",
+            "Bg": "#FFFF2020"
+        },
+        "ReplaceWith": null
+    },
+    "F-Ultimate_Gen2": {
+        "Color": {
+            "Fg": "#FF000000",
+            "Bg": "#FF20A8FF"
+        },
+        "ReplaceWith": null
+    },
+    "F-USA_2023": {
+        "Color": {
+            "Fg": "#FF000000",
+            "Bg": "#FFFFFFFF"
+        },
+        "ReplaceWith": null
+    },
+    "F-USA_Gen1": {
+        "Color": {
+            "Fg": "#FFFFFFFF",
+            "Bg": "#FF2863B9"
+        },
+        "ReplaceWith": null
+    },
+    "F-USA_Gen2": {
+        "Color": {
+            "Fg": "#FF000000",
+            "Bg": "#FF20BD80"
+        },
+        "ReplaceWith": null
+    },
+    "F-USA_Gen3": {
+        "Color": {
+            "Fg": "#FF000000",
+            "Bg": "#FFE11C2B"
+        },
+        "ReplaceWith": null
+    },
+    "F-V10_Gen1": {
+        "Color": {
+            "Fg": "#FF000000",
+            "Bg": "#FF989898"
+        },
+        "ReplaceWith": null
+    },
+    "F-V10_Gen2": {
+        "Color": {
+            "Fg": "#FF000000",
+            "Bg": "#FFB8B8B8"
+        },
+        "ReplaceWith": null
+    },
+    "F-V12": {
+        "Color": {
+            "Fg": "#FF000000",
+            "Bg": "#FFDBDBDB"
+        },
+        "ReplaceWith": null
+    },
+    "F-Vee": {
+        "Color": {
+            "Fg": "#FF000000",
+            "Bg": "#FFF8FA65"
+        },
+        "ReplaceWith": null
+    },
+    "F-Vintage_Gen1": {
+        "Color": {
+            "Fg": "#FF000000",
+            "Bg": "#FFF7D27A"
+        },
+        "ReplaceWith": null
+    },
+    "F-Vintage_Gen2": {
+        "Color": {
+            "Fg": "#FF000000",
+            "Bg": "#FFDFA526"
+        },
+        "ReplaceWith": null
+    },
+    "G40Cup": {
+        "Color": {
+            "Fg": "#FF000000",
+            "Bg": "#FFF08106"
+        },
+        "ReplaceWith": null
+    },
+    "G55Supercup": {
+        "Color": {
+            "Fg": "#FF000000",
+            "Bg": "#FFF69C06"
+        },
+        "ReplaceWith": null
+    },
+    "Group A": {
+        "Color": {
+            "Fg": "#FF000000",
+            "Bg": "#FFC99727"
+        },
+        "ReplaceWith": null
+    },
+    "Group C": {
+        "Color": {
+            "Fg": "#FF000000",
+            "Bg": "#FF9A8D5E"
+        },
+        "ReplaceWith": null
+    },
+    "GT1": {
+        "Color": {
+            "Fg": "#FF000000",
+            "Bg": "#FFE4AF64"
+        },
+        "ReplaceWith": null
+    },
+    "GT3": {
+        "Color": {
+            "Fg": "#FF000000",
+            "Bg": "#FF03883C"
+        },
+        "ReplaceWith": null
+    },
+    "GT3_Gen2": {
+        "Color": {
+            "Fg": "#FF000000",
+            "Bg": "#FF03883C"
+        },
+        "ReplaceWith": "GT3"
+    },
+    "GT4": {
+        "Color": {
+            "Fg": "#FF000000",
+            "Bg": "#FF666B78"
+        },
+        "ReplaceWith": null
+    },
+    "GT5": {
+        "Color": {
+            "Fg": "#FFFFFFFF",
+            "Bg": "#FF2030D9"
+        },
+        "ReplaceWith": null
+    },
+    "GTE": {
+        "Color": {
+            "Fg": "#FF000000",
+            "Bg": "#FFCF0017"
+        },
+        "ReplaceWith": null
+    },
+    "GTOpen": {
+        "Color": {
+            "Fg": "#FF000000",
+            "Bg": "#FF7A7A7A"
+        },
+        "ReplaceWith": null
+    },
+    "Hot Cars": {
+        "Color": {
+            "Fg": "#FF000000",
+            "Bg": "#FFF31920"
+        },
+        "ReplaceWith": null
+    },
+    "Hypercars": {
+        "Color": {
+            "Fg": "#FF000000",
+            "Bg": "#FFC0A451"
+        },
+        "ReplaceWith": null
+    },
+    "Kartcross": {
+        "Color": {
+            "Fg": "#FF000000",
+            "Bg": "#FFF3C354"
+        },
+        "ReplaceWith": null
+    },
+    "Kart125cc": {
+        "Color": {
+            "Fg": "#FF000000",
+            "Bg": "#FFC0A069"
+        },
+        "ReplaceWith": null
+    },
+    "KartGX390": {
+        "Color": {
+            "Fg": "#FF000000",
+            "Bg": "#FFC0A069"
+        },
+        "ReplaceWith": null
+    },
+    "KartRental": {
+        "Color": {
+            "Fg": "#FF000000",
+            "Bg": "#FFC0A069"
+        },
+        "ReplaceWith": null
+    },
+    "KartShifter": {
+        "Color": {
+            "Fg": "#FF000000",
+            "Bg": "#FFC0A069"
+        },
+        "ReplaceWith": null
+    },
+    "LancerCup": {
+        "Color": {
+            "Fg": "#FF000000",
+            "Bg": "#FFDB0F14"
+        },
+        "ReplaceWith": null
+    },
+    "LMDh": {
+        "Color": {
+            "Fg": "#FF000000",
+            "Bg": "#FFBCBCBC"
+        },
+        "ReplaceWith": null
+    },
+    "MiniChallenge": {
+        "Color": {
+            "Fg": "#FF000000",
+            "Bg": "#FFDEDEDE"
+        },
+        "ReplaceWith": null
+    },
+    "Montana": {
+        "Color": {
+            "Fg": "#FF000000",
+            "Bg": "#FF979797"
+        },
+        "ReplaceWith": null
+    },
+    "OldStock": {
+        "Color": {
+            "Fg": "#FF000000",
+            "Bg": "#FFFDD600"
+        },
+        "ReplaceWith": null
+    },
+    "Opala79": {
+        "Color": {
+            "Fg": "#FF000000",
+            "Bg": "#FFC4C3C3"
+        },
+        "ReplaceWith": null
+    },
+    "Opala86": {
+        "Color": {
+            "Fg": "#FF000000",
+            "Bg": "#FF909090"
+        },
+        "ReplaceWith": null
+    },
+    "P1": {
+        "Color": {
+            "Fg": "#FF000000",
+            "Bg": "#FFE10A1C"
+        },
+        "ReplaceWith": null
+    },
+    "P1Gen2": {
+        "Color": {
+            "Fg": "#FF000000",
+            "Bg": "#FFE10A1C"
+        },
+        "ReplaceWith": null
+    },
+    "P2": {
+        "Color": {
+            "Fg": "#FF000000",
+            "Bg": "#FFEDD22D"
+        },
+        "ReplaceWith": null
+    },
+    "P3": {
+        "Color": {
+            "Fg": "#FFFFFFFF",
+            "Bg": "#FF545454"
+        },
+        "ReplaceWith": null
+    },
+    "P4": {
+        "Color": {
+            "Fg": "#FF000000",
+            "Bg": "#FFB742B2"
+        },
+        "ReplaceWith": null
+    },
+    "Procar": {
+        "Color": {
+            "Fg": "#FF000000",
+            "Bg": "#FF00A2D4"
+        },
+        "ReplaceWith": null
+    },
+    "RX": {
+        "Color": {
+            "Fg": "#FF000000",
+            "Bg": "#FF9FD100"
+        },
+        "ReplaceWith": null
+    },
+    "SafetyCar": {
+        "Color": {
+            "Fg": "#FF000000",
+            "Bg": "#FFFFFFFF"
+        },
+        "ReplaceWith": null
+    },
+    "SprintRace": {
+        "Color": {
+            "Fg": "#FF000000",
+            "Bg": "#FFFF1420"
+        },
+        "ReplaceWith": null
+    },
+    "StockCar99": {
+        "Color": {
+            "Fg": "#FF000000",
+            "Bg": "#FFE61B27"
+        },
+        "ReplaceWith": null
+    },
+    "StockCarV8": {
+        "Color": {
+            "Fg": "#FF000000",
+            "Bg": "#FFFDCE03"
+        },
+        "ReplaceWith": null
+    },
+    "StockCarV8_2020": {
+        "Color": {
+            "Fg": "#FF000000",
+            "Bg": "#FFFDCE03"
+        },
+        "ReplaceWith": null
+    },
+    "StockCarV8_2021": {
+        "Color": {
+            "Fg": "#FF000000",
+            "Bg": "#FFFDCE03"
+        },
+        "ReplaceWith": null
+    },
+    "StockCarV8_2022": {
+        "Color": {
+            "Fg": "#FF000000",
+            "Bg": "#FFFDCE03"
+        },
+        "ReplaceWith": null
+    },
+    "StockCarV8_2023": {
+        "Color": {
+            "Fg": "#FF000000",
+            "Bg": "#FFFDCE03"
+        },
+        "ReplaceWith": null
+    },
+    "StockCarV8_2024": {
+        "Color": {
+            "Fg": "#FF000000",
+            "Bg": "#FFFDCE03"
+        },
+        "ReplaceWith": null
+    },
+    "Street": {
+        "Color": {
+            "Fg": "#FF000000",
+            "Bg": "#FF808080"
+        },
+        "ReplaceWith": null
+    },
+    "Supercars": {
+        "Color": {
+            "Fg": "#FF000000",
+            "Bg": "#FF25999A"
+        },
+        "ReplaceWith": null
+    },
+    "SuperKart": {
+        "Color": {
+            "Fg": "#FFFFFFFF",
+            "Bg": "#FF7B19B4"
+        },
+        "ReplaceWith": null
+    },
+    "SuperV8": {
+        "Color": {
+            "Fg": "#FF000000",
+            "Bg": "#FFFF0000"
+        },
+        "ReplaceWith": null
+    },
+    "TC60S": {
+        "Color": {
+            "Fg": "#FF000000",
+            "Bg": "#FFD28E2E"
+        },
+        "ReplaceWith": null
+    },
+    "TC60S2": {
+        "Color": {
+            "Fg": "#FF000000",
+            "Bg": "#FF95928D"
+        },
+        "ReplaceWith": null
+    },
+    "TC70S": {
+        "Color": {
+            "Fg": "#FF000000",
+            "Bg": "#FFAB9E94"
+        },
+        "ReplaceWith": null
+    },
+    "TSICup": {
+        "Color": {
+            "Fg": "#FF000000",
+            "Bg": "#FF0090CD"
+        },
+        "ReplaceWith": null
+    }
+}

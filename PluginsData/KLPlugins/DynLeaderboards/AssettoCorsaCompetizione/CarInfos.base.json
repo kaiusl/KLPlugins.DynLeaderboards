@@ -152,12 +152,12 @@
     "Lamborghini Huracán ST 2015": {
         "Name": "Lamborghini Huracán ST",
         "Manufacturer": "Lamborghini",
-        "Class": "ST15"
+        "Class": "ST18"
     },
     "Lamborghini Huracán ST Evo2 2021": {
         "Name": "Lamborghini Huracán ST EVO2",
         "Manufacturer": "Lamborghini",
-        "Class": "ST21"
+        "Class": "ST22"
     },
     "Lexus RCF GT3 2016": {
         "Name": "Lexus RC-F GT3",
@@ -242,7 +242,7 @@
     "Porsche 991 II GT3 Cup 2017": {
         "Name": "Porsche 991II GT3 Cup",
         "Manufacturer": "Porsche",
-        "Class": "CUP17"
+        "Class": "CUP18"
     },
     "Porsche 992 GT3 Cup 2021": {
         "Name": "Porsche 992 GT3 Cup",

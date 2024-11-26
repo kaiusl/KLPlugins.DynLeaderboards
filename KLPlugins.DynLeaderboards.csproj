@@ -261,11 +261,13 @@
         <Content Include="docs\includes\abbreviations.md"/>
         <Content Include="docs\main.py"/>
         <Content Include="docs\mkdocs.yml"/>
-        <Content Include="PluginsData\KLPlugins\DynLeaderboards\AssettoCorsaCompetizione\CarClassColors.base.json"/>
         <Content Include="PluginsData\KLPlugins\DynLeaderboards\AssettoCorsaCompetizione\CarInfos.base.json"/>
+        <Content Include="PluginsData\KLPlugins\DynLeaderboards\AssettoCorsaCompetizione\ClassInfos.base.json"/>
         <Content Include="PluginsData\KLPlugins\DynLeaderboards\AssettoCorsaCompetizione\DriverCategoryColors.base.json"/>
-        <Content Include="PluginsData\KLPlugins\DynLeaderboards\AssettoCorsaCompetizione\SplinePosOffsets.json"/>
         <Content Include="PluginsData\KLPlugins\DynLeaderboards\AssettoCorsaCompetizione\TeamCupCategoryColors.base.json"/>
+        <Content Include="PluginsData\KLPlugins\DynLeaderboards\Automobilista2\ClassInfos.base.json"/>
+        <Content Include="PluginsData\KLPlugins\DynLeaderboards\LMU\CarClassColors.base.json"/>
+        <Content Include="PluginsData\KLPlugins\DynLeaderboards\RRRE\ClassInfos.base.json"/>
         <Content Include="sdkmenuicon.png"/>
     </ItemGroup>
     <ItemGroup>

@@ -310,7 +310,14 @@ internal class CarsListBoxItemViewModel : INotifyPropertyChanged {
 internal class SelectedCarDetailsViewModel : INotifyPropertyChanged {
     public event PropertyChangedEventHandler? PropertyChanged;
     public event Action<string>? RemoveCar;
-    public ClassPreviewViewModel ClassPreviewViewModel { get; private set; }
+
+    public ClassPreviewViewModel ClassPreviewViewModel {
+        get => this._classPreviewViewModel;
+        private set {
+            this._classPreviewViewModel = value;
+            this.InvokePropertyChanged();
+        }
+    }
 
     public string Name {
         get => this._info.Name() ?? this.Id;
@@ -358,7 +365,6 @@ internal class SelectedCarDetailsViewModel : INotifyPropertyChanged {
             newClsManager.InvokePropertyChanged("CanBeRemoved");
 
             this.ClassPreviewViewModel = new ClassPreviewViewModel(newClsManager);
-            this.InvokePropertyChanged(nameof(this.ClassPreviewViewModel));
         }
     }
 
@@ -377,7 +383,6 @@ internal class SelectedCarDetailsViewModel : INotifyPropertyChanged {
             var cls = this._info.Class();
             var newClsManager = this._settingsControl.ClassesManager.GetOrAddFollowReplaceWith(cls);
             this.ClassPreviewViewModel = new ClassPreviewViewModel(newClsManager);
-            this.InvokePropertyChanged(nameof(this.ClassPreviewViewModel));
         }
     }
 
@@ -396,6 +401,7 @@ internal class SelectedCarDetailsViewModel : INotifyPropertyChanged {
 
     private readonly OverridableCarInfo _info;
     private readonly SettingsControl _settingsControl;
+    private ClassPreviewViewModel _classPreviewViewModel;
 
     internal SelectedCarDetailsViewModel(string key, OverridableCarInfo info, SettingsControl settingsControl) {
         this.Id = key;
@@ -422,7 +428,14 @@ internal class SelectedCarDetailsViewModel : INotifyPropertyChanged {
         );
         this.ResetNameCommand = new Command(() => this._info.ResetName());
         this.ResetManufacturerCommand = new Command(() => this._info.ResetManufacturer(this.Id));
-        this.ResetClassCommand = new Command(() => this._info.ResetClass());
+        this.ResetClassCommand = new Command(
+            () => {
+                this._info.ResetClass();
+                var cls2 = this._info.Class();
+                var clsManager2 = settingsControl.ClassesManager.GetOrAddFollowReplaceWith(cls2);
+                this.ClassPreviewViewModel = new ClassPreviewViewModel(clsManager2);
+            }
+        );
         this.RemoveCommand = new Command(() => this.RemoveCar?.Invoke(this.Id));
 
         this._info.PropertyChanged += this.OnInfoPropertyChanged;

@@ -100,7 +100,7 @@ internal class PropertyViewModel<T> : PropertyViewModelBase, INotifyPropertyChan
 
     internal void UpdateSetting(IOutProps<T> setting) {
         this._setting = setting;
-        this.InvokePropertyChanged(nameof(this.IsEnabled));
+        this.InvokePropertyChanged(nameof(PropertyViewModel<T>.IsEnabled));
     }
 
     private void InvokePropertyChanged([System.Runtime.CompilerServices.CallerMemberName] string? propertyName = null) {

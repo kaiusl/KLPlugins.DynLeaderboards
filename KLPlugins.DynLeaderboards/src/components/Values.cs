@@ -165,8 +165,9 @@ public class Values : IDisposable {
 
         this.TrackData.OnDataUpdate();
 
-        if (this.TrackData.LengthMeters == 0) {
+        if (this.TrackData.LengthMeters == 0)
             // In ACC sometimes the track length is not immediately available, and is 0.
+        {
             this.TrackData.SetLength(data);
         }
 
@@ -262,9 +263,8 @@ public class Values : IDisposable {
                 if (!this._cupBestLapCars.ContainsKey((car.CarClass, car.TeamCupCategory))) {
                     this._cupBestLapCars[(car.CarClass, car.TeamCupCategory)] = car;
                 } else {
-                    var currentCupBestLap =
-                        this._cupBestLapCars[(car.CarClass, car.TeamCupCategory)].BestLap!
-                            .Time!; // If it's in the dict, it cannot be null
+                    var currentCupBestLap = this._cupBestLapCars[(car.CarClass, car.TeamCupCategory)].BestLap!
+                        .Time!; // If it's in the dict, it cannot be null
 
                     if (car.BestLap.Time < currentCupBestLap) {
                         this._cupBestLapCars[(car.CarClass, car.TeamCupCategory)] = car;
@@ -316,9 +316,9 @@ public class Values : IDisposable {
         foreach (var (car, i) in this._overallOrder.WithIndex()) {
             if (!car.IsUpdated) {
                 car.MissedUpdates += 1;
-                //DynLeaderboardsPlugin.LogInfo($"Car [{car.Id}, #{car.CarNumber}] missed update: {car.MissedUpdates}");
             }
 
+            //DynLeaderboardsPlugin.LogInfo($"Car [{car.Id}, #{car.CarNumber}] missed update: {car.MissedUpdates}");
             car.IsUpdated = false;
 
             if (!this._classPositions.ContainsKey(car.CarClass)) {
@@ -535,9 +535,10 @@ public class Values : IDisposable {
 
                 var aPos = a.RawDataNew.Position;
                 var bPos = b.RawDataNew.Position;
-                if (aPos == bPos) {
+                if (aPos == bPos)
                     // if aPos == bPos, one cad probably left but maybe not. 
                     // Use old position to keep the order stable and not cause flickering.
+                {
                     return a.PositionOverall.CompareTo(b.PositionOverall);
                 }
 

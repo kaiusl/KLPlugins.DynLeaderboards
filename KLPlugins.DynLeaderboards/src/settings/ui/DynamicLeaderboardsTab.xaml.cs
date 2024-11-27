@@ -118,8 +118,8 @@ internal class DynamicLeaderboardsTabViewModel : INotifyPropertyChanged {
 
         // Actually set the value last so that we can unsubscribe old events if necessary
         this._selectedLeaderboardListBoxItem = value;
-        this.InvokePropertyChanged(nameof(this.SelectedLeaderboardListBoxItem));
-        this.InvokePropertyChanged(nameof(this.IsSelectedNull));
+        this.InvokePropertyChanged(nameof(DynamicLeaderboardsTabViewModel.SelectedLeaderboardListBoxItem));
+        this.InvokePropertyChanged(nameof(DynamicLeaderboardsTabViewModel.IsSelectedNull));
     }
 
     private void RemoveLeaderboard(DynLeaderboardConfig cfg) {
@@ -263,8 +263,8 @@ internal class LeaderboardComboBoxItemViewModel : INotifyPropertyChanged {
         this.Name = this.Cfg.Name;
         this.IsEnabled = this.Cfg.IsEnabled;
 
-        this.InvokePropertyChanged(nameof(this.Name));
-        this.InvokePropertyChanged(nameof(this.IsEnabled));
+        this.InvokePropertyChanged(nameof(LeaderboardComboBoxItemViewModel.Name));
+        this.InvokePropertyChanged(nameof(LeaderboardComboBoxItemViewModel.IsEnabled));
     }
 
     private void InvokePropertyChanged([System.Runtime.CompilerServices.CallerMemberName] string? propertyName = null) {
@@ -370,9 +370,11 @@ internal class SelectedLeaderboardViewModel : INotifyPropertyChanged {
                     this._cfg.Rename(name);
                     this.Name = name;
 
-                    this.InvokePropertyChanged(nameof(this.Name));
-                    this.InvokePropertyChanged(nameof(this.ControlsNextLeaderboardActionName));
-                    this.InvokePropertyChanged(nameof(this.ControlsPreviousLeaderboardActionName));
+                    this.InvokePropertyChanged(nameof(SelectedLeaderboardViewModel.Name));
+                    this.InvokePropertyChanged(nameof(SelectedLeaderboardViewModel.ControlsNextLeaderboardActionName));
+                    this.InvokePropertyChanged(
+                        nameof(SelectedLeaderboardViewModel.ControlsPreviousLeaderboardActionName)
+                    );
                     break;
                 default:
                     break;
@@ -392,9 +394,9 @@ internal class SelectedLeaderboardViewModel : INotifyPropertyChanged {
             this.RotationItems.Add(new LeaderboardRotationItem(vm));
         }
 
-        this.InvokePropertyChanged(nameof(this.Name));
-        this.InvokePropertyChanged(nameof(this.ControlsNextLeaderboardActionName));
-        this.InvokePropertyChanged(nameof(this.ControlsPreviousLeaderboardActionName));
+        this.InvokePropertyChanged(nameof(SelectedLeaderboardViewModel.Name));
+        this.InvokePropertyChanged(nameof(SelectedLeaderboardViewModel.ControlsNextLeaderboardActionName));
+        this.InvokePropertyChanged(nameof(SelectedLeaderboardViewModel.ControlsPreviousLeaderboardActionName));
 
         foreach (var p in this._numPosItems) {
             p.Update(p.PosItem.GetSetting(this._cfg));
@@ -802,7 +804,7 @@ internal class NumPosItemViewModel : INotifyPropertyChanged {
 
     internal void Update(Box<int> setting) {
         this._setting = setting;
-        this.InvokePropertyChanged(nameof(this.Pos));
+        this.InvokePropertyChanged(nameof(NumPosItemViewModel.Pos));
     }
 
     private void InvokePropertyChanged([System.Runtime.CompilerServices.CallerMemberName] string? propertyName = null) {

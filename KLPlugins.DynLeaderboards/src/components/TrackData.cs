@@ -147,14 +147,16 @@ internal class LapInterpolator {
                 p -= 1.0;
             }
 
-            if (p == pos.Last() || t == time.Last()) {
+            if (p == pos.Last() || t == time.Last())
                 // Interpolator expects increasing set of values. 
                 // If two consecutive values are the same, the interpolator can return double.NaN.
+            {
                 continue;
             }
 
-            if (p < pos.Last() || p > 1.0) {
+            if (p < pos.Last() || p > 1.0)
                 // pos needs to increasing for the linear interpolator to properly work
+            {
                 break;
             }
 
@@ -363,13 +365,15 @@ public class TrackData {
             DynLeaderboardsPlugin.LogWarn(
                 $"Possible missing lap offset detected: {this.Id} - {cls}. FirstPos: {firstPosRaw}({firstPos}), LastPos: {lastPosRaw}({lastPos}). Suggested lap position offset is {1 - firstPosRaw}."
             );
-            if (firstPosRaw > 0.9) {
+            if (firstPosRaw > 0.9)
                 // lap time resets before spline pos
                 // example: lap starts at 0.99, so offset is 1 - 0.99 = 0.01. Thus, new lap starts at 0.0.
+            {
                 this.SplinePosOffset.Update(1 - firstPosRaw);
-            } else if (lastPosRaw < 0.1) {
+            } else if (lastPosRaw < 0.1)
                 // lap time resets after spline pos
                 // example: lap ends at 0.01, so offset is 1 - 0.01 = 0.99. Thus, new lap ends at 1.0. Start will be > 1.0, but we subtract 1 from it.
+            {
                 this.SplinePosOffset.Update(1 - lastPosRaw);
             }
         } else {

@@ -120,7 +120,7 @@ internal class GeneralSettingsTabViewModel : INotifyPropertyChanged {
             this.AccDataLocationBorderBrush = GeneralSettingsTabViewModel.PathBorderError;
         }
 
-        this.InvokePropertyChanged(nameof(this.AccDataLocationBackground));
+        this.InvokePropertyChanged(nameof(GeneralSettingsTabViewModel.AccDataLocationBackground));
     }
 
     private void UpdateAcRootLocationBackground() {
@@ -132,7 +132,7 @@ internal class GeneralSettingsTabViewModel : INotifyPropertyChanged {
             this.AcRootLocationBorderBrush = GeneralSettingsTabViewModel.PathBorderError;
         }
 
-        this.InvokePropertyChanged(nameof(this.AcRootLocationBackground));
+        this.InvokePropertyChanged(nameof(GeneralSettingsTabViewModel.AcRootLocationBackground));
     }
 }
 

@@ -57,13 +57,14 @@ internal class CarInfos : IEnumerable<KeyValuePair<string, OverridableCarInfo>> 
 
     internal void RenameClass(CarClass oldCls, CarClass newCls) {
         foreach (var kv in this._infos) {
-            if (kv.Value.ClassDontCheckEnabled() == oldCls) {
+            if (kv.Value.ClassDontCheckEnabled() == oldCls)
                 // this happens in two cases:
                 // 1. override was set to old class, just set it to new class
                 // 2. base was set to old class. 
                 //    But we cannot and don't want to change base values as they are not saved. 
                 //    So we set the override class to the new one.
                 //    This also allows "Reset" button to reset to plugin defaults as promised.
+            {
                 kv.Value.SetClass(newCls);
             }
         }
@@ -219,7 +220,7 @@ internal class OverridableCarInfo : INotifyPropertyChanged {
         this.Overrides ??= new CarInfo();
         this.Overrides.Name = name;
 
-        this.InvokePropertyChanged(nameof(this.Name));
+        this.InvokePropertyChanged(nameof(OverridableCarInfo.Name));
     }
 
     internal void ResetName() {
@@ -230,20 +231,20 @@ internal class OverridableCarInfo : INotifyPropertyChanged {
         // default is enabled if base is present
         this.IsNameEnabled = this.Base?.Name != null;
 
-        this.InvokePropertyChanged(nameof(this.Name));
-        this.InvokePropertyChanged(nameof(this.IsNameEnabled));
+        this.InvokePropertyChanged(nameof(OverridableCarInfo.Name));
+        this.InvokePropertyChanged(nameof(OverridableCarInfo.IsNameEnabled));
     }
 
     internal void DisableName() {
         this.IsNameEnabled = false;
-        this.InvokePropertyChanged(nameof(this.Name));
-        this.InvokePropertyChanged(nameof(this.IsNameEnabled));
+        this.InvokePropertyChanged(nameof(OverridableCarInfo.Name));
+        this.InvokePropertyChanged(nameof(OverridableCarInfo.IsNameEnabled));
     }
 
     internal void EnableName() {
         this.IsNameEnabled = true;
-        this.InvokePropertyChanged(nameof(this.Name));
-        this.InvokePropertyChanged(nameof(this.IsNameEnabled));
+        this.InvokePropertyChanged(nameof(OverridableCarInfo.Name));
+        this.InvokePropertyChanged(nameof(OverridableCarInfo.IsNameEnabled));
     }
 
     internal void EnableName(string key) {
@@ -267,7 +268,7 @@ internal class OverridableCarInfo : INotifyPropertyChanged {
         this.Overrides ??= new CarInfo();
         this.Overrides.Manufacturer = manufacturer;
 
-        this.InvokePropertyChanged(nameof(this.Manufacturer));
+        this.InvokePropertyChanged(nameof(OverridableCarInfo.Manufacturer));
     }
 
     internal void ResetManufacturer() {
@@ -275,14 +276,15 @@ internal class OverridableCarInfo : INotifyPropertyChanged {
             this.Overrides.Manufacturer = null;
         }
 
-        this.InvokePropertyChanged(nameof(this.Manufacturer));
+        this.InvokePropertyChanged(nameof(OverridableCarInfo.Manufacturer));
     }
 
     internal void ResetManufacturer(string key) {
         this.ResetManufacturer();
 
-        if (this.Manufacturer() == null) {
+        if (this.Manufacturer() == null)
             // default is the first word of full name/key
+        {
             this.SetManufacturer(key.Split(' ')[0]);
         }
     }
@@ -307,8 +309,8 @@ internal class OverridableCarInfo : INotifyPropertyChanged {
         this.Overrides ??= new CarInfo();
         this.Overrides.Class = cls;
 
-        this.InvokePropertyChanged(nameof(this.Class));
-        this.InvokePropertyChanged(nameof(this.IsClassEnabled));
+        this.InvokePropertyChanged(nameof(OverridableCarInfo.Class));
+        this.InvokePropertyChanged(nameof(OverridableCarInfo.IsClassEnabled));
     }
 
     internal void ResetClass() {
@@ -319,15 +321,15 @@ internal class OverridableCarInfo : INotifyPropertyChanged {
         // default is enabled if base is present
         this.IsClassEnabled = this.Base?.Class != null;
 
-        this.InvokePropertyChanged(nameof(this.Class));
-        this.InvokePropertyChanged(nameof(this.IsClassEnabled));
+        this.InvokePropertyChanged(nameof(OverridableCarInfo.Class));
+        this.InvokePropertyChanged(nameof(OverridableCarInfo.IsClassEnabled));
     }
 
     internal void DisableClass() {
         this.IsClassEnabled = false;
 
-        this.InvokePropertyChanged(nameof(this.Class));
-        this.InvokePropertyChanged(nameof(this.IsClassEnabled));
+        this.InvokePropertyChanged(nameof(OverridableCarInfo.Class));
+        this.InvokePropertyChanged(nameof(OverridableCarInfo.IsClassEnabled));
     }
 
     internal void EnableClass() {
@@ -339,8 +341,8 @@ internal class OverridableCarInfo : INotifyPropertyChanged {
             this.Overrides.Class = this.ClassDontCheckEnabled();
         }
 
-        this.InvokePropertyChanged(nameof(this.Class));
-        this.InvokePropertyChanged(nameof(this.IsClassEnabled));
+        this.InvokePropertyChanged(nameof(OverridableCarInfo.Class));
+        this.InvokePropertyChanged(nameof(OverridableCarInfo.IsClassEnabled));
     }
 }
 

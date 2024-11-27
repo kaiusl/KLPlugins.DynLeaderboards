@@ -60,7 +60,7 @@ internal class ClassSettingsTabViewModel : INotifyPropertyChanged {
                     this.AllClassesView
                 );
             this.InvokePropertyChanged();
-            this.InvokePropertyChanged(nameof(this.IsSelectedNull));
+            this.InvokePropertyChanged(nameof(ClassSettingsTabViewModel.IsSelectedNull));
         }
     }
 
@@ -417,8 +417,14 @@ internal class ClassListBoxItemViewModel : INotifyPropertyChanged {
             ? new ClassPreviewViewModel(this._replacedWithManager)
             : null;
 
-        this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(this.ReplaceWithPreview)));
-        this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(this.HasReplacement)));
+        this.PropertyChanged?.Invoke(
+            this,
+            new PropertyChangedEventArgs(nameof(ClassListBoxItemViewModel.ReplaceWithPreview))
+        );
+        this.PropertyChanged?.Invoke(
+            this,
+            new PropertyChangedEventArgs(nameof(ClassListBoxItemViewModel.HasReplacement))
+        );
     }
 
     internal class KeyComparer : IComparer {

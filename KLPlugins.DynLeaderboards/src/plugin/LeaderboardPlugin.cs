@@ -74,6 +74,7 @@ public class DynLeaderboardsPlugin : IDataPlugin, IWPFSettingsV2 {
     public void End(PluginManager pluginManager) {
         this.SaveCommonSettings("GeneralSettings", DynLeaderboardsPlugin.Settings);
         DynLeaderboardsPlugin.Settings.SaveDynLeaderboardConfigs();
+        DynLeaderboardsPlugin.Settings.SaveInfos();
         // Delete unused files
         // Say something was accidentally copied there or file and leaderboard names were different which would render original file useless
         foreach (var fname in Directory.GetFiles(PluginSettings.LEADERBOARD_CONFIGS_DATA_DIR)) {
@@ -113,10 +114,9 @@ public class DynLeaderboardsPlugin : IDataPlugin, IWPFSettingsV2 {
         // Performance is important while in game, pre-jit methods at startup, to avoid doing that mid-races
         DynLeaderboardsPlugin.PreJit();
 
-        // Create new log file at game change
-        DynLeaderboardsPlugin.PluginStartTime = $"{DateTime.Now:dd-MM-yyyy_HH-mm-ss}";
-        var gameName = (string)pm.GetPropertyValue<SimHub.Plugins.DataPlugins.DataCore.DataCorePlugin>("CurrentGame");
+        var gameName = pm.GameName;
         DynLeaderboardsPlugin.Game = new Game(gameName);
+        DynLeaderboardsPlugin.PluginStartTime = $"{DateTime.Now:dd-MM-yyyy_HH-mm-ss}";
 
         PluginSettings.Migrate(); // migrate settings before reading them properly
         DynLeaderboardsPlugin.Settings = this.ReadCommonSettings("GeneralSettings", () => new PluginSettings());
@@ -857,21 +857,20 @@ public class DynLeaderboardsPlugin : IDataPlugin, IWPFSettingsV2 {
         sw.Start();
 
         var types = Assembly.GetExecutingAssembly().GetTypes();
-        foreach (var type in types) {
-            foreach (var method in type.GetMethods(
-                    BindingFlags.DeclaredOnly
-                    | BindingFlags.NonPublic
-                    | BindingFlags.Public
-                    | BindingFlags.Instance
-                    | BindingFlags.Static
-                )) {
-                if ((method.Attributes & MethodAttributes.Abstract) == MethodAttributes.Abstract
-                    || method.ContainsGenericParameters) {
-                    continue;
-                }
-
-                RuntimeHelpers.PrepareMethod(method.MethodHandle);
+        foreach (var type in types)
+        foreach (var method in type.GetMethods(
+                BindingFlags.DeclaredOnly
+                | BindingFlags.NonPublic
+                | BindingFlags.Public
+                | BindingFlags.Instance
+                | BindingFlags.Static
+            )) {
+            if ((method.Attributes & MethodAttributes.Abstract) == MethodAttributes.Abstract
+                || method.ContainsGenericParameters) {
+                continue;
             }
+
+            RuntimeHelpers.PrepareMethod(method.MethodHandle);
         }
 
         _ = sw.Elapsed;

@@ -9,29 +9,29 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Added
 
 * Support for other games, not only ACC.
-  * Currently tested with AC, ACC, AMS2, RF2 and R3E.
-  * Other games may work as the plugin relies on the generic data provided by SimHub,
+    * Currently tested with AC, ACC, AMS2, RF2 and R3E.
+    * Other games may work as the plugin relies on the generic data provided by SimHub,
       but they haven't been tested if any special handling is needed.
 * New dynamic leaderboard specific properties:
-  * `CurrentLeaderboard.DisplayName` - properly formated current leaderboard name, for example "Partial relative
-    overall"
+    * `CurrentLeaderboard.DisplayName` - properly formated current leaderboard name, for example "Partial relative
+      overall"
 * New car specific properties:
-  * `Exists` - Does a car exists in this position in the leaderboard?
-  * `Driver.Category.Color`
-  * `Driver.Category.TextColor`
-  * `Car.Class.TextColor`
-  * `Car.Class.Short` - short class name
-  * `Car.Number.Text` - string representation of number. Allows to differentiate leading zeros in the number.
+    * `Exists` - Does a car exists in this position in the leaderboard?
+    * `Driver.Category.Color`
+    * `Driver.Category.TextColor`
+    * `Car.Class.TextColor`
+    * `Car.Class.Short` - short class name
+    * `Car.Number.Text` - string representation of number. Allows to differentiate leading zeros in the number.
 * New general properties:
-  * `Color.Class.<class>.Text`
-  * `Color.DriverCategory.<category>.Text`
-  * `Session.NumberOfClasses`
-  * `Session.NumberOfCups`
+    * `Color.Class.<class>.Text`
+    * `Color.DriverCategory.<category>.Text`
+    * `Session.NumberOfClasses`
+    * `Session.NumberOfCups`
 * New config UI to edit car settings (name, manufacturer and class).
 * New config UI to edit class settings
 * New class settings options:
-  * "Short name" (eg HY for HyperCars)
-  * "Replace with" other class for easy grouping of classes or replacing one with another.
+    * "Short name" (eg HY for HyperCars)
+    * "Replace with" other class for easy grouping of classes or replacing one with another.
 * Option to read AC car info directly from AC files.
 * AC root location in the settings.
 * Configuration options to set controls for "NextLeaderboard" and "PreviousLeaderboards"
@@ -83,9 +83,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 * Dash was renamed to "DynLeaderboards Example" from "ACCDynLdb", since it no longer is ACC specific.
 * Color changes:
-  * Leaderboard name is now gray, instead of bright green.
-  * Player row is indicated by a blue shade, instead of red.
-  * Alternative row background is more subtle
+    * Leaderboard name is now gray, instead of bright green.
+    * Player row is indicated by a blue shade, instead of red.
+    * Alternative row background is more subtle
 * Added buttons to change leaderboard kind.
 
   Clicking on the left of the dashboard will select previous leaderboard kind,
@@ -146,20 +146,20 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   These are effectively Class, RelativeClass and PartialRelativeClass except they
   also filter by the focused car's cup category (Pro/Overall, Pro-Am, Am, National).
 * Few new properties related to new leaderboard types:
-  * `Laps.Best.Delta.ToCupBest`
-  * `Laps.Best.Delta.ToCupLeaderBest`
-  * `Laps.Best.Delta.ToAheadInCupBest`
-  * `Laps.Last.Delta.ToCupBest`
-  * `Laps.Last.Delta.ToCupLeaderBest`
-  * `Laps.Last.Delta.ToAheadInCupBest`
-  * `Laps.Last.Delta.ToCupLeaderLast`
-  * `Laps.Last.Delta.ToAheadInCupLast`
-  * `Gap.ToCupLeader`
-  * `Gap.ToAhead.Cup`
-  * `Position.Cup`
-  * `Position.Cup.Start`
-  * `IsCupBestLapCar`
-  * Dynamic properties have been updated to include cup specific properties.
+    * `Laps.Best.Delta.ToCupBest`
+    * `Laps.Best.Delta.ToCupLeaderBest`
+    * `Laps.Best.Delta.ToAheadInCupBest`
+    * `Laps.Last.Delta.ToCupBest`
+    * `Laps.Last.Delta.ToCupLeaderBest`
+    * `Laps.Last.Delta.ToAheadInCupBest`
+    * `Laps.Last.Delta.ToCupLeaderLast`
+    * `Laps.Last.Delta.ToAheadInCupLast`
+    * `Gap.ToCupLeader`
+    * `Gap.ToAhead.Cup`
+    * `Position.Cup`
+    * `Position.Cup.Start`
+    * `IsCupBestLapCar`
+    * Dynamic properties have been updated to include cup specific properties.
 * Support GT2 class and 6 new cars in it.
 * An option to include Lamborghini Huracan ST EVO2 and Ferrari 488 Challenge Evo in GT2 class.
   The option is under the General settings tab.
@@ -272,12 +272,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Added
 
 * 6 new properties for every car: ([#9])
-  * `Laps.Current.IsValid`
-  * `Laps.Current.IsOutLap`
-  * `Laps.Current.IsInLap`
-  * `Laps.Last.IsValid`
-  * `Laps.Last.IsOutLap`
-  * `Laps.Last.IsInLap`
+    * `Laps.Current.IsValid`
+    * `Laps.Current.IsOutLap`
+    * `Laps.Current.IsInLap`
+    * `Laps.Last.IsValid`
+    * `Laps.Last.IsOutLap`
+    * `Laps.Last.IsInLap`
 
 [#9]: https://github.com/kaiusl/KLPlugins.DynLeaderboards/issues/9
 
@@ -357,20 +357,20 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 * Possible name conflicts between dynamic leaderboards.
 * `Position.Overall` property showed wrong positions after the race finish.
 * Orders
-  * Occasional jumping of positions at lap finish.
-  * Wrong order after the finish if cars lap count differed by one and some car's hadn't finished yet.
-  * Wrong order if joined race session in the middle of session or opened SimHub in the middle of race session.
-  * (Partial)RelativeClass positions were not calculated if the wanted position was outside the number of class
+    * Occasional jumping of positions at lap finish.
+    * Wrong order after the finish if cars lap count differed by one and some car's hadn't finished yet.
+    * Wrong order if joined race session in the middle of session or opened SimHub in the middle of race session.
+    * (Partial)RelativeClass positions were not calculated if the wanted position was outside the number of class
       positions shown. That is say you wanted to show 20 class positions, then cars lower than 20th in class were not
       shown in (Partial)RelativeClass leaderboards.
-  * Car was showed falesly in the first position if it jumped to the pits, which would be correct if it could leave
+    * Car was showed falesly in the first position if it jumped to the pits, which would be correct if it could leave
       the pits immediately but as it cannot, more approptiate is to show it as last on it's lap.
 * Gaps
-  * Occasional gap jumping at lap finish.
-  * Wrong sign of relative gaps in race sessions if the focused car was class/overall leader.
-  * Gap to cars ahead in race sessions was calculated with 'this' car's position at previous update.
-  * Wrong class gaps after race finish if some cars were lapped and some were not.
-  * Gaps not updating if focused car was changed after finish.
+    * Occasional gap jumping at lap finish.
+    * Wrong sign of relative gaps in race sessions if the focused car was class/overall leader.
+    * Gap to cars ahead in race sessions was calculated with 'this' car's position at previous update.
+    * Wrong class gaps after race finish if some cars were lapped and some were not.
+    * Gaps not updating if focused car was changed after finish.
 * Maybe fixed longer data update intervals causing missed/false finishes and missed laps when crossing the line close to
   the clock reaching zero or just after. I think they are still technically possible but I haven't managed to see one,
   so it's definitely better than before.

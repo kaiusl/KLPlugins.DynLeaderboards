@@ -234,7 +234,8 @@ namespace KLPlugins.DynLeaderboards.Car {
                     driver.BestLap = this.BestLap;
                 }
             } else if (DynLeaderboardsPlugin.Game.IsRf2OrLmu
-                && opponent.ExtraData.ElementAtOr(0, null) is CrewChiefV4.rFactor2_V2.rFactor2Data.rF2VehicleScoring
+                && opponent.ExtraData.ElementAtOr(0, null) is
+                    CrewChiefV4.rFactor2_V2.rFactor2Data.rF2VehicleScoring
                     rf2RawData) {
                 {
                     // Rf2 raw values are -1 if lap time is missing
@@ -283,8 +284,9 @@ namespace KLPlugins.DynLeaderboards.Car {
                             this.Laps.New - 1,
                             this.CurrentDriver!
                         );
-                    } else if (this.BestLap != null) {
+                    } else if (this.BestLap != null)
                         // sometimes last lap can be missing, but best lap is not. In that case, use best lap for consistent lap times.
+                    {
                         this.LastLap = this.BestLap;
                     }
                 }
@@ -434,8 +436,9 @@ namespace KLPlugins.DynLeaderboards.Car {
         ///     Update data that is independent of other cars' data.
         /// </summary>
         internal void UpdateIndependent(Values values, string? focusedCarId, Opponent rawData, GameData gameData) {
-            if (rawData.TrackPositionPercent == null) {
+            if (rawData.TrackPositionPercent == null)
                 // This happens occasionally. Just wait for the next update.
+            {
                 return;
             }
             // Clear old data
@@ -749,9 +752,10 @@ namespace KLPlugins.DynLeaderboards.Car {
             ) {
                 this.CurrentLapTime = TimeSpan.FromSeconds(rf2RawData.mTimeIntoLap);
             } else if (DynLeaderboardsPlugin.Game.IsR3E
-                && (this.RawDataNew.CurrentLapTime == null || this.RawDataNew.CurrentLapTime == TimeSpan.Zero)
-                && this.RawDataNew.GuessedLapStartTime != null) {
+                    && (this.RawDataNew.CurrentLapTime == null || this.RawDataNew.CurrentLapTime == TimeSpan.Zero)
+                    && this.RawDataNew.GuessedLapStartTime != null)
                 // R3E sets current lap time to zero immediately after the lap is invalidated, but we can calculate it our selves
+            {
                 this.CurrentLapTime = DateTime.Now - this.RawDataNew.GuessedLapStartTime.Value;
             } else {
                 this.CurrentLapTime = this.RawDataNew.CurrentLapTime ?? TimeSpan.Zero;
@@ -810,8 +814,7 @@ namespace KLPlugins.DynLeaderboards.Car {
                     && lastLap != null
                     && lastLap.LaptimeMS != null
                     && lastLap.LaptimeMS != 0
-                    && (
-                        this.LastLap == null
+                    && (this.LastLap == null
                         || lastLap.LaptimeMS != this.LastLap?.Time?.TotalMilliseconds
                         || lastLap.Splits.ElementAtOr(0, null) != this.LastLap?.S1Time?.TotalMilliseconds
                         || lastLap.Splits.ElementAtOr(1, null) != this.LastLap?.S2Time?.TotalMilliseconds
@@ -849,8 +852,7 @@ namespace KLPlugins.DynLeaderboards.Car {
                 // Need to check for new lap time separately since lap update and lap time update may not be in perfect sync
                 if (this.RawDataNew.LastLapTime != TimeSpan.Zero
                     // Sometimes LastLapTime and LastLapSectorTimes may differ very slightly. Check for both. If both are different then it's new lap.
-                    && (
-                        this.LastLap?.Time == null
+                    && (this.LastLap?.Time == null
                         || (this.RawDataNew.LastLapTime != this.LastLap?.Time
                             && this.RawDataNew.LastLapSectorTimes?.GetLapTime() != this.LastLap?.Time)
                         || this.RawDataNew.LastLapSectorTimes?.GetSectorSplit(1) != this.LastLap?.S1Time
@@ -886,8 +888,7 @@ namespace KLPlugins.DynLeaderboards.Car {
 
                 if (this.RawDataNew.BestLapTime != TimeSpan.Zero
                     // Sometimes LastLapTime and LastLapSectorTimes may differ very slightly. Check for both. If both are different then it's new lap.
-                    && (
-                        this.BestLap?.Time == null
+                    && (this.BestLap?.Time == null
                         || (this.RawDataNew.BestLapTime != this.BestLap?.Time
                             && this.RawDataNew.BestLapSectorTimes?.GetLapTime() != this.BestLap?.Time)
                         || this.RawDataNew.BestLapSectorTimes?.GetSectorSplit(1) != this.BestLap?.S1Time
@@ -1316,13 +1317,15 @@ namespace KLPlugins.DynLeaderboards.Car {
         /// </returns>
         public static double CalculateRelativeSplinePosition(double fromPos, double toPos) {
             var relSplinePos = toPos - fromPos;
-            if (relSplinePos > 0.5) {
+            if (relSplinePos > 0.5)
                 // `to` is more than half a lap ahead, so technically it's closer behind.
                 // Take one lap away to show it behind `from`.
+            {
                 relSplinePos -= 1.0;
-            } else if (relSplinePos < -0.5) {
+            } else if (relSplinePos < -0.5)
                 // `to` is more than half a lap behind, so it's in front.
                 // Add one lap to show it in front of us.
+            {
                 relSplinePos += 1.0;
             }
 
@@ -1472,8 +1475,9 @@ namespace KLPlugins.DynLeaderboards.Car {
             }
 
             if (from.IsFinished && to.IsFinished) {
-                if (fromLaps == toLaps) {
+                if (fromLaps == toLaps)
                     // If there IsFinished is set, FinishTime must also be set
+                {
                     return from.FinishTime - to.FinishTime;
                 }
 
@@ -1492,13 +1496,15 @@ namespace KLPlugins.DynLeaderboards.Car {
             }
 
             var distBetween = to.TotalSplinePosition - from.TotalSplinePosition; // Negative if 'to' is behind
-            if (distBetween <= -1) {
+            if (distBetween <= -1)
                 // 'to' is more than a lap behind of 'from'
+            {
                 return TimeSpan.FromSeconds(Math.Ceiling(distBetween)) + CarData._lapGapValue;
             }
 
-            if (distBetween >= 1) {
+            if (distBetween >= 1)
                 // 'to' is more than a lap ahead of 'from'
+            {
                 return TimeSpan.FromSeconds(Math.Floor(distBetween)) + CarData._lapGapValue;
             }
 
@@ -1511,23 +1517,26 @@ namespace KLPlugins.DynLeaderboards.Car {
             // TrackData is passed from Values, Values never stores TrackData without LapInterpolators
             var toInterp = trackData.LapInterpolators.GetValueOr(to.CarClass, null);
             var fromInterp = trackData.LapInterpolators.GetValueOr(from.CarClass, null);
-            if (toInterp == null && fromInterp == null) {
+            if (toInterp == null && fromInterp == null)
                 // lap data is not available, use naive distance based calculation
+            {
                 return CarData.CalculateNaiveGap(distBetween, trackData);
             }
 
             TimeSpan? gap;
             // At least one toInterp or fromInterp must be not null, because of the above check
             var (interp, cls) = toInterp != null ? (toInterp, to.CarClass) : (fromInterp!, from.CarClass);
-            if (distBetween > 0) {
+            if (distBetween > 0)
                 // `to` is ahead of `from`
+            {
                 gap = CarData.CalculateGapBetweenPos(
                     start: from.GetSplinePosTime(cls, trackData),
                     end: to.GetSplinePosTime(cls, trackData),
                     lapTime: interp.LapTime
                 );
-            } else {
+            } else
                 // `to` is behind of `from`
+            {
                 gap = -CarData.CalculateGapBetweenPos(
                     start: to.GetSplinePosTime(cls, trackData),
                     end: from.GetSplinePosTime(cls, trackData),
@@ -1550,8 +1559,9 @@ namespace KLPlugins.DynLeaderboards.Car {
             // TrackData is passed from Values, Values never stores TrackData without LapInterpolators
             var toInterp = trackData.LapInterpolators.GetValueOr(to.CarClass, null);
             var fromInterp = trackData.LapInterpolators.GetValueOr(from.CarClass, null);
-            if (toInterp == null && fromInterp == null) {
+            if (toInterp == null && fromInterp == null)
                 // lap data is not available, use naive distance based calculation
+            {
                 return -CarData.CalculateNaiveGap(relativeSplinePos, trackData);
             }
 
@@ -1591,10 +1601,11 @@ namespace KLPlugins.DynLeaderboards.Car {
         /// </summary>
         /// <returns>Non-negative value</returns>
         public static TimeSpan CalculateGapBetweenPos(TimeSpan start, TimeSpan end, TimeSpan lapTime) {
-            if (end < start) {
+            if (end < start)
                 // Ahead is on another lap, gap is time from `start` to end of the lap, and then to `end`
-                return lapTime - start + end;
-            } // We must be on the same lap, gap is time from `start` to reach `end`
+            {
+                return lapTime - start + end; // We must be on the same lap, gap is time from `start` to reach `end`
+            }
 
             return end - start;
         }

@@ -59,8 +59,9 @@ public class Session {
         if (DynLeaderboardsPlugin.Game.IsAcc) {
             var rawDataNew = (ACSharedMemory.ACC.Reader.ACCRawData)data.NewData.GetRawDataObject();
 
-            if (rawDataNew.Graphics.SessionIndex != this._sessionIndex) {
+            if (rawDataNew.Graphics.SessionIndex != this._sessionIndex)
                 // detects multiple following sessions which are same kind
+            {
                 this.IsNewSession = true;
             }
 
@@ -99,8 +100,9 @@ public class Session {
                 && rawDataNew.Graphics.DriverStintTimeLeft >= 0) {
                 this.MaxDriverStintTime = TimeSpan.FromMilliseconds(rawDataNew.Graphics.DriverStintTimeLeft);
                 var maxDriverTotalTime = rawDataNew.Graphics.DriverStintTotalTimeLeft;
-                if (maxDriverTotalTime != 65_535_000) {
+                if (maxDriverTotalTime != 65_535_000)
                     // This is max value, which means that the limit doesn't exist
+                {
                     this.MaxDriverTotalDriveTime =
                         TimeSpan.FromMilliseconds(rawDataNew.Graphics.DriverStintTotalTimeLeft);
                 }

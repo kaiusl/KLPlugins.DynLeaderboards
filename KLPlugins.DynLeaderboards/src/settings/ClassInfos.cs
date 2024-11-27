@@ -69,9 +69,10 @@ internal class ClassInfos : IEnumerable<KeyValuePair<CarClass, OverridableClassI
             return info.Base;
         }
 
-        foreach (var dup in info.DuplicatedFrom.Reverse()) {
+        foreach (var dup in info.DuplicatedFrom.Reverse())
             // Don't use this.Get as that will add missing classes
             // We don't want it here, just skip the duplicates that don't exist anymore
+        {
             if (this._infos.TryGetValue(dup, out info)) {
                 if (info.Base != null) {
                     return info.Base;
@@ -399,8 +400,9 @@ internal class OverridableClassInfo {
         // check enabled properties. New base may have missing properties.
         // Make sure not to enable these as they may have been explicitly disabled before.
         // It's ok to disable.
-        if (this.ReplaceWithDontCheckEnabled() == null) {
+        if (this.ReplaceWithDontCheckEnabled() == null)
             // replace with cannot be enabled if there is no replace with set
+        {
             this.IsReplaceWithEnabled = false;
         }
 
@@ -511,7 +513,7 @@ internal class OverridableClassInfo {
                 }
 
                 this.InvokePropertyChanged();
-                this.InvokePropertyChanged(nameof(this.Foreground));
+                this.InvokePropertyChanged(nameof(Manager.Foreground));
             }
         }
 
@@ -527,7 +529,7 @@ internal class OverridableClassInfo {
                 }
 
                 this.InvokePropertyChanged();
-                this.InvokePropertyChanged(nameof(this.Background));
+                this.InvokePropertyChanged(nameof(Manager.Background));
             }
         }
 
@@ -545,8 +547,8 @@ internal class OverridableClassInfo {
                 }
 
                 this.InvokePropertyChanged();
-                this.InvokePropertyChanged(nameof(this.Background));
-                this.InvokePropertyChanged(nameof(this.Foreground));
+                this.InvokePropertyChanged(nameof(Manager.Background));
+                this.InvokePropertyChanged(nameof(Manager.Foreground));
             }
         }
 
@@ -561,9 +563,9 @@ internal class OverridableClassInfo {
                 this.Info.Overrides.Color = null;
             }
 
-            this.InvokePropertyChanged(nameof(this.IsColorEnabled));
-            this.InvokePropertyChanged(nameof(this.Foreground));
-            this.InvokePropertyChanged(nameof(this.Background));
+            this.InvokePropertyChanged(nameof(Manager.IsColorEnabled));
+            this.InvokePropertyChanged(nameof(Manager.Foreground));
+            this.InvokePropertyChanged(nameof(Manager.Background));
         }
 
         internal string ShortName {
@@ -580,7 +582,7 @@ internal class OverridableClassInfo {
                 this.Info.Overrides.ShortName = null;
             }
 
-            this.InvokePropertyChanged(nameof(this.ShortName));
+            this.InvokePropertyChanged(nameof(Manager.ShortName));
         }
 
         internal CarClass? ReplaceWith {
@@ -605,7 +607,7 @@ internal class OverridableClassInfo {
                     }
                 }
 
-                this.InvokePropertyChanged(nameof(this.ReplaceWith));
+                this.InvokePropertyChanged(nameof(Manager.ReplaceWith));
             }
         }
 

@@ -66,7 +66,7 @@ internal class CarSettingsTabViewModel : INotifyPropertyChanged {
             }
 
             this.InvokePropertyChanged();
-            this.InvokePropertyChanged(nameof(this.IsSelectedNull));
+            this.InvokePropertyChanged(nameof(CarSettingsTabViewModel.IsSelectedNull));
             this.ScrollSelectedIntoView?.Invoke();
         }
     }

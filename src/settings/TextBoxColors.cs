@@ -2,9 +2,11 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 
+using KLPlugins.DynLeaderboards.Helpers;
+
 using Newtonsoft.Json;
 
-namespace KLPlugins.DynLeaderboards;
+namespace KLPlugins.DynLeaderboards.Settings;
 
 internal class TextBoxColors<K> : IEnumerable<KeyValuePair<K, OverridableTextBoxColor>> {
     private readonly SortedDictionary<K, OverridableTextBoxColor> _colors;

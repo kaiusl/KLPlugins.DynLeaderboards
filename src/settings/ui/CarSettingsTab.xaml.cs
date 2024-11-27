@@ -112,7 +112,7 @@ internal class CarSettingsTabViewModel : INotifyPropertyChanged {
     internal CarSettingsTabViewModel(DynLeaderboardsPlugin plugin, SettingsControl settingsControl) {
         this._settingsControl = settingsControl;
 
-        foreach (var car in plugin.Values.CarInfos) {
+        foreach (var car in DynLeaderboardsPlugin.Settings.Infos.CarInfos) {
             var vm = new CarsListBoxItemViewModel(car.Key, car.Value);
             this.CarsObservable.Add(vm);
         }
@@ -196,7 +196,7 @@ internal class CarSettingsTabViewModel : INotifyPropertyChanged {
             () => {
                 var selected = this.SelectedCar;
                 this.CarsObservable.Clear();
-                foreach (var car in plugin.Values.CarInfos) {
+                foreach (var car in DynLeaderboardsPlugin.Settings.Infos.CarInfos) {
                     var vm = new CarsListBoxItemViewModel(car.Key, car.Value);
                     this.CarsObservable.Add(vm);
                 }
@@ -211,7 +211,7 @@ internal class CarSettingsTabViewModel : INotifyPropertyChanged {
         this.MenuUpdateAcBaseInfoCommand = new Command(
             () => {
                 DynLeaderboardsPlugin.UpdateAcCarInfos();
-                plugin.Values.RereadCarInfos();
+                DynLeaderboardsPlugin.Settings.Infos.RereadCarInfos();
                 this.MenuRefreshCommand.Execute(null);
             }
         );
@@ -258,7 +258,7 @@ internal class CarSettingsTabViewModel : INotifyPropertyChanged {
 
         this.SelectedCar.Unsubscribe();
         this.CarsObservable.Remove(this.SelectedCar);
-        this._settingsControl.Plugin.Values.CarInfos.TryRemove(key);
+        DynLeaderboardsPlugin.Settings.Infos.CarInfos.TryRemove(key);
     }
 
     private void InvokePropertyChanged([CallerMemberName] string? propertyName = null) {
@@ -386,7 +386,7 @@ internal class SelectedCarDetailsViewModel : INotifyPropertyChanged {
         }
     }
 
-    public bool CanBeRemoved => this._settingsControl.Plugin.Values.CarInfos.CanBeRemoved(this.Id);
+    public bool CanBeRemoved => DynLeaderboardsPlugin.Settings.Infos.CarInfos.CanBeRemoved(this.Id);
 
     public ListCollectionView AllClasses { get; }
     public ListCollectionView AllManufacturers { get; }

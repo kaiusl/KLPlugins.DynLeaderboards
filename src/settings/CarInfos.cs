@@ -9,7 +9,7 @@ using KLPlugins.DynLeaderboards.Car;
 
 using Newtonsoft.Json;
 
-namespace KLPlugins.DynLeaderboards;
+namespace KLPlugins.DynLeaderboards.Settings;
 
 internal class CarInfos : IEnumerable<KeyValuePair<string, OverridableCarInfo>> {
     private readonly Dictionary<string, OverridableCarInfo> _infos;

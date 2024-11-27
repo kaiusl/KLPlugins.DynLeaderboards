@@ -8,10 +8,11 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 
 using KLPlugins.DynLeaderboards.Car;
+using KLPlugins.DynLeaderboards.Helpers;
 
 using Newtonsoft.Json;
 
-namespace KLPlugins.DynLeaderboards;
+namespace KLPlugins.DynLeaderboards.Settings;
 
 internal class ClassInfos : IEnumerable<KeyValuePair<CarClass, OverridableClassInfo>> {
     private readonly Dictionary<CarClass, OverridableClassInfo> _infos;
@@ -652,5 +653,39 @@ internal class ClassInfo {
 
     internal ClassInfo Clone() {
         return new ClassInfo(this.Color?.Clone(), this.ReplaceWith, this.ShortName);
+    }
+}
+
+internal class SimHubClassColors {
+    [JsonProperty] public Dictionary<CarClass, TextBoxColor> AssignedColors = [];
+
+    public static SimHubClassColors FromJson(string json) {
+        var self = new SimHubClassColors();
+
+        var raw = JsonConvert.DeserializeObject<Raw>(json);
+        if (raw != null) {
+            foreach (var color in raw.AssignedColors) {
+                var cls = new CarClass(color.Target);
+
+                var lstar = ColorTools.LStar(color.Color);
+                var fg = lstar > 70 ? "#000000" : "#FFFFFF";
+
+                var col = new TextBoxColor(fg, color.Color);
+                self.AssignedColors.Add(cls, col);
+            }
+        }
+
+        return self;
+    }
+
+    [method: JsonConstructor]
+    private class Raw(List<RawColor> assignedColors) {
+        [JsonProperty] public List<RawColor> AssignedColors = assignedColors;
+    }
+
+    [method: JsonConstructor]
+    private class RawColor(string target, string color) {
+        [JsonProperty] public string Target { get; } = target;
+        [JsonProperty] public string Color { get; } = color;
     }
 }

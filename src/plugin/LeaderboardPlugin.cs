@@ -115,6 +115,8 @@ public class DynLeaderboardsPlugin : IDataPlugin, IWPFSettingsV2 {
 
         // Create new log file at game change
         DynLeaderboardsPlugin.PluginStartTime = $"{DateTime.Now:dd-MM-yyyy_HH-mm-ss}";
+        var gameName = (string)pm.GetPropertyValue<SimHub.Plugins.DataPlugins.DataCore.DataCorePlugin>("CurrentGame");
+        DynLeaderboardsPlugin.Game = new Game(gameName);
 
         PluginSettings.Migrate(); // migrate settings before reading them properly
         DynLeaderboardsPlugin.Settings = this.ReadCommonSettings("GeneralSettings", () => new PluginSettings());
@@ -124,8 +126,6 @@ public class DynLeaderboardsPlugin : IDataPlugin, IWPFSettingsV2 {
 
         DynLeaderboardsPlugin.Settings.ReadDynLeaderboardConfigs();
 
-        var gameName = (string)pm.GetPropertyValue<SimHub.Plugins.DataPlugins.DataCore.DataCorePlugin>("CurrentGame");
-        DynLeaderboardsPlugin.Game = new Game(gameName);
         TrackData.OnPluginInit(gameName);
 
         this.Values = new Values();
@@ -175,7 +175,7 @@ public class DynLeaderboardsPlugin : IDataPlugin, IWPFSettingsV2 {
         }
 
         if (outGenProps.Includes(OutGeneralProp.CAR_CLASS_COLORS)) {
-            foreach (var kv in this.Values.ClassInfos) {
+            foreach (var kv in DynLeaderboardsPlugin.Settings.Infos.ClassInfos) {
                 var value = kv.Value;
                 this.AttachDelegate<DynLeaderboardsPlugin, string>(
                     OutGeneralProp.CAR_CLASS_COLORS.ToPropName().Replace("<class>", kv.Key.AsString()),
@@ -185,7 +185,7 @@ public class DynLeaderboardsPlugin : IDataPlugin, IWPFSettingsV2 {
         }
 
         if (outGenProps.Includes(OutGeneralProp.CAR_CLASS_COLORS)) {
-            foreach (var kv in this.Values.ClassInfos) {
+            foreach (var kv in DynLeaderboardsPlugin.Settings.Infos.ClassInfos) {
                 var value = kv.Value;
                 this.AttachDelegate<DynLeaderboardsPlugin, string>(
                     OutGeneralProp.CAR_CLASS_TEXT_COLORS.ToPropName().Replace("<class>", kv.Key.AsString()),
@@ -195,7 +195,7 @@ public class DynLeaderboardsPlugin : IDataPlugin, IWPFSettingsV2 {
         }
 
         if (outGenProps.Includes(OutGeneralProp.TEAM_CUP_COLORS)) {
-            foreach (var kv in this.Values.TeamCupCategoryColors) {
+            foreach (var kv in DynLeaderboardsPlugin.Settings.Infos.TeamCupCategoryColors) {
                 var value = kv.Value;
                 this.AttachDelegate<DynLeaderboardsPlugin, string>(
                     OutGeneralProp.TEAM_CUP_COLORS.ToPropName().Replace("<cup>", kv.Key.AsString()),
@@ -205,7 +205,7 @@ public class DynLeaderboardsPlugin : IDataPlugin, IWPFSettingsV2 {
         }
 
         if (outGenProps.Includes(OutGeneralProp.TEAM_CUP_TEXT_COLORS)) {
-            foreach (var kv in this.Values.TeamCupCategoryColors) {
+            foreach (var kv in DynLeaderboardsPlugin.Settings.Infos.TeamCupCategoryColors) {
                 var value = kv.Value;
                 this.AttachDelegate<DynLeaderboardsPlugin, string>(
                     OutGeneralProp.TEAM_CUP_TEXT_COLORS.ToPropName().Replace("<cup>", kv.Key.AsString()),
@@ -215,7 +215,7 @@ public class DynLeaderboardsPlugin : IDataPlugin, IWPFSettingsV2 {
         }
 
         if (outGenProps.Includes(OutGeneralProp.DRIVER_CATEGORY_COLORS)) {
-            foreach (var kv in this.Values.DriverCategoryColors) {
+            foreach (var kv in DynLeaderboardsPlugin.Settings.Infos.DriverCategoryColors) {
                 var value = kv.Value;
                 this.AttachDelegate<DynLeaderboardsPlugin, string>(
                     OutGeneralProp.DRIVER_CATEGORY_COLORS.ToPropName().Replace("<category>", kv.Key.AsString()),
@@ -225,7 +225,7 @@ public class DynLeaderboardsPlugin : IDataPlugin, IWPFSettingsV2 {
         }
 
         if (outGenProps.Includes(OutGeneralProp.DRIVER_CATEGORY_TEXT_COLORS)) {
-            foreach (var kv in this.Values.DriverCategoryColors) {
+            foreach (var kv in DynLeaderboardsPlugin.Settings.Infos.DriverCategoryColors) {
                 var value = kv.Value;
                 this.AttachDelegate<DynLeaderboardsPlugin, string>(
                     OutGeneralProp.DRIVER_CATEGORY_TEXT_COLORS.ToPropName().Replace("<category>", kv.Key.AsString()),

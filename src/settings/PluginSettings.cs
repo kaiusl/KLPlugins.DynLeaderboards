@@ -39,6 +39,8 @@ internal class PluginSettings {
     [JsonIgnore] private static readonly string _defAccDataLocation =
         "C:\\Users\\" + Environment.UserName + "\\Documents\\Assetto Corsa Competizione";
 
+    [JsonIgnore] internal Infos Infos = new();
+
     private delegate JObject Migration(JObject o);
 
     internal PluginSettings() {
@@ -140,6 +142,10 @@ internal class PluginSettings {
         }
     }
 
+    internal void SaveInfos() {
+        this.Infos.Save();
+    }
+
     internal void RemoveLeaderboardAt(int i) {
         var fname = $"{PluginSettings.LEADERBOARD_CONFIGS_DATA_DIR}\\{this.DynLeaderboardConfigs[i].Name}.json";
         if (File.Exists(fname)) {
@@ -230,7 +236,7 @@ internal class PluginSettings {
     ///     Should be called before reading the settings from file.
     /// </summary>
     internal static void Migrate() {
-        Dictionary<string, Migration> migrations = PluginSettings.CreateMigrationsDict();
+        var migrations = PluginSettings.CreateMigrationsDict();
 
         var settingsFname = "PluginsData\\Common\\DynLeaderboardsPlugin.GeneralSettings.json";
         if (!File.Exists(settingsFname)) {
@@ -560,7 +566,7 @@ internal class DynLeaderboardConfig {
     ///     Should be called before reading the settings from file.
     /// </summary>
     internal static void Migrate() {
-        Dictionary<string, Migration> migrations = DynLeaderboardConfig.CreateMigrationsDict();
+        var migrations = DynLeaderboardConfig.CreateMigrationsDict();
 
         foreach (var filePath in Directory.GetFiles(PluginSettings.LEADERBOARD_CONFIGS_DATA_DIR)) {
             if (!File.Exists(filePath) || !filePath.EndsWith(".json")) {

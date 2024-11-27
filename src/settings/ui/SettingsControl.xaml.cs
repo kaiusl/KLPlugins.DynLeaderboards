@@ -119,8 +119,6 @@ public sealed class DocsPathConverter : IValueConverter {
 
 public partial class SettingsControl : UserControl {
     internal DynLeaderboardsPlugin Plugin { get; }
-    internal PluginSettings Settings => DynLeaderboardsPlugin.Settings;
-
     internal DynLeaderboardConfig CurrentDynLeaderboardSettings { get; private set; }
 
     //internal CarSettingsTab CarSettingsTab { get; private set; };
@@ -139,7 +137,7 @@ public partial class SettingsControl : UserControl {
 
         this.Plugin = plugin;
 
-        this.ClassesManager = new ClassInfos.Manager(this.Plugin.Values.ClassInfos);
+        this.ClassesManager = new ClassInfos.Manager(DynLeaderboardsPlugin.Settings.Infos.ClassInfos);
         this.ClassesManager.CollectionChanged += (_, e) => {
             if (e.NewItems != null) {
                 foreach (OverridableClassInfo.Manager item in e.NewItems) {
@@ -153,16 +151,20 @@ public partial class SettingsControl : UserControl {
             //}
         };
 
-        this.GeneralSettingsTab_SHTabItem.Content = new GeneralSettingsTab(this.Settings);
-        this.DynamicLeaderboardsTab_SHTabItem.Content = new DynamicLeaderboardsTab(this.Settings, this.Plugin, this);
+        this.GeneralSettingsTab_SHTabItem.Content = new GeneralSettingsTab(DynLeaderboardsPlugin.Settings);
+        this.DynamicLeaderboardsTab_SHTabItem.Content = new DynamicLeaderboardsTab(
+            DynLeaderboardsPlugin.Settings,
+            this.Plugin,
+            this
+        );
         this.CarSettingsTab_SHTabItem.Content = new CarSettingsTab(this.Plugin, this);
         this.ClassSettingsTab_SHTabItem.Content = new ClassSettingsTab(this, this.Plugin.Values, this.ClassesManager);
 
-        if (this.Settings.DynLeaderboardConfigs.Count == 0) {
+        if (DynLeaderboardsPlugin.Settings.DynLeaderboardConfigs.Count == 0) {
             this.Plugin.AddNewLeaderboard(new DynLeaderboardConfig("Dynamic"));
         }
 
-        this.CurrentDynLeaderboardSettings = this.Settings.DynLeaderboardConfigs[0];
+        this.CurrentDynLeaderboardSettings = DynLeaderboardsPlugin.Settings.DynLeaderboardConfigs[0];
 
         this.SetAllClassesAndManufacturers();
         //this.CarSettingsTab = new CarSettingsTab(this, this.Plugin);
@@ -180,7 +182,7 @@ public partial class SettingsControl : UserControl {
         var clsStr = cls.AsString();
         if (!this.AllClasses.Contains(clsStr)) {
             this.AllClasses.Add(clsStr);
-            this.Plugin.Values.ClassInfos.GetOrAdd(cls);
+            DynLeaderboardsPlugin.Settings.Infos.ClassInfos.GetOrAdd(cls);
         }
     }
 
@@ -211,13 +213,15 @@ public partial class SettingsControl : UserControl {
     private void SetAllClassesAndManufacturers() {
         // Go through all cars and check for class colors. 
         // If there are new classes then trying to Values.CarClassColors.Get will add them to the dictionary.
-        foreach (var c in this.Plugin.Values.CarInfos) {
+        foreach (var c in DynLeaderboardsPlugin.Settings.Infos.CarInfos) {
             CarClass?[] classes = [c.Value.ClassDontCheckEnabled(), c.Value.BaseClass()];
             foreach (var cls in classes) {
                 if (cls != null) {
-                    var info = this.Plugin.Values.ClassInfos.GetOrAdd(cls.Value);
+                    var info = DynLeaderboardsPlugin.Settings.Infos.ClassInfos.GetOrAdd(cls.Value);
                     if (info.ReplaceWithDontCheckEnabled() != null) {
-                        var _ = this.Plugin.Values.ClassInfos.GetOrAdd(info.ReplaceWithDontCheckEnabled()!.Value);
+                        var _ = DynLeaderboardsPlugin.Settings.Infos.ClassInfos.GetOrAdd(
+                            info.ReplaceWithDontCheckEnabled()!.Value
+                        );
                     }
                 }
             }
@@ -230,7 +234,7 @@ public partial class SettingsControl : UserControl {
             }
         }
 
-        foreach (var c in this.Plugin.Values.ClassInfos) {
+        foreach (var c in DynLeaderboardsPlugin.Settings.Infos.ClassInfos) {
             this.TryAddCarClass(c.Key);
         }
     }
@@ -241,7 +245,7 @@ public partial class SettingsControl : UserControl {
             this,
             this.Plugin,
             "Category",
-            this.Plugin.Values.TeamCupCategoryColors,
+            DynLeaderboardsPlugin.Settings.Infos.TeamCupCategoryColors,
             this.ColorsTab_TeamCupCategoryColors_Menu,
             this.ColorsTab_TeamCupCategoryColors_Grid,
             this.Plugin.Values.UpdateTeamCupInfos
@@ -251,7 +255,7 @@ public partial class SettingsControl : UserControl {
             this,
             this.Plugin,
             "Category",
-            this.Plugin.Values.DriverCategoryColors,
+            DynLeaderboardsPlugin.Settings.Infos.DriverCategoryColors,
             this.ColorsTab_DriverCategoryColors_Menu,
             this.ColorsTab_DriverCategoryColors_Grid,
             this.Plugin.Values.UpdateDriverInfos
@@ -260,7 +264,7 @@ public partial class SettingsControl : UserControl {
 
     private void NumericUpDown_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double?> e) {
         if (e.NewValue != null) {
-            this.Settings.BroadcastDataUpdateRateMs = (int)e.NewValue;
+            DynLeaderboardsPlugin.Settings.BroadcastDataUpdateRateMs = (int)e.NewValue;
         }
     }
 }

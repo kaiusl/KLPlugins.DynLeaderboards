@@ -1,23 +1,14 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Collections.ObjectModel;
-using System.Collections.Specialized;
-using System.ComponentModel;
 using System.Diagnostics;
-using System.IO;
 using System.Linq;
-using System.Runtime.CompilerServices;
 
 using GameReaderCommon;
 
 using KLPlugins.DynLeaderboards.Car;
 using KLPlugins.DynLeaderboards.Helpers;
-using KLPlugins.DynLeaderboards.Settings;
 using KLPlugins.DynLeaderboards.Track;
-
-using Newtonsoft.Json;
 
 using SimHub.Plugins;
 
@@ -48,115 +39,10 @@ public class Values : IDisposable {
     public int NumClassesInSession { get; private set; } = 0;
     public int NumCupsInSession { get; private set; } = 0;
 
-    internal CarInfos CarInfos { get; private set; }
-
-    private const string _CAR_INFOS_FILENAME = "CarInfos";
-
-    private static string CarInfosPath() {
-        return
-            $"{PluginSettings.PLUGIN_DATA_DIR}\\{DynLeaderboardsPlugin.Game.Name}\\{Values._CAR_INFOS_FILENAME}.json";
-    }
-
-    private static string CarInfosBasePath() {
-        return
-            $"{PluginSettings.PLUGIN_DATA_DIR}\\{DynLeaderboardsPlugin.Game.Name}\\{Values._CAR_INFOS_FILENAME}.base.json";
-    }
-
-    private static CarInfos ReadCarInfos() {
-        var basesPath = Values.CarInfosBasePath();
-        var path = Values.CarInfosPath();
-        return CarInfos.ReadFromJson(basePath: basesPath, path: path);
-    }
-
-    private void WriteCarInfos() {
-        var path = Values.CarInfosPath();
-        var dirPath = Path.GetDirectoryName(path);
-        if (dirPath == null) {
-            throw new Exception($"invalid car infos path {path}");
-        }
-
-        if (!Directory.Exists(dirPath)) {
-            Directory.CreateDirectory(dirPath);
-        }
-
-        this.CarInfos.WriteToJson(path: path, derivedPath: Values.CarInfosBasePath());
-    }
-
-    internal ClassInfos ClassInfos { get; }
-    private const string _CLASS_INFOS_FILENAME = "ClassInfos";
-
-    private static string ClassInfosPath() {
-        return
-            $"{PluginSettings.PLUGIN_DATA_DIR}\\{DynLeaderboardsPlugin.Game.Name}\\{Values._CLASS_INFOS_FILENAME}.json";
-    }
-
-    private static string ClassInfosBasePath() {
-        return
-            $"{PluginSettings.PLUGIN_DATA_DIR}\\{DynLeaderboardsPlugin.Game.Name}\\{Values._CLASS_INFOS_FILENAME}.base.json";
-    }
-
-    private static ClassInfos ReadClassInfos() {
-        var basesPath = Values.ClassInfosBasePath();
-        var path = Values.ClassInfosPath();
-        return ClassInfos.ReadFromJson(basePath: basesPath, path: path);
-    }
-
-    private void WriteClassInfos() {
-        var path = Values.ClassInfosPath();
-        var dirPath = Path.GetDirectoryName(path);
-        if (dirPath == null) {
-            throw new Exception($"invalid class infos path {path}");
-        }
-
-        if (!Directory.Exists(dirPath)) {
-            Directory.CreateDirectory(dirPath);
-        }
-
-        this.ClassInfos.WriteToJson(path: path, derivedPath: Values.ClassInfosBasePath());
-    }
-
-    internal TextBoxColors<TeamCupCategory> TeamCupCategoryColors { get; }
-    internal TextBoxColors<DriverCategory> DriverCategoryColors { get; }
-
-    private static string TextBoxColorsPath(string fileName) {
-        return $"{PluginSettings.PLUGIN_DATA_DIR}\\{DynLeaderboardsPlugin.Game.Name}\\{fileName}.json";
-    }
-
-    private static TextBoxColors<K> ReadTextBoxColors<K>(string fileName) {
-        var basesPath = $"{PluginSettings.PLUGIN_DATA_DIR}\\{DynLeaderboardsPlugin.Game.Name}\\{fileName}.base.json";
-        var path = Values.TextBoxColorsPath(fileName);
-        return TextBoxColors<K>.ReadFromJson(basePath: basesPath, path: path);
-    }
-
-    private static void WriteTextBoxColors<K>(TextBoxColors<K> colors, string fileName) {
-        var path = Values.TextBoxColorsPath(fileName);
-        var dirPath = Path.GetDirectoryName(path);
-        if (dirPath == null) {
-            throw new Exception($"invalid text box colors path {path}");
-        }
-
-        if (!Directory.Exists(dirPath)) {
-            Directory.CreateDirectory(dirPath);
-        }
-
-        colors.WriteToJson(path);
-    }
-
     internal bool IsFirstFinished { get; private set; } = false;
     private bool _startingPositionsSet = false;
 
-    private const string _TEAM_CUP_CATEGORY_COLORS_JSON_NAME = "TeamCupCategoryColors";
-    private const string _DRIVER_CATEGORY_COLORS_JSON_NAME = "DriverCategoryColors";
-
     internal Values() {
-        this.CarInfos = Values.ReadCarInfos();
-        this.ClassInfos = Values.ReadClassInfos();
-        this.TeamCupCategoryColors =
-            Values.ReadTextBoxColors<TeamCupCategory>(Values._TEAM_CUP_CATEGORY_COLORS_JSON_NAME);
-        this.TeamCupCategoryColors.GetOrAdd(TeamCupCategory.Default);
-        this.DriverCategoryColors = Values.ReadTextBoxColors<DriverCategory>(Values._DRIVER_CATEGORY_COLORS_JSON_NAME);
-        this.DriverCategoryColors.GetOrAdd(DriverCategory.Default);
-
         this.OverallOrder = this._overallOrder.AsReadOnly();
         this.ClassOrder = this._classOrder.AsReadOnly();
         this.CupOrder = this._cupOrder.AsReadOnly();
@@ -166,9 +52,6 @@ public class Values : IDisposable {
         this.Reset();
     }
 
-    internal void RereadCarInfos() {
-        this.CarInfos = Values.ReadCarInfos();
-    }
 
     internal void Reset() {
         DynLeaderboardsPlugin.LogInfo("Values.Reset()");
@@ -203,10 +86,6 @@ public class Values : IDisposable {
     protected virtual void Dispose(bool disposing) {
         if (!this._isDisposed) {
             if (disposing) {
-                this.WriteCarInfos();
-                this.WriteClassInfos();
-                Values.WriteTextBoxColors(this.TeamCupCategoryColors, Values._TEAM_CUP_CATEGORY_COLORS_JSON_NAME);
-                Values.WriteTextBoxColors(this.DriverCategoryColors, Values._DRIVER_CATEGORY_COLORS_JSON_NAME);
                 this.TrackData?.Dispose();
                 DynLeaderboardsPlugin.LogInfo("Disposed");
             }
@@ -677,76 +556,5 @@ public class Values : IDisposable {
             // where we have lots of time
             this.TrackData?.SaveData();
         }
-    }
-}
-
-internal class SimHubClassColors {
-    [JsonProperty] public Dictionary<CarClass, TextBoxColor> AssignedColors = [];
-
-    public static SimHubClassColors FromJson(string json) {
-        var self = new SimHubClassColors();
-
-        var raw = JsonConvert.DeserializeObject<Raw>(json);
-        if (raw != null) {
-            foreach (var color in raw.AssignedColors) {
-                var cls = new CarClass(color.Target);
-
-                var lstar = ColorTools.LStar(color.Color);
-                var fg = lstar > 70 ? "#000000" : "#FFFFFF";
-
-                var col = new TextBoxColor(fg, color.Color);
-                self.AssignedColors.Add(cls, col);
-            }
-        }
-
-        return self;
-    }
-
-    [method: JsonConstructor]
-    private class Raw(List<RawColor> assignedColors) {
-        [JsonProperty] public List<RawColor> AssignedColors = assignedColors;
-    }
-
-    [method: JsonConstructor]
-    private class RawColor(string target, string color) {
-        [JsonProperty] public string Target { get; } = target;
-        [JsonProperty] public string Color { get; } = color;
-    }
-}
-
-internal static class ColorTools {
-    public static double Lightness(string color) {
-        // from https://stackoverflow.com/a/56678483
-        var col = WindowsMediaColorExtensions.FromHex(color);
-        var r = ColorTools.ToLinRgb(col.R / 255.0);
-        var g = ColorTools.ToLinRgb(col.G / 255.0);
-        var b = ColorTools.ToLinRgb(col.B / 255.0);
-
-        return 0.2126 * r + 0.7152 * g + 0.0722 * b;
-    }
-
-    public static double LStar(string color) {
-        // from https://stackoverflow.com/a/56678483
-        var y = ColorTools.Lightness(color);
-        if (y < 0.008856) {
-            return y * 903.3;
-        }
-
-        return Math.Pow(y, 1.0 / 3.0) * 116.0 - 16.0;
-    }
-
-    public static string ComplementaryBlackOrWhite(string color) {
-        var lstar = ColorTools.LStar(color);
-        return lstar > 70 ? "#000000" : "#FFFFFF";
-    }
-
-    private static double ToLinRgb(double c) {
-        // from https://stackoverflow.com/a/56678483
-        if (c <= 0.04045) {
-            return c / 12.92;
-        }
-
-        var step1 = (c + 0.055) / 1.055;
-        return Math.Pow(step1, 2.4);
     }
 }

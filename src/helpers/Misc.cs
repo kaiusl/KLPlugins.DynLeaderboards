@@ -257,3 +257,40 @@ public class BoxJsonConverter<T> : JsonConverter
         return objectType == typeof(T?);
     }
 }
+
+internal static class ColorTools {
+    public static double Lightness(string color) {
+        // from https://stackoverflow.com/a/56678483
+        var col = WindowsMediaColorExtensions.FromHex(color);
+        var r = ColorTools.ToLinRgb(col.R / 255.0);
+        var g = ColorTools.ToLinRgb(col.G / 255.0);
+        var b = ColorTools.ToLinRgb(col.B / 255.0);
+
+        return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+    }
+
+    public static double LStar(string color) {
+        // from https://stackoverflow.com/a/56678483
+        var y = ColorTools.Lightness(color);
+        if (y < 0.008856) {
+            return y * 903.3;
+        }
+
+        return Math.Pow(y, 1.0 / 3.0) * 116.0 - 16.0;
+    }
+
+    public static string ComplementaryBlackOrWhite(string color) {
+        var lstar = ColorTools.LStar(color);
+        return lstar > 70 ? "#000000" : "#FFFFFF";
+    }
+
+    private static double ToLinRgb(double c) {
+        // from https://stackoverflow.com/a/56678483
+        if (c <= 0.04045) {
+            return c / 12.92;
+        }
+
+        var step1 = (c + 0.055) / 1.055;
+        return Math.Pow(step1, 2.4);
+    }
+}

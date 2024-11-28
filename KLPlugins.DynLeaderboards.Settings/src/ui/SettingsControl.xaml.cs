@@ -7,6 +7,7 @@ using System.Windows.Data;
 using System.Windows.Documents;
 
 using KLPlugins.DynLeaderboards.Common;
+using KLPlugins.DynLeaderboards.Log;
 
 using SimHub.Plugins.Styles;
 using SimHub.Plugins.UI;

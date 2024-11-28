@@ -9,6 +9,7 @@ using System.Windows.Data;
 using System.Windows.Input;
 
 using KLPlugins.DynLeaderboards.Common;
+using KLPlugins.DynLeaderboards.Log;
 #if DESIGN
 using System.Collections.Generic;
 

@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 
 using KLPlugins.DynLeaderboards.Common;
+using KLPlugins.DynLeaderboards.Log;
 
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;

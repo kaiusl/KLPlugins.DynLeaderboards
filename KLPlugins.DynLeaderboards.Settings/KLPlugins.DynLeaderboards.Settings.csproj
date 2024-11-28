@@ -157,6 +157,10 @@
             <Project>{f0009219-c94e-4ccf-b9c7-235621d97106}</Project>
             <Name>KLPlugins.DynLeaderboards.Common</Name>
         </ProjectReference>
+        <ProjectReference Include="..\KLPlugins.DynLeaderboards.Logging\KLPlugins.DynLeaderboards.Logging.csproj">
+          <Project>{bc5bf488-fe53-4da8-8d82-f3589a7b64aa}</Project>
+          <Name>KLPlugins.DynLeaderboards.Logging</Name>
+        </ProjectReference>
     </ItemGroup>
     <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets"/>
     <ItemGroup>

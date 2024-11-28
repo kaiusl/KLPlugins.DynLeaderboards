@@ -8,6 +8,7 @@ using System.Text;
 using GameReaderCommon;
 
 using KLPlugins.DynLeaderboards.Common;
+using KLPlugins.DynLeaderboards.Log;
 using KLPlugins.DynLeaderboards.Settings;
 using KLPlugins.DynLeaderboards.Track;
 

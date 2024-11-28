@@ -10,6 +10,7 @@ using System.Windows.Forms;
 using System.Windows.Input;
 
 using KLPlugins.DynLeaderboards.Common;
+using KLPlugins.DynLeaderboards.Log;
 
 using Control = System.Windows.Controls.Control;
 using UserControl = System.Windows.Controls.UserControl;
@@ -235,12 +236,12 @@ internal class SelectedClassViewModel : INotifyPropertyChanged {
     }
 
     public string Background {
-        get => this._classManager.Background ?? OverridableTextBoxColor.DEF_BG;
+        get => this._classManager.Background ?? TextBoxColor.DEF_BG;
         set => this._classManager.Background = value;
     }
 
     public string Foreground {
-        get => this._classManager.Foreground ?? OverridableTextBoxColor.DEF_FG;
+        get => this._classManager.Foreground ?? TextBoxColor.DEF_FG;
         set => this._classManager.Foreground = value;
     }
 

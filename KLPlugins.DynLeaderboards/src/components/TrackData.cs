@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using GameReaderCommon;
 
 using KLPlugins.DynLeaderboards.Common;
+using KLPlugins.DynLeaderboards.Log;
 using KLPlugins.DynLeaderboards.Settings;
 
 using MathNet.Numerics.Interpolation;

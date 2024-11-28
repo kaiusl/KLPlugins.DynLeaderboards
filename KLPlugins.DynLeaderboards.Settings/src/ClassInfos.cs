@@ -8,6 +8,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 
 using KLPlugins.DynLeaderboards.Common;
+using KLPlugins.DynLeaderboards.Log;
 
 using Newtonsoft.Json;
 

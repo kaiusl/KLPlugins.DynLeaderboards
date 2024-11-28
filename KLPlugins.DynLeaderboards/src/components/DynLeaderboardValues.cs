@@ -4,7 +4,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 
 using KLPlugins.DynLeaderboards.Car;
-using KLPlugins.DynLeaderboards.Common;
+using KLPlugins.DynLeaderboards.Log;
 using KLPlugins.DynLeaderboards.Settings;
 
 namespace KLPlugins.DynLeaderboards;

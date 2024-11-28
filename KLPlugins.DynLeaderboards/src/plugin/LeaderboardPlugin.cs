@@ -17,6 +17,8 @@ using KLPlugins.DynLeaderboards.Track;
 
 using SimHub.Plugins;
 
+using KLPlugins.DynLeaderboards.Log;
+
 namespace KLPlugins.DynLeaderboards;
 
 [PluginDescription("")]

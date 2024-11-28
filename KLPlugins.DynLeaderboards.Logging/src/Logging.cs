@@ -2,9 +2,14 @@ using System;
 using System.IO;
 using System.Runtime.CompilerServices;
 
-namespace KLPlugins.DynLeaderboards.Common;
+using KLPlugins.DynLeaderboards.Common;
 
-public static class Logging {
+[assembly: InternalsVisibleTo("KLPlugins.DynLeaderboards")]
+[assembly: InternalsVisibleTo("KLPlugins.DynLeaderboards.Settings")]
+
+namespace KLPlugins.DynLeaderboards.Log;
+
+internal static class Logging {
     private static FileStream? _logFile;
     private static TextWriter? _logWriter;
     private static bool _isLogFlushed = false;

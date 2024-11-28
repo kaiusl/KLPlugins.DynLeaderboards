@@ -9,6 +9,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 
 using KLPlugins.DynLeaderboards.Common;
+using KLPlugins.DynLeaderboards.Log;
 
 using SimHub.Plugins.Styles;
 using SimHub.Plugins.UI;

@@ -2,7 +2,7 @@ using System;
 
 using GameReaderCommon;
 
-using KLPlugins.DynLeaderboards.Common;
+using KLPlugins.DynLeaderboards.Log;
 
 namespace KLPlugins.DynLeaderboards;
 

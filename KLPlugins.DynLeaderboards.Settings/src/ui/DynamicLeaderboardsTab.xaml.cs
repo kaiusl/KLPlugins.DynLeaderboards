@@ -11,6 +11,7 @@ using System.Windows.Forms;
 using System.Windows.Input;
 
 using KLPlugins.DynLeaderboards.Common;
+using KLPlugins.DynLeaderboards.Log;
 
 using Control = System.Windows.Controls.Control;
 using Exception = System.Exception;

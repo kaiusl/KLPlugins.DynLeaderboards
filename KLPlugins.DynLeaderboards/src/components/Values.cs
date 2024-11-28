@@ -8,6 +8,7 @@ using GameReaderCommon;
 
 using KLPlugins.DynLeaderboards.Car;
 using KLPlugins.DynLeaderboards.Common;
+using KLPlugins.DynLeaderboards.Log;
 using KLPlugins.DynLeaderboards.Track;
 
 using SimHub.Plugins;

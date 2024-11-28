@@ -18,6 +18,7 @@
         <WarningsAsErrors>CS8509</WarningsAsErrors>
     </PropertyGroup>
     <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+        <PlatformTarget>AnyCPU</PlatformTarget>
         <DebugSymbols>true</DebugSymbols>
         <DebugType>full</DebugType>
         <Optimize>false</Optimize>
@@ -27,70 +28,48 @@
         <WarningLevel>4</WarningLevel>
     </PropertyGroup>
     <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-        <DebugType>full</DebugType>
+        <PlatformTarget>AnyCPU</PlatformTarget>
+        <DebugType>pdbonly</DebugType>
         <Optimize>true</Optimize>
         <OutputPath>bin\Release\</OutputPath>
         <DefineConstants>TRACE</DefineConstants>
         <ErrorReport>prompt</ErrorReport>
         <WarningLevel>4</WarningLevel>
-        <DocumentationFile>
-        </DocumentationFile>
-        <DebugSymbols>true</DebugSymbols>
-    </PropertyGroup>
-    <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Timings|AnyCPU'">
-        <DebugSymbols>true</DebugSymbols>
-        <OutputPath>bin\Timings\</OutputPath>
-        <DefineConstants>TRACE;TIMINGS</DefineConstants>
-        <Optimize>true</Optimize>
-        <DebugType>full</DebugType>
-        <PlatformTarget>AnyCPU</PlatformTarget>
-        <LangVersion>8.0</LangVersion>
-        <ErrorReport>prompt</ErrorReport>
-    </PropertyGroup>
-    <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug Docs|AnyCPU' ">
-        <DebugSymbols>true</DebugSymbols>
-        <DefineConstants>DEBUG;TRACE;DOCS_DEBUG</DefineConstants>
-        <Optimize>false</Optimize>
-        <DebugType>full</DebugType>
-        <WarningsAsErrors>CS8509</WarningsAsErrors>
-        <LangVersion>12.0</LangVersion>
-        <ErrorReport>prompt</ErrorReport>
-        <OutputPath>bin\Debug Docs\</OutputPath>
     </PropertyGroup>
     <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug Design|AnyCPU' ">
+        <PlatformTarget>AnyCPU</PlatformTarget>
         <DebugSymbols>true</DebugSymbols>
-        <DefineConstants>TRACE;DEBUG;DESIGN</DefineConstants>
         <DebugType>full</DebugType>
-        <WarningsAsErrors>CS8509</WarningsAsErrors>
-        <LangVersion>12.0</LangVersion>
+        <Optimize>false</Optimize>
+        <OutputPath>bin\Debug\</OutputPath>
+        <DefineConstants>DEBUG;TRACE;DESIGN</DefineConstants>
         <ErrorReport>prompt</ErrorReport>
-        <OutputPath>bin\Debug Design\</OutputPath>
+        <WarningLevel>4</WarningLevel>
+    </PropertyGroup>
+    <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug Docs|AnyCPU' ">
+        <PlatformTarget>AnyCPU</PlatformTarget>
+        <DebugSymbols>true</DebugSymbols>
+        <DebugType>full</DebugType>
+        <Optimize>false</Optimize>
+        <OutputPath>bin\Debug\</OutputPath>
+        <DefineConstants>DEBUG;TRACE;DOCS_DEBUG</DefineConstants>
+        <ErrorReport>prompt</ErrorReport>
+        <WarningLevel>4</WarningLevel>
     </PropertyGroup>
     <ItemGroup>
-        <Reference Include="ACSharedMemory, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-            <SpecificVersion>False</SpecificVersion>
+        <Reference Include="ACSharedMemory">
             <HintPath>C:\Program Files (x86)\SimHub\ACSharedMemory.dll</HintPath>
         </Reference>
         <Reference Include="GameReaderCommon">
             <HintPath>C:\Program Files (x86)\SimHub\GameReaderCommon.dll</HintPath>
         </Reference>
-        <Reference Include="InputManagerCS, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-            <SpecificVersion>False</SpecificVersion>
-            <HintPath>C:\Program Files (x86)\SimHub\InputManagerCS.dll</HintPath>
-        </Reference>
-        <Reference Include="log4net">
-            <HintPath>C:\Program Files (x86)\SimHub\log4net.dll</HintPath>
-        </Reference>
-        <Reference Include="MahApps.Metro, Version=1.5.0.23, Culture=neutral, PublicKeyToken=f4fb5a3c4d1e5b4f, processorArchitecture=MSIL">
-            <SpecificVersion>False</SpecificVersion>
+        <Reference Include="MahApps.Metro">
             <HintPath>C:\Program Files (x86)\SimHub\MahApps.Metro.dll</HintPath>
         </Reference>
-        <Reference Include="MathNet.Numerics, Version=4.7.0.0, Culture=neutral, processorArchitecture=MSIL">
-            <SpecificVersion>False</SpecificVersion>
+        <Reference Include="MathNet.Numerics">
             <HintPath>C:\Program Files (x86)\SimHub\MathNet.Numerics.dll</HintPath>
         </Reference>
-        <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-            <SpecificVersion>False</SpecificVersion>
+        <Reference Include="Newtonsoft.Json">
             <HintPath>C:\Program Files (x86)\SimHub\Newtonsoft.Json.dll</HintPath>
         </Reference>
         <Reference Include="PCarsSharedMemory">
@@ -98,49 +77,21 @@
         </Reference>
         <Reference Include="PresentationCore"/>
         <Reference Include="PresentationFramework"/>
-        <Reference Include="RfactorReader, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-            <SpecificVersion>False</SpecificVersion>
+        <Reference Include="RfactorReader">
             <HintPath>C:\Program Files (x86)\SimHub\RfactorReader.dll</HintPath>
         </Reference>
         <Reference Include="RREReader">
             <HintPath>C:\Program Files (x86)\SimHub\RREReader.dll</HintPath>
         </Reference>
-        <Reference Include="SimHub.Logging, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-            <SpecificVersion>False</SpecificVersion>
-            <HintPath>C:\Program Files (x86)\SimHub\SimHub.Logging.dll</HintPath>
-        </Reference>
-        <Reference Include="SimHub.Plugins, Version=1.0.8385.29176, Culture=neutral, processorArchitecture=MSIL">
-            <SpecificVersion>False</SpecificVersion>
+        <Reference Include="SimHub.Plugins">
             <HintPath>C:\Program Files (x86)\SimHub\SimHub.Plugins.dll</HintPath>
         </Reference>
         <Reference Include="System"/>
-        <Reference Include="System.Buffers, Version=4.0.3.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL"/>
-        <Reference Include="System.Collections.Immutable, Version=8.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-            <SpecificVersion>False</SpecificVersion>
-            <HintPath>C:\Program Files (x86)\SimHub\System.Collections.Immutable.dll</HintPath>
-        </Reference>
-        <Reference Include="System.ComponentModel.DataAnnotations"/>
         <Reference Include="System.Core"/>
         <Reference Include="System.Drawing"/>
-        <Reference Include="System.Numerics"/>
-        <Reference Include="System.Runtime.Serialization"/>
-        <Reference Include="System.Windows.Forms"/>
         <Reference Include="System.Xaml"/>
-        <Reference Include="System.Xml.Linq"/>
-        <Reference Include="System.Data.DataSetExtensions"/>
-        <Reference Include="Microsoft.CSharp"/>
-        <Reference Include="System.Data"/>
-        <Reference Include="System.Net.Http"/>
         <Reference Include="System.Xml"/>
         <Reference Include="WindowsBase"/>
-        <Reference Include="WoteverCommon, Version=1.1.0.0, Culture=neutral, PublicKeyToken=35893a067a282a97, processorArchitecture=MSIL">
-            <SpecificVersion>False</SpecificVersion>
-            <HintPath>C:\Program Files (x86)\SimHub\WoteverCommon.dll</HintPath>
-        </Reference>
-        <Reference Include="Xceed.Wpf.Toolkit, Version=3.4.0.0, Culture=neutral, PublicKeyToken=3e4669d2f30244f4, processorArchitecture=MSIL">
-            <SpecificVersion>False</SpecificVersion>
-            <HintPath>C:\Program Files (x86)\SimHub\Xceed.Wpf.Toolkit.dll</HintPath>
-        </Reference>
     </ItemGroup>
     <ItemGroup>
         <Compile Include="src\components\CarData.cs"/>

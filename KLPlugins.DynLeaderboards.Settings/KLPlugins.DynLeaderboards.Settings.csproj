@@ -76,23 +76,16 @@
             <HintPath>C:\Program Files (x86)\SimHub\SimHub.Plugins.dll</HintPath>
         </Reference>
         <Reference Include="System"/>
-        <Reference Include="System.Buffers">
-            <HintPath>C:\Program Files (x86)\SimHub\System.Buffers.dll</HintPath>
-        </Reference>
         <Reference Include="System.Collections.Immutable">
             <HintPath>C:\Program Files (x86)\SimHub\System.Collections.Immutable.dll</HintPath>
         </Reference>
         <Reference Include="System.Core"/>
-        <Reference Include="System.Data"/>
         <Reference Include="System.Windows.Forms"/>
         <Reference Include="System.Xaml"/>
         <Reference Include="System.Xml"/>
         <Reference Include="WindowsBase"/>
         <Reference Include="WoteverCommon">
             <HintPath>C:\Program Files (x86)\SimHub\WoteverCommon.dll</HintPath>
-        </Reference>
-        <Reference Include="Xceed.Wpf.AvalonDock">
-            <HintPath>C:\Program Files (x86)\SimHub\Xceed.Wpf.AvalonDock.dll</HintPath>
         </Reference>
         <Reference Include="Xceed.Wpf.Toolkit">
             <HintPath>C:\Program Files (x86)\SimHub\Xceed.Wpf.Toolkit.dll</HintPath>

@@ -38,20 +38,12 @@
         <WarningLevel>4</WarningLevel>
     </PropertyGroup>
     <ItemGroup>
-        <Reference Include="log4net">
-            <HintPath>C:\Program Files (x86)\SimHub\log4net.dll</HintPath>
-        </Reference>
         <Reference Include="Newtonsoft.Json">
             <HintPath>C:\Program Files (x86)\SimHub\Newtonsoft.Json.dll</HintPath>
         </Reference>
         <Reference Include="PresentationCore"/>
-        <Reference Include="SimHub.Logging">
-            <HintPath>C:\Program Files (x86)\SimHub\SimHub.Logging.dll</HintPath>
-        </Reference>
         <Reference Include="System"/>
         <Reference Include="System.Core"/>
-        <Reference Include="System.Data"/>
-        <Reference Include="System.Xml"/>
     </ItemGroup>
     <ItemGroup>
         <Compile Include="Properties\AssemblyInfo.cs"/>

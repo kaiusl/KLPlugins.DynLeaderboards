@@ -14,7 +14,7 @@ using System.Diagnostics;
 
 namespace KLPlugins.DynLeaderboards.Settings;
 
-public class DynLeaderboardConfig {
+public sealed class DynLeaderboardConfig {
     [JsonIgnore] private const int _CURRENT_CONFIG_VERSION = 3;
     [JsonProperty] public int Version { get; internal set; } = DynLeaderboardConfig._CURRENT_CONFIG_VERSION;
 
@@ -43,37 +43,37 @@ public class DynLeaderboardConfig {
     );
 
     [JsonIgnore]
-    public ReadonlyOutProp<OutPropsBase<OutCarProp>, OutCarProp> OutCarProps => this.OutCarPropsInternal.AsReadonly();
+    public ReadonlyOutProps<OutPropsBase<OutCarProp>, OutCarProp> OutCarProps => this.OutCarPropsInternal.AsReadonly();
 
     [JsonProperty("OutPitProps")]
     internal OutPitProps OutPitPropsInternal { get; set; } = new(OutPitProp.IS_IN_PIT_LANE);
 
     [JsonIgnore]
-    public ReadonlyOutProp<OutPropsBase<OutPitProp>, OutPitProp> OutPitProps => this.OutPitPropsInternal.AsReadonly();
+    public ReadonlyOutProps<OutPropsBase<OutPitProp>, OutPitProp> OutPitProps => this.OutPitPropsInternal.AsReadonly();
 
     [JsonProperty("OutPosProps")]
     internal OutPosProps OutPosPropsInternal { get; set; } = new(OutPosProp.DYNAMIC_POSITION);
 
     [JsonIgnore]
-    public ReadonlyOutProp<OutPropsBase<OutPosProp>, OutPosProp> OutPosProps => this.OutPosPropsInternal.AsReadonly();
+    public ReadonlyOutProps<OutPropsBase<OutPosProp>, OutPosProp> OutPosProps => this.OutPosPropsInternal.AsReadonly();
 
     [JsonProperty("OutGapProps")]
     internal OutGapProps OutGapPropsInternal { get; set; } = new(OutGapProp.DYNAMIC_GAP_TO_FOCUSED);
 
     [JsonIgnore]
-    public ReadonlyOutProp<OutPropsBase<OutGapProp>, OutGapProp> OutGapProps => this.OutGapPropsInternal.AsReadonly();
+    public ReadonlyOutProps<OutPropsBase<OutGapProp>, OutGapProp> OutGapProps => this.OutGapPropsInternal.AsReadonly();
 
     [JsonProperty("OutStingProps")] internal OutStintProps OutStintPropsInternal { get; set; } = new(OutStintProp.NONE);
 
     [JsonIgnore]
-    public ReadonlyOutProp<OutPropsBase<OutStintProp>, OutStintProp> OutStintProps =>
+    public ReadonlyOutProps<OutPropsBase<OutStintProp>, OutStintProp> OutStintProps =>
         this.OutStintPropsInternal.AsReadonly();
 
     [JsonProperty("OutDriverProps")]
     internal OutDriverProps OutDriverPropsInternal { get; set; } = new(OutDriverProp.INITIAL_PLUS_LAST_NAME);
 
     [JsonIgnore]
-    public ReadonlyOutProp<OutPropsBase<OutDriverProp>, OutDriverProp> OutDriverProps =>
+    public ReadonlyOutProps<OutPropsBase<OutDriverProp>, OutDriverProp> OutDriverProps =>
         this.OutDriverPropsInternal.AsReadonly();
 
     [JsonProperty("OutLapProps")]
@@ -86,7 +86,7 @@ public class DynLeaderboardConfig {
     );
 
     [JsonIgnore]
-    public ReadonlyOutProp<OutPropsBase<OutLapProp>, OutLapProp> OutLapProps => this.OutLapPropsInternal.AsReadonly();
+    public ReadonlyOutProps<OutPropsBase<OutLapProp>, OutLapProp> OutLapProps => this.OutLapPropsInternal.AsReadonly();
 
     [JsonProperty]
     [JsonConverter(typeof(BoxJsonConverter<int>))]
@@ -175,8 +175,8 @@ public class DynLeaderboardConfig {
     [JsonProperty] public bool IsEnabled { get; internal set; } = true;
     [JsonIgnore] public string NextLeaderboardActionName { get; }
     [JsonIgnore] public string PreviousLeaderboardActionName { get; }
-    [JsonIgnore] public string CurrentLeaderboardDisplayName;
-    [JsonIgnore] public string CurrentLeaderboardCompactName;
+    [JsonIgnore] public string CurrentLeaderboardDisplayName {get; private set;}
+    [JsonIgnore] public string CurrentLeaderboardCompactName {get; private set;}
 
     private delegate JObject Migration(JObject o);
 
@@ -184,7 +184,7 @@ public class DynLeaderboardConfig {
         return this.Order.ElementAt(this.CurrentLeaderboardIdx);
     }
 
-    public DynLeaderboardConfig(string name) {
+    internal DynLeaderboardConfig(string name) {
         this.Name = name;
         this.NextLeaderboardActionName = $"{this.Name}.NextLeaderboard";
         this.PreviousLeaderboardActionName = $"{this.Name}.PreviousLeaderboard";
@@ -343,7 +343,7 @@ public class DynLeaderboardConfig {
 }
 
 [TypeConverter(typeof(TyConverter))]
-public class LeaderboardConfig {
+public sealed class LeaderboardConfig {
     [JsonProperty] public LeaderboardKind Kind { get; private set; }
 
     [JsonProperty] public bool RemoveIfSingleClass { get; internal set; }
@@ -418,7 +418,7 @@ public enum LeaderboardKind {
     PARTIAL_RELATIVE_CUP,
 }
 
-internal static class LeaderboardKindExtensions {
+internal static  class LeaderboardKindExtensions {
     internal const int MAX_VALUE = (int)LeaderboardKind.PARTIAL_RELATIVE_CUP;
 
     /// <summary>

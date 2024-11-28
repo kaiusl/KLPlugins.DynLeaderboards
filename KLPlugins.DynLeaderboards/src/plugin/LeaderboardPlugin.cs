@@ -24,7 +24,7 @@ namespace KLPlugins.DynLeaderboards;
 [PluginDescription("")]
 [PluginAuthor("Kaius Loos")]
 [PluginName(PluginConstants.PLUGIN_NAME)]
-public class DynLeaderboardsPlugin : IDataPlugin, IWPFSettingsV2 {
+public sealed class DynLeaderboardsPlugin : IDataPlugin, IWPFSettingsV2 {
     // The properties that compiler yells at that can be null are set in Init method.
     // For the purposes of this plugin, they are never null
     #pragma warning disable CS8618
@@ -69,15 +69,6 @@ public class DynLeaderboardsPlugin : IDataPlugin, IWPFSettingsV2 {
     public void End(PluginManager pluginManager) {
         this.SaveCommonSettings("GeneralSettings", DynLeaderboardsPlugin.Settings);
         DynLeaderboardsPlugin.Settings.Dispose();
-        // Delete unused files
-        // Say something was accidentally copied there or file and leaderboard names were different which would render original file useless
-        foreach (var fname in Directory.GetFiles(PluginSettings.LeaderboardConfigsDataDir)) {
-            var leaderboardName = fname.Replace(".json", "").Split('\\').Last();
-            if (DynLeaderboardsPlugin.Settings.DynLeaderboardConfigs.All(x => x.Name != leaderboardName)) {
-                File.Delete(fname);
-            }
-        }
-
         this.Values.Dispose();
         Logging.Dispose();
     }
@@ -164,7 +155,7 @@ public class DynLeaderboardsPlugin : IDataPlugin, IWPFSettingsV2 {
                 var value = kv.Value;
                 this.AttachDelegate<DynLeaderboardsPlugin, string>(
                     OutGeneralProp.CAR_CLASS_COLORS.ToPropName().Replace("<class>", kv.Key.AsString()),
-                    () => value.Background() ?? OverridableTextBoxColor.DEF_BG
+                    () => value.Background() ?? TextBoxColor.DEF_BG
                 );
             }
         }
@@ -174,7 +165,7 @@ public class DynLeaderboardsPlugin : IDataPlugin, IWPFSettingsV2 {
                 var value = kv.Value;
                 this.AttachDelegate<DynLeaderboardsPlugin, string>(
                     OutGeneralProp.CAR_CLASS_TEXT_COLORS.ToPropName().Replace("<class>", kv.Key.AsString()),
-                    () => value.Foreground() ?? OverridableTextBoxColor.DEF_FG
+                    () => value.Foreground() ?? TextBoxColor.DEF_FG
                 );
             }
         }
@@ -184,7 +175,7 @@ public class DynLeaderboardsPlugin : IDataPlugin, IWPFSettingsV2 {
                 var value = kv.Value;
                 this.AttachDelegate<DynLeaderboardsPlugin, string>(
                     OutGeneralProp.TEAM_CUP_COLORS.ToPropName().Replace("<cup>", kv.Key.AsString()),
-                    () => value.Background() ?? OverridableTextBoxColor.DEF_BG
+                    () => value.Background() ?? TextBoxColor.DEF_BG
                 );
             }
         }
@@ -194,7 +185,7 @@ public class DynLeaderboardsPlugin : IDataPlugin, IWPFSettingsV2 {
                 var value = kv.Value;
                 this.AttachDelegate<DynLeaderboardsPlugin, string>(
                     OutGeneralProp.TEAM_CUP_TEXT_COLORS.ToPropName().Replace("<cup>", kv.Key.AsString()),
-                    () => value.Foreground() ?? OverridableTextBoxColor.DEF_FG
+                    () => value.Foreground() ?? TextBoxColor.DEF_FG
                 );
             }
         }
@@ -204,7 +195,7 @@ public class DynLeaderboardsPlugin : IDataPlugin, IWPFSettingsV2 {
                 var value = kv.Value;
                 this.AttachDelegate<DynLeaderboardsPlugin, string>(
                     OutGeneralProp.DRIVER_CATEGORY_COLORS.ToPropName().Replace("<category>", kv.Key.AsString()),
-                    () => value.Background() ?? OverridableTextBoxColor.DEF_BG
+                    () => value.Background() ?? TextBoxColor.DEF_BG
                 );
             }
         }
@@ -214,7 +205,7 @@ public class DynLeaderboardsPlugin : IDataPlugin, IWPFSettingsV2 {
                 var value = kv.Value;
                 this.AttachDelegate<DynLeaderboardsPlugin, string>(
                     OutGeneralProp.DRIVER_CATEGORY_TEXT_COLORS.ToPropName().Replace("<category>", kv.Key.AsString()),
-                    () => value.Foreground() ?? OverridableTextBoxColor.DEF_FG
+                    () => value.Foreground() ?? TextBoxColor.DEF_FG
                 );
             }
         }

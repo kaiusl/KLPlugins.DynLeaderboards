@@ -5,11 +5,11 @@
     <PropertyGroup>
         <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
         <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-        <ProjectGuid>{F0009219-C94E-4CCF-B9C7-235621D97106}</ProjectGuid>
+        <ProjectGuid>{BC5BF488-FE53-4DA8-8D82-F3589A7B64AA}</ProjectGuid>
         <OutputType>Library</OutputType>
         <AppDesignerFolder>Properties</AppDesignerFolder>
-        <RootNamespace>KLPlugins.DynLeaderboards.Common</RootNamespace>
-        <AssemblyName>KLPlugins.DynLeaderboards.Common</AssemblyName>
+        <RootNamespace>KLPlugins.DynLeaderboards.Internals</RootNamespace>
+        <AssemblyName>KLPlugins.DynLeaderboards.Internals</AssemblyName>
         <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
         <FileAlignment>512</FileAlignment>
         <LangVersion>12</LangVersion>
@@ -39,14 +39,10 @@
     </PropertyGroup>
     <ItemGroup>
         <Reference Include="log4net">
-            <HintPath>C:\Program Files (x86)\SimHub\log4net.dll</HintPath>
+          <HintPath>C:\Program Files (x86)\SimHub\log4net.dll</HintPath>
         </Reference>
-        <Reference Include="Newtonsoft.Json">
-            <HintPath>C:\Program Files (x86)\SimHub\Newtonsoft.Json.dll</HintPath>
-        </Reference>
-        <Reference Include="PresentationCore"/>
         <Reference Include="SimHub.Logging">
-            <HintPath>C:\Program Files (x86)\SimHub\SimHub.Logging.dll</HintPath>
+          <HintPath>C:\Program Files (x86)\SimHub\SimHub.Logging.dll</HintPath>
         </Reference>
         <Reference Include="System"/>
         <Reference Include="System.Core"/>
@@ -55,15 +51,16 @@
     </ItemGroup>
     <ItemGroup>
         <Compile Include="Properties\AssemblyInfo.cs"/>
-        <Compile Include="src\Box.cs" />
-        <Compile Include="src\Game.cs"/>
-        <Compile Include="src\TextBoxColor.cs" />
-        <Compile Include="src\TypedStrings.cs"/>
+        <Compile Include="src\Logging.cs" />
     </ItemGroup>
     <ItemGroup>
       <ProjectReference Include="..\KLPlugins.DynLeaderboards.Common.Internals\KLPlugins.DynLeaderboards.Common.Internals.csproj">
         <Project>{b1ddea94-976a-4aae-b5ac-b0d5ee738e5b}</Project>
         <Name>KLPlugins.DynLeaderboards.Common.Internals</Name>
+      </ProjectReference>
+      <ProjectReference Include="..\KLPlugins.DynLeaderboards.Common\KLPlugins.DynLeaderboards.Common.csproj">
+        <Project>{f0009219-c94e-4ccf-b9c7-235621d97106}</Project>
+        <Name>KLPlugins.DynLeaderboards.Common</Name>
       </ProjectReference>
     </ItemGroup>
     <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets"/>

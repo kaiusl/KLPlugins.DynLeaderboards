@@ -34,7 +34,7 @@ public readonly record struct CarClass : IComparable<CarClass> {
     }
 }
 
-internal class CarClassTypeConverter : TypeConverter {
+internal sealed class CarClassTypeConverter : TypeConverter {
     public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType) {
         return sourceType == typeof(string);
     }
@@ -100,7 +100,7 @@ public readonly record struct TeamCupCategory : IComparable<TeamCupCategory> {
     }
 }
 
-internal class TeamCupCategoryTypeConverter : TypeConverter {
+internal sealed class TeamCupCategoryTypeConverter : TypeConverter {
     public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType) {
         return sourceType == typeof(string);
     }
@@ -166,7 +166,7 @@ public readonly record struct DriverCategory : IComparable<DriverCategory> {
     }
 }
 
-internal class DriverCategoryTypeConverter : TypeConverter {
+internal sealed class DriverCategoryTypeConverter : TypeConverter {
     public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType) {
         return sourceType == typeof(string);
     }

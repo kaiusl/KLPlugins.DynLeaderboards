@@ -20,7 +20,7 @@ namespace KLPlugins.DynLeaderboards;
 /// <summary>
 ///     Storage and calculation of new properties
 /// </summary>
-public class Values : IDisposable {
+public sealed class Values : IDisposable {
     public TrackData? TrackData { get; private set; }
     public Session Session { get; } = new();
     public Booleans Booleans { get; } = new();
@@ -84,7 +84,7 @@ public class Values : IDisposable {
 
     private bool _isDisposed = false;
 
-    protected virtual void Dispose(bool disposing) {
+    private void Dispose(bool disposing) {
         if (!this._isDisposed) {
             if (disposing) {
                 this.TrackData?.Dispose();

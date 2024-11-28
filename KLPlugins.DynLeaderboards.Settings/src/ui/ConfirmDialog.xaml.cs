@@ -4,7 +4,7 @@ using System.Windows.Controls;
 using SimHub.Plugins.Styles;
 using SimHub.Plugins.UI;
 
-namespace KLPlugins.DynLeaderboards;
+namespace KLPlugins.DynLeaderboards.Settings.UI;
 
 /// <summary>
 ///     Interaction logic for ConfirmDialog.xaml

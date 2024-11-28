@@ -15,9 +15,9 @@ using System.Diagnostics;
 
 namespace KLPlugins.DynLeaderboards.Settings;
 
-public class PluginSettings {
+public sealed class PluginSettings {
     [JsonIgnore]
-    public static readonly string LeaderboardConfigsDataDir = Path.Combine(
+    internal static readonly string LeaderboardConfigsDataDir = Path.Combine(
         PluginConstants.DataDir,
         "leaderboardConfigs"
     );
@@ -37,22 +37,22 @@ public class PluginSettings {
 
     [JsonIgnore] public const double LAP_DATA_TIME_DELAY_SEC = 0.5;
     [JsonIgnore] private const int _CURRENT_SETTINGS_VERSION = 3;
-    [JsonProperty] public int Version { get; set; } = PluginSettings._CURRENT_SETTINGS_VERSION;
-    [JsonProperty] public string? AccDataLocation { get; set; }
-    [JsonProperty] public string? AcRootLocation { get; set; }
-    [JsonProperty] public bool Log { get; set; }
-    [JsonProperty] public int BroadcastDataUpdateRateMs { get; set; }
+    [JsonProperty] public int Version { get; internal set; } = PluginSettings._CURRENT_SETTINGS_VERSION;
+    [JsonProperty] public string? AccDataLocation { get; internal set; }
+    [JsonProperty] public string? AcRootLocation { get; internal set; }
+    [JsonProperty] public bool Log { get; internal set; }
+    [JsonProperty] public int BroadcastDataUpdateRateMs { get; internal set; }
 
     [JsonProperty("OutGeneralProps")]
     internal OutGeneralProps OutGeneralPropsInternal { get; set; } = new(OutGeneralProp.NONE);
 
     [JsonIgnore]
-    public ReadonlyOutProp<OutPropsBase<OutGeneralProp>, OutGeneralProp> OutGeneralProps =>
+    public ReadonlyOutProps<OutPropsBase<OutGeneralProp>, OutGeneralProp> OutGeneralProps =>
         this.OutGeneralPropsInternal.AsReadonly();
 
-    [JsonIgnore] public ReadOnlyCollection<DynLeaderboardConfig> DynLeaderboardConfigs { get; set; }
+    [JsonIgnore] public ReadOnlyCollection<DynLeaderboardConfig> DynLeaderboardConfigs { get; }
     [JsonIgnore] private readonly List<DynLeaderboardConfig> _dynLeaderboardConfigs = [];
-    [JsonIgnore] public Infos Infos = null!; // this is immediately set after reading the settings by SimHub from Json
+    [JsonIgnore] public Infos Infos { get; private set; } = null!; // this is immediately set after reading the settings by SimHub from Json
 
     private delegate JObject Migration(JObject o);
 
@@ -120,6 +120,15 @@ public class PluginSettings {
     public void Dispose() {
         this.SaveDynLeaderboardConfigs();
         this.Infos.Save();
+        
+        // Delete unused files
+        // Say something was accidentally copied there or file and leaderboard names were different which would render original file useless
+        foreach (var fname in Directory.GetFiles(PluginSettings.LeaderboardConfigsDataDir)) {
+            var leaderboardName = fname.Replace(".json", "").Split('\\').Last();
+            if (this.DynLeaderboardConfigs.All(x => x.Name != leaderboardName)) {
+                File.Delete(fname);
+            }
+        }
     }
 
     private void SaveDynLeaderboardConfigs() {
@@ -189,7 +198,7 @@ public class PluginSettings {
     }
 
     [method: JsonConstructor]
-    private class AcUiCarInfo(string name, string brand, string @class, List<string> tags) {
+    private sealed class AcUiCarInfo(string name, string brand, string @class, List<string> tags) {
         public string Name { get; } = name;
         public string Brand { get; } = brand;
         public string Class { get; } = @class;

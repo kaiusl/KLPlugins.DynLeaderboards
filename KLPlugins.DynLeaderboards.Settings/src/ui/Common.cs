@@ -47,7 +47,7 @@ public class ControlsEditor2 : ControlsEditor {
         base.OnApplyTemplate();
 
         if (this.GetTemplateChild("brd") is Border r) {
-            r.Background = new SolidColorBrush(WindowsMediaColorExtensions.FromHex("#0bffffff"));
+            r.Background = new SolidColorBrush(ColorTools.FromHex("#0bffffff"));
         }
     }
 }
@@ -61,7 +61,8 @@ internal abstract class PropertyViewModelBase {
     public string SubGroup { get; set; } = "";
 }
 
-internal class PropertyViewModel<T> : PropertyViewModelBase, INotifyPropertyChanged {
+internal class PropertyViewModel<T> : PropertyViewModelBase, INotifyPropertyChanged
+    where T : struct {
     private readonly T _prop;
     private IOutProps<T> _setting;
 
@@ -114,7 +115,8 @@ internal class PropertyViewModel<T> : PropertyViewModelBase, INotifyPropertyChan
 }
 
 #if DESIGN
-internal class DesignPropertyViewModel<T> : PropertyViewModel<T> {
+internal class DesignPropertyViewModel<T> : PropertyViewModel<T>
+    where T : struct {
     public new bool IsEnabled { get; set; } = true;
     public new string Name { get; set; } = "Prop";
     public new string Description { get; set; } = "Desc";
@@ -285,8 +287,8 @@ internal class ClassPreviewViewModel : INotifyPropertyChanged {
 
     public string ClassName => this._manager.Key.AsString();
     public bool IsColorEnabled => this._manager.IsColorEnabled;
-    public string Background => this._manager.Background ?? OverridableTextBoxColor.DEF_BG;
-    public string Foreground => this._manager.Foreground ?? OverridableTextBoxColor.DEF_FG;
+    public string Background => this._manager.Background ?? TextBoxColor.DEF_BG;
+    public string Foreground => this._manager.Foreground ?? TextBoxColor.DEF_FG;
 
     #if DESIGN
     #pragma warning disable CS8618, CS9264

@@ -6,7 +6,7 @@
 ///     check like gameName == "...".
 ///     The gameName is constant in each plugin reload, and thus we can set it once and simplify game checks a lot.
 /// </summary>
-public class Game {
+public sealed class Game {
     public const string AC_NAME = "AssettoCorsa";
     public const string ACC_NAME = "AssettoCorsaCompetizione";
     public const string RF2_NAME = "RFactor2";

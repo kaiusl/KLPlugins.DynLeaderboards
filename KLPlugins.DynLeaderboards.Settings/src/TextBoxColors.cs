@@ -8,7 +8,7 @@ using Newtonsoft.Json;
 
 namespace KLPlugins.DynLeaderboards.Settings;
 
-public class TextBoxColors<K> : IEnumerable<KeyValuePair<K, OverridableTextBoxColor>> {
+public sealed class TextBoxColors<K> : IEnumerable<KeyValuePair<K, OverridableTextBoxColor>> {
     private readonly SortedDictionary<K, OverridableTextBoxColor> _colors;
 
     internal TextBoxColors(SortedDictionary<K, OverridableTextBoxColor> colors) {
@@ -75,11 +75,7 @@ public class TextBoxColors<K> : IEnumerable<KeyValuePair<K, OverridableTextBoxCo
     }
 }
 
-public class OverridableTextBoxColor {
-    [JsonIgnore] public const string DEF_FG = "#FFFFFF";
-
-    [JsonIgnore] public const string DEF_BG = "#000000";
-
+public sealed class OverridableTextBoxColor {
     [JsonIgnore] private TextBoxColor? _base;
 
     [JsonProperty("overrides")] private TextBoxColor? _overrides;
@@ -173,34 +169,8 @@ public class OverridableTextBoxColor {
             this._overrides.Bg = bg;
         }
     }
-}
 
-public class TextBoxColor {
-    [JsonProperty] public string Fg { get; internal set; }
-
-    [JsonProperty] public string Bg { get; internal set; }
-
-    [JsonConstructor]
-    public TextBoxColor(string fg, string bg) {
-        this.Fg = fg;
-        this.Bg = bg;
-    }
-
-    internal TextBoxColor Clone() {
-        return new TextBoxColor(this.Fg, this.Bg);
-    }
-
-    internal static TextBoxColor Default() {
-        return new TextBoxColor(OverridableTextBoxColor.DEF_FG, OverridableTextBoxColor.DEF_BG);
-    }
-
-    internal static TextBoxColor FromFg(string fg) {
-        var bg = ColorTools.ComplementaryBlackOrWhite(fg);
-        return new TextBoxColor(fg: fg, bg: bg);
-    }
-
-    internal static TextBoxColor FromBg(string bg) {
-        var fg = ColorTools.ComplementaryBlackOrWhite(bg);
-        return new TextBoxColor(fg: fg, bg: bg);
+    public ReadOnlyTextBoxColor? Color() {
+        return this._overrides?.AsReadonly() ?? this._base?.AsReadonly();
     }
 }

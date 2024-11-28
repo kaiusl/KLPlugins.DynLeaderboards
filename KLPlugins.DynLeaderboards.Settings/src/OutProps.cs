@@ -5,41 +5,55 @@ using Newtonsoft.Json;
 
 namespace KLPlugins.DynLeaderboards.Settings;
 
-public interface IReadonlyOutProps<in T> {
+
+public interface IReadonlyOutProps<T>
+    where T : struct {
     bool Includes(T o);
+    T Value { get; }
 }
 
-internal interface IOutProps<in T> : IReadonlyOutProps<T> {
+internal interface IOutProps<T> : IReadonlyOutProps<T>
+    where T : struct {
     void Combine(T o);
     void Remove(T o);
+
+    new T Value { get; set; }
 }
 
-public readonly struct ReadonlyOutProp<T, U> : IReadonlyOutProps<U>
-    where T : IReadonlyOutProps<U> {
+public readonly struct ReadonlyOutProps<T, U> : IReadonlyOutProps<U>
+    where T : IReadonlyOutProps<U>
+    where U : struct {
     private readonly T _inner;
 
-    internal ReadonlyOutProp(T inner) {
+    internal ReadonlyOutProps(T inner) {
         this._inner = inner;
     }
+
+    public U Value => this._inner.Value;
 
     public bool Includes(U o) {
         return this._inner.Includes(o);
     }
 }
 
-public abstract class OutPropsBase<T>(T value) : IOutProps<T>
+public abstract class OutPropsBase<T> : IOutProps<T>
     where T : struct {
-    protected T Value { get; set; } = value;
+    
+    // avoid anyone outside of this assembly from inheriting
+    private protected OutPropsBase(T value) => this.Value = value;
+    public T Value { get; set; }
 
     public abstract bool Includes(T o);
     public abstract void Combine(T o);
     public abstract void Remove(T o);
 
-    public ReadonlyOutProp<OutPropsBase<T>, T> AsReadonly() {
-        return new ReadonlyOutProp<OutPropsBase<T>, T>(this);
+    public ReadonlyOutProps<OutPropsBase<T>, T> AsReadonly() {
+        return new ReadonlyOutProps<OutPropsBase<T>, T>(this);
     }
 
-    internal class OutPropBaseJsonConverter(Func<T, OutPropsBase<T>> construct) : JsonConverter {
+    internal class OutPropBaseJsonConverter : JsonConverter {
+        private readonly Func<T, OutPropsBase<T>> _construct;
+        private protected OutPropBaseJsonConverter(Func<T, OutPropsBase<T>> construct) => this._construct = construct;
         public override bool CanConvert(Type objectType) {
             return objectType == typeof(T?);
         }
@@ -51,7 +65,7 @@ public abstract class OutPropsBase<T>(T value) : IOutProps<T>
             JsonSerializer serializer
         ) {
             var t = serializer.Deserialize<T?>(reader);
-            return t == null ? null : construct(t.Value);
+            return t == null ? null : this._construct(t.Value);
         }
 
         public override void WriteJson(JsonWriter writer, object? value, JsonSerializer serializer) {
@@ -65,7 +79,7 @@ public abstract class OutPropsBase<T>(T value) : IOutProps<T>
 }
 
 [JsonConverter(typeof(JsonConvert))]
-internal class OutGeneralProps : OutPropsBase<OutGeneralProp>, IOutProps<OutGeneralProp> {
+internal sealed class OutGeneralProps : OutPropsBase<OutGeneralProp> {
     internal OutGeneralProps(OutGeneralProp value) : base(value) { }
 
     public override void Combine(OutGeneralProp prop) {
@@ -80,7 +94,7 @@ internal class OutGeneralProps : OutPropsBase<OutGeneralProp>, IOutProps<OutGene
         this.Value &= ~prop;
     }
 
-    private class JsonConvert() : OutPropBaseJsonConverter(p => new OutGeneralProps(p));
+    private sealed class JsonConvert() : OutPropBaseJsonConverter(p => new OutGeneralProps(p));
 }
 
 [Flags]
@@ -155,7 +169,7 @@ public static class OutGeneralPropExtensions {
 }
 
 [JsonConverter(typeof(JsonConvert))]
-internal class OutCarProps : OutPropsBase<OutCarProp> {
+internal sealed class OutCarProps : OutPropsBase<OutCarProp> {
     internal OutCarProps(OutCarProp value) : base(value) { }
 
     public override void Combine(OutCarProp prop) {
@@ -170,7 +184,7 @@ internal class OutCarProps : OutPropsBase<OutCarProp> {
         this.Value &= ~prop;
     }
 
-    private class JsonConvert() : OutPropBaseJsonConverter(p => new OutCarProps(p));
+    private sealed class JsonConvert() : OutPropBaseJsonConverter(p => new OutCarProps(p));
 }
 
 [Flags]
@@ -289,7 +303,7 @@ public static class OutCarPropExtensions {
 }
 
 [JsonConverter(typeof(JsonConvert))]
-internal class OutPitProps : OutPropsBase<OutPitProp> {
+internal sealed class OutPitProps : OutPropsBase<OutPitProp> {
     internal OutPitProps(OutPitProp value) : base(value) { }
 
     public override void Combine(OutPitProp prop) {
@@ -304,7 +318,7 @@ internal class OutPitProps : OutPropsBase<OutPitProp> {
         this.Value &= ~prop;
     }
 
-    private class JsonConvert() : OutPropBaseJsonConverter(p => new OutPitProps(p));
+    private sealed class JsonConvert() : OutPropBaseJsonConverter(p => new OutPitProps(p));
 }
 
 [Flags]
@@ -352,7 +366,7 @@ public static class OutPitPropExtensions {
 }
 
 [JsonConverter(typeof(JsonConvert))]
-internal class OutPosProps : OutPropsBase<OutPosProp> {
+internal sealed class OutPosProps : OutPropsBase<OutPosProp> {
     internal OutPosProps(OutPosProp value) : base(value) { }
 
     public override void Combine(OutPosProp prop) {
@@ -367,7 +381,7 @@ internal class OutPosProps : OutPropsBase<OutPosProp> {
         this.Value &= ~prop;
     }
 
-    private class JsonConvert() : OutPropBaseJsonConverter(p => new OutPosProps(p));
+    private sealed class JsonConvert() : OutPropBaseJsonConverter(p => new OutPosProps(p));
 }
 
 [Flags]
@@ -442,7 +456,7 @@ public static class OutPosPropExtensions {
 }
 
 [JsonConverter(typeof(JsonConvert))]
-internal class OutGapProps : OutPropsBase<OutGapProp> {
+internal sealed class OutGapProps : OutPropsBase<OutGapProp> {
     internal OutGapProps(OutGapProp value) : base(value) { }
 
     public override void Combine(OutGapProp prop) {
@@ -457,7 +471,7 @@ internal class OutGapProps : OutPropsBase<OutGapProp> {
         this.Value &= ~prop;
     }
 
-    private class JsonConvert() : OutPropBaseJsonConverter(p => new OutGapProps(p));
+    private sealed class JsonConvert() : OutPropBaseJsonConverter(p => new OutGapProps(p));
 }
 
 [Flags]
@@ -547,7 +561,7 @@ public static class OutGapPropExtensions {
 }
 
 [JsonConverter(typeof(JsonConvert))]
-internal class OutStintProps : OutPropsBase<OutStintProp> {
+internal sealed class OutStintProps : OutPropsBase<OutStintProp> {
     internal OutStintProps(OutStintProp value) : base(value) { }
 
     public override void Combine(OutStintProp prop) {
@@ -562,7 +576,7 @@ internal class OutStintProps : OutPropsBase<OutStintProp> {
         this.Value &= ~prop;
     }
 
-    private class JsonConvert() : OutPropBaseJsonConverter(p => new OutStintProps(p));
+    private sealed class JsonConvert() : OutPropBaseJsonConverter(p => new OutStintProps(p));
 }
 
 [Flags]
@@ -606,7 +620,7 @@ public static class OutStintPropExtensions {
 }
 
 [JsonConverter(typeof(JsonConvert))]
-internal class OutLapProps : OutPropsBase<OutLapProp> {
+internal sealed class OutLapProps : OutPropsBase<OutLapProp> {
     internal OutLapProps(OutLapProp value) : base(value) { }
 
     public override void Combine(OutLapProp prop) {
@@ -621,7 +635,7 @@ internal class OutLapProps : OutPropsBase<OutLapProp> {
         this.Value &= ~prop;
     }
 
-    private class JsonConvert() : OutPropBaseJsonConverter(p => new OutLapProps(p));
+    private sealed class JsonConvert() : OutPropBaseJsonConverter(p => new OutLapProps(p));
 }
 
 [Flags]
@@ -885,7 +899,7 @@ public static class OutLapPropExtensions {
 }
 
 [JsonConverter(typeof(JsonConvert))]
-internal class OutDriverProps : OutPropsBase<OutDriverProp> {
+internal sealed  class OutDriverProps : OutPropsBase<OutDriverProp> {
     internal OutDriverProps(OutDriverProp value) : base(value) { }
 
     public override void Combine(OutDriverProp prop) {
@@ -900,7 +914,7 @@ internal class OutDriverProps : OutPropsBase<OutDriverProp> {
         this.Value &= ~prop;
     }
 
-    private class JsonConvert() : OutPropBaseJsonConverter(p => new OutDriverProps(p));
+    private sealed class JsonConvert() : OutPropBaseJsonConverter(p => new OutDriverProps(p));
 }
 
 [Flags]

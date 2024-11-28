@@ -7,7 +7,7 @@ namespace KLPlugins.DynLeaderboards;
 /// <summary>
 ///     Hold single set of boolean values
 /// </summary>
-public class BooleansBase {
+public sealed class BooleansBase {
     public bool IsInMenu { get; private set; }
     public bool EnteredMenu { get; private set; }
     public bool ExitedMenu { get; private set; }
@@ -57,7 +57,7 @@ public class BooleansBase {
 /// <summary>
 ///     Hold current and previous boolean values
 /// </summary>
-public class Booleans {
+public sealed class Booleans {
     public BooleansBase NewData { get; }
     public BooleansBase OldData { get; }
 

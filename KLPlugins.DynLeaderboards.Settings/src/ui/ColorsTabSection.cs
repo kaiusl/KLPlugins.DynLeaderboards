@@ -194,12 +194,12 @@ internal class ColorsTabSection<K> {
             };
 
             var currentBgColor =
-                WindowsMediaColorExtensions.FromHex(
-                    color.BackgroundDontCheckEnabled() ?? OverridableTextBoxColor.DEF_BG
+                ColorTools.FromHex(
+                    color.BackgroundDontCheckEnabled() ?? TextBoxColor.DEF_BG
                 );
             var currentFgColor =
-                WindowsMediaColorExtensions.FromHex(
-                    color.ForegroundDontCheckEnabled() ?? OverridableTextBoxColor.DEF_FG
+                ColorTools.FromHex(
+                    color.ForegroundDontCheckEnabled() ?? TextBoxColor.DEF_FG
                 );
 
             this.ClassBox = new Border {
@@ -302,9 +302,9 @@ internal class ColorsTabSection<K> {
 
         internal void Reset() {
             this.FgColorPicker.SelectedColor =
-                WindowsMediaColorExtensions.FromHex(this.Color.BaseForeground() ?? OverridableTextBoxColor.DEF_FG);
+                ColorTools.FromHex(this.Color.BaseForeground() ?? TextBoxColor.DEF_FG);
             this.BgColorPicker.SelectedColor =
-                WindowsMediaColorExtensions.FromHex(this.Color.BaseBackground() ?? OverridableTextBoxColor.DEF_BG);
+                ColorTools.FromHex(this.Color.BaseBackground() ?? TextBoxColor.DEF_BG);
             this.Color.Reset();
 
             this.EnabledToggle.IsChecked = this.Color.IsEnabled;

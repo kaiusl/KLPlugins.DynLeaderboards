@@ -11,23 +11,32 @@ using Newtonsoft.Json;
 
 namespace KLPlugins.DynLeaderboards.Settings;
 
-public class CarInfos : IEnumerable<KeyValuePair<string, OverridableCarInfo>> {
+public sealed class CarInfos : IEnumerable<KeyValuePair<string, OverridableCarInfo>> {
     private readonly Dictionary<string, OverridableCarInfo> _infos;
 
     internal CarInfos(Dictionary<string, OverridableCarInfo> infos) {
         this._infos = infos;
     }
 
-    public OverridableCarInfo Get(string key, CarClass carClass) {
-        if (!this._infos.ContainsKey(key)) {
+    public OverridableCarInfo GetOrAdd(string key, CarClass carClass, CarClass? rawClass = null) {
+        if (!this._infos.TryGetValue(key, out var info)) {
             var c = new OverridableCarInfo();
             c.DisableClass();
             c.DisableName();
             c.SetClass(carClass);
             c.SetName(key);
             c.SetManufacturer(key.Split(' ')[0]);
-
+            if (rawClass != null) {
+                c.SimHubCarClass = rawClass.Value;
+            }
+            
             this._infos[key] = c;
+
+            return c;
+        }
+
+        if (rawClass != null) {
+            info.SimHubCarClass = rawClass.Value;
         }
 
         return this._infos[key];
@@ -120,7 +129,7 @@ public class CarInfos : IEnumerable<KeyValuePair<string, OverridableCarInfo>> {
     }
 }
 
-public class OverridableCarInfo : INotifyPropertyChanged {
+public sealed class OverridableCarInfo : INotifyPropertyChanged {
     public event PropertyChangedEventHandler? PropertyChanged;
 
     [JsonIgnore] internal CarInfo? Base { get; private set; }
@@ -131,7 +140,7 @@ public class OverridableCarInfo : INotifyPropertyChanged {
 
     [JsonProperty] internal bool IsClassEnabled { get; private set; } = true;
 
-    [JsonProperty] public CarClass SimHubCarClass { get; set; } = CarClass.Default;
+    [JsonProperty] internal CarClass SimHubCarClass { get; set; } = CarClass.Default;
 
     [JsonConstructor]
     internal OverridableCarInfo(
@@ -350,7 +359,7 @@ public class OverridableCarInfo : INotifyPropertyChanged {
     }
 }
 
-internal class CarInfo {
+internal sealed class CarInfo {
     [JsonProperty] internal string? Name { get; set; }
 
     [JsonProperty] internal string? Manufacturer { get; set; }

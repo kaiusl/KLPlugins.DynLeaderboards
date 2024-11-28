@@ -18,7 +18,7 @@ using Newtonsoft.Json;
 
 namespace KLPlugins.DynLeaderboards.Track;
 
-internal class LapInterpolator {
+internal sealed class LapInterpolator {
     internal TimeSpan LapTime { get; private set; }
     private LinearSpline _interpolator { get; set; }
     private double[] _rawPos { get; set; }
@@ -187,7 +187,7 @@ internal class LapInterpolator {
     }
 }
 
-public class SplinePosOffset {
+public sealed class SplinePosOffset {
     [JsonProperty("min")] private double? _min = null;
 
     [JsonProperty("max")] private double? _max = null;
@@ -242,7 +242,7 @@ public class SplinePosOffset {
     }
 }
 
-public class TrackData {
+public sealed class TrackData {
     public string PrettyName { get; }
     public string Id { get; }
     public double LengthMeters { get; private set; }

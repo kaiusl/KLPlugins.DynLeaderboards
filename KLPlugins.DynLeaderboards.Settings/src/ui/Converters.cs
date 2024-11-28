@@ -15,7 +15,7 @@ public class StringToSolidColorBrushConverter : IValueConverter {
             return DependencyProperty.UnsetValue;
         }
 
-        return new SolidColorBrush(WindowsMediaColorExtensions.FromHex(str));
+        return new SolidColorBrush(ColorTools.FromHex(str));
     }
 
     public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) {
@@ -30,7 +30,7 @@ public class StringToColorConverter : IValueConverter {
             return DependencyProperty.UnsetValue;
         }
 
-        return WindowsMediaColorExtensions.FromHex(str);
+        return ColorTools.FromHex(str);
     }
 
     public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) {

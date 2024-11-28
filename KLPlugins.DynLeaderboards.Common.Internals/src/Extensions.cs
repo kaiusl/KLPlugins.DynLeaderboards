@@ -2,11 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 
-using Newtonsoft.Json;
-
 namespace KLPlugins.DynLeaderboards.Common;
 
-public static class MiscExtensions {
+internal static class Extensions {
     public static bool EqualsAny<T>(this T lhs, params T[] rhs) {
         foreach (var v in rhs) {
             if (lhs == null || rhs == null) {
@@ -25,100 +23,8 @@ public static class MiscExtensions {
         return v ? 1 : 0;
     }
 }
-//
-// internal class Timer {
-//     private readonly Stopwatch _watch;
-//     private FileStream? _file;
-//     private StreamWriter? _writer;
-//
-//     internal Timer(string path) {
-//         this._watch = new Stopwatch();
-//         Directory.CreateDirectory(Path.GetDirectoryName(path) ?? throw new InvalidOperationException());
-//         this._file = File.Create(path);
-//         this._writer = new StreamWriter(this._file);
-//     }
-//
-//     internal void Restart() {
-//         this._watch.Restart();
-//     }
-//
-//     internal void Stop() {
-//         this._watch.Stop();
-//     }
-//
-//     internal double Millis() {
-//         return this._watch.Elapsed.TotalMilliseconds;
-//     }
-//
-//     internal double Micros() {
-//         return this._watch.Elapsed.TotalMilliseconds * 1_000.0;
-//     }
-//
-//     internal double Nanos() {
-//         return this._watch.Elapsed.TotalMilliseconds * 1_000_000.0;
-//     }
-//
-//     internal void Write(double elapsed) {
-//         this._writer?.WriteLine($"{elapsed}");
-//     }
-//
-//     internal double StopAndWriteMicros() {
-//         this.Stop();
-//         var micros = this.Micros();
-//         this.Write(micros);
-//         return micros;
-//     }
-//
-//     internal void Dispose() {
-//         this._watch.Stop();
-//         if (this._writer != null) {
-//             this._writer.Dispose();
-//             this._writer = null;
-//         }
-//
-//         if (this._file != null) {
-//             this._file.Dispose();
-//             this._file = null;
-//         }
-//     }
-// }
-//
-// internal class Timers {
-//     private readonly Dictionary<string, Timer> _watches = new();
-//     private readonly string _rootPath;
-//
-//     internal Timers(string rootPath) {
-//         this._rootPath = rootPath;
-//         Directory.CreateDirectory(this._rootPath);
-//         SimHub.Logging.Current.Info($"Created dir at {this._rootPath}");
-//     }
-//
-//     internal Timer Add(string name) {
-//         var path = $"{this._rootPath}\\{name}\\{DynLeaderboardsPlugin.PluginStartTime}.txt";
-//         if (!this._watches.ContainsKey(name)) {
-//             var timer = new Timer(path);
-//             this._watches.Add(name, timer);
-//         }
-//
-//         return this._watches[name];
-//     }
-//
-//     internal Timer AddAndRestart(string name) {
-//         var timer = this.Add(name);
-//         timer.Restart();
-//         return timer;
-//     }
-//
-//     internal void Dispose() {
-//         foreach (var w in this._watches) {
-//             w.Value.Dispose();
-//         }
-//
-//         this._watches.Clear();
-//     }
-// }
 
-public static class EnumerableExtensions {
+internal static class EnumerableExtensions {
     public static IEnumerable<(T, int)> WithIndex<T>(this IEnumerable<T> enumerable) {
         return enumerable.Select((v, i) => (v, i));
     }
@@ -154,7 +60,7 @@ public static class EnumerableExtensions {
     }
 }
 
-public static class ListExtensions {
+internal static class ListExtensions {
     public static void MoveElementAt<T>(this List<T> list, int from, int to) {
         var item = list[from];
         list.RemoveAt(from);
@@ -170,7 +76,7 @@ public static class ListExtensions {
     }
 }
 
-public static class DictExtensions {
+internal static class DictExtensions {
     public static V? GetValueOrDefault<K, V>(this Dictionary<K, V> dict, K key) {
         return dict.GetValueOr(key, default);
     }
@@ -180,11 +86,23 @@ public static class DictExtensions {
     }
 
     public static V GetOrAddValue<K, V>(this Dictionary<K, V> dict, K key, V defValue) {
-        if (!dict.ContainsKey(key)) {
-            dict[key] = defValue;
+        if (dict.TryGetValue(key, out var value)) {
+            return value;
+        }
+        
+        dict[key] = defValue;
+        return defValue;
+    }
+
+    public static V GetOrAddValue<K, V>(this Dictionary<K, V> dict, K key, Func<V> valueBuilder) {
+        if (dict.TryGetValue(key, out var value)) {
+            return value;
         }
 
-        return dict[key];
+        var defValue = valueBuilder();
+        dict[key] = defValue;
+        return defValue;
+
     }
 
     public static void Merge<K, V>(this Dictionary<K, V> dict, Dictionary<K, V> other) {
@@ -194,7 +112,7 @@ public static class DictExtensions {
     }
 }
 
-public static class WindowsMediaColorExtensions {
+internal static class ColorTools {
     public static System.Windows.Media.Color FromHex(string hex) {
         if (hex.Length != 7 && hex.Length != 9) {
             throw new ArgumentException("Hex string must be 7 or 9 characters long", nameof(hex));
@@ -220,50 +138,10 @@ public static class WindowsMediaColorExtensions {
             Convert.ToByte(hex.Substring(7, 2), 16)
         );
     }
-}
-
-public class Box<T>
-    where T : struct {
-    public T Value;
-
-    public Box(T value) {
-        this.Value = value;
-    }
-}
-
-public class BoxJsonConverter<T> : JsonConverter
-    where T : struct {
-    public override void WriteJson(JsonWriter writer, object? value, JsonSerializer serializer) {
-        if (value is Box<T> box) {
-            writer.WriteValue(box.Value);
-        } else {
-            throw new ArgumentException("value must be Box<T>");
-        }
-    }
-
-    public override object? ReadJson(
-        JsonReader reader,
-        Type objectType,
-        object? existingValue,
-        JsonSerializer serializer
-    ) {
-        var t = serializer.Deserialize<T?>(reader);
-        if (t == null) {
-            return null;
-        }
-
-        return new Box<T>(t.Value);
-    }
-
-    public override bool CanConvert(Type objectType) {
-        return objectType == typeof(T?);
-    }
-}
-
-public static class ColorTools {
+    
     public static double Lightness(string color) {
         // from https://stackoverflow.com/a/56678483
-        var col = WindowsMediaColorExtensions.FromHex(color);
+        var col = ColorTools.FromHex(color);
         var r = ColorTools.ToLinRgb(col.R / 255.0);
         var g = ColorTools.ToLinRgb(col.G / 255.0);
         var b = ColorTools.ToLinRgb(col.B / 255.0);

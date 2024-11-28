@@ -18,7 +18,7 @@ using ShR3E = R3E;
 using ShRf2 = CrewChiefV4.rFactor2_V2.rFactor2Data;
 
 namespace KLPlugins.DynLeaderboards.Car {
-    public class CarData {
+    public sealed class CarData {
         public CarClass CarClass { get; private set; }
         public string CarClassShortName { get; private set; } = null!;
         public TextBoxColor CarClassColor { get; private set; } = null!;
@@ -317,10 +317,7 @@ namespace KLPlugins.DynLeaderboards.Car {
             var rawClass = CarClass.TryNew(this.RawDataNew.CarClass) ?? CarClass.Default;
             OverridableCarInfo? carInfo = null;
             if (this.RawDataNew.CarName != null) {
-                carInfo = DynLeaderboardsPlugin.Settings.Infos.CarInfos.Get(this.RawDataNew.CarName, rawClass);
-                if (carInfo.SimHubCarClass != rawClass) {
-                    carInfo.SimHubCarClass = rawClass;
-                }
+                carInfo = DynLeaderboardsPlugin.Settings.Infos.CarInfos.GetOrAdd(this.RawDataNew.CarName, rawClass, rawClass);
             }
 
             this.SetStaticCarInfo(carInfo);
@@ -350,10 +347,7 @@ namespace KLPlugins.DynLeaderboards.Car {
             var rawClass = CarClass.TryNew(this.RawDataNew.CarClass) ?? CarClass.Default;
             OverridableCarInfo? carInfo = null;
             if (this.RawDataNew.CarName != null) {
-                carInfo = DynLeaderboardsPlugin.Settings.Infos.CarInfos.Get(this.RawDataNew.CarName, rawClass);
-                if (carInfo.SimHubCarClass != rawClass) {
-                    carInfo.SimHubCarClass = rawClass;
-                }
+                carInfo = DynLeaderboardsPlugin.Settings.Infos.CarInfos.GetOrAdd(this.RawDataNew.CarName, rawClass, rawClass);
             }
 
             this.SetStaticCarInfo(carInfo);
@@ -367,10 +361,7 @@ namespace KLPlugins.DynLeaderboards.Car {
             var rawClass = CarClass.TryNew(this.RawDataNew.CarClass) ?? CarClass.Default;
             OverridableCarInfo? carInfo = null;
             if (this.RawDataNew.CarName != null) {
-                carInfo = DynLeaderboardsPlugin.Settings.Infos.CarInfos.Get(this.RawDataNew.CarName, rawClass);
-                if (carInfo.SimHubCarClass != rawClass) {
-                    carInfo.SimHubCarClass = rawClass;
-                }
+                carInfo = DynLeaderboardsPlugin.Settings.Infos.CarInfos.GetOrAdd(this.RawDataNew.CarName, rawClass, rawClass);
             }
 
             var (cls, classInfo) =
@@ -389,16 +380,16 @@ namespace KLPlugins.DynLeaderboards.Car {
             this.CarClassShortName = classInfo.ShortName() ?? cls.AsString();
 
             this.CarClassColor = new TextBoxColor(
-                fg: classInfo.Foreground() ?? this.RawDataNew.CarClassTextColor ?? OverridableTextBoxColor.DEF_FG,
-                bg: classInfo.Background() ?? this.RawDataNew.CarClassColor ?? OverridableTextBoxColor.DEF_BG
+                fg: classInfo.Foreground() ?? this.RawDataNew.CarClassTextColor ?? TextBoxColor.DEF_FG,
+                bg: classInfo.Background() ?? this.RawDataNew.CarClassColor ?? TextBoxColor.DEF_BG
             );
         }
 
         private void SetTeamCupColors(Values values) {
             var cupColor = DynLeaderboardsPlugin.Settings.Infos.TeamCupCategoryColors.GetOrAdd(this.TeamCupCategory);
             this.TeamCupCategoryColor = new TextBoxColor(
-                fg: cupColor.Foreground() ?? OverridableTextBoxColor.DEF_FG,
-                bg: cupColor.Background() ?? OverridableTextBoxColor.DEF_BG
+                fg: cupColor.Foreground() ?? TextBoxColor.DEF_FG,
+                bg: cupColor.Background() ?? TextBoxColor.DEF_BG
             );
         }
 
@@ -1635,7 +1626,7 @@ namespace KLPlugins.DynLeaderboards.Car {
         }
     }
 
-    public class Driver {
+    public sealed class Driver {
         public string? FirstName { get; }
         public string? LastName { get; }
         public string ShortName { get; private set; }
@@ -1658,8 +1649,8 @@ namespace KLPlugins.DynLeaderboards.Car {
 
             var col = DynLeaderboardsPlugin.Settings.Infos.DriverCategoryColors.GetOrAdd(this.Category);
             this.CategoryColor = new TextBoxColor(
-                fg: col.Foreground() ?? OverridableTextBoxColor.DEF_FG,
-                bg: col.Background() ?? OverridableTextBoxColor.DEF_BG
+                fg: col.Foreground() ?? TextBoxColor.DEF_FG,
+                bg: col.Background() ?? TextBoxColor.DEF_BG
             );
         }
 
@@ -1676,16 +1667,16 @@ namespace KLPlugins.DynLeaderboards.Car {
 
             var col = DynLeaderboardsPlugin.Settings.Infos.DriverCategoryColors.GetOrAdd(this.Category);
             this.CategoryColor = new TextBoxColor(
-                fg: col.Foreground() ?? OverridableTextBoxColor.DEF_FG,
-                bg: col.Background() ?? OverridableTextBoxColor.DEF_BG
+                fg: col.Foreground() ?? TextBoxColor.DEF_FG,
+                bg: col.Background() ?? TextBoxColor.DEF_BG
             );
         }
 
         internal void UpdateDriverInfos(Values values) {
             var col = DynLeaderboardsPlugin.Settings.Infos.DriverCategoryColors.GetOrAdd(this.Category);
             this.CategoryColor = new TextBoxColor(
-                fg: col.Foreground() ?? OverridableTextBoxColor.DEF_FG,
-                bg: col.Background() ?? OverridableTextBoxColor.DEF_BG
+                fg: col.Foreground() ?? TextBoxColor.DEF_FG,
+                bg: col.Background() ?? TextBoxColor.DEF_BG
             );
         }
 
@@ -1982,7 +1973,7 @@ namespace KLPlugins.DynLeaderboards.Car {
         }
     }
 
-    public class Lap : LapBasic {
+    public sealed class Lap : LapBasic {
         public TimeSpan? DeltaToOwnBest { get; private set; }
 
         public TimeSpan? DeltaToOverallBest { get; private set; }
@@ -2144,7 +2135,7 @@ namespace KLPlugins.DynLeaderboards.Car {
         BEHIND = -1,
     }
 
-    public class NewOld<T> {
+    public sealed class NewOld<T> {
         public T New { get; private set; }
         public T Old { get; private set; }
 
@@ -2172,7 +2163,7 @@ namespace KLPlugins.DynLeaderboards.Car {
             DQ = 5,
         }
 
-        internal class RawOpponentData {
+        internal sealed class RawOpponentData {
             internal FinishStatus FinishStatus { get; }
             internal bool IsCurrentLapValid { get; }
 
@@ -2184,7 +2175,7 @@ namespace KLPlugins.DynLeaderboards.Car {
     }
 
     namespace AMS2 {
-        internal class RawOpponentData(int raceState, bool isCurrentLapInvalidated) {
+        internal sealed class RawOpponentData(int raceState, bool isCurrentLapInvalidated) {
             public int RaceState { get; private set; } = raceState;
             public bool IsCurrentLapInvalidated { get; } = isCurrentLapInvalidated;
         }

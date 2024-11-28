@@ -4,9 +4,6 @@ using System.Runtime.CompilerServices;
 
 using KLPlugins.DynLeaderboards.Common;
 
-[assembly: InternalsVisibleTo("KLPlugins.DynLeaderboards")]
-[assembly: InternalsVisibleTo("KLPlugins.DynLeaderboards.Settings")]
-
 namespace KLPlugins.DynLeaderboards.Log;
 
 internal static class Logging {

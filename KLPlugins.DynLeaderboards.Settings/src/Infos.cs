@@ -5,7 +5,7 @@ using KLPlugins.DynLeaderboards.Common;
 
 namespace KLPlugins.DynLeaderboards.Settings;
 
-public class Infos {
+public sealed class Infos {
     private const string _CAR_INFOS_FILENAME = "CarInfos";
     private const string _CLASS_INFOS_FILENAME = "ClassInfos";
     private const string _TEAM_CUP_CATEGORY_COLORS_JSON_NAME = "TeamCupCategoryColors";

@@ -9,7 +9,7 @@ using KLPlugins.DynLeaderboards.Settings;
 
 namespace KLPlugins.DynLeaderboards;
 
-public class DynLeaderboard {
+public sealed class DynLeaderboard {
     public delegate CarData? GetDynCarDelegate(int i);
 
     public delegate TimeSpan? DynGapDelegate(int i);

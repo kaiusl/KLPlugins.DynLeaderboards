@@ -6,7 +6,7 @@ using KLPlugins.DynLeaderboards.Log;
 
 namespace KLPlugins.DynLeaderboards;
 
-public class Session {
+public sealed class Session {
     public SessionType SessionType { get; private set; } = SessionType.UNKNOWN;
     public SessionPhase SessionPhase { get; private set; } = SessionPhase.UNKNOWN;
 

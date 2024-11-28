@@ -14,7 +14,7 @@ using Newtonsoft.Json;
 
 namespace KLPlugins.DynLeaderboards.Settings;
 
-public class ClassInfos : IEnumerable<KeyValuePair<CarClass, OverridableClassInfo>> {
+public sealed class ClassInfos : IEnumerable<KeyValuePair<CarClass, OverridableClassInfo>> {
     private readonly Dictionary<CarClass, OverridableClassInfo> _infos;
     private readonly SimHubClassColors _simHubClassColors;
 
@@ -178,7 +178,7 @@ public class ClassInfos : IEnumerable<KeyValuePair<CarClass, OverridableClassInf
     /// <summary>
     ///     This is the glue between ClassInfos and settings UI
     /// </summary>
-    internal class Manager
+    internal sealed class Manager
         : IEnumerable<KeyValuePair<CarClass, OverridableClassInfo.Manager>>, INotifyCollectionChanged {
         private readonly ClassInfos _baseInfos;
         private readonly Dictionary<CarClass, OverridableClassInfo.Manager> _classManagers = [];
@@ -246,7 +246,7 @@ public class ClassInfos : IEnumerable<KeyValuePair<CarClass, OverridableClassInf
                 manager = this.GetOrAdd(clsOut);
 
                 if (seenClasses.Contains(clsOut)) {
-                    Logging.LogWarn(
+                    Log.Logging.LogWarn(
                         $"Loop detected in class \"replace with\" values: {string.Join(" -> ", seenClasses)} -> {clsOut}"
                     );
                     break;
@@ -335,7 +335,7 @@ public class ClassInfos : IEnumerable<KeyValuePair<CarClass, OverridableClassInf
     }
 }
 
-public class OverridableClassInfo {
+public sealed class OverridableClassInfo {
     [JsonIgnore] internal ClassInfo? Base { get; private set; }
 
     // If a class had been duplicated from it can have a "false" base from its parent. 
@@ -455,7 +455,7 @@ public class OverridableClassInfo {
         return this.Base?.ReplaceWith;
     }
 
-    internal CarClass? ReplaceWith() {
+    public CarClass? ReplaceWith() {
         if (!this.IsReplaceWithEnabled) {
             return null;
         }
@@ -478,7 +478,7 @@ public class OverridableClassInfo {
     /// <summary>
     ///     This is the glue between OverridableClassInfo and settings UI
     /// </summary>
-    internal class Manager : INotifyPropertyChanged {
+    internal sealed class Manager : INotifyPropertyChanged {
         /// <summary>
         ///     This is the glue between OverridableClassInfo and settings UI
         /// </summary>
@@ -642,7 +642,7 @@ public class OverridableClassInfo {
     }
 }
 
-internal class ClassInfo {
+internal sealed class ClassInfo {
     [JsonProperty] internal TextBoxColor? Color { get; set; }
 
     [JsonProperty] internal CarClass? ReplaceWith { get; set; }
@@ -663,7 +663,7 @@ internal class ClassInfo {
     }
 }
 
-internal class SimHubClassColors {
+internal sealed class SimHubClassColors {
     [JsonProperty] public Dictionary<CarClass, TextBoxColor> AssignedColors = [];
 
     public static SimHubClassColors FromJson(string json) {

@@ -7,7 +7,7 @@ using System.Linq;
 using GameReaderCommon;
 
 using KLPlugins.DynLeaderboards.Car;
-using KLPlugins.DynLeaderboards.Helpers;
+using KLPlugins.DynLeaderboards.Common;
 using KLPlugins.DynLeaderboards.Track;
 
 using SimHub.Plugins;
@@ -54,13 +54,13 @@ public class Values : IDisposable {
 
 
     internal void Reset() {
-        DynLeaderboardsPlugin.LogInfo("Values.Reset()");
+        Logging.LogInfo("Values.Reset()");
         this.Session.Reset();
         this.ResetWithoutSession();
     }
 
     internal void ResetWithoutSession() {
-        DynLeaderboardsPlugin.LogInfo("Values.ResetWithoutSession()");
+        Logging.LogInfo("Values.ResetWithoutSession()");
         this.Booleans.Reset();
         this._overallOrder.Clear();
         this._classOrder.Clear();
@@ -87,7 +87,7 @@ public class Values : IDisposable {
         if (!this._isDisposed) {
             if (disposing) {
                 this.TrackData?.Dispose();
-                DynLeaderboardsPlugin.LogInfo("Disposed");
+                Logging.LogInfo("Disposed");
             }
 
             this._isDisposed = true;
@@ -132,15 +132,13 @@ public class Values : IDisposable {
         if (this.Booleans.NewData.IsNewEvent
             || this.Session.IsNewSession
             || this.TrackData?.PrettyName != data.NewData.TrackName) {
-            DynLeaderboardsPlugin.LogInfo(
-                $"newEvent={this.Booleans.NewData.IsNewEvent}, newSession={this.Session.IsNewSession}"
-            );
+            Logging.LogInfo($"newEvent={this.Booleans.NewData.IsNewEvent}, newSession={this.Session.IsNewSession}");
             this.ResetWithoutSession();
             this.Booleans.OnNewEvent(this.Session.SessionType);
             if (this.TrackData == null || this.TrackData.PrettyName != data.NewData.TrackName) {
                 this.TrackData?.Dispose();
                 this.TrackData = new TrackData(data);
-                DynLeaderboardsPlugin.LogInfo(
+                Logging.LogInfo(
                     $"Track set to: id={this.TrackData.Id}, name={this.TrackData.PrettyName}, len={this.TrackData.LengthMeters}"
                 );
             }
@@ -158,7 +156,7 @@ public class Values : IDisposable {
                 this.TrackData.BuildLapInterpolator(car.CarClass);
             }
 
-            DynLeaderboardsPlugin.LogInfo(
+            Logging.LogInfo(
                 $"Track set to: id={this.TrackData.Id}, name={this.TrackData.PrettyName}, len={this.TrackData.LengthMeters}"
             );
         }
@@ -284,7 +282,7 @@ public class Values : IDisposable {
             var car = this._overallOrder[i];
             if (!car.IsFinished && car.MissedUpdates > 500) {
                 this._overallOrder.RemoveAt(i);
-                DynLeaderboardsPlugin.LogInfo($"Removed disconnected car {car.Id}, #{car.CarNumberAsString}");
+                Logging.LogInfo($"Removed disconnected car {car.Id}, #{car.CarNumberAsString}");
             }
         }
 
@@ -303,7 +301,7 @@ public class Values : IDisposable {
             }
 
             if (this.IsFirstFinished) {
-                DynLeaderboardsPlugin.LogInfo($"First finished: id={this._overallOrder.First().Id}");
+                Logging.LogInfo($"First finished: id={this._overallOrder.First().Id}");
             }
         }
 

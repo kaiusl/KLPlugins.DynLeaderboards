@@ -1,14 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
 using System.Linq;
 
 using Newtonsoft.Json;
 
-namespace KLPlugins.DynLeaderboards.Helpers;
+namespace KLPlugins.DynLeaderboards.Common;
 
-internal static class Misc {
+public static class MiscExtensions {
     public static bool EqualsAny<T>(this T lhs, params T[] rhs) {
         foreach (var v in rhs) {
             if (lhs == null || rhs == null) {
@@ -22,107 +20,111 @@ internal static class Misc {
 
         return false;
     }
-}
 
-internal class Timer {
-    private readonly Stopwatch _watch;
-    private FileStream? _file;
-    private StreamWriter? _writer;
-
-    internal Timer(string path) {
-        this._watch = new Stopwatch();
-        Directory.CreateDirectory(Path.GetDirectoryName(path) ?? throw new InvalidOperationException());
-        this._file = File.Create(path);
-        this._writer = new StreamWriter(this._file);
-    }
-
-    internal void Restart() {
-        this._watch.Restart();
-    }
-
-    internal void Stop() {
-        this._watch.Stop();
-    }
-
-    internal double Millis() {
-        return this._watch.Elapsed.TotalMilliseconds;
-    }
-
-    internal double Micros() {
-        return this._watch.Elapsed.TotalMilliseconds * 1_000.0;
-    }
-
-    internal double Nanos() {
-        return this._watch.Elapsed.TotalMilliseconds * 1_000_000.0;
-    }
-
-    internal void Write(double elapsed) {
-        this._writer?.WriteLine($"{elapsed}");
-    }
-
-    internal double StopAndWriteMicros() {
-        this.Stop();
-        var micros = this.Micros();
-        this.Write(micros);
-        return micros;
-    }
-
-    internal void Dispose() {
-        this._watch.Stop();
-        if (this._writer != null) {
-            this._writer.Dispose();
-            this._writer = null;
-        }
-
-        if (this._file != null) {
-            this._file.Dispose();
-            this._file = null;
-        }
+    public static int ToInt(this bool v) {
+        return v ? 1 : 0;
     }
 }
-
-internal class Timers {
-    private readonly Dictionary<string, Timer> _watches = new();
-    private readonly string _rootPath;
-
-    internal Timers(string rootPath) {
-        this._rootPath = rootPath;
-        Directory.CreateDirectory(this._rootPath);
-        SimHub.Logging.Current.Info($"Created dir at {this._rootPath}");
-    }
-
-    internal Timer Add(string name) {
-        var path = $"{this._rootPath}\\{name}\\{DynLeaderboardsPlugin.PluginStartTime}.txt";
-        if (!this._watches.ContainsKey(name)) {
-            var timer = new Timer(path);
-            this._watches.Add(name, timer);
-        }
-
-        return this._watches[name];
-    }
-
-    internal Timer AddAndRestart(string name) {
-        var timer = this.Add(name);
-        timer.Restart();
-        return timer;
-    }
-
-    internal void Dispose() {
-        foreach (var w in this._watches) {
-            w.Value.Dispose();
-        }
-
-        this._watches.Clear();
-    }
-}
+//
+// internal class Timer {
+//     private readonly Stopwatch _watch;
+//     private FileStream? _file;
+//     private StreamWriter? _writer;
+//
+//     internal Timer(string path) {
+//         this._watch = new Stopwatch();
+//         Directory.CreateDirectory(Path.GetDirectoryName(path) ?? throw new InvalidOperationException());
+//         this._file = File.Create(path);
+//         this._writer = new StreamWriter(this._file);
+//     }
+//
+//     internal void Restart() {
+//         this._watch.Restart();
+//     }
+//
+//     internal void Stop() {
+//         this._watch.Stop();
+//     }
+//
+//     internal double Millis() {
+//         return this._watch.Elapsed.TotalMilliseconds;
+//     }
+//
+//     internal double Micros() {
+//         return this._watch.Elapsed.TotalMilliseconds * 1_000.0;
+//     }
+//
+//     internal double Nanos() {
+//         return this._watch.Elapsed.TotalMilliseconds * 1_000_000.0;
+//     }
+//
+//     internal void Write(double elapsed) {
+//         this._writer?.WriteLine($"{elapsed}");
+//     }
+//
+//     internal double StopAndWriteMicros() {
+//         this.Stop();
+//         var micros = this.Micros();
+//         this.Write(micros);
+//         return micros;
+//     }
+//
+//     internal void Dispose() {
+//         this._watch.Stop();
+//         if (this._writer != null) {
+//             this._writer.Dispose();
+//             this._writer = null;
+//         }
+//
+//         if (this._file != null) {
+//             this._file.Dispose();
+//             this._file = null;
+//         }
+//     }
+// }
+//
+// internal class Timers {
+//     private readonly Dictionary<string, Timer> _watches = new();
+//     private readonly string _rootPath;
+//
+//     internal Timers(string rootPath) {
+//         this._rootPath = rootPath;
+//         Directory.CreateDirectory(this._rootPath);
+//         SimHub.Logging.Current.Info($"Created dir at {this._rootPath}");
+//     }
+//
+//     internal Timer Add(string name) {
+//         var path = $"{this._rootPath}\\{name}\\{DynLeaderboardsPlugin.PluginStartTime}.txt";
+//         if (!this._watches.ContainsKey(name)) {
+//             var timer = new Timer(path);
+//             this._watches.Add(name, timer);
+//         }
+//
+//         return this._watches[name];
+//     }
+//
+//     internal Timer AddAndRestart(string name) {
+//         var timer = this.Add(name);
+//         timer.Restart();
+//         return timer;
+//     }
+//
+//     internal void Dispose() {
+//         foreach (var w in this._watches) {
+//             w.Value.Dispose();
+//         }
+//
+//         this._watches.Clear();
+//     }
+// }
 
 public static class EnumerableExtensions {
-    internal static IEnumerable<(T, int)> WithIndex<T>(this IEnumerable<T> enumerable) {
+    public static IEnumerable<(T, int)> WithIndex<T>(this IEnumerable<T> enumerable) {
         return enumerable.Select((v, i) => (v, i));
     }
 
     /// <returns>Index of the first item that matches the predicate, -1 if not found.</returns>
-    internal static int FirstIndex<T>(this IEnumerable<T> enumerable, Func<T, bool> predicate) {
+    public static int FirstIndex<T>(this IEnumerable<T> enumerable, Func<T, bool> predicate) {
         foreach (var (item, i) in enumerable.WithIndex()) {
             if (predicate(item)) {
                 return i;
@@ -132,7 +134,7 @@ public static class EnumerableExtensions {
         return -1;
     }
 
-    internal static T? FirstOr<T>(this IEnumerable<T> enumerable, T? defValue)
+    public static T? FirstOr<T>(this IEnumerable<T> enumerable, T? defValue)
         where T : struct {
         try {
             return enumerable.First();
@@ -141,7 +143,7 @@ public static class EnumerableExtensions {
         }
     }
 
-    internal static bool Contains<T>(this IEnumerable<T> enumerable, Func<T, bool> predicate) {
+    public static bool Contains<T>(this IEnumerable<T> enumerable, Func<T, bool> predicate) {
         foreach (var v in enumerable) {
             if (predicate(v)) {
                 return true;
@@ -152,14 +154,14 @@ public static class EnumerableExtensions {
     }
 }
 
-internal static class ListExtensions {
-    internal static void MoveElementAt<T>(this List<T> list, int from, int to) {
+public static class ListExtensions {
+    public static void MoveElementAt<T>(this List<T> list, int from, int to) {
         var item = list[from];
         list.RemoveAt(from);
         list.Insert(to, item);
     }
 
-    internal static T? ElementAtOr<T>(this List<T> list, int index, T? defValue) {
+    public static T? ElementAtOr<T>(this List<T> list, int index, T? defValue) {
         if (index < 0 || index >= list.Count) {
             return defValue;
         }
@@ -168,16 +170,16 @@ internal static class ListExtensions {
     }
 }
 
-internal static class DictExtensions {
-    internal static V? GetValueOrDefault<K, V>(this Dictionary<K, V> dict, K key) {
+public static class DictExtensions {
+    public static V? GetValueOrDefault<K, V>(this Dictionary<K, V> dict, K key) {
         return dict.GetValueOr(key, default);
     }
 
-    internal static V? GetValueOr<K, V>(this Dictionary<K, V> dict, K key, V? defValue) {
+    public static V? GetValueOr<K, V>(this Dictionary<K, V> dict, K key, V? defValue) {
         return dict.TryGetValue(key, out var val) ? val : defValue;
     }
 
-    internal static V GetOrAddValue<K, V>(this Dictionary<K, V> dict, K key, V defValue) {
+    public static V GetOrAddValue<K, V>(this Dictionary<K, V> dict, K key, V defValue) {
         if (!dict.ContainsKey(key)) {
             dict[key] = defValue;
         }
@@ -185,15 +187,15 @@ internal static class DictExtensions {
         return dict[key];
     }
 
-    internal static void Merge<K, V>(this Dictionary<K, V> dict, Dictionary<K, V> other) {
+    public static void Merge<K, V>(this Dictionary<K, V> dict, Dictionary<K, V> other) {
         foreach (var kv in other) {
             dict[kv.Key] = kv.Value;
         }
     }
 }
 
-internal static class WindowsMediaColorExtensions {
-    internal static System.Windows.Media.Color FromHex(string hex) {
+public static class WindowsMediaColorExtensions {
+    public static System.Windows.Media.Color FromHex(string hex) {
         if (hex.Length != 7 && hex.Length != 9) {
             throw new ArgumentException("Hex string must be 7 or 9 characters long", nameof(hex));
         }
@@ -220,11 +222,11 @@ internal static class WindowsMediaColorExtensions {
     }
 }
 
-internal class Box<T>
+public class Box<T>
     where T : struct {
     public T Value;
 
-    internal Box(T value) {
+    public Box(T value) {
         this.Value = value;
     }
 }
@@ -258,7 +260,7 @@ public class BoxJsonConverter<T> : JsonConverter
     }
 }
 
-internal static class ColorTools {
+public static class ColorTools {
     public static double Lightness(string color) {
         // from https://stackoverflow.com/a/56678483
         var col = WindowsMediaColorExtensions.FromHex(color);

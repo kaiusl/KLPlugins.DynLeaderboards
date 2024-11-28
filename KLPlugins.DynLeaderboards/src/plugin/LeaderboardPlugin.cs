@@ -10,11 +10,10 @@ using System.Windows.Media;
 using GameReaderCommon;
 
 using KLPlugins.DynLeaderboards.Car;
+using KLPlugins.DynLeaderboards.Common;
 using KLPlugins.DynLeaderboards.Settings;
 using KLPlugins.DynLeaderboards.Settings.UI;
 using KLPlugins.DynLeaderboards.Track;
-
-using Newtonsoft.Json;
 
 using SimHub.Plugins;
 
@@ -22,24 +21,18 @@ namespace KLPlugins.DynLeaderboards;
 
 [PluginDescription("")]
 [PluginAuthor("Kaius Loos")]
-[PluginName(DynLeaderboardsPlugin.PLUGIN_NAME)]
+[PluginName(PluginConstants.PLUGIN_NAME)]
 public class DynLeaderboardsPlugin : IDataPlugin, IWPFSettingsV2 {
     // The properties that compiler yells at that can be null are set in Init method.
     // For the purposes of this plugin, they are never null
     #pragma warning disable CS8618
     public PluginManager PluginManager { get; set; }
     public ImageSource PictureIcon => this.ToIcon(Properties.Resources.sdkmenuicon);
-    public string LeftMenuTitle => DynLeaderboardsPlugin.PLUGIN_NAME;
+    public string LeftMenuTitle => PluginConstants.PLUGIN_NAME;
 
-    private const string PLUGIN_NAME = "Dynamic Leaderboards";
     internal static PluginSettings Settings;
     internal static Game Game; // Const during the lifetime of this plugin, plugin is rebuilt at game change
-    internal static string PluginStartTime = $"{DateTime.Now:dd-MM-yyyy_HH-mm-ss}";
 
-    private static FileStream? _logFile;
-    private static StreamWriter? _logWriter;
-    private static bool _isLogFlushed = false;
-    private string? _logFileName;
     private double _dataUpdateTime = 0;
 
     public Values Values { get; private set; }
@@ -73,11 +66,10 @@ public class DynLeaderboardsPlugin : IDataPlugin, IWPFSettingsV2 {
     /// <param name="pluginManager"></param>
     public void End(PluginManager pluginManager) {
         this.SaveCommonSettings("GeneralSettings", DynLeaderboardsPlugin.Settings);
-        DynLeaderboardsPlugin.Settings.SaveDynLeaderboardConfigs();
-        DynLeaderboardsPlugin.Settings.SaveInfos();
+        DynLeaderboardsPlugin.Settings.Dispose();
         // Delete unused files
         // Say something was accidentally copied there or file and leaderboard names were different which would render original file useless
-        foreach (var fname in Directory.GetFiles(PluginSettings.LEADERBOARD_CONFIGS_DATA_DIR)) {
+        foreach (var fname in Directory.GetFiles(PluginSettings.LeaderboardConfigsDataDir)) {
             var leaderboardName = fname.Replace(".json", "").Split('\\').Last();
             if (DynLeaderboardsPlugin.Settings.DynLeaderboardConfigs.All(x => x.Name != leaderboardName)) {
                 File.Delete(fname);
@@ -85,15 +77,7 @@ public class DynLeaderboardsPlugin : IDataPlugin, IWPFSettingsV2 {
         }
 
         this.Values.Dispose();
-        if (DynLeaderboardsPlugin._logWriter != null) {
-            DynLeaderboardsPlugin._logWriter.Dispose();
-            DynLeaderboardsPlugin._logWriter = null;
-        }
-
-        if (DynLeaderboardsPlugin._logFile != null) {
-            DynLeaderboardsPlugin._logFile.Dispose();
-            DynLeaderboardsPlugin._logFile = null;
-        }
+        Logging.Dispose();
     }
 
     /// <summary>
@@ -102,7 +86,7 @@ public class DynLeaderboardsPlugin : IDataPlugin, IWPFSettingsV2 {
     /// <param name="pluginManager"></param>
     /// <returns></returns>
     public System.Windows.Controls.Control GetWPFSettingsControl(PluginManager pluginManager) {
-        return new SettingsControl(this);
+        return new SettingsControl(DynLeaderboardsPlugin.Settings, DynLeaderboardsPlugin.Game);
     }
 
     /// <summary>
@@ -114,33 +98,31 @@ public class DynLeaderboardsPlugin : IDataPlugin, IWPFSettingsV2 {
         // Performance is important while in game, pre-jit methods at startup, to avoid doing that mid-races
         DynLeaderboardsPlugin.PreJit();
 
+        var log = PluginSettings.GetLogValueFromDisk();
+        Logging.Init(log);
+
+        Logging.LogInfo("Starting plugin.");
+
+        // game doesn't depend on anything else, do it first
         var gameName = pm.GameName;
         DynLeaderboardsPlugin.Game = new Game(gameName);
-        DynLeaderboardsPlugin.PluginStartTime = $"{DateTime.Now:dd-MM-yyyy_HH-mm-ss}";
 
         PluginSettings.Migrate(); // migrate settings before reading them properly
         DynLeaderboardsPlugin.Settings = this.ReadCommonSettings("GeneralSettings", () => new PluginSettings());
-        this.InitLogging(); // needs to know if logging is enabled, but we want to do it as soon as possible, e.g. right after reading settings
-
-        DynLeaderboardsPlugin.LogInfo("Starting plugin.");
-
-        DynLeaderboardsPlugin.Settings.ReadDynLeaderboardConfigs();
+        DynLeaderboardsPlugin.Settings.FinalizeInit(gameName);
 
         TrackData.OnPluginInit(gameName);
 
         this.Values = new Values();
-        if (DynLeaderboardsPlugin.Settings.DynLeaderboardConfigs.Count == 0) {
-            this.AddNewLeaderboard(new DynLeaderboardConfig("Dynamic"));
-        }
 
         foreach (var config in DynLeaderboardsPlugin.Settings.DynLeaderboardConfigs) {
             if (config.IsEnabled) {
                 var ldb = new DynLeaderboard(config, this.Values);
                 this.DynLeaderboards.Add(ldb);
                 this.AttachDynLeaderboard(ldb);
-                DynLeaderboardsPlugin.LogInfo($"Added enabled leaderboard: {ldb.Name}.");
+                Logging.LogInfo($"Added enabled leaderboard: {ldb.Name}.");
             } else {
-                DynLeaderboardsPlugin.LogInfo($"Didn't add disabled leaderboard: {config.Name}.");
+                Logging.LogInfo($"Didn't add disabled leaderboard: {config.Name}.");
             }
         }
 
@@ -152,6 +134,7 @@ public class DynLeaderboardsPlugin : IDataPlugin, IWPFSettingsV2 {
         this.AttachDelegate<DynLeaderboardsPlugin, double>("Perf.DataUpdateMS", () => this._dataUpdateTime);
 
         var outGenProps = DynLeaderboardsPlugin.Settings.OutGeneralProps;
+
         // Add everything else
         if (outGenProps.Includes(OutGeneralProp.SESSION_PHASE)) {
             this.AttachDelegate<DynLeaderboardsPlugin, string>(
@@ -682,175 +665,33 @@ public class DynLeaderboardsPlugin : IDataPlugin, IWPFSettingsV2 {
         this.AddAction(l.PreviousLeaderboardActionNAme, (_, _) => l.PreviousLeaderboard(this.Values));
     }
 
-    internal void AddNewLeaderboard(DynLeaderboardConfig s) {
-        DynLeaderboardsPlugin.Settings.DynLeaderboardConfigs.Add(s);
-        this.DynLeaderboards.Add(new DynLeaderboard(s, this.Values));
-        DynLeaderboardsPlugin.Settings.SaveDynLeaderboardConfigs();
-    }
-
-    internal void RemoveLeaderboardAt(int i) {
-        DynLeaderboardsPlugin.Settings.RemoveLeaderboardAt(i);
-        this.DynLeaderboards.RemoveAt(i);
-    }
-
-    internal void RemoveLeaderboard(DynLeaderboardConfig cfg) {
-        DynLeaderboardsPlugin.Settings.RemoveLeaderboard(cfg);
-        this.DynLeaderboards.RemoveAll(p => p.Config.Name == cfg.Name);
-    }
+    // internal void AddNewLeaderboard(DynLeaderboardConfig s) {
+    //     DynLeaderboardsPlugin.Settings.DynLeaderboardConfigs.Add(s);
+    //     this.DynLeaderboards.Add(new DynLeaderboard(s, this.Values));
+    //     DynLeaderboardsPlugin.Settings.SaveDynLeaderboardConfigs();
+    // }
+    //
+    // internal void RemoveLeaderboardAt(int i) {
+    //     DynLeaderboardsPlugin.Settings.RemoveLeaderboardAt(i);
+    //     this.DynLeaderboards.RemoveAt(i);
+    // }
+    //
+    // internal void RemoveLeaderboard(DynLeaderboardConfig cfg) {
+    //     DynLeaderboardsPlugin.Settings.RemoveLeaderboard(cfg);
+    //     this.DynLeaderboards.RemoveAll(p => p.Config.Name == cfg.Name);
+    // }
 
     private void SubscribeToSimHubEvents(PluginManager pm) {
         pm.GameStateChanged += this.Values.OnGameStateChanged;
         pm.GameStateChanged += (running, _) => {
-            DynLeaderboardsPlugin.LogInfo($"GameStateChanged to running={running}");
+            Logging.LogInfo($"GameStateChanged to running={running}");
             if (running) {
                 return;
             }
 
-            if (DynLeaderboardsPlugin._logWriter != null && !DynLeaderboardsPlugin._isLogFlushed) {
-                DynLeaderboardsPlugin._logWriter.Flush();
-                DynLeaderboardsPlugin._isLogFlushed = true;
-            }
+            Logging.TryFlush();
         };
     }
-
-    internal static void UpdateAcCarInfos() {
-        if (DynLeaderboardsPlugin.Settings.AcRootLocation == null) {
-            DynLeaderboardsPlugin.LogWarn("AC root location is not set. Please check your settings.");
-            return;
-        }
-
-        var carsFolder = Path.Combine(DynLeaderboardsPlugin.Settings.AcRootLocation, "content", "cars");
-        if (!Directory.Exists(carsFolder)) {
-            DynLeaderboardsPlugin.LogWarn("AC cars folder is not found. Please check your settings.");
-            return;
-        }
-
-        Dictionary<string, CarInfo> carInfos = [];
-        foreach (var carFolderPath in Directory.GetDirectories(carsFolder)) {
-            var carId = Path.GetFileName(carFolderPath);
-            var uiInfoFilePath = Path.Combine(carFolderPath, "ui", "ui_car.json");
-            if (!File.Exists(uiInfoFilePath)) {
-                continue;
-            }
-
-            var uiInfo = JsonConvert.DeserializeObject<AcUiCarInfo>(File.ReadAllText(uiInfoFilePath));
-            if (uiInfo == null) {
-                continue;
-            }
-
-            var cls = uiInfo.Class;
-            if (cls is "race" or "street") {
-                // Kunos cars have a proper class name in the tags as #... (for example #GT4 or #Vintage Touring)
-                var altCls = uiInfo.Tags.Find(t => t.StartsWith("#"));
-                if (altCls != null) {
-                    cls = altCls.Substring(1);
-                } else {
-                    // Look for some more common patterns from the tags
-                    string[] lookups = [
-                        "gt3", "gt2", "gt4", "gt1", "gte", "lmp1", "lmp2", "lmp3", "formula1", "formula", "dtm",
-                    ];
-                    foreach (var lookup in lookups) {
-                        altCls = uiInfo.Tags?.Find(t => t.ToLower() == lookup);
-                        if (altCls != null) {
-                            cls = altCls;
-                            break;
-                        }
-                    }
-                }
-            }
-
-            carInfos[carId] = new CarInfo(uiInfo.Name, uiInfo.Brand, new CarClass(cls));
-            DynLeaderboardsPlugin.LogInfo(
-                $"Read AC car info from '{uiInfoFilePath}': {JsonConvert.SerializeObject(carInfos[carId])}"
-            );
-        }
-
-        if (carInfos.Count != 0) {
-            var outPath = Path.Combine(PluginSettings.PLUGIN_DATA_DIR, Game.AC_NAME, "CarInfos.base.json");
-            File.WriteAllText(outPath, JsonConvert.SerializeObject(carInfos, Formatting.Indented));
-        }
-    }
-
-
-    [method: JsonConstructor]
-    private class AcUiCarInfo(string name, string brand, string @class, List<string> tags) {
-        public string Name { get; } = name;
-        public string Brand { get; } = brand;
-        public string Class { get; } = @class;
-        public List<string> Tags { get; } = tags;
-    }
-
-    #region Logging
-
-    private void InitLogging() {
-        this._logFileName = $"{PluginSettings.PLUGIN_DATA_DIR}\\Logs\\Log_{DynLeaderboardsPlugin.PluginStartTime}.txt";
-        var dirPath = Path.GetExtension(this._logFileName);
-        if (DynLeaderboardsPlugin.Settings.Log && dirPath != null) {
-            Directory.CreateDirectory(dirPath);
-            DynLeaderboardsPlugin._logFile = File.Create(this._logFileName);
-            DynLeaderboardsPlugin._logWriter = new StreamWriter(DynLeaderboardsPlugin._logFile);
-        }
-    }
-
-    internal static void LogInfo(
-        string msg,
-        [CallerMemberName] string memberName = "",
-        [CallerFilePath] string sourceFilePath = "",
-        [CallerLineNumber] int lineNumber = 0
-    ) {
-        if (DynLeaderboardsPlugin.Settings.Log) {
-            DynLeaderboardsPlugin.Log(msg, memberName, sourceFilePath, lineNumber, "INFO", SimHub.Logging.Current.Info);
-        }
-    }
-
-    internal static void LogWarn(
-        string msg,
-        [CallerMemberName] string memberName = "",
-        [CallerFilePath] string sourceFilePath = "",
-        [CallerLineNumber] int lineNumber = 0
-    ) {
-        DynLeaderboardsPlugin.Log(msg, memberName, sourceFilePath, lineNumber, "WARN", SimHub.Logging.Current.Warn);
-    }
-
-    internal static void LogError(
-        string msg,
-        [CallerMemberName] string memberName = "",
-        [CallerFilePath] string sourceFilePath = "",
-        [CallerLineNumber] int lineNumber = 0
-    ) {
-        DynLeaderboardsPlugin.Log(msg, memberName, sourceFilePath, lineNumber, "ERROR", SimHub.Logging.Current.Error);
-    }
-
-    private static void Log(
-        string msg,
-        string memberName,
-        string sourceFilePath,
-        int lineNumber,
-        string lvl,
-        Action<string> simHubLog
-    ) {
-        var pathParts = sourceFilePath.Split('\\');
-        var m = DynLeaderboardsPlugin.CreateMessage(msg, pathParts[pathParts.Length - 1], memberName, lineNumber);
-        simHubLog($"{DynLeaderboardsPlugin.PLUGIN_NAME} {m}");
-        DynLeaderboardsPlugin.LogToFile($"{DateTime.Now:dd.MM.yyyy HH:mm.ss} {lvl.ToUpper()} {m}\n");
-    }
-
-    private static string CreateMessage(string msg, string source, string memberName, int lineNumber) {
-        return $"({source}: {memberName},{lineNumber})\n\t{msg}";
-    }
-
-    internal static void LogFileSeparator() {
-        DynLeaderboardsPlugin.LogToFile("\n----------------------------------------------------------\n");
-    }
-
-    private static void LogToFile(string msq) {
-        if (DynLeaderboardsPlugin._logWriter != null) {
-            DynLeaderboardsPlugin._logWriter.WriteLine(msq);
-            DynLeaderboardsPlugin._isLogFlushed = false;
-        }
-    }
-
-    #endregion Logging
 
     private static void PreJit() {
         Stopwatch sw = new();
@@ -874,11 +715,5 @@ public class DynLeaderboardsPlugin : IDataPlugin, IWPFSettingsV2 {
         }
 
         _ = sw.Elapsed;
-    }
-}
-
-internal static class Extensions {
-    internal static int ToInt(this bool v) {
-        return v ? 1 : 0;
     }
 }

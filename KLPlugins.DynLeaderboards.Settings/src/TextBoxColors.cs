@@ -2,20 +2,20 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 
-using KLPlugins.DynLeaderboards.Helpers;
+using KLPlugins.DynLeaderboards.Common;
 
 using Newtonsoft.Json;
 
 namespace KLPlugins.DynLeaderboards.Settings;
 
-internal class TextBoxColors<K> : IEnumerable<KeyValuePair<K, OverridableTextBoxColor>> {
+public class TextBoxColors<K> : IEnumerable<KeyValuePair<K, OverridableTextBoxColor>> {
     private readonly SortedDictionary<K, OverridableTextBoxColor> _colors;
 
     internal TextBoxColors(SortedDictionary<K, OverridableTextBoxColor> colors) {
         this._colors = colors;
     }
 
-    internal OverridableTextBoxColor GetOrAdd(K key) {
+    public OverridableTextBoxColor GetOrAdd(K key) {
         if (!this._colors.ContainsKey(key)) {
             var c = new OverridableTextBoxColor();
             c.Disable();
@@ -75,11 +75,13 @@ internal class TextBoxColors<K> : IEnumerable<KeyValuePair<K, OverridableTextBox
     }
 }
 
-internal class OverridableTextBoxColor {
-    [JsonIgnore] internal const string DEF_FG = "#FFFFFF";
-    [JsonIgnore] internal const string DEF_BG = "#000000";
+public class OverridableTextBoxColor {
+    [JsonIgnore] public const string DEF_FG = "#FFFFFF";
+
+    [JsonIgnore] public const string DEF_BG = "#000000";
 
     [JsonIgnore] private TextBoxColor? _base;
+
     [JsonProperty("overrides")] private TextBoxColor? _overrides;
 
     [JsonProperty] public bool IsEnabled { get; private set; } = true;
@@ -124,7 +126,7 @@ internal class OverridableTextBoxColor {
         this.IsEnabled = false;
     }
 
-    internal string? Foreground() {
+    public string? Foreground() {
         if (!this.IsEnabled) {
             return null;
         }
@@ -148,7 +150,7 @@ internal class OverridableTextBoxColor {
         }
     }
 
-    internal string? Background() {
+    public string? Background() {
         if (!this.IsEnabled) {
             return null;
         }
@@ -175,10 +177,11 @@ internal class OverridableTextBoxColor {
 
 public class TextBoxColor {
     [JsonProperty] public string Fg { get; internal set; }
+
     [JsonProperty] public string Bg { get; internal set; }
 
     [JsonConstructor]
-    internal TextBoxColor(string fg, string bg) {
+    public TextBoxColor(string fg, string bg) {
         this.Fg = fg;
         this.Bg = bg;
     }

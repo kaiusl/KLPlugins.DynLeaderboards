@@ -5,20 +5,20 @@ using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 
-using KLPlugins.DynLeaderboards.Car;
+using KLPlugins.DynLeaderboards.Common;
 
 using Newtonsoft.Json;
 
 namespace KLPlugins.DynLeaderboards.Settings;
 
-internal class CarInfos : IEnumerable<KeyValuePair<string, OverridableCarInfo>> {
+public class CarInfos : IEnumerable<KeyValuePair<string, OverridableCarInfo>> {
     private readonly Dictionary<string, OverridableCarInfo> _infos;
 
     internal CarInfos(Dictionary<string, OverridableCarInfo> infos) {
         this._infos = infos;
     }
 
-    internal OverridableCarInfo Get(string key, CarClass carClass) {
+    public OverridableCarInfo Get(string key, CarClass carClass) {
         if (!this._infos.ContainsKey(key)) {
             var c = new OverridableCarInfo();
             c.DisableClass();
@@ -120,14 +120,18 @@ internal class CarInfos : IEnumerable<KeyValuePair<string, OverridableCarInfo>> 
     }
 }
 
-internal class OverridableCarInfo : INotifyPropertyChanged {
+public class OverridableCarInfo : INotifyPropertyChanged {
     public event PropertyChangedEventHandler? PropertyChanged;
 
     [JsonIgnore] internal CarInfo? Base { get; private set; }
+
     [JsonProperty("Overrides")] internal CarInfo? Overrides { get; private set; }
+
     [JsonProperty] internal bool IsNameEnabled { get; private set; } = true;
+
     [JsonProperty] internal bool IsClassEnabled { get; private set; } = true;
-    [JsonProperty] internal CarClass SimHubCarClass { get; set; } = CarClass.Default;
+
+    [JsonProperty] public CarClass SimHubCarClass { get; set; } = CarClass.Default;
 
     [JsonConstructor]
     internal OverridableCarInfo(
@@ -204,7 +208,7 @@ internal class OverridableCarInfo : INotifyPropertyChanged {
         return this.Base?.Name;
     }
 
-    internal string? Name() {
+    public string? Name() {
         if (!this.IsNameEnabled) {
             return null;
         }
@@ -260,7 +264,7 @@ internal class OverridableCarInfo : INotifyPropertyChanged {
         return this.Base?.Manufacturer;
     }
 
-    internal string? Manufacturer() {
+    public string? Manufacturer() {
         return this.Overrides?.Manufacturer ?? this.Base?.Manufacturer;
     }
 
@@ -293,7 +297,7 @@ internal class OverridableCarInfo : INotifyPropertyChanged {
         return this.Base?.Class;
     }
 
-    internal CarClass Class() {
+    public CarClass Class() {
         if (!this.IsClassEnabled) {
             return this.SimHubCarClass;
         }
@@ -348,15 +352,17 @@ internal class OverridableCarInfo : INotifyPropertyChanged {
 
 internal class CarInfo {
     [JsonProperty] internal string? Name { get; set; }
+
     [JsonProperty] internal string? Manufacturer { get; set; }
+
     [JsonProperty] internal CarClass? Class { get; set; }
 
     [JsonConstructor]
-    internal CarInfo(string? name, string? manufacturer, CarClass? cls) {
+    public CarInfo(string? name, string? manufacturer, CarClass? cls) {
         this.Name = name;
         this.Manufacturer = manufacturer;
         this.Class = cls;
     }
 
-    internal CarInfo() { }
+    public CarInfo() { }
 }

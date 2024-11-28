@@ -8,7 +8,7 @@ using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Input;
 
-using KLPlugins.DynLeaderboards.Car;
+using KLPlugins.DynLeaderboards.Common;
 #if DESIGN
 using System.Collections.Generic;
 
@@ -23,10 +23,10 @@ namespace KLPlugins.DynLeaderboards.Settings.UI;
 public partial class CarSettingsTab : UserControl {
     internal CarSettingsTabViewModel ViewModel { get; set; }
 
-    public CarSettingsTab(DynLeaderboardsPlugin plugin, SettingsControl settingsControl) {
+    public CarSettingsTab(SettingsControl settingsControl) {
         this.InitializeComponent();
 
-        this.ViewModel = new CarSettingsTabViewModel(plugin, settingsControl);
+        this.ViewModel = new CarSettingsTabViewModel(settingsControl);
         this.DataContext = this.ViewModel;
 
         this.ViewModel.ScrollSelectedIntoView +=
@@ -103,16 +103,16 @@ internal class CarSettingsTabViewModel : INotifyPropertyChanged {
     public ICommand MenuEnableAllClassesCommand { get; }
 
     public ICommand MenuUpdateAcBaseInfoCommand { get; }
-    public bool IsAc => DynLeaderboardsPlugin.Game.IsAc;
+    public bool IsAc => this._settingsControl.Game.IsAc;
     public ICommand MenuRefreshCommand { get; }
 
     private readonly SettingsControl _settingsControl;
     private SelectedCarDetailsViewModel? _selectedCarDetailsViewModel;
 
-    internal CarSettingsTabViewModel(DynLeaderboardsPlugin plugin, SettingsControl settingsControl) {
+    internal CarSettingsTabViewModel(SettingsControl settingsControl) {
         this._settingsControl = settingsControl;
 
-        foreach (var car in DynLeaderboardsPlugin.Settings.Infos.CarInfos) {
+        foreach (var car in this._settingsControl.Settings.Infos.CarInfos) {
             var vm = new CarsListBoxItemViewModel(car.Key, car.Value);
             this.CarsObservable.Add(vm);
         }
@@ -131,7 +131,7 @@ internal class CarSettingsTabViewModel : INotifyPropertyChanged {
             } else {
                 var msg = $"Expected the list element to be `CarsListBoxItemViewModel`. Got `{first?.GetType()}`.";
                 Debug.Fail(msg);
-                DynLeaderboardsPlugin.LogError(msg);
+                Logging.LogError(msg);
             }
         }
 
@@ -196,7 +196,7 @@ internal class CarSettingsTabViewModel : INotifyPropertyChanged {
             () => {
                 var selected = this.SelectedCar;
                 this.CarsObservable.Clear();
-                foreach (var car in DynLeaderboardsPlugin.Settings.Infos.CarInfos) {
+                foreach (var car in this._settingsControl.Settings.Infos.CarInfos) {
                     var vm = new CarsListBoxItemViewModel(car.Key, car.Value);
                     this.CarsObservable.Add(vm);
                 }
@@ -210,8 +210,8 @@ internal class CarSettingsTabViewModel : INotifyPropertyChanged {
 
         this.MenuUpdateAcBaseInfoCommand = new Command(
             () => {
-                DynLeaderboardsPlugin.UpdateAcCarInfos();
-                DynLeaderboardsPlugin.Settings.Infos.RereadCarInfos();
+                this._settingsControl.Settings.UpdateAcCarInfos();
+                this._settingsControl.Settings.Infos.RereadCarInfos();
                 this.MenuRefreshCommand.Execute(null);
             }
         );
@@ -252,13 +252,13 @@ internal class CarSettingsTabViewModel : INotifyPropertyChanged {
         if (this.SelectedCar == null || this.SelectedCar.Key != key) {
             var msg = $"Expected the selected car to be `{key}`. Got `{this.SelectedCar?.Key}`.";
             Debug.Fail(msg);
-            DynLeaderboardsPlugin.LogError(msg);
+            Logging.LogError(msg);
             return;
         }
 
         this.SelectedCar.Unsubscribe();
         this.CarsObservable.Remove(this.SelectedCar);
-        DynLeaderboardsPlugin.Settings.Infos.CarInfos.TryRemove(key);
+        this._settingsControl.Settings.Infos.CarInfos.TryRemove(key);
     }
 
     private void InvokePropertyChanged([CallerMemberName] string? propertyName = null) {
@@ -386,7 +386,7 @@ internal class SelectedCarDetailsViewModel : INotifyPropertyChanged {
         }
     }
 
-    public bool CanBeRemoved => DynLeaderboardsPlugin.Settings.Infos.CarInfos.CanBeRemoved(this.Id);
+    public bool CanBeRemoved => this._settingsControl.Settings.Infos.CarInfos.CanBeRemoved(this.Id);
 
     public ListCollectionView AllClasses { get; }
     public ListCollectionView AllManufacturers { get; }

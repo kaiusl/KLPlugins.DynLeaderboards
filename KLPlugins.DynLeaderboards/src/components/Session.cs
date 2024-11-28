@@ -2,6 +2,8 @@ using System;
 
 using GameReaderCommon;
 
+using KLPlugins.DynLeaderboards.Common;
+
 namespace KLPlugins.DynLeaderboards;
 
 public class Session {
@@ -34,7 +36,7 @@ public class Session {
     }
 
     internal void Reset() {
-        DynLeaderboardsPlugin.LogInfo("Session.Reset()");
+        Logging.LogInfo("Session.Reset()");
         this.SessionType = SessionType.UNKNOWN;
         this.SessionPhase = SessionPhase.UNKNOWN;
 
@@ -82,9 +84,7 @@ public class Session {
             this.IsLapLimited = data.NewData.RemainingLaps > 0;
             this.IsTimeLimited = !this.IsLapLimited;
             this._isSessionLimitSet = true;
-            DynLeaderboardsPlugin.LogInfo(
-                $"Session limit set: isLapLimited={this.IsLapLimited}, isTimeLimited={this.IsTimeLimited}"
-            );
+            Logging.LogInfo($"Session limit set: isLapLimited={this.IsLapLimited}, isTimeLimited={this.IsTimeLimited}");
         }
 
         if (DynLeaderboardsPlugin.Game.IsAcc) {
@@ -281,7 +281,7 @@ internal static class SessionPhaseExtensions {
                 _ => SessionPhase.UNKNOWN,
             };
             if (phase == SessionPhase.UNKNOWN) {
-                DynLeaderboardsPlugin.LogWarn($"Unknown session phase {rf2Data.Data.mGamePhase}");
+                Logging.LogWarn($"Unknown session phase {rf2Data.Data.mGamePhase}");
             }
 
             return phase;

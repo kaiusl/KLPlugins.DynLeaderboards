@@ -1,5 +1,7 @@
 using GameReaderCommon;
 
+using KLPlugins.DynLeaderboards.Common;
+
 namespace KLPlugins.DynLeaderboards;
 
 /// <summary>
@@ -65,7 +67,7 @@ public class Booleans {
     }
 
     internal void Reset(SessionType sessionType = SessionType.PRACTICE) {
-        DynLeaderboardsPlugin.LogInfo("Booleans.Reset()");
+        Logging.LogInfo("Booleans.Reset()");
         this.OldData.Reset(sessionType);
         this.NewData.Reset(sessionType);
     }

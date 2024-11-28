@@ -8,8 +8,7 @@ using System.Threading.Tasks;
 
 using GameReaderCommon;
 
-using KLPlugins.DynLeaderboards.Car;
-using KLPlugins.DynLeaderboards.Helpers;
+using KLPlugins.DynLeaderboards.Common;
 using KLPlugins.DynLeaderboards.Settings;
 
 using MathNet.Numerics.Interpolation;
@@ -189,7 +188,9 @@ internal class LapInterpolator {
 
 public class SplinePosOffset {
     [JsonProperty("min")] private double? _min = null;
+
     [JsonProperty("max")] private double? _max = null;
+
     [JsonIgnore] public double Value { get; private set; } = 0;
 
     [JsonConstructor]
@@ -216,18 +217,14 @@ public class SplinePosOffset {
         // the data is somewhat noisy.
         if (this._min != null) {
             if (Math.Abs(this._min.Value - offset) > 0.05) {
-                DynLeaderboardsPlugin.LogInfo(
-                    $"Got conflicting min offsets: old={this._min.Value:F5}, new={offset:F5}"
-                );
+                Logging.LogInfo($"Got conflicting min offsets: old={this._min.Value:F5}, new={offset:F5}");
                 this.Reset();
             }
         }
 
         if (this._max != null) {
             if (Math.Abs(this._max.Value - offset) > 0.05) {
-                DynLeaderboardsPlugin.LogInfo(
-                    $"Got conflicting max offsets: old={this._max.Value:F5}, new={offset:F5}"
-                );
+                Logging.LogInfo($"Got conflicting max offsets: old={this._max.Value:F5}, new={offset:F5}");
                 this.Reset();
             }
         }
@@ -238,7 +235,7 @@ public class SplinePosOffset {
         // Updating this.Value will result in wrong gaps.
         // New value will be loaded at next track loading.
 
-        DynLeaderboardsPlugin.LogInfo(
+        Logging.LogInfo(
             $"Updated SplinePosOffset: {this._min.Value:F5}..{this._max.Value:F5} -> {(this._min + this._max) / 2.0:F5}"
         );
     }
@@ -288,7 +285,7 @@ public class TrackData {
             if (!this.LapInterpolators.ContainsKey(kv.Item1)) {
                 this.LapInterpolators[kv.Item1] = kv.Item2;
 
-                DynLeaderboardsPlugin.LogInfo($"Added LapInterpolator for {kv.Item1}");
+                Logging.LogInfo($"Added LapInterpolator for {kv.Item1}");
             }
 
             this._lapInterpolatorsInBuilding.Remove(kv.Item1);
@@ -296,10 +293,10 @@ public class TrackData {
     }
 
     internal void SaveData() {
-        DynLeaderboardsPlugin.LogInfo("Saving track data");
+        Logging.LogInfo("Saving track data");
         foreach (var kv in this.UpdatedInterpolators) {
             var path =
-                $"{PluginSettings.PLUGIN_DATA_DIR}\\{DynLeaderboardsPlugin.Game.Name}\\laps_data\\{this.Id}_{kv}.txt";
+                $"{PluginConstants.DataDir}\\{DynLeaderboardsPlugin.Game.Name}\\laps_data\\{this.Id}_{kv}.txt";
             if (this.LapInterpolators.TryGetValue(kv, out var interp)) {
                 interp.WriteLapInterpolatorData(path);
             }
@@ -311,7 +308,7 @@ public class TrackData {
     }
 
     internal void Dispose() {
-        DynLeaderboardsPlugin.LogInfo("Disposing track data");
+        Logging.LogInfo("Disposing track data");
         this.SaveData();
     }
 
@@ -354,7 +351,7 @@ public class TrackData {
             if (current == null || current.Interpolate(newLapLastPos).TotalSeconds > newLapTime) {
                 this.AddLapInterpolator(rawPos: lapDataPos, rawTime: lapDataTime, cls);
                 this.UpdatedInterpolators.Add(cls);
-                DynLeaderboardsPlugin.LogInfo($"Saved new best lap for {cls}: {newLapTime}.");
+                Logging.LogInfo($"Saved new best lap for {cls}: {newLapTime}.");
             }
         } else if (
             lastPosRaw
@@ -362,7 +359,7 @@ public class TrackData {
             && (firstPosRaw > 0.9 || lastPosRaw < 0.1) // sanity check for offset spline pos
             && Math.Abs(lastPosRaw - firstPosRaw) < 0.05 // make sure we completed whole lap
         ) {
-            DynLeaderboardsPlugin.LogWarn(
+            Logging.LogWarn(
                 $"Possible missing lap offset detected: {this.Id} - {cls}. FirstPos: {firstPosRaw}({firstPos}), LastPos: {lastPosRaw}({lastPos}). Suggested lap position offset is {1 - firstPosRaw}."
             );
             if (firstPosRaw > 0.9)
@@ -377,14 +374,14 @@ public class TrackData {
                 this.SplinePosOffset.Update(1 - lastPosRaw);
             }
         } else {
-            DynLeaderboardsPlugin.LogInfo(
+            Logging.LogInfo(
                 $"Collected invalid lap data for {this.Id} - {cls}. FirstPos: {firstPosRaw}({firstPos}), LastPos: {lastPosRaw}({lastPos})."
             );
         }
     }
 
     private static Dictionary<string, SplinePosOffset> ReadSplinePosOffsets(string gameName) {
-        var path = $"{PluginSettings.PLUGIN_DATA_DIR}\\{gameName}\\SplinePosOffsets.json";
+        var path = $"{PluginConstants.DataDir}\\{gameName}\\SplinePosOffsets.json";
         if (File.Exists(path)) {
             return JsonConvert.DeserializeObject<Dictionary<string, SplinePosOffset>>(File.ReadAllText(path)) ?? [];
         }
@@ -393,7 +390,7 @@ public class TrackData {
     }
 
     private void WriteSplinePosOffsets() {
-        var path = $"{PluginSettings.PLUGIN_DATA_DIR}\\{DynLeaderboardsPlugin.Game.Name}\\SplinePosOffsets.json";
+        var path = $"{PluginConstants.DataDir}\\{DynLeaderboardsPlugin.Game.Name}\\SplinePosOffsets.json";
         var dirPath = Path.GetDirectoryName(path)!;
         Directory.CreateDirectory(dirPath);
 
@@ -416,21 +413,19 @@ public class TrackData {
 
     private void BuildLapInterpolatorInner(CarClass carClass) {
         var path =
-            $"{PluginSettings.PLUGIN_DATA_DIR}\\{DynLeaderboardsPlugin.Game.Name}\\laps_data\\{this.Id}_{carClass}.txt";
+            $"{PluginConstants.DataDir}\\{DynLeaderboardsPlugin.Game.Name}\\laps_data\\{this.Id}_{carClass}.txt";
 
         if (!File.Exists(path)) {
-            DynLeaderboardsPlugin.LogInfo(
-                $"Couldn't build lap interpolator for {carClass} because no suitable track data exists."
-            );
+            Logging.LogInfo($"Couldn't build lap interpolator for {carClass} because no suitable track data exists.");
             return;
         }
 
         try {
-            DynLeaderboardsPlugin.LogInfo($"Build lap interpolator for {carClass} from file {path}");
+            Logging.LogInfo($"Build lap interpolator for {carClass} from file {path}");
             var interp = new LapInterpolator(path, this.SplinePosOffset.Value);
             this._builtLapInterpolators.Enqueue((carClass, interp));
         } catch (Exception ex) {
-            DynLeaderboardsPlugin.LogError($"Failed to read {path} with error: {ex}");
+            Logging.LogError($"Failed to read {path} with error: {ex}");
         }
     }
 
@@ -440,7 +435,7 @@ public class TrackData {
         CarClass carClass
     ) {
         if (rawPos.Count != rawTime.Count) {
-            DynLeaderboardsPlugin.LogError(
+            Logging.LogError(
                 $"Tried to add a lap interpolator where rawPos and rawTime have different lengths: {rawPos.Count} != {rawTime.Count}."
             );
             return;

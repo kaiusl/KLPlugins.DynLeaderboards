@@ -8,7 +8,7 @@ using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Media;
 
-using KLPlugins.DynLeaderboards.Helpers;
+using KLPlugins.DynLeaderboards.Common;
 
 using SimHub.Plugins.Styles;
 using SimHub.Plugins.UI;
@@ -131,7 +131,7 @@ internal class SelectedPropertiesCommand(Action<PropertyViewModelBase> execute) 
         if (parameter is not System.Collections.IList selectedItems) {
             var msg = $"Expected the parameter to be `IList`. Got `{parameter?.GetType()}`";
             Debug.Fail(msg);
-            DynLeaderboardsPlugin.LogError(msg);
+            Logging.LogError(msg);
             return;
         }
 
@@ -139,7 +139,7 @@ internal class SelectedPropertiesCommand(Action<PropertyViewModelBase> execute) 
             if (v is not PropertyViewModelBase vm) {
                 var msg = $"Expected the list element to be `PropertyViewModelBase`. Got `{v?.GetType()}`";
                 Debug.Fail(msg);
-                DynLeaderboardsPlugin.LogError(msg);
+                Logging.LogError(msg);
                 continue;
             }
 

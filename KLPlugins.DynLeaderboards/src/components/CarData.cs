@@ -1,14 +1,13 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
 
 using GameReaderCommon;
 
-using KLPlugins.DynLeaderboards.Helpers;
+using KLPlugins.DynLeaderboards.Common;
 using KLPlugins.DynLeaderboards.Settings;
 using KLPlugins.DynLeaderboards.Track;
 
@@ -589,7 +588,7 @@ namespace KLPlugins.DynLeaderboards.Car {
                 this.CheckIfLapInvalidated(rawData);
 
                 if (!this.IsCurrentLapValid) {
-                    DynLeaderboardsPlugin.LogInfo($"Invalidated lap #{this.CarNumberAsString} [{this.Id}]");
+                    Logging.LogInfo($"Invalidated lap #{this.CarNumberAsString} [{this.Id}]");
                 }
             }
 
@@ -608,7 +607,7 @@ namespace KLPlugins.DynLeaderboards.Car {
             if (this.LapDataValidForSave
                 && (this.IsCurrentLapInLap || this.IsCurrentLapOutLap || !this.IsCurrentLapValid || this.IsInPitLane)) {
                 this.LapDataValidForSave = false;
-                DynLeaderboardsPlugin.LogInfo($"Invalidated lap for save #{this.CarNumberAsString} [{this.Id}]");
+                Logging.LogInfo($"Invalidated lap for save #{this.CarNumberAsString} [{this.Id}]");
             }
 
             if (this.RawDataOld.CurrentLapTime > this.RawDataNew.CurrentLapTime
@@ -963,12 +962,12 @@ namespace KLPlugins.DynLeaderboards.Car {
                 && this.Location.Old == CarLocation.TRACK
                 && this.IsInPitLane
             ) {
-                DynLeaderboardsPlugin.LogInfo($"[{this.Id}, #{this.CarNumberAsString}] jumped to pits");
+                Logging.LogInfo($"[{this.Id}, #{this.CarNumberAsString}] jumped to pits");
                 this.JumpedToPits = true;
             }
 
             if (this.JumpedToPits && !this.IsInPitLane) {
-                DynLeaderboardsPlugin.LogInfo($"[{this.Id}, #{this.CarNumberAsString}] jumped to pits cleared.");
+                Logging.LogInfo($"[{this.Id}, #{this.CarNumberAsString}] jumped to pits cleared.");
                 this.JumpedToPits = false;
             }
         }
@@ -991,14 +990,14 @@ namespace KLPlugins.DynLeaderboards.Car {
                 && (this.SplinePosition > 0.5 || this.IsInPitLane)
                 && this.Laps.New == 0
             ) {
-                DynLeaderboardsPlugin.LogInfo($"[{this.Id}, #{this.CarNumberAsString}] has not crossed the start line");
+                Logging.LogInfo($"[{this.Id}, #{this.CarNumberAsString}] has not crossed the start line");
                 this.HasCrossedStartLine = false;
                 this._isHasCrossedStartLineSet = true;
             }
 
             if (!this.HasCrossedStartLine
                 && ((this.SplinePosition < 0.5 && !this.JumpedToPits) || this.ExitedPitLane)) {
-                DynLeaderboardsPlugin.LogInfo($"[{this.Id}, #{this.CarNumberAsString}] crossed the start line");
+                Logging.LogInfo($"[{this.Id}, #{this.CarNumberAsString}] crossed the start line");
                 this.HasCrossedStartLine = true;
             }
         }
@@ -1056,12 +1055,12 @@ namespace KLPlugins.DynLeaderboards.Car {
             this.IsInPitLane = this.Location.New.IsInPits();
             this.ExitedPitLane = this.Location.New == CarLocation.TRACK && this.Location.Old.IsInPits();
             if (this.ExitedPitLane) {
-                DynLeaderboardsPlugin.LogInfo($"Car {this.Id}, #{this.CarNumberAsString} exited pits");
+                Logging.LogInfo($"Car {this.Id}, #{this.CarNumberAsString} exited pits");
             }
 
             this.EnteredPitLane = this.Location.New.IsInPits() && this.Location.Old == CarLocation.TRACK;
             if (this.EnteredPitLane) {
-                DynLeaderboardsPlugin.LogInfo($"Car {this.Id}, #{this.CarNumberAsString} entered pits");
+                Logging.LogInfo($"Car {this.Id}, #{this.CarNumberAsString} entered pits");
             }
 
             this.PitCount = this.RawDataNew.PitCount ?? 0;
@@ -2156,204 +2155,6 @@ namespace KLPlugins.DynLeaderboards.Car {
         internal void Update(T data) {
             this.Old = this.New;
             this.New = data;
-        }
-    }
-
-    [TypeConverter(typeof(CarClassTypeConverter))]
-    public readonly record struct CarClass : IComparable<CarClass> {
-        private readonly string _cls;
-
-        public CarClass(string cls) {
-            this._cls = cls;
-        }
-
-        public static CarClass Default = new("None");
-
-        public static CarClass? TryNew(string? cls) {
-            if (cls == null) {
-                return null;
-            }
-
-            return new CarClass(cls);
-        }
-
-        public string AsString() {
-            return this._cls;
-        }
-
-        public override string ToString() {
-            return this._cls;
-        }
-
-        public int CompareTo(CarClass other) {
-            return string.Compare(this._cls, other._cls, StringComparison.Ordinal);
-        }
-    }
-
-    internal class CarClassTypeConverter : TypeConverter {
-        public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType) {
-            return sourceType == typeof(string);
-        }
-
-        public override object ConvertFrom(
-            ITypeDescriptorContext context,
-            System.Globalization.CultureInfo culture,
-            object? value
-        ) {
-            if (value is string val) {
-                return new CarClass(val);
-            }
-
-            throw new NotSupportedException($"cannot convert from `{value?.GetType()}` to `CarClass`");
-        }
-
-        public override bool CanConvertTo(ITypeDescriptorContext context, Type destinationType) {
-            return destinationType == typeof(string);
-        }
-
-        public override object ConvertTo(
-            ITypeDescriptorContext context,
-            System.Globalization.CultureInfo culture,
-            object value,
-            Type destinationType
-        ) {
-            if (value is CarClass cls && destinationType == typeof(string)) {
-                return cls.AsString();
-            }
-
-            throw new NotSupportedException($"cannot convert from `CarClass` to `{destinationType}`");
-        }
-    }
-
-    [TypeConverter(typeof(TeamCupCategoryTypeConverter))]
-    public readonly record struct TeamCupCategory : IComparable<TeamCupCategory> {
-        private readonly string _cls;
-
-        public TeamCupCategory(string cls) {
-            this._cls = cls;
-        }
-
-        public static TeamCupCategory Default = new("Overall");
-
-        public static TeamCupCategory? TryNew(string? cls) {
-            if (cls == null) {
-                return null;
-            }
-
-            return new TeamCupCategory(cls);
-        }
-
-        public string AsString() {
-            return this._cls;
-        }
-
-        public override string ToString() {
-            return this._cls;
-        }
-
-        public int CompareTo(TeamCupCategory other) {
-            return string.Compare(this._cls, other._cls, StringComparison.Ordinal);
-        }
-    }
-
-    internal class TeamCupCategoryTypeConverter : TypeConverter {
-        public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType) {
-            return sourceType == typeof(string);
-        }
-
-        public override object ConvertFrom(
-            ITypeDescriptorContext context,
-            System.Globalization.CultureInfo culture,
-            object? value
-        ) {
-            if (value is string val) {
-                return new TeamCupCategory(val);
-            }
-
-            throw new NotSupportedException($"cannot convert from `{value?.GetType()}` to `TeamCupCategory`");
-        }
-
-        public override bool CanConvertTo(ITypeDescriptorContext context, Type destinationType) {
-            return destinationType == typeof(string);
-        }
-
-        public override object ConvertTo(
-            ITypeDescriptorContext context,
-            System.Globalization.CultureInfo culture,
-            object value,
-            Type destinationType
-        ) {
-            if (value is TeamCupCategory category && destinationType == typeof(string)) {
-                return category.AsString();
-            }
-
-            throw new NotSupportedException($"cannot convert from `TeamCupCategory` to `{destinationType}`");
-        }
-    }
-
-    [TypeConverter(typeof(DriverCategoryTypeConverter))]
-    public readonly record struct DriverCategory : IComparable<DriverCategory> {
-        private readonly string _cls;
-
-        public DriverCategory(string cls) {
-            this._cls = cls;
-        }
-
-        public static DriverCategory Default = new("Platinum");
-
-        public static DriverCategory? TryNew(string? cls) {
-            if (cls == null) {
-                return null;
-            }
-
-            return new DriverCategory(cls);
-        }
-
-        public string AsString() {
-            return this._cls;
-        }
-
-        public override string ToString() {
-            return this._cls;
-        }
-
-        public int CompareTo(DriverCategory other) {
-            return string.Compare(this._cls, other._cls, StringComparison.Ordinal);
-        }
-    }
-
-    internal class DriverCategoryTypeConverter : TypeConverter {
-        public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType) {
-            return sourceType == typeof(string);
-        }
-
-        public override object ConvertFrom(
-            ITypeDescriptorContext context,
-            System.Globalization.CultureInfo culture,
-            object? value
-        ) {
-            if (value is string val) {
-                return new DriverCategory(val);
-            }
-
-            throw new NotSupportedException($"cannot convert from `{value?.GetType()}` to `DriverCategory`");
-        }
-
-        public override bool CanConvertTo(ITypeDescriptorContext context, Type destinationType) {
-            return destinationType == typeof(string);
-        }
-
-        public override object ConvertTo(
-            ITypeDescriptorContext context,
-            System.Globalization.CultureInfo culture,
-            object value,
-            Type destinationType
-        ) {
-            if (value is DriverCategory category && destinationType == typeof(string)) {
-                return category.AsString();
-            }
-
-            throw new NotSupportedException($"cannot convert from `DriverCategory` to `{destinationType}`");
         }
     }
 

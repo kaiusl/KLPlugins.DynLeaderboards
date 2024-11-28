@@ -5,19 +5,39 @@ using Newtonsoft.Json;
 
 namespace KLPlugins.DynLeaderboards.Settings;
 
-internal interface IOutProps<in T> {
+public interface IReadonlyOutProps<in T> {
     bool Includes(T o);
+}
+
+internal interface IOutProps<in T> : IReadonlyOutProps<T> {
     void Combine(T o);
     void Remove(T o);
 }
 
-internal abstract class OutPropsBase<T>(T value) : IOutProps<T>
+public readonly struct ReadonlyOutProp<T, U> : IReadonlyOutProps<U>
+    where T : IReadonlyOutProps<U> {
+    private readonly T _inner;
+
+    internal ReadonlyOutProp(T inner) {
+        this._inner = inner;
+    }
+
+    public bool Includes(U o) {
+        return this._inner.Includes(o);
+    }
+}
+
+public abstract class OutPropsBase<T>(T value) : IOutProps<T>
     where T : struct {
     protected T Value { get; set; } = value;
 
     public abstract bool Includes(T o);
     public abstract void Combine(T o);
     public abstract void Remove(T o);
+
+    public ReadonlyOutProp<OutPropsBase<T>, T> AsReadonly() {
+        return new ReadonlyOutProp<OutPropsBase<T>, T>(this);
+    }
 
     internal class OutPropBaseJsonConverter(Func<T, OutPropsBase<T>> construct) : JsonConverter {
         public override bool CanConvert(Type objectType) {
@@ -45,7 +65,7 @@ internal abstract class OutPropsBase<T>(T value) : IOutProps<T>
 }
 
 [JsonConverter(typeof(JsonConvert))]
-internal class OutGeneralProps : OutPropsBase<OutGeneralProp> {
+internal class OutGeneralProps : OutPropsBase<OutGeneralProp>, IOutProps<OutGeneralProp> {
     internal OutGeneralProps(OutGeneralProp value) : base(value) { }
 
     public override void Combine(OutGeneralProp prop) {
@@ -64,7 +84,7 @@ internal class OutGeneralProps : OutPropsBase<OutGeneralProp> {
 }
 
 [Flags]
-internal enum OutGeneralProp {
+public enum OutGeneralProp {
     NONE = 0,
     SESSION_PHASE = 1 << 1,
     MAX_STINT_TIME = 1 << 2,
@@ -79,7 +99,7 @@ internal enum OutGeneralProp {
     NUM_CUPS_IN_SESSION = 1 << 11,
 }
 
-internal static class OutGeneralPropExtensions {
+public static class OutGeneralPropExtensions {
     internal static OutGeneralProp[] Order() {
         return [
             OutGeneralProp.SESSION_PHASE,
@@ -96,7 +116,7 @@ internal static class OutGeneralPropExtensions {
         ];
     }
 
-    internal static string ToPropName(this OutGeneralProp p) {
+    public static string ToPropName(this OutGeneralProp p) {
         return p switch {
             OutGeneralProp.SESSION_PHASE => "Session.Phase",
             OutGeneralProp.MAX_STINT_TIME => "Session.MaxStintTime",
@@ -154,7 +174,7 @@ internal class OutCarProps : OutPropsBase<OutCarProp> {
 }
 
 [Flags]
-internal enum OutCarProp {
+public enum OutCarProp {
     NONE = 0,
 
     CAR_NUMBER = 1 << 0,
@@ -181,7 +201,7 @@ internal enum OutCarProp {
     CAR_CLASS_SHORT_NAME = 1 << 18,
 }
 
-internal static class OutCarPropExtensions {
+public static class OutCarPropExtensions {
     internal static OutCarProp[] OrderCarInformation() {
         return [
             OutCarProp.CAR_NUMBER,
@@ -211,7 +231,7 @@ internal static class OutCarPropExtensions {
         ];
     }
 
-    internal static string ToPropName(this OutCarProp p) {
+    public static string ToPropName(this OutCarProp p) {
         return p switch {
             OutCarProp.CAR_NUMBER => "Car.Number",
             OutCarProp.CAR_NUMBER_TEXT => "Car.Number.Text",
@@ -288,7 +308,7 @@ internal class OutPitProps : OutPropsBase<OutPitProp> {
 }
 
 [Flags]
-internal enum OutPitProp {
+public enum OutPitProp {
     NONE = 0,
     IS_IN_PIT_LANE = 1 << 0,
     PIT_STOP_COUNT = 1 << 1,
@@ -297,7 +317,7 @@ internal enum OutPitProp {
     PIT_TIME_CURRENT = 1 << 4,
 }
 
-internal static class OutPitPropExtensions {
+public static class OutPitPropExtensions {
     internal static OutPitProp[] Order() {
         return [
             OutPitProp.IS_IN_PIT_LANE,
@@ -308,7 +328,7 @@ internal static class OutPitPropExtensions {
         ];
     }
 
-    internal static string ToPropName(this OutPitProp p) {
+    public static string ToPropName(this OutPitProp p) {
         return p switch {
             OutPitProp.IS_IN_PIT_LANE => "Pit.IsIn",
             OutPitProp.PIT_STOP_COUNT => "Pit.Count",
@@ -351,7 +371,7 @@ internal class OutPosProps : OutPropsBase<OutPosProp> {
 }
 
 [Flags]
-internal enum OutPosProp {
+public enum OutPosProp {
     NONE = 0,
     OVERALL_POSITION = 1 << 0,
     OVERALL_POSITION_START = 1 << 1,
@@ -363,7 +383,7 @@ internal enum OutPosProp {
     CUP_POSITION_START = 1 << 7,
 }
 
-internal static class OutPosPropExtensions {
+public static class OutPosPropExtensions {
     internal static OutPosProp[] Order() {
         return [
             OutPosProp.OVERALL_POSITION,
@@ -379,7 +399,7 @@ internal static class OutPosPropExtensions {
         return [OutPosProp.DYNAMIC_POSITION, OutPosProp.DYNAMIC_POSITION_START];
     }
 
-    internal static string ToPropName(this OutPosProp p) {
+    public static string ToPropName(this OutPosProp p) {
         return p switch {
             OutPosProp.CLASS_POSITION => "Position.Class",
             OutPosProp.CLASS_POSITION_START => "Position.Class.Start",
@@ -441,7 +461,7 @@ internal class OutGapProps : OutPropsBase<OutGapProp> {
 }
 
 [Flags]
-internal enum OutGapProp {
+public enum OutGapProp {
     NONE = 0,
     GAP_TO_LEADER = 1 << 0,
     GAP_TO_CLASS_LEADER = 1 << 1,
@@ -456,7 +476,7 @@ internal enum OutGapProp {
     DYNAMIC_GAP_TO_AHEAD = 1 << 21,
 }
 
-internal static class OutGapPropExtensions {
+public static class OutGapPropExtensions {
     internal static OutGapProp[] Order() {
         return [
             OutGapProp.GAP_TO_LEADER,
@@ -475,7 +495,7 @@ internal static class OutGapPropExtensions {
         return [OutGapProp.DYNAMIC_GAP_TO_FOCUSED, OutGapProp.DYNAMIC_GAP_TO_AHEAD];
     }
 
-    internal static string ToPropName(this OutGapProp p) {
+    public static string ToPropName(this OutGapProp p) {
         return p switch {
             OutGapProp.GAP_TO_LEADER => "Gap.ToOverallLeader",
             OutGapProp.GAP_TO_CLASS_LEADER => "Gap.ToClassLeader",
@@ -546,7 +566,7 @@ internal class OutStintProps : OutPropsBase<OutStintProp> {
 }
 
 [Flags]
-internal enum OutStintProp {
+public enum OutStintProp {
     NONE = 0,
     CURRENT_STINT_TIME = 1 << 0,
     CURRENT_STINT_LAPS = 1 << 1,
@@ -554,7 +574,7 @@ internal enum OutStintProp {
     LAST_STINT_LAPS = 1 << 3,
 }
 
-internal static class OutStintPropExtensions {
+public static class OutStintPropExtensions {
     internal static OutStintProp[] Order() {
         return [
             OutStintProp.CURRENT_STINT_TIME,
@@ -564,7 +584,7 @@ internal static class OutStintPropExtensions {
         ];
     }
 
-    internal static string ToPropName(this OutStintProp p) {
+    public static string ToPropName(this OutStintProp p) {
         return p switch {
             OutStintProp.CURRENT_STINT_TIME => "Stint.Current.Time",
             OutStintProp.CURRENT_STINT_LAPS => "Stint.Current.Laps",
@@ -605,7 +625,7 @@ internal class OutLapProps : OutPropsBase<OutLapProp> {
 }
 
 [Flags]
-internal enum OutLapProp : long {
+public enum OutLapProp : long {
     NONE = 0,
     LAPS = 1L << 0,
     LAST_LAP_TIME = 1L << 1,
@@ -665,7 +685,7 @@ internal enum OutLapProp : long {
     LAST_LAP_DELTA_TO_AHEAD_IN_CUP_LAST = 1L << 46,
 }
 
-internal static class OutLapPropExtensions {
+public static class OutLapPropExtensions {
     internal static OutLapProp[] Order() {
         return [
             OutLapProp.LAPS,
@@ -735,7 +755,7 @@ internal static class OutLapPropExtensions {
         ];
     }
 
-    internal static string ToPropName(this OutLapProp p) {
+    public static string ToPropName(this OutLapProp p) {
         return p switch {
             OutLapProp.LAPS => "Laps.Count",
             OutLapProp.LAST_LAP_TIME => "Laps.Last.Time",
@@ -884,7 +904,7 @@ internal class OutDriverProps : OutPropsBase<OutDriverProp> {
 }
 
 [Flags]
-internal enum OutDriverProp {
+public enum OutDriverProp {
     NONE = 0,
 
     FIRST_NAME = 1 << 2,
@@ -902,7 +922,7 @@ internal enum OutDriverProp {
     CATEGORY_COLOR = 1 << 14,
 }
 
-internal static class OutDriverPropExtensions {
+public static class OutDriverPropExtensions {
     internal static OutDriverProp[] Order() {
         return [
             OutDriverProp.FIRST_NAME,
@@ -921,7 +941,7 @@ internal static class OutDriverPropExtensions {
         ];
     }
 
-    internal static string ToPropName(this OutDriverProp p) {
+    public static string ToPropName(this OutDriverProp p) {
         return p switch {
             OutDriverProp.FIRST_NAME => "FirstName",
             OutDriverProp.LAST_NAME => "LastName",

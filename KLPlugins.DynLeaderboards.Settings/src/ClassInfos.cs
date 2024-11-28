@@ -7,14 +7,13 @@ using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 
-using KLPlugins.DynLeaderboards.Car;
-using KLPlugins.DynLeaderboards.Helpers;
+using KLPlugins.DynLeaderboards.Common;
 
 using Newtonsoft.Json;
 
 namespace KLPlugins.DynLeaderboards.Settings;
 
-internal class ClassInfos : IEnumerable<KeyValuePair<CarClass, OverridableClassInfo>> {
+public class ClassInfos : IEnumerable<KeyValuePair<CarClass, OverridableClassInfo>> {
     private readonly Dictionary<CarClass, OverridableClassInfo> _infos;
     private readonly SimHubClassColors _simHubClassColors;
 
@@ -36,7 +35,7 @@ internal class ClassInfos : IEnumerable<KeyValuePair<CarClass, OverridableClassI
         return this._infos[cls];
     }
 
-    internal (CarClass, OverridableClassInfo) GetFollowReplaceWith(CarClass cls) {
+    public (CarClass, OverridableClassInfo) GetFollowReplaceWith(CarClass cls) {
         var clsOut = cls;
         var info = this.GetOrAdd(cls);
         var nextCls = info.ReplaceWith();
@@ -48,7 +47,7 @@ internal class ClassInfos : IEnumerable<KeyValuePair<CarClass, OverridableClassI
             info = this.GetOrAdd(clsOut);
 
             if (seenClasses.Contains(clsOut)) {
-                DynLeaderboardsPlugin.LogWarn(
+                Logging.LogWarn(
                     $"Loop detected in class \"replace with\" values: {string.Join(" -> ", seenClasses)} -> {clsOut}"
                 );
                 break;
@@ -83,7 +82,7 @@ internal class ClassInfos : IEnumerable<KeyValuePair<CarClass, OverridableClassI
         return null;
     }
 
-    internal static ClassInfos ReadFromJson(string path, string basePath) {
+    internal static ClassInfos ReadFromJson(string path, string basePath, string gameName) {
         Dictionary<CarClass, OverridableClassInfo>? infos = null;
         if (File.Exists(path)) {
             var json = File.ReadAllText(path);
@@ -124,7 +123,7 @@ internal class ClassInfos : IEnumerable<KeyValuePair<CarClass, OverridableClassI
             infos[CarClass.Default] = new OverridableClassInfo(@base: defBase, overrides: null);
         }
 
-        var simHubClassColorsPath = $"PluginsData\\{DynLeaderboardsPlugin.Game.Name}\\ColorPalette.json";
+        var simHubClassColorsPath = $"PluginsData\\{gameName}\\ColorPalette.json";
         SimHubClassColors simHubClassColors;
         if (File.Exists(simHubClassColorsPath)) {
             var json = File.ReadAllText(simHubClassColorsPath);
@@ -246,7 +245,7 @@ internal class ClassInfos : IEnumerable<KeyValuePair<CarClass, OverridableClassI
                 manager = this.GetOrAdd(clsOut);
 
                 if (seenClasses.Contains(clsOut)) {
-                    DynLeaderboardsPlugin.LogWarn(
+                    Logging.LogWarn(
                         $"Loop detected in class \"replace with\" values: {string.Join(" -> ", seenClasses)} -> {clsOut}"
                     );
                     break;
@@ -335,7 +334,7 @@ internal class ClassInfos : IEnumerable<KeyValuePair<CarClass, OverridableClassI
     }
 }
 
-internal class OverridableClassInfo {
+public class OverridableClassInfo {
     [JsonIgnore] internal ClassInfo? Base { get; private set; }
 
     // If a class had been duplicated from it can have a "false" base from its parent. 
@@ -343,13 +342,16 @@ internal class OverridableClassInfo {
     // Note that just checking if DuplicatedFrom == null is not enough.
     // A class that was duplicated could end up receiving a base in later updates.
     [JsonIgnore] internal bool HasRealBase { get; private set; } = false;
+
     [JsonProperty] internal ClassInfo? Overrides { get; private set; }
+
     [JsonProperty] internal bool IsColorEnabled { get; private set; }
 
     [JsonProperty] internal bool IsReplaceWithEnabled { get; private set; }
 
     // Used to determine what base should this class receive if it was duplicated from another class
     [JsonProperty] internal ImmutableList<CarClass> DuplicatedFrom { get; private set; }
+
     [JsonIgnore] internal TextBoxColor? SimHubColor { get; set; } = null;
 
 
@@ -416,7 +418,7 @@ internal class OverridableClassInfo {
         this.HasRealBase = true;
     }
 
-    internal string? Foreground() {
+    public string? Foreground() {
         if (!this.IsColorEnabled) {
             return this.SimHubColor?.Fg;
         }
@@ -432,7 +434,7 @@ internal class OverridableClassInfo {
         return this.Base?.Color?.Fg;
     }
 
-    internal string? Background() {
+    public string? Background() {
         if (!this.IsColorEnabled) {
             return this.SimHubColor?.Bg;
         }
@@ -468,7 +470,7 @@ internal class OverridableClassInfo {
         return this.Base?.ShortName;
     }
 
-    internal string? ShortName() {
+    public string? ShortName() {
         return this.Overrides?.ShortName ?? this.Base?.ShortName;
     }
 
@@ -641,7 +643,9 @@ internal class OverridableClassInfo {
 
 internal class ClassInfo {
     [JsonProperty] internal TextBoxColor? Color { get; set; }
+
     [JsonProperty] internal CarClass? ReplaceWith { get; set; }
+
     [JsonProperty] internal string? ShortName { get; set; }
 
     [JsonConstructor]
@@ -688,6 +692,7 @@ internal class SimHubClassColors {
     [method: JsonConstructor]
     private class RawColor(string target, string color) {
         [JsonProperty] public string Target { get; } = target;
+
         [JsonProperty] public string Color { get; } = color;
     }
 }

@@ -92,7 +92,7 @@ internal class GeneralSettingsTabViewModel : INotifyPropertyChanged {
                 v.ToPropName(),
                 v.ToolTipText(),
                 v,
-                this._settings.OutGeneralProps
+                this._settings.OutGeneralPropsInternal
             );
             this._exposedProperties.Add(vm);
         }

@@ -9,7 +9,7 @@ using System.Windows.Data;
 using System.Windows.Forms;
 using System.Windows.Input;
 
-using KLPlugins.DynLeaderboards.Car;
+using KLPlugins.DynLeaderboards.Common;
 
 using Control = System.Windows.Controls.Control;
 using UserControl = System.Windows.Controls.UserControl;
@@ -23,10 +23,10 @@ namespace KLPlugins.DynLeaderboards.Settings.UI;
 public partial class ClassSettingsTab : UserControl {
     private ClassSettingsTabViewModel _viewModel { get; }
 
-    internal ClassSettingsTab(SettingsControl settingsControl, Values values, ClassInfos.Manager classesManager) {
+    internal ClassSettingsTab(SettingsControl settingsControl, ClassInfos.Manager classesManager) {
         this.InitializeComponent();
 
-        this._viewModel = new ClassSettingsTabViewModel(settingsControl, values, classesManager);
+        this._viewModel = new ClassSettingsTabViewModel(settingsControl, classesManager);
         this.DataContext = this._viewModel;
 
         this._viewModel.PropertyChanged += (_, e) => {
@@ -81,7 +81,6 @@ internal class ClassSettingsTabViewModel : INotifyPropertyChanged {
 
     private ClassInfos.Manager _classesManager { get; }
 
-    private readonly Values _values;
     private readonly SettingsControl _settingsControl;
 
     public ICommand MenuResetAllCommand { get; }
@@ -111,10 +110,8 @@ internal class ClassSettingsTabViewModel : INotifyPropertyChanged {
 
     internal ClassSettingsTabViewModel(
         SettingsControl settingsControl,
-        Values values,
         ClassInfos.Manager classesManager
     ) {
-        this._values = values;
         this._settingsControl = settingsControl;
         this._classesManager = classesManager;
 
@@ -166,8 +163,6 @@ internal class ClassSettingsTabViewModel : INotifyPropertyChanged {
                     foreach (var item in this._classesManager) {
                         action(item.Value);
                     }
-
-                    this._values.UpdateClassInfos();
                 },
                 this._settingsControl
             );
@@ -187,12 +182,7 @@ internal class ClassSettingsTabViewModel : INotifyPropertyChanged {
         this.MenuEnableAllReplaceWithCommand = AllClassesCommand(c => c.IsReplaceWithEnabled = true);
 
         this.MenuAddNewClassCommand = new Command(this.AddNewClass);
-        this.MenuRefreshCommand = new Command(
-            () => {
-                this._classesManager.Update();
-                this._values.UpdateClassInfos();
-            }
-        );
+        this.MenuRefreshCommand = new Command(() => { this._classesManager.Update(); });
     }
 
     private void InvokePropertyChanged([System.Runtime.CompilerServices.CallerMemberName] string? propertyName = null) {
@@ -217,7 +207,7 @@ internal class ClassSettingsTabViewModel : INotifyPropertyChanged {
             // ReSharper disable once SwitchStatementHandlesSomeKnownEnumValuesWithDefault
             switch (res) {
                 case DialogResult.OK:
-                    DynLeaderboardsPlugin.LogInfo($"Add new class `{dialogWindow.Text}`");
+                    Logging.LogInfo($"Add new class `{dialogWindow.Text}`");
                     var clsName = dialogWindow.Text;
                     // ChooseNewClassNameDialog validates that the entered class name is valid new name and OK cannot be pressed before
                     var cls = new CarClass(clsName!);
@@ -227,7 +217,7 @@ internal class ClassSettingsTabViewModel : INotifyPropertyChanged {
                     break;
             }
         } catch (Exception e) {
-            DynLeaderboardsPlugin.LogError($"Failed to add a new class: {e}");
+            Logging.LogError($"Failed to add a new class: {e}");
         }
     }
 }
@@ -274,7 +264,7 @@ internal class SelectedClassViewModel : INotifyPropertyChanged {
 
     public bool CanBeRemoved =>
         this._classesManager.CanBeRemoved(this.Class)
-        && !DynLeaderboardsPlugin.Settings.Infos.CarInfos.ContainsClass(this.Class);
+        && !this._settingsControl.Settings.Infos.CarInfos.ContainsClass(this.Class);
 
     public ListCollectionView AllClassesView { get; }
 
@@ -348,7 +338,7 @@ internal class SelectedClassViewModel : INotifyPropertyChanged {
                     break;
             }
         } catch (Exception e) {
-            DynLeaderboardsPlugin.LogError($"Failed to duplicate the class: {e}");
+            Logging.LogError($"Failed to duplicate the class: {e}");
         }
     }
 }

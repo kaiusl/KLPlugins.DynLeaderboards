@@ -4,8 +4,7 @@ using System.Windows;
 using System.Windows.Data;
 using System.Windows.Media;
 
-using KLPlugins.DynLeaderboards.Car;
-using KLPlugins.DynLeaderboards.Helpers;
+using KLPlugins.DynLeaderboards.Common;
 
 namespace KLPlugins.DynLeaderboards.Settings.UI;
 

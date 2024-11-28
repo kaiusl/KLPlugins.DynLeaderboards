@@ -10,7 +10,7 @@ using System.Windows.Data;
 using System.Windows.Forms;
 using System.Windows.Input;
 
-using KLPlugins.DynLeaderboards.Helpers;
+using KLPlugins.DynLeaderboards.Common;
 
 using Control = System.Windows.Controls.Control;
 using Exception = System.Exception;
@@ -24,12 +24,11 @@ namespace KLPlugins.DynLeaderboards.Settings.UI;
 public partial class DynamicLeaderboardsTab : UserControl {
     internal DynamicLeaderboardsTab(
         PluginSettings settings,
-        DynLeaderboardsPlugin plugin,
         SettingsControl settingsControl
     ) {
         this.InitializeComponent();
 
-        var vm = new DynamicLeaderboardsTabViewModel(settings, plugin, settingsControl);
+        var vm = new DynamicLeaderboardsTabViewModel(settings, settingsControl);
         this.DataContext = vm;
     }
 
@@ -57,7 +56,6 @@ internal class DynamicLeaderboardsTabViewModel : INotifyPropertyChanged {
     public SelectedLeaderboardViewModel? SelectedLeaderboardViewModel { get; private set; }
     public bool IsSelectedNull => this.SelectedLeaderboardListBoxItem == null;
 
-    private readonly DynLeaderboardsPlugin _plugin;
     private readonly SettingsControl _settingsControl;
     private readonly PluginSettings _settings;
 
@@ -71,10 +69,8 @@ internal class DynamicLeaderboardsTabViewModel : INotifyPropertyChanged {
 
     public DynamicLeaderboardsTabViewModel(
         PluginSettings settings,
-        DynLeaderboardsPlugin plugin,
         SettingsControl settingsControl
     ) {
-        this._plugin = plugin;
         this._settingsControl = settingsControl;
         this._settings = settings;
 
@@ -128,18 +124,18 @@ internal class DynamicLeaderboardsTabViewModel : INotifyPropertyChanged {
             var msg =
                 $"Tried to remove leaderboard but could not find the specified leaderboard in the list. Leaderboard name: {cfg.Name}";
             Debug.Fail(msg);
-            DynLeaderboardsPlugin.LogError(msg);
+            Logging.LogError(msg);
         }
 
         this._leaderboards.RemoveAt(index);
-        this._plugin.RemoveLeaderboard(cfg);
+        this._settings.RemoveLeaderboard(cfg);
     }
 
     private void AddNewLeaderboard(DynLeaderboardConfig newCfg) {
         var vm = new LeaderboardComboBoxItemViewModel(newCfg);
         var it = new LeaderboardComboBoxItem(vm);
         this._leaderboards.Add(it);
-        this._plugin.AddNewLeaderboard(newCfg);
+        this._settings.AddLeaderboard(newCfg);
         this.SelectedLeaderboardListBoxItem = it;
     }
 
@@ -164,7 +160,7 @@ internal class DynamicLeaderboardsTabViewModel : INotifyPropertyChanged {
                     break;
             }
         } catch (Exception e) {
-            DynLeaderboardsPlugin.LogError($"Failed to add new dynamic leaderboard: {e}");
+            Logging.LogError($"Failed to add new dynamic leaderboard: {e}");
         }
     }
 
@@ -191,7 +187,7 @@ internal class DynamicLeaderboardsTabViewModel : INotifyPropertyChanged {
                     break;
             }
         } catch (Exception e) {
-            DynLeaderboardsPlugin.LogError($"Failed to add duplicate dynamic leaderboard: {e}");
+            Logging.LogError($"Failed to add duplicate dynamic leaderboard: {e}");
         }
     }
 
@@ -205,9 +201,9 @@ internal class DynamicLeaderboardsTabViewModel : INotifyPropertyChanged {
 }
 
 internal class NewLeaderboardNameValidationRule : ValidationRule {
-    private readonly List<DynLeaderboardConfig> _cfgs;
+    private readonly ReadOnlyCollection<DynLeaderboardConfig> _cfgs;
 
-    internal NewLeaderboardNameValidationRule(List<DynLeaderboardConfig> cfgs) {
+    internal NewLeaderboardNameValidationRule(ReadOnlyCollection<DynLeaderboardConfig> cfgs) {
         this._cfgs = cfgs;
     }
 
@@ -244,8 +240,15 @@ public class LeaderboardComboBoxItem : Control {
 internal class LeaderboardComboBoxItemViewModel : INotifyPropertyChanged {
     public event PropertyChangedEventHandler? PropertyChanged;
     internal readonly DynLeaderboardConfig Cfg;
-    public string Name { get; set; }
-    public bool IsEnabled { get; set; }
+    public string Name => this.Cfg.Name;
+
+    public bool IsEnabled {
+        get => this.Cfg.IsEnabled;
+        set {
+            this.Cfg.IsEnabled = value;
+            this.InvokePropertyChanged();
+        }
+    }
 
     #if DESIGN
     #pragma warning disable CS8618, CS9264
@@ -254,17 +257,12 @@ internal class LeaderboardComboBoxItemViewModel : INotifyPropertyChanged {
     #endif
 
     internal LeaderboardComboBoxItemViewModel(DynLeaderboardConfig cfg) {
-        this.Name = cfg.Name;
-        this.IsEnabled = cfg.IsEnabled;
         this.Cfg = cfg;
     }
 
     internal void OnCfgChange(object sender, PropertyChangedEventArgs e) {
-        this.Name = this.Cfg.Name;
-        this.IsEnabled = this.Cfg.IsEnabled;
-
-        this.InvokePropertyChanged(nameof(LeaderboardComboBoxItemViewModel.Name));
-        this.InvokePropertyChanged(nameof(LeaderboardComboBoxItemViewModel.IsEnabled));
+        this.InvokePropertyChanged(nameof(this.Name));
+        this.InvokePropertyChanged(nameof(this.IsEnabled));
     }
 
     private void InvokePropertyChanged([System.Runtime.CompilerServices.CallerMemberName] string? propertyName = null) {
@@ -281,7 +279,7 @@ internal class SelectedLeaderboardViewModel : INotifyPropertyChanged {
     public event Action<DynLeaderboardConfig>? RemoveLeaderboard;
     public event Action<DynLeaderboardConfig>? DuplicateLeaderboard;
 
-    public string Name { get; set; }
+    public string Name => this._cfg.Name;
     public ObservableCollection<LeaderboardRotationItem> RotationItems { get; } = [];
     public int? SelectedRotationIndex { get; set; }
     public string ControlsNextLeaderboardActionName => $"DynLeaderboardsPlugin.{this._cfg.NextLeaderboardActionName}";
@@ -322,7 +320,6 @@ internal class SelectedLeaderboardViewModel : INotifyPropertyChanged {
         SettingsControl settingsControl
     ) {
         this._cfg = cfg;
-        this.Name = cfg.Name;
         this._settings = settings;
         this._settingsControl = settingsControl;
 
@@ -368,7 +365,6 @@ internal class SelectedLeaderboardViewModel : INotifyPropertyChanged {
                     var name = dialogWindow.Text!;
                     // AskTextDialog validates that the entered leaderboard name is valid new name and OK cannot be pressed before
                     this._cfg.Rename(name);
-                    this.Name = name;
 
                     this.InvokePropertyChanged(nameof(SelectedLeaderboardViewModel.Name));
                     this.InvokePropertyChanged(nameof(SelectedLeaderboardViewModel.ControlsNextLeaderboardActionName));
@@ -380,13 +376,12 @@ internal class SelectedLeaderboardViewModel : INotifyPropertyChanged {
                     break;
             }
         } catch (Exception e) {
-            DynLeaderboardsPlugin.LogError($"Failed to rename a dynamic leaderboard: {e}");
+            Logging.LogError($"Failed to rename a dynamic leaderboard: {e}");
         }
     }
 
     public void SetCfg(DynLeaderboardConfig cfg) {
         this._cfg = cfg;
-        this.Name = cfg.Name;
 
         this.RotationItems.Clear();
         foreach (var l in this._cfg.Order) {
@@ -405,29 +400,29 @@ internal class SelectedLeaderboardViewModel : INotifyPropertyChanged {
         foreach (var p in this._exposedProperties) {
             switch (p) {
                 case PropertyViewModel<OutCarProp> pCar:
-                    pCar.UpdateSetting(this._cfg.OutCarProps);
+                    pCar.UpdateSetting(this._cfg.OutCarPropsInternal);
                     break;
                 case PropertyViewModel<OutPitProp> pPit:
-                    pPit.UpdateSetting(this._cfg.OutPitProps);
+                    pPit.UpdateSetting(this._cfg.OutPitPropsInternal);
                     break;
                 case PropertyViewModel<OutLapProp> pLap:
-                    pLap.UpdateSetting(this._cfg.OutLapProps);
+                    pLap.UpdateSetting(this._cfg.OutLapPropsInternal);
                     break;
                 case PropertyViewModel<OutStintProp> pSting:
-                    pSting.UpdateSetting(this._cfg.OutStintProps);
+                    pSting.UpdateSetting(this._cfg.OutStintPropsInternal);
                     break;
                 case PropertyViewModel<OutGapProp> pGaps:
-                    pGaps.UpdateSetting(this._cfg.OutGapProps);
+                    pGaps.UpdateSetting(this._cfg.OutGapPropsInternal);
                     break;
                 case PropertyViewModel<OutPosProp> pPos:
-                    pPos.UpdateSetting(this._cfg.OutPosProps);
+                    pPos.UpdateSetting(this._cfg.OutPosPropsInternal);
                     break;
                 case PropertyViewModel<OutDriverProp> pDriver:
-                    pDriver.UpdateSetting(this._cfg.OutDriverProps);
+                    pDriver.UpdateSetting(this._cfg.OutDriverPropsInternal);
                     break;
                 default: {
                     var msg = $"Unknown property type {p.GetType()} in {this.Name}";
-                    DynLeaderboardsPlugin.LogError(msg);
+                    Logging.LogError(msg);
                     break;
                 }
             }
@@ -462,7 +457,7 @@ internal class SelectedLeaderboardViewModel : INotifyPropertyChanged {
             v => v != OutCarProp.NONE,
             v => v.ToPropName(),
             v => v.ToolTipText(),
-            this._cfg.OutCarProps,
+            this._cfg.OutCarPropsInternal,
             "Car info"
         );
 
@@ -471,7 +466,7 @@ internal class SelectedLeaderboardViewModel : INotifyPropertyChanged {
             v => v != OutPitProp.NONE,
             v => v.ToPropName(),
             v => v.ToolTipText(),
-            this._cfg.OutPitProps,
+            this._cfg.OutPitPropsInternal,
             "Pit info"
         );
 
@@ -480,7 +475,7 @@ internal class SelectedLeaderboardViewModel : INotifyPropertyChanged {
             v => v != OutLapProp.NONE,
             v => v.ToPropName(),
             v => v.ToolTipText(),
-            this._cfg.OutLapProps,
+            this._cfg.OutLapPropsInternal,
             "Lap info"
         );
 
@@ -489,7 +484,7 @@ internal class SelectedLeaderboardViewModel : INotifyPropertyChanged {
             v => v != OutLapProp.NONE,
             v => v.ToPropName(),
             v => v.ToolTipText(),
-            this._cfg.OutLapProps,
+            this._cfg.OutLapPropsInternal,
             "Lap info",
             "Delta - best to best"
         );
@@ -499,7 +494,7 @@ internal class SelectedLeaderboardViewModel : INotifyPropertyChanged {
             v => v != OutLapProp.NONE,
             v => v.ToPropName(),
             v => v.ToolTipText(),
-            this._cfg.OutLapProps,
+            this._cfg.OutLapPropsInternal,
             "Lap info",
             "Delta - last to best"
         );
@@ -509,7 +504,7 @@ internal class SelectedLeaderboardViewModel : INotifyPropertyChanged {
             v => v != OutLapProp.NONE,
             v => v.ToPropName(),
             v => v.ToolTipText(),
-            this._cfg.OutLapProps,
+            this._cfg.OutLapPropsInternal,
             "Lap info",
             "Delta - last to last"
         );
@@ -519,7 +514,7 @@ internal class SelectedLeaderboardViewModel : INotifyPropertyChanged {
             v => v != OutLapProp.NONE,
             v => v.ToPropName(),
             v => v.ToolTipText(),
-            this._cfg.OutLapProps,
+            this._cfg.OutLapPropsInternal,
             "Lap info",
             "Delta - dynamic"
         );
@@ -529,7 +524,7 @@ internal class SelectedLeaderboardViewModel : INotifyPropertyChanged {
             v => v != OutStintProp.NONE,
             v => v.ToPropName(),
             v => v.ToolTipText(),
-            this._cfg.OutStintProps,
+            this._cfg.OutStintPropsInternal,
             "Stint info"
         );
 
@@ -538,7 +533,7 @@ internal class SelectedLeaderboardViewModel : INotifyPropertyChanged {
             v => v != OutGapProp.NONE,
             v => v.ToPropName(),
             v => v.ToolTipText(),
-            this._cfg.OutGapProps,
+            this._cfg.OutGapPropsInternal,
             "Gaps"
         );
 
@@ -547,7 +542,7 @@ internal class SelectedLeaderboardViewModel : INotifyPropertyChanged {
             v => v != OutGapProp.NONE,
             v => v.ToPropName(),
             v => v.ToolTipText(),
-            this._cfg.OutGapProps,
+            this._cfg.OutGapPropsInternal,
             "Gaps",
             "Dynamic"
         );
@@ -557,7 +552,7 @@ internal class SelectedLeaderboardViewModel : INotifyPropertyChanged {
             v => v != OutPosProp.NONE,
             v => v.ToPropName(),
             v => v.ToolTipText(),
-            this._cfg.OutPosProps,
+            this._cfg.OutPosPropsInternal,
             "Positions"
         );
 
@@ -566,7 +561,7 @@ internal class SelectedLeaderboardViewModel : INotifyPropertyChanged {
             v => v != OutPosProp.NONE,
             v => v.ToPropName(),
             v => v.ToolTipText(),
-            this._cfg.OutPosProps,
+            this._cfg.OutPosPropsInternal,
             "Positions",
             "Dynamic"
         );
@@ -576,7 +571,7 @@ internal class SelectedLeaderboardViewModel : INotifyPropertyChanged {
             v => v != OutCarProp.NONE,
             v => v.ToPropName(),
             v => v.ToolTipText(),
-            this._cfg.OutCarProps,
+            this._cfg.OutCarPropsInternal,
             "Misc"
         );
 
@@ -585,7 +580,7 @@ internal class SelectedLeaderboardViewModel : INotifyPropertyChanged {
             v => v != OutDriverProp.NONE,
             v => v.ToPropName(),
             v => v.ToolTipText(),
-            this._cfg.OutDriverProps,
+            this._cfg.OutDriverPropsInternal,
             "Drivers"
         );
     }
@@ -640,23 +635,23 @@ internal class LeaderboardRotationItem : Control {
 
 internal class LeaderboardRotationItemViewModel {
     public bool IsEnabled {
-        get => this._leaderboard.IsEnabled;
-        set => this._leaderboard.IsEnabled = value;
+        get => this._leaderboardConfig.IsEnabled;
+        set => this._leaderboardConfig.IsEnabled = value;
     }
 
-    public string Name => this._leaderboard.Kind.ToDisplayString();
+    public string Name => this._leaderboardConfig.Kind.ToDisplayString();
 
     public bool RemoveIfSingleClass {
-        get => this._leaderboard.RemoveIfSingleClass;
-        set => this._leaderboard.RemoveIfSingleClass = value;
+        get => this._leaderboardConfig.RemoveIfSingleClass;
+        set => this._leaderboardConfig.RemoveIfSingleClass = value;
     }
 
     public bool RemoveIfSingleCup {
-        get => this._leaderboard.RemoveIfSingleCup;
-        set => this._leaderboard.RemoveIfSingleCup = value;
+        get => this._leaderboardConfig.RemoveIfSingleCup;
+        set => this._leaderboardConfig.RemoveIfSingleCup = value;
     }
 
-    private readonly Leaderboard _leaderboard;
+    private readonly LeaderboardConfig _leaderboardConfig;
 
     #if DESIGN
     #pragma warning disable CS8618, CS9264
@@ -664,8 +659,8 @@ internal class LeaderboardRotationItemViewModel {
     #pragma warning restore CS8618, CS9264
     #endif
 
-    internal LeaderboardRotationItemViewModel(Leaderboard leaderboard) {
-        this._leaderboard = leaderboard;
+    internal LeaderboardRotationItemViewModel(LeaderboardConfig leaderboardConfig) {
+        this._leaderboardConfig = leaderboardConfig;
     }
 }
 
@@ -855,7 +850,7 @@ internal class DesignSelectedLeaderboardViewModel : SelectedLeaderboardViewModel
     public new ListCollectionView NumPosItems { get; }
 
     public DesignSelectedLeaderboardViewModel() {
-        this.SetCfg(new DynLeaderboardConfig());
+        this.SetCfg(new DynLeaderboardConfig("Dynamic"));
 
         this.AddNumPosItems();
         this.AddProperties();

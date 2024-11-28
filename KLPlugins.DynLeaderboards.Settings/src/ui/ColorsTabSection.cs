@@ -4,7 +4,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 
-using KLPlugins.DynLeaderboards.Helpers;
+using KLPlugins.DynLeaderboards.Common;
 
 using SimHub.Plugins.Styles;
 
@@ -21,26 +21,20 @@ internal class ColorsTabSection<K> {
     private readonly Dictionary<K, ColorRow> _rows;
 
     private readonly SettingsControl _settingsControl;
-    private readonly DynLeaderboardsPlugin _plugin;
-    private readonly Action _updateInfos;
 
     internal ColorsTabSection(
         SettingsControl settingsControl,
-        DynLeaderboardsPlugin plugin,
         string label,
         TextBoxColors<K> colors,
         Menu menu,
-        Grid colorsGrid,
-        Action updateInfos
+        Grid colorsGrid
     ) {
         this._settingsControl = settingsControl;
-        this._plugin = plugin;
         this.Label = label;
         this.Colors = colors;
         this._rows = [];
         this.Menu = menu;
         this.ColorsGrid = colorsGrid;
-        this._updateInfos = updateInfos;
     }
 
     internal void Build(Func<K, bool> isDef) {
@@ -58,8 +52,6 @@ internal class ColorsTabSection<K> {
                     foreach (var c in this._rows) {
                         c.Value.Reset();
                     }
-
-                    this._updateInfos();
                 }
             );
         };
@@ -73,8 +65,6 @@ internal class ColorsTabSection<K> {
                     foreach (var c in this._rows) {
                         c.Value.Disable();
                     }
-
-                    this._updateInfos();
                 }
             );
         };
@@ -87,8 +77,6 @@ internal class ColorsTabSection<K> {
                     foreach (var c in this._rows) {
                         c.Value.Enable();
                     }
-
-                    this._updateInfos();
                 }
             );
         };
@@ -141,7 +129,7 @@ internal class ColorsTabSection<K> {
     }
 
     private ColorRow CreateNewRow(K cls, OverridableTextBoxColor color, Func<K, bool> isDef) {
-        var row = new ColorRow(cls, cls!.ToString(), color, this._settingsControl.FindResource, this._updateInfos);
+        var row = new ColorRow(cls, cls!.ToString(), color, this._settingsControl.FindResource);
         if (color.HasBase() || isDef(cls)) {
             row.RemoveButton.IsEnabled = false;
             row.RemoveButton.Opacity = SettingsControl.DISABLED_OPTION_OPACITY;
@@ -192,8 +180,7 @@ internal class ColorsTabSection<K> {
             K key,
             string keyAsString,
             OverridableTextBoxColor color,
-            Func<string, object> findResource,
-            Action updateInfos
+            Func<string, object> findResource
         ) {
             this.Key = key;
             this.KeyAsString = keyAsString;
@@ -240,7 +227,6 @@ internal class ColorsTabSection<K> {
             this.BgColorPicker.SelectedColorChanged += (_, _) => {
                 this.Color.SetBackground(this.BgColorPicker.SelectedColor.ToString());
                 this.ClassBox.Background = new SolidColorBrush(this.BgColorPicker.SelectedColor.Value);
-                updateInfos();
             };
 
             this.FgColorPicker = new ColorPicker {
@@ -253,16 +239,12 @@ internal class ColorsTabSection<K> {
             this.FgColorPicker.SelectedColorChanged += (_, _) => {
                 this.Color.SetForeground(this.FgColorPicker.SelectedColor.ToString());
                 this.ClassText.Foreground = new SolidColorBrush(this.FgColorPicker.SelectedColor.Value);
-                updateInfos();
             };
 
             this.ResetButton = new SHButtonPrimary {
                 Style = (Style)findResource("ColorGrid_RemoveButton"), Content = "Reset",
             };
-            this.ResetButton.Click += (_, _) => {
-                this.Reset();
-                updateInfos();
-            };
+            this.ResetButton.Click += (_, _) => { this.Reset(); };
             Grid.SetColumn(this.ResetButton, 6);
 
             this.RemoveButton = new SHButtonPrimary {
@@ -279,7 +261,6 @@ internal class ColorsTabSection<K> {
                 this.BgColorPicker.Opacity = 1.0;
                 this.FgColorPicker.IsEnabled = true;
                 this.FgColorPicker.Opacity = 1.0;
-                updateInfos();
             };
 
             this.EnabledToggle.Unchecked += (_, _) => {
@@ -291,7 +272,6 @@ internal class ColorsTabSection<K> {
                 this.BgColorPicker.Opacity = opacity;
                 this.FgColorPicker.IsEnabled = false;
                 this.FgColorPicker.Opacity = opacity;
-                updateInfos();
             };
         }
 

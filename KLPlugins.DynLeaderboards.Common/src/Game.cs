@@ -1,4 +1,4 @@
-﻿namespace KLPlugins.DynLeaderboards;
+﻿namespace KLPlugins.DynLeaderboards.Common;
 
 /// <summary>
 ///     Booleans to tell which game we have. Since different games have different available data then we need to do a lot
@@ -29,7 +29,7 @@ public class Game {
     public bool IsUnknown { get; } = false;
     public string Name { get; }
 
-    internal Game(string gameName) {
+    public Game(string gameName) {
         this.Name = gameName;
 
         if (gameName.StartsWith("F120")) {

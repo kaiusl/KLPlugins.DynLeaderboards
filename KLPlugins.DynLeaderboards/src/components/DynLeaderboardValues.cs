@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 
 using KLPlugins.DynLeaderboards.Car;
+using KLPlugins.DynLeaderboards.Common;
 using KLPlugins.DynLeaderboards.Settings;
 
 namespace KLPlugins.DynLeaderboards;
@@ -378,9 +379,7 @@ public class DynLeaderboard {
     }
 
     private void OnLeaderboardChange(Values v) {
-        DynLeaderboardsPlugin.LogInfo(
-            $"OnLeaderboardChange [{this.Config.Name}]: {this.Config.CurrentLeaderboard().Kind}"
-        );
+        Logging.LogInfo($"OnLeaderboardChange [{this.Config.Name}]: {this.Config.CurrentLeaderboard().Kind}");
         this.SetDynGetters(v);
     }
 }

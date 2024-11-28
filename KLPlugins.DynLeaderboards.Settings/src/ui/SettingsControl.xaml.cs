@@ -6,7 +6,7 @@ using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Documents;
 
-using KLPlugins.DynLeaderboards.Car;
+using KLPlugins.DynLeaderboards.Common;
 
 using SimHub.Plugins.Styles;
 using SimHub.Plugins.UI;
@@ -118,57 +118,44 @@ public sealed class DocsPathConverter : IValueConverter {
 }
 
 public partial class SettingsControl : UserControl {
-    internal DynLeaderboardsPlugin Plugin { get; }
     internal DynLeaderboardConfig CurrentDynLeaderboardSettings { get; private set; }
-
-    //internal CarSettingsTab CarSettingsTab { get; private set; };
+    internal PluginSettings Settings { get; }
     internal ClassInfos.Manager ClassesManager { get; }
 
     public const double DISABLED_OPTION_OPACITY = 0.333;
 
-    //internal SettingsControl() {
-    //    InitializeComponent();
-    //    DataContext = this;
-    //}
+    internal Game Game { get; }
 
-    internal SettingsControl(DynLeaderboardsPlugin plugin) {
+    public SettingsControl(PluginSettings settings, Game game) {
         this.InitializeComponent();
         this.DataContext = this;
+        this.Settings = settings;
+        this.Game = game;
 
-        this.Plugin = plugin;
-
-        this.ClassesManager = new ClassInfos.Manager(DynLeaderboardsPlugin.Settings.Infos.ClassInfos);
+        this.ClassesManager = new ClassInfos.Manager(this.Settings.Infos.ClassInfos);
         this.ClassesManager.CollectionChanged += (_, e) => {
             if (e.NewItems != null) {
                 foreach (OverridableClassInfo.Manager item in e.NewItems) {
                     this.TryAddCarClass(item.Key);
                 }
             }
-            //if (e.OldItems != null) {
-            //    foreach (OverridableClassInfo.Manager item in e.OldItems) {
-            //    }
-
-            //}
         };
 
-        this.GeneralSettingsTab_SHTabItem.Content = new GeneralSettingsTab(DynLeaderboardsPlugin.Settings);
+        this.GeneralSettingsTab_SHTabItem.Content = new GeneralSettingsTab(this.Settings);
         this.DynamicLeaderboardsTab_SHTabItem.Content = new DynamicLeaderboardsTab(
-            DynLeaderboardsPlugin.Settings,
-            this.Plugin,
+            this.Settings,
             this
         );
-        this.CarSettingsTab_SHTabItem.Content = new CarSettingsTab(this.Plugin, this);
-        this.ClassSettingsTab_SHTabItem.Content = new ClassSettingsTab(this, this.Plugin.Values, this.ClassesManager);
+        this.CarSettingsTab_SHTabItem.Content = new CarSettingsTab(this);
+        this.ClassSettingsTab_SHTabItem.Content = new ClassSettingsTab(this, this.ClassesManager);
 
-        if (DynLeaderboardsPlugin.Settings.DynLeaderboardConfigs.Count == 0) {
-            this.Plugin.AddNewLeaderboard(new DynLeaderboardConfig("Dynamic"));
+        if (this.Settings.DynLeaderboardConfigs.Count == 0) {
+            this.Settings.AddLeaderboard(new DynLeaderboardConfig("Dynamic"));
         }
 
-        this.CurrentDynLeaderboardSettings = DynLeaderboardsPlugin.Settings.DynLeaderboardConfigs[0];
+        this.CurrentDynLeaderboardSettings = this.Settings.DynLeaderboardConfigs[0];
 
         this.SetAllClassesAndManufacturers();
-        //this.CarSettingsTab = new CarSettingsTab(this, this.Plugin);
-        //this.CarSettingsTab.Build();
         this.AddColorsTab();
     }
 
@@ -182,7 +169,7 @@ public partial class SettingsControl : UserControl {
         var clsStr = cls.AsString();
         if (!this.AllClasses.Contains(clsStr)) {
             this.AllClasses.Add(clsStr);
-            DynLeaderboardsPlugin.Settings.Infos.ClassInfos.GetOrAdd(cls);
+            this.Settings.Infos.ClassInfos.GetOrAdd(cls);
         }
     }
 
@@ -206,22 +193,20 @@ public partial class SettingsControl : UserControl {
                     throw new ArgumentOutOfRangeException();
             }
         } catch (Exception e) {
-            DynLeaderboardsPlugin.LogError($"Failed to do on confirmation: {e}");
+            Logging.LogError($"Failed to do on confirmation: {e}");
         }
     }
 
     private void SetAllClassesAndManufacturers() {
         // Go through all cars and check for class colors. 
         // If there are new classes then trying to Values.CarClassColors.Get will add them to the dictionary.
-        foreach (var c in DynLeaderboardsPlugin.Settings.Infos.CarInfos) {
+        foreach (var c in this.Settings.Infos.CarInfos) {
             CarClass?[] classes = [c.Value.ClassDontCheckEnabled(), c.Value.BaseClass()];
             foreach (var cls in classes) {
                 if (cls != null) {
-                    var info = DynLeaderboardsPlugin.Settings.Infos.ClassInfos.GetOrAdd(cls.Value);
+                    var info = this.Settings.Infos.ClassInfos.GetOrAdd(cls.Value);
                     if (info.ReplaceWithDontCheckEnabled() != null) {
-                        var _ = DynLeaderboardsPlugin.Settings.Infos.ClassInfos.GetOrAdd(
-                            info.ReplaceWithDontCheckEnabled()!.Value
-                        );
+                        var _ = this.Settings.Infos.ClassInfos.GetOrAdd(info.ReplaceWithDontCheckEnabled()!.Value);
                     }
                 }
             }
@@ -234,7 +219,7 @@ public partial class SettingsControl : UserControl {
             }
         }
 
-        foreach (var c in DynLeaderboardsPlugin.Settings.Infos.ClassInfos) {
+        foreach (var c in this.Settings.Infos.ClassInfos) {
             this.TryAddCarClass(c.Key);
         }
     }
@@ -243,28 +228,18 @@ public partial class SettingsControl : UserControl {
     private void AddColorsTab() {
         new ColorsTabSection<TeamCupCategory>(
             this,
-            this.Plugin,
             "Category",
-            DynLeaderboardsPlugin.Settings.Infos.TeamCupCategoryColors,
+            this.Settings.Infos.TeamCupCategoryColors,
             this.ColorsTab_TeamCupCategoryColors_Menu,
-            this.ColorsTab_TeamCupCategoryColors_Grid,
-            this.Plugin.Values.UpdateTeamCupInfos
+            this.ColorsTab_TeamCupCategoryColors_Grid
         ).Build(c => c == TeamCupCategory.Default);
 
         new ColorsTabSection<DriverCategory>(
             this,
-            this.Plugin,
             "Category",
-            DynLeaderboardsPlugin.Settings.Infos.DriverCategoryColors,
+            this.Settings.Infos.DriverCategoryColors,
             this.ColorsTab_DriverCategoryColors_Menu,
-            this.ColorsTab_DriverCategoryColors_Grid,
-            this.Plugin.Values.UpdateDriverInfos
+            this.ColorsTab_DriverCategoryColors_Grid
         ).Build(c => c == DriverCategory.Default);
-    }
-
-    private void NumericUpDown_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double?> e) {
-        if (e.NewValue != null) {
-            DynLeaderboardsPlugin.Settings.BroadcastDataUpdateRateMs = (int)e.NewValue;
-        }
     }
 }

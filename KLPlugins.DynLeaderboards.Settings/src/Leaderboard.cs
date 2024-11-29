@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
@@ -15,13 +16,14 @@ using System.Diagnostics;
 
 namespace KLPlugins.DynLeaderboards.Settings;
 
+[JsonObject(MemberSerialization.OptIn)]
 public sealed class DynLeaderboardConfig {
-    [JsonIgnore] private const int _CURRENT_CONFIG_VERSION = 3;
-    [JsonProperty] public int Version { get; internal set; } = DynLeaderboardConfig._CURRENT_CONFIG_VERSION;
+    private const int _CURRENT_CONFIG_VERSION = 3;
+    [JsonProperty("Version", Required = Required.Always)]
+    public int Version { get; internal set; } = DynLeaderboardConfig._CURRENT_CONFIG_VERSION;
 
-    [JsonIgnore] private string _name = "";
-
-    [JsonProperty]
+    private string _name = "";
+    [JsonProperty("Name", Required = Required.Always)]
     public string Name {
         get => this._name;
         internal set {
@@ -31,54 +33,43 @@ public sealed class DynLeaderboardConfig {
         }
     }
 
-
+    public ReadonlyOutProps<OutPropsBase<OutCarProp>, OutCarProp> OutCarProps => this._OutCarProps.AsReadonly();
     [JsonProperty("OutCarProps")]
-    internal OutCarProps OutCarPropsInternal { get; set; } = new(
+    internal OutCarProps _OutCarProps { get; set; } = new(
         OutCarProp.CAR_NUMBER
         | OutCarProp.CAR_CLASS
         | OutCarProp.IS_FINISHED
         | OutCarProp.CAR_CLASS_COLOR
+        | OutCarProp.CAR_CLASS_TEXT_COLOR
         | OutCarProp.TEAM_CUP_CATEGORY_COLOR
         | OutCarProp.TEAM_CUP_CATEGORY_TEXT_COLOR
         | OutCarProp.RELATIVE_ON_TRACK_LAP_DIFF
     );
 
-    [JsonIgnore]
-    public ReadonlyOutProps<OutPropsBase<OutCarProp>, OutCarProp> OutCarProps => this.OutCarPropsInternal.AsReadonly();
-
+    public ReadonlyOutProps<OutPropsBase<OutPitProp>, OutPitProp> OutPitProps => this._OutPitProps.AsReadonly();
     [JsonProperty("OutPitProps")]
-    internal OutPitProps OutPitPropsInternal { get; set; } = new(OutPitProp.IS_IN_PIT_LANE);
+    internal OutPitProps _OutPitProps { get; set; } = new(OutPitProp.IS_IN_PIT_LANE);
 
-    [JsonIgnore]
-    public ReadonlyOutProps<OutPropsBase<OutPitProp>, OutPitProp> OutPitProps => this.OutPitPropsInternal.AsReadonly();
-
+    public ReadonlyOutProps<OutPropsBase<OutPosProp>, OutPosProp> OutPosProps => this._OutPosProps.AsReadonly();
     [JsonProperty("OutPosProps")]
-    internal OutPosProps OutPosPropsInternal { get; set; } = new(OutPosProp.DYNAMIC_POSITION);
+    internal OutPosProps _OutPosProps { get; set; } = new(OutPosProp.DYNAMIC_POSITION);
 
-    [JsonIgnore]
-    public ReadonlyOutProps<OutPropsBase<OutPosProp>, OutPosProp> OutPosProps => this.OutPosPropsInternal.AsReadonly();
-
+    public ReadonlyOutProps<OutPropsBase<OutGapProp>, OutGapProp> OutGapProps => this._OutGapProps.AsReadonly();
     [JsonProperty("OutGapProps")]
-    internal OutGapProps OutGapPropsInternal { get; set; } = new(OutGapProp.DYNAMIC_GAP_TO_FOCUSED);
+    internal OutGapProps _OutGapProps { get; set; } = new(OutGapProp.DYNAMIC_GAP_TO_FOCUSED);
 
-    [JsonIgnore]
-    public ReadonlyOutProps<OutPropsBase<OutGapProp>, OutGapProp> OutGapProps => this.OutGapPropsInternal.AsReadonly();
+    public ReadonlyOutProps<OutPropsBase<OutStintProp>, OutStintProp> OutStintProps => this._OutStintProps.AsReadonly();
+    [JsonProperty("OutStingProps")]
+    internal OutStintProps _OutStintProps { get; set; } = new(OutStintProp.NONE);
 
-    [JsonProperty("OutStingProps")] internal OutStintProps OutStintPropsInternal { get; set; } = new(OutStintProp.NONE);
-
-    [JsonIgnore]
-    public ReadonlyOutProps<OutPropsBase<OutStintProp>, OutStintProp> OutStintProps =>
-        this.OutStintPropsInternal.AsReadonly();
-
-    [JsonProperty("OutDriverProps")]
-    internal OutDriverProps OutDriverPropsInternal { get; set; } = new(OutDriverProp.INITIAL_PLUS_LAST_NAME);
-
-    [JsonIgnore]
     public ReadonlyOutProps<OutPropsBase<OutDriverProp>, OutDriverProp> OutDriverProps =>
-        this.OutDriverPropsInternal.AsReadonly();
+        this._OutDriverProps.AsReadonly();
+    [JsonProperty("OutDriverProps")]
+    internal OutDriverProps _OutDriverProps { get; set; } = new(OutDriverProp.INITIAL_PLUS_LAST_NAME);
 
+    public ReadonlyOutProps<OutPropsBase<OutLapProp>, OutLapProp> OutLapProps => this._OutLapProps.AsReadonly();
     [JsonProperty("OutLapProps")]
-    internal OutLapProps OutLapPropsInternal { get; set; } = new(
+    internal OutLapProps _OutLapProps { get; set; } = new(
         OutLapProp.LAPS
         | OutLapProp.LAST_LAP_TIME
         | OutLapProp.BEST_LAP_TIME
@@ -86,104 +77,124 @@ public sealed class DynLeaderboardConfig {
         | OutLapProp.DYNAMIC_LAST_LAP_DELTA_TO_FOCUSED_LAST
     );
 
-    [JsonIgnore]
-    public ReadonlyOutProps<OutPropsBase<OutLapProp>, OutLapProp> OutLapProps => this.OutLapPropsInternal.AsReadonly();
-
-    [JsonProperty]
+    public int NumOverallPos => this._NumOverallPos.Value;
+    [JsonProperty("NumOverallPos")]
     [JsonConverter(typeof(BoxJsonConverter<int>))]
-    public Box<int> NumOverallPos { get; internal set; } = new(16);
+    internal Box<int> _NumOverallPos { get; set; } = new(16);
 
-    [JsonProperty]
+    public int NumClassPos => this._NumClassPos.Value;
+    [JsonProperty("NumClassPos")]
     [JsonConverter(typeof(BoxJsonConverter<int>))]
-    public Box<int> NumClassPos { get; internal set; } = new(16);
+    internal Box<int> _NumClassPos { get; set; } = new(16);
 
-    [JsonProperty]
+    public int NumCupPos => this._NumCupPos.Value;
+    [JsonProperty("NumCupPos")]
     [JsonConverter(typeof(BoxJsonConverter<int>))]
-    public Box<int> NumCupPos { get; internal set; } = new(16);
+    internal Box<int> _NumCupPos { get; set; } = new(16);
 
-    [JsonProperty]
+    public int NumOnTrackRelativePos => this._NumOnTrackRelativePos.Value;
+    [JsonProperty("NumOnTrackRelativePos")]
     [JsonConverter(typeof(BoxJsonConverter<int>))]
-    public Box<int> NumOnTrackRelativePos { get; internal set; } = new(5);
+    internal Box<int> _NumOnTrackRelativePos { get; set; } = new(5);
 
-    [JsonProperty]
+    public int NumOverallRelativePos => this._NumOverallRelativePos.Value;
+    [JsonProperty("NumOverallRelativePos")]
     [JsonConverter(typeof(BoxJsonConverter<int>))]
-    public Box<int> NumOverallRelativePos { get; internal set; } = new(5);
+    internal Box<int> _NumOverallRelativePos { get; set; } = new(5);
 
-    [JsonProperty]
+    public int NumClassRelativePos => this._NumClassRelativePos.Value;
+    [JsonProperty("NumClassRelativePos")]
     [JsonConverter(typeof(BoxJsonConverter<int>))]
-    public Box<int> NumClassRelativePos { get; internal set; } = new(5);
+    internal Box<int> _NumClassRelativePos { get; set; } = new(5);
 
-    [JsonProperty]
+    public int NumCupRelativePos => this._NumCupRelativePos.Value;
+    [JsonProperty("NumCupRelativePos")]
     [JsonConverter(typeof(BoxJsonConverter<int>))]
-    public Box<int> NumCupRelativePos { get; internal set; } = new(5);
+    internal Box<int> _NumCupRelativePos { get; set; } = new(5);
 
-    [JsonProperty]
+    public int NumDrivers => this._NumDrivers.Value;
+    [JsonProperty("NumDrivers")]
     [JsonConverter(typeof(BoxJsonConverter<int>))]
-    public Box<int> NumDrivers { get; internal set; } = new(1);
+    internal Box<int> _NumDrivers { get; set; } = new(1);
 
-    [JsonProperty]
+    public int PartialRelativeOverallNumOverallPos => this._PartialRelativeOverallNumOverallPos.Value;
+    [JsonProperty("PartialRelativeOverallNumOverallPos")]
     [JsonConverter(typeof(BoxJsonConverter<int>))]
-    public Box<int> PartialRelativeOverallNumOverallPos { get; internal set; } = new(5);
+    internal Box<int> _PartialRelativeOverallNumOverallPos { get; set; } = new(5);
 
-    [JsonProperty]
+    public int PartialRelativeOverallNumRelativePos => this._PartialRelativeOverallNumRelativePos.Value;
+    [JsonProperty("PartialRelativeOverallNumRelativePos")]
     [JsonConverter(typeof(BoxJsonConverter<int>))]
-    public Box<int> PartialRelativeOverallNumRelativePos { get; internal set; } = new(5);
+    internal Box<int> _PartialRelativeOverallNumRelativePos { get; set; } = new(5);
 
-    [JsonProperty]
+    public int PartialRelativeClassNumClassPos => this._PartialRelativeClassNumClassPos.Value;
+    [JsonProperty("PartialRelativeClassNumClassPos")]
     [JsonConverter(typeof(BoxJsonConverter<int>))]
-    public Box<int> PartialRelativeClassNumClassPos { get; internal set; } = new(5);
+    internal Box<int> _PartialRelativeClassNumClassPos { get; set; } = new(5);
 
-    [JsonProperty]
+    public int PartialRelativeClassNumRelativePos => this._PartialRelativeClassNumRelativePos.Value;
+    [JsonProperty("PartialRelativeClassNumRelativePos")]
     [JsonConverter(typeof(BoxJsonConverter<int>))]
-    public Box<int> PartialRelativeClassNumRelativePos { get; internal set; } = new(5);
+    internal Box<int> _PartialRelativeClassNumRelativePos { get; set; } = new(5);
 
-    [JsonProperty]
+    public int PartialRelativeCupNumCupPos => this._PartialRelativeCupNumCupPos.Value;
+    [JsonProperty("PartialRelativeCupNumCupPos")]
     [JsonConverter(typeof(BoxJsonConverter<int>))]
-    public Box<int> PartialRelativeCupNumCupPos { get; internal set; } = new(5);
+    internal Box<int> _PartialRelativeCupNumCupPos { get; set; } = new(5);
 
-    [JsonProperty]
+    public int PartialRelativeCupNumRelativePos => this._PartialRelativeCupNumRelativePos.Value;
+    [JsonProperty("PartialRelativeCupNumRelativePos")]
     [JsonConverter(typeof(BoxJsonConverter<int>))]
-    public Box<int> PartialRelativeCupNumRelativePos { get; internal set; } = new(5);
+    internal Box<int> _PartialRelativeCupNumRelativePos { get; set; } = new(5);
 
-    [JsonProperty]
-    public List<LeaderboardConfig> Order { get; internal set; }
+    public ReadOnlyCollection<LeaderboardConfig> Order { get; private set; }
+    [JsonProperty("Order")]
+    internal List<LeaderboardConfig> _Order {
+        get => this._order;
+        set {
+            this._order = value;
+            this.Order = this._order.AsReadOnly();
+        }
+    }
+    private List<LeaderboardConfig> _order;
 
-    [JsonIgnore] private int _currentLeaderboardIdx = 0;
 
-    [JsonProperty]
+    private int _currentLeaderboardIdx = 0;
+    [JsonProperty("CurrentLeaderboardIdx")]
     public int CurrentLeaderboardIdx {
         get => this._currentLeaderboardIdx;
         set {
-            this._currentLeaderboardIdx = value > -1 && value < this.Order.Count ? value : 0;
+            this._currentLeaderboardIdx = value > -1 && value < this._Order.Count ? value : 0;
             var currentLeaderboard = this.CurrentLeaderboard();
             this.CurrentLeaderboardDisplayName = currentLeaderboard.Kind.ToDisplayString();
             this.CurrentLeaderboardCompactName = currentLeaderboard.Kind.ToCompactString();
         }
     }
 
-    [JsonProperty] public bool IsEnabled { get; internal set; } = true;
-    [JsonIgnore] public string NextLeaderboardActionName { get; }
-    [JsonIgnore] public string PreviousLeaderboardActionName { get; }
-    [JsonIgnore] public string CurrentLeaderboardDisplayName {get; private set;}
-    [JsonIgnore] public string CurrentLeaderboardCompactName {get; private set;}
+    [JsonProperty("IsEnabled")]
+    public bool IsEnabled { get; internal set; } = true;
+    public string NextLeaderboardActionName { get; }
+    public string PreviousLeaderboardActionName { get; }
+    public string CurrentLeaderboardDisplayName { get; private set; }
+    public string CurrentLeaderboardCompactName { get; private set; }
 
     private delegate JObject Migration(JObject o);
 
     public LeaderboardConfig CurrentLeaderboard() {
-        return this.Order.ElementAt(this.CurrentLeaderboardIdx);
+        return this._Order.ElementAt(this.CurrentLeaderboardIdx);
     }
-    
+
     [JsonConstructor]
     internal DynLeaderboardConfig(string name, List<LeaderboardConfig> order, int currentLeaderboardIdx) {
         this.Name = name;
-        this.Order = order;
+        this._order = order;
+        this.Order = this._order.AsReadOnly();
         this.NextLeaderboardActionName = $"{this.Name}.NextLeaderboard";
         this.PreviousLeaderboardActionName = $"{this.Name}.PreviousLeaderboard";
         // this.CurrentLeaderboardIdx.set will set these too
         this.CurrentLeaderboardDisplayName = null!;
         this.CurrentLeaderboardCompactName = null!;
         this.CurrentLeaderboardIdx = currentLeaderboardIdx;
-
     }
 
     internal DynLeaderboardConfig(string name) {
@@ -191,21 +202,22 @@ public sealed class DynLeaderboardConfig {
         this.NextLeaderboardActionName = $"{this.Name}.NextLeaderboard";
         this.PreviousLeaderboardActionName = $"{this.Name}.PreviousLeaderboard";
         // Don't set order in property definition, deserializing from json will append to it!
-        this.Order = [
+        this._order = [
             new LeaderboardConfig(LeaderboardKind.OVERALL, isEnabled: true),
             new LeaderboardConfig(LeaderboardKind.CLASS, true, true, isEnabled: true),
             new LeaderboardConfig(LeaderboardKind.CUP, true, true),
-            new LeaderboardConfig(LeaderboardKind.PARTIAL_RELATIVE_OVERALL, isEnabled:true),
-            new LeaderboardConfig(LeaderboardKind.PARTIAL_RELATIVE_CLASS, true, true, isEnabled:true),
+            new LeaderboardConfig(LeaderboardKind.PARTIAL_RELATIVE_OVERALL, isEnabled: true),
+            new LeaderboardConfig(LeaderboardKind.PARTIAL_RELATIVE_CLASS, true, true, isEnabled: true),
             new LeaderboardConfig(LeaderboardKind.PARTIAL_RELATIVE_CUP, true, true),
-            new LeaderboardConfig(LeaderboardKind.RELATIVE_OVERALL, isEnabled:true),
-            new LeaderboardConfig(LeaderboardKind.RELATIVE_CLASS, true, true, isEnabled:true),
+            new LeaderboardConfig(LeaderboardKind.RELATIVE_OVERALL, isEnabled: true),
+            new LeaderboardConfig(LeaderboardKind.RELATIVE_CLASS, true, true, isEnabled: true),
             new LeaderboardConfig(LeaderboardKind.RELATIVE_CUP, true, true),
             new LeaderboardConfig(LeaderboardKind.RELATIVE_ON_TRACK, isEnabled: true),
             new LeaderboardConfig(LeaderboardKind.RELATIVE_ON_TRACK_WO_PIT),
         ];
-        this.CurrentLeaderboardDisplayName = this.Order[this._currentLeaderboardIdx].Kind.ToDisplayString();
-        this.CurrentLeaderboardCompactName = this.Order[this._currentLeaderboardIdx].Kind.ToCompactString();
+        this.Order = this._order.AsReadOnly();
+        this.CurrentLeaderboardDisplayName = this._Order[this._currentLeaderboardIdx].Kind.ToDisplayString();
+        this.CurrentLeaderboardCompactName = this._Order[this._currentLeaderboardIdx].Kind.ToCompactString();
     }
 
     internal DynLeaderboardConfig DeepClone() {
@@ -213,17 +225,17 @@ public sealed class DynLeaderboardConfig {
     }
 
     internal void Rename(string newName) {
-        var configFileName = $"{PluginSettings.LeaderboardConfigsDataDir}\\{this.Name}.json";
+        var configFileName = $"{PluginSettings._LeaderboardConfigsDataDir}\\{this.Name}.json";
         if (File.Exists(configFileName)) {
-            File.Move(configFileName, $"{PluginSettings.LeaderboardConfigsDataDir}\\{newName}.json");
+            File.Move(configFileName, $"{PluginSettings._LeaderboardConfigsDataDir}\\{newName}.json");
         }
 
         for (var i = 5; i > -1; i--) {
-            var currentBackupName = $"{PluginSettings.LeaderboardConfigsDataBackupDir}\\{this.Name}_b{i + 1}.json";
+            var currentBackupName = $"{PluginSettings._LeaderboardConfigsDataBackupDir}\\{this.Name}_b{i + 1}.json";
             if (File.Exists(currentBackupName)) {
                 File.Move(
                     currentBackupName,
-                    $"{PluginSettings.LeaderboardConfigsDataBackupDir}\\{newName}_b{i + 1}.json"
+                    $"{PluginSettings._LeaderboardConfigsDataBackupDir}\\{newName}_b{i + 1}.json"
                 );
             }
         }
@@ -236,18 +248,18 @@ public sealed class DynLeaderboardConfig {
     public int MaxPositions() {
         if (this._maxPositions == null) {
             var numPos = new[] {
-                this.NumOverallPos.Value,
-                this.NumClassPos.Value,
-                this.NumCupPos.Value,
-                this.NumOverallRelativePos.Value * 2 + 1,
-                this.NumClassRelativePos.Value * 2 + 1,
-                this.NumCupRelativePos.Value * 2 + 1,
-                this.NumOnTrackRelativePos.Value * 2 + 1,
-                this.PartialRelativeClassNumClassPos.Value + this.PartialRelativeClassNumRelativePos.Value * 2 + 1,
-                this.PartialRelativeOverallNumOverallPos.Value
-                + this.PartialRelativeOverallNumRelativePos.Value * 2
+                this._NumOverallPos.Value,
+                this._NumClassPos.Value,
+                this._NumCupPos.Value,
+                this._NumOverallRelativePos.Value * 2 + 1,
+                this._NumClassRelativePos.Value * 2 + 1,
+                this._NumCupRelativePos.Value * 2 + 1,
+                this._NumOnTrackRelativePos.Value * 2 + 1,
+                this._PartialRelativeClassNumClassPos.Value + this._PartialRelativeClassNumRelativePos.Value * 2 + 1,
+                this._PartialRelativeOverallNumOverallPos.Value
+                + this._PartialRelativeOverallNumRelativePos.Value * 2
                 + 1,
-                this.PartialRelativeCupNumCupPos.Value + this.PartialRelativeCupNumRelativePos.Value * 2 + 1,
+                this._PartialRelativeCupNumCupPos.Value + this._PartialRelativeCupNumRelativePos.Value * 2 + 1,
             };
 
             this._maxPositions = numPos.Max();
@@ -264,7 +276,7 @@ public sealed class DynLeaderboardConfig {
     internal static void Migrate() {
         var migrations = DynLeaderboardConfig.CreateMigrationsDict();
 
-        foreach (var filePath in Directory.GetFiles(PluginSettings.LeaderboardConfigsDataDir)) {
+        foreach (var filePath in Directory.GetFiles(PluginSettings._LeaderboardConfigsDataDir)) {
             if (!File.Exists(filePath) || !filePath.EndsWith(".json")) {
                 continue;
             }
@@ -285,7 +297,7 @@ public sealed class DynLeaderboardConfig {
             while (version != DynLeaderboardConfig._CURRENT_CONFIG_VERSION) {
                 // create backup of old settings before migrating
                 using var backupFile = File.CreateText(
-                    $"{PluginSettings.LeaderboardConfigsDataBackupDir}\\{fileName}.v{version}.bak"
+                    $"{PluginSettings._LeaderboardConfigsDataBackupDir}\\{fileName}.v{version}.bak"
                 );
                 var serializer1 = new JsonSerializer { Formatting = Formatting.Indented };
                 serializer1.Serialize(backupFile, savedSettings);
@@ -335,7 +347,7 @@ public sealed class DynLeaderboardConfig {
         cfg["PartialRelativeCupNumCupPos"] = cfg["PartialRelativeClassNumClassPos"];
         cfg["PartialRelativeCupNumRelativePos"] = cfg["PartialRelativeClassNumRelativePos"];
 
-        SimHub.Logging.Current.Info($"Migrated DynLeaderboardConfig {cfg["Name"]} from v1 to v2.");
+        Logging.LogInfo($"Migrated DynLeaderboardConfig {cfg["Name"]} from v1 to v2.");
 
         return cfg;
     }
@@ -352,7 +364,7 @@ public sealed class DynLeaderboardConfig {
 
         cfg["Version"] = 3;
 
-        SimHub.Logging.Current.Info($"Migrated DynLeaderboardConfig {cfg["Name"]} from v2 to v3.");
+        Logging.LogInfo($"Migrated DynLeaderboardConfig {cfg["Name"]} from v2 to v3.");
 
         return cfg;
     }
@@ -360,13 +372,17 @@ public sealed class DynLeaderboardConfig {
 
 [TypeConverter(typeof(TyConverter))]
 public sealed class LeaderboardConfig {
-    [JsonProperty] public LeaderboardKind Kind { get; private set; }
+    [JsonProperty(Required = Required.Always)]
+    public LeaderboardKind Kind { get; private set; }
 
-    [JsonProperty] public bool RemoveIfSingleClass { get; internal set; }
+    [JsonProperty("RemoveIfSingleClass")]
+    public bool RemoveIfSingleClass { get; internal set; }
 
-    [JsonProperty] public bool RemoveIfSingleCup { get; internal set; }
+    [JsonProperty("RemoveIfSingleCup")]
+    public bool RemoveIfSingleCup { get; internal set; }
 
-    [JsonProperty] public bool IsEnabled { get; internal set; }
+    [JsonProperty("IsEnabled")]
+    public bool IsEnabled { get; internal set; }
 
     [JsonConstructor]
     internal LeaderboardConfig(
@@ -430,7 +446,7 @@ public enum LeaderboardKind {
     PARTIAL_RELATIVE_CUP,
 }
 
-internal static  class LeaderboardKindExtensions {
+internal static class LeaderboardKindExtensions {
     internal const int MAX_VALUE = (int)LeaderboardKind.PARTIAL_RELATIVE_CUP;
 
     /// <summary>

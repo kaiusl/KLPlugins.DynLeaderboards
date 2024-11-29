@@ -7,7 +7,15 @@ using Newtonsoft.Json;
 
 using Xunit;
 
-namespace KLPlugins.DynLeaderboards.Tests.Settings;
+namespace KLPlugins.DynLeaderboards.Tests.Settings.ClassInfosTests;
+
+[TestSubject(typeof(ClassInfos))]
+public class ClassInfosTests {
+    [Fact]
+    public void NotDeserializable() {
+        Assert.Throws<NotDeserializableException>(() => JsonConvert.DeserializeObject<ClassInfos>("{}"));
+    }
+}
 
 [TestSubject(typeof(OverridableClassInfo))]
 public class OverridableClassInfoTests {
@@ -67,5 +75,10 @@ public class SimHubClassColorsTest {
         var gt2 = color.AssignedColors[new CarClass("GT2")];
         Assert.NotNull(gt2);
         Assert.Equal("#FFCA2B30", gt2.Bg);
+    }
+
+    [Fact]
+    public void NotDeserializable() {
+        Assert.Throws<NotDeserializableException>(() => JsonConvert.DeserializeObject<SimHubClassColors>("{}"));
     }
 }

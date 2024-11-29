@@ -187,12 +187,15 @@ internal sealed class LapInterpolator {
     }
 }
 
+[JsonObject(MemberSerialization.OptIn)]
 public sealed class SplinePosOffset {
-    [JsonProperty("min")] private double? _min = null;
+    [JsonProperty("min")]
+    private double? _min = null;
 
-    [JsonProperty("max")] private double? _max = null;
+    [JsonProperty("max")]
+    private double? _max = null;
 
-    [JsonIgnore] public double Value { get; private set; } = 0;
+    public double Value { get; private set; } = 0;
 
     [JsonConstructor]
     internal SplinePosOffset(double? min, double? max) {

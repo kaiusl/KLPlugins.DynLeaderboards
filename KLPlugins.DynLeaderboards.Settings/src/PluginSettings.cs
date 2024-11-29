@@ -15,18 +15,16 @@ using System.Diagnostics;
 
 namespace KLPlugins.DynLeaderboards.Settings;
 
+[JsonObject(MemberSerialization.OptIn)]
 public sealed class PluginSettings {
-    [JsonIgnore]
     internal static readonly string _LeaderboardConfigsDataDir = Path.Combine(
         PluginConstants.DataDir,
         "leaderboardConfigs"
     );
 
-    [JsonIgnore]
     internal static readonly string _LeaderboardConfigsDataBackupDir =
         Path.Combine(PluginSettings._LeaderboardConfigsDataDir, "b");
 
-    [JsonIgnore]
     private static readonly string _defAccDataLocation = Path.Combine(
         "C:",
         "Users",
@@ -35,29 +33,38 @@ public sealed class PluginSettings {
         "Assetto Corsa Competizione"
     );
 
-    [JsonIgnore] public const double LAP_DATA_TIME_DELAY_SEC = 0.5;
-    [JsonIgnore] private const int _CURRENT_SETTINGS_VERSION = 3;
-    [JsonProperty] public int Version { get; internal set; } = PluginSettings._CURRENT_SETTINGS_VERSION;
-    [JsonProperty] public string? AccDataLocation { get; internal set; }
-    [JsonProperty] public string? AcRootLocation { get; internal set; }
-    [JsonProperty] public bool Log { get; internal set; }
-    [JsonProperty] public int BroadcastDataUpdateRateMs { get; internal set; }
+    public const double LAP_DATA_TIME_DELAY_SEC = 0.5;
+    private const int _CURRENT_SETTINGS_VERSION = 3;
 
+    [JsonProperty("Version", Required = Required.Always)]
+    public int Version { get; internal set; } = PluginSettings._CURRENT_SETTINGS_VERSION;
+
+    [JsonProperty("AccDataLocation")]
+    public string? AccDataLocation { get; internal set; }
+
+    [JsonProperty("AcRootLocation")]
+    public string? AcRootLocation { get; internal set; }
+
+    [JsonProperty("Log")]
+    public bool Log { get; internal set; }
+
+    [JsonProperty("BroadcastDataUpdateRateMs")]
+    public int BroadcastDataUpdateRateMs { get; internal set; }
+
+    public ReadonlyOutProps<OutPropsBase<OutGeneralProp>, OutGeneralProp> OutGeneralProps =>
+        this._OutGeneralPropsInternal.AsReadonly();
     [JsonProperty("OutGeneralProps")]
     internal OutGeneralProps _OutGeneralPropsInternal { get; set; } = new(OutGeneralProp.NONE);
 
-    [JsonIgnore]
-    public ReadonlyOutProps<OutPropsBase<OutGeneralProp>, OutGeneralProp> OutGeneralProps =>
-        this._OutGeneralPropsInternal.AsReadonly();
+    public ReadOnlyCollection<DynLeaderboardConfig> DynLeaderboardConfigs { get; }
+    private readonly List<DynLeaderboardConfig> _dynLeaderboardConfigs = [];
 
-    [JsonIgnore] public ReadOnlyCollection<DynLeaderboardConfig> DynLeaderboardConfigs { get; }
-    [JsonIgnore] private readonly List<DynLeaderboardConfig> _dynLeaderboardConfigs = [];
-    [JsonIgnore]
-    public Infos Infos { get; private set; } =
-        null!; // this is immediately set after reading the settings by SimHub from Json
+    // this is immediately set after reading the settings by SimHub from Json
+    public Infos Infos { get; private set; } = null!;
 
     private delegate JObject Migration(JObject o);
 
+    [JsonConstructor]
     public PluginSettings() {
         this.AccDataLocation = PluginSettings._defAccDataLocation;
         this.Log = false;

@@ -14,6 +14,8 @@ using Newtonsoft.Json;
 
 namespace KLPlugins.DynLeaderboards.Settings;
 
+// Use FromJson and WriteToJson methods
+[JsonConverter(typeof(FailJsonConverter))]
 public sealed class ClassInfos : IEnumerable<KeyValuePair<CarClass, OverridableClassInfo>> {
     private readonly Dictionary<CarClass, OverridableClassInfo> _infos;
     private readonly SimHubClassColors _simHubClassColors;
@@ -174,6 +176,15 @@ public sealed class ClassInfos : IEnumerable<KeyValuePair<CarClass, OverridableC
         return this._infos.GetEnumerator();
     }
 
+    private class FailJsonConverter : Common.FailJsonConverter {
+        public FailJsonConverter() {
+            this.SerializeMsg =
+                $"`{nameof(ClassInfos)}` cannot be serialized, use `{nameof(ClassInfos.WriteToJson)}` method instead";
+            this.DeserializeMsg =
+                $"`{nameof(ClassInfos)}` cannot be deserialized, use `{nameof(ClassInfos.ReadFromJson)}` method instead";
+        }
+    }
+
 
     /// <summary>
     ///     This is the glue between ClassInfos and settings UI
@@ -246,7 +257,7 @@ public sealed class ClassInfos : IEnumerable<KeyValuePair<CarClass, OverridableC
                 manager = this.GetOrAdd(clsOut);
 
                 if (seenClasses.Contains(clsOut)) {
-                    Log.Logging.LogWarn(
+                    Logging.LogWarn(
                         $"Loop detected in class \"replace with\" values: {string.Join(" -> ", seenClasses)} -> {clsOut}"
                     );
                     break;
@@ -335,25 +346,30 @@ public sealed class ClassInfos : IEnumerable<KeyValuePair<CarClass, OverridableC
     }
 }
 
+[JsonObject(MemberSerialization.OptIn)]
 public sealed class OverridableClassInfo {
-    [JsonIgnore] internal ClassInfo? _Base { get; private set; }
+    internal ClassInfo? _Base { get; private set; }
 
     // If a class had been duplicated from it can have a "false" base from its parent. 
     // This flag helps to differentiate those cases. 
     // Note that just checking if DuplicatedFrom == null is not enough.
     // A class that was duplicated could end up receiving a base in later updates.
-    [JsonIgnore] internal bool _HasRealBase { get; private set; } = false;
+    internal bool _HasRealBase { get; private set; } = false;
 
-    [JsonProperty("Overrides")] internal ClassInfo? _Overrides { get; private set; }
+    [JsonProperty("Overrides")]
+    internal ClassInfo? _Overrides { get; private set; }
 
-    [JsonProperty("IsColorEnabled")] internal bool _IsColorEnabled { get; private set; }
+    [JsonProperty("IsColorEnabled", Required = Required.Always)]
+    internal bool _IsColorEnabled { get; private set; }
 
-    [JsonProperty("IsReplaceWithEnabled")] internal bool _IsReplaceWithEnabled { get; private set; }
+    [JsonProperty("IsReplaceWithEnabled", Required = Required.Always)]
+    internal bool _IsReplaceWithEnabled { get; private set; }
 
     // Used to determine what base should this class receive if it was duplicated from another class
-    [JsonProperty("DuplicatedFrom")] internal ImmutableList<CarClass> _DuplicatedFrom { get; private set; }
+    [JsonProperty("DuplicatedFrom")]
+    internal ImmutableList<CarClass> _DuplicatedFrom { get; private set; }
 
-    [JsonIgnore] internal TextBoxColor? _SimHubColor { get; set; } = null;
+    internal TextBoxColor? _SimHubColor { get; set; } = null;
 
 
     [JsonConstructor]
@@ -644,11 +660,14 @@ public sealed class OverridableClassInfo {
 }
 
 internal sealed class ClassInfo {
-    [JsonProperty("Color")] internal TextBoxColor? _Color { get; set; }
+    [JsonProperty("Color")]
+    internal TextBoxColor? _Color { get; set; }
 
-    [JsonProperty("ReplaceWith")] internal CarClass? _ReplaceWith { get; set; }
+    [JsonProperty("ReplaceWith")]
+    internal CarClass? _ReplaceWith { get; set; }
 
-    [JsonProperty("ShortName")] internal string? _ShortName { get; set; }
+    [JsonProperty("ShortName")]
+    internal string? _ShortName { get; set; }
 
     [JsonConstructor]
     internal ClassInfo(TextBoxColor? color, CarClass? replaceWith, string? shortName) {
@@ -664,8 +683,9 @@ internal sealed class ClassInfo {
     }
 }
 
+[JsonConverter(typeof(FailJsonConverter))]
 internal sealed class SimHubClassColors {
-    [JsonProperty] public Dictionary<CarClass, TextBoxColor> AssignedColors = [];
+    public readonly Dictionary<CarClass, TextBoxColor> AssignedColors = [];
 
     public static SimHubClassColors FromJson(string json) {
         var self = new SimHubClassColors();
@@ -685,13 +705,24 @@ internal sealed class SimHubClassColors {
 
     [method: JsonConstructor]
     private class Raw(List<RawColor> assignedColors) {
-        [JsonProperty] public List<RawColor> AssignedColors = assignedColors;
+        [JsonProperty("AssignedColors")]
+        public List<RawColor> AssignedColors = assignedColors;
     }
 
     [method: JsonConstructor]
     private class RawColor(string target, string color) {
-        [JsonProperty] public string Target { get; } = target;
+        [JsonProperty("Target")]
+        public string Target { get; } = target;
 
-        [JsonProperty] public string Color { get; } = color;
+        [JsonProperty("Color")]
+        public string Color { get; } = color;
+    }
+
+    private class FailJsonConverter : Common.FailJsonConverter {
+        public FailJsonConverter() {
+            this.SerializeMsg = $"`{nameof(SimHubClassColors)}` cannot be serialized";
+            this.DeserializeMsg =
+                $"`{nameof(SimHubClassColors)}` cannot be deserialized, use `{nameof(SimHubClassColors.FromJson)}` method instead";
+        }
     }
 }

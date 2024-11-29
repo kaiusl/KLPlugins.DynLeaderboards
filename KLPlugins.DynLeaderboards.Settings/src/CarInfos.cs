@@ -11,10 +11,12 @@ using Newtonsoft.Json;
 
 namespace KLPlugins.DynLeaderboards.Settings;
 
+// Use FromJson and WriteToJson methods
+[JsonConverter(typeof(FailJsonConverter))]
 public sealed class CarInfos : IEnumerable<KeyValuePair<string, OverridableCarInfo>> {
     private readonly Dictionary<string, OverridableCarInfo> _infos;
 
-    internal CarInfos(Dictionary<string, OverridableCarInfo> infos) {
+    private CarInfos(Dictionary<string, OverridableCarInfo> infos) {
         this._infos = infos;
     }
 
@@ -127,20 +129,34 @@ public sealed class CarInfos : IEnumerable<KeyValuePair<string, OverridableCarIn
     internal void WriteToJson(string path, string derivedPath) {
         File.WriteAllText(path, JsonConvert.SerializeObject(this._infos, Formatting.Indented));
     }
+
+    private class FailJsonConverter : Common.FailJsonConverter {
+        public FailJsonConverter() {
+            this.SerializeMsg =
+                $"`{nameof(CarInfos)}` cannot be serialized directly, use `{nameof(ClassInfos.WriteToJson)}` method instead";
+            this.DeserializeMsg =
+                $"`{nameof(CarInfos)}` cannot be deserialized directly, use `{nameof(ClassInfos.ReadFromJson)}` method instead";
+        }
+    }
 }
 
+[JsonObject(MemberSerialization.OptIn)]
 public sealed class OverridableCarInfo : INotifyPropertyChanged {
     public event PropertyChangedEventHandler? PropertyChanged;
 
-    [JsonIgnore] internal CarInfo? _Base { get; private set; }
+    internal CarInfo? _Base { get; private set; }
 
-    [JsonProperty("Overrides")] internal CarInfo? _Overrides { get; private set; }
+    [JsonProperty("Overrides")]
+    internal CarInfo? _Overrides { get; private set; }
 
-    [JsonProperty("IsNameEnabled")] internal bool _IsNameEnabled { get; private set; } = true;
+    [JsonProperty("IsNameEnabled", Required = Required.Always)]
+    internal bool _IsNameEnabled { get; private set; } = true;
 
-    [JsonProperty("IsClassEnabled")] internal bool _IsClassEnabled { get; private set; } = true;
+    [JsonProperty("IsClassEnabled", Required = Required.Always)]
+    internal bool _IsClassEnabled { get; private set; } = true;
 
-    [JsonProperty("SimHubCarClass")] internal CarClass _SimHubCarClass { get; set; } = CarClass.Default;
+    [JsonProperty("SimHubCarClass")]
+    internal CarClass _SimHubCarClass { get; set; } = CarClass.Default;
 
     [JsonConstructor]
     internal OverridableCarInfo(
@@ -359,12 +375,16 @@ public sealed class OverridableCarInfo : INotifyPropertyChanged {
     }
 }
 
+[JsonObject(MemberSerialization.OptIn)]
 internal sealed class CarInfo {
-    [JsonProperty("Name")] internal string? _Name { get; set; }
+    [JsonProperty("Name")]
+    internal string? _Name { get; set; }
 
-    [JsonProperty("Manufacturer")] internal string? _Manufacturer { get; set; }
+    [JsonProperty("Manufacturer")]
+    internal string? _Manufacturer { get; set; }
 
-    [JsonProperty("Class")] internal CarClass? _Class { get; set; }
+    [JsonProperty("Class")]
+    internal CarClass? _Class { get; set; }
 
     [JsonConstructor]
     public CarInfo(string? name, string? manufacturer, CarClass? cls) {

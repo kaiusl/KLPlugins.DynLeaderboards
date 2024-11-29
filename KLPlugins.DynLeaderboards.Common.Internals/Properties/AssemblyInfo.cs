@@ -22,7 +22,8 @@ using System.Runtime.InteropServices;
 [assembly: InternalsVisibleTo("KLPlugins.DynLeaderboards")]
 [assembly: InternalsVisibleTo("KLPlugins.DynLeaderboards.Settings")]
 [assembly: InternalsVisibleTo("KLPlugins.DynLeaderboards.Common")]
-[assembly: InternalsVisibleTo("KLPlugins.DynLeaderboards.Internals")]
+[assembly: InternalsVisibleTo("KLPlugins.DynLeaderboards.Tests")]
+
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
 [assembly: Guid("B1DDEA94-976A-4AAE-B5AC-B0D5EE738E5B")]
@@ -40,4 +41,3 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyVersion("2.0.0.0")]
 [assembly: AssemblyFileVersion("2.0.0.0")]
 [assembly: AssemblyInformationalVersion("2.0.0-alpha.1")]
-

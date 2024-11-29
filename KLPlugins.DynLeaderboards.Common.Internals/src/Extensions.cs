@@ -89,7 +89,7 @@ internal static class DictExtensions {
         if (dict.TryGetValue(key, out var value)) {
             return value;
         }
-        
+
         dict[key] = defValue;
         return defValue;
     }
@@ -102,7 +102,6 @@ internal static class DictExtensions {
         var defValue = valueBuilder();
         dict[key] = defValue;
         return defValue;
-
     }
 
     public static void Merge<K, V>(this Dictionary<K, V> dict, Dictionary<K, V> other) {
@@ -138,7 +137,7 @@ internal static class ColorTools {
             Convert.ToByte(hex.Substring(7, 2), 16)
         );
     }
-    
+
     public static double Lightness(string color) {
         // from https://stackoverflow.com/a/56678483
         var col = ColorTools.FromHex(color);

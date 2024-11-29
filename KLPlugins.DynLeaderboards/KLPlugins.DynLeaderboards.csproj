@@ -104,10 +104,6 @@
             <Project>{f0009219-c94e-4ccf-b9c7-235621d97106}</Project>
             <Name>KLPlugins.DynLeaderboards.Common</Name>
         </ProjectReference>
-        <ProjectReference Include="..\KLPlugins.DynLeaderboards.Internals\KLPlugins.DynLeaderboards.Internals.csproj">
-          <Project>{bc5bf488-fe53-4da8-8d82-f3589a7b64aa}</Project>
-          <Name>KLPlugins.DynLeaderboards.Internals</Name>
-        </ProjectReference>
         <ProjectReference Include="..\KLPlugins.DynLeaderboards.Settings\KLPlugins.DynLeaderboards.Settings.csproj">
             <Project>{9a096964-e254-4906-a420-20f5a09f30ad}</Project>
             <Name>KLPlugins.DynLeaderboards.Settings</Name>

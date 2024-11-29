@@ -6,8 +6,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KLPlugins.DynLeaderboards.S
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KLPlugins.DynLeaderboards.Common", "KLPlugins.DynLeaderboards.Common\KLPlugins.DynLeaderboards.Common.csproj", "{F0009219-C94E-4CCF-B9C7-235621D97106}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KLPlugins.DynLeaderboards.Internals", "KLPlugins.DynLeaderboards.Internals\KLPlugins.DynLeaderboards.Internals.csproj", "{BC5BF488-FE53-4DA8-8D82-F3589A7B64AA}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KLPlugins.DynLeaderboards.Common.Internals", "KLPlugins.DynLeaderboards.Common.Internals\KLPlugins.DynLeaderboards.Common.Internals.csproj", "{B1DDEA94-976A-4AAE-B5AC-B0D5EE738E5B}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KLPlugins.DynLeaderboards.Tests", "KLPlugins.DynLeaderboards.Tests\KLPlugins.DynLeaderboards.Tests.csproj", "{3C8A4D54-FFC3-48F2-868B-EEDA5EF85044}"
@@ -51,16 +49,6 @@ Global
 		{F0009219-C94E-4CCF-B9C7-235621D97106}.Debug Docs|Any CPU.Build.0 = Debug|Any CPU
 		{F0009219-C94E-4CCF-B9C7-235621D97106}.Debug Design|Any CPU.ActiveCfg = Debug|Any CPU
 		{F0009219-C94E-4CCF-B9C7-235621D97106}.Debug Design|Any CPU.Build.0 = Debug|Any CPU
-		{BC5BF488-FE53-4DA8-8D82-F3589A7B64AA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{BC5BF488-FE53-4DA8-8D82-F3589A7B64AA}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{BC5BF488-FE53-4DA8-8D82-F3589A7B64AA}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{BC5BF488-FE53-4DA8-8D82-F3589A7B64AA}.Release|Any CPU.Build.0 = Release|Any CPU
-		{BC5BF488-FE53-4DA8-8D82-F3589A7B64AA}.Timings|Any CPU.ActiveCfg = Debug|Any CPU
-		{BC5BF488-FE53-4DA8-8D82-F3589A7B64AA}.Timings|Any CPU.Build.0 = Debug|Any CPU
-		{BC5BF488-FE53-4DA8-8D82-F3589A7B64AA}.Debug Docs|Any CPU.ActiveCfg = Debug|Any CPU
-		{BC5BF488-FE53-4DA8-8D82-F3589A7B64AA}.Debug Docs|Any CPU.Build.0 = Debug|Any CPU
-		{BC5BF488-FE53-4DA8-8D82-F3589A7B64AA}.Debug Design|Any CPU.ActiveCfg = Debug|Any CPU
-		{BC5BF488-FE53-4DA8-8D82-F3589A7B64AA}.Debug Design|Any CPU.Build.0 = Debug|Any CPU
 		{B1DDEA94-976A-4AAE-B5AC-B0D5EE738E5B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{B1DDEA94-976A-4AAE-B5AC-B0D5EE738E5B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B1DDEA94-976A-4AAE-B5AC-B0D5EE738E5B}.Release|Any CPU.ActiveCfg = Release|Any CPU

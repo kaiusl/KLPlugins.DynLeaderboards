@@ -8,6 +8,7 @@ using Newtonsoft.Json;
 
 namespace KLPlugins.DynLeaderboards.Settings;
 
+[JsonConverter(typeof(TextBoxColorsFailJsonConverter))]
 public sealed class TextBoxColors<K> : IEnumerable<KeyValuePair<K, OverridableTextBoxColor>> {
     private readonly SortedDictionary<K, OverridableTextBoxColor> _colors;
 
@@ -75,12 +76,24 @@ public sealed class TextBoxColors<K> : IEnumerable<KeyValuePair<K, OverridableTe
     }
 }
 
+internal class TextBoxColorsFailJsonConverter : FailJsonConverter {
+    public TextBoxColorsFailJsonConverter() {
+        this.SerializeMsg =
+            $"`{nameof(TextBoxColors<object>)}` cannot be serialized, use `{nameof(TextBoxColors<object>.WriteToJson)}` method instead";
+        this.DeserializeMsg =
+            $"`{nameof(TextBoxColors<object>)}` cannot be deserialized, use `{nameof(TextBoxColors<object>.ReadFromJson)}` method instead";
+    }
+}
+
+[JsonObject(MemberSerialization.OptIn)]
 public sealed class OverridableTextBoxColor {
-    [JsonIgnore] private TextBoxColor? _base;
+    private TextBoxColor? _base;
 
-    [JsonProperty("overrides")] private TextBoxColor? _overrides;
+    [JsonProperty("Overrides")]
+    private TextBoxColor? _overrides;
 
-    [JsonProperty] public bool IsEnabled { get; private set; } = true;
+    [JsonProperty("IsEnabled", Required = Required.Always)]
+    public bool IsEnabled { get; private set; } = true;
 
     internal OverridableTextBoxColor(TextBoxColor @base) {
         this._base = @base;

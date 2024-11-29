@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 
 using KLPlugins.DynLeaderboards.Common;
+using KLPlugins.DynLeaderboards.Log;
 
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -145,19 +146,7 @@ public sealed class DynLeaderboardConfig {
     public Box<int> PartialRelativeCupNumRelativePos { get; internal set; } = new(5);
 
     [JsonProperty]
-    public List<LeaderboardConfig> Order { get; internal set; } = [
-        new(LeaderboardKind.OVERALL),
-        new(LeaderboardKind.CLASS, true, true),
-        new(LeaderboardKind.CUP, true, true),
-        new(LeaderboardKind.PARTIAL_RELATIVE_OVERALL),
-        new(LeaderboardKind.PARTIAL_RELATIVE_CLASS, true, true),
-        new(LeaderboardKind.PARTIAL_RELATIVE_CUP, true, true),
-        new(LeaderboardKind.RELATIVE_OVERALL),
-        new(LeaderboardKind.RELATIVE_CLASS, true, true),
-        new(LeaderboardKind.RELATIVE_CUP, true, true),
-        new(LeaderboardKind.RELATIVE_ON_TRACK),
-        new(LeaderboardKind.RELATIVE_ON_TRACK_WO_PIT),
-    ];
+    public List<LeaderboardConfig> Order { get; internal set; }
 
     [JsonIgnore] private int _currentLeaderboardIdx = 0;
 
@@ -183,11 +172,38 @@ public sealed class DynLeaderboardConfig {
     public LeaderboardConfig CurrentLeaderboard() {
         return this.Order.ElementAt(this.CurrentLeaderboardIdx);
     }
+    
+    [JsonConstructor]
+    internal DynLeaderboardConfig(string name, List<LeaderboardConfig> order, int currentLeaderboardIdx) {
+        this.Name = name;
+        this.Order = order;
+        this.NextLeaderboardActionName = $"{this.Name}.NextLeaderboard";
+        this.PreviousLeaderboardActionName = $"{this.Name}.PreviousLeaderboard";
+        // this.CurrentLeaderboardIdx.set will set these too
+        this.CurrentLeaderboardDisplayName = null!;
+        this.CurrentLeaderboardCompactName = null!;
+        this.CurrentLeaderboardIdx = currentLeaderboardIdx;
+
+    }
 
     internal DynLeaderboardConfig(string name) {
         this.Name = name;
         this.NextLeaderboardActionName = $"{this.Name}.NextLeaderboard";
         this.PreviousLeaderboardActionName = $"{this.Name}.PreviousLeaderboard";
+        // Don't set order in property definition, deserializing from json will append to it!
+        this.Order = [
+            new LeaderboardConfig(LeaderboardKind.OVERALL, isEnabled: true),
+            new LeaderboardConfig(LeaderboardKind.CLASS, true, true, isEnabled: true),
+            new LeaderboardConfig(LeaderboardKind.CUP, true, true),
+            new LeaderboardConfig(LeaderboardKind.PARTIAL_RELATIVE_OVERALL, isEnabled:true),
+            new LeaderboardConfig(LeaderboardKind.PARTIAL_RELATIVE_CLASS, true, true, isEnabled:true),
+            new LeaderboardConfig(LeaderboardKind.PARTIAL_RELATIVE_CUP, true, true),
+            new LeaderboardConfig(LeaderboardKind.RELATIVE_OVERALL, isEnabled:true),
+            new LeaderboardConfig(LeaderboardKind.RELATIVE_CLASS, true, true, isEnabled:true),
+            new LeaderboardConfig(LeaderboardKind.RELATIVE_CUP, true, true),
+            new LeaderboardConfig(LeaderboardKind.RELATIVE_ON_TRACK, isEnabled: true),
+            new LeaderboardConfig(LeaderboardKind.RELATIVE_ON_TRACK_WO_PIT),
+        ];
         this.CurrentLeaderboardDisplayName = this.Order[this._currentLeaderboardIdx].Kind.ToDisplayString();
         this.CurrentLeaderboardCompactName = this.Order[this._currentLeaderboardIdx].Kind.ToCompactString();
     }
@@ -355,9 +371,9 @@ public sealed class LeaderboardConfig {
     [JsonConstructor]
     internal LeaderboardConfig(
         LeaderboardKind kind,
-        bool removeIfSingleClass,
-        bool removeIfSingleCup,
-        bool isEnabled = false
+        bool removeIfSingleClass = false,
+        bool removeIfSingleCup = false,
+        bool isEnabled = true
     ) {
         this.Kind = kind;
         this.RemoveIfSingleClass = removeIfSingleClass;
@@ -365,13 +381,9 @@ public sealed class LeaderboardConfig {
         this.IsEnabled = isEnabled;
     }
 
-    internal LeaderboardConfig(LeaderboardKind kind) {
-        this.Kind = kind;
-    }
-
-
     private class TyConverter : TypeConverter {
         public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType) {
+            // long because Newtonsoft.Json converts integers to long first, and look for the converter on long
             return sourceType == typeof(long);
         }
 

@@ -17,14 +17,6 @@ namespace KLPlugins.DynLeaderboards.Settings;
 
 [JsonObject(MemberSerialization.OptIn)]
 public sealed class PluginSettings {
-    internal static readonly string _LeaderboardConfigsDataDir = Path.Combine(
-        PluginConstants.DataDir,
-        "leaderboardConfigs"
-    );
-
-    internal static readonly string _LeaderboardConfigsDataBackupDir =
-        Path.Combine(PluginSettings._LeaderboardConfigsDataDir, "b");
-
     private static readonly string _defAccDataLocation = Path.Combine(
         "C:",
         "Users",
@@ -72,15 +64,13 @@ public sealed class PluginSettings {
         this.DynLeaderboardConfigs = this._dynLeaderboardConfigs.AsReadOnly();
     }
 
-    public void FinalizeInit(string gameName) {
+    public void FinalizeInit() {
         this.ReadDynLeaderboardConfigs();
-        this.Infos = new Infos(gameName);
+        this.Infos = new Infos();
     }
 
     private void ReadDynLeaderboardConfigs() {
-        Directory.CreateDirectory(PluginSettings._LeaderboardConfigsDataDir);
-
-        foreach (var fileName in Directory.GetFiles(PluginSettings._LeaderboardConfigsDataDir)) {
+        foreach (var fileName in Directory.GetFiles(PluginPaths._LeaderboardConfigsDataDir)) {
             if (!File.Exists(fileName) || !fileName.EndsWith(".json")) {
                 continue;
             }
@@ -96,9 +86,7 @@ public sealed class PluginSettings {
 
                 cfg = result;
             } catch (Exception e) {
-                SimHub.Logging.Current.Error(
-                    $"Failed to deserialize leaderboard \"{fileName}\" configuration. Error {e}."
-                );
+                Logging.LogError($"Failed to deserialize leaderboard \"{fileName}\" configuration. Error {e}.");
                 continue;
             }
 
@@ -136,7 +124,7 @@ public sealed class PluginSettings {
 
         // Delete unused files
         // Say something was accidentally copied there or file and leaderboard names were different which would render original file useless
-        foreach (var fname in Directory.GetFiles(PluginSettings._LeaderboardConfigsDataDir)) {
+        foreach (var fname in Directory.GetFiles(PluginPaths._LeaderboardConfigsDataDir)) {
             var leaderboardName = fname.Replace(".json", "").Split('\\').Last();
             if (this.DynLeaderboardConfigs.All(x => x.Name != leaderboardName)) {
                 File.Delete(fname);
@@ -147,11 +135,8 @@ public sealed class PluginSettings {
     private void SaveDynLeaderboardConfigs() {
         // Keep 5 latest backups of each config.
         // New config is only saved and backups are made if the config has changed.
-
-        Directory.CreateDirectory(PluginSettings._LeaderboardConfigsDataBackupDir);
-
         foreach (var cfg in this.DynLeaderboardConfigs) {
-            var cfgFileName = $"{PluginSettings._LeaderboardConfigsDataDir}\\{cfg.Name}.json";
+            var cfgFileName = PluginPaths.DynLeaderboardConfigFilePath(cfg.Name);
             var serializedCfg = JsonConvert.SerializeObject(cfg, Formatting.Indented);
             var isSame = File.Exists(cfgFileName) && serializedCfg == File.ReadAllText(cfgFileName);
 
@@ -160,7 +145,7 @@ public sealed class PluginSettings {
                 if (File.Exists(cfgFileName)) {
                     File.Move(
                         cfgFileName,
-                        $"{PluginSettings._LeaderboardConfigsDataBackupDir}\\{cfg.Name}_b{1}.json"
+                        PluginPaths.DynLeaderboardConfigBackupFilePath(cfg.Name, 1)
                     );
                 }
 
@@ -172,13 +157,12 @@ public sealed class PluginSettings {
 
         static void RenameOrDeleteOldBackups(DynLeaderboardConfig cfg) {
             for (var i = 5; i > -1; i--) {
-                var currentBackupName =
-                    $"{PluginSettings._LeaderboardConfigsDataBackupDir}\\{cfg.Name}_b{i + 1}.json";
+                var currentBackupName = PluginPaths.DynLeaderboardConfigBackupFilePath(cfg.Name, i + 1);
                 if (File.Exists(currentBackupName)) {
                     if (i != 4) {
                         File.Move(
                             currentBackupName,
-                            $"{PluginSettings._LeaderboardConfigsDataBackupDir}\\{cfg.Name}_b{i + 2}.json"
+                            PluginPaths.DynLeaderboardConfigBackupFilePath(cfg.Name, i + 2)
                         );
                     } else {
                         File.Delete(currentBackupName);
@@ -194,7 +178,7 @@ public sealed class PluginSettings {
     }
 
     internal void RemoveLeaderboard(DynLeaderboardConfig cfg) {
-        var fname = $"{PluginSettings._LeaderboardConfigsDataDir}\\{cfg.Name}.json";
+        var fname = PluginPaths.DynLeaderboardConfigFilePath(cfg.Name);
         if (File.Exists(fname)) {
             File.Delete(fname);
         }
@@ -203,11 +187,19 @@ public sealed class PluginSettings {
     }
 
     internal bool IsAccDataLocationValid() {
-        return Directory.Exists($"{this.AccDataLocation}\\Config");
+        if (this.AccDataLocation == null) {
+            return false;
+        }
+
+        return Directory.Exists(Path.Combine(this.AccDataLocation, "Config"));
     }
 
     internal bool IsAcRootLocationValid() {
-        return Directory.Exists($"{this.AcRootLocation}\\content\\cars");
+        if (this.AcRootLocation == null) {
+            return false;
+        }
+
+        return Directory.Exists(Path.Combine(this.AcRootLocation, "content", "cars"));
     }
 
     [method: JsonConstructor]
@@ -277,12 +269,12 @@ public sealed class PluginSettings {
     }
 
     public static bool GetLogValueFromDisk() {
-        const string SETTINGS_FNAME = "PluginsData\\Common\\DynLeaderboardsPlugin.GeneralSettings.json";
-        if (!File.Exists(SETTINGS_FNAME)) {
+        var settingsFname = PluginPaths._GeneralSettingsPath;
+        if (!File.Exists(settingsFname)) {
             return false;
         }
 
-        var savedSettings = JObject.Parse(File.ReadAllText(SETTINGS_FNAME));
+        var savedSettings = JObject.Parse(File.ReadAllText(settingsFname));
 
         var log = false; // If settings doesn't contain version key, it's 0
         if (savedSettings.TryGetValue(nameof(PluginSettings.Log), out var savedSetting)) {
@@ -300,12 +292,12 @@ public sealed class PluginSettings {
     public static void Migrate() {
         var migrations = PluginSettings.CreateMigrationsDict();
 
-        const string SETTINGS_FNAME = "PluginsData\\Common\\DynLeaderboardsPlugin.GeneralSettings.json";
-        if (!File.Exists(SETTINGS_FNAME)) {
+        var settingsFname = PluginPaths._GeneralSettingsPath;
+        if (!File.Exists(settingsFname)) {
             return;
         }
 
-        var savedSettings = JObject.Parse(File.ReadAllText(SETTINGS_FNAME));
+        var savedSettings = JObject.Parse(File.ReadAllText(settingsFname));
 
         var version = 0; // If settings doesn't contain version key, it's 0
         if (savedSettings.TryGetValue("Version", out var savedSetting)) {
@@ -316,7 +308,7 @@ public sealed class PluginSettings {
             // Migrate step by step to current version.
             while (version != PluginSettings._CURRENT_SETTINGS_VERSION) {
                 // create backup of old settings before migrating
-                using var backupFile = File.CreateText($"{SETTINGS_FNAME}.v{version}.bak");
+                using var backupFile = File.CreateText($"{settingsFname}.v{version}.bak");
                 var serializer1 = new JsonSerializer { Formatting = Formatting.Indented };
                 serializer1.Serialize(backupFile, savedSettings);
 
@@ -326,7 +318,7 @@ public sealed class PluginSettings {
             }
 
             // Save up-to-date setting back to the disk
-            using var file = File.CreateText(SETTINGS_FNAME);
+            using var file = File.CreateText(settingsFname);
             var serializer = new JsonSerializer { Formatting = Formatting.Indented };
             serializer.Serialize(file, savedSettings);
         }
@@ -365,12 +357,16 @@ public sealed class PluginSettings {
 
         o["Version"] = 1;
 
-        Directory.CreateDirectory(PluginSettings._LeaderboardConfigsDataDir);
-        Directory.CreateDirectory(PluginSettings._LeaderboardConfigsDataBackupDir);
         const string KEY = "DynLeaderboardConfigs";
         if (o.TryGetValue(KEY, out var configs)) {
             foreach (var cfg in configs) {
-                var fname = $"{PluginSettings._LeaderboardConfigsDataDir}\\{cfg["Name"]}.json";
+                var name = cfg["Name"];
+                if (name == null) {
+                    Logging.LogError($"Failed to migrate DynLeaderboardConfig {cfg} because it has no name.");
+                    continue;
+                }
+
+                var fname = PluginPaths.DynLeaderboardConfigFilePath(name.ToString());
                 // Don't overwrite existing configs
                 if (File.Exists(fname)) {
                     continue;
@@ -382,7 +378,7 @@ public sealed class PluginSettings {
             }
         }
 
-        SimHub.Logging.Current.Info("Migrated settings from v0 to v1.");
+        Logging.LogInfo("Migrated settings from v0 to v1.");
         o.Remove("DynLeaderboardConfigs");
 
         return o;
@@ -404,7 +400,7 @@ public sealed class PluginSettings {
         o["Include_ST21_In_GT2"] = false;
         o["Include_CHL_In_GT2"] = false;
 
-        SimHub.Logging.Current.Info("Migrated settings from v1 to v2.");
+        Logging.LogInfo("Migrated settings from v1 to v2.");
 
         return o;
     }
@@ -423,7 +419,7 @@ public sealed class PluginSettings {
 
         o["Version"] = 3;
 
-        SimHub.Logging.Current.Info("Migrated settings from v2 to v3.");
+        Logging.LogInfo("Migrated settings from v2 to v3.");
 
         return o;
     }

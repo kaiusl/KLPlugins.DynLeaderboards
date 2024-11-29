@@ -225,17 +225,17 @@ public sealed class DynLeaderboardConfig {
     }
 
     internal void Rename(string newName) {
-        var configFileName = $"{PluginSettings._LeaderboardConfigsDataDir}\\{this.Name}.json";
+        var configFileName = PluginPaths.DynLeaderboardConfigFilePath(this.Name);
         if (File.Exists(configFileName)) {
-            File.Move(configFileName, $"{PluginSettings._LeaderboardConfigsDataDir}\\{newName}.json");
+            File.Move(configFileName, PluginPaths.DynLeaderboardConfigFilePath(newName));
         }
 
         for (var i = 5; i > -1; i--) {
-            var currentBackupName = $"{PluginSettings._LeaderboardConfigsDataBackupDir}\\{this.Name}_b{i + 1}.json";
+            var currentBackupName = PluginPaths.DynLeaderboardConfigBackupFilePath(this.Name, i + 1);
             if (File.Exists(currentBackupName)) {
                 File.Move(
                     currentBackupName,
-                    $"{PluginSettings._LeaderboardConfigsDataBackupDir}\\{newName}_b{i + 1}.json"
+                    PluginPaths.DynLeaderboardConfigBackupFilePath(newName, i + 1)
                 );
             }
         }
@@ -276,7 +276,7 @@ public sealed class DynLeaderboardConfig {
     internal static void Migrate() {
         var migrations = DynLeaderboardConfig.CreateMigrationsDict();
 
-        foreach (var filePath in Directory.GetFiles(PluginSettings._LeaderboardConfigsDataDir)) {
+        foreach (var filePath in Directory.GetFiles(PluginPaths._LeaderboardConfigsDataDir)) {
             if (!File.Exists(filePath) || !filePath.EndsWith(".json")) {
                 continue;
             }
@@ -297,7 +297,7 @@ public sealed class DynLeaderboardConfig {
             while (version != DynLeaderboardConfig._CURRENT_CONFIG_VERSION) {
                 // create backup of old settings before migrating
                 using var backupFile = File.CreateText(
-                    $"{PluginSettings._LeaderboardConfigsDataBackupDir}\\{fileName}.v{version}.bak"
+                    $"{PluginPaths._LeaderboardConfigsDataBackupDir}\\{fileName}.v{version}.bak"
                 );
                 var serializer1 = new JsonSerializer { Formatting = Formatting.Indented };
                 serializer1.Serialize(backupFile, savedSettings);

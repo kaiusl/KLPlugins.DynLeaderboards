@@ -85,7 +85,7 @@ public sealed class ClassInfos : IEnumerable<KeyValuePair<CarClass, OverridableC
         return null;
     }
 
-    internal static ClassInfos ReadFromJson(string path, string basePath, string gameName) {
+    internal static ClassInfos ReadFromJson(string path, string basePath) {
         Dictionary<CarClass, OverridableClassInfo>? infos = null;
         if (File.Exists(path)) {
             var json = File.ReadAllText(path);
@@ -126,7 +126,7 @@ public sealed class ClassInfos : IEnumerable<KeyValuePair<CarClass, OverridableC
             infos[CarClass.Default] = new OverridableClassInfo(@base: defBase, overrides: null);
         }
 
-        var simHubClassColorsPath = $"PluginsData\\{gameName}\\ColorPalette.json";
+        var simHubClassColorsPath = PluginPaths._SimhubClassColorsPath;
         SimHubClassColors simHubClassColors;
         if (File.Exists(simHubClassColorsPath)) {
             var json = File.ReadAllText(simHubClassColorsPath);
@@ -164,7 +164,7 @@ public sealed class ClassInfos : IEnumerable<KeyValuePair<CarClass, OverridableC
         return c;
     }
 
-    internal void WriteToJson(string path, string derivedPath) {
+    internal void WriteToJson(string path) {
         File.WriteAllText(path, JsonConvert.SerializeObject(this._infos, Formatting.Indented));
     }
 

@@ -126,7 +126,7 @@ public sealed class CarInfos : IEnumerable<KeyValuePair<string, OverridableCarIn
         return new CarInfos(infos);
     }
 
-    internal void WriteToJson(string path, string derivedPath) {
+    internal void WriteToJson(string path) {
         File.WriteAllText(path, JsonConvert.SerializeObject(this._infos, Formatting.Indented));
     }
 

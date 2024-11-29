@@ -85,13 +85,7 @@ internal sealed class LapInterpolator {
             txt += splinePos.ToString("F5") + ";" + lapTime.ToString("F3") + "\n";
         }
 
-        var dirPath = Path.GetDirectoryName(path);
-        if (dirPath != null && !Directory.Exists(dirPath)) {
-            Directory.CreateDirectory(dirPath);
-        }
-
         // Create backups of current files
-
         if (File.Exists(path) && File.ReadAllText(path) != txt) {
             if (File.Exists($"{path}.10.bak")) {
                 File.Delete($"{path}.10.bak");
@@ -268,7 +262,7 @@ public sealed class TrackData {
     private static Dictionary<string, SplinePosOffset> _splinePosOffsets = [];
 
     internal TrackData(GameData data) {
-        TrackData._splinePosOffsets = TrackData.ReadSplinePosOffsets(DynLeaderboardsPlugin._Game.Name);
+        TrackData._splinePosOffsets = TrackData.ReadSplinePosOffsets();
 
         this.PrettyName = data.NewData.TrackName;
         this.Id = data.NewData.TrackCode;
@@ -281,7 +275,7 @@ public sealed class TrackData {
     }
 
     internal static void OnPluginInit(string gameName) {
-        TrackData._splinePosOffsets = TrackData.ReadSplinePosOffsets(gameName);
+        TrackData._splinePosOffsets = TrackData.ReadSplinePosOffsets();
     }
 
     internal void OnDataUpdate() {
@@ -296,11 +290,14 @@ public sealed class TrackData {
         }
     }
 
+    private string LapDataFilePath(CarClass cls) {
+        return PluginPaths.LapDataFilePath(this.Id, cls.AsString());
+    }
+
     internal void SaveData() {
         Logging.LogInfo("Saving track data");
         foreach (var kv in this._UpdatedInterpolators) {
-            var path =
-                $"{PluginConstants.DataDir}\\{DynLeaderboardsPlugin._Game.Name}\\laps_data\\{this.Id}_{kv}.txt";
+            var path = this.LapDataFilePath(kv);
             if (this._LapInterpolators.TryGetValue(kv, out var interp)) {
                 interp.WriteLapInterpolatorData(path);
             }
@@ -384,8 +381,8 @@ public sealed class TrackData {
         }
     }
 
-    private static Dictionary<string, SplinePosOffset> ReadSplinePosOffsets(string gameName) {
-        var path = $"{PluginConstants.DataDir}\\{gameName}\\SplinePosOffsets.json";
+    private static Dictionary<string, SplinePosOffset> ReadSplinePosOffsets() {
+        var path = PluginPaths._SplinePosOffsetsPath;
         if (File.Exists(path)) {
             return JsonConvert.DeserializeObject<Dictionary<string, SplinePosOffset>>(File.ReadAllText(path)) ?? [];
         }
@@ -394,10 +391,7 @@ public sealed class TrackData {
     }
 
     private void WriteSplinePosOffsets() {
-        var path = $"{PluginConstants.DataDir}\\{DynLeaderboardsPlugin._Game.Name}\\SplinePosOffsets.json";
-        var dirPath = Path.GetDirectoryName(path)!;
-        Directory.CreateDirectory(dirPath);
-
+        var path = PluginPaths._SplinePosOffsetsPath;
         File.WriteAllText(path, JsonConvert.SerializeObject(TrackData._splinePosOffsets, Formatting.Indented));
     }
 
@@ -416,8 +410,7 @@ public sealed class TrackData {
     }
 
     private void BuildLapInterpolatorInner(CarClass carClass) {
-        var path =
-            $"{PluginConstants.DataDir}\\{DynLeaderboardsPlugin._Game.Name}\\laps_data\\{this.Id}_{carClass}.txt";
+        var path = this.LapDataFilePath(carClass);
 
         if (!File.Exists(path)) {
             Logging.LogInfo($"Couldn't build lap interpolator for {carClass} because no suitable track data exists.");

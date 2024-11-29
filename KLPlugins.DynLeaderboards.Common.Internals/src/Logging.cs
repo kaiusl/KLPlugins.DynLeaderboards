@@ -16,7 +16,7 @@ internal static class Logging {
 
     public static void Init(bool logInfo) {
         Logging._logInitTime = $"{DateTime.Now:dd-MM-yyyy_HH-mm-ss}";
-        Logging._logFileName = $"{PluginConstants.DataDir}\\Logs\\Log_{Logging._logInitTime}.txt";
+        Logging._logFileName = PluginPaths.LogFilePath(Logging._logInitTime);
         Logging._logInfo = logInfo;
         var dirPath = Path.GetExtension(Logging._logFileName);
         if (logInfo && dirPath != null) {
@@ -45,6 +45,20 @@ internal static class Logging {
             Logging._isLogFlushed = true;
         }
     }
+
+    #if DEBUG
+    public static void DebugLogInfo(
+        string msg,
+        [CallerMemberName] string memberName = "",
+        [CallerFilePath] string sourceFilePath = "",
+        [CallerLineNumber] int lineNumber = 0
+    ) {
+        Logging.Log(msg, memberName, sourceFilePath, lineNumber, "DEBUG", SimHub.Logging.Current.Info);
+    }
+    #else
+        public static void DebugLogInfo(string msg, string memberName = "",  string sourceFilePath = "", int lineNumber
+ = 0) { }
+    #endif
 
     public static void LogInfo(
         string msg,

@@ -10,6 +10,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KLPlugins.DynLeaderboards.I
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KLPlugins.DynLeaderboards.Common.Internals", "KLPlugins.DynLeaderboards.Common.Internals\KLPlugins.DynLeaderboards.Common.Internals.csproj", "{B1DDEA94-976A-4AAE-B5AC-B0D5EE738E5B}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KLPlugins.DynLeaderboards.Tests", "KLPlugins.DynLeaderboards.Tests\KLPlugins.DynLeaderboards.Tests.csproj", "{3C8A4D54-FFC3-48F2-868B-EEDA5EF85044}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -69,5 +71,15 @@ Global
 		{B1DDEA94-976A-4AAE-B5AC-B0D5EE738E5B}.Debug Docs|Any CPU.Build.0 = Debug|Any CPU
 		{B1DDEA94-976A-4AAE-B5AC-B0D5EE738E5B}.Debug Design|Any CPU.ActiveCfg = Debug|Any CPU
 		{B1DDEA94-976A-4AAE-B5AC-B0D5EE738E5B}.Debug Design|Any CPU.Build.0 = Debug|Any CPU
+		{3C8A4D54-FFC3-48F2-868B-EEDA5EF85044}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3C8A4D54-FFC3-48F2-868B-EEDA5EF85044}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3C8A4D54-FFC3-48F2-868B-EEDA5EF85044}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3C8A4D54-FFC3-48F2-868B-EEDA5EF85044}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3C8A4D54-FFC3-48F2-868B-EEDA5EF85044}.Timings|Any CPU.ActiveCfg = Debug|Any CPU
+		{3C8A4D54-FFC3-48F2-868B-EEDA5EF85044}.Timings|Any CPU.Build.0 = Debug|Any CPU
+		{3C8A4D54-FFC3-48F2-868B-EEDA5EF85044}.Debug Docs|Any CPU.ActiveCfg = Debug|Any CPU
+		{3C8A4D54-FFC3-48F2-868B-EEDA5EF85044}.Debug Docs|Any CPU.Build.0 = Debug|Any CPU
+		{3C8A4D54-FFC3-48F2-868B-EEDA5EF85044}.Debug Design|Any CPU.ActiveCfg = Debug|Any CPU
+		{3C8A4D54-FFC3-48F2-868B-EEDA5EF85044}.Debug Design|Any CPU.Build.0 = Debug|Any CPU
 	EndGlobalSection
 EndGlobal

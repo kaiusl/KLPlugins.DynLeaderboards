@@ -150,10 +150,7 @@ public partial class SettingsControl : UserControl {
         this.CarSettingsTab_SHTabItem.Content = new CarSettingsTab(this);
         this.ClassSettingsTab_SHTabItem.Content = new ClassSettingsTab(this, this.ClassesManager);
 
-        if (this.Settings.DynLeaderboardConfigs.Count == 0) {
-            this.Settings.AddLeaderboard(new DynLeaderboardConfig("Dynamic"));
-        }
-
+ 
         this.CurrentDynLeaderboardSettings = this.Settings.DynLeaderboardConfigs[0];
 
         this.SetAllClassesAndManufacturers();

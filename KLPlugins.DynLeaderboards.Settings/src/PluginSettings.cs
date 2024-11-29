@@ -115,6 +115,11 @@ public sealed class PluginSettings {
 
             this._dynLeaderboardConfigs.Add(cfg);
         }
+        
+        if (this._dynLeaderboardConfigs.Count == 0) {
+            this.AddLeaderboard(new DynLeaderboardConfig("Dynamic"));
+        }
+
     }
 
     public void Dispose() {

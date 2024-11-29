@@ -28,15 +28,15 @@ public sealed class DynLeaderboard {
     public DynPositionDelegate GetDynPosition { get; private set; } = null!;
     public DynPositionDelegate GetDynPositionStart { get; private set; } = null!;
 
-    public string Name => this.Config.Name;
-    public string CurrentLeaderboardDisplayName => this.Config.CurrentLeaderboardDisplayName;
-    public string CurrentLeaderboardCompactName => this.Config.CurrentLeaderboardCompactName;
-    public string NextLeaderboardActionNAme => this.Config.NextLeaderboardActionName;
-    public string PreviousLeaderboardActionNAme => this.Config.PreviousLeaderboardActionName;
-    public int MaxPositions => this.Config.MaxPositions();
-    public LeaderboardKind CurrentLeaderboard => this.Config.CurrentLeaderboard().Kind;
+    public string Name => this._Config.Name;
+    public string CurrentLeaderboardDisplayName => this._Config.CurrentLeaderboardDisplayName;
+    public string CurrentLeaderboardCompactName => this._Config.CurrentLeaderboardCompactName;
+    public string NextLeaderboardActionNAme => this._Config.NextLeaderboardActionName;
+    public string PreviousLeaderboardActionNAme => this._Config.PreviousLeaderboardActionName;
+    public int MaxPositions => this._Config.MaxPositions();
+    public LeaderboardKind CurrentLeaderboard => this._Config.CurrentLeaderboard().Kind;
 
-    internal DynLeaderboardConfig Config { get; set; }
+    internal DynLeaderboardConfig _Config { get; set; }
 
     /// <summary>
     ///     List of cars for this dynamic leaderboard in the order they are displayed.
@@ -51,7 +51,7 @@ public sealed class DynLeaderboard {
     public int? FocusedIndex = null;
 
     internal DynLeaderboard(DynLeaderboardConfig config, Values v) {
-        this.Config = config;
+        this._Config = config;
         this.SetDynGetters(v);
         this.Cars = this._cars.AsReadOnly();
     }
@@ -72,7 +72,7 @@ public sealed class DynLeaderboard {
     }
 
     private void SetDynGetters(Values v) {
-        switch (this.Config.CurrentLeaderboard().Kind) {
+        switch (this._Config.CurrentLeaderboard().Kind) {
             case LeaderboardKind.OVERALL:
                 this.GetDynCar = i => v.OverallOrder.ElementAtOrDefault(i);
                 this.GetDynGapToFocused = i => this.GetDynCar(i)?.GapToLeader;
@@ -168,7 +168,7 @@ public sealed class DynLeaderboard {
         }
 
         this._cars.Clear();
-        switch (this.Config.CurrentLeaderboard().Kind) {
+        switch (this._Config.CurrentLeaderboard().Kind) {
             case LeaderboardKind.OVERALL:
                 this.FocusedIndex = v.FocusedCar.IndexOverall;
                 break;
@@ -180,51 +180,51 @@ public sealed class DynLeaderboard {
                 break;
             case LeaderboardKind.RELATIVE_OVERALL:
                 this.SetCarsRelativeX(
-                    numRelPos: this.Config.NumOverallRelativePos.Value,
+                    numRelPos: this._Config.NumOverallRelativePos,
                     cars: v.OverallOrder,
                     focusedCarIndexInCars: v.FocusedCar.IndexOverall
                 );
                 break;
             case LeaderboardKind.RELATIVE_CLASS:
                 this.SetCarsRelativeX(
-                    numRelPos: this.Config.NumClassRelativePos.Value,
+                    numRelPos: this._Config.NumClassRelativePos,
                     cars: v.ClassOrder,
                     focusedCarIndexInCars: v.FocusedCar.IndexClass
                 );
                 break;
             case LeaderboardKind.RELATIVE_CUP:
                 this.SetCarsRelativeX(
-                    numRelPos: this.Config.NumCupRelativePos.Value,
+                    numRelPos: this._Config.NumCupRelativePos,
                     cars: v.CupOrder,
                     focusedCarIndexInCars: v.FocusedCar.IndexCup
                 );
                 break;
             case LeaderboardKind.PARTIAL_RELATIVE_OVERALL:
                 this.SetCarsPartialRelativeX(
-                    numTopPos: this.Config.PartialRelativeOverallNumOverallPos.Value,
-                    numRelPos: this.Config.PartialRelativeOverallNumRelativePos.Value,
+                    numTopPos: this._Config.PartialRelativeOverallNumOverallPos,
+                    numRelPos: this._Config.PartialRelativeOverallNumRelativePos,
                     cars: v.OverallOrder,
                     focusedCarIndexInCars: v.FocusedCar.IndexOverall
                 );
                 break;
             case LeaderboardKind.PARTIAL_RELATIVE_CLASS:
                 this.SetCarsPartialRelativeX(
-                    numTopPos: this.Config.PartialRelativeClassNumClassPos.Value,
-                    numRelPos: this.Config.PartialRelativeClassNumRelativePos.Value,
+                    numTopPos: this._Config.PartialRelativeClassNumClassPos,
+                    numRelPos: this._Config.PartialRelativeClassNumRelativePos,
                     cars: v.ClassOrder,
                     focusedCarIndexInCars: v.FocusedCar.IndexClass
                 );
                 break;
             case LeaderboardKind.PARTIAL_RELATIVE_CUP:
                 this.SetCarsPartialRelativeX(
-                    numTopPos: this.Config.PartialRelativeCupNumCupPos.Value,
-                    numRelPos: this.Config.PartialRelativeCupNumRelativePos.Value,
+                    numTopPos: this._Config.PartialRelativeCupNumCupPos,
+                    numRelPos: this._Config.PartialRelativeCupNumRelativePos,
                     cars: v.CupOrder,
                     focusedCarIndexInCars: v.FocusedCar.IndexCup
                 );
                 break;
             case LeaderboardKind.RELATIVE_ON_TRACK: {
-                var relPos = this.Config.NumOnTrackRelativePos.Value;
+                var relPos = this._Config.NumOnTrackRelativePos;
 
                 if (v.RelativeOnTrackAheadOrder.Count < relPos) {
                     for (var i = 0; i < relPos - v.RelativeOnTrackAheadOrder.Count; i++) {
@@ -246,7 +246,7 @@ public sealed class DynLeaderboard {
                 break;
 
             case LeaderboardKind.RELATIVE_ON_TRACK_WO_PIT: {
-                var relPos = this.Config.NumOnTrackRelativePos.Value;
+                var relPos = this._Config.NumOnTrackRelativePos;
 
                 var aheadCars = v.RelativeOnTrackAheadOrder
                     .Where(c => !c.IsInPitLane)
@@ -336,14 +336,14 @@ public sealed class DynLeaderboard {
         var isSingleClass = values.NumClassesInSession < 2;
         var isSingleCup = values.NumCupsInSession == values.NumClassesInSession;
         // For loop so that we don't go into an infinite loop if all leaderboards should be excluded
-        for (var i = 0; i < this.Config.Order.Count; i++) {
-            if (this.Config.CurrentLeaderboardIdx == this.Config.Order.Count - 1) {
-                this.Config.CurrentLeaderboardIdx = 0;
+        for (var i = 0; i < this._Config.Order.Count; i++) {
+            if (this._Config.CurrentLeaderboardIdx == this._Config.Order.Count - 1) {
+                this._Config.CurrentLeaderboardIdx = 0;
             } else {
-                this.Config.CurrentLeaderboardIdx++;
+                this._Config.CurrentLeaderboardIdx++;
             }
 
-            var currentLeaderboard = this.Config.CurrentLeaderboard();
+            var currentLeaderboard = this._Config.CurrentLeaderboard();
             if (!currentLeaderboard.IsEnabled
                 || (isSingleClass && currentLeaderboard.RemoveIfSingleClass)
                 || (isSingleCup && currentLeaderboard.RemoveIfSingleCup)
@@ -359,14 +359,14 @@ public sealed class DynLeaderboard {
         var isSingleClass = values.NumClassesInSession < 2;
         var isSingleCup = values.NumCupsInSession == values.NumClassesInSession;
         // For loop so that we don't go into an infinite loop if all leaderboards should be excluded
-        for (var i = 0; i < this.Config.Order.Count; i++) {
-            if (this.Config.CurrentLeaderboardIdx == 0) {
-                this.Config.CurrentLeaderboardIdx = this.Config.Order.Count - 1;
+        for (var i = 0; i < this._Config.Order.Count; i++) {
+            if (this._Config.CurrentLeaderboardIdx == 0) {
+                this._Config.CurrentLeaderboardIdx = this._Config.Order.Count - 1;
             } else {
-                this.Config.CurrentLeaderboardIdx--;
+                this._Config.CurrentLeaderboardIdx--;
             }
 
-            var currentLeaderboard = this.Config.CurrentLeaderboard();
+            var currentLeaderboard = this._Config.CurrentLeaderboard();
             if (!currentLeaderboard.IsEnabled
                 || (isSingleClass && currentLeaderboard.RemoveIfSingleClass)
                 || (isSingleCup && currentLeaderboard.RemoveIfSingleCup)
@@ -379,7 +379,7 @@ public sealed class DynLeaderboard {
     }
 
     private void OnLeaderboardChange(Values v) {
-        Logging.LogInfo($"OnLeaderboardChange [{this.Config.Name}]: {this.Config.CurrentLeaderboard().Kind}");
+        Logging.LogInfo($"OnLeaderboardChange [{this._Config.Name}]: {this._Config.CurrentLeaderboard().Kind}");
         this.SetDynGetters(v);
     }
 }

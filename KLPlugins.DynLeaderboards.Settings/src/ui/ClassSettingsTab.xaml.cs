@@ -55,7 +55,7 @@ internal class ClassSettingsTabViewModel : INotifyPropertyChanged {
             this.SelectedClassViewModel = value == null
                 ? null
                 : new SelectedClassViewModel(
-                    this._classesManager.Get(value.ViewModel.Class)!,
+                    this._classesManager.Get(value._ViewModel.Class)!,
                     this._classesManager,
                     this._settingsControl,
                     this.AllClassesView
@@ -116,7 +116,7 @@ internal class ClassSettingsTabViewModel : INotifyPropertyChanged {
         this._settingsControl = settingsControl;
         this._classesManager = classesManager;
 
-        this.AllClassesView = new ListCollectionView(settingsControl.AllClasses) {
+        this.AllClassesView = new ListCollectionView(settingsControl._AllClasses) {
             IsLiveSorting = true, CustomSort = new CaseInsensitiveComparer(CultureInfo.InvariantCulture),
         };
 
@@ -147,7 +147,7 @@ internal class ClassSettingsTabViewModel : INotifyPropertyChanged {
             if (e.OldItems != null) {
                 foreach (OverridableClassInfo.Manager item in e.OldItems) {
                     this._classesListBoxItems.Remove(
-                        this._classesListBoxItems.FirstOrDefault(x => x.ViewModel.Class == item.Key)
+                        this._classesListBoxItems.FirstOrDefault(x => x._ViewModel.Class == item._Key)
                     );
                 }
             }
@@ -175,12 +175,12 @@ internal class ClassSettingsTabViewModel : INotifyPropertyChanged {
         this.MenuResetAllReplaceWithCommand = AllClassesCommand(c => c.ResetReplaceWith());
 
         this.MenuDisableAllCommand = AllClassesCommand(c => c.DisableAll());
-        this.MenuDisableAllColorsCommand = AllClassesCommand(c => c.IsColorEnabled = false);
-        this.MenuDisableAllReplaceWithCommand = AllClassesCommand(c => c.IsReplaceWithEnabled = false);
+        this.MenuDisableAllColorsCommand = AllClassesCommand(c => c._IsColorEnabled = false);
+        this.MenuDisableAllReplaceWithCommand = AllClassesCommand(c => c._IsReplaceWithEnabled = false);
 
         this.MenuEnableAllCommand = AllClassesCommand(c => c.EnableAll());
-        this.MenuEnableAllColorsCommand = AllClassesCommand(c => c.IsColorEnabled = true);
-        this.MenuEnableAllReplaceWithCommand = AllClassesCommand(c => c.IsReplaceWithEnabled = true);
+        this.MenuEnableAllColorsCommand = AllClassesCommand(c => c._IsColorEnabled = true);
+        this.MenuEnableAllReplaceWithCommand = AllClassesCommand(c => c._IsReplaceWithEnabled = true);
 
         this.MenuAddNewClassCommand = new Command(this.AddNewClass);
         this.MenuRefreshCommand = new Command(() => { this._classesManager.Update(); });
@@ -196,7 +196,7 @@ internal class ClassSettingsTabViewModel : INotifyPropertyChanged {
 
     internal void UpdateReplaceWiths() {
         foreach (var item in this._classesListBoxItems) {
-            item.ViewModel.UpdateReplaceWith();
+            item._ViewModel.UpdateReplaceWith();
         }
     }
 
@@ -228,44 +228,44 @@ internal class SelectedClassViewModel : INotifyPropertyChanged {
 
     private OverridableClassInfo.Manager _classManager { get; }
 
-    public CarClass Class => this._classManager.Key;
+    public CarClass Class => this._classManager._Key;
 
     public bool IsColorEnabled {
-        get => this._classManager.IsColorEnabled;
-        set => this._classManager.IsColorEnabled = value;
+        get => this._classManager._IsColorEnabled;
+        set => this._classManager._IsColorEnabled = value;
     }
 
     public string Background {
-        get => this._classManager.Background ?? TextBoxColor.DEF_BG;
-        set => this._classManager.Background = value;
+        get => this._classManager._Background ?? TextBoxColor.DEF_BG;
+        set => this._classManager._Background = value;
     }
 
     public string Foreground {
-        get => this._classManager.Foreground ?? TextBoxColor.DEF_FG;
-        set => this._classManager.Foreground = value;
+        get => this._classManager._Foreground ?? TextBoxColor.DEF_FG;
+        set => this._classManager._Foreground = value;
     }
 
     public string ShortName {
-        get => this._classManager.ShortName;
-        set => this._classManager.ShortName = value;
+        get => this._classManager._ShortName;
+        set => this._classManager._ShortName = value;
     }
 
     public bool IsReplaceWithEnabled {
-        get => this._classManager.IsReplaceWithEnabled;
-        set => this._classManager.IsReplaceWithEnabled = value;
+        get => this._classManager._IsReplaceWithEnabled;
+        set => this._classManager._IsReplaceWithEnabled = value;
     }
 
     public CarClass ReplaceWith {
-        get => this._classManager.ReplaceWith ?? CarClass.Default;
+        get => this._classManager._ReplaceWith ?? CarClass.Default;
         set {
             this._settingsControl.TryAddCarClass(value);
-            this._classManager.ReplaceWith = value;
+            this._classManager._ReplaceWith = value;
         }
     }
 
     public bool CanBeRemoved =>
         this._classesManager.CanBeRemoved(this.Class)
-        && !this._settingsControl.Settings.Infos.CarInfos.ContainsClass(this.Class);
+        && !this._settingsControl._Settings.Infos.CarInfos.ContainsClass(this.Class);
 
     public ListCollectionView AllClassesView { get; }
 
@@ -349,7 +349,7 @@ public class ClassListBoxItem : Control {
         this.DataContext = vm;
     }
 
-    internal ClassListBoxItemViewModel ViewModel => (ClassListBoxItemViewModel)this.DataContext;
+    internal ClassListBoxItemViewModel _ViewModel => (ClassListBoxItemViewModel)this.DataContext;
 }
 
 internal class ClassListBoxItemViewModel : INotifyPropertyChanged {
@@ -357,7 +357,7 @@ internal class ClassListBoxItemViewModel : INotifyPropertyChanged {
     private readonly OverridableClassInfo.Manager _classManager;
     private readonly ClassInfos.Manager _classesManager;
 
-    public CarClass Class => this._classManager.Key;
+    public CarClass Class => this._classManager._Key;
     public ClassPreviewViewModel ClassPreview { get; }
     public ClassPreviewViewModel? ReplaceWithPreview { get; private set; } = null;
     public bool HasReplacement => this._replacedWithManager != null;
@@ -380,9 +380,9 @@ internal class ClassListBoxItemViewModel : INotifyPropertyChanged {
         this.ClassPreview = new ClassPreviewViewModel(this._classManager);
 
         this._classManager.PropertyChanged += (_, e) => {
-            if (e.PropertyName == nameof(OverridableClassInfo.Manager.ReplaceWith)) {
-                if (this._classManager.ReplaceWith != null) {
-                    this._classesManager.TryAdd(this._classManager.ReplaceWith.Value);
+            if (e.PropertyName == nameof(OverridableClassInfo.Manager._ReplaceWith)) {
+                if (this._classManager._ReplaceWith != null) {
+                    this._classesManager.TryAdd(this._classManager._ReplaceWith.Value);
                 }
 
                 vm.UpdateReplaceWiths();
@@ -391,8 +391,8 @@ internal class ClassListBoxItemViewModel : INotifyPropertyChanged {
     }
 
     internal void UpdateReplaceWith() {
-        var newManager = this._classesManager.GetOrAddFollowReplaceWith(this._classManager.Key);
-        if (newManager.Key == this._classManager.Key) {
+        var newManager = this._classesManager.GetOrAddFollowReplaceWith(this._classManager._Key);
+        if (newManager._Key == this._classManager._Key) {
             newManager = null;
         }
 
@@ -426,8 +426,8 @@ internal class ClassListBoxItemViewModel : INotifyPropertyChanged {
 
             if (x is ClassListBoxItem x2 && y is ClassListBoxItem y2) {
                 return string.Compare(
-                    x2.ViewModel._classManager.Key.AsString(),
-                    y2.ViewModel._classManager.Key.AsString(),
+                    x2._ViewModel._classManager._Key.AsString(),
+                    y2._ViewModel._classManager._Key.AsString(),
                     StringComparison.OrdinalIgnoreCase
                 );
             }

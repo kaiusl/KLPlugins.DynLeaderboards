@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
@@ -11,13 +10,12 @@ using GameReaderCommon;
 
 using KLPlugins.DynLeaderboards.Car;
 using KLPlugins.DynLeaderboards.Common;
+using KLPlugins.DynLeaderboards.Log;
 using KLPlugins.DynLeaderboards.Settings;
 using KLPlugins.DynLeaderboards.Settings.UI;
 using KLPlugins.DynLeaderboards.Track;
 
 using SimHub.Plugins;
-
-using KLPlugins.DynLeaderboards.Log;
 
 namespace KLPlugins.DynLeaderboards;
 
@@ -32,8 +30,8 @@ public sealed class DynLeaderboardsPlugin : IDataPlugin, IWPFSettingsV2 {
     public ImageSource PictureIcon => this.ToIcon(Properties.Resources.sdkmenuicon);
     public string LeftMenuTitle => PluginConstants.PLUGIN_NAME;
 
-    internal static PluginSettings Settings;
-    internal static Game Game; // Const during the lifetime of this plugin, plugin is rebuilt at game change
+    internal static PluginSettings _Settings;
+    internal static Game _Game; // Const during the lifetime of this plugin, plugin is rebuilt at game change
 
     private double _dataUpdateTime = 0;
 
@@ -67,8 +65,8 @@ public sealed class DynLeaderboardsPlugin : IDataPlugin, IWPFSettingsV2 {
     /// </summary>
     /// <param name="pluginManager"></param>
     public void End(PluginManager pluginManager) {
-        this.SaveCommonSettings("GeneralSettings", DynLeaderboardsPlugin.Settings);
-        DynLeaderboardsPlugin.Settings.Dispose();
+        this.SaveCommonSettings("GeneralSettings", DynLeaderboardsPlugin._Settings);
+        DynLeaderboardsPlugin._Settings.Dispose();
         this.Values.Dispose();
         Logging.Dispose();
     }
@@ -79,7 +77,7 @@ public sealed class DynLeaderboardsPlugin : IDataPlugin, IWPFSettingsV2 {
     /// <param name="pluginManager"></param>
     /// <returns></returns>
     public System.Windows.Controls.Control GetWPFSettingsControl(PluginManager pluginManager) {
-        return new SettingsControl(DynLeaderboardsPlugin.Settings, DynLeaderboardsPlugin.Game);
+        return new SettingsControl(DynLeaderboardsPlugin._Settings, DynLeaderboardsPlugin._Game);
     }
 
     /// <summary>
@@ -98,17 +96,17 @@ public sealed class DynLeaderboardsPlugin : IDataPlugin, IWPFSettingsV2 {
 
         // game doesn't depend on anything else, do it first
         var gameName = pm.GameName;
-        DynLeaderboardsPlugin.Game = new Game(gameName);
+        DynLeaderboardsPlugin._Game = new Game(gameName);
 
         PluginSettings.Migrate(); // migrate settings before reading them properly
-        DynLeaderboardsPlugin.Settings = this.ReadCommonSettings("GeneralSettings", () => new PluginSettings());
-        DynLeaderboardsPlugin.Settings.FinalizeInit(gameName);
+        DynLeaderboardsPlugin._Settings = this.ReadCommonSettings("GeneralSettings", () => new PluginSettings());
+        DynLeaderboardsPlugin._Settings.FinalizeInit(gameName);
 
         TrackData.OnPluginInit(gameName);
 
         this.Values = new Values();
 
-        foreach (var config in DynLeaderboardsPlugin.Settings.DynLeaderboardConfigs) {
+        foreach (var config in DynLeaderboardsPlugin._Settings.DynLeaderboardConfigs) {
             if (config.IsEnabled) {
                 var ldb = new DynLeaderboard(config, this.Values);
                 this.DynLeaderboards.Add(ldb);
@@ -126,7 +124,7 @@ public sealed class DynLeaderboardsPlugin : IDataPlugin, IWPFSettingsV2 {
     private void AttachGeneralDelegates() {
         this.AttachDelegate<DynLeaderboardsPlugin, double>("Perf.DataUpdateMS", () => this._dataUpdateTime);
 
-        var outGenProps = DynLeaderboardsPlugin.Settings.OutGeneralProps;
+        var outGenProps = DynLeaderboardsPlugin._Settings.OutGeneralProps;
 
         // Add everything else
         if (outGenProps.Includes(OutGeneralProp.SESSION_PHASE)) {
@@ -151,7 +149,7 @@ public sealed class DynLeaderboardsPlugin : IDataPlugin, IWPFSettingsV2 {
         }
 
         if (outGenProps.Includes(OutGeneralProp.CAR_CLASS_COLORS)) {
-            foreach (var kv in DynLeaderboardsPlugin.Settings.Infos.ClassInfos) {
+            foreach (var kv in DynLeaderboardsPlugin._Settings.Infos.ClassInfos) {
                 var value = kv.Value;
                 this.AttachDelegate<DynLeaderboardsPlugin, string>(
                     OutGeneralProp.CAR_CLASS_COLORS.ToPropName().Replace("<class>", kv.Key.AsString()),
@@ -161,7 +159,7 @@ public sealed class DynLeaderboardsPlugin : IDataPlugin, IWPFSettingsV2 {
         }
 
         if (outGenProps.Includes(OutGeneralProp.CAR_CLASS_COLORS)) {
-            foreach (var kv in DynLeaderboardsPlugin.Settings.Infos.ClassInfos) {
+            foreach (var kv in DynLeaderboardsPlugin._Settings.Infos.ClassInfos) {
                 var value = kv.Value;
                 this.AttachDelegate<DynLeaderboardsPlugin, string>(
                     OutGeneralProp.CAR_CLASS_TEXT_COLORS.ToPropName().Replace("<class>", kv.Key.AsString()),
@@ -171,7 +169,7 @@ public sealed class DynLeaderboardsPlugin : IDataPlugin, IWPFSettingsV2 {
         }
 
         if (outGenProps.Includes(OutGeneralProp.TEAM_CUP_COLORS)) {
-            foreach (var kv in DynLeaderboardsPlugin.Settings.Infos.TeamCupCategoryColors) {
+            foreach (var kv in DynLeaderboardsPlugin._Settings.Infos.TeamCupCategoryColors) {
                 var value = kv.Value;
                 this.AttachDelegate<DynLeaderboardsPlugin, string>(
                     OutGeneralProp.TEAM_CUP_COLORS.ToPropName().Replace("<cup>", kv.Key.AsString()),
@@ -181,7 +179,7 @@ public sealed class DynLeaderboardsPlugin : IDataPlugin, IWPFSettingsV2 {
         }
 
         if (outGenProps.Includes(OutGeneralProp.TEAM_CUP_TEXT_COLORS)) {
-            foreach (var kv in DynLeaderboardsPlugin.Settings.Infos.TeamCupCategoryColors) {
+            foreach (var kv in DynLeaderboardsPlugin._Settings.Infos.TeamCupCategoryColors) {
                 var value = kv.Value;
                 this.AttachDelegate<DynLeaderboardsPlugin, string>(
                     OutGeneralProp.TEAM_CUP_TEXT_COLORS.ToPropName().Replace("<cup>", kv.Key.AsString()),
@@ -191,7 +189,7 @@ public sealed class DynLeaderboardsPlugin : IDataPlugin, IWPFSettingsV2 {
         }
 
         if (outGenProps.Includes(OutGeneralProp.DRIVER_CATEGORY_COLORS)) {
-            foreach (var kv in DynLeaderboardsPlugin.Settings.Infos.DriverCategoryColors) {
+            foreach (var kv in DynLeaderboardsPlugin._Settings.Infos.DriverCategoryColors) {
                 var value = kv.Value;
                 this.AttachDelegate<DynLeaderboardsPlugin, string>(
                     OutGeneralProp.DRIVER_CATEGORY_COLORS.ToPropName().Replace("<category>", kv.Key.AsString()),
@@ -201,7 +199,7 @@ public sealed class DynLeaderboardsPlugin : IDataPlugin, IWPFSettingsV2 {
         }
 
         if (outGenProps.Includes(OutGeneralProp.DRIVER_CATEGORY_TEXT_COLORS)) {
-            foreach (var kv in DynLeaderboardsPlugin.Settings.Infos.DriverCategoryColors) {
+            foreach (var kv in DynLeaderboardsPlugin._Settings.Infos.DriverCategoryColors) {
                 var value = kv.Value;
                 this.AttachDelegate<DynLeaderboardsPlugin, string>(
                     OutGeneralProp.DRIVER_CATEGORY_TEXT_COLORS.ToPropName().Replace("<category>", kv.Key.AsString()),
@@ -235,13 +233,13 @@ public sealed class DynLeaderboardsPlugin : IDataPlugin, IWPFSettingsV2 {
             );
 
             void AddProp<T>(OutCarProp prop, Func<T> valueProvider) {
-                if (l.Config.OutCarProps.Includes(prop)) {
+                if (l._Config.OutCarProps.Includes(prop)) {
                     this.AttachDelegate<DynLeaderboardsPlugin, T>($"{startName}.{prop.ToPropName()}", valueProvider);
                 }
             }
 
             void AddDriverProp<T>(OutDriverProp prop, string driverId, Func<T> valueProvider) {
-                if (l.Config.OutDriverProps.Includes(prop)) {
+                if (l._Config.OutDriverProps.Includes(prop)) {
                     this.AttachDelegate<DynLeaderboardsPlugin, T>(
                         $"{startName}.{driverId}.{prop.ToPropName()}",
                         valueProvider
@@ -250,37 +248,37 @@ public sealed class DynLeaderboardsPlugin : IDataPlugin, IWPFSettingsV2 {
             }
 
             void AddLapProp<T>(OutLapProp prop, Func<T> valueProvider) {
-                if (l.Config.OutLapProps.Includes(prop)) {
+                if (l._Config.OutLapProps.Includes(prop)) {
                     this.AttachDelegate<DynLeaderboardsPlugin, T>($"{startName}.{prop.ToPropName()}", valueProvider);
                 }
             }
 
             void AddStintProp<T>(OutStintProp prop, Func<T> valueProvider) {
-                if (l.Config.OutStintProps.Includes(prop)) {
+                if (l._Config.OutStintProps.Includes(prop)) {
                     this.AttachDelegate<DynLeaderboardsPlugin, T>($"{startName}.{prop.ToPropName()}", valueProvider);
                 }
             }
 
             void AddGapProp<T>(OutGapProp prop, Func<T> valueProvider) {
-                if (l.Config.OutGapProps.Includes(prop)) {
+                if (l._Config.OutGapProps.Includes(prop)) {
                     this.AttachDelegate<DynLeaderboardsPlugin, T>($"{startName}.{prop.ToPropName()}", valueProvider);
                 }
             }
 
             void AddPosProp<T>(OutPosProp prop, Func<T> valueProvider) {
-                if (l.Config.OutPosProps.Includes(prop)) {
+                if (l._Config.OutPosProps.Includes(prop)) {
                     this.AttachDelegate<DynLeaderboardsPlugin, T>($"{startName}.{prop.ToPropName()}", valueProvider);
                 }
             }
 
             void AddPitProp<T>(OutPitProp prop, Func<T> valueProvider) {
-                if (l.Config.OutPitProps.Includes(prop)) {
+                if (l._Config.OutPitProps.Includes(prop)) {
                     this.AttachDelegate<DynLeaderboardsPlugin, T>($"{startName}.{prop.ToPropName()}", valueProvider);
                 }
             }
 
             void AddSectors(OutLapProp prop, string name, Func<Sectors?> sectorsProvider) {
-                if (l.Config.OutLapProps.Includes(prop)) {
+                if (l._Config.OutLapProps.Includes(prop)) {
                     this.AttachDelegate<DynLeaderboardsPlugin, double?>(
                         $"{startName}.{name}1",
                         () => sectorsProvider()?.S1Time?.TotalSeconds
@@ -392,8 +390,8 @@ public sealed class DynLeaderboardsPlugin : IDataPlugin, IWPFSettingsV2 {
                 );
             }
 
-            if (l.Config.NumDrivers.Value > 0) {
-                for (var j = 0; j < l.Config.NumDrivers.Value; j++) {
+            if (l._Config.NumDrivers > 0) {
+                for (var j = 0; j < l._Config.NumDrivers; j++) {
                     AddOneDriverFromList(j);
                 }
             }
@@ -620,13 +618,13 @@ public sealed class DynLeaderboardsPlugin : IDataPlugin, IWPFSettingsV2 {
             );
             this.AttachDelegate<DynLeaderboardsPlugin, bool?>(
                 $"{startName}.DBG_HasCrossedStartLine",
-                () => l.GetDynCar(i)?.HasCrossedStartLine
+                () => l.GetDynCar(i)?._HasCrossedStartLine
             );
             //this.AttachDelegate($"{startName}.DBG_Position", () => (l.GetDynCar(i))?.NewData?.Position);
             // //this.AttachDelegate($"{startName}.DBG_TrackPosition", () => (l.GetDynCar(i))?.NewData?.TrackPosition);
             this.AttachDelegate<DynLeaderboardsPlugin, CarData.OffsetLapUpdateType?>(
                 $"{startName}.DBG_OffsetLapUpdate",
-                () => l.GetDynCar(i)?.OffsetLapUpdate
+                () => l.GetDynCar(i)?._OffsetLapUpdate
             );
             this.AttachDelegate<DynLeaderboardsPlugin, string>(
                 $"{startName}.DBG_Laps",

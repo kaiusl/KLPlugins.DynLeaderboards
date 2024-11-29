@@ -27,7 +27,7 @@ public sealed class ClassInfos : IEnumerable<KeyValuePair<CarClass, OverridableC
         if (!this._infos.ContainsKey(cls)) {
             var c = new OverridableClassInfo(null, null);
             if (this._simHubClassColors.AssignedColors.TryGetValue(cls, out var shColor)) {
-                c.SimHubColor = shColor;
+                c._SimHubColor = shColor;
             }
 
             this._infos[cls] = c;
@@ -65,17 +65,17 @@ public sealed class ClassInfos : IEnumerable<KeyValuePair<CarClass, OverridableC
     internal ClassInfo? GetBaseFollowDuplicates(CarClass cls) {
         var info = this.GetOrAdd(cls);
 
-        if (info.Base != null) {
-            return info.Base;
+        if (info._Base != null) {
+            return info._Base;
         }
 
-        foreach (var dup in info.DuplicatedFrom.Reverse())
+        foreach (var dup in info._DuplicatedFrom.Reverse())
             // Don't use this.Get as that will add missing classes
             // We don't want it here, just skip the duplicates that don't exist anymore
         {
             if (this._infos.TryGetValue(dup, out info)) {
-                if (info.Base != null) {
-                    return info.Base;
+                if (info._Base != null) {
+                    return info._Base;
                 }
             }
         }
@@ -99,8 +99,8 @@ public sealed class ClassInfos : IEnumerable<KeyValuePair<CarClass, OverridableC
                 if (infos.ContainsKey(kv.Key)) {
                     infos[kv.Key].SetRealBase(kv.Value);
                 } else {
-                    var isColorEnabled = kv.Value.Color?.Fg != null && kv.Value.Color?.Bg != null;
-                    var isReplaceWithEnabled = kv.Value.ReplaceWith != null;
+                    var isColorEnabled = kv.Value._Color?.Fg != null && kv.Value._Color?.Bg != null;
+                    var isReplaceWithEnabled = kv.Value._ReplaceWith != null;
                     var info = new OverridableClassInfo(
                         @base: kv.Value,
                         null,
@@ -146,14 +146,14 @@ public sealed class ClassInfos : IEnumerable<KeyValuePair<CarClass, OverridableC
                 var _ = c.GetOrAdd(it.BaseReplaceWith()!.Value);
             }
 
-            if (it.Base == null) {
+            if (it._Base == null) {
                 it.SetBase(c.GetBaseFollowDuplicates(key));
             }
         }
 
         foreach (var kv in c._infos) {
             if (c._simHubClassColors.AssignedColors.TryGetValue(kv.Key, out var shColor)) {
-                kv.Value.SimHubColor = shColor;
+                kv.Value._SimHubColor = shColor;
             }
 
             kv.Value.CheckEnabled();
@@ -237,7 +237,7 @@ public sealed class ClassInfos : IEnumerable<KeyValuePair<CarClass, OverridableC
         internal OverridableClassInfo.Manager GetOrAddFollowReplaceWith(CarClass cls) {
             var clsOut = cls;
             var manager = this.GetOrAdd(cls);
-            var nextCls = manager.Info.ReplaceWith(); // don't use manager.ReplaceWith, it defaults to default class
+            var nextCls = manager._Info.ReplaceWith(); // don't use manager.ReplaceWith, it defaults to default class
 
             var seenClasses = new List<CarClass> { cls };
 
@@ -254,7 +254,7 @@ public sealed class ClassInfos : IEnumerable<KeyValuePair<CarClass, OverridableC
 
                 seenClasses.Add(clsOut);
 
-                nextCls = manager.Info.ReplaceWith();
+                nextCls = manager._Info.ReplaceWith();
             }
 
             return manager;
@@ -276,8 +276,8 @@ public sealed class ClassInfos : IEnumerable<KeyValuePair<CarClass, OverridableC
                 // Don't remove if it has base data or if it is the default class,
                 // just disable
                 manager.Reset();
-                manager.IsColorEnabled = false;
-                manager.IsReplaceWithEnabled = false;
+                manager._IsColorEnabled = false;
+                manager._IsReplaceWithEnabled = false;
             }
         }
 
@@ -295,7 +295,7 @@ public sealed class ClassInfos : IEnumerable<KeyValuePair<CarClass, OverridableC
         }
 
         internal bool CanBeRemoved(OverridableClassInfo.Manager c) {
-            if (c.HasBase() || c.Key == CarClass.Default || this.IsUsedInAnyReplaceWith(c.Key)) {
+            if (c.HasBase() || c._Key == CarClass.Default || this.IsUsedInAnyReplaceWith(c._Key)) {
                 return false;
             }
 
@@ -303,7 +303,7 @@ public sealed class ClassInfos : IEnumerable<KeyValuePair<CarClass, OverridableC
         }
 
         internal bool IsUsedInAnyReplaceWith(CarClass cls) {
-            return this._classManagers.Values.Any(it => it.ReplaceWith == cls);
+            return this._classManagers.Values.Any(it => it._ReplaceWith == cls);
         }
 
         internal void Duplicate(CarClass old, CarClass @new) {
@@ -311,9 +311,9 @@ public sealed class ClassInfos : IEnumerable<KeyValuePair<CarClass, OverridableC
                 return;
             }
 
-            var info = this._classManagers[old].Info.Duplicate(old);
+            var info = this._classManagers[old]._Info.Duplicate(old);
             if (this._baseInfos._simHubClassColors.AssignedColors.TryGetValue(@new, out var shColors)) {
-                info.SimHubColor = shColors;
+                info._SimHubColor = shColors;
             }
 
             this._baseInfos._infos[@new] = info;
@@ -336,24 +336,24 @@ public sealed class ClassInfos : IEnumerable<KeyValuePair<CarClass, OverridableC
 }
 
 public sealed class OverridableClassInfo {
-    [JsonIgnore] internal ClassInfo? Base { get; private set; }
+    [JsonIgnore] internal ClassInfo? _Base { get; private set; }
 
     // If a class had been duplicated from it can have a "false" base from its parent. 
     // This flag helps to differentiate those cases. 
     // Note that just checking if DuplicatedFrom == null is not enough.
     // A class that was duplicated could end up receiving a base in later updates.
-    [JsonIgnore] internal bool HasRealBase { get; private set; } = false;
+    [JsonIgnore] internal bool _HasRealBase { get; private set; } = false;
 
-    [JsonProperty] internal ClassInfo? Overrides { get; private set; }
+    [JsonProperty("Overrides")] internal ClassInfo? _Overrides { get; private set; }
 
-    [JsonProperty] internal bool IsColorEnabled { get; private set; }
+    [JsonProperty("IsColorEnabled")] internal bool _IsColorEnabled { get; private set; }
 
-    [JsonProperty] internal bool IsReplaceWithEnabled { get; private set; }
+    [JsonProperty("IsReplaceWithEnabled")] internal bool _IsReplaceWithEnabled { get; private set; }
 
     // Used to determine what base should this class receive if it was duplicated from another class
-    [JsonProperty] internal ImmutableList<CarClass> DuplicatedFrom { get; private set; }
+    [JsonProperty("DuplicatedFrom")] internal ImmutableList<CarClass> _DuplicatedFrom { get; private set; }
 
-    [JsonIgnore] internal TextBoxColor? SimHubColor { get; set; } = null;
+    [JsonIgnore] internal TextBoxColor? _SimHubColor { get; set; } = null;
 
 
     [JsonConstructor]
@@ -368,35 +368,35 @@ public sealed class OverridableClassInfo {
         this.SetBase(@base);
         this.SetOverrides(overrides);
         if (isColorEnabled != null) {
-            this.IsColorEnabled = isColorEnabled.Value;
+            this._IsColorEnabled = isColorEnabled.Value;
         }
 
         if (isReplaceWithEnabled != null) {
-            this.IsReplaceWithEnabled = isReplaceWithEnabled.Value;
+            this._IsReplaceWithEnabled = isReplaceWithEnabled.Value;
         }
 
-        this.DuplicatedFrom = duplicatedFrom ?? ImmutableList<CarClass>.Empty;
-        this.SimHubColor = simHubColor;
+        this._DuplicatedFrom = duplicatedFrom ?? ImmutableList<CarClass>.Empty;
+        this._SimHubColor = simHubColor;
     }
 
     internal OverridableClassInfo Duplicate(CarClass thisClass) {
         return new OverridableClassInfo(
-            this.Base?.Clone(),
-            this.Overrides?.Clone(),
-            isColorEnabled: this.IsColorEnabled,
-            isReplaceWithEnabled: this.IsReplaceWithEnabled,
-            duplicatedFrom: this.DuplicatedFrom.Add(thisClass),
+            this._Base?.Clone(),
+            this._Overrides?.Clone(),
+            isColorEnabled: this._IsColorEnabled,
+            isReplaceWithEnabled: this._IsReplaceWithEnabled,
+            duplicatedFrom: this._DuplicatedFrom.Add(thisClass),
             // don't duplicate SimHub color because it's associated with class name
             simHubColor: null
         );
     }
 
     internal void SetOverrides(ClassInfo? overrides) {
-        this.Overrides = overrides;
+        this._Overrides = overrides;
     }
 
     internal void SetBase(ClassInfo? @base) {
-        this.Base = @base;
+        this._Base = @base;
     }
 
     internal void CheckEnabled() {
@@ -406,57 +406,57 @@ public sealed class OverridableClassInfo {
         if (this.ReplaceWithDontCheckEnabled() == null)
             // replace with cannot be enabled if there is no replace with set
         {
-            this.IsReplaceWithEnabled = false;
+            this._IsReplaceWithEnabled = false;
         }
 
         if (this.ForegroundDontCheckEnabled() == null || this.BackgroundDontCheckEnabled() == null) {
-            this.IsColorEnabled = false;
+            this._IsColorEnabled = false;
         }
     }
 
     internal void SetRealBase(ClassInfo? @base) {
         this.SetBase(@base);
-        this.HasRealBase = true;
+        this._HasRealBase = true;
     }
 
     public string? Foreground() {
-        if (!this.IsColorEnabled) {
-            return this.SimHubColor?.Fg;
+        if (!this._IsColorEnabled) {
+            return this._SimHubColor?.Fg;
         }
 
         return this.ForegroundDontCheckEnabled();
     }
 
     internal string? ForegroundDontCheckEnabled() {
-        return this.Overrides?.Color?.Fg ?? this.Base?.Color?.Fg ?? this.SimHubColor?.Fg;
+        return this._Overrides?._Color?.Fg ?? this._Base?._Color?.Fg ?? this._SimHubColor?.Fg;
     }
 
     internal string? BaseForeground() {
-        return this.Base?.Color?.Fg;
+        return this._Base?._Color?.Fg;
     }
 
     public string? Background() {
-        if (!this.IsColorEnabled) {
-            return this.SimHubColor?.Bg;
+        if (!this._IsColorEnabled) {
+            return this._SimHubColor?.Bg;
         }
 
         return this.BackgroundDontCheckEnabled();
     }
 
     internal string? BackgroundDontCheckEnabled() {
-        return this.Overrides?.Color?.Bg ?? this.Base?.Color?.Bg ?? this.SimHubColor?.Bg;
+        return this._Overrides?._Color?.Bg ?? this._Base?._Color?.Bg ?? this._SimHubColor?.Bg;
     }
 
     internal string? BaseBackground() {
-        return this.Base?.Color?.Bg;
+        return this._Base?._Color?.Bg;
     }
 
     internal CarClass? BaseReplaceWith() {
-        return this.Base?.ReplaceWith;
+        return this._Base?._ReplaceWith;
     }
 
     public CarClass? ReplaceWith() {
-        if (!this.IsReplaceWithEnabled) {
+        if (!this._IsReplaceWithEnabled) {
             return null;
         }
 
@@ -464,15 +464,15 @@ public sealed class OverridableClassInfo {
     }
 
     internal CarClass? ReplaceWithDontCheckEnabled() {
-        return this.Overrides?.ReplaceWith ?? this.Base?.ReplaceWith;
+        return this._Overrides?._ReplaceWith ?? this._Base?._ReplaceWith;
     }
 
     internal string? BaseShortName() {
-        return this.Base?.ShortName;
+        return this._Base?._ShortName;
     }
 
     public string? ShortName() {
-        return this.Overrides?.ShortName ?? this.Base?.ShortName;
+        return this._Overrides?._ShortName ?? this._Base?._ShortName;
     }
 
     /// <summary>
@@ -483,8 +483,8 @@ public sealed class OverridableClassInfo {
         ///     This is the glue between OverridableClassInfo and settings UI
         /// </summary>
         public Manager(CarClass key, OverridableClassInfo info) {
-            this.Info = info;
-            this.Key = key;
+            this._Info = info;
+            this._Key = key;
         }
 
         public event PropertyChangedEventHandler? PropertyChanged;
@@ -497,130 +497,131 @@ public sealed class OverridableClassInfo {
             this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
-        internal OverridableClassInfo Info { get; }
-        internal CarClass Key { get; }
+        internal OverridableClassInfo _Info { get; }
+        internal CarClass _Key { get; }
 
         internal bool HasBase() {
-            return this.Info.Base != null && this.Info.HasRealBase;
+            return this._Info._Base != null && this._Info._HasRealBase;
         }
 
-        internal string? Background {
-            get => this.Info.Background();
+        internal string? _Background {
+            get => this._Info.Background();
             set {
-                this.Info.Overrides ??= new ClassInfo();
+                this._Info._Overrides ??= new ClassInfo();
                 if (value == null) {
-                    this.Info.Overrides.Color = null;
+                    this._Info._Overrides._Color = null;
                 } else {
-                    this.Info.Overrides.Color ??= TextBoxColor.FromBg(value);
-                    this.Info.Overrides.Color.Bg = value;
+                    this._Info._Overrides._Color ??= TextBoxColor.FromBg(value);
+                    this._Info._Overrides._Color.Bg = value;
                 }
 
                 this.InvokePropertyChanged();
-                this.InvokePropertyChanged(nameof(Manager.Foreground));
+                this.InvokePropertyChanged(nameof(Manager._Foreground));
             }
         }
 
-        internal string? Foreground {
-            get => this.Info.Foreground();
+        internal string? _Foreground {
+            get => this._Info.Foreground();
             set {
-                this.Info.Overrides ??= new ClassInfo();
+                this._Info._Overrides ??= new ClassInfo();
                 if (value == null) {
-                    this.Info.Overrides.Color = null;
+                    this._Info._Overrides._Color = null;
                 } else {
-                    this.Info.Overrides.Color ??= TextBoxColor.FromFg(value);
-                    this.Info.Overrides.Color.Fg = value;
+                    this._Info._Overrides._Color ??= TextBoxColor.FromFg(value);
+                    this._Info._Overrides._Color.Fg = value;
                 }
 
                 this.InvokePropertyChanged();
-                this.InvokePropertyChanged(nameof(Manager.Background));
+                this.InvokePropertyChanged(nameof(Manager._Background));
             }
         }
 
-        internal bool IsColorEnabled {
-            get => this.Info.IsColorEnabled;
+        internal bool _IsColorEnabled {
+            get => this._Info._IsColorEnabled;
             set {
-                this.Info.IsColorEnabled = value;
+                this._Info._IsColorEnabled = value;
                 if (value) {
-                    if (this.Info.Overrides?.Color == null) {
-                        this.Info.Overrides ??= new ClassInfo();
-                        this.Info.Overrides.Color = this.Info.Base?.Color?.Clone()
-                            ?? this.Info.SimHubColor?.Clone()
+                    if (this._Info._Overrides?._Color == null) {
+                        this._Info._Overrides ??= new ClassInfo();
+                        this._Info._Overrides._Color = this._Info._Base?._Color?.Clone()
+                            ?? this._Info._SimHubColor?.Clone()
                             ?? TextBoxColor.Default();
                     }
                 }
 
                 this.InvokePropertyChanged();
-                this.InvokePropertyChanged(nameof(Manager.Background));
-                this.InvokePropertyChanged(nameof(Manager.Foreground));
+                this.InvokePropertyChanged(nameof(Manager._Background));
+                this.InvokePropertyChanged(nameof(Manager._Foreground));
             }
         }
 
         internal void ResetColors() {
             // default is enabled, is we have base
             // don't call the setter for this.IsColorEnabled, that would notify bg and fg change unnecessarily
-            this.Info.IsColorEnabled = this.Info.Base?.Color != null;
+            this._Info._IsColorEnabled = this._Info._Base?._Color != null;
 
             // don't call this.ResetBackground() or this.ResetForeground(),
             // we don't want to write base colors to overrides
-            if (this.Info.Overrides != null) {
-                this.Info.Overrides.Color = null;
+            if (this._Info._Overrides != null) {
+                this._Info._Overrides._Color = null;
             }
 
-            this.InvokePropertyChanged(nameof(Manager.IsColorEnabled));
-            this.InvokePropertyChanged(nameof(Manager.Foreground));
-            this.InvokePropertyChanged(nameof(Manager.Background));
+            this.InvokePropertyChanged(nameof(Manager._IsColorEnabled));
+            this.InvokePropertyChanged(nameof(Manager._Foreground));
+            this.InvokePropertyChanged(nameof(Manager._Background));
         }
 
-        internal string ShortName {
-            get => this.Info.ShortName() ?? this.Key.AsString();
+        internal string _ShortName {
+            get => this._Info.ShortName() ?? this._Key.AsString();
             set {
-                this.Info.Overrides ??= new ClassInfo();
-                this.Info.Overrides.ShortName = value;
+                this._Info._Overrides ??= new ClassInfo();
+                this._Info._Overrides._ShortName = value;
                 this.InvokePropertyChanged();
             }
         }
 
         internal void ResetShortName() {
-            if (this.Info.Overrides != null) {
-                this.Info.Overrides.ShortName = null;
+            if (this._Info._Overrides != null) {
+                this._Info._Overrides._ShortName = null;
             }
 
-            this.InvokePropertyChanged(nameof(Manager.ShortName));
+            this.InvokePropertyChanged(nameof(Manager._ShortName));
         }
 
-        internal CarClass? ReplaceWith {
-            get => this.Info.ReplaceWith();
+        internal CarClass? _ReplaceWith {
+            get => this._Info.ReplaceWith();
             set {
-                this.Info.Overrides ??= new ClassInfo();
-                this.Info.Overrides.ReplaceWith = value;
+                this._Info._Overrides ??= new ClassInfo();
+                this._Info._Overrides._ReplaceWith = value;
                 this.InvokePropertyChanged();
             }
         }
 
-        internal bool IsReplaceWithEnabled {
-            get => this.Info.IsReplaceWithEnabled;
+        internal bool _IsReplaceWithEnabled {
+            get => this._Info._IsReplaceWithEnabled;
             set {
-                this.Info.IsReplaceWithEnabled = value;
+                this._Info._IsReplaceWithEnabled = value;
                 this.InvokePropertyChanged();
 
                 if (value) {
-                    if (this.Info.Overrides?.ReplaceWith == null) {
-                        this.Info.Overrides ??= new ClassInfo();
-                        this.Info.Overrides.ReplaceWith = this.Info.ReplaceWithDontCheckEnabled() ?? CarClass.Default;
+                    if (this._Info._Overrides?._ReplaceWith == null) {
+                        this._Info._Overrides ??= new ClassInfo();
+                        this._Info._Overrides._ReplaceWith =
+                            this._Info.ReplaceWithDontCheckEnabled() ?? CarClass.Default;
                     }
                 }
 
-                this.InvokePropertyChanged(nameof(Manager.ReplaceWith));
+                this.InvokePropertyChanged(nameof(Manager._ReplaceWith));
             }
         }
 
         internal void ResetReplaceWith() {
-            if (this.Info.Overrides != null) {
-                this.Info.Overrides.ReplaceWith = null;
+            if (this._Info._Overrides != null) {
+                this._Info._Overrides._ReplaceWith = null;
             }
 
             // default is enabled if base is present
-            this.IsReplaceWithEnabled = this.Info.Base?.ReplaceWith != null;
+            this._IsReplaceWithEnabled = this._Info._Base?._ReplaceWith != null;
             // No need to notify, this is done in the setter above
         }
 
@@ -631,35 +632,35 @@ public sealed class OverridableClassInfo {
         }
 
         internal void DisableAll() {
-            this.IsColorEnabled = false;
-            this.IsReplaceWithEnabled = false;
+            this._IsColorEnabled = false;
+            this._IsReplaceWithEnabled = false;
         }
 
         internal void EnableAll() {
-            this.IsColorEnabled = true;
-            this.IsReplaceWithEnabled = true;
+            this._IsColorEnabled = true;
+            this._IsReplaceWithEnabled = true;
         }
     }
 }
 
 internal sealed class ClassInfo {
-    [JsonProperty] internal TextBoxColor? Color { get; set; }
+    [JsonProperty("Color")] internal TextBoxColor? _Color { get; set; }
 
-    [JsonProperty] internal CarClass? ReplaceWith { get; set; }
+    [JsonProperty("ReplaceWith")] internal CarClass? _ReplaceWith { get; set; }
 
-    [JsonProperty] internal string? ShortName { get; set; }
+    [JsonProperty("ShortName")] internal string? _ShortName { get; set; }
 
     [JsonConstructor]
     internal ClassInfo(TextBoxColor? color, CarClass? replaceWith, string? shortName) {
-        this.Color = color;
-        this.ReplaceWith = replaceWith;
-        this.ShortName = shortName;
+        this._Color = color;
+        this._ReplaceWith = replaceWith;
+        this._ShortName = shortName;
     }
 
     internal ClassInfo() { }
 
     internal ClassInfo Clone() {
-        return new ClassInfo(this.Color?.Clone(), this.ReplaceWith, this.ShortName);
+        return new ClassInfo(this._Color?.Clone(), this._ReplaceWith, this._ShortName);
     }
 }
 
@@ -673,10 +674,7 @@ internal sealed class SimHubClassColors {
         if (raw != null) {
             foreach (var color in raw.AssignedColors) {
                 var cls = new CarClass(color.Target);
-
-                var lstar = ColorTools.LStar(color.Color);
-                var fg = lstar > 70 ? "#000000" : "#FFFFFF";
-
+                var fg = ColorTools.ComplementaryBlackOrWhite(color.Color);
                 var col = new TextBoxColor(fg, color.Color);
                 self.AssignedColors.Add(cls, col);
             }

@@ -19,7 +19,7 @@ using Newtonsoft.Json;
 namespace KLPlugins.DynLeaderboards.Track;
 
 internal sealed class LapInterpolator {
-    internal TimeSpan LapTime { get; private set; }
+    internal TimeSpan _LapTime { get; private set; }
     private LinearSpline _interpolator { get; set; }
     private double[] _rawPos { get; set; }
     private double[] _rawTime { get; set; }
@@ -54,7 +54,7 @@ internal sealed class LapInterpolator {
         var (pos, time) = this.ProcessLapInterpolatorData(rawPos, rawTime, splinePosOffset);
         var interpolator = LinearSpline.InterpolateSorted(pos.ToArray(), time.ToArray());
         this._interpolator = interpolator;
-        this.LapTime = TimeSpan.FromSeconds(this._interpolator.Interpolate(1.0));
+        this._LapTime = TimeSpan.FromSeconds(this._interpolator.Interpolate(1.0));
     }
 
     private Tuple<List<double>, List<double>> ReadLapInterpolatorData(string path) {
@@ -254,8 +254,8 @@ public sealed class TrackData {
     // Alternatively we could use ConcurrentDictionary for this.LapInterpolators but we need to 
     // access it a lot per one update. So it would include a lot of unnecessary synchronizations
     // while with current solution we only have one synchronized access.
-    internal readonly Dictionary<CarClass, LapInterpolator> LapInterpolators = [];
-    internal readonly HashSet<CarClass> UpdatedInterpolators = [];
+    internal readonly Dictionary<CarClass, LapInterpolator> _LapInterpolators = [];
+    internal readonly HashSet<CarClass> _UpdatedInterpolators = [];
 
     private readonly ConcurrentQueue<(CarClass, LapInterpolator)> _builtLapInterpolators = [];
 
@@ -265,7 +265,7 @@ public sealed class TrackData {
     private static Dictionary<string, SplinePosOffset> _splinePosOffsets = [];
 
     internal TrackData(GameData data) {
-        TrackData._splinePosOffsets = TrackData.ReadSplinePosOffsets(DynLeaderboardsPlugin.Game.Name);
+        TrackData._splinePosOffsets = TrackData.ReadSplinePosOffsets(DynLeaderboardsPlugin._Game.Name);
 
         this.PrettyName = data.NewData.TrackName;
         this.Id = data.NewData.TrackCode;
@@ -283,8 +283,8 @@ public sealed class TrackData {
 
     internal void OnDataUpdate() {
         while (this._builtLapInterpolators.TryDequeue(out var kv)) {
-            if (!this.LapInterpolators.ContainsKey(kv.Item1)) {
-                this.LapInterpolators[kv.Item1] = kv.Item2;
+            if (!this._LapInterpolators.ContainsKey(kv.Item1)) {
+                this._LapInterpolators[kv.Item1] = kv.Item2;
 
                 Logging.LogInfo($"Added LapInterpolator for {kv.Item1}");
             }
@@ -295,15 +295,15 @@ public sealed class TrackData {
 
     internal void SaveData() {
         Logging.LogInfo("Saving track data");
-        foreach (var kv in this.UpdatedInterpolators) {
+        foreach (var kv in this._UpdatedInterpolators) {
             var path =
-                $"{PluginConstants.DataDir}\\{DynLeaderboardsPlugin.Game.Name}\\laps_data\\{this.Id}_{kv}.txt";
-            if (this.LapInterpolators.TryGetValue(kv, out var interp)) {
+                $"{PluginConstants.DataDir}\\{DynLeaderboardsPlugin._Game.Name}\\laps_data\\{this.Id}_{kv}.txt";
+            if (this._LapInterpolators.TryGetValue(kv, out var interp)) {
                 interp.WriteLapInterpolatorData(path);
             }
         }
 
-        this.UpdatedInterpolators.Clear();
+        this._UpdatedInterpolators.Clear();
 
         this.WriteSplinePosOffsets();
     }
@@ -348,10 +348,10 @@ public sealed class TrackData {
             var newLapTime = lapDataTime.Last();
             var newLapLastPos = lapDataPos.Last();
 
-            var current = this.LapInterpolators.GetValueOr(cls, null);
+            var current = this._LapInterpolators.GetValueOr(cls, null);
             if (current == null || current.Interpolate(newLapLastPos).TotalSeconds > newLapTime) {
                 this.AddLapInterpolator(rawPos: lapDataPos, rawTime: lapDataTime, cls);
-                this.UpdatedInterpolators.Add(cls);
+                this._UpdatedInterpolators.Add(cls);
                 Logging.LogInfo($"Saved new best lap for {cls}: {newLapTime}.");
             }
         } else if (
@@ -391,7 +391,7 @@ public sealed class TrackData {
     }
 
     private void WriteSplinePosOffsets() {
-        var path = $"{PluginConstants.DataDir}\\{DynLeaderboardsPlugin.Game.Name}\\SplinePosOffsets.json";
+        var path = $"{PluginConstants.DataDir}\\{DynLeaderboardsPlugin._Game.Name}\\SplinePosOffsets.json";
         var dirPath = Path.GetDirectoryName(path)!;
         Directory.CreateDirectory(dirPath);
 
@@ -399,7 +399,7 @@ public sealed class TrackData {
     }
 
     internal void BuildLapInterpolator(CarClass carClass) {
-        if (this.LapInterpolators.ContainsKey(carClass)) {
+        if (this._LapInterpolators.ContainsKey(carClass)) {
             return;
         }
 
@@ -414,7 +414,7 @@ public sealed class TrackData {
 
     private void BuildLapInterpolatorInner(CarClass carClass) {
         var path =
-            $"{PluginConstants.DataDir}\\{DynLeaderboardsPlugin.Game.Name}\\laps_data\\{this.Id}_{carClass}.txt";
+            $"{PluginConstants.DataDir}\\{DynLeaderboardsPlugin._Game.Name}\\laps_data\\{this.Id}_{carClass}.txt";
 
         if (!File.Exists(path)) {
             Logging.LogInfo($"Couldn't build lap interpolator for {carClass} because no suitable track data exists.");
@@ -442,6 +442,6 @@ public sealed class TrackData {
             return;
         }
 
-        this.LapInterpolators[carClass] = new LapInterpolator(rawPos, rawTime, this.SplinePosOffset.Value);
+        this._LapInterpolators[carClass] = new LapInterpolator(rawPos, rawTime, this.SplinePosOffset.Value);
     }
 }

@@ -4,13 +4,12 @@ using Newtonsoft.Json;
 
 namespace KLPlugins.DynLeaderboards.Common;
 
-public sealed class Box<T>(T value)
+internal sealed class Box<T>(T value)
     where T : struct {
     public T Value = value;
 }
 
-
-public sealed class BoxJsonConverter<T> : JsonConverter
+internal sealed class BoxJsonConverter<T> : JsonConverter
     where T : struct {
     public override void WriteJson(JsonWriter writer, object? value, JsonSerializer serializer) {
         if (value is Box<T> box) {

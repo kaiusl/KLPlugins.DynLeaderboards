@@ -131,14 +131,14 @@ internal class ColorsTabSection<K> {
     private ColorRow CreateNewRow(K cls, OverridableTextBoxColor color, Func<K, bool> isDef) {
         var row = new ColorRow(cls, cls!.ToString(), color, this._settingsControl.FindResource);
         if (color.HasBase() || isDef(cls)) {
-            row.RemoveButton.IsEnabled = false;
-            row.RemoveButton.Opacity = SettingsControl.DISABLED_OPTION_OPACITY;
-            row.RemoveButton.ToolTip = isDef(cls)
+            row._RemoveButton.IsEnabled = false;
+            row._RemoveButton.Opacity = SettingsControl.DISABLED_OPTION_OPACITY;
+            row._RemoveButton.ToolTip = isDef(cls)
                 ? "This category is the default and cannot be removed."
                 : "This category has base data and cannot be removed.";
         } else {
-            row.RemoveButton.Click += (_, _) => {
-                this.Colors.Remove(row.Key);
+            row._RemoveButton.Click += (_, _) => {
+                this.Colors.Remove(row._Key);
                 row.RemoveFromGrid(this.ColorsGrid);
             };
         }
@@ -165,16 +165,16 @@ internal class ColorsTabSection<K> {
     }
 
     private class ColorRow {
-        internal K Key { get; }
-        internal string KeyAsString { get; }
-        internal OverridableTextBoxColor Color { get; }
-        internal SHToggleButton EnabledToggle { get; }
-        internal Border ClassBox { get; }
-        internal TextBlock ClassText { get; }
-        internal ColorPicker BgColorPicker { get; }
-        internal ColorPicker FgColorPicker { get; }
-        internal SHButtonPrimary RemoveButton { get; }
-        internal SHButtonPrimary ResetButton { get; }
+        internal K _Key { get; }
+        internal string _KeyAsString { get; }
+        internal OverridableTextBoxColor _Color { get; }
+        internal SHToggleButton _EnabledToggle { get; }
+        internal Border _ClassBox { get; }
+        internal TextBlock _ClassText { get; }
+        internal ColorPicker _BgColorPicker { get; }
+        internal ColorPicker _FgColorPicker { get; }
+        internal SHButtonPrimary _RemoveButton { get; }
+        internal SHButtonPrimary _ResetButton { get; }
 
         internal ColorRow(
             K key,
@@ -182,140 +182,136 @@ internal class ColorsTabSection<K> {
             OverridableTextBoxColor color,
             Func<string, object> findResource
         ) {
-            this.Key = key;
-            this.KeyAsString = keyAsString;
-            this.Color = color;
+            this._Key = key;
+            this._KeyAsString = keyAsString;
+            this._Color = color;
 
             var isEnabled = color.IsEnabled;
             var opacity = isEnabled ? 1.0 : SettingsControl.DISABLED_OPTION_OPACITY;
 
-            this.EnabledToggle = new SHToggleButton {
+            this._EnabledToggle = new SHToggleButton {
                 IsChecked = isEnabled, Style = (Style)findResource("ColorGrid_EnabledToggle"),
             };
 
             var currentBgColor =
-                ColorTools.FromHex(
-                    color.BackgroundDontCheckEnabled() ?? TextBoxColor.DEF_BG
-                );
+                ColorTools.FromHex(color.BackgroundDontCheckEnabled() ?? TextBoxColor.DEF_BG);
             var currentFgColor =
-                ColorTools.FromHex(
-                    color.ForegroundDontCheckEnabled() ?? TextBoxColor.DEF_FG
-                );
+                ColorTools.FromHex(color.ForegroundDontCheckEnabled() ?? TextBoxColor.DEF_FG);
 
-            this.ClassBox = new Border {
+            this._ClassBox = new Border {
                 Background = new SolidColorBrush(currentBgColor),
                 Opacity = opacity,
                 IsEnabled = isEnabled,
                 Style = (Style)findResource("ColorGrid_LabelBorder"),
             };
-            Grid.SetColumn(this.ClassBox, 1);
+            Grid.SetColumn(this._ClassBox, 1);
 
-            this.ClassText = new TextBlock {
+            this._ClassText = new TextBlock {
                 Foreground = new SolidColorBrush(currentFgColor),
-                Text = this.KeyAsString,
+                Text = this._KeyAsString,
                 Style = (Style)findResource("ColorGrid_LabelText"),
             };
-            this.ClassBox.Child = this.ClassText;
+            this._ClassBox.Child = this._ClassText;
 
-            this.BgColorPicker = new ColorPicker {
+            this._BgColorPicker = new ColorPicker {
                 SelectedColor = currentBgColor,
                 Opacity = opacity,
                 IsEnabled = isEnabled,
                 Style = (Style)findResource("ColorGrid_ColorPicker"),
             };
-            Grid.SetColumn(this.BgColorPicker, 2);
-            this.BgColorPicker.SelectedColorChanged += (_, _) => {
-                this.Color.SetBackground(this.BgColorPicker.SelectedColor.ToString());
-                this.ClassBox.Background = new SolidColorBrush(this.BgColorPicker.SelectedColor.Value);
+            Grid.SetColumn(this._BgColorPicker, 2);
+            this._BgColorPicker.SelectedColorChanged += (_, _) => {
+                this._Color.SetBackground(this._BgColorPicker.SelectedColor.ToString());
+                this._ClassBox.Background = new SolidColorBrush(this._BgColorPicker.SelectedColor.Value);
             };
 
-            this.FgColorPicker = new ColorPicker {
+            this._FgColorPicker = new ColorPicker {
                 SelectedColor = currentFgColor,
                 Opacity = opacity,
                 IsEnabled = isEnabled,
                 Style = (Style)findResource("ColorGrid_ColorPicker"),
             };
-            Grid.SetColumn(this.FgColorPicker, 4);
-            this.FgColorPicker.SelectedColorChanged += (_, _) => {
-                this.Color.SetForeground(this.FgColorPicker.SelectedColor.ToString());
-                this.ClassText.Foreground = new SolidColorBrush(this.FgColorPicker.SelectedColor.Value);
+            Grid.SetColumn(this._FgColorPicker, 4);
+            this._FgColorPicker.SelectedColorChanged += (_, _) => {
+                this._Color.SetForeground(this._FgColorPicker.SelectedColor.ToString());
+                this._ClassText.Foreground = new SolidColorBrush(this._FgColorPicker.SelectedColor.Value);
             };
 
-            this.ResetButton = new SHButtonPrimary {
+            this._ResetButton = new SHButtonPrimary {
                 Style = (Style)findResource("ColorGrid_RemoveButton"), Content = "Reset",
             };
-            this.ResetButton.Click += (_, _) => { this.Reset(); };
-            Grid.SetColumn(this.ResetButton, 6);
+            this._ResetButton.Click += (_, _) => { this.Reset(); };
+            Grid.SetColumn(this._ResetButton, 6);
 
-            this.RemoveButton = new SHButtonPrimary {
+            this._RemoveButton = new SHButtonPrimary {
                 Style = (Style)findResource("ColorGrid_RemoveButton"), Content = "Remove",
             };
-            Grid.SetColumn(this.RemoveButton, 7);
-            ToolTipService.SetShowOnDisabled(this.RemoveButton, true);
+            Grid.SetColumn(this._RemoveButton, 7);
+            ToolTipService.SetShowOnDisabled(this._RemoveButton, true);
 
-            this.EnabledToggle.Checked += (_, _) => {
-                this.Color.Enable();
-                this.ClassBox.IsEnabled = true;
-                this.ClassBox.Opacity = 1.0;
-                this.BgColorPicker.IsEnabled = true;
-                this.BgColorPicker.Opacity = 1.0;
-                this.FgColorPicker.IsEnabled = true;
-                this.FgColorPicker.Opacity = 1.0;
+            this._EnabledToggle.Checked += (_, _) => {
+                this._Color.Enable();
+                this._ClassBox.IsEnabled = true;
+                this._ClassBox.Opacity = 1.0;
+                this._BgColorPicker.IsEnabled = true;
+                this._BgColorPicker.Opacity = 1.0;
+                this._FgColorPicker.IsEnabled = true;
+                this._FgColorPicker.Opacity = 1.0;
             };
 
-            this.EnabledToggle.Unchecked += (_, _) => {
+            this._EnabledToggle.Unchecked += (_, _) => {
                 var opacity = SettingsControl.DISABLED_OPTION_OPACITY;
-                this.Color.Disable();
-                this.ClassBox.IsEnabled = false;
-                this.ClassBox.Opacity = opacity;
-                this.BgColorPicker.IsEnabled = false;
-                this.BgColorPicker.Opacity = opacity;
-                this.FgColorPicker.IsEnabled = false;
-                this.FgColorPicker.Opacity = opacity;
+                this._Color.Disable();
+                this._ClassBox.IsEnabled = false;
+                this._ClassBox.Opacity = opacity;
+                this._BgColorPicker.IsEnabled = false;
+                this._BgColorPicker.Opacity = opacity;
+                this._FgColorPicker.IsEnabled = false;
+                this._FgColorPicker.Opacity = opacity;
             };
         }
 
         internal void AddToGrid(Grid grid, int row) {
-            Grid.SetRow(this.EnabledToggle, row);
-            Grid.SetRow(this.ClassBox, row);
-            Grid.SetRow(this.BgColorPicker, row);
-            Grid.SetRow(this.FgColorPicker, row);
-            Grid.SetRow(this.RemoveButton, row);
-            Grid.SetRow(this.ResetButton, row);
+            Grid.SetRow(this._EnabledToggle, row);
+            Grid.SetRow(this._ClassBox, row);
+            Grid.SetRow(this._BgColorPicker, row);
+            Grid.SetRow(this._FgColorPicker, row);
+            Grid.SetRow(this._RemoveButton, row);
+            Grid.SetRow(this._ResetButton, row);
 
-            grid.Children.Add(this.EnabledToggle);
-            grid.Children.Add(this.ClassBox);
-            grid.Children.Add(this.BgColorPicker);
-            grid.Children.Add(this.FgColorPicker);
-            grid.Children.Add(this.RemoveButton);
-            grid.Children.Add(this.ResetButton);
+            grid.Children.Add(this._EnabledToggle);
+            grid.Children.Add(this._ClassBox);
+            grid.Children.Add(this._BgColorPicker);
+            grid.Children.Add(this._FgColorPicker);
+            grid.Children.Add(this._RemoveButton);
+            grid.Children.Add(this._ResetButton);
         }
 
         internal void RemoveFromGrid(Grid grid) {
-            grid.Children.Remove(this.EnabledToggle);
-            grid.Children.Remove(this.ClassBox);
-            grid.Children.Remove(this.BgColorPicker);
-            grid.Children.Remove(this.FgColorPicker);
-            grid.Children.Remove(this.RemoveButton);
-            grid.Children.Remove(this.ResetButton);
+            grid.Children.Remove(this._EnabledToggle);
+            grid.Children.Remove(this._ClassBox);
+            grid.Children.Remove(this._BgColorPicker);
+            grid.Children.Remove(this._FgColorPicker);
+            grid.Children.Remove(this._RemoveButton);
+            grid.Children.Remove(this._ResetButton);
         }
 
         internal void Reset() {
-            this.FgColorPicker.SelectedColor =
-                ColorTools.FromHex(this.Color.BaseForeground() ?? TextBoxColor.DEF_FG);
-            this.BgColorPicker.SelectedColor =
-                ColorTools.FromHex(this.Color.BaseBackground() ?? TextBoxColor.DEF_BG);
-            this.Color.Reset();
+            this._FgColorPicker.SelectedColor =
+                ColorTools.FromHex(this._Color.BaseForeground() ?? TextBoxColor.DEF_FG);
+            this._BgColorPicker.SelectedColor =
+                ColorTools.FromHex(this._Color.BaseBackground() ?? TextBoxColor.DEF_BG);
+            this._Color.Reset();
 
-            this.EnabledToggle.IsChecked = this.Color.IsEnabled;
+            this._EnabledToggle.IsChecked = this._Color.IsEnabled;
         }
 
         internal void Disable() {
-            this.EnabledToggle.IsChecked = false;
+            this._EnabledToggle.IsChecked = false;
         }
 
         internal void Enable() {
-            this.EnabledToggle.IsChecked = true;
+            this._EnabledToggle.IsChecked = true;
         }
     }
 }

@@ -49,7 +49,6 @@
     </ItemGroup>
     <ItemGroup>
         <Compile Include="Properties\AssemblyInfo.cs"/>
-        <Compile Include="src\Box.cs" />
         <Compile Include="src\Game.cs"/>
         <Compile Include="src\TextBoxColor.cs" />
         <Compile Include="src\TypedStrings.cs"/>

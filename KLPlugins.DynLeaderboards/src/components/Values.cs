@@ -40,7 +40,7 @@ public sealed class Values : IDisposable {
     public int NumClassesInSession { get; private set; } = 0;
     public int NumCupsInSession { get; private set; } = 0;
 
-    internal bool IsFirstFinished { get; private set; } = false;
+    internal bool _IsFirstFinished { get; private set; } = false;
     private bool _startingPositionsSet = false;
 
     internal Values() {
@@ -69,7 +69,7 @@ public sealed class Values : IDisposable {
         this._relativeOnTrackAheadOrder.Clear();
         this._relativeOnTrackBehindOrder.Clear();
         this.FocusedCar = null;
-        this.IsFirstFinished = false;
+        this._IsFirstFinished = false;
         this._startingPositionsSet = false;
         this.NumClassesInSession = 0;
         this.NumCupsInSession = 0;
@@ -204,27 +204,27 @@ public sealed class Values : IDisposable {
         IEnumerable<(Opponent, int)> cars = data.NewData.Opponents.WithIndex();
 
         string? focusedCarId = null;
-        if (DynLeaderboardsPlugin.Game.IsAcc) {
+        if (DynLeaderboardsPlugin._Game.IsAcc) {
             var accRawData = (ACSharedMemory.ACC.Reader.ACCRawData)data.NewData.GetRawDataObject();
             focusedCarId = accRawData.Realtime?.FocusedCarIndex.ToString();
         }
 
         CarData? overallBestLapCar = null;
         foreach (var (opponent, i) in cars) {
-            if ((DynLeaderboardsPlugin.Game.IsAcc && opponent.Id == "Me")
-                || (DynLeaderboardsPlugin.Game.IsAms2 && opponent.Id == "Safety Car  (AI)")
+            if ((DynLeaderboardsPlugin._Game.IsAcc && opponent.Id == "Me")
+                || (DynLeaderboardsPlugin._Game.IsAms2 && opponent.Id == "Safety Car  (AI)")
             ) {
                 continue;
             }
 
             // Most common case is that the car's position hasn't changed
             var car = this._overallOrder.ElementAtOrDefault(i);
-            if (car == null || car.Id != opponent.Id) {
-                car = this._overallOrder.Find(c => c.Id == opponent.Id);
+            if (car == null || car._Id != opponent.Id) {
+                car = this._overallOrder.Find(c => c._Id == opponent.Id);
             }
 
             if (car == null) {
-                if (!opponent.IsConnected || (DynLeaderboardsPlugin.Game.IsAcc && opponent.Coordinates == null)) {
+                if (!opponent.IsConnected || (DynLeaderboardsPlugin._Game.IsAcc && opponent.Coordinates == null)) {
                     continue;
                 }
 
@@ -232,13 +232,13 @@ public sealed class Values : IDisposable {
                 this._overallOrder.Add(car);
                 this.TrackData?.BuildLapInterpolator(car.CarClass);
             } else {
-                Debug.Assert(car.Id == opponent.Id);
+                Debug.Assert(car._Id == opponent.Id);
                 car.UpdateIndependent(this, focusedCarId, opponent, data);
 
                 // Note: car.IsFinished is actually updated in car.UpdateDependsOnOthers.
                 // Thus, if the player manages to finish the race and exit before the first update, we would remove them.
                 // However, that is practically impossible.
-                if (!car.IsFinished && car.MissedUpdates > 500) {
+                if (!car.IsFinished && car._MissedUpdates > 500) {
                     continue;
                 }
             }
@@ -281,9 +281,9 @@ public sealed class Values : IDisposable {
 
         for (var i = this._overallOrder.Count - 1; i >= 0; i--) {
             var car = this._overallOrder[i];
-            if (!car.IsFinished && car.MissedUpdates > 500) {
+            if (!car.IsFinished && car._MissedUpdates > 500) {
                 this._overallOrder.RemoveAt(i);
-                Logging.LogInfo($"Removed disconnected car {car.Id}, #{car.CarNumberAsString}");
+                Logging.LogInfo($"Removed disconnected car {car._Id}, #{car.CarNumberAsString}");
             }
         }
 
@@ -293,16 +293,16 @@ public sealed class Values : IDisposable {
 
         this.SetOverallOrder(data);
 
-        if (!this.IsFirstFinished && this._overallOrder.Count > 0 && this.Session.SessionType == SessionType.RACE) {
+        if (!this._IsFirstFinished && this._overallOrder.Count > 0 && this.Session.SessionType == SessionType.RACE) {
             var first = this._overallOrder.First();
             if (this.Session.IsLapLimited) {
-                this.IsFirstFinished = first.Laps.New == data.NewData.TotalLaps;
+                this._IsFirstFinished = first.Laps.New == data.NewData.TotalLaps;
             } else if (this.Session.IsTimeLimited) {
-                this.IsFirstFinished = data.NewData.SessionTimeLeft.TotalSeconds <= 0 && first.IsNewLap;
+                this._IsFirstFinished = data.NewData.SessionTimeLeft.TotalSeconds <= 0 && first.IsNewLap;
             }
 
-            if (this.IsFirstFinished) {
-                Logging.LogInfo($"First finished: id={this._overallOrder.First().Id}");
+            if (this._IsFirstFinished) {
+                Logging.LogInfo($"First finished: id={this._overallOrder.First()._Id}");
             }
         }
 
@@ -313,12 +313,12 @@ public sealed class Values : IDisposable {
         var focusedClass = this.FocusedCar?.CarClass;
         var focusedCup = this.FocusedCar?.TeamCupCategory;
         foreach (var (car, i) in this._overallOrder.WithIndex()) {
-            if (!car.IsUpdated) {
-                car.MissedUpdates += 1;
+            if (!car._IsUpdated) {
+                car._MissedUpdates += 1;
             }
 
             //DynLeaderboardsPlugin.LogInfo($"Car [{car.Id}, #{car.CarNumber}] missed update: {car.MissedUpdates}");
-            car.IsUpdated = false;
+            car._IsUpdated = false;
 
             if (!this._classPositions.ContainsKey(car.CarClass)) {
                 this._classPositions.Add(car.CarClass, 1);
@@ -403,7 +403,7 @@ public sealed class Values : IDisposable {
     private void SetStartingOrder() {
         // This method is called after we have checked that all cars have NewData
         this._overallOrder.Sort(
-            (a, b) => a.RawDataNew.Position.CompareTo(b.RawDataNew.Position)
+            (a, b) => a._RawDataNew.Position.CompareTo(b._RawDataNew.Position)
         ); // Spline position may give wrong results if cars are sitting on the grid, thus NewData.Position
 
         var classPositions = new Dictionary<CarClass, int>(1); // Keep track of what class position are we at the moment
@@ -442,11 +442,11 @@ public sealed class Values : IDisposable {
                 // Sort cars that have crossed the start line always in front of cars who haven't
                 // This affect order at race starts where the number of completed laps is 0 either
                 // side of the line but the spline position flips from 1 to 0
-                if (a.HasCrossedStartLine && !b.HasCrossedStartLine) {
+                if (a._HasCrossedStartLine && !b._HasCrossedStartLine) {
                     return -1;
                 }
 
-                if (b.HasCrossedStartLine && !a.HasCrossedStartLine) {
+                if (b._HasCrossedStartLine && !a._HasCrossedStartLine) {
                     return 1;
                 }
 
@@ -458,7 +458,7 @@ public sealed class Values : IDisposable {
                 }
 
                 // Keep order if one of the cars has offset lap update, could cause jumping otherwise
-                if (a.OffsetLapUpdate != 0 || b.OffsetLapUpdate != 0) {
+                if (a._OffsetLapUpdate != 0 || b._OffsetLapUpdate != 0) {
                     return a.PositionOverall.CompareTo(b.PositionOverall);
                 }
 
@@ -477,35 +477,35 @@ public sealed class Values : IDisposable {
                     if (!a.IsFinished || !b.IsFinished) {
                         // If one hasn't finished and their number of laps is same, that means that the car who has finished must be lap down.
                         // Thus, it should be behind the one who hasn't finished.
-                        var aFTime = a.FinishTime?.Ticks ?? long.MinValue;
-                        var bFTime = b.FinishTime?.Ticks ?? long.MinValue;
+                        var aFTime = a._FinishTime?.Ticks ?? long.MinValue;
+                        var bFTime = b._FinishTime?.Ticks ?? long.MinValue;
                         return aFTime.CompareTo(bFTime);
                     } else {
                         // Both cars have finished
-                        var aFTime = a.FinishTime?.Ticks ?? long.MaxValue;
-                        var bFTime = b.FinishTime?.Ticks ?? long.MaxValue;
+                        var aFTime = a._FinishTime?.Ticks ?? long.MaxValue;
+                        var bFTime = b._FinishTime?.Ticks ?? long.MaxValue;
 
                         if (aFTime == bFTime) {
-                            return a.RawDataNew.Position.CompareTo(b.RawDataNew.Position);
+                            return a._RawDataNew.Position.CompareTo(b._RawDataNew.Position);
                         }
 
                         return aFTime.CompareTo(bFTime);
                     }
                 }
 
-                if (DynLeaderboardsPlugin.Game.IsAms2) {
+                if (DynLeaderboardsPlugin._Game.IsAms2) {
                     // Spline pos == 0.0 if race has not started, race state is 1 if that's the case, use games positions
                     // If using AMS2 shared memory data, UDP data is not supported atm
                     if (gameData.NewData.GetRawDataObject() is SimHubAMS2.AMS2APIStruct { mRaceState: < 2 }) {
-                        return a.RawDataNew.Position.CompareTo(b.RawDataNew.Position);
+                        return a._RawDataNew.Position.CompareTo(b._RawDataNew.Position);
                     }
 
                     // cars that didn't finish (DQ, DNS, DNF) should always be at the end
-                    var aDidNotFinish = a.RawDataNew.DidNotFinish ?? false;
-                    var bDidNotFinish = b.RawDataNew.DidNotFinish ?? false;
+                    var aDidNotFinish = a._RawDataNew.DidNotFinish ?? false;
+                    var bDidNotFinish = b._RawDataNew.DidNotFinish ?? false;
                     if (aDidNotFinish || bDidNotFinish) {
                         if (aDidNotFinish && bDidNotFinish) {
-                            return a.RawDataNew.Position.CompareTo(b.RawDataNew.Position);
+                            return a._RawDataNew.Position.CompareTo(b._RawDataNew.Position);
                         }
 
                         if (aDidNotFinish) {
@@ -532,8 +532,8 @@ public sealed class Values : IDisposable {
                     return 0;
                 }
 
-                var aPos = a.RawDataNew.Position;
-                var bPos = b.RawDataNew.Position;
+                var aPos = a._RawDataNew.Position;
+                var bPos = b._RawDataNew.Position;
                 if (aPos == bPos)
                     // if aPos == bPos, one cad probably left but maybe not. 
                     // Use old position to keep the order stable and not cause flickering.

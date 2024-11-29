@@ -10,10 +10,9 @@ namespace KLPlugins.DynLeaderboards.Tests.Settings;
 
 [TestSubject(typeof(LeaderboardConfig))]
 public class LeaderboardConfigTest {
-
     [Fact]
     public void FromJsonV3() {
-        const string json = """
+        const string JSON = """
                             {
                               "Kind": 2,
                               "RemoveIfSingleClass": true,
@@ -21,17 +20,17 @@ public class LeaderboardConfigTest {
                               "IsEnabled": false
                             }
                             """;
-        var settings = JsonConvert.DeserializeObject<LeaderboardConfig>(json);
+        var settings = JsonConvert.DeserializeObject<LeaderboardConfig>(JSON);
         Assert.NotNull(settings);
 
         var newJson = JsonConvert.SerializeObject(settings, Formatting.Indented);
-        Assert.Equal(json, newJson);
+        Assert.Equal(JSON, newJson);
     }
-    
+
     [Fact]
     public void FromJsonV2() {
-        const string json = "2";
-        var settings = JsonConvert.DeserializeObject<LeaderboardConfig>(json);
+        const string JSON = "2";
+        var settings = JsonConvert.DeserializeObject<LeaderboardConfig>(JSON);
         Assert.NotNull(settings);
 
         Assert.Equal((LeaderboardKind)2, settings!.Kind);

@@ -96,21 +96,21 @@ internal class DynamicLeaderboardsTabViewModel : INotifyPropertyChanged {
             // Do nothing
         } else if (this.SelectedLeaderboardViewModel == null) {
             this.SelectedLeaderboardViewModel = new SelectedLeaderboardViewModel(
-                value.ViewModel.Cfg,
+                value._ViewModel._Cfg,
                 this._settings,
                 this._settingsControl
             );
             this.SelectedLeaderboardViewModel.RemoveLeaderboard += this.RemoveLeaderboard;
             this.SelectedLeaderboardViewModel.DuplicateLeaderboard += this.DuplicateLeaderboard;
-            this.SelectedLeaderboardViewModel.PropertyChanged += value.ViewModel.OnCfgChange;
+            this.SelectedLeaderboardViewModel.PropertyChanged += value._ViewModel.OnCfgChange;
         } else {
             if (this._selectedLeaderboardListBoxItem != null) {
                 this.SelectedLeaderboardViewModel.PropertyChanged -=
-                    this._selectedLeaderboardListBoxItem.ViewModel.OnCfgChange;
+                    this._selectedLeaderboardListBoxItem._ViewModel.OnCfgChange;
             }
 
-            this.SelectedLeaderboardViewModel.SetCfg(value.ViewModel.Cfg);
-            this.SelectedLeaderboardViewModel.PropertyChanged += value.ViewModel.OnCfgChange;
+            this.SelectedLeaderboardViewModel.SetCfg(value._ViewModel._Cfg);
+            this.SelectedLeaderboardViewModel.PropertyChanged += value._ViewModel.OnCfgChange;
         }
 
         // Actually set the value last so that we can unsubscribe old events if necessary
@@ -120,7 +120,7 @@ internal class DynamicLeaderboardsTabViewModel : INotifyPropertyChanged {
     }
 
     private void RemoveLeaderboard(DynLeaderboardConfig cfg) {
-        var index = this._leaderboards.FirstIndex(x => x.ViewModel.Cfg.Name == cfg.Name);
+        var index = this._leaderboards.FirstIndex(x => x._ViewModel._Cfg.Name == cfg.Name);
         if (index < 0) {
             var msg =
                 $"Tried to remove leaderboard but could not find the specified leaderboard in the list. Leaderboard name: {cfg.Name}";
@@ -230,23 +230,23 @@ internal class NewLeaderboardNameValidationRule : ValidationRule {
 }
 
 public class LeaderboardComboBoxItem : Control {
-    internal LeaderboardComboBoxItemViewModel ViewModel { get; }
+    internal LeaderboardComboBoxItemViewModel _ViewModel { get; }
 
     internal LeaderboardComboBoxItem(LeaderboardComboBoxItemViewModel vm) {
-        this.ViewModel = vm;
-        this.DataContext = this.ViewModel;
+        this._ViewModel = vm;
+        this.DataContext = this._ViewModel;
     }
 }
 
 internal class LeaderboardComboBoxItemViewModel : INotifyPropertyChanged {
     public event PropertyChangedEventHandler? PropertyChanged;
-    internal readonly DynLeaderboardConfig Cfg;
-    public string Name => this.Cfg.Name;
+    internal readonly DynLeaderboardConfig _Cfg;
+    public string Name => this._Cfg.Name;
 
     public bool IsEnabled {
-        get => this.Cfg.IsEnabled;
+        get => this._Cfg.IsEnabled;
         set {
-            this.Cfg.IsEnabled = value;
+            this._Cfg.IsEnabled = value;
             this.InvokePropertyChanged();
         }
     }
@@ -258,7 +258,7 @@ internal class LeaderboardComboBoxItemViewModel : INotifyPropertyChanged {
     #endif
 
     internal LeaderboardComboBoxItemViewModel(DynLeaderboardConfig cfg) {
-        this.Cfg = cfg;
+        this._Cfg = cfg;
     }
 
     internal void OnCfgChange(object sender, PropertyChangedEventArgs e) {
@@ -324,7 +324,7 @@ internal class SelectedLeaderboardViewModel : INotifyPropertyChanged {
         this._settings = settings;
         this._settingsControl = settingsControl;
 
-        foreach (var l in this._cfg.Order) {
+        foreach (var l in this._cfg._Order) {
             var vm = new LeaderboardRotationItemViewModel(l);
             this.RotationItems.Add(new LeaderboardRotationItem(vm));
         }
@@ -385,7 +385,7 @@ internal class SelectedLeaderboardViewModel : INotifyPropertyChanged {
         this._cfg = cfg;
 
         this.RotationItems.Clear();
-        foreach (var l in this._cfg.Order) {
+        foreach (var l in this._cfg._Order) {
             var vm = new LeaderboardRotationItemViewModel(l);
             this.RotationItems.Add(new LeaderboardRotationItem(vm));
         }
@@ -395,31 +395,31 @@ internal class SelectedLeaderboardViewModel : INotifyPropertyChanged {
         this.InvokePropertyChanged(nameof(SelectedLeaderboardViewModel.ControlsPreviousLeaderboardActionName));
 
         foreach (var p in this._numPosItems) {
-            p.Update(p.PosItem.GetSetting(this._cfg));
+            p.Update(p._PosItem.GetSetting(this._cfg));
         }
 
         foreach (var p in this._exposedProperties) {
             switch (p) {
                 case PropertyViewModel<OutCarProp> pCar:
-                    pCar.UpdateSetting(this._cfg.OutCarPropsInternal);
+                    pCar.UpdateSetting(this._cfg._OutCarProps);
                     break;
                 case PropertyViewModel<OutPitProp> pPit:
-                    pPit.UpdateSetting(this._cfg.OutPitPropsInternal);
+                    pPit.UpdateSetting(this._cfg._OutPitProps);
                     break;
                 case PropertyViewModel<OutLapProp> pLap:
-                    pLap.UpdateSetting(this._cfg.OutLapPropsInternal);
+                    pLap.UpdateSetting(this._cfg._OutLapProps);
                     break;
                 case PropertyViewModel<OutStintProp> pSting:
-                    pSting.UpdateSetting(this._cfg.OutStintPropsInternal);
+                    pSting.UpdateSetting(this._cfg._OutStintProps);
                     break;
                 case PropertyViewModel<OutGapProp> pGaps:
-                    pGaps.UpdateSetting(this._cfg.OutGapPropsInternal);
+                    pGaps.UpdateSetting(this._cfg._OutGapProps);
                     break;
                 case PropertyViewModel<OutPosProp> pPos:
-                    pPos.UpdateSetting(this._cfg.OutPosPropsInternal);
+                    pPos.UpdateSetting(this._cfg._OutPosProps);
                     break;
                 case PropertyViewModel<OutDriverProp> pDriver:
-                    pDriver.UpdateSetting(this._cfg.OutDriverPropsInternal);
+                    pDriver.UpdateSetting(this._cfg._OutDriverProps);
                     break;
                 default: {
                     var msg = $"Unknown property type {p.GetType()} in {this.Name}";
@@ -458,7 +458,7 @@ internal class SelectedLeaderboardViewModel : INotifyPropertyChanged {
             v => v != OutCarProp.NONE,
             v => v.ToPropName(),
             v => v.ToolTipText(),
-            this._cfg.OutCarPropsInternal,
+            this._cfg._OutCarProps,
             "Car info"
         );
 
@@ -467,7 +467,7 @@ internal class SelectedLeaderboardViewModel : INotifyPropertyChanged {
             v => v != OutPitProp.NONE,
             v => v.ToPropName(),
             v => v.ToolTipText(),
-            this._cfg.OutPitPropsInternal,
+            this._cfg._OutPitProps,
             "Pit info"
         );
 
@@ -476,7 +476,7 @@ internal class SelectedLeaderboardViewModel : INotifyPropertyChanged {
             v => v != OutLapProp.NONE,
             v => v.ToPropName(),
             v => v.ToolTipText(),
-            this._cfg.OutLapPropsInternal,
+            this._cfg._OutLapProps,
             "Lap info"
         );
 
@@ -485,7 +485,7 @@ internal class SelectedLeaderboardViewModel : INotifyPropertyChanged {
             v => v != OutLapProp.NONE,
             v => v.ToPropName(),
             v => v.ToolTipText(),
-            this._cfg.OutLapPropsInternal,
+            this._cfg._OutLapProps,
             "Lap info",
             "Delta - best to best"
         );
@@ -495,7 +495,7 @@ internal class SelectedLeaderboardViewModel : INotifyPropertyChanged {
             v => v != OutLapProp.NONE,
             v => v.ToPropName(),
             v => v.ToolTipText(),
-            this._cfg.OutLapPropsInternal,
+            this._cfg._OutLapProps,
             "Lap info",
             "Delta - last to best"
         );
@@ -505,7 +505,7 @@ internal class SelectedLeaderboardViewModel : INotifyPropertyChanged {
             v => v != OutLapProp.NONE,
             v => v.ToPropName(),
             v => v.ToolTipText(),
-            this._cfg.OutLapPropsInternal,
+            this._cfg._OutLapProps,
             "Lap info",
             "Delta - last to last"
         );
@@ -515,7 +515,7 @@ internal class SelectedLeaderboardViewModel : INotifyPropertyChanged {
             v => v != OutLapProp.NONE,
             v => v.ToPropName(),
             v => v.ToolTipText(),
-            this._cfg.OutLapPropsInternal,
+            this._cfg._OutLapProps,
             "Lap info",
             "Delta - dynamic"
         );
@@ -525,7 +525,7 @@ internal class SelectedLeaderboardViewModel : INotifyPropertyChanged {
             v => v != OutStintProp.NONE,
             v => v.ToPropName(),
             v => v.ToolTipText(),
-            this._cfg.OutStintPropsInternal,
+            this._cfg._OutStintProps,
             "Stint info"
         );
 
@@ -534,7 +534,7 @@ internal class SelectedLeaderboardViewModel : INotifyPropertyChanged {
             v => v != OutGapProp.NONE,
             v => v.ToPropName(),
             v => v.ToolTipText(),
-            this._cfg.OutGapPropsInternal,
+            this._cfg._OutGapProps,
             "Gaps"
         );
 
@@ -543,7 +543,7 @@ internal class SelectedLeaderboardViewModel : INotifyPropertyChanged {
             v => v != OutGapProp.NONE,
             v => v.ToPropName(),
             v => v.ToolTipText(),
-            this._cfg.OutGapPropsInternal,
+            this._cfg._OutGapProps,
             "Gaps",
             "Dynamic"
         );
@@ -553,7 +553,7 @@ internal class SelectedLeaderboardViewModel : INotifyPropertyChanged {
             v => v != OutPosProp.NONE,
             v => v.ToPropName(),
             v => v.ToolTipText(),
-            this._cfg.OutPosPropsInternal,
+            this._cfg._OutPosProps,
             "Positions"
         );
 
@@ -562,7 +562,7 @@ internal class SelectedLeaderboardViewModel : INotifyPropertyChanged {
             v => v != OutPosProp.NONE,
             v => v.ToPropName(),
             v => v.ToolTipText(),
-            this._cfg.OutPosPropsInternal,
+            this._cfg._OutPosProps,
             "Positions",
             "Dynamic"
         );
@@ -572,7 +572,7 @@ internal class SelectedLeaderboardViewModel : INotifyPropertyChanged {
             v => v != OutCarProp.NONE,
             v => v.ToPropName(),
             v => v.ToolTipText(),
-            this._cfg.OutCarPropsInternal,
+            this._cfg._OutCarProps,
             "Misc"
         );
 
@@ -581,7 +581,7 @@ internal class SelectedLeaderboardViewModel : INotifyPropertyChanged {
             v => v != OutDriverProp.NONE,
             v => v.ToPropName(),
             v => v.ToolTipText(),
-            this._cfg.OutDriverPropsInternal,
+            this._cfg._OutDriverProps,
             "Drivers"
         );
     }
@@ -600,7 +600,7 @@ internal class SelectedLeaderboardViewModel : INotifyPropertyChanged {
 
         var selectedIndex = this.SelectedRotationIndex.Value;
         this.RotationItems.Move(selectedIndex, selectedIndex - 1);
-        this._cfg.Order.MoveElementAt(selectedIndex, selectedIndex - 1);
+        this._cfg._Order.MoveElementAt(selectedIndex, selectedIndex - 1);
     }
 
     private void MoveSelectedRotationDown() {
@@ -613,7 +613,7 @@ internal class SelectedLeaderboardViewModel : INotifyPropertyChanged {
 
         var selectedIndex = this.SelectedRotationIndex.Value;
         this.RotationItems.Move(selectedIndex, selectedIndex + 1);
-        this._cfg.Order.MoveElementAt(selectedIndex, selectedIndex + 1);
+        this._cfg._Order.MoveElementAt(selectedIndex, selectedIndex + 1);
     }
 
     private void InvokePropertyChanged([System.Runtime.CompilerServices.CallerMemberName] string? propertyName = null) {
@@ -626,11 +626,11 @@ internal class SelectedLeaderboardViewModel : INotifyPropertyChanged {
 }
 
 internal class LeaderboardRotationItem : Control {
-    internal LeaderboardRotationItemViewModel ViewModel { get; }
+    internal LeaderboardRotationItemViewModel _ViewModel { get; }
 
     internal LeaderboardRotationItem(LeaderboardRotationItemViewModel vm) {
-        this.ViewModel = vm;
-        this.DataContext = this.ViewModel;
+        this._ViewModel = vm;
+        this.DataContext = this._ViewModel;
     }
 }
 
@@ -744,37 +744,37 @@ internal static class PosItemExt {
 
     public static Box<int> GetSetting(this PosItem item, DynLeaderboardConfig cfg) {
         return item switch {
-            PosItem.OVERALL => cfg.NumOverallPos,
-            PosItem.CLASS => cfg.NumClassPos,
-            PosItem.CUP => cfg.NumCupPos,
-            PosItem.OVERALL_RELATIVE => cfg.NumOverallRelativePos,
-            PosItem.CLASS_RELATIVE => cfg.NumClassRelativePos,
-            PosItem.CUP_RELATIVE => cfg.NumCupRelativePos,
-            PosItem.RELATIVE_ON_TRACK => cfg.NumOnTrackRelativePos,
-            PosItem.PARTIAL_RELATIVE_OVERALL_TOP => cfg.PartialRelativeOverallNumOverallPos,
-            PosItem.PARTIAL_RELATIVE_OVERALL_RELATIVE => cfg.PartialRelativeOverallNumRelativePos,
-            PosItem.PARTIAL_RELATIVE_CLASS_TOP => cfg.PartialRelativeClassNumClassPos,
-            PosItem.PARTIAL_RELATIVE_CLASS_RELATIVE => cfg.PartialRelativeClassNumRelativePos,
-            PosItem.PARTIAL_RELATIVE_CUP_TOP => cfg.PartialRelativeCupNumCupPos,
-            PosItem.PARTIAL_RELATIVE_CUP_RELATIVE => cfg.PartialRelativeCupNumRelativePos,
-            PosItem.DRIVERS => cfg.NumDrivers,
+            PosItem.OVERALL => cfg._NumOverallPos,
+            PosItem.CLASS => cfg._NumClassPos,
+            PosItem.CUP => cfg._NumCupPos,
+            PosItem.OVERALL_RELATIVE => cfg._NumOverallRelativePos,
+            PosItem.CLASS_RELATIVE => cfg._NumClassRelativePos,
+            PosItem.CUP_RELATIVE => cfg._NumCupRelativePos,
+            PosItem.RELATIVE_ON_TRACK => cfg._NumOnTrackRelativePos,
+            PosItem.PARTIAL_RELATIVE_OVERALL_TOP => cfg._PartialRelativeOverallNumOverallPos,
+            PosItem.PARTIAL_RELATIVE_OVERALL_RELATIVE => cfg._PartialRelativeOverallNumRelativePos,
+            PosItem.PARTIAL_RELATIVE_CLASS_TOP => cfg._PartialRelativeClassNumClassPos,
+            PosItem.PARTIAL_RELATIVE_CLASS_RELATIVE => cfg._PartialRelativeClassNumRelativePos,
+            PosItem.PARTIAL_RELATIVE_CUP_TOP => cfg._PartialRelativeCupNumCupPos,
+            PosItem.PARTIAL_RELATIVE_CUP_RELATIVE => cfg._PartialRelativeCupNumRelativePos,
+            PosItem.DRIVERS => cfg._NumDrivers,
             _ => throw new ArgumentOutOfRangeException(nameof(item), item, null),
         };
     }
 }
 
 internal class NumPosItem : Control {
-    internal NumPosItemViewModel ViewModel { get; }
+    internal NumPosItemViewModel _ViewModel { get; }
 
     internal NumPosItem(NumPosItemViewModel vm) {
-        this.ViewModel = vm;
-        this.DataContext = this.ViewModel;
+        this._ViewModel = vm;
+        this.DataContext = this._ViewModel;
     }
 }
 
 internal class NumPosItemViewModel : INotifyPropertyChanged {
     public event PropertyChangedEventHandler? PropertyChanged;
-    internal PosItem PosItem { get; }
+    internal PosItem _PosItem { get; }
     public string Name { get; }
     public string Group { get; }
 
@@ -792,10 +792,10 @@ internal class NumPosItemViewModel : INotifyPropertyChanged {
     #endif
 
     internal NumPosItemViewModel(PosItem it, Box<int> setting) {
-        this.PosItem = it;
+        this._PosItem = it;
         this._setting = setting;
-        this.Name = this.PosItem.Name();
-        this.Group = this.PosItem.GroupName();
+        this.Name = this._PosItem.Name();
+        this.Group = this._PosItem.GroupName();
     }
 
     internal void Update(Box<int> setting) {

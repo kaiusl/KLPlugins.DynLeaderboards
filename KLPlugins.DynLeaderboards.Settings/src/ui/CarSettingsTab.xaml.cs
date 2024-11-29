@@ -22,17 +22,17 @@ namespace KLPlugins.DynLeaderboards.Settings.UI;
 ///     Interaction logic for CarSettingsTab.xaml
 /// </summary>
 public partial class CarSettingsTab : UserControl {
-    internal CarSettingsTabViewModel ViewModel { get; set; }
+    internal CarSettingsTabViewModel _ViewModel { get; set; }
 
     public CarSettingsTab(SettingsControl settingsControl) {
         this.InitializeComponent();
 
-        this.ViewModel = new CarSettingsTabViewModel(settingsControl);
-        this.DataContext = this.ViewModel;
+        this._ViewModel = new CarSettingsTabViewModel(settingsControl);
+        this.DataContext = this._ViewModel;
 
-        this.ViewModel.ScrollSelectedIntoView +=
+        this._ViewModel.ScrollSelectedIntoView +=
             () => {
-                var selectedCar = this.ViewModel.SelectedCar;
+                var selectedCar = this._ViewModel.SelectedCar;
                 if (selectedCar != null) {
                     this.CarSettingsCarsList_SHListBox.ScrollIntoView(selectedCar);
                 }
@@ -43,7 +43,7 @@ public partial class CarSettingsTab : UserControl {
 internal class CarSettingsTabViewModel : INotifyPropertyChanged {
     public event PropertyChangedEventHandler? PropertyChanged;
     public event Action? ScrollSelectedIntoView;
-    internal readonly ObservableCollection<CarsListBoxItemViewModel> CarsObservable = [];
+    internal readonly ObservableCollection<CarsListBoxItemViewModel> _CarsObservable = [];
     public ListCollectionView Cars { get; set; }
 
     private CarsListBoxItemViewModel? _selectedCar;
@@ -58,8 +58,8 @@ internal class CarSettingsTabViewModel : INotifyPropertyChanged {
                 this.SelectedCarDetailsViewModel = null;
             } else {
                 this.SelectedCarDetailsViewModel = new SelectedCarDetailsViewModel(
-                    this._selectedCar.Key,
-                    this._selectedCar.Info,
+                    this._selectedCar._Key,
+                    this._selectedCar._Info,
                     this._settingsControl
                 );
                 this.SelectedCarDetailsViewModel.RemoveCar += this.RemoveSelectedCar;
@@ -104,7 +104,7 @@ internal class CarSettingsTabViewModel : INotifyPropertyChanged {
     public ICommand MenuEnableAllClassesCommand { get; }
 
     public ICommand MenuUpdateAcBaseInfoCommand { get; }
-    public bool IsAc => this._settingsControl.Game.IsAc;
+    public bool IsAc => this._settingsControl._Game.IsAc;
     public ICommand MenuRefreshCommand { get; }
 
     private readonly SettingsControl _settingsControl;
@@ -113,12 +113,12 @@ internal class CarSettingsTabViewModel : INotifyPropertyChanged {
     internal CarSettingsTabViewModel(SettingsControl settingsControl) {
         this._settingsControl = settingsControl;
 
-        foreach (var car in this._settingsControl.Settings.Infos.CarInfos) {
+        foreach (var car in this._settingsControl._Settings.Infos.CarInfos) {
             var vm = new CarsListBoxItemViewModel(car.Key, car.Value);
-            this.CarsObservable.Add(vm);
+            this._CarsObservable.Add(vm);
         }
 
-        this.Cars = new ListCollectionView(this.CarsObservable) {
+        this.Cars = new ListCollectionView(this._CarsObservable) {
             IsLiveSorting = true,
             SortDescriptions = {
                 new SortDescription(nameof(CarsListBoxItemViewModel.Name), ListSortDirection.Ascending),
@@ -143,7 +143,7 @@ internal class CarSettingsTabViewModel : INotifyPropertyChanged {
                         this.SelectedCarDetailsViewModel.PropertyChanged -= this.OnSelectedNameChanged;
                     }
 
-                    foreach (var vm in this.CarsObservable) {
+                    foreach (var vm in this._CarsObservable) {
                         action(vm);
                     }
 
@@ -161,7 +161,7 @@ internal class CarSettingsTabViewModel : INotifyPropertyChanged {
         CommandAfterConfirmation CreateAllCarsCommandCannotChangeOrder(Action<CarsListBoxItemViewModel> action) {
             return new CommandAfterConfirmation(
                 () => {
-                    foreach (var vm in this.CarsObservable) {
+                    foreach (var vm in this._CarsObservable) {
                         action(vm);
                     }
                 },
@@ -169,41 +169,41 @@ internal class CarSettingsTabViewModel : INotifyPropertyChanged {
             );
         }
 
-        this.MenuResetAllCommand = CreateAllCarsCommand(vm => vm.Info.Reset(vm.Key));
-        this.MenuResetAllNamesCommand = CreateAllCarsCommand(vm => vm.Info.ResetName());
+        this.MenuResetAllCommand = CreateAllCarsCommand(vm => vm._Info.Reset(vm._Key));
+        this.MenuResetAllNamesCommand = CreateAllCarsCommand(vm => vm._Info.ResetName());
         this.MenuResetAllManufacturersCommand =
-            CreateAllCarsCommandCannotChangeOrder(vm => vm.Info.ResetManufacturer(vm.Key));
-        this.MenuResetAllClassesCommand = CreateAllCarsCommandCannotChangeOrder(vm => vm.Info.ResetClass());
+            CreateAllCarsCommandCannotChangeOrder(vm => vm._Info.ResetManufacturer(vm._Key));
+        this.MenuResetAllClassesCommand = CreateAllCarsCommandCannotChangeOrder(vm => vm._Info.ResetClass());
 
         this.MenuDisableAllCommand = CreateAllCarsCommand(
             vm => {
-                vm.Info.DisableClass();
-                vm.Info.DisableName();
+                vm._Info.DisableClass();
+                vm._Info.DisableName();
             }
         );
-        this.MenuDisableAllNamesCommand = CreateAllCarsCommand(vm => vm.Info.DisableName());
-        this.MenuDisableAllClassesCommand = CreateAllCarsCommandCannotChangeOrder(vm => vm.Info.DisableClass());
+        this.MenuDisableAllNamesCommand = CreateAllCarsCommand(vm => vm._Info.DisableName());
+        this.MenuDisableAllClassesCommand = CreateAllCarsCommandCannotChangeOrder(vm => vm._Info.DisableClass());
 
         this.MenuEnableAllCommand = CreateAllCarsCommand(
             vm => {
-                vm.Info.EnableClass();
-                vm.Info.EnableName(vm.Key);
+                vm._Info.EnableClass();
+                vm._Info.EnableName(vm._Key);
             }
         );
-        this.MenuEnableAllNamesCommand = CreateAllCarsCommand(vm => vm.Info.EnableName(vm.Key));
-        this.MenuEnableAllClassesCommand = CreateAllCarsCommandCannotChangeOrder(vm => vm.Info.EnableClass());
+        this.MenuEnableAllNamesCommand = CreateAllCarsCommand(vm => vm._Info.EnableName(vm._Key));
+        this.MenuEnableAllClassesCommand = CreateAllCarsCommandCannotChangeOrder(vm => vm._Info.EnableClass());
 
         this.MenuRefreshCommand = new Command(
             () => {
                 var selected = this.SelectedCar;
-                this.CarsObservable.Clear();
-                foreach (var car in this._settingsControl.Settings.Infos.CarInfos) {
+                this._CarsObservable.Clear();
+                foreach (var car in this._settingsControl._Settings.Infos.CarInfos) {
                     var vm = new CarsListBoxItemViewModel(car.Key, car.Value);
-                    this.CarsObservable.Add(vm);
+                    this._CarsObservable.Add(vm);
                 }
 
                 if (selected != null) {
-                    var newSelected = this.CarsObservable.FirstOrDefault(vm => vm.Key == selected.Key);
+                    var newSelected = this._CarsObservable.FirstOrDefault(vm => vm._Key == selected._Key);
                     this.SelectedCar = newSelected;
                 }
             }
@@ -211,8 +211,8 @@ internal class CarSettingsTabViewModel : INotifyPropertyChanged {
 
         this.MenuUpdateAcBaseInfoCommand = new Command(
             () => {
-                this._settingsControl.Settings.UpdateAcCarInfos();
-                this._settingsControl.Settings.Infos.RereadCarInfos();
+                this._settingsControl._Settings.UpdateAcCarInfos();
+                this._settingsControl._Settings.Infos.RereadCarInfos();
                 this.MenuRefreshCommand.Execute(null);
             }
         );
@@ -234,12 +234,12 @@ internal class CarSettingsTabViewModel : INotifyPropertyChanged {
                     Name = "Alfa Romeo Giulia Quadrifoglio", Id = "alfa_giulia_quadrifoglio",
                 },
             ];
-            this.CarsObservable.AddAll(cars);
+            this._CarsObservable.AddAll(cars);
 
             this._selectedCar = cars[1];
             this._selectedCarDetailsViewModel = new SelectedCarDetailsViewModel.DesignInstance();
 
-            this.Cars = new ListCollectionView(this.CarsObservable) {
+            this.Cars = new ListCollectionView(this._CarsObservable) {
                 IsLiveSorting = true,
                 SortDescriptions = {
                     new SortDescription(nameof(CarsListBoxItemViewModel.Name), ListSortDirection.Ascending),
@@ -250,16 +250,16 @@ internal class CarSettingsTabViewModel : INotifyPropertyChanged {
     #endif
 
     private void RemoveSelectedCar(string key) {
-        if (this.SelectedCar == null || this.SelectedCar.Key != key) {
-            var msg = $"Expected the selected car to be `{key}`. Got `{this.SelectedCar?.Key}`.";
+        if (this.SelectedCar == null || this.SelectedCar._Key != key) {
+            var msg = $"Expected the selected car to be `{key}`. Got `{this.SelectedCar?._Key}`.";
             Debug.Fail(msg);
             Logging.LogError(msg);
             return;
         }
 
         this.SelectedCar.Unsubscribe();
-        this.CarsObservable.Remove(this.SelectedCar);
-        this._settingsControl.Settings.Infos.CarInfos.TryRemove(key);
+        this._CarsObservable.Remove(this.SelectedCar);
+        this._settingsControl._Settings.Infos.CarInfos.TryRemove(key);
     }
 
     private void InvokePropertyChanged([CallerMemberName] string? propertyName = null) {
@@ -273,17 +273,17 @@ internal class CarSettingsTabViewModel : INotifyPropertyChanged {
 
 internal class CarsListBoxItemViewModel : INotifyPropertyChanged {
     public event PropertyChangedEventHandler? PropertyChanged;
-    public string Name => this.Info.Name() ?? this.Key;
-    public string Id => this.Key;
+    public string Name => this._Info.Name() ?? this._Key;
+    public string Id => this._Key;
 
-    internal readonly string Key;
-    internal readonly OverridableCarInfo Info;
+    internal readonly string _Key;
+    internal readonly OverridableCarInfo _Info;
 
     internal CarsListBoxItemViewModel(string key, OverridableCarInfo info) {
-        this.Key = key;
-        this.Info = info;
+        this._Key = key;
+        this._Info = info;
 
-        this.Info.PropertyChanged += this.OnInfoPropertyChanged;
+        this._Info.PropertyChanged += this.OnInfoPropertyChanged;
     }
 
     #if DESIGN
@@ -303,7 +303,7 @@ internal class CarsListBoxItemViewModel : INotifyPropertyChanged {
     }
 
     internal void Unsubscribe() {
-        this.Info.PropertyChanged -= this.OnInfoPropertyChanged;
+        this._Info.PropertyChanged -= this.OnInfoPropertyChanged;
         this.PropertyChanged = null;
     }
 }
@@ -328,7 +328,7 @@ internal class SelectedCarDetailsViewModel : INotifyPropertyChanged {
     public string Id { get; }
 
     public bool IsNameEnabled {
-        get => this._info.IsNameEnabled;
+        get => this._info._IsNameEnabled;
         set {
             if (value) {
                 this._info.EnableName();
@@ -361,8 +361,8 @@ internal class SelectedCarDetailsViewModel : INotifyPropertyChanged {
             // ClassInfos.Manager doesn't itself have a property CanBeRemoved, but ClassSettingsTab's SelectedClassViewModels does,
             // and it forwards all property change notifications from ClassInfos.Manager. 
             // Thus, below will trigger an update of SelectedClassViewModels.CanBeRemoved property. 
-            this._settingsControl.ClassesManager.GetOrAdd(oldClass).InvokePropertyChanged("CanBeRemoved");
-            var newClsManager = this._settingsControl.ClassesManager.GetOrAddFollowReplaceWith(cls);
+            this._settingsControl._ClassesManager.GetOrAdd(oldClass).InvokePropertyChanged("CanBeRemoved");
+            var newClsManager = this._settingsControl._ClassesManager.GetOrAddFollowReplaceWith(cls);
             newClsManager.InvokePropertyChanged("CanBeRemoved");
 
             this.ClassPreviewViewModel = new ClassPreviewViewModel(newClsManager);
@@ -370,7 +370,7 @@ internal class SelectedCarDetailsViewModel : INotifyPropertyChanged {
     }
 
     public bool IsClassEnabled {
-        get => this._info.IsClassEnabled;
+        get => this._info._IsClassEnabled;
         set {
             if (value) {
                 this._info.EnableClass();
@@ -378,16 +378,16 @@ internal class SelectedCarDetailsViewModel : INotifyPropertyChanged {
                 this._info.DisableClass();
             }
 
-            this._settingsControl.ClassesManager.GetOrAdd(this._info.ClassDontCheckEnabled())
+            this._settingsControl._ClassesManager.GetOrAdd(this._info.ClassDontCheckEnabled())
                 .InvokePropertyChanged("CanBeRemoved");
 
             var cls = this._info.Class();
-            var newClsManager = this._settingsControl.ClassesManager.GetOrAddFollowReplaceWith(cls);
+            var newClsManager = this._settingsControl._ClassesManager.GetOrAddFollowReplaceWith(cls);
             this.ClassPreviewViewModel = new ClassPreviewViewModel(newClsManager);
         }
     }
 
-    public bool CanBeRemoved => this._settingsControl.Settings.Infos.CarInfos.CanBeRemoved(this.Id);
+    public bool CanBeRemoved => this._settingsControl._Settings.Infos.CarInfos.CanBeRemoved(this.Id);
 
     public ListCollectionView AllClasses { get; }
     public ListCollectionView AllManufacturers { get; }
@@ -409,14 +409,14 @@ internal class SelectedCarDetailsViewModel : INotifyPropertyChanged {
         this._info = info;
         this._settingsControl = settingsControl;
         var cls = info.Class();
-        var clsManager = settingsControl.ClassesManager.GetOrAddFollowReplaceWith(cls);
+        var clsManager = settingsControl._ClassesManager.GetOrAddFollowReplaceWith(cls);
         this.ClassPreviewViewModel = new ClassPreviewViewModel(clsManager);
 
-        this.AllClasses = new ListCollectionView(settingsControl.AllClasses) {
+        this.AllClasses = new ListCollectionView(settingsControl._AllClasses) {
             IsLiveSorting = true, SortDescriptions = { new SortDescription() },
         };
 
-        this.AllManufacturers = new ListCollectionView(settingsControl.AllManufacturers) {
+        this.AllManufacturers = new ListCollectionView(settingsControl._AllManufacturers) {
             IsLiveSorting = true, SortDescriptions = { new SortDescription() },
         };
 
@@ -433,7 +433,7 @@ internal class SelectedCarDetailsViewModel : INotifyPropertyChanged {
             () => {
                 this._info.ResetClass();
                 var cls2 = this._info.Class();
-                var clsManager2 = settingsControl.ClassesManager.GetOrAddFollowReplaceWith(cls2);
+                var clsManager2 = settingsControl._ClassesManager.GetOrAddFollowReplaceWith(cls2);
                 this.ClassPreviewViewModel = new ClassPreviewViewModel(clsManager2);
             }
         );

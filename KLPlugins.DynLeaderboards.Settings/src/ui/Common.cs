@@ -55,7 +55,7 @@ public class ControlsEditor2 : ControlsEditor {
 internal abstract class PropertyViewModelBase {
     public abstract string Name { get; }
     public abstract string Description { get; }
-    internal bool IsRowSelected { get; set; } = false;
+    internal bool _IsRowSelected { get; set; } = false;
     public abstract bool IsEnabled { get; set; }
     public string Group { get; set; } = "";
     public string SubGroup { get; set; } = "";
@@ -285,10 +285,10 @@ internal class ClassPreviewViewModel : INotifyPropertyChanged {
 
     public event PropertyChangedEventHandler? PropertyChanged;
 
-    public string ClassName => this._manager.Key.AsString();
-    public bool IsColorEnabled => this._manager.IsColorEnabled;
-    public string Background => this._manager.Background ?? TextBoxColor.DEF_BG;
-    public string Foreground => this._manager.Foreground ?? TextBoxColor.DEF_FG;
+    public string ClassName => this._manager._Key.AsString();
+    public bool IsColorEnabled => this._manager._IsColorEnabled;
+    public string Background => this._manager._Background ?? TextBoxColor.DEF_BG;
+    public string Foreground => this._manager._Foreground ?? TextBoxColor.DEF_FG;
 
     #if DESIGN
     #pragma warning disable CS8618, CS9264

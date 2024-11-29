@@ -119,61 +119,60 @@ public sealed class DocsPathConverter : IValueConverter {
 }
 
 public partial class SettingsControl : UserControl {
-    internal DynLeaderboardConfig CurrentDynLeaderboardSettings { get; private set; }
-    internal PluginSettings Settings { get; }
-    internal ClassInfos.Manager ClassesManager { get; }
+    internal DynLeaderboardConfig _CurrentDynLeaderboardSettings { get; private set; }
+    internal PluginSettings _Settings { get; }
+    internal ClassInfos.Manager _ClassesManager { get; }
 
     public const double DISABLED_OPTION_OPACITY = 0.333;
 
-    internal Game Game { get; }
+    internal Game _Game { get; }
 
     public SettingsControl(PluginSettings settings, Game game) {
         this.InitializeComponent();
         this.DataContext = this;
-        this.Settings = settings;
-        this.Game = game;
+        this._Settings = settings;
+        this._Game = game;
 
-        this.ClassesManager = new ClassInfos.Manager(this.Settings.Infos.ClassInfos);
-        this.ClassesManager.CollectionChanged += (_, e) => {
+        this._ClassesManager = new ClassInfos.Manager(this._Settings.Infos.ClassInfos);
+        this._ClassesManager.CollectionChanged += (_, e) => {
             if (e.NewItems != null) {
                 foreach (OverridableClassInfo.Manager item in e.NewItems) {
-                    this.TryAddCarClass(item.Key);
+                    this.TryAddCarClass(item._Key);
                 }
             }
         };
 
-        this.GeneralSettingsTab_SHTabItem.Content = new GeneralSettingsTab(this.Settings);
+        this.GeneralSettingsTab_SHTabItem.Content = new GeneralSettingsTab(this._Settings);
         this.DynamicLeaderboardsTab_SHTabItem.Content = new DynamicLeaderboardsTab(
-            this.Settings,
+            this._Settings,
             this
         );
         this.CarSettingsTab_SHTabItem.Content = new CarSettingsTab(this);
-        this.ClassSettingsTab_SHTabItem.Content = new ClassSettingsTab(this, this.ClassesManager);
+        this.ClassSettingsTab_SHTabItem.Content = new ClassSettingsTab(this, this._ClassesManager);
 
- 
-        this.CurrentDynLeaderboardSettings = this.Settings.DynLeaderboardConfigs[0];
+        this._CurrentDynLeaderboardSettings = this._Settings.DynLeaderboardConfigs[0];
 
         this.SetAllClassesAndManufacturers();
         this.AddColorsTab();
     }
 
-    internal readonly ObservableCollection<string> AllClasses = [];
-    internal readonly ObservableCollection<string> AllManufacturers = [];
+    internal readonly ObservableCollection<string> _AllClasses = [];
+    internal readonly ObservableCollection<string> _AllManufacturers = [];
 
     /// <summary>
     ///     Tries to add a new class but does nothing if the class already exists.
     /// </summary>
     internal void TryAddCarClass(CarClass cls) {
         var clsStr = cls.AsString();
-        if (!this.AllClasses.Contains(clsStr)) {
-            this.AllClasses.Add(clsStr);
-            this.Settings.Infos.ClassInfos.GetOrAdd(cls);
+        if (!this._AllClasses.Contains(clsStr)) {
+            this._AllClasses.Add(clsStr);
+            this._Settings.Infos.ClassInfos.GetOrAdd(cls);
         }
     }
 
     internal void TryAddCarManufacturer(string manufacturer) {
-        if (!this.AllManufacturers.Contains(manufacturer)) {
-            this.AllManufacturers.Add(manufacturer);
+        if (!this._AllManufacturers.Contains(manufacturer)) {
+            this._AllManufacturers.Add(manufacturer);
         }
     }
 
@@ -198,13 +197,13 @@ public partial class SettingsControl : UserControl {
     private void SetAllClassesAndManufacturers() {
         // Go through all cars and check for class colors. 
         // If there are new classes then trying to Values.CarClassColors.Get will add them to the dictionary.
-        foreach (var c in this.Settings.Infos.CarInfos) {
+        foreach (var c in this._Settings.Infos.CarInfos) {
             CarClass?[] classes = [c.Value.ClassDontCheckEnabled(), c.Value.BaseClass()];
             foreach (var cls in classes) {
                 if (cls != null) {
-                    var info = this.Settings.Infos.ClassInfos.GetOrAdd(cls.Value);
+                    var info = this._Settings.Infos.ClassInfos.GetOrAdd(cls.Value);
                     if (info.ReplaceWithDontCheckEnabled() != null) {
-                        var _ = this.Settings.Infos.ClassInfos.GetOrAdd(info.ReplaceWithDontCheckEnabled()!.Value);
+                        var _ = this._Settings.Infos.ClassInfos.GetOrAdd(info.ReplaceWithDontCheckEnabled()!.Value);
                     }
                 }
             }
@@ -217,7 +216,7 @@ public partial class SettingsControl : UserControl {
             }
         }
 
-        foreach (var c in this.Settings.Infos.ClassInfos) {
+        foreach (var c in this._Settings.Infos.ClassInfos) {
             this.TryAddCarClass(c.Key);
         }
     }
@@ -227,7 +226,7 @@ public partial class SettingsControl : UserControl {
         new ColorsTabSection<TeamCupCategory>(
             this,
             "Category",
-            this.Settings.Infos.TeamCupCategoryColors,
+            this._Settings.Infos.TeamCupCategoryColors,
             this.ColorsTab_TeamCupCategoryColors_Menu,
             this.ColorsTab_TeamCupCategoryColors_Grid
         ).Build(c => c == TeamCupCategory.Default);
@@ -235,7 +234,7 @@ public partial class SettingsControl : UserControl {
         new ColorsTabSection<DriverCategory>(
             this,
             "Category",
-            this.Settings.Infos.DriverCategoryColors,
+            this._Settings.Infos.DriverCategoryColors,
             this.ColorsTab_DriverCategoryColors_Menu,
             this.ColorsTab_DriverCategoryColors_Grid
         ).Build(c => c == DriverCategory.Default);

@@ -12,7 +12,7 @@ namespace KLPlugins.DynLeaderboards.Tests.Settings;
 public class PluginSettingsTests {
     [Fact]
     public void FromJson() {
-        const string json = """
+        const string JSON = """
                             {
                                 "Version": 450,
                                 "AccDataLocation": "ACCPath",
@@ -22,7 +22,7 @@ public class PluginSettingsTests {
                                 "OutGeneralProps": 254
                             }
                             """;
-        var settings = JsonConvert.DeserializeObject<PluginSettings>(json);
+        var settings = JsonConvert.DeserializeObject<PluginSettings>(JSON);
         Assert.NotNull(settings);
 
         Assert.Equal(450, settings!.Version);
@@ -32,10 +32,10 @@ public class PluginSettingsTests {
         Assert.Equal(500, settings.BroadcastDataUpdateRateMs);
         Assert.Equal((OutGeneralProp)254, settings.OutGeneralProps.Value);
     }
-    
+
     [Fact]
     public void ToJson() {
-        const string json = """
+        const string JSON = """
                             {
                               "Version": 450,
                               "AccDataLocation": "ACCPath",
@@ -45,10 +45,10 @@ public class PluginSettingsTests {
                               "OutGeneralProps": 254
                             }
                             """;
-        var settings = JsonConvert.DeserializeObject<PluginSettings>(json);
+        var settings = JsonConvert.DeserializeObject<PluginSettings>(JSON);
         Assert.NotNull(settings);
 
         var newJson = JsonConvert.SerializeObject(settings, Formatting.Indented);
-        Assert.Equal(json, newJson);
+        Assert.Equal(JSON, newJson);
     }
 }

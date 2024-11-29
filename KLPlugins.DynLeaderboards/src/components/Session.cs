@@ -58,7 +58,7 @@ public sealed class Session {
         var newSessType = SessionTypeExtensions.FromShGameData(data);
         this.IsNewSession = newSessType != this.SessionType;
 
-        if (DynLeaderboardsPlugin.Game.IsAcc) {
+        if (DynLeaderboardsPlugin._Game.IsAcc) {
             var rawDataNew = (ACSharedMemory.ACC.Reader.ACCRawData)data.NewData.GetRawDataObject();
 
             if (rawDataNew.Graphics.SessionIndex != this._sessionIndex)
@@ -87,7 +87,7 @@ public sealed class Session {
             Logging.LogInfo($"Session limit set: isLapLimited={this.IsLapLimited}, isTimeLimited={this.IsTimeLimited}");
         }
 
-        if (DynLeaderboardsPlugin.Game.IsAcc) {
+        if (DynLeaderboardsPlugin._Game.IsAcc) {
             var rawDataNew = (ACSharedMemory.ACC.Reader.ACCRawData)data.NewData.GetRawDataObject();
 
             this._sessionIndex = rawDataNew.Graphics.SessionIndex;
@@ -141,7 +141,7 @@ public enum SessionPhase {
 
 internal static class SessionTypeExtensions {
     internal static SessionType FromShGameData(GameData data) {
-        if (DynLeaderboardsPlugin.Game.IsAcc) {
+        if (DynLeaderboardsPlugin._Game.IsAcc) {
             var accData = (ACSharedMemory.ACC.Reader.ACCRawData)data.NewData.GetRawDataObject();
             return accData.Graphics.Session switch {
                 ACSharedMemory.ACC.MMFModels.AC_SESSION_TYPE.AC_UNKNOWN => SessionType.UNKNOWN,
@@ -158,7 +158,7 @@ internal static class SessionTypeExtensions {
             };
         }
 
-        if (DynLeaderboardsPlugin.Game.IsAc) {
+        if (DynLeaderboardsPlugin._Game.IsAc) {
             var acData = (ACSharedMemory.Reader.ACRawData)data.NewData.GetRawDataObject();
             return acData.Graphics.Session switch {
                 ACSharedMemory.AC_SESSION_TYPE.AC_UNKNOWN => SessionType.UNKNOWN,
@@ -177,7 +177,7 @@ internal static class SessionTypeExtensions {
     }
 
     private static SessionType FromString(string s) {
-        if (DynLeaderboardsPlugin.Game.IsAcc) {
+        if (DynLeaderboardsPlugin._Game.IsAcc) {
             switch (s.ToLower()) {
                 case "7":
                     return SessionType.HOTSTINT;
@@ -243,7 +243,7 @@ internal static class SessionTypeExtensions {
 
 internal static class SessionPhaseExtensions {
     internal static SessionPhase FromShGameData(GameData data) {
-        if (DynLeaderboardsPlugin.Game.IsAcc) {
+        if (DynLeaderboardsPlugin._Game.IsAcc) {
             var accData = (ACSharedMemory.ACC.Reader.ACCRawData)data.NewData.GetRawDataObject();
             if (accData.Realtime?.Phase == null) {
                 return SessionPhase.UNKNOWN;
@@ -263,7 +263,7 @@ internal static class SessionPhaseExtensions {
             };
         }
 
-        if (DynLeaderboardsPlugin.Game.IsRf2OrLmu) {
+        if (DynLeaderboardsPlugin._Game.IsRf2OrLmu) {
             var rf2Data = (RfactorReader.RF2.WrapV2)data.NewData.GetRawDataObject();
 
             var phase = rf2Data.Data.mGamePhase switch {
@@ -287,7 +287,7 @@ internal static class SessionPhaseExtensions {
             return phase;
         }
 
-        if (DynLeaderboardsPlugin.Game.IsR3E) {
+        if (DynLeaderboardsPlugin._Game.IsR3E) {
             var r3EData = (R3E.Data.Shared)data.NewData.GetRawDataObject();
             return r3EData.SessionPhase switch {
                 -1 => SessionPhase.UNKNOWN,

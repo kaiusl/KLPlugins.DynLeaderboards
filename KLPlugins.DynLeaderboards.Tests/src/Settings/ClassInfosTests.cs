@@ -13,7 +13,9 @@ namespace KLPlugins.DynLeaderboards.Tests.Settings;
 public class OverridableClassInfoTests {
     [Theory]
     [InlineData("""{"Overrides":null,"IsColorEnabled":true,"IsReplaceWithEnabled":false,"DuplicatedFrom":[]}""")]
-    [InlineData("""{"Overrides":{"Color":{"Fg":"#ffffff","Bg":"#000000"},"ReplaceWith":"GT3","ShortName":"AD"},"IsColorEnabled":false,"IsReplaceWithEnabled":true,"DuplicatedFrom":["GT3","GT2"]}""")]
+    [InlineData(
+        """{"Overrides":{"Color":{"Fg":"#ffffff","Bg":"#000000"},"ReplaceWith":"GT3","ShortName":"AD"},"IsColorEnabled":false,"IsReplaceWithEnabled":true,"DuplicatedFrom":["GT3","GT2"]}"""
+    )]
     public void JsonRoundTrip(string json) {
         var settings = JsonConvert.DeserializeObject<OverridableClassInfo>(json);
         Assert.NotNull(settings);
@@ -49,14 +51,14 @@ public class ClassInfoTests {
 public class SimHubClassColorsTest {
     [Fact]
     public void FromJson() {
-        const string json = """
+        const string JSON = """
                             {"AssignedColors": [
                                 {"Target": "GT3", "Color": "#FFFF1493"},
                                 {"Target": "GT2", "Color": "#FFCA2B30"},
                             ]} 
                             """;
 
-        var color = SimHubClassColors.FromJson(json);
+        var color = SimHubClassColors.FromJson(JSON);
         Assert.Equal(2, color.AssignedColors.Count);
         var gt3 = color.AssignedColors[new CarClass("GT3")];
         Assert.NotNull(gt3);

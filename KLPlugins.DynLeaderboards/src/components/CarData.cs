@@ -122,11 +122,11 @@ namespace KLPlugins.DynLeaderboards.Car {
         /// <summary>
         ///     Has the car crossed the start line at race start.
         /// </summary>
-        internal bool HasCrossedStartLine { get; private set; } = true;
+        internal bool _HasCrossedStartLine { get; private set; } = true;
 
         private bool _isHasCrossedStartLineSet = false;
         public bool IsFinished { get; private set; } = false;
-        internal DateTime? FinishTime { get; private set; } = null;
+        internal DateTime? _FinishTime { get; private set; } = null;
 
         public int? CurrentStintLaps { get; private set; }
         public TimeSpan? LastStintTime { get; private set; }
@@ -137,7 +137,7 @@ namespace KLPlugins.DynLeaderboards.Car {
         public double MaxSpeed { get; private set; } = 0.0;
         public bool IsConnected { get; private set; }
 
-        internal int MissedUpdates = 0;
+        internal int _MissedUpdates = 0;
 
         /// <summary>
         ///     Car ID.
@@ -145,15 +145,15 @@ namespace KLPlugins.DynLeaderboards.Car {
         ///     In ACC single player, it's number from 0.
         ///     In ACC multiplayer, it's number from 1000.
         /// </summary>
-        internal string Id => this.RawDataNew.Id;
+        internal string _Id => this._RawDataNew.Id;
 
         /// <summary>
         ///     Has this car received the update in latest data update.
         /// </summary>
-        internal bool IsUpdated { get; set; } = true;
+        internal bool _IsUpdated { get; set; } = true;
 
-        internal Opponent RawDataNew;
-        internal Opponent RawDataOld;
+        internal Opponent _RawDataNew;
+        internal Opponent _RawDataOld;
 
         // In some games the spline position and the lap counter reset at different locations.
         // Since we use total spline position to order the cars on track, we need them to be in sync
@@ -163,7 +163,7 @@ namespace KLPlugins.DynLeaderboards.Car {
             SPLINE_BEFORE_LAP = 2,
         }
 
-        internal OffsetLapUpdateType OffsetLapUpdate { get; private set; } = OffsetLapUpdateType.NONE;
+        internal OffsetLapUpdateType _OffsetLapUpdate { get; private set; } = OffsetLapUpdateType.NONE;
 
         private int _lapAtOffsetLapUpdate = -1;
         private bool _isSplinePositionReset = false;
@@ -181,22 +181,22 @@ namespace KLPlugins.DynLeaderboards.Car {
 
         private bool _expectingNewLap = false;
 
-        internal List<double> LapDataPos { get; } = [];
-        internal List<double> LapDataTime { get; } = [];
-        internal bool LapDataValidForSave { get; private set; } = false;
+        internal List<double> _LapDataPos { get; } = [];
+        internal List<double> _LapDataTime { get; } = [];
+        internal bool _LapDataValidForSave { get; private set; } = false;
 
         internal CarData(Values values, string? focusedCarId, Opponent opponent, GameData gameData) {
             this.Drivers = this._drivers.AsReadOnly();
 
-            this.RawDataNew = opponent;
-            this.RawDataOld = opponent;
+            this._RawDataNew = opponent;
+            this._RawDataOld = opponent;
 
             this.SetStaticCarData(values, opponent);
 
             this.IsCurrentLapValid = true;
 
-            this.PositionOverall = this.RawDataNew.Position;
-            this.PositionInClass = this.RawDataNew.PositionInClass;
+            this.PositionOverall = this._RawDataNew.Position;
+            this.PositionInClass = this._RawDataNew.PositionInClass;
             this.PositionInCup = this.PositionInClass;
             this.UpdateIndependent(values, focusedCarId, opponent, gameData);
 
@@ -204,7 +204,7 @@ namespace KLPlugins.DynLeaderboards.Car {
         }
 
         private void CheckGameLapTimes(Opponent opponent) {
-            if (DynLeaderboardsPlugin.Game.IsAcc) {
+            if (DynLeaderboardsPlugin._Game.IsAcc) {
                 var accRawData = (ACSharedMemory.Models.ACCOpponent)opponent;
 
                 var lastLap = accRawData.ExtraData.LastLap;
@@ -233,7 +233,7 @@ namespace KLPlugins.DynLeaderboards.Car {
                     );
                     driver.BestLap = this.BestLap;
                 }
-            } else if (DynLeaderboardsPlugin.Game.IsRf2OrLmu
+            } else if (DynLeaderboardsPlugin._Game.IsRf2OrLmu
                 && opponent.ExtraData.ElementAtOr(0, null) is
                     CrewChiefV4.rFactor2_V2.rFactor2Data.rF2VehicleScoring
                     rf2RawData) {
@@ -314,26 +314,30 @@ namespace KLPlugins.DynLeaderboards.Car {
         }
 
         private void SetStaticCarData(Values values, Opponent opponent) {
-            var rawClass = CarClass.TryNew(this.RawDataNew.CarClass) ?? CarClass.Default;
+            var rawClass = CarClass.TryNew(this._RawDataNew.CarClass) ?? CarClass.Default;
             OverridableCarInfo? carInfo = null;
-            if (this.RawDataNew.CarName != null) {
-                carInfo = DynLeaderboardsPlugin.Settings.Infos.CarInfos.GetOrAdd(this.RawDataNew.CarName, rawClass, rawClass);
+            if (this._RawDataNew.CarName != null) {
+                carInfo = DynLeaderboardsPlugin._Settings.Infos.CarInfos.GetOrAdd(
+                    this._RawDataNew.CarName,
+                    rawClass,
+                    rawClass
+                );
             }
 
             this.SetStaticCarInfo(carInfo);
 
             var (cls, classInfo) =
-                DynLeaderboardsPlugin.Settings.Infos.ClassInfos.GetFollowReplaceWith(carInfo?.Class() ?? rawClass);
+                DynLeaderboardsPlugin._Settings.Infos.ClassInfos.GetFollowReplaceWith(carInfo?.Class() ?? rawClass);
             this.SetStaticClassInfo(cls, classInfo);
 
-            this.CarNumberAsString = this.RawDataNew.CarNumber;
+            this.CarNumberAsString = this._RawDataNew.CarNumber;
             if (int.TryParse(this.CarNumberAsString, out var number)) {
                 this.CarNumberAsInt = number;
             }
 
-            this.TeamName = this.RawDataNew.TeamName;
+            this.TeamName = this._RawDataNew.TeamName;
 
-            if (DynLeaderboardsPlugin.Game.IsAcc) {
+            if (DynLeaderboardsPlugin._Game.IsAcc) {
                 var accRawData = (ACSharedMemory.Models.ACCOpponent)opponent;
                 this.TeamCupCategory = CarData.AccTeamCupCategoryToString(accRawData.ExtraData.CarEntry.CupCategory);
             } else {
@@ -344,33 +348,41 @@ namespace KLPlugins.DynLeaderboards.Car {
         }
 
         internal void UpdateCarInfos(Values values) {
-            var rawClass = CarClass.TryNew(this.RawDataNew.CarClass) ?? CarClass.Default;
+            var rawClass = CarClass.TryNew(this._RawDataNew.CarClass) ?? CarClass.Default;
             OverridableCarInfo? carInfo = null;
-            if (this.RawDataNew.CarName != null) {
-                carInfo = DynLeaderboardsPlugin.Settings.Infos.CarInfos.GetOrAdd(this.RawDataNew.CarName, rawClass, rawClass);
+            if (this._RawDataNew.CarName != null) {
+                carInfo = DynLeaderboardsPlugin._Settings.Infos.CarInfos.GetOrAdd(
+                    this._RawDataNew.CarName,
+                    rawClass,
+                    rawClass
+                );
             }
 
             this.SetStaticCarInfo(carInfo);
 
             var (cls, classInfo) =
-                DynLeaderboardsPlugin.Settings.Infos.ClassInfos.GetFollowReplaceWith(carInfo?.Class() ?? rawClass);
+                DynLeaderboardsPlugin._Settings.Infos.ClassInfos.GetFollowReplaceWith(carInfo?.Class() ?? rawClass);
             this.SetStaticClassInfo(cls, classInfo);
         }
 
         internal void UpdateClassInfos(Values values) {
-            var rawClass = CarClass.TryNew(this.RawDataNew.CarClass) ?? CarClass.Default;
+            var rawClass = CarClass.TryNew(this._RawDataNew.CarClass) ?? CarClass.Default;
             OverridableCarInfo? carInfo = null;
-            if (this.RawDataNew.CarName != null) {
-                carInfo = DynLeaderboardsPlugin.Settings.Infos.CarInfos.GetOrAdd(this.RawDataNew.CarName, rawClass, rawClass);
+            if (this._RawDataNew.CarName != null) {
+                carInfo = DynLeaderboardsPlugin._Settings.Infos.CarInfos.GetOrAdd(
+                    this._RawDataNew.CarName,
+                    rawClass,
+                    rawClass
+                );
             }
 
             var (cls, classInfo) =
-                DynLeaderboardsPlugin.Settings.Infos.ClassInfos.GetFollowReplaceWith(carInfo?.Class() ?? rawClass);
+                DynLeaderboardsPlugin._Settings.Infos.ClassInfos.GetFollowReplaceWith(carInfo?.Class() ?? rawClass);
             this.SetStaticClassInfo(cls, classInfo);
         }
 
         private void SetStaticCarInfo(OverridableCarInfo? carInfo) {
-            this.CarModel = carInfo?.Name() ?? this.RawDataNew.CarName ?? "Unknown";
+            this.CarModel = carInfo?.Name() ?? this._RawDataNew.CarName ?? "Unknown";
             this.CarManufacturer = carInfo?.Manufacturer() ?? CarData.GetCarManufacturer(this.CarModel);
         }
 
@@ -380,13 +392,13 @@ namespace KLPlugins.DynLeaderboards.Car {
             this.CarClassShortName = classInfo.ShortName() ?? cls.AsString();
 
             this.CarClassColor = new TextBoxColor(
-                fg: classInfo.Foreground() ?? this.RawDataNew.CarClassTextColor ?? TextBoxColor.DEF_FG,
-                bg: classInfo.Background() ?? this.RawDataNew.CarClassColor ?? TextBoxColor.DEF_BG
+                fg: classInfo.Foreground() ?? this._RawDataNew.CarClassTextColor ?? TextBoxColor.DEF_FG,
+                bg: classInfo.Background() ?? this._RawDataNew.CarClassColor ?? TextBoxColor.DEF_BG
             );
         }
 
         private void SetTeamCupColors(Values values) {
-            var cupColor = DynLeaderboardsPlugin.Settings.Infos.TeamCupCategoryColors.GetOrAdd(this.TeamCupCategory);
+            var cupColor = DynLeaderboardsPlugin._Settings.Infos.TeamCupCategoryColors.GetOrAdd(this.TeamCupCategory);
             this.TeamCupCategoryColor = new TextBoxColor(
                 fg: cupColor.Foreground() ?? TextBoxColor.DEF_FG,
                 bg: cupColor.Background() ?? TextBoxColor.DEF_BG
@@ -441,25 +453,25 @@ namespace KLPlugins.DynLeaderboards.Car {
             // Actual update
             // In ACC the cars remain in opponents list even if they disconnect, 
             this.IsConnected = rawData.IsConnected
-                && (!DynLeaderboardsPlugin.Game.IsAcc || rawData.Coordinates != null);
+                && (!DynLeaderboardsPlugin._Game.IsAcc || rawData.Coordinates != null);
             // however, it's coordinates will be null then 
             if (!this.IsConnected) {
                 return;
             }
 
-            this.MissedUpdates = 0;
+            this._MissedUpdates = 0;
 
-            this.RawDataOld = this.RawDataNew;
-            this.RawDataNew = rawData;
-            this.IsUpdated = true;
+            this._RawDataOld = this._RawDataNew;
+            this._RawDataNew = rawData;
+            this._IsUpdated = true;
 
-            if (DynLeaderboardsPlugin.Game.IsAms2) {
+            if (DynLeaderboardsPlugin._Game.IsAms2) {
                 if (gameData.NewData.GetRawDataObject() is ShAms2.Models.AMS2APIStruct rawAms2data) {
                     var index = -1;
                     for (var i = 0; i < rawAms2data.mNumParticipants; i++) {
                         var participantData = rawAms2data.mParticipantData[i];
                         var name = ShAms2.Models.PC2Helper.getNameFromBytes(participantData.mName);
-                        if (name == this.Id) {
+                        if (name == this._Id) {
                             index = i;
                             break;
                         }
@@ -474,7 +486,7 @@ namespace KLPlugins.DynLeaderboards.Car {
                         this._rawAms2DataNew = null;
                     }
                 }
-            } else if (DynLeaderboardsPlugin.Game.IsR3E) {
+            } else if (DynLeaderboardsPlugin._Game.IsR3E) {
                 static string? GetName(byte[]? data) {
                     if (data == null) {
                         return null;
@@ -489,7 +501,7 @@ namespace KLPlugins.DynLeaderboards.Car {
                     for (var i = 0; i < rawR3EData.NumCars; i++) {
                         participantData = ref rawR3EData.DriverData[i];
                         var name = GetName(participantData.DriverInfo.Name);
-                        if (!string.IsNullOrEmpty(name) && name == this.Id) {
+                        if (!string.IsNullOrEmpty(name) && name == this._Id) {
                             index = i;
                             this._rawR3EDataNew = new R3E.RawOpponentData(in participantData);
                             break;
@@ -502,23 +514,23 @@ namespace KLPlugins.DynLeaderboards.Car {
                 }
             }
 
-            if (DynLeaderboardsPlugin.Game.IsAcc && focusedCarId != null) {
-                this.IsFocused = this.Id == focusedCarId;
+            if (DynLeaderboardsPlugin._Game.IsAcc && focusedCarId != null) {
+                this.IsFocused = this._Id == focusedCarId;
             } else {
-                this.IsFocused = this.RawDataNew.IsPlayer;
+                this.IsFocused = this._RawDataNew.IsPlayer;
             }
 
             this.IsBestLapCarOverall = false;
             this.IsBestLapCarInClass = false;
             this.IsBestLapCarInCup = false;
 
-            this.Laps.Update((this.RawDataNew.CurrentLap ?? 1) - 1);
+            this.Laps.Update((this._RawDataNew.CurrentLap ?? 1) - 1);
             this.IsNewLap = this.Laps.New - this.Laps.Old == 1;
 
             this.SetCarLocation(rawData);
             this.UpdatePitInfo(values.Session.SessionPhase);
             this.SetSplinePositions(values);
-            this.MaxSpeed = Math.Max(this.MaxSpeed, this.RawDataNew.Speed ?? 0.0);
+            this.MaxSpeed = Math.Max(this.MaxSpeed, this._RawDataNew.Speed ?? 0.0);
             this.UpdateDrivers(values, rawData);
 
             if (this.IsNewLap) {
@@ -538,9 +550,9 @@ namespace KLPlugins.DynLeaderboards.Car {
                 this.IsCurrentLapInLap = false;
             }
 
-            if (DynLeaderboardsPlugin.Game.IsAcc) {
-                var rawDataNew = (ACSharedMemory.Models.ACCOpponent)this.RawDataNew;
-                var rawDataOld = (ACSharedMemory.Models.ACCOpponent)this.RawDataOld;
+            if (DynLeaderboardsPlugin._Game.IsAcc) {
+                var rawDataNew = (ACSharedMemory.Models.ACCOpponent)this._RawDataNew;
+                var rawDataOld = (ACSharedMemory.Models.ACCOpponent)this._RawDataOld;
 
                 if (!this.IsNewLap
                     && rawDataNew.ExtraData.CurrentLap.LaptimeMS < rawDataOld.ExtraData.CurrentLap.LaptimeMS) {
@@ -562,10 +574,10 @@ namespace KLPlugins.DynLeaderboards.Car {
                     && rawDataNew.ExtraData.CurrentLap.Type == ShAccBroadcasting.LapType.Inlap) {
                     this.IsCurrentLapInLap = true;
                 }
-            } else if (DynLeaderboardsPlugin.Game.IsAms2) {
+            } else if (DynLeaderboardsPlugin._Game.IsAms2) {
                 if (!this.IsNewLap
-                    && (this.RawDataNew.CurrentLapTime == null
-                        || this.RawDataNew.CurrentLapTime < this.RawDataOld.CurrentLapTime)) {
+                    && (this._RawDataNew.CurrentLapTime == null
+                        || this._RawDataNew.CurrentLapTime < this._RawDataOld.CurrentLapTime)) {
                     this._isLastLapInLap = this.IsCurrentLapInLap;
                     this._isLastLapOutLap = this.IsCurrentLapOutLap;
                     this._isLastLapValid = this.IsCurrentLapValid;
@@ -580,7 +592,7 @@ namespace KLPlugins.DynLeaderboards.Car {
                 this.CheckIfLapInvalidated(rawData);
 
                 if (!this.IsCurrentLapValid) {
-                    Logging.LogInfo($"Invalidated lap #{this.CarNumberAsString} [{this.Id}]");
+                    Logging.LogInfo($"Invalidated lap #{this.CarNumberAsString} [{this._Id}]");
                 }
             }
 
@@ -592,83 +604,83 @@ namespace KLPlugins.DynLeaderboards.Car {
             }
 
             this.UpdateStintInfo(values.Session);
-            if (values.Session.IsRace && !DynLeaderboardsPlugin.Game.IsAms2) {
+            if (values.Session.IsRace && !DynLeaderboardsPlugin._Game.IsAms2) {
                 this.HandleOffsetLapUpdates();
             }
 
-            if (this.LapDataValidForSave
+            if (this._LapDataValidForSave
                 && (this.IsCurrentLapInLap || this.IsCurrentLapOutLap || !this.IsCurrentLapValid || this.IsInPitLane)) {
-                this.LapDataValidForSave = false;
-                Logging.LogInfo($"Invalidated lap for save #{this.CarNumberAsString} [{this.Id}]");
+                this._LapDataValidForSave = false;
+                Logging.LogInfo($"Invalidated lap for save #{this.CarNumberAsString} [{this._Id}]");
             }
 
-            if (this.RawDataOld.CurrentLapTime > this.RawDataNew.CurrentLapTime
+            if (this._RawDataOld.CurrentLapTime > this._RawDataNew.CurrentLapTime
                 // in AMS2 lap time goes briefly to null on lap time reset
-                || (DynLeaderboardsPlugin.Game.IsAms2
-                    && this.RawDataOld.CurrentLapTime != null
-                    && this.RawDataNew.CurrentLapTime == null)
+                || (DynLeaderboardsPlugin._Game.IsAms2
+                    && this._RawDataOld.CurrentLapTime != null
+                    && this._RawDataNew.CurrentLapTime == null)
                 // in R3E lap time on invalid lap is shown as TimeSpan.Zero,
                 // thus above would only trigger on a second valid lap in a row
-                || (DynLeaderboardsPlugin.Game.IsR3E
-                    && (this.RawDataOld.CurrentLapTime == TimeSpan.Zero || this.RawDataOld.CurrentLapTime == null)
-                    && this.RawDataNew.CurrentLapTime != TimeSpan.Zero
-                    && this.RawDataNew.CurrentLapTime != null)
+                || (DynLeaderboardsPlugin._Game.IsR3E
+                    && (this._RawDataOld.CurrentLapTime == TimeSpan.Zero || this._RawDataOld.CurrentLapTime == null)
+                    && this._RawDataNew.CurrentLapTime != TimeSpan.Zero
+                    && this._RawDataNew.CurrentLapTime != null)
             ) {
-                if (this.LapDataValidForSave && this.LapDataPos.Count > 20) {
+                if (this._LapDataValidForSave && this._LapDataPos.Count > 20) {
                     // Add last point
-                    var pos = this.RawDataOld.TrackPositionPercent;
-                    var time = this.RawDataOld.CurrentLapTime?.TotalSeconds;
+                    var pos = this._RawDataOld.TrackPositionPercent;
+                    var time = this._RawDataOld.CurrentLapTime?.TotalSeconds;
                     if (pos != null && time != null) {
-                        var lastPos = this.LapDataPos.Last();
-                        var lastTime = this.LapDataTime.Last();
+                        var lastPos = this._LapDataPos.Last();
+                        var lastTime = this._LapDataTime.Last();
                         if (lastPos < pos.Value && time.Value - lastTime > PluginSettings.LAP_DATA_TIME_DELAY_SEC) {
-                            this.LapDataPos.Add(pos.Value);
-                            this.LapDataTime.Add(time.Value);
+                            this._LapDataPos.Add(pos.Value);
+                            this._LapDataTime.Add(time.Value);
                         }
                     }
 
                     values.TrackData?.OnLapFinished(
                         this.CarClass,
-                        this.LapDataPos.AsReadOnly(),
-                        this.LapDataTime.AsReadOnly()
+                        this._LapDataPos.AsReadOnly(),
+                        this._LapDataTime.AsReadOnly()
                     );
                 }
 
-                this.LapDataValidForSave = true;
-                this.LapDataPos.Clear();
-                this.LapDataTime.Clear();
+                this._LapDataValidForSave = true;
+                this._LapDataPos.Clear();
+                this._LapDataTime.Clear();
             }
 
-            var rawPos = this.RawDataNew.TrackPositionPercent;
-            var rawTime = this.RawDataNew.CurrentLapTime;
-            if (this.LapDataValidForSave && rawPos != null && rawTime != null) {
-                if (this.LapDataPos.Count == 0) {
-                    this.LapDataPos.Add(rawPos.Value);
-                    this.LapDataTime.Add(rawTime.Value.TotalSeconds);
+            var rawPos = this._RawDataNew.TrackPositionPercent;
+            var rawTime = this._RawDataNew.CurrentLapTime;
+            if (this._LapDataValidForSave && rawPos != null && rawTime != null) {
+                if (this._LapDataPos.Count == 0) {
+                    this._LapDataPos.Add(rawPos.Value);
+                    this._LapDataTime.Add(rawTime.Value.TotalSeconds);
                 } else {
-                    var lastPos = this.LapDataPos.Last();
-                    var lastTime = this.LapDataTime.Last();
+                    var lastPos = this._LapDataPos.Last();
+                    var lastTime = this._LapDataTime.Last();
                     if (lastPos < rawPos.Value
                         && rawTime.Value.TotalSeconds - lastTime > PluginSettings.LAP_DATA_TIME_DELAY_SEC) {
-                        this.LapDataPos.Add(rawPos.Value);
-                        this.LapDataTime.Add(rawTime.Value.TotalSeconds);
+                        this._LapDataPos.Add(rawPos.Value);
+                        this._LapDataTime.Add(rawTime.Value.TotalSeconds);
                     }
                 }
             }
         }
 
         private void CheckIfLapInvalidated(Opponent rawData) {
-            if (!this.RawDataNew.LapValid) {
+            if (!this._RawDataNew.LapValid) {
                 this.IsCurrentLapValid = false;
                 return;
             }
 
-            if (DynLeaderboardsPlugin.Game.IsAcc) {
+            if (DynLeaderboardsPlugin._Game.IsAcc) {
                 var accRawData = (ACSharedMemory.Models.ACCOpponent)rawData;
                 if (!accRawData.ExtraData.CurrentLap.IsValidForBest || accRawData.ExtraData.CurrentLap.IsInvalid) {
                     this.IsCurrentLapValid = false;
                 }
-            } else if (DynLeaderboardsPlugin.Game.IsRf2) {
+            } else if (DynLeaderboardsPlugin._Game.IsRf2) {
                 // Rf2 doesn't directly export lap validity. But when one exceeds track limits the current sector times are 
                 // set to -1.0. We cannot immediately detect the cut in the first sector, but as soon as we reach the 
                 // 2nd sector we can detect it, when current sector 1 time is still -1.0.
@@ -678,12 +690,12 @@ namespace KLPlugins.DynLeaderboards.Car {
                         this.IsCurrentLapValid = false;
                     }
                 }
-            } else if (DynLeaderboardsPlugin.Game.IsAms2) {
+            } else if (DynLeaderboardsPlugin._Game.IsAms2) {
                 if (this._rawAms2DataNew != null && this._rawAms2DataNew.IsCurrentLapInvalidated) {
                     this.IsCurrentLapValid = false;
                 }
-            } else if (DynLeaderboardsPlugin.Game.IsR3E) {
-                if (this._rawR3EDataNew != null && !this._rawR3EDataNew.IsCurrentLapValid) {
+            } else if (DynLeaderboardsPlugin._Game.IsR3E) {
+                if (this._rawR3EDataNew != null && !this._rawR3EDataNew._IsCurrentLapValid) {
                     this.IsCurrentLapValid = false;
                 }
             }
@@ -695,7 +707,7 @@ namespace KLPlugins.DynLeaderboards.Car {
         /// <param name="values"></param>
         /// <exception cref="System.Exception"></exception>
         private void SetSplinePositions(Values values) {
-            var newSplinePos = this.RawDataNew.TrackPositionPercent
+            var newSplinePos = this._RawDataNew.TrackPositionPercent
                 ?? throw new Exception("TrackPositionPercent is null");
             newSplinePos += values.TrackData!.SplinePosOffset.Value;
             if (newSplinePos > 1) {
@@ -708,7 +720,7 @@ namespace KLPlugins.DynLeaderboards.Car {
         }
 
         private void SetCarLocation(Opponent rawData) {
-            if (DynLeaderboardsPlugin.Game.IsAcc) {
+            if (DynLeaderboardsPlugin._Game.IsAcc) {
                 var accRawData = (ACSharedMemory.Models.ACCOpponent)rawData;
                 var location = accRawData.ExtraData.CarLocation;
                 var newLocation = location switch {
@@ -721,9 +733,9 @@ namespace KLPlugins.DynLeaderboards.Car {
                 };
                 this.Location.Update(newLocation);
             } else {
-                if (this.RawDataNew.IsCarInPit) {
+                if (this._RawDataNew.IsCarInPit) {
                     this.Location.Update(CarLocation.PIT_BOX);
-                } else if (this.RawDataNew.IsCarInPitLane) {
+                } else if (this._RawDataNew.IsCarInPitLane) {
                     this.Location.Update(CarLocation.PIT_LANE);
                 } else {
                     this.Location.Update(CarLocation.TRACK);
@@ -736,32 +748,32 @@ namespace KLPlugins.DynLeaderboards.Car {
         /// </summary>
         private void UpdateLapTimes(Session session) {
             var prevCurrentLapTime = this.CurrentLapTime;
-            if (DynLeaderboardsPlugin.Game.IsRf2OrLmu
-                && this.RawDataNew.ExtraData.ElementAtOr(0, null) is ShRf2.rF2VehicleScoring rf2RawData
+            if (DynLeaderboardsPlugin._Game.IsRf2OrLmu
+                && this._RawDataNew.ExtraData.ElementAtOr(0, null) is ShRf2.rF2VehicleScoring rf2RawData
                 // fall back to SimHub's if rf2 doesn't report current lap time (it's -1 if missing)
                 && rf2RawData.mTimeIntoLap > 0
             ) {
                 this.CurrentLapTime = TimeSpan.FromSeconds(rf2RawData.mTimeIntoLap);
-            } else if (DynLeaderboardsPlugin.Game.IsR3E
-                    && (this.RawDataNew.CurrentLapTime == null || this.RawDataNew.CurrentLapTime == TimeSpan.Zero)
-                    && this.RawDataNew.GuessedLapStartTime != null)
+            } else if (DynLeaderboardsPlugin._Game.IsR3E
+                    && (this._RawDataNew.CurrentLapTime == null || this._RawDataNew.CurrentLapTime == TimeSpan.Zero)
+                    && this._RawDataNew.GuessedLapStartTime != null)
                 // R3E sets current lap time to zero immediately after the lap is invalidated, but we can calculate it our selves
             {
-                this.CurrentLapTime = DateTime.Now - this.RawDataNew.GuessedLapStartTime.Value;
+                this.CurrentLapTime = DateTime.Now - this._RawDataNew.GuessedLapStartTime.Value;
             } else {
-                this.CurrentLapTime = this.RawDataNew.CurrentLapTime ?? TimeSpan.Zero;
+                this.CurrentLapTime = this._RawDataNew.CurrentLapTime ?? TimeSpan.Zero;
             }
 
             // Add the last current lap time as last lap for rF2 if last lap vas invalid. In such case rF2 doesn't provide last lap times
             // and we need to manually calculate it.
             //
             // TODO: this doesn't add sector times, we can potentially calculate those as well
-            if (DynLeaderboardsPlugin.Game.IsRf2OrLmu
+            if (DynLeaderboardsPlugin._Game.IsRf2OrLmu
                 && this._expectingNewLap
                 && !this._isLastLapValid
                 // CurrentLapTime has reset
                 && prevCurrentLapTime > this.CurrentLapTime
-                && this.RawDataNew.ExtraData.ElementAtOr(0, null) is ShRf2.rF2VehicleScoring rf2RawData2
+                && this._RawDataNew.ExtraData.ElementAtOr(0, null) is ShRf2.rF2VehicleScoring rf2RawData2
                 // make sure to only use this method if invalid lap was due to lap cut in which case last lap/sector times are -1
                 && rf2RawData2.mLastSector1 == -1.0
             ) {
@@ -769,7 +781,7 @@ namespace KLPlugins.DynLeaderboards.Car {
                     IsValid = this._isLastLapValid, IsOutLap = this._isLastLapOutLap, IsInLap = this._isLastLapInLap,
                 };
                 this._expectingNewLap = false;
-            } else if (DynLeaderboardsPlugin.Game.IsR3E
+            } else if (DynLeaderboardsPlugin._Game.IsR3E
                 && !session.IsRace
                 && !this.IsCurrentLapValid
                 && !this.IsNewLap
@@ -788,14 +800,14 @@ namespace KLPlugins.DynLeaderboards.Car {
                     IsInLap = this.IsCurrentLapInLap,
                 };
                 this._expectingNewLap = false;
-            } else if (DynLeaderboardsPlugin.Game.IsAcc) {
+            } else if (DynLeaderboardsPlugin._Game.IsAcc) {
                 // Special case ACC lap time updates.
                 // This fixes a bug where in qualy/practice session joining mid-session misses lap invalidation.
                 // Thus, possibly setting invalid lap as best lap. The order remains correct (it's set by the position received from ACC)
                 // but an invalid lap is shown as a lap.
                 // Since the order is supposed to be based on the best lap, this could show weird discrepancy between position and lap time.
 
-                var accRawData = (ACSharedMemory.Models.ACCOpponent)this.RawDataNew;
+                var accRawData = (ACSharedMemory.Models.ACCOpponent)this._RawDataNew;
 
                 // Need to check for new lap time separately since lap update and lap time update may not be in perfect sync
                 var lastLap = accRawData.ExtraData.LastLap;
@@ -841,21 +853,21 @@ namespace KLPlugins.DynLeaderboards.Car {
                 }
             } else {
                 // Need to check for new lap time separately since lap update and lap time update may not be in perfect sync
-                if (this.RawDataNew.LastLapTime != TimeSpan.Zero
+                if (this._RawDataNew.LastLapTime != TimeSpan.Zero
                     // Sometimes LastLapTime and LastLapSectorTimes may differ very slightly. Check for both. If both are different then it's new lap.
                     && (this.LastLap?.Time == null
-                        || (this.RawDataNew.LastLapTime != this.LastLap?.Time
-                            && this.RawDataNew.LastLapSectorTimes?.GetLapTime() != this.LastLap?.Time)
-                        || this.RawDataNew.LastLapSectorTimes?.GetSectorSplit(1) != this.LastLap?.S1Time
-                        || this.RawDataNew.LastLapSectorTimes?.GetSectorSplit(2) != this.LastLap?.S2Time
-                        || this.RawDataNew.LastLapSectorTimes?.GetSectorSplit(3) != this.LastLap?.S3Time
+                        || (this._RawDataNew.LastLapTime != this.LastLap?.Time
+                            && this._RawDataNew.LastLapSectorTimes?.GetLapTime() != this.LastLap?.Time)
+                        || this._RawDataNew.LastLapSectorTimes?.GetSectorSplit(1) != this.LastLap?.S1Time
+                        || this._RawDataNew.LastLapSectorTimes?.GetSectorSplit(2) != this.LastLap?.S2Time
+                        || this._RawDataNew.LastLapSectorTimes?.GetSectorSplit(3) != this.LastLap?.S3Time
                     )
                 ) {
                     // Lap time end position may be offset with lap or spline position reset point.
                     this.LastLap =
                         new Lap(
-                            this.RawDataNew.LastLapSectorTimes,
-                            this.RawDataNew.LastLapTime,
+                            this._RawDataNew.LastLapSectorTimes,
+                            this._RawDataNew.LastLapTime,
                             this.Laps.New,
                             this.CurrentDriver!
                         ) {
@@ -874,24 +886,24 @@ namespace KLPlugins.DynLeaderboards.Car {
                         }
                     }
 
-                    this.BestSectors.Update(this.RawDataNew.BestSectorSplits);
+                    this.BestSectors.Update(this._RawDataNew.BestSectorSplits);
                 }
 
-                if (this.RawDataNew.BestLapTime != TimeSpan.Zero
+                if (this._RawDataNew.BestLapTime != TimeSpan.Zero
                     // Sometimes LastLapTime and LastLapSectorTimes may differ very slightly. Check for both. If both are different then it's new lap.
                     && (this.BestLap?.Time == null
-                        || (this.RawDataNew.BestLapTime != this.BestLap?.Time
-                            && this.RawDataNew.BestLapSectorTimes?.GetLapTime() != this.BestLap?.Time)
-                        || this.RawDataNew.BestLapSectorTimes?.GetSectorSplit(1) != this.BestLap?.S1Time
-                        || this.RawDataNew.BestLapSectorTimes?.GetSectorSplit(2) != this.BestLap?.S2Time
-                        || this.RawDataNew.BestLapSectorTimes?.GetSectorSplit(3) != this.BestLap?.S3Time
+                        || (this._RawDataNew.BestLapTime != this.BestLap?.Time
+                            && this._RawDataNew.BestLapSectorTimes?.GetLapTime() != this.BestLap?.Time)
+                        || this._RawDataNew.BestLapSectorTimes?.GetSectorSplit(1) != this.BestLap?.S1Time
+                        || this._RawDataNew.BestLapSectorTimes?.GetSectorSplit(2) != this.BestLap?.S2Time
+                        || this._RawDataNew.BestLapSectorTimes?.GetSectorSplit(3) != this.BestLap?.S3Time
                     )
                 ) {
                     // Lap time end position may be offset with lap or spline position reset point.
                     this.BestLap =
                         new Lap(
-                            this.RawDataNew.BestLapSectorTimes,
-                            this.RawDataNew.BestLapTime,
+                            this._RawDataNew.BestLapSectorTimes,
+                            this._RawDataNew.BestLapTime,
                             this.Laps.New,
                             this.CurrentDriver!
                         ) { IsValid = true, IsOutLap = false, IsInLap = false };
@@ -904,7 +916,7 @@ namespace KLPlugins.DynLeaderboards.Car {
         }
 
         private void UpdateDrivers(Values values, Opponent rawData) {
-            if (DynLeaderboardsPlugin.Game.IsAcc) {
+            if (DynLeaderboardsPlugin._Game.IsAcc) {
                 // ACC has more driver info than generic SimHub interface
                 var accOpponent = (ACSharedMemory.Models.ACCOpponent)rawData;
                 var realtimeCarUpdate = accOpponent.ExtraData;
@@ -928,11 +940,11 @@ namespace KLPlugins.DynLeaderboards.Car {
                     }
                 }
             } else {
-                var currentDriverIndex = this._drivers.FindIndex(d => d.FullName == this.RawDataNew.Name);
+                var currentDriverIndex = this._drivers.FindIndex(d => d.FullName == this._RawDataNew.Name);
                 if (currentDriverIndex == 0) {
                     // OK, current driver is already first in list
                 } else if (currentDriverIndex == -1) {
-                    this._drivers.Insert(0, new Driver(values, this.RawDataNew));
+                    this._drivers.Insert(0, new Driver(values, this._RawDataNew));
                 } else {
                     // move current driver to the front
                     this._drivers.MoveElementAt(currentDriverIndex, 0);
@@ -954,12 +966,12 @@ namespace KLPlugins.DynLeaderboards.Car {
                 && this.Location.Old == CarLocation.TRACK
                 && this.IsInPitLane
             ) {
-                Logging.LogInfo($"[{this.Id}, #{this.CarNumberAsString}] jumped to pits");
+                Logging.LogInfo($"[{this._Id}, #{this.CarNumberAsString}] jumped to pits");
                 this.JumpedToPits = true;
             }
 
             if (this.JumpedToPits && !this.IsInPitLane) {
-                Logging.LogInfo($"[{this.Id}, #{this.CarNumberAsString}] jumped to pits cleared.");
+                Logging.LogInfo($"[{this._Id}, #{this.CarNumberAsString}] jumped to pits cleared.");
                 this.JumpedToPits = false;
             }
         }
@@ -978,19 +990,19 @@ namespace KLPlugins.DynLeaderboards.Car {
             // Initial update before the start of the race
             if (sessionPhase is SessionPhase.PRE_SESSION or SessionPhase.PRE_FORMATION or SessionPhase.FORMATION_LAP
                 && !this._isHasCrossedStartLineSet
-                && this.HasCrossedStartLine
+                && this._HasCrossedStartLine
                 && (this.SplinePosition > 0.5 || this.IsInPitLane)
                 && this.Laps.New == 0
             ) {
-                Logging.LogInfo($"[{this.Id}, #{this.CarNumberAsString}] has not crossed the start line");
-                this.HasCrossedStartLine = false;
+                Logging.LogInfo($"[{this._Id}, #{this.CarNumberAsString}] has not crossed the start line");
+                this._HasCrossedStartLine = false;
                 this._isHasCrossedStartLineSet = true;
             }
 
-            if (!this.HasCrossedStartLine
+            if (!this._HasCrossedStartLine
                 && ((this.SplinePosition < 0.5 && !this.JumpedToPits) || this.ExitedPitLane)) {
-                Logging.LogInfo($"[{this.Id}, #{this.CarNumberAsString}] crossed the start line");
-                this.HasCrossedStartLine = true;
+                Logging.LogInfo($"[{this._Id}, #{this.CarNumberAsString}] crossed the start line");
+                this._HasCrossedStartLine = true;
             }
         }
 
@@ -1004,36 +1016,36 @@ namespace KLPlugins.DynLeaderboards.Car {
         /// </summary>
         private void HandleOffsetLapUpdates() {
             // Check for offset lap update
-            if (this.OffsetLapUpdate == OffsetLapUpdateType.NONE
+            if (this._OffsetLapUpdate == OffsetLapUpdateType.NONE
                 && this.IsNewLap
                 && this.SplinePosition > 0.9
             ) {
-                this.OffsetLapUpdate = OffsetLapUpdateType.LAP_BEFORE_SPLINE;
+                this._OffsetLapUpdate = OffsetLapUpdateType.LAP_BEFORE_SPLINE;
                 this._lapAtOffsetLapUpdate = this.Laps.New;
                 //DynLeaderboardsPlugin.LogInfo($"Offset lap update [{this.Id}]: {this.OffsetLapUpdate}: sp={this.SplinePosition}, oldLap={this.Laps.Old}, newLap={this.Laps.New}");
-            } else if (this.OffsetLapUpdate == OffsetLapUpdateType.NONE
+            } else if (this._OffsetLapUpdate == OffsetLapUpdateType.NONE
                 && this._isSplinePositionReset
                 && this.Laps.New != this._lapAtOffsetLapUpdate // Remove double detection with above
                 && this.Laps.New == this.Laps.Old
-                && this.HasCrossedStartLine
+                && this._HasCrossedStartLine
             ) {
-                this.OffsetLapUpdate = OffsetLapUpdateType.SPLINE_BEFORE_LAP;
+                this._OffsetLapUpdate = OffsetLapUpdateType.SPLINE_BEFORE_LAP;
                 this._lapAtOffsetLapUpdate = this.Laps.New;
                 //DynLeaderboardsPlugin.LogInfo($"Offset lap update [{this.Id}]: {this.OffsetLapUpdate}: sp={this.SplinePosition}, oldLap={this.Laps.Old}, newLap={this.Laps.New}");
             }
 
-            if (this.OffsetLapUpdate == OffsetLapUpdateType.LAP_BEFORE_SPLINE) {
+            if (this._OffsetLapUpdate == OffsetLapUpdateType.LAP_BEFORE_SPLINE) {
                 if (this.SplinePosition < 0.9) {
-                    this.OffsetLapUpdate = OffsetLapUpdateType.NONE;
+                    this._OffsetLapUpdate = OffsetLapUpdateType.NONE;
                     this._lapAtOffsetLapUpdate = -1;
                     //DynLeaderboardsPlugin.LogInfo($"Offset lap update fixed [{this.Id}]: {this.OffsetLapUpdate}: sp={this.SplinePosition}, oldLap={this.Laps.Old}, newLap={this.Laps.New}");
                 }
-            } else if (this.OffsetLapUpdate == OffsetLapUpdateType.SPLINE_BEFORE_LAP) {
+            } else if (this._OffsetLapUpdate == OffsetLapUpdateType.SPLINE_BEFORE_LAP) {
                 if (this.Laps.New != this._lapAtOffsetLapUpdate
                     || this.SplinePosition is > 0.025 and < 0.9) {
                     // Second condition is a fallback in case the lap actually shouldn't have been updated
                     // (e.g. at the start line, jumped to pits and then crossed the line in the pits)
-                    this.OffsetLapUpdate = OffsetLapUpdateType.NONE;
+                    this._OffsetLapUpdate = OffsetLapUpdateType.NONE;
                     this._lapAtOffsetLapUpdate = -1;
                     //DynLeaderboardsPlugin.LogInfo($"Offset lap update fixed [{this.Id}]: {this.OffsetLapUpdate}: sp={this.SplinePosition}, oldLap={this.Laps.Old}, newLap={this.Laps.New}");
                 }
@@ -1047,15 +1059,15 @@ namespace KLPlugins.DynLeaderboards.Car {
             this.IsInPitLane = this.Location.New.IsInPits();
             this.ExitedPitLane = this.Location.New == CarLocation.TRACK && this.Location.Old.IsInPits();
             if (this.ExitedPitLane) {
-                Logging.LogInfo($"Car {this.Id}, #{this.CarNumberAsString} exited pits");
+                Logging.LogInfo($"Car {this._Id}, #{this.CarNumberAsString} exited pits");
             }
 
             this.EnteredPitLane = this.Location.New.IsInPits() && this.Location.Old == CarLocation.TRACK;
             if (this.EnteredPitLane) {
-                Logging.LogInfo($"Car {this.Id}, #{this.CarNumberAsString} entered pits");
+                Logging.LogInfo($"Car {this._Id}, #{this.CarNumberAsString} entered pits");
             }
 
-            this.PitCount = this.RawDataNew.PitCount ?? 0;
+            this.PitCount = this._RawDataNew.PitCount ?? 0;
 
             // TODO: using DateTime.now for timers if OK for online races where the time doesn't stop.
             //       However in SP races when the player pauses the game, usually the time also stops.
@@ -1191,14 +1203,14 @@ namespace KLPlugins.DynLeaderboards.Car {
             }
 
             if (!this.IsFinished) {
-                if (DynLeaderboardsPlugin.Game.IsR3E) {
-                    if (this._rawR3EDataNew != null && this._rawR3EDataNew.FinishStatus == R3E.FinishStatus.FINISHED) {
+                if (DynLeaderboardsPlugin._Game.IsR3E) {
+                    if (this._rawR3EDataNew != null && this._rawR3EDataNew._FinishStatus == R3E.FinishStatus.FINISHED) {
                         this.IsFinished = true;
-                        this.FinishTime = DateTime.Now;
+                        this._FinishTime = DateTime.Now;
                     }
-                } else if (values.IsFirstFinished && this.IsNewLap) {
+                } else if (values._IsFirstFinished && this.IsNewLap) {
                     this.IsFinished = true;
-                    this.FinishTime = DateTime.Now;
+                    this._FinishTime = DateTime.Now;
                 }
             }
 
@@ -1354,7 +1366,7 @@ namespace KLPlugins.DynLeaderboards.Car {
                 // That would result in wrong gaps. We keep the gaps at the last valid value and update once both cars have finished.
 
                 // Freeze gaps until all is in order again, fixes gap suddenly jumping to larger values as spline positions could be out of sync
-                if (trackData != null && this.OffsetLapUpdate == OffsetLapUpdateType.NONE) {
+                if (trackData != null && this._OffsetLapUpdate == OffsetLapUpdateType.NONE) {
                     SetGap(from: this, to: leaderCar, other: leaderCar, x => this.GapToLeader = x);
                     SetGap(
                         from: this,
@@ -1396,12 +1408,12 @@ namespace KLPlugins.DynLeaderboards.Car {
                     ) {
                         if (from == null || to == null) {
                             setGap(null);
-                        } else if (other?.OffsetLapUpdate == OffsetLapUpdateType.NONE) {
+                        } else if (other?._OffsetLapUpdate == OffsetLapUpdateType.NONE) {
                             setGap(CarData.CalculateGap(from: from, to: to, trackData));
                         }
                     }
 
-                    if (focusedCar != null && focusedCar.OffsetLapUpdate == OffsetLapUpdateType.NONE) {
+                    if (focusedCar != null && focusedCar._OffsetLapUpdate == OffsetLapUpdateType.NONE) {
                         this.SetRelLapDiff(focusedCar);
                     }
                 }
@@ -1448,11 +1460,11 @@ namespace KLPlugins.DynLeaderboards.Car {
         ///     If the result couldn't be calculated it returns <c>double.NaN</c>.
         /// </returns>
         public static TimeSpan? CalculateGap(CarData from, CarData to, TrackData trackData) {
-            if (from.Id == to.Id
-                || !to.HasCrossedStartLine
-                || !from.HasCrossedStartLine
-                || from.OffsetLapUpdate != OffsetLapUpdateType.NONE
-                || to.OffsetLapUpdate != OffsetLapUpdateType.NONE
+            if (from._Id == to._Id
+                || !to._HasCrossedStartLine
+                || !from._HasCrossedStartLine
+                || from._OffsetLapUpdate != OffsetLapUpdateType.NONE
+                || to._OffsetLapUpdate != OffsetLapUpdateType.NONE
             ) {
                 return null;
             }
@@ -1469,7 +1481,7 @@ namespace KLPlugins.DynLeaderboards.Car {
                 if (fromLaps == toLaps)
                     // If there IsFinished is set, FinishTime must also be set
                 {
-                    return from.FinishTime - to.FinishTime;
+                    return from._FinishTime - to._FinishTime;
                 }
 
                 return TimeSpan.FromSeconds(toLaps - fromLaps) + CarData._lapGapValue;
@@ -1506,8 +1518,8 @@ namespace KLPlugins.DynLeaderboards.Car {
             }
 
             // TrackData is passed from Values, Values never stores TrackData without LapInterpolators
-            var toInterp = trackData.LapInterpolators.GetValueOr(to.CarClass, null);
-            var fromInterp = trackData.LapInterpolators.GetValueOr(from.CarClass, null);
+            var toInterp = trackData._LapInterpolators.GetValueOr(to.CarClass, null);
+            var fromInterp = trackData._LapInterpolators.GetValueOr(from.CarClass, null);
             if (toInterp == null && fromInterp == null)
                 // lap data is not available, use naive distance based calculation
             {
@@ -1523,7 +1535,7 @@ namespace KLPlugins.DynLeaderboards.Car {
                 gap = CarData.CalculateGapBetweenPos(
                     start: from.GetSplinePosTime(cls, trackData),
                     end: to.GetSplinePosTime(cls, trackData),
-                    lapTime: interp.LapTime
+                    lapTime: interp._LapTime
                 );
             } else
                 // `to` is behind of `from`
@@ -1531,7 +1543,7 @@ namespace KLPlugins.DynLeaderboards.Car {
                 gap = -CarData.CalculateGapBetweenPos(
                     start: to.GetSplinePosTime(cls, trackData),
                     end: from.GetSplinePosTime(cls, trackData),
-                    lapTime: interp.LapTime
+                    lapTime: interp._LapTime
                 );
             }
 
@@ -1539,7 +1551,7 @@ namespace KLPlugins.DynLeaderboards.Car {
         }
 
         public static TimeSpan? CalculateOnTrackGap(CarData from, CarData to, TrackData trackData) {
-            if (from.Id == to.Id) {
+            if (from._Id == to._Id) {
                 return null;
             }
 
@@ -1548,8 +1560,8 @@ namespace KLPlugins.DynLeaderboards.Car {
             var relativeSplinePos = CarData.CalculateRelativeSplinePosition(fromPos: fromPos, toPos: toPos);
 
             // TrackData is passed from Values, Values never stores TrackData without LapInterpolators
-            var toInterp = trackData.LapInterpolators.GetValueOr(to.CarClass, null);
-            var fromInterp = trackData.LapInterpolators.GetValueOr(from.CarClass, null);
+            var toInterp = trackData._LapInterpolators.GetValueOr(to.CarClass, null);
+            var fromInterp = trackData._LapInterpolators.GetValueOr(from.CarClass, null);
             if (toInterp == null && fromInterp == null)
                 // lap data is not available, use naive distance based calculation
             {
@@ -1563,13 +1575,13 @@ namespace KLPlugins.DynLeaderboards.Car {
                 gap = -CarData.CalculateGapBetweenPos(
                     start: from.GetSplinePosTime(cls, trackData),
                     end: to.GetSplinePosTime(cls, trackData),
-                    lapTime: interp.LapTime
+                    lapTime: interp._LapTime
                 );
             } else {
                 gap = CarData.CalculateGapBetweenPos(
                     start: to.GetSplinePosTime(cls, trackData),
                     end: from.GetSplinePosTime(cls, trackData),
-                    lapTime: interp.LapTime
+                    lapTime: interp._LapTime
                 );
             }
 
@@ -1615,7 +1627,7 @@ namespace KLPlugins.DynLeaderboards.Car {
             }
 
             // TrackData is passed from Values, Values never stores TrackData without LapInterpolators
-            var interp = trackData.LapInterpolators.GetValueOr(cls, null);
+            var interp = trackData._LapInterpolators.GetValueOr(cls, null);
             if (interp != null) {
                 var result = interp.Interpolate(this.SplinePosition);
                 this._splinePositionTimes[cls] = result;
@@ -1647,7 +1659,7 @@ namespace KLPlugins.DynLeaderboards.Car {
             this.ShortName = o.Initials;
             this.InitialPlusLastName = o.ShortName;
 
-            var col = DynLeaderboardsPlugin.Settings.Infos.DriverCategoryColors.GetOrAdd(this.Category);
+            var col = DynLeaderboardsPlugin._Settings.Infos.DriverCategoryColors.GetOrAdd(this.Category);
             this.CategoryColor = new TextBoxColor(
                 fg: col.Foreground() ?? TextBoxColor.DEF_FG,
                 bg: col.Background() ?? TextBoxColor.DEF_BG
@@ -1665,7 +1677,7 @@ namespace KLPlugins.DynLeaderboards.Car {
             this.InitialPlusLastName = this.CreateInitialPlusLastNameAcc();
             this.Initials = this.CreateInitialsAcc();
 
-            var col = DynLeaderboardsPlugin.Settings.Infos.DriverCategoryColors.GetOrAdd(this.Category);
+            var col = DynLeaderboardsPlugin._Settings.Infos.DriverCategoryColors.GetOrAdd(this.Category);
             this.CategoryColor = new TextBoxColor(
                 fg: col.Foreground() ?? TextBoxColor.DEF_FG,
                 bg: col.Background() ?? TextBoxColor.DEF_BG
@@ -1673,7 +1685,7 @@ namespace KLPlugins.DynLeaderboards.Car {
         }
 
         internal void UpdateDriverInfos(Values values) {
-            var col = DynLeaderboardsPlugin.Settings.Infos.DriverCategoryColors.GetOrAdd(this.Category);
+            var col = DynLeaderboardsPlugin._Settings.Infos.DriverCategoryColors.GetOrAdd(this.Category);
             this.CategoryColor = new TextBoxColor(
                 fg: col.Foreground() ?? TextBoxColor.DEF_FG,
                 bg: col.Background() ?? TextBoxColor.DEF_BG
@@ -2164,12 +2176,12 @@ namespace KLPlugins.DynLeaderboards.Car {
         }
 
         internal sealed class RawOpponentData {
-            internal FinishStatus FinishStatus { get; }
-            internal bool IsCurrentLapValid { get; }
+            internal FinishStatus _FinishStatus { get; }
+            internal bool _IsCurrentLapValid { get; }
 
             internal RawOpponentData(ref readonly ShR3E.Data.DriverData data) {
-                this.FinishStatus = (FinishStatus)data.FinishStatus;
-                this.IsCurrentLapValid = data.CurrentLapValid > 0;
+                this._FinishStatus = (FinishStatus)data.FinishStatus;
+                this._IsCurrentLapValid = data.CurrentLapValid > 0;
             }
         }
     }

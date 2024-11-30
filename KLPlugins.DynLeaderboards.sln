@@ -8,7 +8,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KLPlugins.DynLeaderboards.C
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KLPlugins.DynLeaderboards.Common.Internals", "KLPlugins.DynLeaderboards.Common.Internals\KLPlugins.DynLeaderboards.Common.Internals.csproj", "{B1DDEA94-976A-4AAE-B5AC-B0D5EE738E5B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KLPlugins.DynLeaderboards.Tests", "KLPlugins.DynLeaderboards.Tests\KLPlugins.DynLeaderboards.Tests.csproj", "{3C8A4D54-FFC3-48F2-868B-EEDA5EF85044}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KLPlugins.DynLeaderboards.Tests.Unit", "KLPlugins.DynLeaderboards.Tests.Unit\KLPlugins.DynLeaderboards.Tests.Unit.csproj", "{3C8A4D54-FFC3-48F2-868B-EEDA5EF85044}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KLPlugins.DynLeaderboards.Tests.Integration", "KLPlugins.DynLeaderboards.Tests.Integration\KLPlugins.DynLeaderboards.Tests.Integration.csproj", "{DE7548B8-4F87-47F3-864C-131AC9978088}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -16,6 +18,7 @@ Global
 		Release|Any CPU = Release|Any CPU
 		Debug Docs|Any CPU = Debug Docs|Any CPU
 		Debug Design|Any CPU = Debug Design|Any CPU
+		Debug Test|Any CPU = Debug Test|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{244152BA-EC59-4506-8482-77A2AD011B47}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
@@ -26,6 +29,8 @@ Global
 		{244152BA-EC59-4506-8482-77A2AD011B47}.Debug Design|Any CPU.Build.0 = Debug|Any CPU
 		{244152BA-EC59-4506-8482-77A2AD011B47}.Debug Docs|Any CPU.ActiveCfg = Debug|Any CPU
 		{244152BA-EC59-4506-8482-77A2AD011B47}.Debug Docs|Any CPU.Build.0 = Debug|Any CPU
+		{244152BA-EC59-4506-8482-77A2AD011B47}.Debug Test|Any CPU.ActiveCfg = Debug Test|Any CPU
+		{244152BA-EC59-4506-8482-77A2AD011B47}.Debug Test|Any CPU.Build.0 = Debug Test|Any CPU
 		{9A096964-E254-4906-A420-20F5A09F30AD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{9A096964-E254-4906-A420-20F5A09F30AD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9A096964-E254-4906-A420-20F5A09F30AD}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -34,6 +39,8 @@ Global
 		{9A096964-E254-4906-A420-20F5A09F30AD}.Debug Design|Any CPU.Build.0 = Debug Design|Any CPU
 		{9A096964-E254-4906-A420-20F5A09F30AD}.Debug Docs|Any CPU.ActiveCfg = Debug Docs|Any CPU
 		{9A096964-E254-4906-A420-20F5A09F30AD}.Debug Docs|Any CPU.Build.0 = Debug Docs|Any CPU
+		{9A096964-E254-4906-A420-20F5A09F30AD}.Debug Test|Any CPU.ActiveCfg = Debug Test|Any CPU
+		{9A096964-E254-4906-A420-20F5A09F30AD}.Debug Test|Any CPU.Build.0 = Debug Test|Any CPU
 		{F0009219-C94E-4CCF-B9C7-235621D97106}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{F0009219-C94E-4CCF-B9C7-235621D97106}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F0009219-C94E-4CCF-B9C7-235621D97106}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -42,6 +49,8 @@ Global
 		{F0009219-C94E-4CCF-B9C7-235621D97106}.Debug Docs|Any CPU.Build.0 = Debug|Any CPU
 		{F0009219-C94E-4CCF-B9C7-235621D97106}.Debug Design|Any CPU.ActiveCfg = Debug|Any CPU
 		{F0009219-C94E-4CCF-B9C7-235621D97106}.Debug Design|Any CPU.Build.0 = Debug|Any CPU
+		{F0009219-C94E-4CCF-B9C7-235621D97106}.Debug Test|Any CPU.ActiveCfg = Debug Test|Any CPU
+		{F0009219-C94E-4CCF-B9C7-235621D97106}.Debug Test|Any CPU.Build.0 = Debug Test|Any CPU
 		{B1DDEA94-976A-4AAE-B5AC-B0D5EE738E5B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{B1DDEA94-976A-4AAE-B5AC-B0D5EE738E5B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B1DDEA94-976A-4AAE-B5AC-B0D5EE738E5B}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -50,13 +59,27 @@ Global
 		{B1DDEA94-976A-4AAE-B5AC-B0D5EE738E5B}.Debug Docs|Any CPU.Build.0 = Debug|Any CPU
 		{B1DDEA94-976A-4AAE-B5AC-B0D5EE738E5B}.Debug Design|Any CPU.ActiveCfg = Debug|Any CPU
 		{B1DDEA94-976A-4AAE-B5AC-B0D5EE738E5B}.Debug Design|Any CPU.Build.0 = Debug|Any CPU
+		{B1DDEA94-976A-4AAE-B5AC-B0D5EE738E5B}.Debug Test|Any CPU.ActiveCfg = Debug Test|Any CPU
+		{B1DDEA94-976A-4AAE-B5AC-B0D5EE738E5B}.Debug Test|Any CPU.Build.0 = Debug Test|Any CPU
+		{DE7548B8-4F87-47F3-864C-131AC9978088}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DE7548B8-4F87-47F3-864C-131AC9978088}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DE7548B8-4F87-47F3-864C-131AC9978088}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DE7548B8-4F87-47F3-864C-131AC9978088}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DE7548B8-4F87-47F3-864C-131AC9978088}.Debug Docs|Any CPU.ActiveCfg = Debug|Any CPU
+		{DE7548B8-4F87-47F3-864C-131AC9978088}.Debug Docs|Any CPU.Build.0 = Debug|Any CPU
+		{DE7548B8-4F87-47F3-864C-131AC9978088}.Debug Design|Any CPU.ActiveCfg = Debug|Any CPU
+		{DE7548B8-4F87-47F3-864C-131AC9978088}.Debug Design|Any CPU.Build.0 = Debug|Any CPU
+		{DE7548B8-4F87-47F3-864C-131AC9978088}.Debug Test|Any CPU.ActiveCfg = Debug Test|Any CPU
+		{DE7548B8-4F87-47F3-864C-131AC9978088}.Debug Test|Any CPU.Build.0 = Debug Test|Any CPU
 		{3C8A4D54-FFC3-48F2-868B-EEDA5EF85044}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{3C8A4D54-FFC3-48F2-868B-EEDA5EF85044}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{3C8A4D54-FFC3-48F2-868B-EEDA5EF85044}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{3C8A4D54-FFC3-48F2-868B-EEDA5EF85044}.Release|Any CPU.Build.0 = Release|Any CPU
-		{3C8A4D54-FFC3-48F2-868B-EEDA5EF85044}.Debug Docs|Any CPU.ActiveCfg = Debug|Any CPU
-		{3C8A4D54-FFC3-48F2-868B-EEDA5EF85044}.Debug Docs|Any CPU.Build.0 = Debug|Any CPU
 		{3C8A4D54-FFC3-48F2-868B-EEDA5EF85044}.Debug Design|Any CPU.ActiveCfg = Debug|Any CPU
 		{3C8A4D54-FFC3-48F2-868B-EEDA5EF85044}.Debug Design|Any CPU.Build.0 = Debug|Any CPU
+		{3C8A4D54-FFC3-48F2-868B-EEDA5EF85044}.Debug Docs|Any CPU.ActiveCfg = Debug|Any CPU
+		{3C8A4D54-FFC3-48F2-868B-EEDA5EF85044}.Debug Docs|Any CPU.Build.0 = Debug|Any CPU
+		{3C8A4D54-FFC3-48F2-868B-EEDA5EF85044}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3C8A4D54-FFC3-48F2-868B-EEDA5EF85044}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3C8A4D54-FFC3-48F2-868B-EEDA5EF85044}.Debug Test|Any CPU.ActiveCfg = Debug Test|Any CPU
+		{3C8A4D54-FFC3-48F2-868B-EEDA5EF85044}.Debug Test|Any CPU.Build.0 = Debug Test|Any CPU
 	EndGlobalSection
 EndGlobal

@@ -72,13 +72,16 @@ internal static class PluginPaths {
     private const string _TEAM_CUP_CATEGORY_COLORS_JSON_NAME = "TeamCupCategoryColors";
     private const string _DRIVER_CATEGORY_COLORS_JSON_NAME = "DriverCategoryColors";
 
-    public static void Init(string gameName) {
-        Logging.LogInfo("Initializing plugin paths");
 
+    public static void CreateStaticDirs() {
         Directory.CreateDirectory(PluginPaths._DataDir);
         Directory.CreateDirectory(PluginPaths._LogsDir);
         Directory.CreateDirectory(PluginPaths._LeaderboardConfigsDataDir);
         Directory.CreateDirectory(PluginPaths._LeaderboardConfigsDataBackupDir);
+    }
+
+    public static void Init(string gameName) {
+        Logging.LogInfo("Initializing plugin paths");
 
         PluginPaths._gameDataDir = Path.Combine(PluginPaths._DataDir, gameName);
         Directory.CreateDirectory(PluginPaths._GameDataDir);

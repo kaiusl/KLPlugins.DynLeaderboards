@@ -1,0 +1,16 @@
+{
+    "AssignedColors": [
+        {
+            "Target": "",
+            "Color": "#FFFF0000"
+        },
+        {
+            "Target": "GT3",
+            "Color": "#FF00FF00"
+        },
+        {
+            "Target": "GT2",
+            "Color": "#FF0000FF"
+        }
+    ]
+}

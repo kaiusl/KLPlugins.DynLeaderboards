@@ -1,0 +1,27 @@
+{
+    "GT4": {
+        "Overrides": null,
+        "IsColorEnabled": true,
+        "IsReplaceWithEnabled": false,
+        "DuplicatedFrom": []
+    },
+    "ST": {
+        "Overrides": {
+            "Color": {
+                "Fg": "#ffffff",
+                "Bg": "#000000"
+            },
+            "ReplaceWith": null,
+            "ShortName": "ST"
+        },
+        "IsColorEnabled": true,
+        "IsReplaceWithEnabled": false,
+        "DuplicatedFrom": []
+    },
+    "ST18": {
+        "Overrides": null,
+        "IsColorEnabled": false,
+        "IsReplaceWithEnabled": true,
+        "DuplicatedFrom": []
+    }
+}

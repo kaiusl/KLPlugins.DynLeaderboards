@@ -1,0 +1,23 @@
+{
+    "Am": {
+        "Overrides": {
+            "Fg": "#000000",
+            "Bg": "#E80000"
+        },
+        "IsEnabled": true
+    },
+    "National": {
+        "Overrides": {
+            "Fg": "#FFFFFF",
+            "Bg": "#008F4B"
+        },
+        "IsEnabled": true
+    },
+    "Overall": {
+        "Overrides": {
+            "Fg": "#000000",
+            "Bg": "#FFFFFF"
+        },
+        "IsEnabled": true
+    }
+}

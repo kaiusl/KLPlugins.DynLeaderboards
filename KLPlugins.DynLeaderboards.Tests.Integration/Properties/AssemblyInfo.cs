@@ -1,15 +1,16 @@
 ﻿using System.Reflection;
-using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+
+using Xunit;
 
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("KLPlugins.DynLeaderboards.Common")]
+[assembly: AssemblyTitle("KLPlugins.DynLeaderboards.Tests.Integration")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("KLPlugins.DynLeaderboards.Common")]
+[assembly: AssemblyProduct("KLPlugins.DynLeaderboards.Tests.Integration")]
 [assembly: AssemblyCopyright("Copyright ©  2024")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
@@ -19,10 +20,8 @@ using System.Runtime.InteropServices;
 // COM, set the ComVisible attribute to true on that type.
 [assembly: ComVisible(false)]
 
-[assembly: InternalsVisibleTo("KLPlugins.DynLeaderboards.Tests.Unit")]
-
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("F0009219-C94E-4CCF-B9C7-235621D97106")]
+[assembly: Guid("DE7548B8-4F87-47F3-864C-131AC9978088")]
 
 // Version information for an assembly consists of the following four values:
 //
@@ -37,3 +36,6 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyVersion("2.0.0.0")]
 [assembly: AssemblyFileVersion("2.0.0.0")]
 [assembly: AssemblyInformationalVersion("2.0.0-alpha.1")]
+
+// xUnit, these tests need a working directory be set individually, we cannot run them in parallel
+[assembly: CollectionBehavior(DisableTestParallelization = true)]

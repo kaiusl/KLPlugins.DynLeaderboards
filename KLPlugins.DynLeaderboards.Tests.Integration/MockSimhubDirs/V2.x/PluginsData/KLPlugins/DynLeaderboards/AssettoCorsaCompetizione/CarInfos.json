@@ -1,0 +1,24 @@
+{
+    "Alpine A110 GT4 2018": {
+        "Overrides": null,
+        "IsNameEnabled": true,
+        "IsClassEnabled": true,
+        "SimHubCarClass": "None"
+    },
+    "Aston Martin V8 Vantage GT3 2019": {
+        "Overrides": null,
+        "IsNameEnabled": false,
+        "IsClassEnabled": false,
+        "SimHubCarClass": "GT3"
+    },
+    "Aston Martin Vantage V12 GT3 2013": {
+        "Overrides": {
+            "Name": "AMR V12 GT3",
+            "Manufacturer": "Aston Martin",
+            "Class": null
+        },
+        "IsNameEnabled": true,
+        "IsClassEnabled": true,
+        "SimHubCarClass": "None"
+    }
+}

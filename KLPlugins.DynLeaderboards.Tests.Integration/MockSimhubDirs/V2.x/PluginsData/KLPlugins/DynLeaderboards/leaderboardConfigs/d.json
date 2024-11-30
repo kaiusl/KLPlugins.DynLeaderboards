@@ -1,0 +1,95 @@
+{
+    "Version": 3,
+    "Name": "d",
+    "OutCarProps": 17353,
+    "OutPitProps": 1,
+    "OutPosProps": 16,
+    "OutGapProps": 1048576,
+    "OutStingProps": 0,
+    "OutDriverProps": 64,
+    "OutLapProps": 4295098379,
+    "NumOverallPos": 16,
+    "NumClassPos": 16,
+    "NumCupPos": 16,
+    "NumOnTrackRelativePos": 5,
+    "NumOverallRelativePos": 5,
+    "NumClassRelativePos": 5,
+    "NumCupRelativePos": 5,
+    "NumDrivers": 1,
+    "PartialRelativeOverallNumOverallPos": 5,
+    "PartialRelativeOverallNumRelativePos": 5,
+    "PartialRelativeClassNumClassPos": 5,
+    "PartialRelativeClassNumRelativePos": 5,
+    "PartialRelativeCupNumCupPos": 5,
+    "PartialRelativeCupNumRelativePos": 5,
+    "Order": [
+        {
+            "Kind": 1,
+            "RemoveIfSingleClass": false,
+            "RemoveIfSingleCup": false,
+            "IsEnabled": true
+        },
+        {
+            "Kind": 2,
+            "RemoveIfSingleClass": true,
+            "RemoveIfSingleCup": true,
+            "IsEnabled": true
+        },
+        {
+            "Kind": 9,
+            "RemoveIfSingleClass": true,
+            "RemoveIfSingleCup": true,
+            "IsEnabled": false
+        },
+        {
+            "Kind": 5,
+            "RemoveIfSingleClass": false,
+            "RemoveIfSingleCup": false,
+            "IsEnabled": true
+        },
+        {
+            "Kind": 6,
+            "RemoveIfSingleClass": true,
+            "RemoveIfSingleCup": true,
+            "IsEnabled": true
+        },
+        {
+            "Kind": 11,
+            "RemoveIfSingleClass": true,
+            "RemoveIfSingleCup": true,
+            "IsEnabled": false
+        },
+        {
+            "Kind": 3,
+            "RemoveIfSingleClass": false,
+            "RemoveIfSingleCup": false,
+            "IsEnabled": true
+        },
+        {
+            "Kind": 4,
+            "RemoveIfSingleClass": true,
+            "RemoveIfSingleCup": true,
+            "IsEnabled": true
+        },
+        {
+            "Kind": 10,
+            "RemoveIfSingleClass": true,
+            "RemoveIfSingleCup": true,
+            "IsEnabled": false
+        },
+        {
+            "Kind": 7,
+            "RemoveIfSingleClass": false,
+            "RemoveIfSingleCup": false,
+            "IsEnabled": true
+        },
+        {
+            "Kind": 8,
+            "RemoveIfSingleClass": false,
+            "RemoveIfSingleCup": false,
+            "IsEnabled": false
+        }
+    ],
+    "CurrentLeaderboardIdx": 0,
+    "IsEnabled": true
+}

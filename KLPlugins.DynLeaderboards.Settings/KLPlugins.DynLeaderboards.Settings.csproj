@@ -61,6 +61,9 @@
         <WarningLevel>4</WarningLevel>
         <CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
     </PropertyGroup>
+    <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug Test|AnyCPU' ">
+        <OutputPath>bin\Debug Test\</OutputPath>
+    </PropertyGroup>
     <ItemGroup>
         <Reference Include="log4net">
             <HintPath>C:\Program Files (x86)\SimHub\log4net.dll</HintPath>

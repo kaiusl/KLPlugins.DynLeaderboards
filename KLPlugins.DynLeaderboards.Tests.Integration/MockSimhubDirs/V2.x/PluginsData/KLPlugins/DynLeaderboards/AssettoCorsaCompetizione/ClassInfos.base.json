@@ -1,0 +1,34 @@
+{
+    "GT4": {
+        "Color": {
+            "Fg": "#ffffff",
+            "Bg": "#262660"
+        },
+        "ReplaceWith": null
+    },
+    "CUP": {
+        "Color": {
+            "Fg": "#ffffff",
+            "Bg": "#457C45"
+        },
+        "ReplaceWith": null
+    },
+    "CUP18": {
+        "Color": {
+            "Fg": "#ffffff",
+            "Bg": "#ff0000"
+        },
+        "ReplaceWith": "CUP"
+    },
+    "CUP21": {
+        "Color": {
+            "Fg": "#ffffff",
+            "Bg": "#284c28"
+        },
+        "ReplaceWith": "CUP18"
+    },
+    "GT2": {
+        "Color": null,
+        "ReplaceWith": "GT3"
+    }
+}

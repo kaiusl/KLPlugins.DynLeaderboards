@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
@@ -14,6 +15,8 @@ using KLPlugins.DynLeaderboards.Log;
 using KLPlugins.DynLeaderboards.Settings;
 using KLPlugins.DynLeaderboards.Settings.UI;
 using KLPlugins.DynLeaderboards.Track;
+
+using Newtonsoft.Json;
 
 using SimHub.Plugins;
 
@@ -65,10 +68,21 @@ public sealed class DynLeaderboardsPlugin : IDataPlugin, IWPFSettingsV2 {
     /// </summary>
     /// <param name="pluginManager"></param>
     public void End(PluginManager pluginManager) {
-        this.SaveCommonSettings("GeneralSettings", DynLeaderboardsPlugin._Settings);
-        DynLeaderboardsPlugin._Settings.Dispose();
+        this.SaveSettings();
         this.Values.Dispose();
         Logging.Dispose();
+    }
+
+    // ReSharper disable once MemberCanBePrivate.Global
+    // ReSharper disable once MemberCanBeMadeStatic.Global
+    internal void SaveSettings() {
+        #if TEST
+        var json = JsonConvert.SerializeObject(DynLeaderboardsPlugin._Settings, Formatting.Indented);
+        File.WriteAllText(PluginPaths._GeneralSettingsPath, json);
+        #else
+        this.SaveCommonSettings("GeneralSettings", DynLeaderboardsPlugin._Settings);
+        #endif
+        DynLeaderboardsPlugin._Settings.SaveSettings();
     }
 
     /// <summary>
@@ -85,10 +99,21 @@ public sealed class DynLeaderboardsPlugin : IDataPlugin, IWPFSettingsV2 {
     ///     Called once after plugins startup
     ///     Plugins are rebuilt at game change
     /// </summary>
-    /// <param name="pm"></param>
     public void Init(PluginManager pm) {
+        this.PluginManager = pm;
+        this.InitCore(pm.GameName);
+        this.AttachGeneralDelegates();
+        this.SubscribeToSimHubEvents(pm);
+    }
+
+    /// <summary>
+    ///     Called once after plugins startup
+    ///     Plugins are rebuilt at game change
+    /// </summary>
+    internal void InitCore(string gameName) {
         // Performance is important while in game, pre-jit methods at startup, to avoid doing that mid-races
         DynLeaderboardsPlugin.PreJit();
+        PluginPaths.CreateStaticDirs();
 
         var log = PluginSettings.GetLogValueFromDisk();
         Logging.Init(log);
@@ -96,12 +121,21 @@ public sealed class DynLeaderboardsPlugin : IDataPlugin, IWPFSettingsV2 {
         Logging.LogInfo("Starting plugin.");
 
         // game doesn't depend on anything else, do it first
-        var gameName = pm.GameName;
         DynLeaderboardsPlugin._Game = new Game(gameName);
         PluginPaths.Init(gameName);
 
         PluginSettings.Migrate(); // migrate settings before reading them properly
+        #if TEST
+        if (File.Exists(PluginPaths._GeneralSettingsPath)) {
+            var json = File.ReadAllText(PluginPaths._GeneralSettingsPath);
+            var settings = JsonConvert.DeserializeObject<PluginSettings>(json) ?? new PluginSettings();
+            DynLeaderboardsPlugin._Settings = settings;
+        } else {
+            DynLeaderboardsPlugin._Settings = new PluginSettings();
+        }
+        #else
         DynLeaderboardsPlugin._Settings = this.ReadCommonSettings("GeneralSettings", () => new PluginSettings());
+        #endif
         DynLeaderboardsPlugin._Settings.FinalizeInit();
 
         TrackData.OnPluginInit(gameName);
@@ -112,15 +146,14 @@ public sealed class DynLeaderboardsPlugin : IDataPlugin, IWPFSettingsV2 {
             if (config.IsEnabled) {
                 var ldb = new DynLeaderboard(config, this.Values);
                 this.DynLeaderboards.Add(ldb);
+                #if !TEST
                 this.AttachDynLeaderboard(ldb);
+                #endif
                 Logging.LogInfo($"Added enabled leaderboard: {ldb.Name}.");
             } else {
                 Logging.LogInfo($"Didn't add disabled leaderboard: {config.Name}.");
             }
         }
-
-        this.AttachGeneralDelegates();
-        this.SubscribeToSimHubEvents(pm);
     }
 
     private void AttachDelegate<T>(

@@ -1,0 +1,41 @@
+{
+    "OutGeneralProps": 254,
+    "Version": 2,
+    "AccDataLocation": "C:\\Users\\user\\Documents\\Assetto Corsa Competizione",
+    "Log": true,
+    "BroadcastDataUpdateRateMs": 500,
+    "CarClassColors": {
+        "Overall": "#FF000000",
+        "GT3": "#FF000000",
+        "GT4": "#FF262660",
+        "ST15": "#FFCCBA00",
+        "ST21": "#FF988A00",
+        "CHL": "#FFB90000",
+        "CUP17": "#FF457C45",
+        "CUP21": "#FF284C28",
+        "TCX": "#FF007CA7",
+        "Unknown": "#FF000000"
+    },
+    "TeamCupCategoryColors": {
+        "Overall": "#FFFFFFFF",
+        "ProAm": "#FF000000",
+        "Am": "#FFE80000",
+        "Silver": "#FF666666",
+        "National": "#FF008F4B"
+    },
+    "TeamCupCategoryTextColors": {
+        "Overall": "#FF000000",
+        "ProAm": "#FFFFFFFF",
+        "Am": "#FF000000",
+        "Silver": "#FFFFFFFF",
+        "National": "#FFFFFFFF"
+    },
+    "DriverCategoryColors": {
+        "Bronze": "#FFCD7F32",
+        "Silver": "#FFA5A5A5",
+        "Gold": "#FFFFD700",
+        "Platinum": "#FFFFFFFF"
+    },
+    "Include_ST21_In_GT2": false,
+    "Include_CHL_In_GT2": false
+}

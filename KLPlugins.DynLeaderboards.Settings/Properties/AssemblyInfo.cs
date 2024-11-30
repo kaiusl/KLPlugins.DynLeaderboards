@@ -19,7 +19,8 @@ using System.Runtime.InteropServices;
 // COM, set the ComVisible attribute to true on that type.
 [assembly: ComVisible(false)]
 
-[assembly: InternalsVisibleTo("KLPlugins.DynLeaderboards.Tests")]
+[assembly: InternalsVisibleTo("KLPlugins.DynLeaderboards.Tests.Unit")]
+[assembly: InternalsVisibleTo("KLPlugins.DynLeaderboards.Tests.Integration")]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
 [assembly: Guid("9A096964-E254-4906-A420-20F5A09F30AD")]

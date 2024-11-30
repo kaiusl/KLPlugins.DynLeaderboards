@@ -118,7 +118,7 @@ public sealed class PluginSettings {
         }
     }
 
-    public void Dispose() {
+    public void SaveSettings() {
         this.SaveDynLeaderboardConfigs();
         this.Infos.Save();
 

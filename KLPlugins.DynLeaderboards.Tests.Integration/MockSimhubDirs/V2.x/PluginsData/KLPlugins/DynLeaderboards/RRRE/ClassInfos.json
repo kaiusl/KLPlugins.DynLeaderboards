@@ -1,0 +1,50 @@
+{
+    "None": {
+        "Overrides": null,
+        "IsColorEnabled": true,
+        "IsReplaceWithEnabled": true,
+        "DuplicatedFrom": []
+    },
+    "GTR 4": {
+        "Overrides": null,
+        "IsColorEnabled": false,
+        "IsReplaceWithEnabled": false,
+        "DuplicatedFrom": []
+    },
+    "FR X-17 Cup": {
+        "Overrides": {
+            "Color": {
+                "Fg": "#ffffff",
+                "Bg": "#000000"
+            },
+            "ReplaceWith": "GT3",
+            "ShortName": "3"
+        },
+        "IsColorEnabled": false,
+        "IsReplaceWithEnabled": false,
+        "DuplicatedFrom": []
+    },
+    "FR X-22 Cup": {
+        "Overrides": {
+            "Color": {
+                "Fg": "#ffffff",
+                "Bg": "#000000"
+            },
+            "ReplaceWith": null,
+            "ShortName": "3"
+        },
+        "IsColorEnabled": true,
+        "IsReplaceWithEnabled": true,
+        "DuplicatedFrom": []
+    },
+    "Hillclimb Icons": {
+        "Overrides": {
+            "Color": null,
+            "ReplaceWith": null,
+            "ShortName": "Hillclimb"
+        },
+        "IsColorEnabled": true,
+        "IsReplaceWithEnabled": true,
+        "DuplicatedFrom": []
+    }
+}

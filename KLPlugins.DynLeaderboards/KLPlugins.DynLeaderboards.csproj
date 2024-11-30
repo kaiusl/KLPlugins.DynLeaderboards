@@ -38,6 +38,17 @@
         <WarningLevel>4</WarningLevel>
         <CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
     </PropertyGroup>
+    <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug Test|AnyCPU' ">
+        <OutputPath>bin\Debug Test\</OutputPath>
+        <PlatformTarget>AnyCPU</PlatformTarget>
+        <DebugSymbols>true</DebugSymbols>
+        <DebugType>full</DebugType>
+        <Optimize>false</Optimize>
+        <DefineConstants>DEBUG;TRACE;TEST</DefineConstants>
+        <ErrorReport>prompt</ErrorReport>
+        <WarningLevel>4</WarningLevel>
+        <CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
+    </PropertyGroup>
     <ItemGroup>
         <Reference Include="ACSharedMemory">
             <HintPath>C:\Program Files (x86)\SimHub\ACSharedMemory.dll</HintPath>

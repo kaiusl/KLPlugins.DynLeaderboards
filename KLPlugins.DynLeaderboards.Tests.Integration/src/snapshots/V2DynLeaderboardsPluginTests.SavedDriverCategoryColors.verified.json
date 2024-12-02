@@ -1,18 +1,18 @@
 ﻿{
-    "Bronze": {
-        "Overrides": null,
-        "IsEnabled": true
-    },
-    "Gold": {
-        "Overrides": null,
-        "IsEnabled": true
-    },
-    "Platinum": {
-        "Overrides": null,
-        "IsEnabled": true
-    },
-    "Silver": {
-        "Overrides": null,
-        "IsEnabled": true
-    }
+  "Bronze": {
+    "Overrides": null,
+    "IsEnabled": true
+  },
+  "Gold": {
+    "Overrides": null,
+    "IsEnabled": true
+  },
+  "Platinum": {
+    "Overrides": null,
+    "IsEnabled": true
+  },
+  "Silver": {
+    "Overrides": null,
+    "IsEnabled": true
+  }
 }

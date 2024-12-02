@@ -1,8 +1,8 @@
 ﻿{
-    "Version": 3,
-    "AccDataLocation": "C:Users\\UserName\\Documents\\Assetto Corsa Competizione",
-    "AcRootLocation": null,
-    "Log": false,
-    "BroadcastDataUpdateRateMs": 500,
-    "OutGeneralProps": 0
+  "Version": 3,
+  "AccDataLocation": "C:Users\\UserName\\Documents\\Assetto Corsa Competizione",
+  "AcRootLocation": null,
+  "Log": false,
+  "BroadcastDataUpdateRateMs": 500,
+  "OutGeneralProps": 0
 }

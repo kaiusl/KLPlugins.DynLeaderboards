@@ -1,8 +1,8 @@
 ﻿{
-    "None": {
-        "Overrides": null,
-        "IsColorEnabled": false,
-        "IsReplaceWithEnabled": false,
-        "DuplicatedFrom": []
-    }
+  "None": {
+    "Overrides": null,
+    "IsColorEnabled": false,
+    "IsReplaceWithEnabled": false,
+    "DuplicatedFrom": []
+  }
 }

@@ -1,0 +1,110 @@
+﻿{
+  CurrentLeaderboardCompactName: Overall,
+  CurrentLeaderboardDisplayName: Overall,
+  IsEnabled: true,
+  Name: Dynamic,
+  NextLeaderboardActionName: Dynamic.NextLeaderboard,
+  NumClassPos: 16,
+  NumClassRelativePos: 5,
+  NumCupPos: 16,
+  NumCupRelativePos: 5,
+  NumDrivers: 1,
+  NumOnTrackRelativePos: 5,
+  NumOverallPos: 16,
+  NumOverallRelativePos: 5,
+  Order: [
+    {
+      IsEnabled: true,
+      Kind: OVERALL,
+      RemoveIfSingleClass: false,
+      RemoveIfSingleCup: false
+    },
+    {
+      IsEnabled: true,
+      Kind: CLASS,
+      RemoveIfSingleClass: false,
+      RemoveIfSingleCup: false
+    },
+    {
+      IsEnabled: true,
+      Kind: CUP,
+      RemoveIfSingleClass: false,
+      RemoveIfSingleCup: false
+    },
+    {
+      IsEnabled: true,
+      Kind: PARTIAL_RELATIVE_OVERALL,
+      RemoveIfSingleClass: false,
+      RemoveIfSingleCup: false
+    },
+    {
+      IsEnabled: true,
+      Kind: PARTIAL_RELATIVE_CLASS,
+      RemoveIfSingleClass: false,
+      RemoveIfSingleCup: false
+    },
+    {
+      IsEnabled: true,
+      Kind: PARTIAL_RELATIVE_CUP,
+      RemoveIfSingleClass: false,
+      RemoveIfSingleCup: false
+    },
+    {
+      IsEnabled: true,
+      Kind: RELATIVE_OVERALL,
+      RemoveIfSingleClass: false,
+      RemoveIfSingleCup: false
+    },
+    {
+      IsEnabled: true,
+      Kind: RELATIVE_CLASS,
+      RemoveIfSingleClass: false,
+      RemoveIfSingleCup: false
+    },
+    {
+      IsEnabled: true,
+      Kind: RELATIVE_CUP,
+      RemoveIfSingleClass: false,
+      RemoveIfSingleCup: false
+    },
+    {
+      IsEnabled: true,
+      Kind: RELATIVE_ON_TRACK,
+      RemoveIfSingleClass: false,
+      RemoveIfSingleCup: false
+    },
+    {
+      IsEnabled: true,
+      Kind: RELATIVE_ON_TRACK_WO_PIT,
+      RemoveIfSingleClass: false,
+      RemoveIfSingleCup: false
+    }
+  ],
+  OutCarProps: {
+    Value: CAR_NUMBER, CAR_CLASS, CAR_CLASS_COLOR, TEAM_CUP_CATEGORY_COLOR, TEAM_CUP_CATEGORY_TEXT_COLOR, IS_FINISHED, RELATIVE_ON_TRACK_LAP_DIFF
+  },
+  OutDriverProps: {
+    Value: INITIAL_PLUS_LAST_NAME
+  },
+  OutGapProps: {
+    Value: DYNAMIC_GAP_TO_FOCUSED
+  },
+  OutLapProps: {
+    Value: LAPS, LAST_LAP_TIME, BEST_LAP_TIME, DYNAMIC_BEST_LAP_DELTA_TO_FOCUSED_BEST, DYNAMIC_LAST_LAP_DELTA_TO_FOCUSED_LAST
+  },
+  OutPitProps: {
+    Value: IS_IN_PIT_LANE
+  },
+  OutPosProps: {
+    Value: DYNAMIC_POSITION
+  },
+  OutStintProps: {},
+  PartialRelativeClassNumClassPos: 5,
+  PartialRelativeClassNumRelativePos: 5,
+  PartialRelativeCupNumCupPos: 5,
+  PartialRelativeCupNumRelativePos: 5,
+  PartialRelativeOverallNumOverallPos: 5,
+  PartialRelativeOverallNumRelativePos: 5,
+  PreviousLeaderboardActionName: Dynamic.PreviousLeaderboard,
+  Version: 3
+}

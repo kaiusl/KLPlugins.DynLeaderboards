@@ -126,7 +126,12 @@ public abstract class DynLeaderboardsPluginTestsCore(
         var prevHasThrown = this.HasThrown;
         this.HasThrown = true;
 
-        await Verifier.Verify(DynLeaderboardsPlugin._Settings.DynLeaderboardConfigs);
+        const string THIS_METHOD = nameof(this.DynLeaderboardsConfigs);
+        foreach (var ldb in DynLeaderboardsPlugin._Settings.DynLeaderboardConfigs) {
+            await Verifier
+                .Verify(ldb)
+                .UseMethodName(THIS_METHOD + "_" + ldb.Name);
+        }
 
         this.HasThrown = prevHasThrown;
     }
@@ -201,7 +206,7 @@ public abstract class DynLeaderboardsPluginTestsCore(
     }
 
     [Fact]
-    [Order(300_001)]
+    [Order(310_000)]
     public void SettingsSaved() {
         testOutputHelper.WriteLine((this.RunCount++).ToString());
         var prevHasThrown = this.HasThrown;
@@ -219,6 +224,87 @@ public abstract class DynLeaderboardsPluginTestsCore(
 
         foreach (var ldb in this._ldb.DynLeaderboards) {
             AssertMore.FileExists("PluginsData\\KLPlugins\\DynLeaderboards\\leaderboardConfigs\\" + ldb.Name + ".json");
+        }
+
+        this.HasThrown = prevHasThrown;
+    }
+
+    [Fact]
+    [Order(311_000)]
+    public async Task SavedGeneralSettings() {
+        testOutputHelper.WriteLine((this.RunCount++).ToString());
+        var prevHasThrown = this.HasThrown;
+        this.HasThrown = true;
+
+        await Verifier.VerifyFile("PluginsData\\Common\\DynLeaderboardsPlugin.GeneralSettings.json");
+
+        this.HasThrown = prevHasThrown;
+    }
+
+    [Fact]
+    [Order(311_000)]
+    public async Task SavedCarInfos() {
+        testOutputHelper.WriteLine((this.RunCount++).ToString());
+        var prevHasThrown = this.HasThrown;
+        this.HasThrown = true;
+
+        await Verifier.VerifyFile("PluginsData\\KLPlugins\\DynLeaderboards\\AssettoCorsaCompetizione\\CarInfos.json");
+
+        this.HasThrown = prevHasThrown;
+    }
+
+    [Fact]
+    [Order(311_000)]
+    public async Task SavedClassInfos() {
+        testOutputHelper.WriteLine((this.RunCount++).ToString());
+        var prevHasThrown = this.HasThrown;
+        this.HasThrown = true;
+
+        await Verifier.VerifyFile("PluginsData\\KLPlugins\\DynLeaderboards\\AssettoCorsaCompetizione\\ClassInfos.json");
+
+        this.HasThrown = prevHasThrown;
+    }
+
+    [Fact]
+    [Order(311_000)]
+    public async Task SavedDriverCategoryColors() {
+        testOutputHelper.WriteLine((this.RunCount++).ToString());
+        var prevHasThrown = this.HasThrown;
+        this.HasThrown = true;
+
+        await Verifier.VerifyFile(
+            "PluginsData\\KLPlugins\\DynLeaderboards\\AssettoCorsaCompetizione\\DriverCategoryColors.json"
+        );
+
+        this.HasThrown = prevHasThrown;
+    }
+
+    [Fact]
+    [Order(311_000)]
+    public async Task SavedTeamCupCategoryColors() {
+        testOutputHelper.WriteLine((this.RunCount++).ToString());
+        var prevHasThrown = this.HasThrown;
+        this.HasThrown = true;
+
+        await Verifier.VerifyFile(
+            "PluginsData\\KLPlugins\\DynLeaderboards\\AssettoCorsaCompetizione\\TeamCupCategoryColors.json"
+        );
+
+        this.HasThrown = prevHasThrown;
+    }
+
+    [Fact]
+    [Order(311_000)]
+    public async Task SavedDynLeaderboardConfigs() {
+        testOutputHelper.WriteLine((this.RunCount++).ToString());
+        var prevHasThrown = this.HasThrown;
+        this.HasThrown = true;
+
+        const string THIS_METHOD = nameof(this.SavedDynLeaderboardConfigs);
+        foreach (var ldb in DynLeaderboardsPlugin._Settings.DynLeaderboardConfigs) {
+            await Verifier
+                .VerifyFile("PluginsData\\KLPlugins\\DynLeaderboards\\leaderboardConfigs\\" + ldb.Name + ".json")
+                .UseMethodName(THIS_METHOD + "_" + ldb.Name);
         }
 
         this.HasThrown = prevHasThrown;

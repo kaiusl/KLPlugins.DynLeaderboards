@@ -1,0 +1,63 @@
+﻿{
+    "GT4": {
+        "Overrides": null,
+        "IsColorEnabled": true,
+        "IsReplaceWithEnabled": false,
+        "DuplicatedFrom": []
+    },
+    "ST": {
+        "Overrides": {
+            "Color": {
+                "Fg": "#ffffff",
+                "Bg": "#000000"
+            },
+            "ReplaceWith": null,
+            "ShortName": "ST"
+        },
+        "IsColorEnabled": true,
+        "IsReplaceWithEnabled": false,
+        "DuplicatedFrom": []
+    },
+    "ST18": {
+        "Overrides": null,
+        "IsColorEnabled": false,
+        "IsReplaceWithEnabled": false,
+        "DuplicatedFrom": []
+    },
+    "CUP": {
+        "Overrides": null,
+        "IsColorEnabled": true,
+        "IsReplaceWithEnabled": false,
+        "DuplicatedFrom": []
+    },
+    "CUP18": {
+        "Overrides": null,
+        "IsColorEnabled": true,
+        "IsReplaceWithEnabled": true,
+        "DuplicatedFrom": []
+    },
+    "CUP21": {
+        "Overrides": null,
+        "IsColorEnabled": true,
+        "IsReplaceWithEnabled": true,
+        "DuplicatedFrom": []
+    },
+    "GT2": {
+        "Overrides": null,
+        "IsColorEnabled": false,
+        "IsReplaceWithEnabled": true,
+        "DuplicatedFrom": []
+    },
+    "None": {
+        "Overrides": null,
+        "IsColorEnabled": false,
+        "IsReplaceWithEnabled": false,
+        "DuplicatedFrom": []
+    },
+    "GT3": {
+        "Overrides": null,
+        "IsColorEnabled": false,
+        "IsReplaceWithEnabled": false,
+        "DuplicatedFrom": []
+    }
+}

@@ -361,9 +361,10 @@ internal class SelectedCarDetailsViewModel : INotifyPropertyChanged {
             // ClassInfos.Manager doesn't itself have a property CanBeRemoved, but ClassSettingsTab's SelectedClassViewModels does,
             // and it forwards all property change notifications from ClassInfos.Manager. 
             // Thus, below will trigger an update of SelectedClassViewModels.CanBeRemoved property. 
-            this._settingsControl._ClassesManager.GetOrAdd(oldClass).InvokePropertyChanged("CanBeRemoved");
+            this._settingsControl._ClassesManager.GetOrAdd(oldClass)
+                .InvokePropertyChanged(nameof(SelectedClassViewModel.CanBeRemoved));
             var newClsManager = this._settingsControl._ClassesManager.GetOrAddFollowReplaceWith(cls);
-            newClsManager.InvokePropertyChanged("CanBeRemoved");
+            newClsManager.InvokePropertyChanged(nameof(SelectedClassViewModel.CanBeRemoved));
 
             this.ClassPreviewViewModel = new ClassPreviewViewModel(newClsManager);
         }
@@ -379,7 +380,7 @@ internal class SelectedCarDetailsViewModel : INotifyPropertyChanged {
             }
 
             this._settingsControl._ClassesManager.GetOrAdd(this._info._ClassDontCheckEnabled)
-                .InvokePropertyChanged("CanBeRemoved");
+                .InvokePropertyChanged(nameof(SelectedClassViewModel.CanBeRemoved));
 
             var cls = this._info.Class;
             var newClsManager = this._settingsControl._ClassesManager.GetOrAddFollowReplaceWith(cls);
@@ -466,7 +467,26 @@ internal class SelectedCarDetailsViewModel : INotifyPropertyChanged {
     }
 
     private void OnInfoPropertyChanged(object sender, PropertyChangedEventArgs e) {
-        this.PropertyChanged?.Invoke(this, e);
+        switch (e.PropertyName) {
+            case nameof(OverridableCarInfo.Name):
+                this.InvokePropertyChanged(nameof(this.Name));
+                break;
+            case nameof(OverridableCarInfo.Class):
+                var cls2 = this._info.Class;
+                var clsManager2 = this._settingsControl._ClassesManager.GetOrAddFollowReplaceWith(cls2);
+                this.ClassPreviewViewModel = new ClassPreviewViewModel(clsManager2);
+                this.InvokePropertyChanged(nameof(this.Class));
+                break;
+            case nameof(OverridableCarInfo.Manufacturer):
+                this.InvokePropertyChanged(nameof(this.Manufacturer));
+                break;
+            case nameof(OverridableCarInfo._IsClassEnabled):
+                this.InvokePropertyChanged(nameof(this.IsClassEnabled));
+                break;
+            case nameof(OverridableCarInfo._IsNameEnabled):
+                this.InvokePropertyChanged(nameof(this.IsNameEnabled));
+                break;
+        }
     }
 
     private void InvokePropertyChanged([CallerMemberName] string? propertyName = null) {

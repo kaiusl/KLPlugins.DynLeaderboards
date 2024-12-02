@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Globalization;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Forms;
@@ -313,7 +314,37 @@ internal class SelectedClassViewModel : INotifyPropertyChanged {
     }
 
     private void OnManagerPropertyChanged(object sender, PropertyChangedEventArgs e) {
-        this.PropertyChanged?.Invoke(this, e);
+        switch (e.PropertyName) {
+            case nameof(OverridableClassInfo.Manager._Foreground):
+                this.InvokePropertyChanged(nameof(this.Foreground));
+                break;
+            case nameof(OverridableClassInfo.Manager._Background):
+                this.InvokePropertyChanged(nameof(this.Background));
+                break;
+            case nameof(OverridableClassInfo.Manager._IsColorEnabled):
+                this.InvokePropertyChanged(nameof(this.IsColorEnabled));
+                break;
+            case nameof(OverridableClassInfo.Manager._ShortName):
+                this.InvokePropertyChanged(nameof(this.ShortName));
+                break;
+            case nameof(OverridableClassInfo.Manager._ReplaceWith):
+                this.InvokePropertyChanged(nameof(this.ReplaceWith));
+                break;
+            case nameof(OverridableClassInfo.Manager._IsReplaceWithEnabled):
+                this.InvokePropertyChanged(nameof(this.IsReplaceWithEnabled));
+                break;
+            case nameof(this.CanBeRemoved):
+                this.InvokePropertyChanged(nameof(this.CanBeRemoved));
+                break;
+        }
+    }
+
+    private void InvokePropertyChanged([CallerMemberName] string? propertyName = null) {
+        if (propertyName == null) {
+            return;
+        }
+
+        this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 
     private async void DuplicateClass() {

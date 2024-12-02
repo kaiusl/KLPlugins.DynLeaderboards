@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -306,12 +307,29 @@ internal class ClassPreviewViewModel : INotifyPropertyChanged {
     }
 
     private void OnManagerPropertyChanged(object sender, PropertyChangedEventArgs e) {
-        this.PropertyChanged?.Invoke(this, e); // property names are same, can just forward
+        switch (e.PropertyName) {
+            case nameof(OverridableClassInfo.Manager._Foreground):
+                this.InvokePropertyChanged(nameof(this.Foreground));
+                break;
+            case nameof(OverridableClassInfo.Manager._Background):
+                this.InvokePropertyChanged(nameof(this.Background));
+                break;
+            case nameof(OverridableClassInfo.Manager._IsColorEnabled):
+                this.InvokePropertyChanged(nameof(this.IsColorEnabled));
+                break;
+        }
+    }
+
+    private void InvokePropertyChanged([CallerMemberName] string? propertyName = null) {
+        if (propertyName == null) {
+            return;
+        }
+
+        this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 }
 
 #if DESIGN
-
 internal class DesignClassPreviewViewModel : ClassPreviewViewModel {
     public new string ClassName { get; set; } = "Test";
     public new bool IsColorEnabled { get; set; } = true;

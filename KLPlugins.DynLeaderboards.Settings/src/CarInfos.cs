@@ -68,7 +68,7 @@ public sealed class CarInfos : IEnumerable<KeyValuePair<string, OverridableCarIn
 
     internal void RenameClass(CarClass oldCls, CarClass newCls) {
         foreach (var kv in this._infos) {
-            if (kv.Value.ClassDontCheckEnabled() == oldCls)
+            if (kv.Value._ClassDontCheckEnabled == oldCls)
                 // this happens in two cases:
                 // 1. override was set to old class, just set it to new class
                 // 2. base was set to old class. 
@@ -86,11 +86,11 @@ public sealed class CarInfos : IEnumerable<KeyValuePair<string, OverridableCarIn
     }
 
     internal bool ContainsClassIncludeDisabled(CarClass cls) {
-        return this._infos.Any(kv => kv.Value.ClassDontCheckEnabled() == cls);
+        return this._infos.Any(kv => kv.Value._ClassDontCheckEnabled == cls);
     }
 
     internal bool ContainsClass(CarClass cls) {
-        return this._infos.Any(kv => kv.Value.Class() == cls);
+        return this._infos.Any(kv => kv.Value.Class == cls);
     }
 
     public IEnumerator<KeyValuePair<string, OverridableCarInfo>> GetEnumerator() {
@@ -144,6 +144,10 @@ public sealed class CarInfos : IEnumerable<KeyValuePair<string, OverridableCarIn
 public sealed class OverridableCarInfo : INotifyPropertyChanged {
     public event PropertyChangedEventHandler? PropertyChanged;
 
+    public string? Name => this._IsNameEnabled ? this._NameDontCheckEnabled : null;
+    public string? Manufacturer => this._Overrides?._Manufacturer ?? this._Base?._Manufacturer;
+    public CarClass Class => this._IsClassEnabled ? this._ClassDontCheckEnabled : this._SimHubCarClass;
+
     internal CarInfo? _Base { get; private set; }
 
     [JsonProperty("Overrides")]
@@ -157,6 +161,13 @@ public sealed class OverridableCarInfo : INotifyPropertyChanged {
 
     [JsonProperty("SimHubCarClass")]
     internal CarClass _SimHubCarClass { get; set; } = CarClass.Default;
+
+    internal string? _BaseManufacturer => this._Base?._Manufacturer;
+    internal string? _BaseName => this._Base?._Name;
+    internal string? _NameDontCheckEnabled => this._Overrides?._Name ?? this._Base?._Name;
+    internal CarClass? _BaseClass => this._Base?._Class;
+    internal CarClass _ClassDontCheckEnabled => this._Overrides?._Class ?? this._Base?._Class ?? this._SimHubCarClass;
+
 
     [JsonConstructor]
     internal OverridableCarInfo(
@@ -204,7 +215,7 @@ public sealed class OverridableCarInfo : INotifyPropertyChanged {
     internal void SetBase(CarInfo? @base) {
         this._Base = @base;
 
-        if (this.NameDontCheckEnabled() == null) {
+        if (this._NameDontCheckEnabled == null) {
             this.DisableName();
         }
     }
@@ -212,7 +223,7 @@ public sealed class OverridableCarInfo : INotifyPropertyChanged {
     internal void SetBase(string key, CarInfo? @base) {
         this.SetBase(@base);
 
-        if (this.Manufacturer() == null) {
+        if (this.Manufacturer == null) {
             this.SetManufacturer(key.Split(' ')[0]);
         }
     }
@@ -229,27 +240,11 @@ public sealed class OverridableCarInfo : INotifyPropertyChanged {
         this.ResetManufacturer(key);
     }
 
-    internal string? BaseName() {
-        return this._Base?._Name;
-    }
-
-    public string? Name() {
-        if (!this._IsNameEnabled) {
-            return null;
-        }
-
-        return this._Overrides?._Name ?? this._Base?._Name;
-    }
-
-    internal string? NameDontCheckEnabled() {
-        return this._Overrides?._Name ?? this._Base?._Name;
-    }
-
     internal void SetName(string name) {
         this._Overrides ??= new CarInfo();
         this._Overrides._Name = name;
 
-        this.InvokePropertyChanged(nameof(OverridableCarInfo.Name));
+        this.InvokePropertyChanged(nameof(this.Name));
     }
 
     internal void ResetName() {
@@ -285,19 +280,11 @@ public sealed class OverridableCarInfo : INotifyPropertyChanged {
         this.EnableName();
     }
 
-    internal string? BaseManufacturer() {
-        return this._Base?._Manufacturer;
-    }
-
-    public string? Manufacturer() {
-        return this._Overrides?._Manufacturer ?? this._Base?._Manufacturer;
-    }
-
     internal void SetManufacturer(string manufacturer) {
         this._Overrides ??= new CarInfo();
         this._Overrides._Manufacturer = manufacturer;
 
-        this.InvokePropertyChanged(nameof(OverridableCarInfo.Manufacturer));
+        this.InvokePropertyChanged(nameof(this.Manufacturer));
     }
 
     internal void ResetManufacturer() {
@@ -311,36 +298,20 @@ public sealed class OverridableCarInfo : INotifyPropertyChanged {
     internal void ResetManufacturer(string key) {
         this.ResetManufacturer();
 
-        if (this.Manufacturer() == null)
-            // default is the first word of full name/key
-        {
+        // default is the first word of full name/key
+        if (this.Manufacturer == null) {
             this.SetManufacturer(key.Split(' ')[0]);
         }
-    }
-
-    internal CarClass? BaseClass() {
-        return this._Base?._Class;
-    }
-
-    public CarClass Class() {
-        if (!this._IsClassEnabled) {
-            return this._SimHubCarClass;
-        }
-
-        return this.ClassDontCheckEnabled();
-    }
-
-    internal CarClass ClassDontCheckEnabled() {
-        return this._Overrides?._Class ?? this._Base?._Class ?? this._SimHubCarClass;
     }
 
     internal void SetClass(CarClass cls) {
         this._Overrides ??= new CarInfo();
         this._Overrides._Class = cls;
 
-        this.InvokePropertyChanged(nameof(OverridableCarInfo.Class));
+        this.InvokePropertyChanged();
         this.InvokePropertyChanged(nameof(OverridableCarInfo._IsClassEnabled));
     }
+
 
     internal void ResetClass() {
         if (this._Overrides != null) {
@@ -367,7 +338,7 @@ public sealed class OverridableCarInfo : INotifyPropertyChanged {
         // it must be whatever we are showing at the moment, and it should never change
         if (this._Overrides?._Class == null) {
             this._Overrides ??= new CarInfo();
-            this._Overrides._Class = this.ClassDontCheckEnabled();
+            this._Overrides._Class = this._ClassDontCheckEnabled;
         }
 
         this.InvokePropertyChanged(nameof(OverridableCarInfo.Class));

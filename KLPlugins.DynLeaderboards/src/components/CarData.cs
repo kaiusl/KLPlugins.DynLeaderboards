@@ -327,7 +327,7 @@ namespace KLPlugins.DynLeaderboards.Car {
             this.SetStaticCarInfo(carInfo);
 
             var (cls, classInfo) =
-                DynLeaderboardsPlugin._Settings.Infos.ClassInfos.GetFollowReplaceWith(carInfo?.Class() ?? rawClass);
+                DynLeaderboardsPlugin._Settings.Infos.ClassInfos.GetFollowReplaceWith(carInfo?.Class ?? rawClass);
             this.SetStaticClassInfo(cls, classInfo);
 
             this.CarNumberAsString = this._RawDataNew.CarNumber;
@@ -361,7 +361,7 @@ namespace KLPlugins.DynLeaderboards.Car {
             this.SetStaticCarInfo(carInfo);
 
             var (cls, classInfo) =
-                DynLeaderboardsPlugin._Settings.Infos.ClassInfos.GetFollowReplaceWith(carInfo?.Class() ?? rawClass);
+                DynLeaderboardsPlugin._Settings.Infos.ClassInfos.GetFollowReplaceWith(carInfo?.Class ?? rawClass);
             this.SetStaticClassInfo(cls, classInfo);
         }
 
@@ -377,31 +377,31 @@ namespace KLPlugins.DynLeaderboards.Car {
             }
 
             var (cls, classInfo) =
-                DynLeaderboardsPlugin._Settings.Infos.ClassInfos.GetFollowReplaceWith(carInfo?.Class() ?? rawClass);
+                DynLeaderboardsPlugin._Settings.Infos.ClassInfos.GetFollowReplaceWith(carInfo?.Class ?? rawClass);
             this.SetStaticClassInfo(cls, classInfo);
         }
 
         private void SetStaticCarInfo(OverridableCarInfo? carInfo) {
-            this.CarModel = carInfo?.Name() ?? this._RawDataNew.CarName ?? "Unknown";
-            this.CarManufacturer = carInfo?.Manufacturer() ?? CarData.GetCarManufacturer(this.CarModel);
+            this.CarModel = carInfo?.Name ?? this._RawDataNew.CarName ?? "Unknown";
+            this.CarManufacturer = carInfo?.Manufacturer ?? CarData.GetCarManufacturer(this.CarModel);
         }
 
 
         private void SetStaticClassInfo(CarClass cls, OverridableClassInfo classInfo) {
             this.CarClass = cls;
-            this.CarClassShortName = classInfo.ShortName() ?? cls.AsString();
+            this.CarClassShortName = classInfo.ShortName ?? cls.AsString();
 
             this.CarClassColor = new TextBoxColor(
-                fg: classInfo.Foreground() ?? this._RawDataNew.CarClassTextColor ?? TextBoxColor.DEF_FG,
-                bg: classInfo.Background() ?? this._RawDataNew.CarClassColor ?? TextBoxColor.DEF_BG
+                fg: classInfo.Foreground ?? this._RawDataNew.CarClassTextColor ?? TextBoxColor.DEF_FG,
+                bg: classInfo.Background ?? this._RawDataNew.CarClassColor ?? TextBoxColor.DEF_BG
             );
         }
 
         private void SetTeamCupColors(Values values) {
             var cupColor = DynLeaderboardsPlugin._Settings.Infos.TeamCupCategoryColors.GetOrAdd(this.TeamCupCategory);
             this.TeamCupCategoryColor = new TextBoxColor(
-                fg: cupColor.Foreground() ?? TextBoxColor.DEF_FG,
-                bg: cupColor.Background() ?? TextBoxColor.DEF_BG
+                fg: cupColor.Foreground ?? TextBoxColor.DEF_FG,
+                bg: cupColor.Background ?? TextBoxColor.DEF_BG
             );
         }
 
@@ -1661,8 +1661,8 @@ namespace KLPlugins.DynLeaderboards.Car {
 
             var col = DynLeaderboardsPlugin._Settings.Infos.DriverCategoryColors.GetOrAdd(this.Category);
             this.CategoryColor = new TextBoxColor(
-                fg: col.Foreground() ?? TextBoxColor.DEF_FG,
-                bg: col.Background() ?? TextBoxColor.DEF_BG
+                fg: col.Foreground ?? TextBoxColor.DEF_FG,
+                bg: col.Background ?? TextBoxColor.DEF_BG
             );
         }
 
@@ -1679,16 +1679,16 @@ namespace KLPlugins.DynLeaderboards.Car {
 
             var col = DynLeaderboardsPlugin._Settings.Infos.DriverCategoryColors.GetOrAdd(this.Category);
             this.CategoryColor = new TextBoxColor(
-                fg: col.Foreground() ?? TextBoxColor.DEF_FG,
-                bg: col.Background() ?? TextBoxColor.DEF_BG
+                fg: col.Foreground ?? TextBoxColor.DEF_FG,
+                bg: col.Background ?? TextBoxColor.DEF_BG
             );
         }
 
         internal void UpdateDriverInfos(Values values) {
             var col = DynLeaderboardsPlugin._Settings.Infos.DriverCategoryColors.GetOrAdd(this.Category);
             this.CategoryColor = new TextBoxColor(
-                fg: col.Foreground() ?? TextBoxColor.DEF_FG,
-                bg: col.Background() ?? TextBoxColor.DEF_BG
+                fg: col.Foreground ?? TextBoxColor.DEF_FG,
+                bg: col.Background ?? TextBoxColor.DEF_BG
             );
         }
 

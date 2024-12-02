@@ -87,13 +87,19 @@ internal class TextBoxColorsFailJsonConverter : FailJsonConverter {
 
 [JsonObject(MemberSerialization.OptIn)]
 public sealed class OverridableTextBoxColor {
-    private TextBoxColor? _base;
+    public string? Foreground => this.IsEnabled ? this._ForegroundDontCheckEnabled : null;
+    public string? Background => this.IsEnabled ? this._BackgroundDontCheckEnabled : null;
+    [JsonProperty("IsEnabled", Required = Required.Always)]
+    public bool IsEnabled { get; private set; } = true;
 
+    private TextBoxColor? _base;
     [JsonProperty("Overrides")]
     private TextBoxColor? _overrides;
 
-    [JsonProperty("IsEnabled", Required = Required.Always)]
-    public bool IsEnabled { get; private set; } = true;
+    internal string? _ForegroundDontCheckEnabled => this._overrides?.Fg ?? this._base?.Fg;
+    internal string? _BaseForeground => this._base?.Fg;
+    internal string? _BackgroundDontCheckEnabled => this._overrides?.Bg ?? this._base?.Bg;
+    internal string? _BaseBackground => this._base?.Bg;
 
     internal OverridableTextBoxColor(TextBoxColor @base) {
         this._base = @base;
@@ -108,7 +114,7 @@ public sealed class OverridableTextBoxColor {
     internal void SetBase(TextBoxColor? @base) {
         this._base = @base;
 
-        if (this.ForegroundDontCheckEnabled() == null || this.BackgroundDontCheckEnabled() == null) {
+        if (this._ForegroundDontCheckEnabled == null || this._BackgroundDontCheckEnabled == null) {
             this.Disable();
         }
     }
@@ -135,21 +141,6 @@ public sealed class OverridableTextBoxColor {
         this.IsEnabled = false;
     }
 
-    public string? Foreground() {
-        if (!this.IsEnabled) {
-            return null;
-        }
-
-        return this.ForegroundDontCheckEnabled();
-    }
-
-    internal string? ForegroundDontCheckEnabled() {
-        return this._overrides?.Fg ?? this._base?.Fg;
-    }
-
-    internal string? BaseForeground() {
-        return this._base?.Fg;
-    }
 
     internal void SetForeground(string fg) {
         if (this._overrides == null) {
@@ -159,21 +150,6 @@ public sealed class OverridableTextBoxColor {
         }
     }
 
-    public string? Background() {
-        if (!this.IsEnabled) {
-            return null;
-        }
-
-        return this.BackgroundDontCheckEnabled();
-    }
-
-    internal string? BackgroundDontCheckEnabled() {
-        return this._overrides?.Bg ?? this._base?.Bg;
-    }
-
-    internal string? BaseBackground() {
-        return this._base?.Bg;
-    }
 
     internal void SetBackground(string bg) {
         if (this._overrides == null) {

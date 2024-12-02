@@ -201,7 +201,7 @@ public sealed class DynLeaderboardsPlugin : IDataPlugin, IWPFSettingsV2 {
                 var value = kv.Value;
                 this.AttachDelegate<string>(
                     OutGeneralProp.CAR_CLASS_COLORS.ToPropName().Replace("<class>", kv.Key.AsString()),
-                    () => value.Background() ?? TextBoxColor.DEF_BG
+                    () => value.Background ?? TextBoxColor.DEF_BG
                 );
             }
         }
@@ -211,7 +211,7 @@ public sealed class DynLeaderboardsPlugin : IDataPlugin, IWPFSettingsV2 {
                 var value = kv.Value;
                 this.AttachDelegate<string>(
                     OutGeneralProp.CAR_CLASS_TEXT_COLORS.ToPropName().Replace("<class>", kv.Key.AsString()),
-                    () => value.Foreground() ?? TextBoxColor.DEF_FG
+                    () => value.Foreground ?? TextBoxColor.DEF_FG
                 );
             }
         }
@@ -221,7 +221,7 @@ public sealed class DynLeaderboardsPlugin : IDataPlugin, IWPFSettingsV2 {
                 var value = kv.Value;
                 this.AttachDelegate<string>(
                     OutGeneralProp.TEAM_CUP_COLORS.ToPropName().Replace("<cup>", kv.Key.AsString()),
-                    () => value.Background() ?? TextBoxColor.DEF_BG
+                    () => value.Background ?? TextBoxColor.DEF_BG
                 );
             }
         }
@@ -231,7 +231,7 @@ public sealed class DynLeaderboardsPlugin : IDataPlugin, IWPFSettingsV2 {
                 var value = kv.Value;
                 this.AttachDelegate<string>(
                     OutGeneralProp.TEAM_CUP_TEXT_COLORS.ToPropName().Replace("<cup>", kv.Key.AsString()),
-                    () => value.Foreground() ?? TextBoxColor.DEF_FG
+                    () => value.Foreground ?? TextBoxColor.DEF_FG
                 );
             }
         }
@@ -241,7 +241,7 @@ public sealed class DynLeaderboardsPlugin : IDataPlugin, IWPFSettingsV2 {
                 var value = kv.Value;
                 this.AttachDelegate<string>(
                     OutGeneralProp.DRIVER_CATEGORY_COLORS.ToPropName().Replace("<category>", kv.Key.AsString()),
-                    () => value.Background() ?? TextBoxColor.DEF_BG
+                    () => value.Background ?? TextBoxColor.DEF_BG
                 );
             }
         }
@@ -251,7 +251,7 @@ public sealed class DynLeaderboardsPlugin : IDataPlugin, IWPFSettingsV2 {
                 var value = kv.Value;
                 this.AttachDelegate<string>(
                     OutGeneralProp.DRIVER_CATEGORY_TEXT_COLORS.ToPropName().Replace("<category>", kv.Key.AsString()),
-                    () => value.Foreground() ?? TextBoxColor.DEF_FG
+                    () => value.Foreground ?? TextBoxColor.DEF_FG
                 );
             }
         }

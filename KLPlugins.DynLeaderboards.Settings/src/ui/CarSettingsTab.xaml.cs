@@ -273,7 +273,7 @@ internal class CarSettingsTabViewModel : INotifyPropertyChanged {
 
 internal class CarsListBoxItemViewModel : INotifyPropertyChanged {
     public event PropertyChangedEventHandler? PropertyChanged;
-    public string Name => this._Info.Name() ?? this._Key;
+    public string Name => this._Info.Name ?? this._Key;
     public string Id => this._Key;
 
     internal readonly string _Key;
@@ -321,7 +321,7 @@ internal class SelectedCarDetailsViewModel : INotifyPropertyChanged {
     }
 
     public string Name {
-        get => this._info.Name() ?? this.Id;
+        get => this._info.Name ?? this.Id;
         set => this._info.SetName(value);
     }
 
@@ -339,7 +339,7 @@ internal class SelectedCarDetailsViewModel : INotifyPropertyChanged {
     }
 
     public string Manufacturer {
-        get => this._info.Manufacturer() ?? "";
+        get => this._info.Manufacturer ?? "";
         set {
             this._info.SetManufacturer(value);
             this._settingsControl.TryAddCarManufacturer(value);
@@ -347,9 +347,9 @@ internal class SelectedCarDetailsViewModel : INotifyPropertyChanged {
     }
 
     public string Class {
-        get => this._info.Class().AsString();
+        get => this._info.Class.AsString();
         set {
-            var oldClass = this._info.Class();
+            var oldClass = this._info.Class;
             var cls = new CarClass(value);
             this._info.SetClass(cls);
             this._settingsControl.TryAddCarClass(cls);
@@ -378,10 +378,10 @@ internal class SelectedCarDetailsViewModel : INotifyPropertyChanged {
                 this._info.DisableClass();
             }
 
-            this._settingsControl._ClassesManager.GetOrAdd(this._info.ClassDontCheckEnabled())
+            this._settingsControl._ClassesManager.GetOrAdd(this._info._ClassDontCheckEnabled)
                 .InvokePropertyChanged("CanBeRemoved");
 
-            var cls = this._info.Class();
+            var cls = this._info.Class;
             var newClsManager = this._settingsControl._ClassesManager.GetOrAddFollowReplaceWith(cls);
             this.ClassPreviewViewModel = new ClassPreviewViewModel(newClsManager);
         }
@@ -408,7 +408,7 @@ internal class SelectedCarDetailsViewModel : INotifyPropertyChanged {
         this.Id = key;
         this._info = info;
         this._settingsControl = settingsControl;
-        var cls = info.Class();
+        var cls = info.Class;
         var clsManager = settingsControl._ClassesManager.GetOrAddFollowReplaceWith(cls);
         this.ClassPreviewViewModel = new ClassPreviewViewModel(clsManager);
 
@@ -432,7 +432,7 @@ internal class SelectedCarDetailsViewModel : INotifyPropertyChanged {
         this.ResetClassCommand = new Command(
             () => {
                 this._info.ResetClass();
-                var cls2 = this._info.Class();
+                var cls2 = this._info.Class;
                 var clsManager2 = settingsControl._ClassesManager.GetOrAddFollowReplaceWith(cls2);
                 this.ClassPreviewViewModel = new ClassPreviewViewModel(clsManager2);
             }

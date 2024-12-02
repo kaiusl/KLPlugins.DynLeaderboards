@@ -41,7 +41,7 @@ public sealed class ClassInfos : IEnumerable<KeyValuePair<CarClass, OverridableC
     public (CarClass, OverridableClassInfo) GetFollowReplaceWith(CarClass cls) {
         var clsOut = cls;
         var info = this.GetOrAdd(cls);
-        var nextCls = info.ReplaceWith();
+        var nextCls = info.ReplaceWith;
 
         var seenClasses = new List<CarClass> { cls };
 
@@ -58,7 +58,7 @@ public sealed class ClassInfos : IEnumerable<KeyValuePair<CarClass, OverridableC
 
             seenClasses.Add(clsOut);
 
-            nextCls = info.ReplaceWith();
+            nextCls = info.ReplaceWith;
         }
 
         return (clsOut, info);
@@ -140,12 +140,12 @@ public sealed class ClassInfos : IEnumerable<KeyValuePair<CarClass, OverridableC
         // Make sure that all "replace with" values are also in the dict
         foreach (var key in c._infos.Keys.ToList()) {
             var it = c.GetOrAdd(key);
-            if (it.ReplaceWithDontCheckEnabled() != null) {
-                var _ = c.GetOrAdd(it.ReplaceWithDontCheckEnabled()!.Value);
+            if (it._ReplaceWithDontCheckEnabled != null) {
+                var _ = c.GetOrAdd(it._ReplaceWithDontCheckEnabled!.Value);
             }
 
-            if (it.BaseReplaceWith() != null) {
-                var _ = c.GetOrAdd(it.BaseReplaceWith()!.Value);
+            if (it._BaseReplaceWith != null) {
+                var _ = c.GetOrAdd(it._BaseReplaceWith!.Value);
             }
 
             if (it._Base == null) {
@@ -248,7 +248,7 @@ public sealed class ClassInfos : IEnumerable<KeyValuePair<CarClass, OverridableC
         internal OverridableClassInfo.Manager GetOrAddFollowReplaceWith(CarClass cls) {
             var clsOut = cls;
             var manager = this.GetOrAdd(cls);
-            var nextCls = manager._Info.ReplaceWith(); // don't use manager.ReplaceWith, it defaults to default class
+            var nextCls = manager._Info.ReplaceWith; // don't use manager.ReplaceWith, it defaults to default class
 
             var seenClasses = new List<CarClass> { cls };
 
@@ -265,7 +265,7 @@ public sealed class ClassInfos : IEnumerable<KeyValuePair<CarClass, OverridableC
 
                 seenClasses.Add(clsOut);
 
-                nextCls = manager._Info.ReplaceWith();
+                nextCls = manager._Info.ReplaceWith;
             }
 
             return manager;
@@ -348,6 +348,11 @@ public sealed class ClassInfos : IEnumerable<KeyValuePair<CarClass, OverridableC
 
 [JsonObject(MemberSerialization.OptIn)]
 public sealed class OverridableClassInfo {
+    public string? Foreground => this._IsColorEnabled ? this._ForegroundDontCheckEnabled : this._SimHubColor?.Fg;
+    public string? Background => this._IsColorEnabled ? this._BackgroundDontCheckEnabled : this._SimHubColor?.Bg;
+    public CarClass? ReplaceWith => this._IsReplaceWithEnabled ? this._ReplaceWithDontCheckEnabled : null;
+    public string? ShortName => this._Overrides?._ShortName ?? this._Base?._ShortName;
+
     internal ClassInfo? _Base { get; private set; }
 
     // If a class had been duplicated from it can have a "false" base from its parent. 
@@ -370,6 +375,17 @@ public sealed class OverridableClassInfo {
     internal ImmutableList<CarClass> _DuplicatedFrom { get; private set; }
 
     internal TextBoxColor? _SimHubColor { get; set; } = null;
+
+
+    internal string? _ForegroundDontCheckEnabled =>
+        this._Overrides?._Color?.Fg ?? this._Base?._Color?.Fg ?? this._SimHubColor?.Fg;
+    internal string? _BaseForeground => this._Base?._Color?.Fg;
+    internal string? _BackgroundDontCheckEnabled =>
+        this._Overrides?._Color?.Bg ?? this._Base?._Color?.Bg ?? this._SimHubColor?.Bg;
+    internal string? _BaseBackground => this._Base?._Color?.Bg;
+    internal CarClass? _BaseReplaceWith => this._Base?._ReplaceWith;
+    internal CarClass? _ReplaceWithDontCheckEnabled => this._Overrides?._ReplaceWith ?? this._Base?._ReplaceWith;
+    internal string? _BaseShortName => this._Base?._ShortName;
 
 
     [JsonConstructor]
@@ -419,13 +435,13 @@ public sealed class OverridableClassInfo {
         // check enabled properties. New base may have missing properties.
         // Make sure not to enable these as they may have been explicitly disabled before.
         // It's ok to disable.
-        if (this.ReplaceWithDontCheckEnabled() == null)
+        if (this._ReplaceWithDontCheckEnabled == null)
             // replace with cannot be enabled if there is no replace with set
         {
             this._IsReplaceWithEnabled = false;
         }
 
-        if (this.ForegroundDontCheckEnabled() == null || this.BackgroundDontCheckEnabled() == null) {
+        if (this._ForegroundDontCheckEnabled == null || this._BackgroundDontCheckEnabled == null) {
             this._IsColorEnabled = false;
         }
     }
@@ -433,62 +449,6 @@ public sealed class OverridableClassInfo {
     internal void SetRealBase(ClassInfo? @base) {
         this.SetBase(@base);
         this._HasRealBase = true;
-    }
-
-    public string? Foreground() {
-        if (!this._IsColorEnabled) {
-            return this._SimHubColor?.Fg;
-        }
-
-        return this.ForegroundDontCheckEnabled();
-    }
-
-    internal string? ForegroundDontCheckEnabled() {
-        return this._Overrides?._Color?.Fg ?? this._Base?._Color?.Fg ?? this._SimHubColor?.Fg;
-    }
-
-    internal string? BaseForeground() {
-        return this._Base?._Color?.Fg;
-    }
-
-    public string? Background() {
-        if (!this._IsColorEnabled) {
-            return this._SimHubColor?.Bg;
-        }
-
-        return this.BackgroundDontCheckEnabled();
-    }
-
-    internal string? BackgroundDontCheckEnabled() {
-        return this._Overrides?._Color?.Bg ?? this._Base?._Color?.Bg ?? this._SimHubColor?.Bg;
-    }
-
-    internal string? BaseBackground() {
-        return this._Base?._Color?.Bg;
-    }
-
-    internal CarClass? BaseReplaceWith() {
-        return this._Base?._ReplaceWith;
-    }
-
-    public CarClass? ReplaceWith() {
-        if (!this._IsReplaceWithEnabled) {
-            return null;
-        }
-
-        return this.ReplaceWithDontCheckEnabled();
-    }
-
-    internal CarClass? ReplaceWithDontCheckEnabled() {
-        return this._Overrides?._ReplaceWith ?? this._Base?._ReplaceWith;
-    }
-
-    internal string? BaseShortName() {
-        return this._Base?._ShortName;
-    }
-
-    public string? ShortName() {
-        return this._Overrides?._ShortName ?? this._Base?._ShortName;
     }
 
     /// <summary>
@@ -521,7 +481,7 @@ public sealed class OverridableClassInfo {
         }
 
         internal string? _Background {
-            get => this._Info.Background();
+            get => this._Info.Background;
             set {
                 this._Info._Overrides ??= new ClassInfo();
                 if (value == null) {
@@ -537,7 +497,7 @@ public sealed class OverridableClassInfo {
         }
 
         internal string? _Foreground {
-            get => this._Info.Foreground();
+            get => this._Info.Foreground;
             set {
                 this._Info._Overrides ??= new ClassInfo();
                 if (value == null) {
@@ -588,7 +548,7 @@ public sealed class OverridableClassInfo {
         }
 
         internal string _ShortName {
-            get => this._Info.ShortName() ?? this._Key.AsString();
+            get => this._Info.ShortName ?? this._Key.AsString();
             set {
                 this._Info._Overrides ??= new ClassInfo();
                 this._Info._Overrides._ShortName = value;
@@ -605,7 +565,7 @@ public sealed class OverridableClassInfo {
         }
 
         internal CarClass? _ReplaceWith {
-            get => this._Info.ReplaceWith();
+            get => this._Info.ReplaceWith;
             set {
                 this._Info._Overrides ??= new ClassInfo();
                 this._Info._Overrides._ReplaceWith = value;
@@ -623,7 +583,7 @@ public sealed class OverridableClassInfo {
                     if (this._Info._Overrides?._ReplaceWith == null) {
                         this._Info._Overrides ??= new ClassInfo();
                         this._Info._Overrides._ReplaceWith =
-                            this._Info.ReplaceWithDontCheckEnabled() ?? CarClass.Default;
+                            this._Info._ReplaceWithDontCheckEnabled ?? CarClass.Default;
                     }
                 }
 

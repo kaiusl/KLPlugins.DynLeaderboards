@@ -198,17 +198,17 @@ public partial class SettingsControl : UserControl {
         // Go through all cars and check for class colors. 
         // If there are new classes then trying to Values.CarClassColors.Get will add them to the dictionary.
         foreach (var c in this._Settings.Infos.CarInfos) {
-            CarClass?[] classes = [c.Value.ClassDontCheckEnabled(), c.Value.BaseClass()];
+            CarClass?[] classes = [c.Value._ClassDontCheckEnabled, c.Value._BaseClass];
             foreach (var cls in classes) {
                 if (cls != null) {
                     var info = this._Settings.Infos.ClassInfos.GetOrAdd(cls.Value);
-                    if (info.ReplaceWithDontCheckEnabled() != null) {
-                        var _ = this._Settings.Infos.ClassInfos.GetOrAdd(info.ReplaceWithDontCheckEnabled()!.Value);
+                    if (info._ReplaceWithDontCheckEnabled != null) {
+                        var _ = this._Settings.Infos.ClassInfos.GetOrAdd(info._ReplaceWithDontCheckEnabled!.Value);
                     }
                 }
             }
 
-            string?[] manufacturers = [c.Value.Manufacturer(), c.Value.BaseManufacturer()];
+            string?[] manufacturers = [c.Value.Manufacturer, c.Value._BaseManufacturer];
             foreach (var manufacturer in manufacturers) {
                 if (manufacturer != null) {
                     this.TryAddCarManufacturer(manufacturer);

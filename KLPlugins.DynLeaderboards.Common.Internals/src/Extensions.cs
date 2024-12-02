@@ -109,6 +109,19 @@ internal static class DictExtensions {
             dict[kv.Key] = kv.Value;
         }
     }
+
+    public static KeyValuePair<K2, V2> Map<K, V, K2, V2>(this KeyValuePair<K, V> kv, Func<K, V, (K2, V2)> mapper) {
+        var (k2, v2) = mapper(kv.Key, kv.Value);
+        return new KeyValuePair<K2, V2>(k2, v2);
+    }
+
+    public static KeyValuePair<K, V2> MapValue<K, V, V2>(this KeyValuePair<K, V> kv, Func<V, V2> mapper) {
+        return new KeyValuePair<K, V2>(kv.Key, mapper(kv.Value));
+    }
+
+    public static KeyValuePair<K2, V> MapKey<K, V, K2>(this KeyValuePair<K, V> kv, Func<K, K2> mapper) {
+        return new KeyValuePair<K2, V>(mapper(kv.Key), kv.Value);
+    }
 }
 
 internal static class ColorTools {

@@ -1,0 +1,23 @@
+﻿[
+  {
+    Am: {
+      Background: #E80000,
+      Foreground: #000000,
+      IsEnabled: true
+    }
+  },
+  {
+    National: {
+      Background: #008F4B,
+      Foreground: #FFFFFF,
+      IsEnabled: true
+    }
+  },
+  {
+    Overall: {
+      Background: #FFFFFF,
+      Foreground: #000000,
+      IsEnabled: true
+    }
+  }
+]

@@ -1,0 +1,51 @@
+﻿[
+  {
+    GT4: {
+      Background: #262660,
+      Foreground: #ffffff
+    }
+  },
+  {
+    ST: {
+      Background: #000000,
+      Foreground: #ffffff,
+      ShortName: ST
+    }
+  },
+  {
+    ST18: {}
+  },
+  {
+    CUP: {
+      Background: #457C45,
+      Foreground: #ffffff
+    }
+  },
+  {
+    CUP18: {
+      Background: #ff0000,
+      Foreground: #ffffff,
+      ReplaceWith: CUP
+    }
+  },
+  {
+    CUP21: {
+      Background: #284c28,
+      Foreground: #ffffff,
+      ReplaceWith: CUP18
+    }
+  },
+  {
+    GT2: {
+      ReplaceWith: GT3
+    }
+  },
+  {
+    None: {
+      ShortName: -
+    }
+  },
+  {
+    GT3: {}
+  }
+]

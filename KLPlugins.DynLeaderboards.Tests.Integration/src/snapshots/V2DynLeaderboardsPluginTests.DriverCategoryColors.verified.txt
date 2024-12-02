@@ -1,0 +1,30 @@
+﻿[
+  {
+    Bronze: {
+      Background: #CD7F32,
+      Foreground: #000000,
+      IsEnabled: true
+    }
+  },
+  {
+    Gold: {
+      Background: #FFD700,
+      Foreground: #000000,
+      IsEnabled: true
+    }
+  },
+  {
+    Platinum: {
+      Background: #FFFFFF,
+      Foreground: #000000,
+      IsEnabled: true
+    }
+  },
+  {
+    Silver: {
+      Background: #A5A5A5,
+      Foreground: #000000,
+      IsEnabled: true
+    }
+  }
+]

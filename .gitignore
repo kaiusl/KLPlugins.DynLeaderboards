@@ -404,3 +404,7 @@ FodyWeavers.xsd
 /docs/site
 
 *.kra
+
+# Verify temp files
+*.received.*
+*.received/

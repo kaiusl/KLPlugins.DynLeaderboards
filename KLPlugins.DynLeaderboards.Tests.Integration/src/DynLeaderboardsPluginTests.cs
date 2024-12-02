@@ -1,15 +1,16 @@
 using System;
 using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
 
 using JetBrains.Annotations;
 
 using KLPlugins.DynLeaderboards.Common;
+using KLPlugins.DynLeaderboards.Settings;
 using KLPlugins.DynLeaderboards.Tests.Helpers;
 
 using Xunit;
 using Xunit.Abstractions;
-
-using Assert = KLPlugins.DynLeaderboards.Tests.Helpers.XunitExtensions.Assert;
 
 // ReSharper disable ClassNeverInstantiated.Global
 
@@ -18,6 +19,7 @@ namespace KLPlugins.DynLeaderboards.Tests.Integration.Settings;
 public interface IDynLeaderboardFixture {
     DynLeaderboardsPlugin Ldb { get; }
     bool HasThrown { get; set; }
+    int RunCount { get; set; }
 }
 
 public abstract class DynLeaderboardFixtureBase : IDisposable, IDynLeaderboardFixture {
@@ -27,6 +29,8 @@ public abstract class DynLeaderboardFixtureBase : IDisposable, IDynLeaderboardFi
     private readonly string _oldWorkingDir;
     internal string _TmpDir { get; }
 
+    public int RunCount { get; set; } = 0;
+
     public DynLeaderboardFixtureBase(string tmpDir, string? srcDir = null) {
         this._TmpDir = tmpDir;
 
@@ -35,7 +39,6 @@ public abstract class DynLeaderboardFixtureBase : IDisposable, IDynLeaderboardFi
         }
 
         Directory.CreateDirectory(this._TmpDir);
-        var cwd = Directory.GetCurrentDirectory();
         DirTools.CopyDirectory(".\\..\\..\\MockSimhubDirs\\SimHubBase", this._TmpDir);
         if (srcDir != null) {
             DirTools.CopyDirectory(srcDir, this._TmpDir);
@@ -66,7 +69,10 @@ public abstract class DynLeaderboardsPluginTestsCore(
     IDynLeaderboardFixture fixture,
     ITestOutputHelper testOutputHelper
 ) {
-    protected static int RunCount = 0;
+    protected int RunCount {
+        get => fixture.RunCount;
+        set => fixture.RunCount = value;
+    }
     protected bool HasThrown {
         get => fixture.HasThrown;
         set => fixture.HasThrown = value;
@@ -78,37 +84,114 @@ public abstract class DynLeaderboardsPluginTestsCore(
     [Fact]
     [Order(100_000)]
     public void Init() {
+        testOutputHelper.WriteLine((this.RunCount++).ToString());
         var prevHasThrown = this.HasThrown;
         this.HasThrown = true;
 
-        // Assert.Equal(0, CleanInstallTests._runCount);
-        testOutputHelper.WriteLine((DynLeaderboardsPluginTestsCore.RunCount++).ToString());
-        //
         this._ldb.InitCore(Game.ACC_NAME);
 
         this.HasThrown = prevHasThrown;
     }
 
     [Fact]
-    [Order(100_001)]
+    [Order(110_000)]
     public void CheckDirs() {
-        testOutputHelper.WriteLine((DynLeaderboardsPluginTestsCore.RunCount++).ToString());
+        testOutputHelper.WriteLine((this.RunCount++).ToString());
         var prevHasThrown = this.HasThrown;
         this.HasThrown = true;
 
-        Assert.DirectoryExists("PluginsData\\KLPlugins\\DynLeaderboards\\leaderboardConfigs\\b");
-        Assert.DirectoryExists("PluginsData\\KLPlugins\\DynLeaderboards\\AssettoCorsaCompetizione\\laps_data");
-        Assert.DirectoryExists("PluginsData\\KLPlugins\\DynLeaderboards\\Logs");
+        AssertMore.DirectoryExists("PluginsData\\KLPlugins\\DynLeaderboards\\leaderboardConfigs\\b");
+        AssertMore.DirectoryExists("PluginsData\\KLPlugins\\DynLeaderboards\\AssettoCorsaCompetizione\\laps_data");
+        AssertMore.DirectoryExists("PluginsData\\KLPlugins\\DynLeaderboards\\Logs");
 
         this.HasThrown = prevHasThrown;
     }
+
+    [Fact]
+    [Order(110_000)]
+    public async Task GeneralSettings() {
+        testOutputHelper.WriteLine((this.RunCount++).ToString());
+        var prevHasThrown = this.HasThrown;
+        this.HasThrown = true;
+
+        await Verifier.Verify(new TestPluginSettings(DynLeaderboardsPlugin._Settings));
+
+        this.HasThrown = prevHasThrown;
+    }
+
+    [Fact]
+    [Order(110_000)]
+    public async Task DynLeaderboardsConfigs() {
+        testOutputHelper.WriteLine((this.RunCount++).ToString());
+        var prevHasThrown = this.HasThrown;
+        this.HasThrown = true;
+
+        await Verifier.Verify(DynLeaderboardsPlugin._Settings.DynLeaderboardConfigs);
+
+        this.HasThrown = prevHasThrown;
+    }
+
+    [Fact]
+    [Order(110_000)]
+    public async Task CarInfos() {
+        testOutputHelper.WriteLine((this.RunCount++).ToString());
+        var prevHasThrown = this.HasThrown;
+        this.HasThrown = true;
+
+        await Verifier.Verify(DynLeaderboardsPlugin._Settings.Infos.CarInfos);
+
+        this.HasThrown = prevHasThrown;
+    }
+
+    [Fact]
+    [Order(110_000)]
+    public async Task ClassInfos() {
+        testOutputHelper.WriteLine((this.RunCount++).ToString());
+        var prevHasThrown = this.HasThrown;
+        this.HasThrown = true;
+
+        await Verifier.Verify(
+            DynLeaderboardsPlugin._Settings.Infos.ClassInfos.Select(c => c.MapKey(k => k.AsString()))
+        );
+
+        this.HasThrown = prevHasThrown;
+    }
+
+    [Fact]
+    [Order(110_000)]
+    public async Task TeamCupCategoryColors() {
+        testOutputHelper.WriteLine((this.RunCount++).ToString());
+        var prevHasThrown = this.HasThrown;
+        this.HasThrown = true;
+
+        await Verifier.Verify(
+            DynLeaderboardsPlugin._Settings.Infos.TeamCupCategoryColors.Select(c => c.MapKey(k => k.AsString()))
+        );
+
+        this.HasThrown = prevHasThrown;
+    }
+
+    [Fact]
+    [Order(110_000)]
+    public async Task DriverCategoryColors() {
+        testOutputHelper.WriteLine((this.RunCount++).ToString());
+        var prevHasThrown = this.HasThrown;
+        this.HasThrown = true;
+
+        await Verifier.Verify(
+            DynLeaderboardsPlugin._Settings.Infos.DriverCategoryColors.Select(c => c.MapKey(k => k.AsString()))
+        );
+
+        this.HasThrown = prevHasThrown;
+    }
+
 
     // subclass tests after 200_000
 
     [Fact]
     [Order(300_000)]
     public void End() {
-        testOutputHelper.WriteLine((DynLeaderboardsPluginTestsCore.RunCount++).ToString());
+        testOutputHelper.WriteLine((this.RunCount++).ToString());
         var prevHasThrown = this.HasThrown;
         this.HasThrown = true;
 
@@ -120,28 +203,36 @@ public abstract class DynLeaderboardsPluginTestsCore(
     [Fact]
     [Order(300_001)]
     public void SettingsSaved() {
-        testOutputHelper.WriteLine((DynLeaderboardsPluginTestsCore.RunCount++).ToString());
+        testOutputHelper.WriteLine((this.RunCount++).ToString());
         var prevHasThrown = this.HasThrown;
         this.HasThrown = true;
 
-        Assert.FileExists("PluginsData\\Common\\DynLeaderboardsPlugin.GeneralSettings.json");
-        Assert.FileExists("PluginsData\\KLPlugins\\DynLeaderboards\\AssettoCorsaCompetizione\\CarInfos.json");
-        Assert.FileExists("PluginsData\\KLPlugins\\DynLeaderboards\\AssettoCorsaCompetizione\\ClassInfos.json");
-        Assert.FileExists(
+        AssertMore.FileExists("PluginsData\\Common\\DynLeaderboardsPlugin.GeneralSettings.json");
+        AssertMore.FileExists("PluginsData\\KLPlugins\\DynLeaderboards\\AssettoCorsaCompetizione\\CarInfos.json");
+        AssertMore.FileExists("PluginsData\\KLPlugins\\DynLeaderboards\\AssettoCorsaCompetizione\\ClassInfos.json");
+        AssertMore.FileExists(
             "PluginsData\\KLPlugins\\DynLeaderboards\\AssettoCorsaCompetizione\\DriverCategoryColors.json"
         );
-        Assert.FileExists(
+        AssertMore.FileExists(
             "PluginsData\\KLPlugins\\DynLeaderboards\\AssettoCorsaCompetizione\\TeamCupCategoryColors.json"
         );
 
         foreach (var ldb in this._ldb.DynLeaderboards) {
-            Assert.FileExists("PluginsData\\KLPlugins\\DynLeaderboards\\leaderboardConfigs\\" + ldb.Name + ".json");
+            AssertMore.FileExists("PluginsData\\KLPlugins\\DynLeaderboards\\leaderboardConfigs\\" + ldb.Name + ".json");
         }
 
         this.HasThrown = prevHasThrown;
     }
 
     // subclass post end tests from 400_000
+}
+
+internal class TestPluginSettings(PluginSettings inner) {
+    public int Version => inner.Version;
+    public string? AccDataLocation => inner.AccDataLocation;
+    public string? AcRootLocation => inner.AcRootLocation;
+    public bool Log => inner.Log;
+    public OutGeneralProp OutGeneralProps => inner.OutGeneralProps.Value;
 }
 
 public class CleanInstallDynLeaderboardFixture() : DynLeaderboardFixtureBase(".\\CleanInstallTestsTempDir");
@@ -161,7 +252,10 @@ public class V1InstallDynLeaderboardFixture() : DynLeaderboardFixtureBase(
     ".\\..\\..\\MockSimhubDirs\\V1.x"
 );
 
-public class V1DynLeaderboardsPluginTests(V1InstallDynLeaderboardFixture fixture, ITestOutputHelper testOutputHelper)
+public class V1DynLeaderboardsPluginTests(
+    V1InstallDynLeaderboardFixture fixture,
+    ITestOutputHelper testOutputHelper
+)
     : DynLeaderboardsPluginTestsCore(
             fixture,
             testOutputHelper
@@ -172,12 +266,12 @@ public class V1DynLeaderboardsPluginTests(V1InstallDynLeaderboardFixture fixture
     [Fact]
     [Order(200_000)]
     public void CheckSettingsMigration() {
-        this._testOutputHelper.WriteLine((DynLeaderboardsPluginTestsCore.RunCount++).ToString());
+        this._testOutputHelper.WriteLine((this.RunCount++).ToString());
         var prevHasThrown = this.HasThrown;
         this.HasThrown = true;
 
-        Assert.FileExists("PluginsData\\Common\\DynLeaderboardsPlugin.GeneralSettings.json.v2.bak");
-        Assert.FileExists("PluginsData\\KLPlugins\\DynLeaderboards\\leaderboardConfigs\\b\\Dynamic.json.v2.bak");
+        AssertMore.FileExists("PluginsData\\Common\\DynLeaderboardsPlugin.GeneralSettings.json.v2.bak");
+        AssertMore.FileExists("PluginsData\\KLPlugins\\DynLeaderboards\\leaderboardConfigs\\b\\Dynamic.json.v2.bak");
 
         this.HasThrown = prevHasThrown;
     }
@@ -188,7 +282,10 @@ public class V2InstallDynLeaderboardFixture() : DynLeaderboardFixtureBase(
     ".\\..\\..\\MockSimhubDirs\\V2.x"
 );
 
-public class V2DynLeaderboardsPluginTests(V2InstallDynLeaderboardFixture fixture, ITestOutputHelper testOutputHelper)
+public class V2DynLeaderboardsPluginTests(
+    V2InstallDynLeaderboardFixture fixture,
+    ITestOutputHelper testOutputHelper
+)
     : DynLeaderboardsPluginTestsCore(
             fixture,
             testOutputHelper

@@ -56,7 +56,9 @@ public sealed class Session {
 
     internal void OnDataUpdate(GameData data) {
         var newSessType = SessionTypeExtensions.FromShGameData(data);
-        this.IsNewSession = newSessType != this.SessionType;
+        // second branch detects session restarts
+        this.IsNewSession = newSessType != this.SessionType
+            || (this.IsTimeLimited && data._OldData.SessionTimeLeft < data._NewData.SessionTimeLeft);
 
         if (DynLeaderboardsPlugin._Game.IsAcc) {
             var rawDataNew = (ACSharedMemory.ACC.Reader.ACCRawData)data.NewData.GetRawDataObject();

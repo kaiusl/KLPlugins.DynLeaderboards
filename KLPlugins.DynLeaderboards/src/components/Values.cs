@@ -190,6 +190,7 @@ public sealed class Values : IDisposable {
     private readonly Dictionary<(CarClass, TeamCupCategory), int> _cupPositions = [];
     private readonly Dictionary<(CarClass, TeamCupCategory), CarData> _cupLeaders = [];
     private readonly Dictionary<(CarClass, TeamCupCategory), CarData> _carAheadInCup = [];
+    private const double _MISSING_CAR_TOLERANCE_SECONDS = 10;
 
     private void UpdateCars(GameData data) {
         this._classBestLapCars.Clear();
@@ -238,7 +239,8 @@ public sealed class Values : IDisposable {
                 // Note: car.IsFinished is actually updated in car.UpdateDependsOnOthers.
                 // Thus, if the player manages to finish the race and exit before the first update, we would remove them.
                 // However, that is practically impossible.
-                if (!car.IsFinished && car._MissedUpdates > 500) {
+                if (!car.IsFinished
+                    && (DateTime.Now - car._LastUpdateTime).TotalSeconds > Values._MISSING_CAR_TOLERANCE_SECONDS) {
                     continue;
                 }
             }
@@ -281,7 +283,8 @@ public sealed class Values : IDisposable {
 
         for (var i = this._overallOrder.Count - 1; i >= 0; i--) {
             var car = this._overallOrder[i];
-            if (!car.IsFinished && car._MissedUpdates > 500) {
+            if (!car.IsFinished
+                && (DateTime.Now - car._LastUpdateTime).TotalSeconds > Values._MISSING_CAR_TOLERANCE_SECONDS) {
                 this._overallOrder.RemoveAt(i);
                 Logging.LogInfo($"Removed disconnected car {car._Id}, #{car.CarNumberAsString}");
             }

@@ -137,7 +137,6 @@ namespace KLPlugins.DynLeaderboards.Car {
         public double MaxSpeed { get; private set; } = 0.0;
         public bool IsConnected { get; private set; }
 
-        internal int _MissedUpdates = 0;
 
         /// <summary>
         ///     Car ID.
@@ -151,6 +150,7 @@ namespace KLPlugins.DynLeaderboards.Car {
         ///     Has this car received the update in latest data update.
         /// </summary>
         internal bool _IsUpdated { get; set; } = true;
+        internal DateTime _LastUpdateTime = DateTime.Now;
 
         internal Opponent _RawDataNew;
         internal Opponent _RawDataOld;
@@ -459,11 +459,10 @@ namespace KLPlugins.DynLeaderboards.Car {
                 return;
             }
 
-            this._MissedUpdates = 0;
-
             this._RawDataOld = this._RawDataNew;
             this._RawDataNew = rawData;
             this._IsUpdated = true;
+            this._LastUpdateTime = DateTime.Now;
 
             if (DynLeaderboardsPlugin._Game.IsAms2) {
                 if (gameData.NewData.GetRawDataObject() is ShAms2.Models.AMS2APIStruct rawAms2data) {

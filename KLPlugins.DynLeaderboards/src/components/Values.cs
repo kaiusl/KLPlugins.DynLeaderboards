@@ -132,11 +132,11 @@ public sealed class Values : IDisposable {
 
         if (this.Booleans.NewData.IsNewEvent
             || this.Session.IsNewSession
-            || this.TrackData?.PrettyName != data.NewData.TrackName) {
+            || this.TrackData?.PrettyName != data._NewData.TrackName) {
             Logging.LogInfo($"newEvent={this.Booleans.NewData.IsNewEvent}, newSession={this.Session.IsNewSession}");
             this.ResetWithoutSession();
             this.Booleans.OnNewEvent(this.Session.SessionType);
-            if (this.TrackData == null || this.TrackData.PrettyName != data.NewData.TrackName) {
+            if (this.TrackData == null || this.TrackData.PrettyName != data._NewData.TrackName) {
                 this.TrackData?.Dispose();
                 this.TrackData = new TrackData(data);
                 Logging.LogInfo(
@@ -202,12 +202,17 @@ public sealed class Values : IDisposable {
         this._cupLeaders.Clear();
         this._carAheadInCup.Clear();
 
-        IEnumerable<(Opponent, int)> cars = data.NewData.Opponents.WithIndex();
+        IEnumerable<(Opponent, int)> cars = data._NewData.Opponents.WithIndex();
 
         string? focusedCarId = null;
         if (DynLeaderboardsPlugin._Game.IsAcc) {
             var accRawData = (ACSharedMemory.ACC.Reader.ACCRawData)data.NewData.GetRawDataObject();
             focusedCarId = accRawData.Realtime?.FocusedCarIndex.ToString();
+            var realtime = data._NewData.GetRawDataObject() switch {
+                ACSharedMemory.ACC.Reader.ACCRawData rawDataNew => rawDataNew.Realtime,
+                var d => throw new Exception($"Unknown data type for ACC `{d?.GetType()}`"),
+            };
+            focusedCarId = realtime?.FocusedCarIndex.ToString();
         }
 
         CarData? overallBestLapCar = null;
@@ -299,9 +304,9 @@ public sealed class Values : IDisposable {
         if (!this._IsFirstFinished && this._overallOrder.Count > 0 && this.Session.SessionType == SessionType.RACE) {
             var first = this._overallOrder.First();
             if (this.Session.IsLapLimited) {
-                this._IsFirstFinished = first.Laps.New == data.NewData.TotalLaps;
+                this._IsFirstFinished = first.Laps.New == data._NewData.TotalLaps;
             } else if (this.Session.IsTimeLimited) {
-                this._IsFirstFinished = data.NewData.SessionTimeLeft.TotalSeconds <= 0 && first.IsNewLap;
+                this._IsFirstFinished = data._NewData.SessionTimeLeft.TotalSeconds <= 0 && first.IsNewLap;
             }
 
             if (this._IsFirstFinished) {
@@ -316,10 +321,6 @@ public sealed class Values : IDisposable {
         var focusedClass = this.FocusedCar?.CarClass;
         var focusedCup = this.FocusedCar?.TeamCupCategory;
         foreach (var (car, i) in this._overallOrder.WithIndex()) {
-            if (!car._IsUpdated) {
-                car._MissedUpdates += 1;
-            }
-
             //DynLeaderboardsPlugin.LogInfo($"Car [{car.Id}, #{car.CarNumber}] missed update: {car.MissedUpdates}");
             car._IsUpdated = false;
 
@@ -499,7 +500,7 @@ public sealed class Values : IDisposable {
                 if (DynLeaderboardsPlugin._Game.IsAms2) {
                     // Spline pos == 0.0 if race has not started, race state is 1 if that's the case, use games positions
                     // If using AMS2 shared memory data, UDP data is not supported atm
-                    if (gameData.NewData.GetRawDataObject() is SimHubAMS2.AMS2APIStruct { mRaceState: < 2 }) {
+                    if (gameData._NewData.GetRawDataObject() is SimHubAMS2.AMS2APIStruct { mRaceState: < 2 }) {
                         return a._RawDataNew.Position.CompareTo(b._RawDataNew.Position);
                     }
 

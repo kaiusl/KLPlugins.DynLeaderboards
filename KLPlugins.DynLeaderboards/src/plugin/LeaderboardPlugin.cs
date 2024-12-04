@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
@@ -16,9 +15,9 @@ using KLPlugins.DynLeaderboards.Settings;
 using KLPlugins.DynLeaderboards.Settings.UI;
 using KLPlugins.DynLeaderboards.Track;
 
-using Newtonsoft.Json;
-
 using SimHub.Plugins;
+
+using SHGameData = GameReaderCommon.GameData;
 
 namespace KLPlugins.DynLeaderboards;
 
@@ -37,20 +36,32 @@ public sealed class DynLeaderboardsPlugin : IDataPlugin, IWPFSettingsV2 {
     internal static Game _Game; // Const during the lifetime of this plugin, plugin is rebuilt at game change
 
     private double _dataUpdateTime = 0;
+    private double _dataCopyTime = 0;
 
     public Values Values { get; private set; }
     public List<DynLeaderboard> DynLeaderboards { get; set; } = [];
     #pragma warning restore CS8618
 
+    private GameData? _gameData = null;
     /// <summary>
     ///     Called one time per game data update, contains all normalized game data,
     ///     raw data are intentionally "hidden" under a generic object type (A plugin SHOULD NOT USE IT)
     ///     This method is on the critical path, it must execute as fast as possible and avoid throwing any error
     /// </summary>
-    public void DataUpdate(PluginManager pm, ref GameData data) {
+    public void DataUpdate(PluginManager pm, ref SHGameData data) {
         var swatch = Stopwatch.StartNew();
         if (data.GameRunning && data.OldData != null && data.NewData != null) {
             this.Values.OnDataUpdate(pm, data);
+        if (data is { GameRunning: true, OldData: not null, NewData: not null }) {
+            if (this._gameData is null) {
+                this._gameData = new GameData(oldData: data.OldData, newData: data.NewData);
+            } else {
+                this._gameData.Update(data.NewData);
+            }
+
+            this._dataCopyTime = swatch.Elapsed.TotalMilliseconds;
+
+            this.Values.OnDataUpdate(pm, this._gameData);
             foreach (var ldb in this.DynLeaderboards) {
                 ldb.OnDataUpdate(this.Values);
             }
@@ -139,7 +150,7 @@ public sealed class DynLeaderboardsPlugin : IDataPlugin, IWPFSettingsV2 {
         DynLeaderboardsPlugin._Settings.FinalizeInit();
 
         TrackData.OnPluginInit(gameName);
-
+        this._gameData = null;
         this.Values = new Values();
 
         foreach (var config in DynLeaderboardsPlugin._Settings.DynLeaderboardConfigs) {
@@ -171,6 +182,7 @@ public sealed class DynLeaderboardsPlugin : IDataPlugin, IWPFSettingsV2 {
 
     private void AttachGeneralDelegates() {
         this.AttachDelegate<double>("Perf.DataUpdateMS", () => this._dataUpdateTime);
+        this.AttachDelegate("DBG.Perf.DataCopyMS", () => this._dataCopyTime);
 
         var outGenProps = DynLeaderboardsPlugin._Settings.OutGeneralProps;
 
@@ -712,6 +724,7 @@ public sealed class DynLeaderboardsPlugin : IDataPlugin, IWPFSettingsV2 {
                 return;
             }
 
+            this._gameData = null;
             Logging.TryFlush();
         };
     }

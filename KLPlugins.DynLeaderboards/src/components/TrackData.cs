@@ -6,8 +6,6 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
-using GameReaderCommon;
-
 using KLPlugins.DynLeaderboards.Common;
 using KLPlugins.DynLeaderboards.Log;
 using KLPlugins.DynLeaderboards.Settings;
@@ -264,14 +262,15 @@ public sealed class TrackData {
     internal TrackData(GameData data) {
         TrackData._splinePosOffsets = TrackData.ReadSplinePosOffsets();
 
-        this.PrettyName = data.NewData.TrackName;
-        this.Id = data.NewData.TrackCode;
-        this.LengthMeters = data.NewData.TrackLength;
+        this.PrettyName = data._NewData.TrackName;
+        this.Id = data._NewData.TrackCode;
+        this.LengthMeters = data._NewData.TrackLength;
         this.SplinePosOffset = TrackData._splinePosOffsets.GetOrAddValue(this.Id, new SplinePosOffset());
     }
 
+
     internal void SetLength(GameData data) {
-        this.LengthMeters = data.NewData.TrackLength;
+        this.LengthMeters = data._NewData.TrackLength;
     }
 
     internal static void OnPluginInit(string gameName) {

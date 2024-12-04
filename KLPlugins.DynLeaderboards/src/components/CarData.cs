@@ -465,7 +465,7 @@ namespace KLPlugins.DynLeaderboards.Car {
             this._LastUpdateTime = DateTime.Now;
 
             if (DynLeaderboardsPlugin._Game.IsAms2) {
-                if (gameData.NewData.GetRawDataObject() is ShAms2.Models.AMS2APIStruct rawAms2data) {
+                if (gameData._NewData.GetRawDataObject() is ShAms2.Models.AMS2APIStruct rawAms2data) {
                     var index = -1;
                     for (var i = 0; i < rawAms2data.mNumParticipants; i++) {
                         var participantData = rawAms2data.mParticipantData[i];
@@ -494,7 +494,7 @@ namespace KLPlugins.DynLeaderboards.Car {
                     return Encoding.UTF8.GetString(data).Split(default(char))[0];
                 }
 
-                if (gameData.NewData.GetRawDataObject() is ShR3E.Data.Shared rawR3EData) {
+                if (gameData._NewData.GetRawDataObject() is ShR3E.Data.Shared rawR3EData) {
                     var index = -1;
                     ref readonly var participantData = ref rawR3EData.DriverData[0];
                     for (var i = 0; i < rawR3EData.NumCars; i++) {

@@ -1,5 +1,3 @@
-using GameReaderCommon;
-
 using KLPlugins.DynLeaderboards.Log;
 
 namespace KLPlugins.DynLeaderboards;
@@ -27,11 +25,11 @@ public sealed class BooleansBase {
     internal void Update(GameData data, Values v) {
         // if our last update was in menu or if somehow our last wasn't but games was
         var wasInMenu = this.IsInMenu
-            || data.OldData.AirTemperature == 0 // ACC
-            || data.OldData.TyrePressureFrontLeft == 0; // RF2
+            || data._OldData.AirTemperature == 0 // ACC
+            || data._OldData.TyrePressureFrontLeft == 0; // RF2
 
-        this.IsInMenu = data.NewData.AirTemperature == 0 // ACC
-            || data.NewData.TyrePressureFrontLeft == 0; // RF2
+        this.IsInMenu = data._NewData.AirTemperature == 0 // ACC
+            || data._NewData.TyrePressureFrontLeft == 0; // RF2
         this.EnteredMenu = !wasInMenu && this.IsInMenu;
         this.ExitedMenu = wasInMenu && !this.IsInMenu;
     }

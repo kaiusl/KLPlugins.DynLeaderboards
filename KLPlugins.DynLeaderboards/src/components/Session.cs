@@ -4,6 +4,8 @@ using GameReaderCommon;
 
 using KLPlugins.DynLeaderboards.Log;
 
+using ksBroadcastingNetwork;
+
 namespace KLPlugins.DynLeaderboards;
 
 public sealed class Session {
@@ -83,17 +85,17 @@ public sealed class Session {
 
         if (!this._isSessionLimitSet) {
             // Need to set once as at the end of the session SessionTimeLeft == 0 and this will confuse plugin
-            this.IsLapLimited = data.NewData.RemainingLaps > 0;
+            this.IsLapLimited = data._NewData.RemainingLaps > 0;
             this.IsTimeLimited = !this.IsLapLimited;
             this._isSessionLimitSet = true;
             Logging.LogInfo($"Session limit set: isLapLimited={this.IsLapLimited}, isTimeLimited={this.IsTimeLimited}");
         }
 
         if (DynLeaderboardsPlugin._Game.IsAcc) {
-            var rawDataNew = (ACSharedMemory.ACC.Reader.ACCRawData)data.NewData.GetRawDataObject();
-
-            this._sessionIndex = rawDataNew.Graphics.SessionIndex;
-            this.TimeOfDay = TimeSpan.FromSeconds(rawDataNew.Graphics.clock);
+            switch (data._NewData.GetRawDataObject()) {
+                case ACSharedMemory.ACC.Reader.ACCRawData rawDataNew:
+                    this._sessionIndex = rawDataNew.Graphics.SessionIndex;
+                    this.TimeOfDay = TimeSpan.FromSeconds(rawDataNew.Graphics.clock);
 
             // Set max stint times. This is only done once when we know that the session hasn't started, so that the time left shows max times.
             if (this.MaxDriverStintTime == null
@@ -108,6 +110,24 @@ public sealed class Session {
                     this.MaxDriverTotalDriveTime =
                         TimeSpan.FromMilliseconds(rawDataNew.Graphics.DriverStintTotalTimeLeft);
                 }
+                    // Set max stint times. This is only done once when we know that the session hasn't started, so that the time left shows max times.
+                    if (this.MaxDriverStintTime == null
+                        && this.IsRace
+                        && this.SessionPhase == SessionPhase.PRE_SESSION
+                        && rawDataNew.Graphics.DriverStintTimeLeft >= 0) {
+                        this.MaxDriverStintTime = TimeSpan.FromMilliseconds(rawDataNew.Graphics.DriverStintTimeLeft);
+                        var maxDriverTotalTime = rawDataNew.Graphics.DriverStintTotalTimeLeft;
+                        if (maxDriverTotalTime != 65_535_000)
+                            // This is max value, which means that the limit doesn't exist
+                        {
+                            this.MaxDriverTotalDriveTime =
+                                TimeSpan.FromMilliseconds(rawDataNew.Graphics.DriverStintTotalTimeLeft);
+                        }
+                    }
+
+                    break;
+                case var d:
+                    throw new Exception($"Unknown data type for ACC `{d?.GetType()}`");
             }
         }
     }
@@ -157,11 +177,29 @@ internal static class SessionTypeExtensions {
                 (ACSharedMemory.ACC.MMFModels.AC_SESSION_TYPE)7 => SessionType.HOTSTINT,
                 (ACSharedMemory.ACC.MMFModels.AC_SESSION_TYPE)8 => SessionType.HOTLAP_SUPERPOLE,
                 _ => SessionType.UNKNOWN,
+            return data._NewData.GetRawDataObject() switch {
+                ACSharedMemory.ACC.Reader.ACCRawData d => d.Graphics.Session switch {
+                    ACSharedMemory.ACC.MMFModels.AC_SESSION_TYPE.AC_UNKNOWN => SessionType.UNKNOWN,
+                    ACSharedMemory.ACC.MMFModels.AC_SESSION_TYPE.AC_PRACTICE => SessionType.PRACTICE,
+                    ACSharedMemory.ACC.MMFModels.AC_SESSION_TYPE.AC_QUALIFY => SessionType.QUALIFYING,
+                    ACSharedMemory.ACC.MMFModels.AC_SESSION_TYPE.AC_RACE => SessionType.RACE,
+                    ACSharedMemory.ACC.MMFModels.AC_SESSION_TYPE.AC_HOTLAP => SessionType.HOTLAP,
+                    ACSharedMemory.ACC.MMFModels.AC_SESSION_TYPE.AC_TIME_ATTACK => SessionType.TIME_ATTACK,
+                    ACSharedMemory.ACC.MMFModels.AC_SESSION_TYPE.AC_DRIFT => SessionType.DRIFT,
+                    ACSharedMemory.ACC.MMFModels.AC_SESSION_TYPE.AC_DRAG => SessionType.DRAG,
+                    (ACSharedMemory.ACC.MMFModels.AC_SESSION_TYPE)7 => SessionType.HOTSTINT,
+                    (ACSharedMemory.ACC.MMFModels.AC_SESSION_TYPE)8 => SessionType.HOTLAP_SUPERPOLE,
+                    _ => SessionType.UNKNOWN,
+                },
+                var d => throw new Exception($"Unknown data type for ACC `{d?.GetType()}`"),
             };
         }
 
         if (DynLeaderboardsPlugin._Game.IsAc) {
-            var acData = (ACSharedMemory.Reader.ACRawData)data.NewData.GetRawDataObject();
+            var acData = data._NewData.GetRawDataObject() switch {
+                ACSharedMemory.Reader.ACRawData d => d,
+                var d => throw new Exception($"Unknown data type for AC `{d?.GetType()}`"),
+            };
             return acData.Graphics.Session switch {
                 ACSharedMemory.AC_SESSION_TYPE.AC_UNKNOWN => SessionType.UNKNOWN,
                 ACSharedMemory.AC_SESSION_TYPE.AC_PRACTICE => SessionType.PRACTICE,
@@ -175,7 +213,7 @@ internal static class SessionTypeExtensions {
             };
         }
 
-        return SessionTypeExtensions.FromString(data.NewData.SessionTypeName);
+        return SessionTypeExtensions.FromString(data._NewData.SessionTypeName);
     }
 
     private static SessionType FromString(string s) {
@@ -250,8 +288,13 @@ internal static class SessionPhaseExtensions {
             if (accData.Realtime?.Phase == null) {
                 return SessionPhase.UNKNOWN;
             }
+            var realtimeUpdate = data._NewData.GetRawDataObject() switch {
+                ACSharedMemory.ACC.Reader.ACCRawData d => d.Realtime,
+                var d => throw new Exception($"Unknown data type for ACC `{d?.GetType()}`"),
+            };
 
-            return accData.Realtime.Phase switch {
+            return realtimeUpdate?.Phase switch {
+                null => SessionPhase.UNKNOWN,
                 ksBroadcastingNetwork.SessionPhase.NONE => SessionPhase.UNKNOWN,
                 ksBroadcastingNetwork.SessionPhase.Starting => SessionPhase.STARTING,
                 ksBroadcastingNetwork.SessionPhase.PreFormation => SessionPhase.PRE_FORMATION,
@@ -261,12 +304,15 @@ internal static class SessionPhaseExtensions {
                 ksBroadcastingNetwork.SessionPhase.SessionOver => SessionPhase.SESSION_OVER,
                 ksBroadcastingNetwork.SessionPhase.PostSession => SessionPhase.POST_SESSION,
                 ksBroadcastingNetwork.SessionPhase.ResultUI => SessionPhase.RESULT_UI,
-                _ => throw new Exception($"Unknown session phase {accData.Realtime.Phase}"),
+                var phase => throw new Exception($"Unknown session phase {phase}"),
             };
         }
 
         if (DynLeaderboardsPlugin._Game.IsRf2OrLmu) {
-            var rf2Data = (RfactorReader.RF2.WrapV2)data.NewData.GetRawDataObject();
+            var rf2Data = data._NewData.GetRawDataObject() switch {
+                RfactorReader.RF2.WrapV2 d => d,
+                var d => throw new Exception($"Unknown data type for rF2 or LMU `{d?.GetType()}`"),
+            };
 
             var phase = rf2Data.Data.mGamePhase switch {
                 0 => SessionPhase.STARTING,
@@ -290,7 +336,11 @@ internal static class SessionPhaseExtensions {
         }
 
         if (DynLeaderboardsPlugin._Game.IsR3E) {
-            var r3EData = (R3E.Data.Shared)data.NewData.GetRawDataObject();
+            var r3EData = data._NewData.GetRawDataObject() switch {
+                R3E.Data.Shared d => d,
+                var d => throw new Exception($"Unknown data type for R3E `{d?.GetType()}`"),
+            };
+
             return r3EData.SessionPhase switch {
                 -1 => SessionPhase.UNKNOWN,
                 1 or 2 => SessionPhase.STARTING,

@@ -6,8 +6,7 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Windows.Media;
 
-using GameReaderCommon;
-
+using KLPlugins.DynLeaderboards.AccBroadcastingNetwork;
 using KLPlugins.DynLeaderboards.Car;
 using KLPlugins.DynLeaderboards.Common;
 using KLPlugins.DynLeaderboards.Log;
@@ -43,6 +42,9 @@ public sealed class DynLeaderboardsPlugin : IDataPlugin, IWPFSettingsV2 {
     #pragma warning restore CS8618
 
     private GameData? _gameData = null;
+
+    private AccBroadcastingManager? _accBroadcastingManager = null;
+
     /// <summary>
     ///     Called one time per game data update, contains all normalized game data,
     ///     raw data are intentionally "hidden" under a generic object type (A plugin SHOULD NOT USE IT)
@@ -50,9 +52,32 @@ public sealed class DynLeaderboardsPlugin : IDataPlugin, IWPFSettingsV2 {
     /// </summary>
     public void DataUpdate(PluginManager pm, ref SHGameData data) {
         var swatch = Stopwatch.StartNew();
-        if (data.GameRunning && data.OldData != null && data.NewData != null) {
-            this.Values.OnDataUpdate(pm, data);
         if (data is { GameRunning: true, OldData: not null, NewData: not null }) {
+            // // Uncomment to use our own ACC broadcasting client,
+            // // mainly here for testing purposes
+            // // The client should be later properly worked into the plugin to allow automatic switch to broadcasting
+            // // mode when SimHub ends their connection
+            //if (DynLeaderboardsPlugin._Game.IsAcc) {
+            //     if (this._accBroadcastingManager is null) {
+            //         Logging.LogInfo("Created ACCBroadcastingClient");
+            //         this._accBroadcastingManager = new AccBroadcastingManager();
+            //         this._accBroadcastingManager.OnDataUpdated += (data) => { 
+            //             var swatch = Stopwatch.StartNew();
+            //             if (this._gameData is null) {
+            //                 this._gameData = new GameData(data, data);
+            //             } else {
+            //                 this._gameData.Update(data);
+            //             }
+            //             
+            //             this._dataCopyTime = swatch.Elapsed.TotalMilliseconds;
+            //             
+            //             this.Values.OnDataUpdate(pm, this._gameData);
+            //             foreach (var ldb in this.DynLeaderboards) {
+            //                 ldb.OnDataUpdate(this.Values);
+            //             }
+            //         };
+            //     }
+            // } else {
             if (this._gameData is null) {
                 this._gameData = new GameData(oldData: data.OldData, newData: data.NewData);
             } else {
@@ -65,6 +90,7 @@ public sealed class DynLeaderboardsPlugin : IDataPlugin, IWPFSettingsV2 {
             foreach (var ldb in this.DynLeaderboards) {
                 ldb.OnDataUpdate(this.Values);
             }
+            //}
         }
 
         swatch.Stop();
@@ -82,6 +108,7 @@ public sealed class DynLeaderboardsPlugin : IDataPlugin, IWPFSettingsV2 {
         this.SaveSettings();
         this.Values.Dispose();
         Logging.Dispose();
+        this._accBroadcastingManager?.Dispose();
     }
 
     // ReSharper disable once MemberCanBePrivate.Global
@@ -725,6 +752,8 @@ public sealed class DynLeaderboardsPlugin : IDataPlugin, IWPFSettingsV2 {
             }
 
             this._gameData = null;
+            this._accBroadcastingManager?.Dispose();
+            this._accBroadcastingManager = null;
             Logging.TryFlush();
         };
     }

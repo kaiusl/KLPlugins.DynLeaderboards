@@ -1,7 +1,6 @@
 using System;
 
-using GameReaderCommon;
-
+using KLPlugins.DynLeaderboards.AccBroadcastingNetwork;
 using KLPlugins.DynLeaderboards.Log;
 
 using ksBroadcastingNetwork;
@@ -63,15 +62,18 @@ public sealed class Session {
             || (this.IsTimeLimited && data._OldData.SessionTimeLeft < data._NewData.SessionTimeLeft);
 
         if (DynLeaderboardsPlugin._Game.IsAcc) {
-            var rawDataNew = (ACSharedMemory.ACC.Reader.ACCRawData)data.NewData.GetRawDataObject();
+            var newSessionIndex = data._NewData.GetRawDataObject() switch {
+                ACSharedMemory.ACC.Reader.ACCRawData rawDataNew => rawDataNew.Graphics.SessionIndex,
+                AccBroadcastingRawData d => d._RealtimeUpdate.SessionIndex,
+                var d => throw new Exception($"Unknown data type for ACC `{d?.GetType()}`"),
+            };
 
-            if (rawDataNew.Graphics.SessionIndex != this._sessionIndex)
+            if (newSessionIndex != this._sessionIndex) {
                 // detects multiple following sessions which are same kind
-            {
                 this.IsNewSession = true;
             }
 
-            this._sessionIndex = rawDataNew.Graphics.SessionIndex;
+            this._sessionIndex = newSessionIndex;
         }
 
         if (this.IsNewSession) {
@@ -97,19 +99,6 @@ public sealed class Session {
                     this._sessionIndex = rawDataNew.Graphics.SessionIndex;
                     this.TimeOfDay = TimeSpan.FromSeconds(rawDataNew.Graphics.clock);
 
-            // Set max stint times. This is only done once when we know that the session hasn't started, so that the time left shows max times.
-            if (this.MaxDriverStintTime == null
-                && this.IsRace
-                && this.SessionPhase == SessionPhase.PRE_SESSION
-                && rawDataNew.Graphics.DriverStintTimeLeft >= 0) {
-                this.MaxDriverStintTime = TimeSpan.FromMilliseconds(rawDataNew.Graphics.DriverStintTimeLeft);
-                var maxDriverTotalTime = rawDataNew.Graphics.DriverStintTotalTimeLeft;
-                if (maxDriverTotalTime != 65_535_000)
-                    // This is max value, which means that the limit doesn't exist
-                {
-                    this.MaxDriverTotalDriveTime =
-                        TimeSpan.FromMilliseconds(rawDataNew.Graphics.DriverStintTotalTimeLeft);
-                }
                     // Set max stint times. This is only done once when we know that the session hasn't started, so that the time left shows max times.
                     if (this.MaxDriverStintTime == null
                         && this.IsRace
@@ -125,6 +114,11 @@ public sealed class Session {
                         }
                     }
 
+                    break;
+                case AccBroadcastingRawData d:
+                    this._sessionIndex = d._RealtimeUpdate.SessionIndex;
+                    this.TimeOfDay = d._RealtimeUpdate.TimeOfDay;
+                    // broadcast data doesn't give max drive times
                     break;
                 case var d:
                     throw new Exception($"Unknown data type for ACC `{d?.GetType()}`");
@@ -164,19 +158,6 @@ public enum SessionPhase {
 internal static class SessionTypeExtensions {
     internal static SessionType FromShGameData(GameData data) {
         if (DynLeaderboardsPlugin._Game.IsAcc) {
-            var accData = (ACSharedMemory.ACC.Reader.ACCRawData)data.NewData.GetRawDataObject();
-            return accData.Graphics.Session switch {
-                ACSharedMemory.ACC.MMFModels.AC_SESSION_TYPE.AC_UNKNOWN => SessionType.UNKNOWN,
-                ACSharedMemory.ACC.MMFModels.AC_SESSION_TYPE.AC_PRACTICE => SessionType.PRACTICE,
-                ACSharedMemory.ACC.MMFModels.AC_SESSION_TYPE.AC_QUALIFY => SessionType.QUALIFYING,
-                ACSharedMemory.ACC.MMFModels.AC_SESSION_TYPE.AC_RACE => SessionType.RACE,
-                ACSharedMemory.ACC.MMFModels.AC_SESSION_TYPE.AC_HOTLAP => SessionType.HOTLAP,
-                ACSharedMemory.ACC.MMFModels.AC_SESSION_TYPE.AC_TIME_ATTACK => SessionType.TIME_ATTACK,
-                ACSharedMemory.ACC.MMFModels.AC_SESSION_TYPE.AC_DRIFT => SessionType.DRIFT,
-                ACSharedMemory.ACC.MMFModels.AC_SESSION_TYPE.AC_DRAG => SessionType.DRAG,
-                (ACSharedMemory.ACC.MMFModels.AC_SESSION_TYPE)7 => SessionType.HOTSTINT,
-                (ACSharedMemory.ACC.MMFModels.AC_SESSION_TYPE)8 => SessionType.HOTLAP_SUPERPOLE,
-                _ => SessionType.UNKNOWN,
             return data._NewData.GetRawDataObject() switch {
                 ACSharedMemory.ACC.Reader.ACCRawData d => d.Graphics.Session switch {
                     ACSharedMemory.ACC.MMFModels.AC_SESSION_TYPE.AC_UNKNOWN => SessionType.UNKNOWN,
@@ -190,6 +171,17 @@ internal static class SessionTypeExtensions {
                     (ACSharedMemory.ACC.MMFModels.AC_SESSION_TYPE)7 => SessionType.HOTSTINT,
                     (ACSharedMemory.ACC.MMFModels.AC_SESSION_TYPE)8 => SessionType.HOTLAP_SUPERPOLE,
                     _ => SessionType.UNKNOWN,
+                },
+                AccBroadcastingRawData d => d._RealtimeUpdate.SessionType switch {
+                    RaceSessionType.Practice => SessionType.PRACTICE,
+                    RaceSessionType.Qualifying => SessionType.QUALIFYING,
+                    RaceSessionType.Superpole => SessionType.SUPERPOLE,
+                    RaceSessionType.Race => SessionType.RACE,
+                    RaceSessionType.Hotlap => SessionType.HOTLAP,
+                    RaceSessionType.Hotstint => SessionType.HOTSTINT,
+                    RaceSessionType.HotlapSuperpole => SessionType.HOTLAP_SUPERPOLE,
+                    RaceSessionType.Replay => SessionType.UNKNOWN,
+                    _ => throw new ArgumentOutOfRangeException(),
                 },
                 var d => throw new Exception($"Unknown data type for ACC `{d?.GetType()}`"),
             };
@@ -284,12 +276,9 @@ internal static class SessionTypeExtensions {
 internal static class SessionPhaseExtensions {
     internal static SessionPhase FromShGameData(GameData data) {
         if (DynLeaderboardsPlugin._Game.IsAcc) {
-            var accData = (ACSharedMemory.ACC.Reader.ACCRawData)data.NewData.GetRawDataObject();
-            if (accData.Realtime?.Phase == null) {
-                return SessionPhase.UNKNOWN;
-            }
             var realtimeUpdate = data._NewData.GetRawDataObject() switch {
                 ACSharedMemory.ACC.Reader.ACCRawData d => d.Realtime,
+                AccBroadcastingRawData d => d._RealtimeUpdate,
                 var d => throw new Exception($"Unknown data type for ACC `{d?.GetType()}`"),
             };
 

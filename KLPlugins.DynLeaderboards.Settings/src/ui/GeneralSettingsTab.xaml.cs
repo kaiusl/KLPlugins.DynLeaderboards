@@ -63,6 +63,14 @@ internal class GeneralSettingsTabViewModel : INotifyPropertyChanged {
         }
     }
 
+    public bool AccAutoSpectatorMode {
+        get => this._settings.AccAutoSpectatorMode;
+        set {
+            this._settings.AccAutoSpectatorMode = value;
+            this.InvokePropertyChanged();
+        }
+    }
+
 
     private List<PropertyViewModelBase> _exposedProperties { get; } = [];
     public ListCollectionView ExposedProperties { get; }
@@ -144,6 +152,7 @@ internal class DesignGeneralSettingsTabViewModel : GeneralSettingsTabViewModel {
     public new string? AcRootLocation { get; set; } = @"C:\Program Files\SteamLibrary\steamapps\common\assettocorsa";
     public new SolidColorBrush AcRootLocationBackground { get; set; } = GeneralSettingsTabViewModel.PathBgOk;
     public new bool Log { get; set; } = true;
+    public new bool AccAutoSpectatorMode { get; set; } = true;
 
     public new List<PropertyViewModelBase> ExposedProperties { get; set; } =
         DesignGeneralSettingsTabViewModel.CreateProperties();

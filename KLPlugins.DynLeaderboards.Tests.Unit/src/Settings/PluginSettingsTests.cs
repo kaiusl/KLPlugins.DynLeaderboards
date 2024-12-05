@@ -42,6 +42,7 @@ public class PluginSettingsTests {
                               "AcRootLocation": null,
                               "Log": true,
                               "BroadcastDataUpdateRateMs": 500,
+                              "AccAutoSpectatorMode": true,
                               "OutGeneralProps": 254
                             }
                             """;

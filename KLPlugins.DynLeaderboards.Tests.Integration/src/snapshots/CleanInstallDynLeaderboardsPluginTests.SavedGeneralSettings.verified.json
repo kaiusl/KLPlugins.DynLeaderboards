@@ -4,5 +4,6 @@
   "AcRootLocation": null,
   "Log": false,
   "BroadcastDataUpdateRateMs": 500,
+  "AccAutoSpectatorMode": false,
   "OutGeneralProps": 0
 }

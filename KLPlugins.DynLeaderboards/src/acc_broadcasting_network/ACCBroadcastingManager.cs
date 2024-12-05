@@ -125,6 +125,12 @@ internal class SimHubAccCarsInfo {
         const string CAR_ID_TO_CAR_NAME_PATH = ".\\LookupTables\\AssettoCorsaCompetizione.CarNames.csv";
         const string CAR_ID_TO_CAR_CLASS_PATH = ".\\LookupTables\\AssettoCorsaCompetizione.CarClasses.csv";
 
+        if (!File.Exists(BROADCAST_ID_TO_CAR_ID_PATH)
+            || !File.Exists(CAR_ID_TO_CAR_NAME_PATH)
+            || !File.Exists(CAR_ID_TO_CAR_CLASS_PATH)) {
+            return;
+        }
+
         var carIdToCarName = File.ReadAllLines(CAR_ID_TO_CAR_NAME_PATH)
             .Where(l => !string.IsNullOrEmpty(l) && !l.StartsWith("//"))
             .Select(

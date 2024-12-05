@@ -43,6 +43,9 @@ public sealed class PluginSettings {
     [JsonProperty("BroadcastDataUpdateRateMs")]
     public int BroadcastDataUpdateRateMs { get; internal set; }
 
+    [JsonProperty("AccAutoSpectatorMode")]
+    public bool AccAutoSpectatorMode { get; internal set; } = false;
+
     public ReadonlyOutProps<OutPropsBase<OutGeneralProp>, OutGeneralProp> OutGeneralProps =>
         this._OutGeneralPropsInternal.AsReadonly();
     [JsonProperty("OutGeneralProps")]

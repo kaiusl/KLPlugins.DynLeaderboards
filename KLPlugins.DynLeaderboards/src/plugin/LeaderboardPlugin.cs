@@ -1,4 +1,8 @@
-﻿using System;
+﻿#if TEST
+using Newtonsoft.Json;
+using System.IO;
+#endif
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -60,7 +64,7 @@ public sealed class DynLeaderboardsPlugin : IDataPlugin, IWPFSettingsV2 {
     /// </summary>
     public void DataUpdate(PluginManager pm, ref SHGameData data) {
         var swatch = Stopwatch.StartNew();
-        if (DynLeaderboardsPlugin._Game.IsAcc) {
+        if (DynLeaderboardsPlugin._Game.IsAcc && DynLeaderboardsPlugin._Settings.AccAutoSpectatorMode) {
             // change in data.GameRunning and data.RunningGameProcessDetected is checked by subscriptions to SimHub events
             // those detect when we should start our own broadcast client and when to shut down mostly.
             // However those cannot detect if we left the session while in spectator mode,
@@ -760,7 +764,7 @@ public sealed class DynLeaderboardsPlugin : IDataPlugin, IWPFSettingsV2 {
                 this.DisposeAccBroadcasting();
             }
         } else {
-            if (DynLeaderboardsPlugin._Game.IsAcc) {
+            if (DynLeaderboardsPlugin._Game.IsAcc && DynLeaderboardsPlugin._Settings.AccAutoSpectatorMode) {
                 this.DisposeAccBroadcasting();
                 if (pm.LastData.RunningGameProcessDetected) {
                     // potentially we are spectating the race, but we don't know for sure
@@ -779,17 +783,17 @@ public sealed class DynLeaderboardsPlugin : IDataPlugin, IWPFSettingsV2 {
         }
     }
 
-    private void OnGameRunningOrProcessDetectedChanged(PluginManager pm, SHGameData data, bool newStata) {
+    private void OnGameRunningOrProcessDetectedChanged(PluginManager pm, SHGameData data, bool newState) {
         Logging.LogInfo(
-            $"OnGameRunningOrProcessDetectedChanged: newSate={newStata}, GameRunning={data.GameRunning}, GameProcessDetected={data.RunningGameProcessDetected}"
+            $"OnGameRunningOrProcessDetectedChanged: newSate={newState}, GameRunning={data.GameRunning}, GameProcessDetected={data.RunningGameProcessDetected}"
         );
 
-        if (!newStata) {
+        if (!newState) {
             // game was actually closed, reset everything
             this.DisposeAccBroadcasting();
             this.Values.Reset();
         } else {
-            if (DynLeaderboardsPlugin._Game.IsAcc) {
+            if (DynLeaderboardsPlugin._Game.IsAcc && DynLeaderboardsPlugin._Settings.AccAutoSpectatorMode) {
                 // if we start up the game and join directly as spectating
                 // then GameRunning will never be changed and we never start our own client
                 this.DisposeAccBroadcasting();

@@ -319,6 +319,7 @@ internal class TestPluginSettings(PluginSettings inner) {
     public string? AcRootLocation => inner.AcRootLocation;
     public bool Log => inner.Log;
     public OutGeneralProp OutGeneralProps => inner.OutGeneralProps.Value;
+    public bool AccAutoSpectatorMode => inner.AccAutoSpectatorMode;
 }
 
 public class CleanInstallDynLeaderboardFixture() : DynLeaderboardFixtureBase(".\\CleanInstallTestsTempDir");

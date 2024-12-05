@@ -1,4 +1,5 @@
 ﻿{
+  AccAutoSpectatorMode: false,
   AccDataLocation: C:Users\UserName\Documents\Assetto Corsa Competizione,
   Log: false,
   Version: 3

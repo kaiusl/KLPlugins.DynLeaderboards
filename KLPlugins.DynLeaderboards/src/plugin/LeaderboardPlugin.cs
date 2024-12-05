@@ -43,7 +43,15 @@ public sealed class DynLeaderboardsPlugin : IDataPlugin, IWPFSettingsV2 {
 
     private GameData? _gameData = null;
 
+    // We support automatic swap to our own ACC broadcasting connection in case of driver-swap racer or just using
+    // spectator mode.
+    // By default SimHub will disconnect when the user is not actually driving anymore.
+    // This is done by setting GameData.GameRunning = false and triggering PluginManager.GameStateChanged event.
+    // However if the game is still running there is a possibility that we are spectating the race.
+    // In that case we want to open our own connection.
+    // We can use GameData.GameRunningProcessDetected property to see if the game process is still running.
     private AccBroadcastingManager? _accBroadcastingManager = null;
+    private static readonly TimeSpan _accBroadcastingTimeout = TimeSpan.FromSeconds(15);
 
     /// <summary>
     ///     Called one time per game data update, contains all normalized game data,
@@ -52,32 +60,23 @@ public sealed class DynLeaderboardsPlugin : IDataPlugin, IWPFSettingsV2 {
     /// </summary>
     public void DataUpdate(PluginManager pm, ref SHGameData data) {
         var swatch = Stopwatch.StartNew();
+        if (DynLeaderboardsPlugin._Game.IsAcc) {
+            // change in data.GameRunning and data.RunningGameProcessDetected is checked by subscriptions to SimHub events
+            // those detect when we should start our own broadcast client and when to shut down mostly.
+            // However those cannot detect if we left the session while in spectator mode,
+            // if that happens out client won't receive any updates and we should shut it down too
+            if (this._accBroadcastingManager is not null
+                && this._accBroadcastingManager._IsConnected
+                && DateTime.Now - this._accBroadcastingManager._LastUpdate
+                > DynLeaderboardsPlugin._accBroadcastingTimeout) {
+                Logging.LogInfo("AccBroadcasting client hasn't received updates for 15 seconds, shutting down");
+                // this change is equivalent to GameRunning -> false
+                this.Values.OnGameStateChanged(false, pm);
+                this.OnGameStateChanged(false, pm);
+            }
+        }
+
         if (data is { GameRunning: true, OldData: not null, NewData: not null }) {
-            // // Uncomment to use our own ACC broadcasting client,
-            // // mainly here for testing purposes
-            // // The client should be later properly worked into the plugin to allow automatic switch to broadcasting
-            // // mode when SimHub ends their connection
-            //if (DynLeaderboardsPlugin._Game.IsAcc) {
-            //     if (this._accBroadcastingManager is null) {
-            //         Logging.LogInfo("Created ACCBroadcastingClient");
-            //         this._accBroadcastingManager = new AccBroadcastingManager();
-            //         this._accBroadcastingManager.OnDataUpdated += (data) => { 
-            //             var swatch = Stopwatch.StartNew();
-            //             if (this._gameData is null) {
-            //                 this._gameData = new GameData(data, data);
-            //             } else {
-            //                 this._gameData.Update(data);
-            //             }
-            //             
-            //             this._dataCopyTime = swatch.Elapsed.TotalMilliseconds;
-            //             
-            //             this.Values.OnDataUpdate(pm, this._gameData);
-            //             foreach (var ldb in this.DynLeaderboards) {
-            //                 ldb.OnDataUpdate(this.Values);
-            //             }
-            //         };
-            //     }
-            // } else {
             if (this._gameData is null) {
                 this._gameData = new GameData(oldData: data.OldData, newData: data.NewData);
             } else {
@@ -90,7 +89,6 @@ public sealed class DynLeaderboardsPlugin : IDataPlugin, IWPFSettingsV2 {
             foreach (var ldb in this.DynLeaderboards) {
                 ldb.OnDataUpdate(this.Values);
             }
-            //}
         }
 
         swatch.Stop();
@@ -745,17 +743,99 @@ public sealed class DynLeaderboardsPlugin : IDataPlugin, IWPFSettingsV2 {
 
     private void SubscribeToSimHubEvents(PluginManager pm) {
         pm.GameStateChanged += this.Values.OnGameStateChanged;
-        pm.GameStateChanged += (running, _) => {
-            Logging.LogInfo($"GameStateChanged to running={running}");
-            if (running) {
-                return;
+        pm.GameStateChanged += this.OnGameStateChanged;
+
+        pm.GameRunningOrProcessDetectedChanged += this.OnGameRunningOrProcessDetectedChanged;
+    }
+
+    private void OnGameStateChanged(bool running, PluginManager pm) {
+        Logging.LogInfo(
+            $"OnGameStateChanged: running={running}, GameRunning={pm.LastData.GameRunning}, GameProcessDetected={pm.LastData.RunningGameProcessDetected}"
+        );
+
+        if (running) {
+            if (this._accBroadcastingManager is not null) {
+                // either we were in spectating mode or we tried to check for it
+                // either way, dispose our own client as SimHub will be giving us the data
+                this.DisposeAccBroadcasting();
+            }
+        } else {
+            if (DynLeaderboardsPlugin._Game.IsAcc) {
+                this.DisposeAccBroadcasting();
+                if (pm.LastData.RunningGameProcessDetected) {
+                    // potentially we are spectating the race, but we don't know for sure
+                    // only way is to try and connect to ACC's broadcasting service.
+                    // Below will keep trying to connect.
+
+                    // delay so that we don't immediately reconnect when exiting session
+                    // this however means that there is a bit of a delay on driver swaps
+                    // but we have no way of knowing in which situation we are in
+                    this.ConnectAccBroadcasting(5000);
+                }
             }
 
             this._gameData = null;
-            this._accBroadcastingManager?.Dispose();
-            this._accBroadcastingManager = null;
             Logging.TryFlush();
+        }
+    }
+
+    private void OnGameRunningOrProcessDetectedChanged(PluginManager pm, SHGameData data, bool newStata) {
+        Logging.LogInfo(
+            $"OnGameRunningOrProcessDetectedChanged: newSate={newStata}, GameRunning={data.GameRunning}, GameProcessDetected={data.RunningGameProcessDetected}"
+        );
+
+        if (!newStata) {
+            // game was actually closed, reset everything
+            this.DisposeAccBroadcasting();
+            this.Values.Reset();
+        } else {
+            if (DynLeaderboardsPlugin._Game.IsAcc) {
+                // if we start up the game and join directly as spectating
+                // then GameRunning will never be changed and we never start our own client
+                this.DisposeAccBroadcasting();
+                // is data.GameRunning == true, then we opened SimHub in live session, don't start our own client
+                if (!data.GameRunning) {
+                    this.ConnectAccBroadcasting();
+                }
+            }
+        }
+    }
+
+    private void ConnectAccBroadcasting(int delay = 0) {
+        if (this._accBroadcastingManager is not null) {
+            return;
+        }
+
+        Logging.LogInfo("Created ACCBroadcastingManager");
+        this._accBroadcastingManager = new AccBroadcastingManager(delay);
+        this._accBroadcastingManager.OnDataUpdated += data => {
+            Logging.LogInfo("OnDataUpdate");
+            var swatch = Stopwatch.StartNew();
+            if (this._gameData is null) {
+                this._gameData = new GameData(data, data);
+            } else {
+                this._gameData.Update(data);
+            }
+
+            this._dataCopyTime = swatch.Elapsed.TotalMilliseconds;
+
+            this.Values.OnDataUpdate(this.PluginManager, this._gameData);
+            foreach (var ldb in this.DynLeaderboards) {
+                ldb.OnDataUpdate(this.Values);
+            }
+
+            this._dataUpdateTime = swatch.Elapsed.TotalSeconds;
         };
+    }
+
+    private void DisposeAccBroadcasting() {
+        if (this._accBroadcastingManager is null) {
+            return;
+        }
+
+        Logging.LogInfo("Disposing...");
+        this._accBroadcastingManager.Dispose();
+        this._accBroadcastingManager = null;
     }
 
     private static void PreJit() {

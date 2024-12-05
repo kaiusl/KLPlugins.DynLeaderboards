@@ -25,6 +25,8 @@ internal sealed class AccUdpRemoteClient : IDisposable {
     private UdpClient? _client;
     private Task? _listenerTask;
 
+    internal DateTime _LastUpdate { get; private set; } = DateTime.Now;
+
     /// <summary>
     ///     To get the events delivered inside the UI thread, just create this object from the UI thread/synchronization
     ///     context.
@@ -35,7 +37,8 @@ internal sealed class AccUdpRemoteClient : IDisposable {
         string displayName,
         string connectionPassword,
         string commandPassword,
-        int msRealtimeUpdateInterval
+        int msRealtimeUpdateInterval,
+        int delay = 0
     ) {
         this._ipPort = $"{ip}:{port}";
         this._MessageHandler = new BroadcastingNetworkProtocol(this._ipPort, this.Send);
@@ -48,19 +51,22 @@ internal sealed class AccUdpRemoteClient : IDisposable {
         this._msRealtimeUpdateInterval = msRealtimeUpdateInterval;
         this._IsConnected = false;
         this._MessageHandler.OnConnectionStateChanged += this.OnBroadcastConnectionStateChanged;
-
-        Logging.LogInfo("Requested broadcast connection");
-        this._listenerTask = this.ConnectAndRun();
+        this._listenerTask = this.ConnectAndRun(delay);
     }
 
-    internal AccUdpRemoteClient(AccUdpRemoteClientConfig cfg) : this(
+    internal AccUdpRemoteClient(AccUdpRemoteClientConfig cfg, int delay = 0) : this(
         cfg._Ip,
         cfg._Port,
         cfg._DisplayName,
         cfg._ConnectionPassword,
         cfg._CommandPassword,
-        cfg._UpdateIntervalMs
+        cfg._UpdateIntervalMs,
+        delay
     ) { }
+
+    ~AccUdpRemoteClient() {
+        this.Dispose();
+    }
 
     private void Send(byte[] payload) {
         if (this._client == null) {
@@ -71,22 +77,12 @@ internal sealed class AccUdpRemoteClient : IDisposable {
         _ = this._client.Send(payload, payload.Length);
     }
 
-    internal void Shutdown() {
-        this.ShutdownAsync()
-            .ContinueWith(
-                t => {
-                    if (t.Exception?.InnerExceptions?.Any() == true) {
-                        Logging.LogError($"Client shut down with {t.Exception.InnerExceptions.Count} errors");
-                    } else {
-                        Logging.LogInfo("Client shut down asynchronously");
-                    }
-                }
-            );
-    }
-
-    private async Task ShutdownAsync() {
+    internal async Task ShutdownAsync() {
         if (this._listenerTask != null && !this._listenerTask.IsCompleted) {
-            this._MessageHandler.Disconnect();
+            if (this._IsConnected) {
+                this._MessageHandler.Disconnect();
+            }
+
             this._client?.Close();
             this._client = null;
             this._IsConnected = false;
@@ -95,21 +91,56 @@ internal sealed class AccUdpRemoteClient : IDisposable {
         }
     }
 
-    private async Task ConnectAndRun() {
-        this.RequestConnection();
+    private async Task ConnectAndRun(int delay = 0) {
+        // delay first request so that when we exist sessions the game's server is not actually running anymore
+        // otherwise we immediately reconnect again
+        if (delay > 0) {
+            await Task.Delay(delay);
+        }
+
         while (this._client != null) {
+            this.RequestConnection();
             try {
-                var udpPacket = await this._client.ReceiveAsync();
+                var result = await Task.WhenAny(this._client.ReceiveAsync(), Task.Delay(5000));
+                if (result is not Task<UdpReceiveResult> udpResult) {
+                    throw new TimeoutException();
+                }
+
+                var udpPacket = await udpResult;
                 using var ms = new MemoryStream(udpPacket.Buffer);
                 using var reader = new BinaryReader(ms);
+                this._LastUpdate = DateTime.Now;
                 this._MessageHandler.ProcessMessage(reader);
+                Logging.LogInfo("Connected!");
+                break;
             } catch (ObjectDisposedException) {
                 // Shutdown happened
                 Logging.LogInfo("Broadcast client shut down.");
                 break;
-            } catch (SocketException ex) {
+            } catch (Exception ex) {
                 // Other exceptions
-                Logging.LogInfo($"Failed to receive ACC message. Err {ex}.");
+                Logging.LogWarn("Failed to connect to broadcast client. Trying again in 5s.");
+            }
+
+            await Task.Delay(5000);
+        }
+
+        while (this._client != null) {
+            try {
+                var result = await Task.WhenAny(this._client.ReceiveAsync(), Task.Delay(5000));
+                if (result is Task<UdpReceiveResult> udpResult) {
+                    var udpPacket = await udpResult;
+                    using var ms = new MemoryStream(udpPacket.Buffer);
+                    using var reader = new BinaryReader(ms);
+                    this._LastUpdate = DateTime.Now;
+                    this._MessageHandler.ProcessMessage(reader);
+                } else {
+                    throw new TimeoutException();
+                }
+            } catch (ObjectDisposedException) {
+                // Shutdown happened
+                Logging.LogInfo("Broadcast client shut down.");
+                break;
             } catch (Exception ex) {
                 // Other exceptions
                 Logging.LogInfo($"Failed to process ACC message. Err {ex}.");
@@ -120,6 +151,7 @@ internal sealed class AccUdpRemoteClient : IDisposable {
     }
 
     private void RequestConnection() {
+        Logging.LogInfo("Requested connection to broadcast client.");
         this._MessageHandler.RequestConnection(
             displayName: this._displayName,
             connectionPassword: this._connectionPassword,
@@ -151,37 +183,32 @@ internal sealed class AccUdpRemoteClient : IDisposable {
         if (!this._disposedValue) {
             if (disposing) {
                 try {
-                    Logging.LogInfo("Disposed.");
-                    if (this._client != null) {
-                        this._MessageHandler.Disconnect();
-                        this._client.Close();
-                        this._client.Dispose();
-                        this._client = null;
-                        this._IsConnected = false;
-                    }
+                    Logging.LogInfo("Disposing...");
+                    this.ShutdownAsync()
+                        .ContinueWith(
+                            t => {
+                                if (t.Exception?.InnerExceptions?.Any() == true) {
+                                    Logging.LogError(
+                                        $"Client shut down with {t.Exception.InnerExceptions.Count} errors"
+                                    );
+                                } else {
+                                    Logging.LogInfo("Client shut down asynchronously");
+                                }
+                            }
+                        )
+                        .RunSynchronously();
                 } catch (Exception ex) {
                     System.Diagnostics.Debug.WriteLine(ex);
                 }
             }
 
-            // TODO: free unmanaged resources (unmanaged objects) and override a finalizer below.
-            // TODO: set large fields to null.
-
             this._disposedValue = true;
         }
     }
 
-    // TODO: override a finalizer only if Dispose(bool disposing) above has code to free unmanaged resources.
-    // ~ACCUdpRemoteClient() {
-    //   // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
-    //   Dispose(false);
-    // }
 
-    // This code added to correctly implement the disposable pattern.
     public void Dispose() {
-        // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
         this.Dispose(true);
-        // TODO: uncomment the following line if the finalizer is overridden above.
         // GC.SuppressFinalize(this);
     }
 

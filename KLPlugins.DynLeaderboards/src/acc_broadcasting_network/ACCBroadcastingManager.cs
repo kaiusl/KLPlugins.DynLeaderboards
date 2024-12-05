@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 
 using KLPlugins.DynLeaderboards.Common;
+using KLPlugins.DynLeaderboards.Log;
 
 using ksBroadcastingNetwork.Structs;
 
@@ -17,19 +18,22 @@ internal class AccBroadcastingManager {
     private static readonly SimHubAccCarsInfo _broadcastIdToNameAndClass;
     private TrackData? _trackData = null;
 
+    internal bool _IsConnected => this._client?._IsConnected ?? false;
+    internal DateTime _LastUpdate => this._client?._LastUpdate ?? DateTime.Now;
     public event Action<GameDataBase>? OnDataUpdated;
 
     static AccBroadcastingManager() {
         AccBroadcastingManager._broadcastIdToNameAndClass = new SimHubAccCarsInfo();
     }
 
-    public AccBroadcastingManager() {
+    public AccBroadcastingManager(int delay = 0) {
         this._client = new AccUdpRemoteClient(
             new AccUdpRemoteClientConfig(
                 "127.0.0.1",
                 "DynLeaderboardsPlugin",
                 DynLeaderboardsPlugin._Settings.BroadcastDataUpdateRateMs
-            )
+            ),
+            delay
         );
         this._client._MessageHandler.OnNewEntrylist += this.OnNewEntryList;
         this._client._MessageHandler.OnEntrylistUpdate += this.OnEntryListUpdate;
@@ -44,19 +48,19 @@ internal class AccBroadcastingManager {
     }
 
     internal void Dispose() {
+        Logging.LogInfo("Disposing...");
+        this.OnDataUpdated = null;
+
         if (this._client != null) {
-            this._client.Shutdown();
-            this._client.Dispose();
             this._client._MessageHandler.OnNewEntrylist -= this.OnNewEntryList;
             this._client._MessageHandler.OnEntrylistUpdate -= this.OnEntryListUpdate;
             this._client._MessageHandler.OnRealtimeCarUpdate -= this.OnRealtimeCarUpdate;
             this._client._MessageHandler.OnRealtimeUpdate -= this.OnRealtimeUpdate;
             this._client._MessageHandler.OnTrackDataUpdate -= this.OnTrackDataUpdate;
             this._client._MessageHandler.OnBroadcastingEvent -= this.OnBroadcastingEvent;
+            this._client.Dispose();
             this._client = null;
         }
-
-        this.OnDataUpdated = null;
     }
 
     private void OnNewEntryList(string sender) {

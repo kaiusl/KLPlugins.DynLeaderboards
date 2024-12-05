@@ -126,7 +126,8 @@ public sealed class Values : IDisposable {
         }
     }
 
-    private int _skipCarUpdatesCount = 0;
+    private static readonly TimeSpan _skipCarUpdatesAtStart = TimeSpan.FromSeconds(1);
+    private DateTime _lastSessionResetTime = DateTime.Now;
 
     internal void OnDataUpdate(PluginManager _, GameData data) {
         this.Session.OnDataUpdate(data);
@@ -149,7 +150,7 @@ public sealed class Values : IDisposable {
                 this.TrackData.BuildLapInterpolator(car.CarClass);
             }
 
-            this._skipCarUpdatesCount = 0;
+            this._lastSessionResetTime = DateTime.Now;
         }
 
         if (this.TrackData == null) {
@@ -165,9 +166,8 @@ public sealed class Values : IDisposable {
 
         this.TrackData.OnDataUpdate();
 
-        if (this.TrackData.LengthMeters == 0)
+        if (this.TrackData.LengthMeters == 0) {
             // In ACC sometimes the track length is not immediately available, and is 0.
-        {
             this.TrackData.SetLength(data);
         }
 
@@ -175,10 +175,8 @@ public sealed class Values : IDisposable {
 
         // Skip car updates for few updated after new session so that everything from the SimHub's side would be reset
         // Atm this is important in AMS2, so that old session data doesn't leak into new session
-        if (this._skipCarUpdatesCount > 100) {
+        if (DateTime.Now - this._lastSessionResetTime > Values._skipCarUpdatesAtStart) {
             this.UpdateCars(data);
-        } else {
-            this._skipCarUpdatesCount++;
         }
     }
 

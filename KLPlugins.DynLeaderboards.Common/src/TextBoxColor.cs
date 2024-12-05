@@ -37,7 +37,9 @@ public class TextBoxColor(string fg, string bg) {
 public readonly struct ReadOnlyTextBoxColor {
     private readonly TextBoxColor _inner;
 
-    internal ReadOnlyTextBoxColor(TextBoxColor inner) => this._inner = inner;
+    public ReadOnlyTextBoxColor(TextBoxColor inner) {
+        this._inner = inner;
+    }
 
     public string Fg => this._inner.Fg;
     public string Bg => this._inner.Bg;

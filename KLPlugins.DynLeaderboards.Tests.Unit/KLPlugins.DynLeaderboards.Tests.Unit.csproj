@@ -52,10 +52,6 @@
         <Compile Include="src\Settings\TextBoxColorsTest.cs"/>
     </ItemGroup>
     <ItemGroup>
-        <ProjectReference Include="..\KLPlugins.DynLeaderboards.Common.Internals\KLPlugins.DynLeaderboards.Common.Internals.csproj">
-            <Project>{b1ddea94-976a-4aae-b5ac-b0d5ee738e5b}</Project>
-            <Name>KLPlugins.DynLeaderboards.Common.Internals</Name>
-        </ProjectReference>
       <ProjectReference Include="..\KLPlugins.DynLeaderboards.Common\KLPlugins.DynLeaderboards.Common.csproj">
         <Project>{f0009219-c94e-4ccf-b9c7-235621d97106}</Project>
         <Name>KLPlugins.DynLeaderboards.Common</Name>

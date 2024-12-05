@@ -56,8 +56,13 @@ internal static class Logging {
         Logging.Log(msg, memberName, sourceFilePath, lineNumber, "DEBUG", SimHub.Logging.Current.Info);
     }
     #else
-        public static void DebugLogInfo(string msg, string memberName = "",  string sourceFilePath = "", int lineNumber
- = 0) { }
+    public static void DebugLogInfo(
+        string msg,
+        string memberName = "",
+        string sourceFilePath = "",
+        int lineNumber
+            = 0
+    ) { }
     #endif
 
     public static void LogInfo(

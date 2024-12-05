@@ -43,24 +43,29 @@
         <OutputPath>bin\Debug Test\</OutputPath>
     </PropertyGroup>
     <ItemGroup>
+        <Reference Include="log4net">
+            <HintPath>C:\Program Files (x86)\SimHub\log4net.dll</HintPath>
+        </Reference>
         <Reference Include="Newtonsoft.Json">
             <HintPath>C:\Program Files (x86)\SimHub\Newtonsoft.Json.dll</HintPath>
         </Reference>
         <Reference Include="PresentationCore"/>
+        <Reference Include="SimHub.Logging">
+            <HintPath>C:\Program Files (x86)\SimHub\SimHub.Logging.dll</HintPath>
+        </Reference>
         <Reference Include="System"/>
         <Reference Include="System.Core"/>
     </ItemGroup>
     <ItemGroup>
         <Compile Include="Properties\AssemblyInfo.cs"/>
         <Compile Include="src\Game.cs"/>
+        <Compile Include="src\internals\Box.cs"/>
+        <Compile Include="src\internals\Extensions.cs"/>
+        <Compile Include="src\internals\JsonTools.cs"/>
+        <Compile Include="src\internals\Logging.cs"/>
+        <Compile Include="src\internals\PluginConstants.cs"/>
         <Compile Include="src\TextBoxColor.cs" />
         <Compile Include="src\TypedStrings.cs"/>
-    </ItemGroup>
-    <ItemGroup>
-      <ProjectReference Include="..\KLPlugins.DynLeaderboards.Common.Internals\KLPlugins.DynLeaderboards.Common.Internals.csproj">
-        <Project>{b1ddea94-976a-4aae-b5ac-b0d5ee738e5b}</Project>
-        <Name>KLPlugins.DynLeaderboards.Common.Internals</Name>
-      </ProjectReference>
     </ItemGroup>
     <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets"/>
     <Target Name="AfterBuild">

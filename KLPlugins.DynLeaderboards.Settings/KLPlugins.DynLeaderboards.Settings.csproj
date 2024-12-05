@@ -65,9 +65,6 @@
         <OutputPath>bin\Debug Test\</OutputPath>
     </PropertyGroup>
     <ItemGroup>
-        <Reference Include="log4net">
-            <HintPath>C:\Program Files (x86)\SimHub\log4net.dll</HintPath>
-        </Reference>
         <Reference Include="MahApps.Metro">
             <HintPath>C:\Program Files (x86)\SimHub\MahApps.Metro.dll</HintPath>
         </Reference>
@@ -76,9 +73,6 @@
         </Reference>
         <Reference Include="PresentationCore"/>
         <Reference Include="PresentationFramework"/>
-        <Reference Include="SimHub.Logging">
-            <HintPath>C:\Program Files (x86)\SimHub\SimHub.Logging.dll</HintPath>
-        </Reference>
         <Reference Include="SimHub.Plugins">
             <HintPath>C:\Program Files (x86)\SimHub\SimHub.Plugins.dll</HintPath>
         </Reference>
@@ -153,10 +147,6 @@
         </Page>
     </ItemGroup>
     <ItemGroup>
-        <ProjectReference Include="..\KLPlugins.DynLeaderboards.Common.Internals\KLPlugins.DynLeaderboards.Common.Internals.csproj">
-          <Project>{b1ddea94-976a-4aae-b5ac-b0d5ee738e5b}</Project>
-          <Name>KLPlugins.DynLeaderboards.Common.Internals</Name>
-        </ProjectReference>
         <ProjectReference Include="..\KLPlugins.DynLeaderboards.Common\KLPlugins.DynLeaderboards.Common.csproj">
             <Project>{f0009219-c94e-4ccf-b9c7-235621d97106}</Project>
             <Name>KLPlugins.DynLeaderboards.Common</Name>

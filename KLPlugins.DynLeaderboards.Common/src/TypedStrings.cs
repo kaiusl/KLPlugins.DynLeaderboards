@@ -32,40 +32,40 @@ public readonly record struct CarClass : IComparable<CarClass> {
     public int CompareTo(CarClass other) {
         return string.Compare(this._cls, other._cls, StringComparison.Ordinal);
     }
-}
 
-internal sealed class CarClassTypeConverter : TypeConverter {
-    public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType) {
-        return sourceType == typeof(string);
-    }
-
-    public override object ConvertFrom(
-        ITypeDescriptorContext context,
-        System.Globalization.CultureInfo culture,
-        object? value
-    ) {
-        if (value is string val) {
-            return new CarClass(val);
+    private sealed class CarClassTypeConverter : TypeConverter {
+        public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType) {
+            return sourceType == typeof(string);
         }
 
-        throw new NotSupportedException($"cannot convert from `{value?.GetType()}` to `CarClass`");
-    }
+        public override object ConvertFrom(
+            ITypeDescriptorContext context,
+            System.Globalization.CultureInfo culture,
+            object? value
+        ) {
+            if (value is string val) {
+                return new CarClass(val);
+            }
 
-    public override bool CanConvertTo(ITypeDescriptorContext context, Type destinationType) {
-        return destinationType == typeof(string);
-    }
-
-    public override object ConvertTo(
-        ITypeDescriptorContext context,
-        System.Globalization.CultureInfo culture,
-        object value,
-        Type destinationType
-    ) {
-        if (value is CarClass cls && destinationType == typeof(string)) {
-            return cls.AsString();
+            throw new NotSupportedException($"cannot convert from `{value?.GetType()}` to `CarClass`");
         }
 
-        throw new NotSupportedException($"cannot convert from `CarClass` to `{destinationType}`");
+        public override bool CanConvertTo(ITypeDescriptorContext context, Type destinationType) {
+            return destinationType == typeof(string);
+        }
+
+        public override object ConvertTo(
+            ITypeDescriptorContext context,
+            System.Globalization.CultureInfo culture,
+            object value,
+            Type destinationType
+        ) {
+            if (value is CarClass cls && destinationType == typeof(string)) {
+                return cls.AsString();
+            }
+
+            throw new NotSupportedException($"cannot convert from `CarClass` to `{destinationType}`");
+        }
     }
 }
 
@@ -98,40 +98,41 @@ public readonly record struct TeamCupCategory : IComparable<TeamCupCategory> {
     public int CompareTo(TeamCupCategory other) {
         return string.Compare(this._cls, other._cls, StringComparison.Ordinal);
     }
-}
 
-internal sealed class TeamCupCategoryTypeConverter : TypeConverter {
-    public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType) {
-        return sourceType == typeof(string);
-    }
 
-    public override object ConvertFrom(
-        ITypeDescriptorContext context,
-        System.Globalization.CultureInfo culture,
-        object? value
-    ) {
-        if (value is string val) {
-            return new TeamCupCategory(val);
+    private sealed class TeamCupCategoryTypeConverter : TypeConverter {
+        public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType) {
+            return sourceType == typeof(string);
         }
 
-        throw new NotSupportedException($"cannot convert from `{value?.GetType()}` to `TeamCupCategory`");
-    }
+        public override object ConvertFrom(
+            ITypeDescriptorContext context,
+            System.Globalization.CultureInfo culture,
+            object? value
+        ) {
+            if (value is string val) {
+                return new TeamCupCategory(val);
+            }
 
-    public override bool CanConvertTo(ITypeDescriptorContext context, Type destinationType) {
-        return destinationType == typeof(string);
-    }
-
-    public override object ConvertTo(
-        ITypeDescriptorContext context,
-        System.Globalization.CultureInfo culture,
-        object value,
-        Type destinationType
-    ) {
-        if (value is TeamCupCategory category && destinationType == typeof(string)) {
-            return category.AsString();
+            throw new NotSupportedException($"cannot convert from `{value?.GetType()}` to `TeamCupCategory`");
         }
 
-        throw new NotSupportedException($"cannot convert from `TeamCupCategory` to `{destinationType}`");
+        public override bool CanConvertTo(ITypeDescriptorContext context, Type destinationType) {
+            return destinationType == typeof(string);
+        }
+
+        public override object ConvertTo(
+            ITypeDescriptorContext context,
+            System.Globalization.CultureInfo culture,
+            object value,
+            Type destinationType
+        ) {
+            if (value is TeamCupCategory category && destinationType == typeof(string)) {
+                return category.AsString();
+            }
+
+            throw new NotSupportedException($"cannot convert from `TeamCupCategory` to `{destinationType}`");
+        }
     }
 }
 
@@ -164,39 +165,40 @@ public readonly record struct DriverCategory : IComparable<DriverCategory> {
     public int CompareTo(DriverCategory other) {
         return string.Compare(this._cls, other._cls, StringComparison.Ordinal);
     }
-}
 
-internal sealed class DriverCategoryTypeConverter : TypeConverter {
-    public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType) {
-        return sourceType == typeof(string);
-    }
 
-    public override object ConvertFrom(
-        ITypeDescriptorContext context,
-        System.Globalization.CultureInfo culture,
-        object? value
-    ) {
-        if (value is string val) {
-            return new DriverCategory(val);
+    private sealed class DriverCategoryTypeConverter : TypeConverter {
+        public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType) {
+            return sourceType == typeof(string);
         }
 
-        throw new NotSupportedException($"cannot convert from `{value?.GetType()}` to `DriverCategory`");
-    }
+        public override object ConvertFrom(
+            ITypeDescriptorContext context,
+            System.Globalization.CultureInfo culture,
+            object? value
+        ) {
+            if (value is string val) {
+                return new DriverCategory(val);
+            }
 
-    public override bool CanConvertTo(ITypeDescriptorContext context, Type destinationType) {
-        return destinationType == typeof(string);
-    }
-
-    public override object ConvertTo(
-        ITypeDescriptorContext context,
-        System.Globalization.CultureInfo culture,
-        object value,
-        Type destinationType
-    ) {
-        if (value is DriverCategory category && destinationType == typeof(string)) {
-            return category.AsString();
+            throw new NotSupportedException($"cannot convert from `{value?.GetType()}` to `DriverCategory`");
         }
 
-        throw new NotSupportedException($"cannot convert from `DriverCategory` to `{destinationType}`");
+        public override bool CanConvertTo(ITypeDescriptorContext context, Type destinationType) {
+            return destinationType == typeof(string);
+        }
+
+        public override object ConvertTo(
+            ITypeDescriptorContext context,
+            System.Globalization.CultureInfo culture,
+            object value,
+            Type destinationType
+        ) {
+            if (value is DriverCategory category && destinationType == typeof(string)) {
+                return category.AsString();
+            }
+
+            throw new NotSupportedException($"cannot convert from `DriverCategory` to `{destinationType}`");
+        }
     }
 }

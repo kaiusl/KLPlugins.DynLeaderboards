@@ -1,6 +1,5 @@
 using System;
 
-using KLPlugins.DynLeaderboards.AccBroadcastingNetwork;
 using KLPlugins.DynLeaderboards.Log;
 
 using ksBroadcastingNetwork;
@@ -64,7 +63,6 @@ public sealed class Session {
         if (DynLeaderboardsPlugin._Game.IsAcc) {
             var newSessionIndex = data._NewData.GetRawDataObject() switch {
                 ACSharedMemory.ACC.Reader.ACCRawData rawDataNew => rawDataNew.Graphics.SessionIndex,
-                AccBroadcastingRawData d => d._RealtimeUpdate.SessionIndex,
                 var d => throw new Exception($"Unknown data type for ACC `{d?.GetType()}`"),
             };
 
@@ -114,11 +112,6 @@ public sealed class Session {
                         }
                     }
 
-                    break;
-                case AccBroadcastingRawData d:
-                    this._sessionIndex = d._RealtimeUpdate.SessionIndex;
-                    this.TimeOfDay = d._RealtimeUpdate.TimeOfDay;
-                    // broadcast data doesn't give max drive times
                     break;
                 case var d:
                     throw new Exception($"Unknown data type for ACC `{d?.GetType()}`");
@@ -172,17 +165,7 @@ internal static class SessionTypeExtensions {
                     (ACSharedMemory.ACC.MMFModels.AC_SESSION_TYPE)8 => SessionType.HOTLAP_SUPERPOLE,
                     _ => SessionType.UNKNOWN,
                 },
-                AccBroadcastingRawData d => d._RealtimeUpdate.SessionType switch {
-                    RaceSessionType.Practice => SessionType.PRACTICE,
-                    RaceSessionType.Qualifying => SessionType.QUALIFYING,
-                    RaceSessionType.Superpole => SessionType.SUPERPOLE,
-                    RaceSessionType.Race => SessionType.RACE,
-                    RaceSessionType.Hotlap => SessionType.HOTLAP,
-                    RaceSessionType.Hotstint => SessionType.HOTSTINT,
-                    RaceSessionType.HotlapSuperpole => SessionType.HOTLAP_SUPERPOLE,
-                    RaceSessionType.Replay => SessionType.UNKNOWN,
-                    _ => throw new ArgumentOutOfRangeException(),
-                },
+
                 var d => throw new Exception($"Unknown data type for ACC `{d?.GetType()}`"),
             };
         }
@@ -278,7 +261,6 @@ internal static class SessionPhaseExtensions {
         if (DynLeaderboardsPlugin._Game.IsAcc) {
             var realtimeUpdate = data._NewData.GetRawDataObject() switch {
                 ACSharedMemory.ACC.Reader.ACCRawData d => d.Realtime,
-                AccBroadcastingRawData d => d._RealtimeUpdate,
                 var d => throw new Exception($"Unknown data type for ACC `{d?.GetType()}`"),
             };
 

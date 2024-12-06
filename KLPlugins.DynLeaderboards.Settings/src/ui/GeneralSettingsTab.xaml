@@ -38,7 +38,6 @@
 
             <Grid>
                 <Grid.Resources>
-                    <system:String x:Key="ACC_Config_Location_Tooltip">Location of ACC configuration folder. That is where for example ..\Config\broadcasting.json is located.</system:String>
                     <system:String x:Key="AC_Root_Location_Tooltip">Location of AC root folder. That is where for example ..\content\cars is located.</system:String>
 
                     <Style TargetType="{x:Type TextBlock}"
@@ -71,62 +70,19 @@
 
                 <Grid.RowDefinitions>
                     <RowDefinition MinHeight="35" />
-                    <RowDefinition MinHeight="35" />
                 </Grid.RowDefinitions>
-
-                <TextBlock Style="{StaticResource Label}"
-                           ToolTip="{StaticResource ACC_Config_Location_Tooltip}">
-                    ACC configuration location:
-                </TextBlock>
-                <TextBox Style="{StaticResource Location}"
-                         ToolTip="{StaticResource ACC_Config_Location_Tooltip}"
-                         Text="{Binding AccDataLocation, Mode=TwoWay}"
-                         Background="{Binding AccDataLocationBackground}"
-                         BorderBrush="{Binding AccDataLocationBorderBrush}" />
-
                 <TextBlock Style="{StaticResource Label}"
                            ToolTip="{StaticResource AC_Root_Location_Tooltip}"
-                           Grid.Row="1">
+                           Grid.Row="0">
                     AC root location:
                 </TextBlock>
                 <TextBox Style="{StaticResource Location}"
                          ToolTip="{StaticResource AC_Root_Location_Tooltip}"
-                         Grid.Row="1"
+                         Grid.Row="0"
+                         Grid.Column="1"
                          Text="{Binding AcRootLocation, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                          Background="{Binding AcRootLocationBackground}"
                          BorderBrush="{Binding AcRootLocationBorderBrush}" />
-            </Grid>
-
-            <local:SectionTitle HelpPath="user_guide/config/#acc">ACC</local:SectionTitle>
-
-            <Grid>
-                <Grid.Resources>
-                    <system:String x:Key="AccAutoSpectatorModeTooltip">If enabled, the plugin will also work in spectator mode even though SimHub is not set to ACC spectator mode. This is useful mostly in driver-swap races so that when you stop driving, then the connection to ACC is not severed. Note that this involves runtime checks at every update and thus if you don't need it, it's suggested to disable this option.</system:String>
-
-                    <Style TargetType="{x:Type TextBlock}"
-                           BasedOn="{StaticResource {x:Type TextBlock}}">
-                        <Setter Property="Grid.Column"
-                                Value="0" />
-                    </Style>
-                </Grid.Resources>
-
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition MinWidth="200"
-                                      Width="auto" />
-                    <ColumnDefinition Width="*" />
-                </Grid.ColumnDefinitions>
-
-                <Grid.RowDefinitions>
-                    <RowDefinition MinHeight="35" />
-                </Grid.RowDefinitions>
-
-                <TextBlock Grid.Column="0" Grid.Row="0"
-                           Text="Auto spectator mode: "
-                           ToolTip="{StaticResource AccAutoSpectatorModeTooltip}" />
-                <styles:SHToggleButton Grid.Column="1" Grid.Row="0" HorizontalAlignment="Left"
-                                       ToolTip="{StaticResource AccAutoSpectatorModeTooltip}"
-                                       x:Name="AccAutoSpectatorMode_ToggleButton"
-                                       IsChecked="{Binding AccAutoSpectatorMode, Mode=TwoWay}" />
             </Grid>
 
             <!-- Exposed properties -->

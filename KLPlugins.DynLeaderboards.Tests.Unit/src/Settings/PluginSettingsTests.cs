@@ -15,10 +15,8 @@ public class PluginSettingsTests {
         const string JSON = """
                             {
                                 "Version": 450,
-                                "AccDataLocation": "ACCPath",
                                 "AcRootLocation": null,
                                 "Log": true,
-                                "BroadcastDataUpdateRateMs": 500,
                                 "OutGeneralProps": 254
                             }
                             """;
@@ -26,10 +24,8 @@ public class PluginSettingsTests {
         Assert.NotNull(settings);
 
         Assert.Equal(450, settings!.Version);
-        Assert.Equal("ACCPath", settings.AccDataLocation);
         Assert.Null(settings.AcRootLocation);
         Assert.True(settings.Log);
-        Assert.Equal(500, settings.BroadcastDataUpdateRateMs);
         Assert.Equal((OutGeneralProp)254, settings.OutGeneralProps.Value);
     }
 
@@ -38,11 +34,8 @@ public class PluginSettingsTests {
         const string JSON = """
                             {
                               "Version": 450,
-                              "AccDataLocation": "ACCPath",
-                              "AcRootLocation": null,
+                              "AcRootLocation": "AcPath",
                               "Log": true,
-                              "BroadcastDataUpdateRateMs": 500,
-                              "AccAutoSpectatorMode": true,
                               "OutGeneralProps": 254
                             }
                             """;

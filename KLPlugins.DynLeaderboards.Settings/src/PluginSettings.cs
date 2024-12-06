@@ -31,20 +31,12 @@ public sealed class PluginSettings {
     [JsonProperty("Version", Required = Required.Always)]
     public int Version { get; internal set; } = PluginSettings._CURRENT_SETTINGS_VERSION;
 
-    [JsonProperty("AccDataLocation")]
-    public string? AccDataLocation { get; internal set; }
-
     [JsonProperty("AcRootLocation")]
     public string? AcRootLocation { get; internal set; }
 
     [JsonProperty("Log")]
     public bool Log { get; internal set; }
 
-    [JsonProperty("BroadcastDataUpdateRateMs")]
-    public int BroadcastDataUpdateRateMs { get; internal set; }
-
-    [JsonProperty("AccAutoSpectatorMode")]
-    public bool AccAutoSpectatorMode { get; internal set; } = false;
 
     public ReadonlyOutProps<OutPropsBase<OutGeneralProp>, OutGeneralProp> OutGeneralProps =>
         this._OutGeneralPropsInternal.AsReadonly();
@@ -61,9 +53,7 @@ public sealed class PluginSettings {
 
     [JsonConstructor]
     public PluginSettings() {
-        this.AccDataLocation = PluginSettings._defAccDataLocation;
         this.Log = false;
-        this.BroadcastDataUpdateRateMs = 500;
         this.DynLeaderboardConfigs = this._dynLeaderboardConfigs.AsReadOnly();
     }
 
@@ -187,14 +177,6 @@ public sealed class PluginSettings {
         }
 
         this._dynLeaderboardConfigs.Remove(cfg);
-    }
-
-    internal bool IsAccDataLocationValid() {
-        if (this.AccDataLocation == null) {
-            return false;
-        }
-
-        return Directory.Exists(Path.Combine(this.AccDataLocation, "Config"));
     }
 
     internal bool IsAcRootLocationValid() {

@@ -6,6 +6,8 @@ using ACSharedMemory.Models;
 
 using GameReaderCommon;
 
+using KLPlugins.DynLeaderboards.AccBroadcastingNetwork;
+
 namespace KLPlugins.DynLeaderboards;
 
 internal class GameData {
@@ -65,6 +67,62 @@ internal class GameDataBase {
         this.TyrePressureFrontLeft = data.TyrePressureFrontLeft;
 
         this._rawObject = data.GetRawDataObject();
+    }
+
+    internal GameDataBase(AccBroadcastingRawData data) {
+        this.AirTemperature = data._RealtimeUpdate.AmbientTemp;
+        this.Opponents = data._RealtimeCarUpdates.Select(
+                Opponent (carUpdate) => {
+                    var (car, name, cls) = carUpdate;
+                    var driverInfo = car.CarEntry.Drivers[car.DriverIndex];
+
+                    return new ACCOpponent {
+                        Id = car.CarIndex.ToString(),
+                        Coordinates = new double[3],
+                        Name = driverInfo.FirstName + " " + driverInfo.LastName,
+                        TeamName = car.CarEntry.TeamName,
+                        Initials = driverInfo.ShortName,
+                        Position = car.Position,
+                        LivePosition = car.LivePosition,
+                        IsPlayer = false,
+                        BestLapTime = TimeSpan.FromMilliseconds(car.BestSessionLap.LaptimeMS.GetValueOrDefault()),
+                        LastLapTime = TimeSpan.FromMilliseconds(car.LastLap.LaptimeMS.GetValueOrDefault()),
+                        CurrentLap = car.Laps + 1,
+                        TrackPositionPercent = car.SplinePosition, // this.GetTrackPositionPercent(i.Value),
+                        CurrentLapHighPrecision = car.Laps + car.SplinePosition,
+                        IsCarInPit = car.CarLocation.ToString().ToLower().Contains("pit"),
+                        IsCarInPitLane = car.CarLocation.ToString().ToLower().Contains("pit"),
+                        Speed = car.Kmh,
+                        CarNumber = car.CarEntry.RaceNumber.ToString(),
+                        CarName = name,
+                        CarClass = cls.AsString(),
+                        BestLapSectorTimes =
+                            SectorTimes.FromMillisecondsSplits(
+                                car.BestSessionLap?.Splits?.Select((Func<int?, double?>)(j => j)).ToArray()
+                                ?? new double?[0]
+                            ),
+                        LastLapSectorTimes =
+                            SectorTimes.FromMillisecondsSplits(
+                                car.LastLap?.Splits?.Select((Func<int?, double?>)(j => j)).ToArray()
+                                ?? new double?[0]
+                            ),
+                        CurrentLapSectorTimes = new SectorTimes(),
+                        CurrentLapTime = TimeSpan.FromMilliseconds(car.CurrentLap.LaptimeMS.GetValueOrDefault()),
+                        ExtraData = car,
+                    };
+                }
+            )
+            .ToList();
+        this.RemainingLaps = -1;
+        this.SessionTimeLeft = data._RealtimeUpdate.SessionRemainingTime;
+        this.SessionTypeName = data._RealtimeUpdate.SessionType.ToString();
+        this.TotalLaps = -1;
+        this._trackConfig = "";
+        this.TrackName = data._TrackData?.TrackName ?? "";
+        this.TrackLength = data._TrackData?.TrackMeters ?? 0;
+        this.TyrePressureFrontLeft = -1.0;
+
+        this._rawObject = data;
     }
 
     public object? GetRawDataObject() {

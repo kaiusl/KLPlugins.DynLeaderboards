@@ -1,4 +1,6 @@
 ﻿{
+  AccAutoSpectatorMode: false,
+  AccDataLocation: C:\Users\user\Documents\Assetto Corsa Competizione,
   Log: true,
   OutGeneralProps: SESSION_PHASE, MAX_STINT_TIME, MAX_DRIVE_TIME, CAR_CLASS_COLORS, TEAM_CUP_COLORS, TEAM_CUP_TEXT_COLORS, DRIVER_CATEGORY_COLORS,
   Version: 3

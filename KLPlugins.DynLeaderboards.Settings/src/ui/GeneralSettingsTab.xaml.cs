@@ -29,6 +29,20 @@ internal class GeneralSettingsTabViewModel : INotifyPropertyChanged {
     protected static readonly SolidColorBrush PathBorderOk = new(Colors.SpringGreen);
     protected static readonly SolidColorBrush PathBorderError = new(Colors.Red);
 
+    public string? AccDataLocation {
+        get => this._settings.AccDataLocation;
+        set {
+            this._settings.AccDataLocation = value;
+            this.InvokePropertyChanged();
+            this.UpdateAccDataLocationBackground();
+        }
+    }
+
+    public SolidColorBrush AccDataLocationBackground { get; private set; } = GeneralSettingsTabViewModel.PathBgError;
+
+    public SolidColorBrush AccDataLocationBorderBrush { get; private set; } =
+        GeneralSettingsTabViewModel.PathBorderError;
+
     public string? AcRootLocation {
         get => this._settings.AcRootLocation;
         set {
@@ -45,6 +59,14 @@ internal class GeneralSettingsTabViewModel : INotifyPropertyChanged {
         get => this._settings.Log;
         set {
             this._settings.Log = value;
+            this.InvokePropertyChanged();
+        }
+    }
+
+    public bool AccAutoSpectatorMode {
+        get => this._settings.AccAutoSpectatorMode;
+        set {
+            this._settings.AccAutoSpectatorMode = value;
             this.InvokePropertyChanged();
         }
     }
@@ -66,6 +88,7 @@ internal class GeneralSettingsTabViewModel : INotifyPropertyChanged {
 
     internal GeneralSettingsTabViewModel(PluginSettings settings) {
         this._settings = settings;
+        this.UpdateAccDataLocationBackground();
         this.UpdateAcRootLocationBackground();
 
         foreach (var v in OutGeneralPropExtensions.Order()) {
@@ -94,6 +117,18 @@ internal class GeneralSettingsTabViewModel : INotifyPropertyChanged {
         }
 
         this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+    }
+
+    private void UpdateAccDataLocationBackground() {
+        if (this._settings.IsAccDataLocationValid()) {
+            this.AccDataLocationBackground = GeneralSettingsTabViewModel.PathBgOk;
+            this.AccDataLocationBorderBrush = GeneralSettingsTabViewModel.PathBorderOk;
+        } else {
+            this.AccDataLocationBackground = GeneralSettingsTabViewModel.PathBgError;
+            this.AccDataLocationBorderBrush = GeneralSettingsTabViewModel.PathBorderError;
+        }
+
+        this.InvokePropertyChanged(nameof(GeneralSettingsTabViewModel.AccDataLocationBackground));
     }
 
     private void UpdateAcRootLocationBackground() {

@@ -6,6 +6,7 @@ using System.Linq;
 
 using GameReaderCommon;
 
+using KLPlugins.DynLeaderboards.AccBroadcastingNetwork;
 using KLPlugins.DynLeaderboards.Car;
 using KLPlugins.DynLeaderboards.Common;
 using KLPlugins.DynLeaderboards.Log;
@@ -206,6 +207,7 @@ public sealed class Values : IDisposable {
         if (DynLeaderboardsPlugin._Game.IsAcc) {
             var realtime = data._NewData.GetRawDataObject() switch {
                 ACSharedMemory.ACC.Reader.ACCRawData rawDataNew => rawDataNew.Realtime,
+                AccBroadcastingRawData d => d._RealtimeUpdate,
                 var d => throw new Exception($"Unknown data type for ACC `{d?.GetType()}`"),
             };
             focusedCarId = realtime?.FocusedCarIndex.ToString();

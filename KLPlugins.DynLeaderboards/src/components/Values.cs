@@ -13,8 +13,6 @@ using KLPlugins.DynLeaderboards.Track;
 
 using SimHub.Plugins;
 
-using SimHubAMS2 = PCarsSharedMemory.AMS2.Models;
-
 namespace KLPlugins.DynLeaderboards;
 
 /// <summary>
@@ -133,16 +131,14 @@ public sealed class Values : IDisposable {
 
         if (this.Booleans.NewData.IsNewEvent
             || this.Session.IsNewSession
-            || this.TrackData?.PrettyName != data._NewData.TrackName) {
+            || this.TrackData?.Name != data._NewData.TrackName) {
             Logging.LogInfo($"newEvent={this.Booleans.NewData.IsNewEvent}, newSession={this.Session.IsNewSession}");
             this.ResetWithoutSession();
             this.Booleans.OnNewEvent(this.Session.SessionType);
-            if (this.TrackData == null || this.TrackData.PrettyName != data._NewData.TrackName) {
+            if (this.TrackData == null || this.TrackData.Name != data._NewData.TrackName) {
                 this.TrackData?.Dispose();
                 this.TrackData = new TrackData(data);
-                Logging.LogInfo(
-                    $"Track set to: id={this.TrackData.Id}, name={this.TrackData.PrettyName}, len={this.TrackData.LengthMeters}"
-                );
+                Logging.LogInfo($"Track set to: id={this.TrackData.Name}, len={this.TrackData.LengthMeters}");
             }
 
             foreach (var car in this.OverallOrder) {
@@ -158,9 +154,7 @@ public sealed class Values : IDisposable {
                 this.TrackData.BuildLapInterpolator(car.CarClass);
             }
 
-            Logging.LogInfo(
-                $"Track set to: id={this.TrackData.Id}, name={this.TrackData.PrettyName}, len={this.TrackData.LengthMeters}"
-            );
+            Logging.LogInfo($"Track set to: id={this.TrackData.Name}, len={this.TrackData.LengthMeters}");
         }
 
         this.TrackData.OnDataUpdate();
@@ -202,15 +196,7 @@ public sealed class Values : IDisposable {
 
         IEnumerable<(Opponent, int)> cars = data._NewData.Opponents.WithIndex();
 
-        string? focusedCarId = null;
-        if (DynLeaderboardsPlugin._Game.IsAcc) {
-            var realtime = data._NewData.GetRawDataObject() switch {
-                ACSharedMemory.ACC.Reader.ACCRawData rawDataNew => rawDataNew.Realtime,
-                var d => throw new Exception($"Unknown data type for ACC `{d?.GetType()}`"),
-            };
-            focusedCarId = realtime?.FocusedCarIndex.ToString();
-        }
-
+        var focusedCarId = data._NewData.FocusedCarId;
         CarData? overallBestLapCar = null;
         foreach (var (opponent, i) in cars) {
             if ((DynLeaderboardsPlugin._Game.IsAcc && opponent.Id == "Me")
@@ -496,7 +482,7 @@ public sealed class Values : IDisposable {
                 if (DynLeaderboardsPlugin._Game.IsAms2) {
                     // Spline pos == 0.0 if race has not started, race state is 1 if that's the case, use games positions
                     // If using AMS2 shared memory data, UDP data is not supported atm
-                    if (gameData._NewData.GetRawDataObject() is SimHubAMS2.AMS2APIStruct { mRaceState: < 2 }) {
+                    if (gameData._NewData.SessionPhase < SessionPhase.SESSION) {
                         return a._RawDataNew.Position.CompareTo(b._RawDataNew.Position);
                     }
 

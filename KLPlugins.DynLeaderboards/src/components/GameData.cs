@@ -1,10 +1,16 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 
-using ACSharedMemory.Models;
+using ACSharedMemory.ACC.Reader;
+using ACSharedMemory.Reader;
 
 using GameReaderCommon;
+
+using PCarsSharedMemory.AMS2.Models;
+
+using R3E.Data;
+
+using RfactorReader.RF2;
 
 namespace KLPlugins.DynLeaderboards;
 
@@ -40,31 +46,56 @@ internal class GameDataBase {
     public List<Opponent> Opponents { get; private set; }
     public int RemainingLaps { get; private set; }
     public TimeSpan SessionTimeLeft { get; private set; }
-
-    public string SessionTypeName { get; private set; }
+    public SessionType SessionType { get; private set; }
+    public SessionPhase SessionPhase { get; private set; } = SessionPhase.UNKNOWN;
+    public int SessionIndex { get; private set; } = 0;
     public int TotalLaps { get; private set; }
-    public string TrackCode =>
-        string.IsNullOrEmpty(this._trackConfig) ? this.TrackName : this.TrackName + "-" + this._trackConfig;
-
-    private string _trackConfig { get; }
-
-    public string TrackName { get; }
-    public double TyrePressureFrontLeft { get; private set; }
+    public string TrackName { get; private set; }
     public double TrackLength { get; private set; }
+    public double TyrePressureFrontLeft { get; private set; }
+    public string? FocusedCarId { get; private set; } = null;
 
     internal GameDataBase(StatusDataBase data) {
         this.AirTemperature = data.AirTemperature;
         this.Opponents = data.Opponents;
         this.RemainingLaps = data.RemainingLaps;
         this.SessionTimeLeft = data.SessionTimeLeft;
-        this.SessionTypeName = data.SessionTypeName;
         this.TotalLaps = data.TotalLaps;
-        this._trackConfig = data.TrackConfig;
-        this.TrackName = data.TrackName;
+        this.TrackName = data.TrackCode; // full track name: track name + configuration
         this.TrackLength = data.TrackLength;
         this.TyrePressureFrontLeft = data.TyrePressureFrontLeft;
 
         this._rawObject = data.GetRawDataObject();
+
+        switch (this._rawObject) {
+            case ACCRawData accRawData:
+                this.SessionType = SessionTypeExtensions.FromGameData(accRawData);
+                if (accRawData.Realtime is not null) {
+                    this.SessionPhase = SessionPhaseExtensions.FromGameData(accRawData.Realtime);
+                    this.SessionIndex = accRawData.Realtime.SessionIndex;
+                    this.FocusedCarId = accRawData.Realtime?.FocusedCarIndex.ToString();
+                }
+
+                break;
+            case ACRawData acRawData:
+                this.SessionType = SessionTypeExtensions.FromGameData(acRawData);
+                break;
+            case WrapV2 rf2RawData:
+                this.SessionType = SessionTypeExtensions.FromString(data.SessionTypeName);
+                this.SessionPhase = SessionPhaseExtensions.FromGameData(rf2RawData);
+                break;
+            case Shared r3ERawData:
+                this.SessionType = SessionTypeExtensions.FromString(data.SessionTypeName);
+                this.SessionPhase = SessionPhaseExtensions.FromGameData(r3ERawData);
+                break;
+            case AMS2APIStruct ams2RawData:
+                this.SessionType = SessionTypeExtensions.FromGameData(ams2RawData);
+                this.SessionPhase = SessionPhaseExtensions.FromGameData(ams2RawData);
+                break;
+            default:
+                this.SessionType = SessionTypeExtensions.FromString(data.SessionTypeName);
+                break;
+        }
     }
 
     public object? GetRawDataObject() {

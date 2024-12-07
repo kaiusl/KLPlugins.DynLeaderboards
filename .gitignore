@@ -408,3 +408,4 @@ FodyWeavers.xsd
 # Verify temp files
 *.received.*
 *.received/
+.idea/

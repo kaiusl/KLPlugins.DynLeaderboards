@@ -238,8 +238,7 @@ public sealed class SplinePosOffset {
 }
 
 public sealed class TrackData {
-    public string PrettyName { get; }
-    public string Id { get; }
+    public string Name { get; }
     public double LengthMeters { get; private set; }
     public SplinePosOffset SplinePosOffset { get; }
 
@@ -262,10 +261,9 @@ public sealed class TrackData {
     internal TrackData(GameData data) {
         TrackData._splinePosOffsets = TrackData.ReadSplinePosOffsets();
 
-        this.PrettyName = data._NewData.TrackName;
-        this.Id = data._NewData.TrackCode;
+        this.Name = data._NewData.TrackName;
         this.LengthMeters = data._NewData.TrackLength;
-        this.SplinePosOffset = TrackData._splinePosOffsets.GetOrAddValue(this.Id, new SplinePosOffset());
+        this.SplinePosOffset = TrackData._splinePosOffsets.GetOrAddValue(this.Name, new SplinePosOffset());
     }
 
 
@@ -290,7 +288,7 @@ public sealed class TrackData {
     }
 
     private string LapDataFilePath(CarClass cls) {
-        return PluginPaths.LapDataFilePath(this.Id, cls.AsString());
+        return PluginPaths.LapDataFilePath(this.Name, cls.AsString());
     }
 
     internal void SaveData() {
@@ -360,7 +358,7 @@ public sealed class TrackData {
             && Math.Abs(lastPosRaw - firstPosRaw) < 0.05 // make sure we completed whole lap
         ) {
             Logging.LogWarn(
-                $"Possible missing lap offset detected: {this.Id} - {cls}. FirstPos: {firstPosRaw}({firstPos}), LastPos: {lastPosRaw}({lastPos}). Suggested lap position offset is {1 - firstPosRaw}."
+                $"Possible missing lap offset detected: {this.Name} - {cls}. FirstPos: {firstPosRaw}({firstPos}), LastPos: {lastPosRaw}({lastPos}). Suggested lap position offset is {1 - firstPosRaw}."
             );
             if (firstPosRaw > 0.9)
                 // lap time resets before spline pos
@@ -375,7 +373,7 @@ public sealed class TrackData {
             }
         } else {
             Logging.LogInfo(
-                $"Collected invalid lap data for {this.Id} - {cls}. FirstPos: {firstPosRaw}({firstPos}), LastPos: {lastPosRaw}({lastPos})."
+                $"Collected invalid lap data for {this.Name} - {cls}. FirstPos: {firstPosRaw}({firstPos}), LastPos: {lastPosRaw}({lastPos})."
             );
         }
     }

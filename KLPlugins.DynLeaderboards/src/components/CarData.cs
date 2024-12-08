@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
-using System.Text;
 
 using GameReaderCommon;
 
@@ -13,8 +12,6 @@ using KLPlugins.DynLeaderboards.Settings;
 using KLPlugins.DynLeaderboards.Track;
 
 using ShAccBroadcasting = ksBroadcastingNetwork;
-using ShAms2 = PCarsSharedMemory.AMS2;
-using ShR3E = R3E;
 using ShRf2 = CrewChiefV4.rFactor2_V2.rFactor2Data;
 
 namespace KLPlugins.DynLeaderboards.Car {
@@ -155,6 +152,9 @@ namespace KLPlugins.DynLeaderboards.Car {
         internal Opponent _RawDataNew;
         internal Opponent _RawDataOld;
 
+        internal OpponentExtra _RawDataExtraNew;
+        internal OpponentExtra _RawDataExtraOld;
+
         // In some games the spline position and the lap counter reset at different locations.
         // Since we use total spline position to order the cars on track, we need them to be in sync
         internal enum OffsetLapUpdateType {
@@ -185,11 +185,15 @@ namespace KLPlugins.DynLeaderboards.Car {
         internal List<double> _LapDataTime { get; } = [];
         internal bool _LapDataValidForSave { get; private set; } = false;
 
-        internal CarData(Values values, string? focusedCarId, Opponent opponent, GameData gameData) {
+        internal CarData(Values values, Opponent opponent, GameData gameData) {
             this.Drivers = this._drivers.AsReadOnly();
 
             this._RawDataNew = opponent;
             this._RawDataOld = opponent;
+
+            var extraData = new OpponentExtra(gameData, opponent);
+            this._RawDataExtraNew = extraData;
+            this._RawDataExtraOld = extraData.Clone();
 
             this.SetStaticCarData(values, opponent);
 
@@ -198,7 +202,7 @@ namespace KLPlugins.DynLeaderboards.Car {
             this.PositionOverall = this._RawDataNew.Position;
             this.PositionInClass = this._RawDataNew.PositionInClass;
             this.PositionInCup = this.PositionInClass;
-            this.UpdateIndependent(values, focusedCarId, opponent, gameData);
+            this.UpdateIndependent(values, opponent, gameData);
 
             this.CheckGameLapTimes(opponent);
         }
@@ -431,17 +435,12 @@ namespace KLPlugins.DynLeaderboards.Car {
             return carModel?.Split(' ')[0] ?? "Unknown";
         }
 
-        private AMS2.RawOpponentData? _rawAms2DataNew { get; set; }
-
-        private R3E.RawOpponentData? _rawR3EDataNew { get; set; }
-
         /// <summary>
         ///     Update data that is independent of other cars' data.
         /// </summary>
-        internal void UpdateIndependent(Values values, string? focusedCarId, Opponent rawData, GameData gameData) {
-            if (rawData.TrackPositionPercent == null)
+        internal void UpdateIndependent(Values values, Opponent rawData, GameData gameData) {
+            if (rawData.TrackPositionPercent == null) {
                 // This happens occasionally. Just wait for the next update.
-            {
                 return;
             }
             // Clear old data
@@ -451,73 +450,27 @@ namespace KLPlugins.DynLeaderboards.Car {
             this._splinePositionTimes.Clear();
 
             // Actual update
+
             // In ACC the cars remain in opponents list even if they disconnect, 
+            // however, it's coordinates will be null then 
             this.IsConnected = rawData.IsConnected
                 && (!DynLeaderboardsPlugin._Game.IsAcc || rawData.Coordinates != null);
-            // however, it's coordinates will be null then 
+
             if (!this.IsConnected) {
+                // Don't update any of the data if the car is not connected, 
+                // is may contain invalid data, `null`s, `-1`-s etc
                 return;
             }
 
             this._RawDataOld = this._RawDataNew;
             this._RawDataNew = rawData;
+            (this._RawDataExtraOld, this._RawDataExtraNew) = (this._RawDataExtraNew, this._RawDataExtraOld);
+            this._RawDataExtraNew.Update(gameData, rawData);
             this._IsUpdated = true;
             this._LastUpdateTime = DateTime.Now;
 
-            if (DynLeaderboardsPlugin._Game.IsAms2) {
-                if (gameData._NewData.GetRawDataObject() is ShAms2.Models.AMS2APIStruct rawAms2data) {
-                    var index = -1;
-                    for (var i = 0; i < rawAms2data.mNumParticipants; i++) {
-                        var participantData = rawAms2data.mParticipantData[i];
-                        var name = ShAms2.Models.PC2Helper.getNameFromBytes(participantData.mName);
-                        if (name == this._Id) {
-                            index = i;
-                            break;
-                        }
-                    }
-
-                    if (index != -1) {
-                        this._rawAms2DataNew = new AMS2.RawOpponentData(
-                            raceState: Convert.ToInt32(rawAms2data.mRaceStates[index]),
-                            isCurrentLapInvalidated: Convert.ToBoolean(rawAms2data.mLapsInvalidated[index])
-                        );
-                    } else {
-                        this._rawAms2DataNew = null;
-                    }
-                }
-            } else if (DynLeaderboardsPlugin._Game.IsR3E) {
-                static string? GetName(byte[]? data) {
-                    if (data == null) {
-                        return null;
-                    }
-
-                    return Encoding.UTF8.GetString(data).Split(default(char))[0];
-                }
-
-                if (gameData._NewData.GetRawDataObject() is ShR3E.Data.Shared rawR3EData) {
-                    var index = -1;
-                    ref readonly var participantData = ref rawR3EData.DriverData[0];
-                    for (var i = 0; i < rawR3EData.NumCars; i++) {
-                        participantData = ref rawR3EData.DriverData[i];
-                        var name = GetName(participantData.DriverInfo.Name);
-                        if (!string.IsNullOrEmpty(name) && name == this._Id) {
-                            index = i;
-                            this._rawR3EDataNew = new R3E.RawOpponentData(in participantData);
-                            break;
-                        }
-                    }
-
-                    if (index == -1) {
-                        this._rawR3EDataNew = null;
-                    }
-                }
-            }
-
-            if (DynLeaderboardsPlugin._Game.IsAcc && focusedCarId != null) {
-                this.IsFocused = this._Id == focusedCarId;
-            } else {
-                this.IsFocused = this._RawDataNew.IsPlayer;
-            }
+            var focusedCarId = gameData._NewData.FocusedCarId;
+            this.IsFocused = focusedCarId is not null ? this._Id == focusedCarId : this._RawDataNew.IsPlayer;
 
             this.IsBestLapCarOverall = false;
             this.IsBestLapCarInClass = false;
@@ -526,7 +479,7 @@ namespace KLPlugins.DynLeaderboards.Car {
             this.Laps.Update((this._RawDataNew.CurrentLap ?? 1) - 1);
             this.IsNewLap = this.Laps.New - this.Laps.Old == 1;
 
-            this.SetCarLocation(rawData);
+            this.Location.Update(this._RawDataExtraNew.Location);
             this.UpdatePitInfo(values.Session.SessionPhase);
             this.SetSplinePositions(values);
             this.MaxSpeed = Math.Max(this.MaxSpeed, this._RawDataNew.Speed ?? 0.0);
@@ -549,46 +502,35 @@ namespace KLPlugins.DynLeaderboards.Car {
                 this.IsCurrentLapInLap = false;
             }
 
-            if (DynLeaderboardsPlugin._Game.IsAcc) {
-                var rawDataNew = (ACSharedMemory.Models.ACCOpponent)this._RawDataNew;
-                var rawDataOld = (ACSharedMemory.Models.ACCOpponent)this._RawDataOld;
+            if (!this.IsNewLap
+                && (DynLeaderboardsPlugin._Game.IsAcc || DynLeaderboardsPlugin._Game.IsAms2)
+                && (this._RawDataNew.CurrentLapTime == null
+                    || this._RawDataNew.CurrentLapTime < this._RawDataOld.CurrentLapTime)) {
+                // sometimes a time can be reset to indicate a new lap start but this doesn't mean 
+                // a lap was completed
+                // * in ACC N24 a incomplete lap can be finished in qualy to start a new lap
+                // * in AMS2???
+                // Note however that this cannot be enabled for RF2 and R3E which set current lap time to 
+                // zero if it's invalidated, and thus would trigger this mid lap, which we don't want.
+                this._isLastLapInLap = this.IsCurrentLapInLap;
+                this._isLastLapOutLap = this.IsCurrentLapOutLap;
+                this._isLastLapValid = this.IsCurrentLapValid;
 
-                if (!this.IsNewLap
-                    && rawDataNew.ExtraData.CurrentLap.LaptimeMS < rawDataOld.ExtraData.CurrentLap.LaptimeMS) {
-                    this._isLastLapInLap = this.IsCurrentLapInLap;
-                    this._isLastLapOutLap = this.IsCurrentLapOutLap;
-                    this._isLastLapValid = this.IsCurrentLapValid;
+                this.IsCurrentLapValid = true;
+                this.IsCurrentLapOutLap = false;
+                this.IsCurrentLapInLap = false;
+            }
 
-                    this.IsCurrentLapValid = true;
-                    this.IsCurrentLapOutLap = false;
-                    this.IsCurrentLapInLap = false;
-                }
+            if (!this.IsCurrentLapOutLap && this._RawDataExtraNew.IsCurrentLapOutLap) {
+                this.IsCurrentLapOutLap = true;
+            }
 
-                if (!this.IsCurrentLapOutLap
-                    && rawDataNew.ExtraData.CurrentLap.Type == ShAccBroadcasting.LapType.Outlap) {
-                    this.IsCurrentLapOutLap = true;
-                }
-
-                if (!this.IsCurrentLapInLap
-                    && rawDataNew.ExtraData.CurrentLap.Type == ShAccBroadcasting.LapType.Inlap) {
-                    this.IsCurrentLapInLap = true;
-                }
-            } else if (DynLeaderboardsPlugin._Game.IsAms2) {
-                if (!this.IsNewLap
-                    && (this._RawDataNew.CurrentLapTime == null
-                        || this._RawDataNew.CurrentLapTime < this._RawDataOld.CurrentLapTime)) {
-                    this._isLastLapInLap = this.IsCurrentLapInLap;
-                    this._isLastLapOutLap = this.IsCurrentLapOutLap;
-                    this._isLastLapValid = this.IsCurrentLapValid;
-
-                    this.IsCurrentLapValid = true;
-                    this.IsCurrentLapOutLap = false;
-                    this.IsCurrentLapInLap = false;
-                }
+            if (!this.IsCurrentLapInLap && this._RawDataExtraNew.IsCurrentLapInLap) {
+                this.IsCurrentLapInLap = true;
             }
 
             if (this.IsCurrentLapValid) {
-                this.CheckIfLapInvalidated(rawData);
+                this.IsCurrentLapValid = this._RawDataExtraNew.IsCurrentLapValid;
 
                 if (!this.IsCurrentLapValid) {
                     Logging.LogInfo($"Invalidated lap #{this.CarNumberAsString} [{this._Id}]");
@@ -613,18 +555,7 @@ namespace KLPlugins.DynLeaderboards.Car {
                 Logging.LogInfo($"Invalidated lap for save #{this.CarNumberAsString} [{this._Id}]");
             }
 
-            if (this._RawDataOld.CurrentLapTime > this._RawDataNew.CurrentLapTime
-                // in AMS2 lap time goes briefly to null on lap time reset
-                || (DynLeaderboardsPlugin._Game.IsAms2
-                    && this._RawDataOld.CurrentLapTime != null
-                    && this._RawDataNew.CurrentLapTime == null)
-                // in R3E lap time on invalid lap is shown as TimeSpan.Zero,
-                // thus above would only trigger on a second valid lap in a row
-                || (DynLeaderboardsPlugin._Game.IsR3E
-                    && (this._RawDataOld.CurrentLapTime == TimeSpan.Zero || this._RawDataOld.CurrentLapTime == null)
-                    && this._RawDataNew.CurrentLapTime != TimeSpan.Zero
-                    && this._RawDataNew.CurrentLapTime != null)
-            ) {
+            if (this._RawDataExtraNew.IsCurrentLapTimeReset) {
                 if (this._LapDataValidForSave && this._LapDataPos.Count > 20) {
                     // Add last point
                     var pos = this._RawDataOld.TrackPositionPercent;
@@ -668,38 +599,6 @@ namespace KLPlugins.DynLeaderboards.Car {
             }
         }
 
-        private void CheckIfLapInvalidated(Opponent rawData) {
-            if (!this._RawDataNew.LapValid) {
-                this.IsCurrentLapValid = false;
-                return;
-            }
-
-            if (DynLeaderboardsPlugin._Game.IsAcc) {
-                var accRawData = (ACSharedMemory.Models.ACCOpponent)rawData;
-                if (!accRawData.ExtraData.CurrentLap.IsValidForBest || accRawData.ExtraData.CurrentLap.IsInvalid) {
-                    this.IsCurrentLapValid = false;
-                }
-            } else if (DynLeaderboardsPlugin._Game.IsRf2) {
-                // Rf2 doesn't directly export lap validity. But when one exceeds track limits the current sector times are 
-                // set to -1.0. We cannot immediately detect the cut in the first sector, but as soon as we reach the 
-                // 2nd sector we can detect it, when current sector 1 time is still -1.0.
-                if (rawData.ExtraData.First() is ShRf2.rF2VehicleScoring rf2RawData) {
-                    var curSector = rf2RawData.mSector;
-                    if (curSector is 2 or 0 && rf2RawData.mCurSector1 == -1.0) {
-                        this.IsCurrentLapValid = false;
-                    }
-                }
-            } else if (DynLeaderboardsPlugin._Game.IsAms2) {
-                if (this._rawAms2DataNew != null && this._rawAms2DataNew.IsCurrentLapInvalidated) {
-                    this.IsCurrentLapValid = false;
-                }
-            } else if (DynLeaderboardsPlugin._Game.IsR3E) {
-                if (this._rawR3EDataNew != null && !this._rawR3EDataNew._IsCurrentLapValid) {
-                    this.IsCurrentLapValid = false;
-                }
-            }
-        }
-
         /// <summary>
         ///     Requires that this.Laps is already updated.
         /// </summary>
@@ -718,50 +617,12 @@ namespace KLPlugins.DynLeaderboards.Car {
             this.TotalSplinePosition = this.Laps.New + this.SplinePosition;
         }
 
-        private void SetCarLocation(Opponent rawData) {
-            if (DynLeaderboardsPlugin._Game.IsAcc) {
-                var accRawData = (ACSharedMemory.Models.ACCOpponent)rawData;
-                var location = accRawData.ExtraData.CarLocation;
-                var newLocation = location switch {
-                    ShAccBroadcasting.CarLocationEnum.Track
-                        or ShAccBroadcasting.CarLocationEnum.PitEntry
-                        or ShAccBroadcasting.CarLocationEnum.PitExit => CarLocation.TRACK,
-
-                    ShAccBroadcasting.CarLocationEnum.Pitlane => CarLocation.PIT_LANE,
-                    _ => CarLocation.NONE,
-                };
-                this.Location.Update(newLocation);
-            } else {
-                if (this._RawDataNew.IsCarInPit) {
-                    this.Location.Update(CarLocation.PIT_BOX);
-                } else if (this._RawDataNew.IsCarInPitLane) {
-                    this.Location.Update(CarLocation.PIT_LANE);
-                } else {
-                    this.Location.Update(CarLocation.TRACK);
-                }
-            }
-        }
-
         /// <summary>
         ///     Requires that this._expectingNewLap is set in this update
         /// </summary>
         private void UpdateLapTimes(Session session) {
-            var prevCurrentLapTime = this.CurrentLapTime;
-            if (DynLeaderboardsPlugin._Game.IsRf2OrLmu
-                && this._RawDataNew.ExtraData.ElementAtOr(0, null) is ShRf2.rF2VehicleScoring rf2RawData
-                // fall back to SimHub's if rf2 doesn't report current lap time (it's -1 if missing)
-                && rf2RawData.mTimeIntoLap > 0
-            ) {
-                this.CurrentLapTime = TimeSpan.FromSeconds(rf2RawData.mTimeIntoLap);
-            } else if (DynLeaderboardsPlugin._Game.IsR3E
-                    && (this._RawDataNew.CurrentLapTime == null || this._RawDataNew.CurrentLapTime == TimeSpan.Zero)
-                    && this._RawDataNew.GuessedLapStartTime != null)
-                // R3E sets current lap time to zero immediately after the lap is invalidated, but we can calculate it our selves
-            {
-                this.CurrentLapTime = DateTime.Now - this._RawDataNew.GuessedLapStartTime.Value;
-            } else {
-                this.CurrentLapTime = this._RawDataNew.CurrentLapTime ?? TimeSpan.Zero;
-            }
+            var prevCurrentLapTime = this._RawDataExtraOld.CurrentLapTime;
+            this.CurrentLapTime = this._RawDataExtraNew.CurrentLapTime ?? TimeSpan.Zero;
 
             // Add the last current lap time as last lap for rF2 if last lap vas invalid. In such case rF2 doesn't provide last lap times
             // and we need to manually calculate it.
@@ -770,8 +631,7 @@ namespace KLPlugins.DynLeaderboards.Car {
             if (DynLeaderboardsPlugin._Game.IsRf2OrLmu
                 && this._expectingNewLap
                 && !this._isLastLapValid
-                // CurrentLapTime has reset
-                && prevCurrentLapTime > this.CurrentLapTime
+                && this._RawDataExtraNew.IsCurrentLapTimeReset
                 && this._RawDataNew.ExtraData.ElementAtOr(0, null) is ShRf2.rF2VehicleScoring rf2RawData2
                 // make sure to only use this method if invalid lap was due to lap cut in which case last lap/sector times are -1
                 && rf2RawData2.mLastSector1 == -1.0
@@ -784,10 +644,7 @@ namespace KLPlugins.DynLeaderboards.Car {
                 && !session.IsRace
                 && !this.IsCurrentLapValid
                 && !this.IsNewLap
-                // CurrentLapTime has reset
-                && prevCurrentLapTime > this.CurrentLapTime
-                // at invalidation point the new current lap time can be smaller than previous, due to the different methods to calculate is before and after invalidation
-                && this.CurrentLapTime < TimeSpan.FromSeconds(1)
+                && this._RawDataExtraNew.IsCurrentLapTimeReset
             ) {
                 // In non-race sessions, the last laps are not sent by R3E if they are invalid. In such case we need to manually calculate it.
                 // Note that this time reset is triggered before new lap. 
@@ -1202,12 +1059,8 @@ namespace KLPlugins.DynLeaderboards.Car {
             }
 
             if (!this.IsFinished) {
-                if (DynLeaderboardsPlugin._Game.IsR3E) {
-                    if (this._rawR3EDataNew != null && this._rawR3EDataNew._FinishStatus == R3E.FinishStatus.FINISHED) {
-                        this.IsFinished = true;
-                        this._FinishTime = DateTime.Now;
-                    }
-                } else if (values._IsFirstFinished && this.IsNewLap) {
+                if ((values._IsFirstFinished && this.IsNewLap)
+                    || this._RawDataExtraNew.FinishStatus == FinishStatus.FINISHED) {
                     this.IsFinished = true;
                     this._FinishTime = DateTime.Now;
                 }
@@ -2158,37 +2011,6 @@ namespace KLPlugins.DynLeaderboards.Car {
         internal void Update(T data) {
             this.Old = this.New;
             this.New = data;
-        }
-    }
-
-    namespace R3E {
-        // Reference https://github.com/sector3studios/r3e-api
-
-        internal enum FinishStatus {
-            UNKNOWN = -1,
-            NONE = 0,
-            FINISHED = 1,
-            DNF = 2,
-            DNQ = 3,
-            DNS = 4,
-            DQ = 5,
-        }
-
-        internal sealed class RawOpponentData {
-            internal FinishStatus _FinishStatus { get; }
-            internal bool _IsCurrentLapValid { get; }
-
-            internal RawOpponentData(ref readonly ShR3E.Data.DriverData data) {
-                this._FinishStatus = (FinishStatus)data.FinishStatus;
-                this._IsCurrentLapValid = data.CurrentLapValid > 0;
-            }
-        }
-    }
-
-    namespace AMS2 {
-        internal sealed class RawOpponentData(int raceState, bool isCurrentLapInvalidated) {
-            public int RaceState { get; private set; } = raceState;
-            public bool IsCurrentLapInvalidated { get; } = isCurrentLapInvalidated;
         }
     }
 }

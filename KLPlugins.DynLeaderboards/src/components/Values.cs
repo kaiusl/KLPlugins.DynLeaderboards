@@ -196,7 +196,6 @@ public sealed class Values : IDisposable {
 
         IEnumerable<(Opponent, int)> cars = data._NewData.Opponents.WithIndex();
 
-        var focusedCarId = data._NewData.FocusedCarId;
         CarData? overallBestLapCar = null;
         foreach (var (opponent, i) in cars) {
             if ((DynLeaderboardsPlugin._Game.IsAcc && opponent.Id == "Me")
@@ -216,12 +215,12 @@ public sealed class Values : IDisposable {
                     continue;
                 }
 
-                car = new CarData(this, focusedCarId, opponent, data);
+                car = new CarData(this, opponent, data);
                 this._overallOrder.Add(car);
                 this.TrackData?.BuildLapInterpolator(car.CarClass);
             } else {
                 Debug.Assert(car._Id == opponent.Id);
-                car.UpdateIndependent(this, focusedCarId, opponent, data);
+                car.UpdateIndependent(this, opponent, data);
 
                 // Note: car.IsFinished is actually updated in car.UpdateDependsOnOthers.
                 // Thus, if the player manages to finish the race and exit before the first update, we would remove them.

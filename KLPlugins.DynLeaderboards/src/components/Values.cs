@@ -197,6 +197,7 @@ public sealed class Values : IDisposable {
         IEnumerable<(Opponent, int)> cars = data._NewData.Opponents.WithIndex();
 
         CarData? overallBestLapCar = null;
+        var now = DateTime.Now;
         foreach (var (opponent, i) in cars) {
             if ((DynLeaderboardsPlugin._Game.IsAcc && opponent.Id == "Me")
                 || (DynLeaderboardsPlugin._Game.IsAms2 && opponent.Id == "Safety Car  (AI)")
@@ -226,7 +227,7 @@ public sealed class Values : IDisposable {
                 // Thus, if the player manages to finish the race and exit before the first update, we would remove them.
                 // However, that is practically impossible.
                 if (!car.IsFinished
-                    && (DateTime.Now - car._LastUpdateTime).TotalSeconds > Values._MISSING_CAR_TOLERANCE_SECONDS) {
+                    && (now - car._LastUpdateTime).TotalSeconds > Values._MISSING_CAR_TOLERANCE_SECONDS) {
                     continue;
                 }
             }
@@ -267,14 +268,9 @@ public sealed class Values : IDisposable {
             }
         }
 
-        for (var i = this._overallOrder.Count - 1; i >= 0; i--) {
-            var car = this._overallOrder[i];
-            if (!car.IsFinished
-                && (DateTime.Now - car._LastUpdateTime).TotalSeconds > Values._MISSING_CAR_TOLERANCE_SECONDS) {
-                this._overallOrder.RemoveAt(i);
-                Logging.LogInfo($"Removed disconnected car {car._Id}, #{car.CarNumberAsString}");
-            }
-        }
+        this._overallOrder.RemoveAll(
+            car => !car.IsFinished && (now - car._LastUpdateTime).TotalSeconds > Values._MISSING_CAR_TOLERANCE_SECONDS
+        );
 
         if (!this._startingPositionsSet && this.Session.IsRace && this._overallOrder.Count != 0) {
             this.SetStartingOrder();

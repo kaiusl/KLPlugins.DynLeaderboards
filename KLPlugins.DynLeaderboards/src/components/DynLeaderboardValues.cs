@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 
 using KLPlugins.DynLeaderboards.Car;
+using KLPlugins.DynLeaderboards.Common;
 using KLPlugins.DynLeaderboards.Log;
 using KLPlugins.DynLeaderboards.Settings;
 
@@ -56,8 +57,19 @@ public sealed class DynLeaderboard {
         this.Cars = this._cars.AsReadOnly();
     }
 
+    #if TIMINGS
+    private static readonly Timer _onDataUpdateTimer = Timers.AddOrGetAndRestart("DynLeaderboard.OnDataUpdate");
+    private static readonly Timer _getCarTimer = Timers.AddOrGetAndRestart("DynLeaderboard.GetCar");
+    #endif
+
     internal void OnDataUpdate(Values v) {
+        #if TIMINGS
+        DynLeaderboard._onDataUpdateTimer.Restart();
+        #endif
         this.SetCars(v);
+        #if TIMINGS
+        DynLeaderboard._onDataUpdateTimer.StopAndWriteMicros();
+        #endif
     }
 
     private void SetDynGettersDefault() {
@@ -108,50 +120,50 @@ public sealed class DynLeaderboard {
 
             case LeaderboardKind.RELATIVE_OVERALL:
             case LeaderboardKind.PARTIAL_RELATIVE_OVERALL:
-                this.GetDynCar = i => this._cars.ElementAtOrDefault(i);
-                this.GetDynGapToFocused = i => this.GetDynCar(i)?.GapToFocusedTotal;
-                this.GetDynGapToAhead = i => this.GetDynCar(i)?.GapToAhead;
-                this.GetDynBestLapDeltaToFocusedBest = i => this.GetDynCar(i)?.BestLap?.DeltaToFocusedBest;
-                this.GetDynLastLapDeltaToFocusedBest = i => this.GetDynCar(i)?.LastLap?.DeltaToFocusedBest;
-                this.GetDynLastLapDeltaToFocusedLast = i => this.GetDynCar(i)?.LastLap?.DeltaToFocusedLast;
-                this.GetDynPosition = i => this.GetDynCar(i)?.PositionOverall;
-                this.GetDynPositionStart = i => this.GetDynCar(i)?.PositionOverallStart;
+                this.GetDynCar = this.GetCar;
+                this.GetDynGapToFocused = i => this.GetCar(i)?.GapToFocusedTotal;
+                this.GetDynGapToAhead = i => this.GetCar(i)?.GapToAhead;
+                this.GetDynBestLapDeltaToFocusedBest = i => this.GetCar(i)?.BestLap?.DeltaToFocusedBest;
+                this.GetDynLastLapDeltaToFocusedBest = i => this.GetCar(i)?.LastLap?.DeltaToFocusedBest;
+                this.GetDynLastLapDeltaToFocusedLast = i => this.GetCar(i)?.LastLap?.DeltaToFocusedLast;
+                this.GetDynPosition = i => this.GetCar(i)?.PositionOverall;
+                this.GetDynPositionStart = i => this.GetCar(i)?.PositionOverallStart;
                 break;
 
             case LeaderboardKind.RELATIVE_CLASS:
             case LeaderboardKind.PARTIAL_RELATIVE_CLASS:
-                this.GetDynCar = i => this._cars.ElementAtOrDefault(i);
-                this.GetDynGapToFocused = i => this.GetDynCar(i)?.GapToFocusedTotal;
-                this.GetDynGapToAhead = i => this.GetDynCar(i)?.GapToAheadInClass;
-                this.GetDynBestLapDeltaToFocusedBest = i => this.GetDynCar(i)?.BestLap?.DeltaToFocusedBest;
-                this.GetDynLastLapDeltaToFocusedBest = i => this.GetDynCar(i)?.LastLap?.DeltaToFocusedBest;
-                this.GetDynLastLapDeltaToFocusedLast = i => this.GetDynCar(i)?.LastLap?.DeltaToFocusedLast;
-                this.GetDynPosition = i => this.GetDynCar(i)?.PositionInClass;
-                this.GetDynPositionStart = i => this.GetDynCar(i)?.PositionInClassStart;
+                this.GetDynCar = this.GetCar;
+                this.GetDynGapToFocused = i => this.GetCar(i)?.GapToFocusedTotal;
+                this.GetDynGapToAhead = i => this.GetCar(i)?.GapToAheadInClass;
+                this.GetDynBestLapDeltaToFocusedBest = i => this.GetCar(i)?.BestLap?.DeltaToFocusedBest;
+                this.GetDynLastLapDeltaToFocusedBest = i => this.GetCar(i)?.LastLap?.DeltaToFocusedBest;
+                this.GetDynLastLapDeltaToFocusedLast = i => this.GetCar(i)?.LastLap?.DeltaToFocusedLast;
+                this.GetDynPosition = i => this.GetCar(i)?.PositionInClass;
+                this.GetDynPositionStart = i => this.GetCar(i)?.PositionInClassStart;
                 break;
 
             case LeaderboardKind.RELATIVE_CUP:
             case LeaderboardKind.PARTIAL_RELATIVE_CUP:
-                this.GetDynCar = i => this._cars.ElementAtOrDefault(i);
-                this.GetDynGapToFocused = i => this.GetDynCar(i)?.GapToFocusedTotal;
-                this.GetDynGapToAhead = i => this.GetDynCar(i)?.GapToAheadInCup;
-                this.GetDynBestLapDeltaToFocusedBest = i => this.GetDynCar(i)?.BestLap?.DeltaToFocusedBest;
-                this.GetDynLastLapDeltaToFocusedBest = i => this.GetDynCar(i)?.LastLap?.DeltaToFocusedBest;
-                this.GetDynLastLapDeltaToFocusedLast = i => this.GetDynCar(i)?.LastLap?.DeltaToFocusedLast;
-                this.GetDynPosition = i => this.GetDynCar(i)?.PositionInCup;
-                this.GetDynPositionStart = i => this.GetDynCar(i)?.PositionInCupStart;
+                this.GetDynCar = this.GetCar;
+                this.GetDynGapToFocused = i => this.GetCar(i)?.GapToFocusedTotal;
+                this.GetDynGapToAhead = i => this.GetCar(i)?.GapToAheadInCup;
+                this.GetDynBestLapDeltaToFocusedBest = i => this.GetCar(i)?.BestLap?.DeltaToFocusedBest;
+                this.GetDynLastLapDeltaToFocusedBest = i => this.GetCar(i)?.LastLap?.DeltaToFocusedBest;
+                this.GetDynLastLapDeltaToFocusedLast = i => this.GetCar(i)?.LastLap?.DeltaToFocusedLast;
+                this.GetDynPosition = i => this.GetCar(i)?.PositionInCup;
+                this.GetDynPositionStart = i => this.GetCar(i)?.PositionInCupStart;
                 break;
 
             case LeaderboardKind.RELATIVE_ON_TRACK:
             case LeaderboardKind.RELATIVE_ON_TRACK_WO_PIT:
-                this.GetDynCar = i => this._cars.ElementAtOrDefault(i);
-                this.GetDynGapToFocused = i => this.GetDynCar(i)?.GapToFocusedOnTrack;
-                this.GetDynGapToAhead = i => this.GetDynCar(i)?.GapToAheadOnTrack;
-                this.GetDynBestLapDeltaToFocusedBest = i => this.GetDynCar(i)?.BestLap?.DeltaToFocusedBest;
-                this.GetDynLastLapDeltaToFocusedBest = i => this.GetDynCar(i)?.LastLap?.DeltaToFocusedBest;
-                this.GetDynLastLapDeltaToFocusedLast = i => this.GetDynCar(i)?.LastLap?.DeltaToFocusedLast;
-                this.GetDynPosition = i => this.GetDynCar(i)?.PositionOverall;
-                this.GetDynPositionStart = i => this.GetDynCar(i)?.PositionOverallStart;
+                this.GetDynCar = this.GetCar;
+                this.GetDynGapToFocused = i => this.GetCar(i)?.GapToFocusedOnTrack;
+                this.GetDynGapToAhead = i => this.GetCar(i)?.GapToAheadOnTrack;
+                this.GetDynBestLapDeltaToFocusedBest = i => this.GetCar(i)?.BestLap?.DeltaToFocusedBest;
+                this.GetDynLastLapDeltaToFocusedBest = i => this.GetCar(i)?.LastLap?.DeltaToFocusedBest;
+                this.GetDynLastLapDeltaToFocusedLast = i => this.GetCar(i)?.LastLap?.DeltaToFocusedLast;
+                this.GetDynPosition = i => this.GetCar(i)?.PositionOverall;
+                this.GetDynPositionStart = i => this.GetCar(i)?.PositionOverallStart;
                 break;
 
             case LeaderboardKind.NONE:
@@ -159,6 +171,17 @@ public sealed class DynLeaderboard {
                 this.SetDynGettersDefault();
                 break;
         }
+    }
+
+    private CarData? GetCar(int i) {
+        #if TIMINGS
+        DynLeaderboard._getCarTimer.Restart();
+        #endif
+        var res = this._cars.ElementAtOrDefault(i);
+        #if TIMINGS
+        DynLeaderboard._getCarTimer.StopAndWriteMicros();
+        #endif
+        return res;
     }
 
     private void SetCars(Values v) {

@@ -14,6 +14,10 @@ internal static class Logging {
     private static string _logInitTime = $"{DateTime.Now:dd-MM-yyyy_HH-mm-ss}";
     private static bool _logInfo = false;
 
+    #if TIMINGS
+    private static readonly Timer _timer = Timers.AddOrGetAndRestart("Logging.Log");
+    #endif
+
     public static void Init(bool logInfo) {
         Logging._logInitTime = $"{DateTime.Now:dd-MM-yyyy_HH-mm-ss}";
         Logging._logFileName = PluginPaths.LogFilePath(Logging._logInitTime);
@@ -102,10 +106,18 @@ internal static class Logging {
         string lvl,
         Action<string> simHubLog
     ) {
+        #if TIMINGS
+        Logging._timer.Restart();
+        #endif
+
         var pathParts = sourceFilePath.Split('\\');
         var m = Logging.CreateMessage(msg, pathParts[pathParts.Length - 1], memberName, lineNumber);
         simHubLog($"{PluginConstants.PLUGIN_NAME} {m}");
         Logging.LogToFile($"{DateTime.Now:dd.MM.yyyy HH:mm.ss} {lvl.ToUpper()} {m}\n");
+
+        #if TIMINGS
+        Logging._timer.StopAndWriteMicros();
+        #endif
     }
 
     private static string CreateMessage(string msg, string source, string memberName, int lineNumber) {

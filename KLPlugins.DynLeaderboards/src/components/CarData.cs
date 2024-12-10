@@ -436,15 +436,20 @@ public sealed class CarData {
         return carModel?.Split(' ')[0] ?? "Unknown";
     }
 
-        /// <summary>
-        ///     Update data that is independent of other cars' data.
-        /// </summary>
-        internal void UpdateIndependent(Values values, Opponent rawData, GameData gameData) {
-            if (rawData.TrackPositionPercent == null) {
-                // This happens occasionally. Just wait for the next update.
-                return;
-            }
-            // Clear old data
+    #if TIMINGS
+    private static readonly Timer _storeLapDataTimer =
+        Timers.AddOrGetAndRestart("CarData.UpdateIndependent.StoreLapData");
+    #endif
+
+    /// <summary>
+    ///     Update data that is independent of other cars' data.
+    /// </summary>
+    internal void UpdateIndependent(Values values, Opponent rawData, GameData gameData) {
+        if (rawData.TrackPositionPercent == null) {
+            // This happens occasionally. Just wait for the next update.
+            return;
+        }
+        // Clear old data
 
         // Needs to be cleared before UpdateDependsOnOthers, 
         // so that none of the cars have old data in it when we set gaps
@@ -556,19 +561,23 @@ public sealed class CarData {
             Logging.LogInfo($"Invalidated lap for save #{this.CarNumberAsString} [{this._Id}]");
         }
 
-            if (this._RawDataExtraNew.IsCurrentLapTimeReset) {
-                if (this._LapDataValidForSave && this._LapDataPos.Count > 20) {
-                    // Add last point
-                    var pos = this._RawDataOld.TrackPositionPercent;
-                    var time = this._RawDataOld.CurrentLapTime?.TotalSeconds;
-                    if (pos != null && time != null) {
-                        var lastPos = this._LapDataPos.Last();
-                        var lastTime = this._LapDataTime.Last();
-                        if (lastPos < pos.Value && time.Value - lastTime > PluginSettings.LAP_DATA_TIME_DELAY_SEC) {
-                            this._LapDataPos.Add(pos.Value);
-                            this._LapDataTime.Add(time.Value);
-                        }
+        #if TIMINGS
+        CarData._storeLapDataTimer.Restart();
+        var startCount = this._LapDataPos.Count;
+        #endif
+        if (this._RawDataExtraNew.IsCurrentLapTimeReset) {
+            if (this._LapDataValidForSave && this._LapDataPos.Count > 20) {
+                // Add last point
+                var pos = this._RawDataOld.TrackPositionPercent;
+                var time = this._RawDataOld.CurrentLapTime?.TotalSeconds;
+                if (pos != null && time != null) {
+                    var lastPos = this._LapDataPos.Last();
+                    var lastTime = this._LapDataTime.Last();
+                    if (lastPos < pos.Value && time.Value - lastTime > PluginSettings.LAP_DATA_TIME_DELAY_SEC) {
+                        this._LapDataPos.Add(pos.Value);
+                        this._LapDataTime.Add(time.Value);
                     }
+                }
 
                 values.TrackData?.OnLapFinished(
                     this.CarClass,
@@ -582,23 +591,29 @@ public sealed class CarData {
             this._LapDataTime.Clear();
         }
 
-            var rawPos = this._RawDataNew.TrackPositionPercent;
-            var rawTime = this._RawDataNew.CurrentLapTime;
-            if (this._LapDataValidForSave && rawPos != null && rawTime != null) {
-                if (this._LapDataPos.Count == 0) {
+        var rawPos = this._RawDataNew.TrackPositionPercent;
+        var rawTime = this._RawDataNew.CurrentLapTime;
+        if (this._LapDataValidForSave && rawPos != null && rawTime != null) {
+            if (this._LapDataPos.Count == 0) {
+                this._LapDataPos.Add(rawPos.Value);
+                this._LapDataTime.Add(rawTime.Value.TotalSeconds);
+            } else {
+                var lastPos = this._LapDataPos.Last();
+                var lastTime = this._LapDataTime.Last();
+                if (lastPos < rawPos.Value
+                    && rawTime.Value.TotalSeconds - lastTime > PluginSettings.LAP_DATA_TIME_DELAY_SEC) {
                     this._LapDataPos.Add(rawPos.Value);
                     this._LapDataTime.Add(rawTime.Value.TotalSeconds);
-                } else {
-                    var lastPos = this._LapDataPos.Last();
-                    var lastTime = this._LapDataTime.Last();
-                    if (lastPos < rawPos.Value
-                        && rawTime.Value.TotalSeconds - lastTime > PluginSettings.LAP_DATA_TIME_DELAY_SEC) {
-                        this._LapDataPos.Add(rawPos.Value);
-                        this._LapDataTime.Add(rawTime.Value.TotalSeconds);
-                    }
                 }
             }
         }
+
+        #if TIMINGS
+        if (this._LapDataPos.Count != startCount) {
+            CarData._storeLapDataTimer.StopAndWriteMicros();
+        }
+        #endif
+    }
 
     /// <summary>
     ///     Requires that this.Laps is already updated.

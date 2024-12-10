@@ -126,7 +126,16 @@ public sealed class Values : IDisposable {
     private static readonly TimeSpan _skipCarUpdatesAtStart = TimeSpan.FromSeconds(1);
     private DateTime _lastSessionResetTime = DateTime.Now;
 
+    #if TIMINGS
+    private readonly Timer _onDataUpdateTimer = Timers.AddOrGetAndRestart("Values.OnDataUpdate");
+    private readonly Timer _updateCarsTimer = Timers.AddOrGetAndRestart("Values.UpdateCars");
+    #endif
+
     internal void OnDataUpdate(PluginManager _, GameData data) {
+        #if TIMINGS
+        this._onDataUpdateTimer.Restart();
+        #endif
+
         this.Session.OnDataUpdate(data);
 
         if (this.Booleans.NewData.IsNewEvent
@@ -169,20 +178,43 @@ public sealed class Values : IDisposable {
         // Skip car updates for few updated after new session so that everything from the SimHub's side would be reset
         // Atm this is important in AMS2, so that old session data doesn't leak into new session
         if (DateTime.Now - this._lastSessionResetTime > Values._skipCarUpdatesAtStart) {
+            #if TIMINGS
+            this._updateCarsTimer.Restart();
+            #endif
+
             this.UpdateCars(data);
+
+            #if TIMINGS
+            this._updateCarsTimer.StopAndWriteMicros();
+            #endif
         }
+
+        #if TIMINGS
+        this._onDataUpdateTimer.StopAndWriteMicros();
+        #endif
     }
 
     // Temporary dicts used in UpdateCars. Don't allocate new one at each update, just clear them.
-    private readonly Dictionary<CarClass, CarData> _classBestLapCars = [];
-    private readonly Dictionary<(CarClass, TeamCupCategory), CarData> _cupBestLapCars = [];
-    private readonly Dictionary<CarClass, int> _classPositions = [];
-    private readonly Dictionary<CarClass, CarData> _classLeaders = [];
-    private readonly Dictionary<CarClass, CarData> _carAheadInClass = [];
-    private readonly Dictionary<(CarClass, TeamCupCategory), int> _cupPositions = [];
-    private readonly Dictionary<(CarClass, TeamCupCategory), CarData> _cupLeaders = [];
-    private readonly Dictionary<(CarClass, TeamCupCategory), CarData> _carAheadInCup = [];
+    private readonly Dictionary<CarClass, CarData> _classBestLapCars = new();
+    private readonly Dictionary<(CarClass, TeamCupCategory), CarData> _cupBestLapCars = new();
+    private readonly Dictionary<CarClass, int> _classPositions = new();
+    private readonly Dictionary<CarClass, CarData> _classLeaders = new();
+    private readonly Dictionary<CarClass, CarData> _carAheadInClass = new();
+    private readonly Dictionary<(CarClass, TeamCupCategory), int> _cupPositions = new();
+    private readonly Dictionary<(CarClass, TeamCupCategory), CarData> _cupLeaders = new();
+    private readonly Dictionary<(CarClass, TeamCupCategory), CarData> _carAheadInCup = new();
     private const double _MISSING_CAR_TOLERANCE_SECONDS = 10;
+
+    #if TIMINGS
+    private readonly Timer _carUpdatePass1Timer = Timers.AddOrGetAndRestart("Values.UpdateCars.Pass1");
+    private readonly Timer _carUpdatePass2Timer = Timers.AddOrGetAndRestart("Values.UpdateCars.Pass2");
+    private readonly Timer _carUpdatePass3Timer = Timers.AddOrGetAndRestart("Values.UpdateCars.Pass3");
+    private readonly Timer _carUpdateIndependentTimer = Timers.AddOrGetAndRestart("CarData.UpdateIndependent");
+    private readonly Timer _setOverallOrderTimer = Timers.AddOrGetAndRestart("Values.SetOverallOrder");
+    private readonly Timer _setStartingOrderTimer = Timers.AddOrGetAndRestart("Values.SetStartingOrder");
+    private readonly Timer _updateBestLapsTimer = Timers.AddOrGetAndRestart("Values.UpdateCars.UpdateBestLaps");
+    private readonly Timer _getCarAheadOnTrackTimer = Timers.AddOrGetAndRestart("Values.GetCarAheadOnTrack");
+    #endif
 
     private void UpdateCars(GameData data) {
         this._classBestLapCars.Clear();
@@ -196,6 +228,9 @@ public sealed class Values : IDisposable {
 
         IEnumerable<(Opponent, int)> cars = data._NewData.Opponents.WithIndex();
 
+        #if TIMINGS
+        this._carUpdatePass1Timer.Restart();
+        #endif
         CarData? overallBestLapCar = null;
         var now = DateTime.Now;
         foreach (var (opponent, i) in cars) {
@@ -221,7 +256,13 @@ public sealed class Values : IDisposable {
                 this.TrackData?.BuildLapInterpolator(car.CarClass);
             } else {
                 Debug.Assert(car._Id == opponent.Id);
+                #if TIMINGS
+                this._carUpdateIndependentTimer.Restart();
+                #endif
                 car.UpdateIndependent(this, opponent, data);
+                #if TIMINGS
+                this._carUpdateIndependentTimer.StopAndWriteMicros();
+                #endif
 
                 // Note: car.IsFinished is actually updated in car.UpdateDependsOnOthers.
                 // Thus, if the player manages to finish the race and exit before the first update, we would remove them.
@@ -237,6 +278,10 @@ public sealed class Values : IDisposable {
             }
 
             if (car.BestLap?.Time != null) {
+                #if TIMINGS
+                this._updateBestLapsTimer.Restart();
+                #endif
+
                 if (this._classBestLapCars.TryGetValue(car.CarClass, out var bestLapCar)) {
                     var currentClassBestLap = bestLapCar!.BestLap!.Time!; // If it's in the dict, it cannot be null
 
@@ -264,18 +309,43 @@ public sealed class Values : IDisposable {
                 ) {
                     overallBestLapCar = car;
                 }
+
+                #if TIMINGS
+                this._updateBestLapsTimer.StopAndWriteMicros();
+                #endif
             }
         }
+        #if TIMINGS
+        this._carUpdatePass1Timer.StopAndWriteMicros();
+        #endif
 
+        #if TIMINGS
+        this._carUpdatePass2Timer.Restart();
+        #endif
         this._overallOrder.RemoveAll(
             car => !car.IsFinished && (now - car._LastUpdateTime).TotalSeconds > Values._MISSING_CAR_TOLERANCE_SECONDS
         );
+        #if TIMINGS
+        this._carUpdatePass2Timer.StopAndWriteMicros();
+        #endif
 
         if (!this._startingPositionsSet && this.Session.IsRace && this._overallOrder.Count != 0) {
+            #if TIMINGS
+            this._setStartingOrderTimer.Restart();
+            #endif
             this.SetStartingOrder();
+            #if TIMINGS
+            this._setOverallOrderTimer.StopAndWriteMicros();
+            #endif
         }
 
+        #if TIMINGS
+        this._setOverallOrderTimer.Restart();
+        #endif
         this.SetOverallOrder(data);
+        #if TIMINGS
+        this._setOverallOrderTimer.StopAndWriteMicros();
+        #endif
 
         if (!this._IsFirstFinished && this._overallOrder.Count > 0 && this.Session.SessionType == SessionType.RACE) {
             var first = this._overallOrder.First();
@@ -290,6 +360,9 @@ public sealed class Values : IDisposable {
             }
         }
 
+        #if TIMINGS
+        this._carUpdatePass3Timer.Restart();
+        #endif
         this._classOrder.Clear();
         this._cupOrder.Clear();
         this._relativeOnTrackAheadOrder.Clear();
@@ -348,6 +421,9 @@ public sealed class Values : IDisposable {
             this._carAheadInClass[cls] = car;
             this._carAheadInCup[cup] = car;
         }
+        #if TIMINGS
+        this._carUpdatePass3Timer.StopAndWriteMicros();
+        #endif
 
         if (this.FocusedCar != null) {
             this._relativeOnTrackAheadOrder.Sort(
@@ -363,6 +439,9 @@ public sealed class Values : IDisposable {
     }
 
     private CarData? GetCarAheadOnTrack(CarData c) {
+        #if TIMINGS
+        this._getCarAheadOnTrackTimer.Restart();
+        #endif
         var thisPos = c.SplinePosition;
 
         // Closest car ahead is the one with the smallest positive relative spline position.
@@ -377,6 +456,10 @@ public sealed class Values : IDisposable {
                 relSplinePos = pos;
             }
         }
+
+        #if TIMINGS
+        this._getCarAheadOnTrackTimer.StopAndWriteMicros();
+        #endif
 
         return closestCar;
     }

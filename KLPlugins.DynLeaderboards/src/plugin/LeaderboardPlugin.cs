@@ -3,6 +3,7 @@ using Newtonsoft.Json;
 
 using System.IO;
 #endif
+
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -47,6 +48,10 @@ public sealed class DynLeaderboardsPlugin : IDataPlugin, IWPFSettingsV2 {
 
     private GameData? _gameData = null;
 
+
+    #if TIMINGS
+    private readonly Timer _dataUpdateTimer = Timers.AddOrGetAndRestart("DataUpdate");
+    #endif
     /// <summary>
     ///     Called one time per game data update, contains all normalized game data,
     ///     raw data are intentionally "hidden" under a generic object type (A plugin SHOULD NOT USE IT)
@@ -55,6 +60,9 @@ public sealed class DynLeaderboardsPlugin : IDataPlugin, IWPFSettingsV2 {
     public void DataUpdate(PluginManager pm, ref SHGameData data) {
         var swatch = Stopwatch.StartNew();
         if (data is { GameRunning: true, OldData: not null, NewData: not null }) {
+            #if TIMINGS
+            this._dataUpdateTimer.Restart();
+            #endif
             if (this._gameData is null) {
                 this._gameData = new GameData(oldData: data.OldData, newData: data.NewData);
             } else {
@@ -67,6 +75,10 @@ public sealed class DynLeaderboardsPlugin : IDataPlugin, IWPFSettingsV2 {
             foreach (var ldb in this.DynLeaderboards) {
                 ldb.OnDataUpdate(this.Values);
             }
+
+            #if TIMINGS
+            this._dataUpdateTimer.StopAndWriteMicros();
+            #endif
         }
 
         swatch.Stop();
@@ -84,6 +96,9 @@ public sealed class DynLeaderboardsPlugin : IDataPlugin, IWPFSettingsV2 {
         this.SaveSettings();
         this.Values.Dispose();
         Logging.Dispose();
+        #if TIMINGS
+        Timers.Dispose();
+        #endif
     }
 
     // ReSharper disable once MemberCanBePrivate.Global

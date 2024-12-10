@@ -42,6 +42,15 @@
     <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug Test|AnyCPU' ">
         <OutputPath>bin\Debug Test\</OutputPath>
     </PropertyGroup>
+    <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release_Timings|AnyCPU' ">
+        <DebugType>pdbonly</DebugType>
+        <Optimize>true</Optimize>
+        <DefineConstants>TRACE;TIMINGS;</DefineConstants>
+        <ErrorReport>prompt</ErrorReport>
+        <WarningLevel>4</WarningLevel>
+        <CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
+        <OutputPath>bin\Release_Timings\</OutputPath>
+    </PropertyGroup>
     <ItemGroup>
         <Reference Include="log4net">
             <HintPath>C:\Program Files (x86)\SimHub\log4net.dll</HintPath>
@@ -64,7 +73,8 @@
         <Compile Include="src\internals\JsonTools.cs"/>
         <Compile Include="src\internals\Logging.cs"/>
         <Compile Include="src\internals\PluginConstants.cs"/>
-        <Compile Include="src\TextBoxColor.cs" />
+        <Compile Include="src\internals\Timers.cs"/>
+        <Compile Include="src\TextBoxColor.cs"/>
         <Compile Include="src\TypedStrings.cs"/>
     </ItemGroup>
     <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets"/>

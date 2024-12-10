@@ -64,6 +64,15 @@
     <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug Test|AnyCPU' ">
         <OutputPath>bin\Debug Test\</OutputPath>
     </PropertyGroup>
+    <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release_Timings|AnyCPU' ">
+        <DebugType>pdbonly</DebugType>
+        <Optimize>true</Optimize>
+        <DefineConstants>TRACE</DefineConstants>
+        <ErrorReport>prompt</ErrorReport>
+        <WarningLevel>4</WarningLevel>
+        <CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
+        <OutputPath>bin\Release_Timings\</OutputPath>
+    </PropertyGroup>
     <ItemGroup>
         <Reference Include="MahApps.Metro">
             <HintPath>C:\Program Files (x86)\SimHub\MahApps.Metro.dll</HintPath>

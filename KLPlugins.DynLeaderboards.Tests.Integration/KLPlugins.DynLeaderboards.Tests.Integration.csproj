@@ -48,6 +48,14 @@
         <WarningLevel>4</WarningLevel>
         <CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
     </PropertyGroup>
+    <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release_Timings|AnyCPU' ">
+        <DebugType>pdbonly</DebugType>
+        <Optimize>true</Optimize>
+        <DefineConstants>TRACE;TEST</DefineConstants>
+        <ErrorReport>prompt</ErrorReport>
+        <WarningLevel>4</WarningLevel>
+        <OutputPath>bin\Release_Timings\</OutputPath>
+    </PropertyGroup>
     <ItemGroup>
         <Reference Include="Argon, Version=1.0.0.0, Culture=neutral, PublicKeyToken=00a55352ff068a54, processorArchitecture=MSIL">
             <HintPath>..\packages\Argon.0.25.0\lib\net48\Argon.dll</HintPath>

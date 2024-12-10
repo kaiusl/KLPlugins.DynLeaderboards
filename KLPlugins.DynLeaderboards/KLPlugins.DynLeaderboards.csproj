@@ -49,6 +49,15 @@
         <WarningLevel>4</WarningLevel>
         <CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
     </PropertyGroup>
+    <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release_Timings|AnyCPU' ">
+        <DebugType>pdbonly</DebugType>
+        <Optimize>true</Optimize>
+        <DefineConstants>TRACE;TIMINGS;</DefineConstants>
+        <ErrorReport>prompt</ErrorReport>
+        <WarningLevel>4</WarningLevel>
+        <CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
+        <OutputPath>bin\Release_Timings\</OutputPath>
+    </PropertyGroup>
     <ItemGroup>
         <Reference Include="ACSharedMemory">
             <HintPath>C:\Program Files (x86)\SimHub\ACSharedMemory.dll</HintPath>

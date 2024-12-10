@@ -237,26 +237,25 @@ public sealed class Values : IDisposable {
             }
 
             if (car.BestLap?.Time != null) {
-                if (!this._classBestLapCars.ContainsKey(car.CarClass)) {
-                    this._classBestLapCars[car.CarClass] = car;
-                } else {
-                    var currentClassBestLap =
-                        this._classBestLapCars[car.CarClass].BestLap!.Time!; // If it's in the dict, it cannot be null
+                if (this._classBestLapCars.TryGetValue(car.CarClass, out var bestLapCar)) {
+                    var currentClassBestLap = bestLapCar!.BestLap!.Time!; // If it's in the dict, it cannot be null
 
                     if (car.BestLap.Time < currentClassBestLap) {
                         this._classBestLapCars[car.CarClass] = car;
                     }
+                } else {
+                    this._classBestLapCars[car.CarClass] = car;
                 }
 
-                if (!this._cupBestLapCars.ContainsKey((car.CarClass, car.TeamCupCategory))) {
-                    this._cupBestLapCars[(car.CarClass, car.TeamCupCategory)] = car;
-                } else {
-                    var currentCupBestLap = this._cupBestLapCars[(car.CarClass, car.TeamCupCategory)].BestLap!
-                        .Time!; // If it's in the dict, it cannot be null
+                var cup = (car.CarClass, car.TeamCupCategory);
+                if (this._cupBestLapCars.TryGetValue(cup, out var bestLapCupCar)) {
+                    var currentCupBestLap = bestLapCupCar!.BestLap!.Time!; // If it's in the dict, it cannot be null
 
                     if (car.BestLap.Time < currentCupBestLap) {
-                        this._cupBestLapCars[(car.CarClass, car.TeamCupCategory)] = car;
+                        this._cupBestLapCars[cup] = car;
                     }
+                } else {
+                    this._cupBestLapCars[cup] = car;
                 }
 
                 if (
@@ -300,18 +299,20 @@ public sealed class Values : IDisposable {
         foreach (var (car, i) in this._overallOrder.WithIndex()) {
             //DynLeaderboardsPlugin.LogInfo($"Car [{car.Id}, #{car.CarNumber}] missed update: {car.MissedUpdates}");
             car._IsUpdated = false;
+            var cup = (car.CarClass, car.TeamCupCategory);
+            var cls = car.CarClass;
 
-            if (!this._classPositions.ContainsKey(car.CarClass)) {
-                this._classPositions.Add(car.CarClass, 1);
-                this._classLeaders.Add(car.CarClass, car);
+            if (!this._classPositions.ContainsKey(cls)) {
+                this._classPositions.Add(cls, 1);
+                this._classLeaders.Add(cls, car);
             }
 
-            if (!this._cupPositions.ContainsKey((car.CarClass, car.TeamCupCategory))) {
-                this._cupPositions.Add((car.CarClass, car.TeamCupCategory), 1);
-                this._cupLeaders.Add((car.CarClass, car.TeamCupCategory), car);
+            if (!this._cupPositions.ContainsKey(cup)) {
+                this._cupPositions.Add(cup, 1);
+                this._cupLeaders.Add(cup, car);
             }
 
-            if (focusedClass != null && car.CarClass == focusedClass) {
+            if (focusedClass != null && cls == focusedClass) {
                 this._classOrder.Add(car);
                 if (focusedCup != null && car.TeamCupCategory == focusedCup) {
                     this._cupOrder.Add(car);
@@ -321,20 +322,19 @@ public sealed class Values : IDisposable {
             car.UpdateDependsOnOthers(
                 values: this,
                 overallBestLapCar: overallBestLapCar,
-                classBestLapCar: this._classBestLapCars.GetValueOr(car.CarClass, null),
-                cupBestLapCar: this._cupBestLapCars.GetValueOr((car.CarClass, car.TeamCupCategory), null),
+                classBestLapCar: this._classBestLapCars.GetValueOr(cls, null),
+                cupBestLapCar: this._cupBestLapCars.GetValueOr(cup, null),
                 leaderCar: this._overallOrder.First(), // If we get there, there must be at least on car
-                classLeaderCar: this._classLeaders[car.CarClass], // If we get there, the leader must be present
-                cupLeaderCar: this._cupLeaders
-                    [(car.CarClass, car.TeamCupCategory)], // If we get there, the leader must be present
+                classLeaderCar: this._classLeaders[cls], // If we get there, the leader must be present
+                cupLeaderCar: this._cupLeaders[cup], // If we get there, the leader must be present
                 focusedCar: this.FocusedCar,
                 carAhead: i > 0 ? this._overallOrder[i - 1] : null,
-                carAheadInClass: this._carAheadInClass.GetValueOr(car.CarClass, null),
-                carAheadInCup: this._carAheadInCup.GetValueOr((car.CarClass, car.TeamCupCategory), null),
+                carAheadInClass: this._carAheadInClass.GetValueOr(cls, null),
+                carAheadInCup: this._carAheadInCup.GetValueOr(cup, null),
                 carAheadOnTrack: this.GetCarAheadOnTrack(car),
                 overallPosition: i + 1,
-                classPosition: this._classPositions[car.CarClass]++,
-                cupPosition: this._cupPositions[(car.CarClass, car.TeamCupCategory)]++
+                classPosition: this._classPositions[cls]++,
+                cupPosition: this._cupPositions[cup]++
             );
 
             if (car.IsFocused) {
@@ -345,8 +345,8 @@ public sealed class Values : IDisposable {
                 this._relativeOnTrackBehindOrder.Add(car);
             }
 
-            this._carAheadInClass[car.CarClass] = car;
-            this._carAheadInCup[(car.CarClass, car.TeamCupCategory)] = car;
+            this._carAheadInClass[cls] = car;
+            this._carAheadInCup[cup] = car;
         }
 
         if (this.FocusedCar != null) {

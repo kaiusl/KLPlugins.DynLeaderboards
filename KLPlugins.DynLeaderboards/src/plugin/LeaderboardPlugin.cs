@@ -52,6 +52,10 @@ public sealed class DynLeaderboardsPlugin : IDataPlugin, IWPFSettingsV2 {
     #if TIMINGS
     private readonly Timer _dataUpdateTimer = Timers.AddOrGetAndRestart("DataUpdate");
     #endif
+
+
+    internal static DateTime _UpdateTime { get; private set; } = DateTime.Now;
+
     /// <summary>
     ///     Called one time per game data update, contains all normalized game data,
     ///     raw data are intentionally "hidden" under a generic object type (A plugin SHOULD NOT USE IT)
@@ -59,6 +63,7 @@ public sealed class DynLeaderboardsPlugin : IDataPlugin, IWPFSettingsV2 {
     /// </summary>
     public void DataUpdate(PluginManager pm, ref SHGameData data) {
         var swatch = Stopwatch.StartNew();
+        DynLeaderboardsPlugin._UpdateTime = data.FrameTime;
         if (data is { GameRunning: true, OldData: not null, NewData: not null }) {
             #if TIMINGS
             this._dataUpdateTimer.Restart();

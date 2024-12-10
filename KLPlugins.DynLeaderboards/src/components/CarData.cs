@@ -473,7 +473,7 @@ public sealed class CarData {
         (this._RawDataExtraOld, this._RawDataExtraNew) = (this._RawDataExtraNew, this._RawDataExtraOld);
         this._RawDataExtraNew.Update(gameData, rawData);
         this._IsUpdated = true;
-        this._LastUpdateTime = DateTime.Now;
+        this._LastUpdateTime = DynLeaderboardsPlugin._UpdateTime;
 
         var focusedCarId = gameData._NewData.FocusedCarId;
         this.IsFocused = focusedCarId is not null ? this._Id == focusedCarId : this._RawDataNew.IsPlayer;
@@ -952,21 +952,21 @@ public sealed class CarData {
                 || (this.PitEntryTime == null && this.IsInPitLane) // We join/start SimHub mid session
             )
         ) {
-            this.PitEntryTime = DateTime.Now;
+            this.PitEntryTime = DynLeaderboardsPlugin._UpdateTime;
             this.IsCurrentLapInLap = true;
         }
 
         // Pit ended
         if (this.PitEntryTime != null && (this.ExitedPitLane || !this.IsInPitLane)) {
             this.IsCurrentLapOutLap = true;
-            this.PitTimeLast = DateTime.Now - this.PitEntryTime;
+            this.PitTimeLast = DynLeaderboardsPlugin._UpdateTime - this.PitEntryTime;
             this.TotalPitTime += this.PitTimeLast.Value;
             this.PitTimeCurrent = null;
             this.PitEntryTime = null;
         }
 
         if (this.PitEntryTime != null) {
-            var time = DateTime.Now - this.PitEntryTime;
+            var time = DynLeaderboardsPlugin._UpdateTime - this.PitEntryTime;
             this.PitTimeCurrent = time;
         }
     }
@@ -992,13 +992,13 @@ public sealed class CarData {
                 && this.Location.New == CarLocation.TRACK
                 && session.SessionPhase != SessionPhase.PRE_SESSION) // We join/start SimHub mid session
         ) {
-            this._stintStartTime = DateTime.Now;
+            this._stintStartTime = DynLeaderboardsPlugin._UpdateTime;
             this.CurrentStintLaps = 0;
         }
 
         // Stint ended
         if (this.EnteredPitLane && this._stintStartTime != null) {
-            this.LastStintTime = DateTime.Now - this._stintStartTime;
+            this.LastStintTime = DynLeaderboardsPlugin._UpdateTime - this._stintStartTime;
             this.CurrentDriver!.OnStintEnd(this.LastStintTime.Value);
             this.LastStintLaps = this.CurrentStintLaps;
             this._stintStartTime = null;
@@ -1007,7 +1007,7 @@ public sealed class CarData {
         }
 
         if (this._stintStartTime != null) {
-            this.CurrentStintTime = DateTime.Now - this._stintStartTime;
+            this.CurrentStintTime = DynLeaderboardsPlugin._UpdateTime - this._stintStartTime;
         }
     }
 
@@ -1076,7 +1076,7 @@ public sealed class CarData {
             if ((values._IsFirstFinished && this.IsNewLap)
                 || this._RawDataExtraNew.FinishStatus == FinishStatus.FINISHED) {
                 this.IsFinished = true;
-                this._FinishTime = DateTime.Now;
+                this._FinishTime = DynLeaderboardsPlugin._UpdateTime;
             }
         }
 

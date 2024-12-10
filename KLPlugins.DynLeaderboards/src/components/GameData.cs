@@ -138,7 +138,7 @@ internal class OpponentExtra {
             // but we can calculate it our selves.
             //
             // However this can also be used generally.
-            this.CurrentLapTime = DateTime.Now - opponent.GuessedLapStartTime.Value;
+            this.CurrentLapTime = DynLeaderboardsPlugin._UpdateTime - opponent.GuessedLapStartTime.Value;
         } else {
             this.CurrentLapTime = null;
         }

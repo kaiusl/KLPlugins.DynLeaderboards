@@ -154,7 +154,7 @@ public sealed class Values : IDisposable {
                 this.TrackData.BuildLapInterpolator(car.CarClass);
             }
 
-            this._lastSessionResetTime = DateTime.Now;
+            this._lastSessionResetTime = DynLeaderboardsPlugin._UpdateTime;
         }
 
         if (this.TrackData == null) {
@@ -177,7 +177,7 @@ public sealed class Values : IDisposable {
 
         // Skip car updates for few updated after new session so that everything from the SimHub's side would be reset
         // Atm this is important in AMS2, so that old session data doesn't leak into new session
-        if (DateTime.Now - this._lastSessionResetTime > Values._skipCarUpdatesAtStart) {
+        if (DynLeaderboardsPlugin._UpdateTime - this._lastSessionResetTime > Values._skipCarUpdatesAtStart) {
             #if TIMINGS
             this._updateCarsTimer.Restart();
             #endif
@@ -232,7 +232,7 @@ public sealed class Values : IDisposable {
         this._carUpdatePass1Timer.Restart();
         #endif
         CarData? overallBestLapCar = null;
-        var now = DateTime.Now;
+        var now = DynLeaderboardsPlugin._UpdateTime;
         foreach (var (opponent, i) in cars) {
             if ((DynLeaderboardsPlugin._Game.IsAcc && opponent.Id == "Me")
                 || (DynLeaderboardsPlugin._Game.IsAms2 && opponent.Id == "Safety Car  (AI)")

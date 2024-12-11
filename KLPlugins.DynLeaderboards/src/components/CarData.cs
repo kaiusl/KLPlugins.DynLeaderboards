@@ -92,15 +92,15 @@ public sealed class CarData {
     public TimeSpan TotalPitTime { get; private set; }
     public TimeSpan? PitTimeCurrent { get; private set; }
 
-    public TimeSpan? GapToLeader { get; private set; }
-    public TimeSpan? GapToClassLeader { get; private set; }
-    public TimeSpan? GapToFocusedTotal { get; private set; }
+    public TimeSpan? GapToLeader => this._gapToLeader;
+    public TimeSpan? GapToClassLeader => this._gapToClassLeader;
+    public TimeSpan? GapToFocusedTotal => this._gapToFocusedTotal;
     public TimeSpan? GapToFocusedOnTrack { get; private set; }
     public TimeSpan? GapToAheadOnTrack { get; private set; }
-    public TimeSpan? GapToCupLeader { get; private set; }
-    public TimeSpan? GapToAhead { get; private set; }
-    public TimeSpan? GapToAheadInClass { get; private set; }
-    public TimeSpan? GapToAheadInCup { get; private set; }
+    public TimeSpan? GapToCupLeader => this._gapToCupLeader;
+    public TimeSpan? GapToAhead => this._gapToAhead;
+    public TimeSpan? GapToAheadInClass => this._gapToAheadInClass;
+    public TimeSpan? GapToAheadInCup => this._gapToAheadInCup;
     public RelativeLapDiff RelativeOnTrackLapDiff { get; private set; }
 
     /// <summary>
@@ -182,6 +182,13 @@ public sealed class CarData {
     private LapInterpolator? _lapInterpolator = null;
 
     private bool _expectingNewLap = false;
+    private TimeSpan? _gapToAheadInCup;
+    private TimeSpan? _gapToLeader;
+    private TimeSpan? _gapToClassLeader;
+    private TimeSpan? _gapToFocusedTotal;
+    private TimeSpan? _gapToCupLeader;
+    private TimeSpan? _gapToAhead;
+    private TimeSpan? _gapToAheadInClass;
 
     internal List<double> _LapDataPos { get; } = [];
     internal List<double> _LapDataTime { get; } = [];
@@ -815,7 +822,11 @@ public sealed class CarData {
                 }
             }
         } else {
-            var currentDriverIndex = this._drivers.FindIndex(d => d.FullName == this._RawDataNew.Name);
+            bool DriverEq(Driver d) {
+                return d.FullName == this._RawDataNew.Name;
+            }
+
+            var currentDriverIndex = this._drivers.FindIndex(DriverEq);
             if (currentDriverIndex == 0) {
                 // OK, current driver is already first in list
             } else if (currentDriverIndex == -1) {
@@ -1071,7 +1082,7 @@ public sealed class CarData {
 
         if (this.IsFocused) {
             this.RelativeSplinePositionToFocusedCar = 0;
-            this.GapToFocusedTotal = TimeSpan.Zero;
+            this._gapToFocusedTotal = TimeSpan.Zero;
             this.RelativeOnTrackLapDiff = RelativeLapDiff.SAME_LAP;
         } else if (focusedCar != null) {
             this.RelativeSplinePositionToFocusedCar = this.CalculateRelativeSplinePositionFrom(focusedCar);
@@ -1219,7 +1230,7 @@ public sealed class CarData {
         // Freeze gaps until all is in order again, fixes gap suddenly jumping to larger values as spline positions could be out of sync
         if (trackData != null) {
             if (focusedCar == null) {
-                this.GapToFocusedTotal = null;
+                this._gapToFocusedTotal = null;
             } else {
                 this.GapToFocusedOnTrack = CarData.CalculateOnTrackGap(from: this, to: focusedCar, trackData);
             }
@@ -1236,49 +1247,50 @@ public sealed class CarData {
 
             // Freeze gaps until all is in order again, fixes gap suddenly jumping to larger values as spline positions could be out of sync
             if (trackData != null && this._OffsetLapUpdate == OffsetLapUpdateType.NONE) {
-                SetGap(from: this, to: leaderCar, other: leaderCar, x => this.GapToLeader = x);
+                SetGap(from: this, to: leaderCar, other: leaderCar, ref this._gapToLeader);
                 SetGap(
                     from: this,
                     to: classLeaderCar,
                     other: classLeaderCar,
-                    x => this.GapToClassLeader = x
+                    ref this._gapToClassLeader
                 );
                 SetGap(
                     from: this,
                     to: cupLeaderCar,
                     other: cupLeaderCar,
-                    x => this.GapToCupLeader = x
+                    ref this._gapToCupLeader
                 );
                 SetGap(
                     from: focusedCar,
                     to: this,
                     other: focusedCar,
-                    x => this.GapToFocusedTotal = x
+                    ref this._gapToFocusedTotal
                 );
-                SetGap(from: this, to: carAhead, other: carAhead, x => this.GapToAhead = x);
+                SetGap(from: this, to: carAhead, other: carAhead, ref this._gapToAhead);
                 SetGap(
                     from: this,
                     to: carAheadInClass,
                     other: carAheadInClass,
-                    x => this.GapToAheadInClass = x
+                    ref this._gapToAheadInClass
                 );
+
                 SetGap(
                     from: this,
                     to: carAheadInCup,
                     other: carAheadInCup,
-                    x => this.GapToAheadInCup = x
+                    ref this._gapToAheadInCup
                 );
 
                 void SetGap(
                     CarData? from,
                     CarData? to,
                     CarData? other,
-                    Action<TimeSpan?> setGap
+                    ref TimeSpan? gap
                 ) {
                     if (from == null || to == null) {
-                        setGap(null);
+                        gap = null;
                     } else if (other?._OffsetLapUpdate == OffsetLapUpdateType.NONE) {
-                        setGap(CarData.CalculateGap(from: from, to: to, trackData));
+                        gap = CarData.CalculateGap(from: from, to: to, trackData);
                     }
                 }
 
@@ -1290,23 +1302,23 @@ public sealed class CarData {
             // Use best laps to calculate gaps
             var thisBestLap = this.BestLap?.Time;
             if (thisBestLap == null) {
-                this.GapToLeader = null;
-                this.GapToClassLeader = null;
-                this.GapToCupLeader = null;
-                this.GapToFocusedTotal = null;
-                this.GapToAheadInClass = null;
-                this.GapToAheadInCup = null;
-                this.GapToAhead = null;
+                this._gapToLeader = null;
+                this._gapToClassLeader = null;
+                this._gapToCupLeader = null;
+                this._gapToFocusedTotal = null;
+                this._gapToAheadInClass = null;
+                this._gapToAheadInCup = null;
+                this._gapToAhead = null;
                 return;
             }
 
-            this.GapToLeader = CalculateBestLapDelta(leaderCar);
-            this.GapToClassLeader = CalculateBestLapDelta(classLeaderCar);
-            this.GapToCupLeader = CalculateBestLapDelta(cupLeaderCar);
-            this.GapToFocusedTotal = CalculateBestLapDelta(focusedCar);
-            this.GapToAhead = CalculateBestLapDelta(carAhead);
-            this.GapToAheadInClass = CalculateBestLapDelta(carAheadInClass);
-            this.GapToAheadInCup = CalculateBestLapDelta(carAheadInCup);
+            this._gapToLeader = CalculateBestLapDelta(leaderCar);
+            this._gapToClassLeader = CalculateBestLapDelta(classLeaderCar);
+            this._gapToCupLeader = CalculateBestLapDelta(cupLeaderCar);
+            this._gapToFocusedTotal = CalculateBestLapDelta(focusedCar);
+            this._gapToAhead = CalculateBestLapDelta(carAhead);
+            this._gapToAheadInClass = CalculateBestLapDelta(carAheadInClass);
+            this._gapToAheadInCup = CalculateBestLapDelta(carAheadInCup);
 
             TimeSpan? CalculateBestLapDelta(CarData? to) {
                 var toBest = to?.BestLap?.Time;

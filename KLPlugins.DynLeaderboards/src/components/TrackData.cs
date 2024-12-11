@@ -275,16 +275,19 @@ public sealed class TrackData {
         TrackData._splinePosOffsets = TrackData.ReadSplinePosOffsets();
     }
 
-    internal void OnDataUpdate() {
+    internal bool OnDataUpdate() {
+        var addedNew = false;
         while (this._builtLapInterpolators.TryDequeue(out var kv)) {
             if (!this._LapInterpolators.ContainsKey(kv.Item1)) {
                 this._LapInterpolators[kv.Item1] = kv.Item2;
-
+                addedNew = true;
                 Logging.LogInfo($"Added LapInterpolator for {kv.Item1}");
             }
 
             this._lapInterpolatorsInBuilding.Remove(kv.Item1);
         }
+
+        return addedNew;
     }
 
     private string LapDataFilePath(CarClass cls) {

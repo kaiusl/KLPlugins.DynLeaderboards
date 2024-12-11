@@ -166,7 +166,7 @@ public sealed class Values : IDisposable {
             Logging.LogInfo($"Track set to: id={this.TrackData.Name}, len={this.TrackData.LengthMeters}");
         }
 
-        this.TrackData.OnDataUpdate();
+        var addedNewInterpolator = this.TrackData.OnDataUpdate();
 
         if (this.TrackData.LengthMeters == 0) {
             // In ACC sometimes the track length is not immediately available, and is 0.
@@ -182,7 +182,7 @@ public sealed class Values : IDisposable {
             this._updateCarsTimer.Restart();
             #endif
 
-            this.UpdateCars(data);
+            this.UpdateCars(data, addedNewInterpolator);
 
             #if TIMINGS
             this._updateCarsTimer.StopAndWriteMicros();
@@ -216,7 +216,7 @@ public sealed class Values : IDisposable {
     private readonly Timer _getCarAheadOnTrackTimer = Timers.AddOrGetAndRestart("Values.GetCarAheadOnTrack");
     #endif
 
-    private void UpdateCars(GameData data) {
+    private void UpdateCars(GameData data, bool updateLapInterpolators) {
         this._classBestLapCars.Clear();
         this._cupBestLapCars.Clear();
         this._classPositions.Clear();
@@ -259,7 +259,7 @@ public sealed class Values : IDisposable {
                 #if TIMINGS
                 this._carUpdateIndependentTimer.Restart();
                 #endif
-                car.UpdateIndependent(this, opponent, data);
+                car.UpdateIndependent(this, opponent, data, updateLapInterpolators);
                 #if TIMINGS
                 this._carUpdateIndependentTimer.StopAndWriteMicros();
                 #endif

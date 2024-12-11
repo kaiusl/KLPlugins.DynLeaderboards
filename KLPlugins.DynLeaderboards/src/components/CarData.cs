@@ -178,7 +178,8 @@ public sealed class CarData {
     private static readonly TimeSpan _halfLapGapValue =
         TimeSpan.FromSeconds(CarData._lapGapValue.TotalSeconds / 2);
 
-    private readonly Dictionary<CarClass, TimeSpan?> _splinePositionTimes = [];
+    private readonly Dictionary<CarClass, TimeSpan> _splinePositionTimes = [];
+    private LapInterpolator? _lapInterpolator = null;
 
     private bool _expectingNewLap = false;
 
@@ -203,7 +204,7 @@ public sealed class CarData {
         this.PositionOverall = this._RawDataNew.Position;
         this.PositionInClass = this._RawDataNew.PositionInClass;
         this.PositionInCup = this.PositionInClass;
-        this.UpdateIndependent(values, opponent, gameData);
+        this.UpdateIndependent(values, opponent, gameData, true);
 
         this.CheckGameLapTimes(opponent);
     }
@@ -444,7 +445,7 @@ public sealed class CarData {
     /// <summary>
     ///     Update data that is independent of other cars' data.
     /// </summary>
-    internal void UpdateIndependent(Values values, Opponent rawData, GameData gameData) {
+    internal void UpdateIndependent(Values values, Opponent rawData, GameData gameData, bool updateLapInterpolator) {
         if (rawData.TrackPositionPercent == null) {
             // This happens occasionally. Just wait for the next update.
             return;
@@ -488,6 +489,10 @@ public sealed class CarData {
         this.Location.Update(this._RawDataExtraNew.Location);
         this.UpdatePitInfo(values.Session.SessionPhase);
         this.SetSplinePositions(values);
+        if (updateLapInterpolator) {
+            this._lapInterpolator = values.TrackData?._LapInterpolators.GetValueOr(this.CarClass, null);
+        }
+
         this.MaxSpeed = Math.Max(this.MaxSpeed, this._RawDataNew.Speed ?? 0.0);
         this.UpdateDrivers(values, rawData);
 
@@ -1186,15 +1191,13 @@ public sealed class CarData {
     /// </returns>
     public static double CalculateRelativeSplinePosition(double fromPos, double toPos) {
         var relSplinePos = toPos - fromPos;
-        if (relSplinePos > 0.5)
+        if (relSplinePos > 0.5) {
             // `to` is more than half a lap ahead, so technically it's closer behind.
             // Take one lap away to show it behind `from`.
-        {
             relSplinePos -= 1.0;
-        } else if (relSplinePos < -0.5)
+        } else if (relSplinePos < -0.5) {
             // `to` is more than half a lap behind, so it's in front.
             // Add one lap to show it in front of us.
-        {
             relSplinePos += 1.0;
         }
 
@@ -1383,32 +1386,31 @@ public sealed class CarData {
             return null;
         }
 
-        // TrackData is passed from Values, Values never stores TrackData without LapInterpolators
-        var toInterp = trackData._LapInterpolators.GetValueOr(to.CarClass, null);
-        var fromInterp = trackData._LapInterpolators.GetValueOr(from.CarClass, null);
-        if (toInterp == null && fromInterp == null)
-            // lap data is not available, use naive distance based calculation
-        {
-            return CarData.CalculateNaiveGap(distBetween, trackData);
+        var cls = to.CarClass;
+        var interp = to._lapInterpolator;
+        if (interp == null) {
+            cls = from.CarClass;
+            interp = from._lapInterpolator;
+            if (interp == null) {
+                // lap data is not available, use naive distance based calculation
+                return CarData.CalculateNaiveGap(distBetween, trackData);
+            }
         }
 
         TimeSpan? gap;
         // At least one toInterp or fromInterp must be not null, because of the above check
-        var (interp, cls) = toInterp != null ? (toInterp, to.CarClass) : (fromInterp!, from.CarClass);
-        if (distBetween > 0)
+        if (distBetween > 0) {
             // `to` is ahead of `from`
-        {
             gap = CarData.CalculateGapBetweenPos(
-                start: from.GetSplinePosTime(cls, trackData),
-                end: to.GetSplinePosTime(cls, trackData),
+                start: from.GetSplinePosTime(cls, interp),
+                end: to.GetSplinePosTime(cls, interp),
                 lapTime: interp._LapTime
             );
-        } else
+        } else {
             // `to` is behind of `from`
-        {
             gap = -CarData.CalculateGapBetweenPos(
-                start: to.GetSplinePosTime(cls, trackData),
-                end: from.GetSplinePosTime(cls, trackData),
+                start: to.GetSplinePosTime(cls, interp),
+                end: from.GetSplinePosTime(cls, interp),
                 lapTime: interp._LapTime
             );
         }
@@ -1425,28 +1427,28 @@ public sealed class CarData {
         var toPos = to.SplinePosition;
         var relativeSplinePos = CarData.CalculateRelativeSplinePosition(fromPos: fromPos, toPos: toPos);
 
-        // TrackData is passed from Values, Values never stores TrackData without LapInterpolators
-        var toInterp = trackData._LapInterpolators.GetValueOr(to.CarClass, null);
-        var fromInterp = trackData._LapInterpolators.GetValueOr(from.CarClass, null);
-        if (toInterp == null && fromInterp == null)
-            // lap data is not available, use naive distance based calculation
-        {
-            return -CarData.CalculateNaiveGap(relativeSplinePos, trackData);
+        var cls = to.CarClass;
+        var interp = to._lapInterpolator;
+        if (interp == null) {
+            cls = from.CarClass;
+            interp = from._lapInterpolator;
+            if (interp == null) {
+                // lap data is not available, use naive distance based calculation
+                return -CarData.CalculateNaiveGap(relativeSplinePos, trackData);
+            }
         }
 
         TimeSpan? gap;
-        // At least one toInterp or fromInterp must be not null, because of the above check
-        var (interp, cls) = toInterp != null ? (toInterp, to.CarClass) : (fromInterp!, from.CarClass);
         if (relativeSplinePos > 0) {
             gap = -CarData.CalculateGapBetweenPos(
-                start: from.GetSplinePosTime(cls, trackData),
-                end: to.GetSplinePosTime(cls, trackData),
+                start: from.GetSplinePosTime(cls, interp),
+                end: to.GetSplinePosTime(cls, interp),
                 lapTime: interp._LapTime
             );
         } else {
             gap = CarData.CalculateGapBetweenPos(
-                start: to.GetSplinePosTime(cls, trackData),
-                end: from.GetSplinePosTime(cls, trackData),
+                start: to.GetSplinePosTime(cls, interp),
+                end: from.GetSplinePosTime(cls, interp),
                 lapTime: interp._LapTime
             );
         }
@@ -1485,22 +1487,19 @@ public sealed class CarData {
     /// <returns>
     ///     Lap time in seconds or <c>-1.0</c> if it cannot be calculated.
     /// </returns>
-    private TimeSpan GetSplinePosTime(CarClass cls, TrackData trackData) {
+    private TimeSpan GetSplinePosTime(CarClass cls, LapInterpolator interp) {
         // Same interpolated value is needed multiple times in one update, thus cache results.
-        var pos = this._splinePositionTimes.GetValueOr(cls, null);
-        if (pos != null) {
-            return pos.Value;
+        if (this._splinePositionTimes.TryGetValue(cls, out var pos)) {
+            return pos;
         }
 
-        // TrackData is passed from Values, Values never stores TrackData without LapInterpolators
-        var interp = trackData._LapInterpolators.GetValueOr(cls, null);
-        if (interp != null) {
-            var result = interp.Interpolate(this.SplinePosition);
-            this._splinePositionTimes[cls] = result;
-            return result;
-        }
+        var result = interp.Interpolate(this.SplinePosition);
+        this._splinePositionTimes[cls] = result;
+        return result;
+    }
 
-        return TimeSpan.FromSeconds(-1.0);
+    public void UpdateLapInterpolator(TrackData trackData) {
+        this._lapInterpolator = trackData._LapInterpolators.GetValueOr(this.CarClass, null);
     }
 }
 
